@@ -44,6 +44,7 @@ def test_cli_gen_data_smoke(tmp_path, problem):
         ],
         capture_output=True,
         text=True,
+        timeout=60,  # 1 minute timeout for data generation
     )
 
     # Check for success
@@ -77,13 +78,24 @@ def test_cli_train_lightning_smoke():
             "train.eval_batch_size=2",
             "train.train_data_size=10",
             "train.val_data_size=10",
+            "train.num_workers=0",  # Disable multiprocessing for faster startup
+            "train.persistent_workers=false",  # Disable persistent workers
+            "train.devices=1",  # Use only 1 GPU
+            "train.strategy=auto",  # Auto strategy for single GPU
+            "model.encoder.embed_dim=32",  # Smaller model for faster training
+            "model.encoder.hidden_dim=64",
+            "model.encoder.n_layers=1",
+            "model.encoder.n_heads=2",
             "wandb_mode=offline",
+            "hpo.n_trials=0",  # Explicitly disable HPO
         ],
         capture_output=True,
         text=True,
+        timeout=300,  # 5 minutes - generous timeout for initialization + 1 epoch
     )
     if result.returncode != 0:
-        print(result.stderr)
+        print("STDOUT:", result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
+        print("STDERR:", result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr)
     assert result.returncode == 0
 
 
@@ -165,13 +177,26 @@ def test_cli_train_lightning_ppo_smoke():
             "+experiment=ppo",  # Use + to append new config group if not in schema
             "train.n_epochs=1",
             "train.batch_size=2",
+            "train.eval_batch_size=2",
             "train.train_data_size=10",
             "train.val_data_size=10",
+            "train.num_workers=0",  # Disable multiprocessing for faster startup
+            "train.persistent_workers=false",  # Disable persistent workers
+            "train.devices=1",  # Use only 1 GPU
+            "train.strategy=auto",  # Auto strategy for single GPU
+            "model.encoder.embed_dim=32",  # Smaller model for faster training
+            "model.encoder.hidden_dim=64",
+            "model.encoder.n_layers=1",
+            "model.encoder.n_heads=2",
             "wandb_mode=offline",
+            "hpo.n_trials=0",  # Explicitly disable HPO
         ],
         capture_output=True,
         text=True,
+        timeout=300,  # 5 minutes - generous timeout for initialization + 1 epoch
     )
     if result.returncode != 0:
-        print(f"PPO Smoke Test Failed: {result.stderr}")
+        print("PPO Smoke Test Failed")
+        print("STDOUT:", result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
+        print("STDERR:", result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr)
     assert result.returncode == 0

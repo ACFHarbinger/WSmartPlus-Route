@@ -7,10 +7,11 @@ Example:
     >>> import builder
 """
 
+from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, cast
 
 import pytorch_lightning as pl
-from omegaconf import OmegaConf
+from omegaconf import DictConfig, OmegaConf
 
 from logic.src.configs import Config
 from logic.src.envs import get_env
@@ -190,20 +191,25 @@ def _init_hybrid_policy(cfg: Config):
     return NeuralHeuristicHybrid(neural_policy=neural_policy, heuristic_policy=heuristic_policy)
 
 
+def _config_to_dict(obj: Any) -> Dict[str, Any]:
+    """Convert config object (dataclass or DictConfig) to dict."""
+    if is_dataclass(obj):
+        return asdict(obj)  # type: ignore[arg-type]
+    elif isinstance(obj, DictConfig):
+        return cast(Dict[str, Any], OmegaConf.to_container(obj, resolve=True))
+    elif isinstance(obj, dict):
+        return obj
+    else:
+        # Fallback: try to wrap in OmegaConf.create and convert
+        return cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(obj), resolve=True))
+
+
 def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
     """Prepare keyword arguments for RL module initialization."""
     # Prepare base dicts
-    if hasattr(cfg.rl, "copy"):
-        common_kwargs = cast(Any, cfg.rl).copy()
-    else:
-        common_kwargs = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.rl)), resolve=True))
+    common_kwargs: Dict[str, Any] = _config_to_dict(cfg.rl)
 
-    if hasattr(cfg.train, "copy"):
-        train_params = cast(Any, cfg.train).copy()
-    else:
-        train_params = cast(
-            Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.train)), resolve=True)
-        )
+    train_params = cast(Any, cfg.train).copy() if hasattr(cfg.train, "copy") else _config_to_dict(cfg.train)
     common_kwargs.update(train_params)
 
     # Dataset paths
@@ -214,12 +220,7 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
         common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 
     # Model params
-    if hasattr(cfg.model, "copy"):
-        model_params = cast(Any, cfg.model).copy()
-    else:
-        model_params = cast(
-            Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg.model)), resolve=True)
-        )
+    model_params = cast(Any, cfg.model).copy() if hasattr(cfg.model, "copy") else _config_to_dict(cfg.model)
     common_kwargs.update(model_params)
     common_kwargs.pop("name", None)
 

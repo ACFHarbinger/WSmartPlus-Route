@@ -100,7 +100,7 @@ class WCVRPEnv(RL4COEnvBase):
             The initial overflow count is computed as sum(waste[1:] >= max_waste[1:]).
         """
         # If state already initialized (e.g. transductive search resuming), skip coord mod
-        if "visited" in td:
+        if "visited" in td.keys():
             return td
 
         device = td.device
@@ -115,7 +115,7 @@ class WCVRPEnv(RL4COEnvBase):
         gen_n = getattr(self.generator, "num_loc", None)
 
         needs_prepend = False
-        if "depot" in td:
+        if "depot" in td.keys():
             # 1. If we know N, check if we are already at N+1
             if gen_n is not None and locs.shape[-2] == gen_n + 1:
                 needs_prepend = False

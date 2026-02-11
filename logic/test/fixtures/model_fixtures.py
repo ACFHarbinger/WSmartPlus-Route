@@ -38,6 +38,8 @@ def am_setup(mocker):
     mock_problem.get_costs.return_value = (torch.zeros(1), {}, None)
 
     mock_encoder = mocker.MagicMock()
+    mock_encoder.embed_dim = 128
+    mock_encoder.hidden_dim = 128
 
     # Needs to return tensor on call
     def mock_enc_fwd(x, edges=None, **kwargs):
@@ -51,11 +53,11 @@ def am_setup(mocker):
     class MockFactory(NeuralComponentFactory):
         """Mock factory for neural components."""
 
-        def create_encoder(self, **kwargs):
+        def create_encoder(self, norm_config=None, activation_config=None, **kwargs):
             """Create mock encoder."""
             return mock_encoder
 
-        def create_decoder(self, **kwargs):
+        def create_decoder(self, decoder_type="attention", norm_config=None, activation_config=None, **kwargs):
             """Create mock decoder."""
             m_dec = mocker.MagicMock(spec=GlimpseDecoder)
             m_dec.forward.side_effect = lambda input, embeddings, *args, **kwargs: (
@@ -102,6 +104,8 @@ def tam_setup(mocker):
     mock_problem.get_costs.return_value = (torch.zeros(1), {}, None)
 
     mock_encoder = mocker.MagicMock()
+    mock_encoder.embed_dim = 128
+    mock_encoder.hidden_dim = 128
 
     def mock_enc_fwd(x, edges=None, **kwargs):
         """Mock encoder forward pass."""
@@ -139,11 +143,12 @@ def tam_setup(mocker):
     class MockTAMFactory(NeuralComponentFactory):
         """Mock factory for TAM components."""
 
-        def create_encoder(self, **kwargs):
+        def create_encoder(self, norm_config=None, activation_config=None, **kwargs):
             """Create mock encoder."""
             return mock_encoder
 
-        def create_decoder(self, **kwargs):
+        def create_decoder(self, decoder_type="attention", norm_config=None, activation_config=None, **kwargs):
+            """Create mock decoder."""
             """Create mock decoder."""
             m_dec = mocker.MagicMock(spec=GlimpseDecoder)
             # Return log_p, pi, cost, td (4 values)

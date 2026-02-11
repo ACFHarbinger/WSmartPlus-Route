@@ -21,5 +21,5 @@ class NormalizationConfig:
     learn_affine: bool = True
     track_stats: bool = False
     momentum: float = 0.1
-    n_groups: int = 3
+    n_groups: int = 1
     k_lrnorm: float = 1.0

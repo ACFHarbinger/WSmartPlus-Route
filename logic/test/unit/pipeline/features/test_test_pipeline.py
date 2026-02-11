@@ -73,7 +73,7 @@ class TestPipelineFeaturesTest:
 
     @patch("logic.src.pipeline.features.test.orchestrator.udef")
     @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
-    @patch("logic.src.pipeline.features.test.orchestrator.ThreadPool")
+    @patch("logic.src.pipeline.features.test.orchestrator.Pool")
     @patch("logic.src.pipeline.features.test.orchestrator.output_stats")
     @patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui")
     @patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics")
@@ -93,10 +93,12 @@ class TestPipelineFeaturesTest:
         pool_instance = MagicMock()
         mock_pool.return_value = pool_instance
 
-        # Mock results
+        # Mock results - must return a list of metrics (10 values for SIM_METRICS)
+        # SIM_METRICS = ["overflows", "kg", "ncol", "kg_lost", "km", "kg/km", "cost", "profit", "days", "time"]
+        mock_metrics = [0.0, 100.0, 5.0, 0.0, 50.0, 2.0, 25.0, 75.0, 1.0, 10.0]
         task1 = MagicMock()
         task1.ready.return_value = True
-        task1.get.return_value = {"success": True, "policy1": 1.0}
+        task1.get.return_value = {"success": True, "policy1": mock_metrics}
 
         pool_instance.apply_async.return_value = task1
 
@@ -110,12 +112,12 @@ class TestPipelineFeaturesTest:
             mock_manager.return_value.list.return_value = mock_list
 
             def side_effect_apply(func, args, callback):
-                callback({"success": True, "policy1": 1.0})
+                callback({"success": True, "policy1": mock_metrics})
                 return task1
 
             pool_instance.apply_async.side_effect = side_effect_apply
 
-            mock_dict.items.return_value = [("policy1", [1.0])]
+            mock_dict.items.return_value = [("policy1", [mock_metrics])]
 
             simulator_testing(opts, data_size, device)
 

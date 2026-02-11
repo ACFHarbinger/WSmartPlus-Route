@@ -15,8 +15,8 @@ class TestCheckDocstrings:
         missing = check_path("dummy.py")
         # Module missing, Function a missing.
         assert len(missing) == 2
-        assert "Module" in missing[0]
-        assert "Function" in missing[1]
+        assert missing[0]["type"] == "Module"
+        assert missing[1]["type"] == "Function"
 
     @patch("builtins.open", new_callable=mock_open, read_data='"""Module."""\ndef a():\n    """Doc."""\n    pass')
     @patch("os.path.isfile", return_value=True)
@@ -29,11 +29,11 @@ class TestCheckDocstrings:
     def test_check_path_class_missing(self, mock_isfile, m_open):
         missing = check_path("dummy.py")
         assert len(missing) == 1
-        assert "Class" in missing[0]
+        assert missing[0]["type"] == "Class"
 
-    @patch("builtins.open", new_callable=mock_open, read_data="invalid syntax")
+    @patch("builtins.open", new_callable=mock_open, read_data="invalid syntax @#$")
     @patch("os.path.isfile", return_value=True)
-    @patch("builtins.print")
+    @patch("logic.src.utils.docs.check_docstrings.console.print")
     def test_check_path_syntax_error(self, mock_print, mock_isfile, m_open):
         missing = check_path("dummy.py")
         assert len(missing) == 0

@@ -112,6 +112,11 @@ class GraphAttConvEncoder(TransformerEncoderBase):
             range=uniform_range if uniform_range is not None else [0.125, 1 / 3],
         )
 
+        # Store GAC-specific parameters BEFORE super().__init__
+        # because the base class constructor calls _create_layer which needs these.
+        self.aggregate = aggregate
+        self.n_sublayers = n_sublayers
+
         # Initialize base class
         super(GraphAttConvEncoder, self).__init__(
             n_heads=n_heads,
@@ -123,10 +128,6 @@ class GraphAttConvEncoder(TransformerEncoderBase):
             dropout_rate=dropout_rate,
             **kwargs,
         )
-
-        # Store GAC-specific parameters
-        self.aggregate = aggregate
-        self.n_sublayers = n_sublayers
 
     def _create_layer(self, layer_idx: int) -> nn.Module:
         """

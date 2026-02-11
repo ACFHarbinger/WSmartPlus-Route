@@ -306,7 +306,7 @@ class AttentionModel(DecodingMixin, nn.Module):
 
         # Pass through Decoder
         # The decoder handles autoregressive steps
-        _log_p, pi, cost, final_td = self.decoder(
+        out_dec = self.decoder(
             input,
             outputs,
             graph_context,
@@ -317,7 +317,26 @@ class AttentionModel(DecodingMixin, nn.Module):
             expert_pi=expert_pi,
         )
 
-        out = {"cost": cost, "reward": -cost, "td": final_td}  # RL maximizes reward
+        # Handle varying return counts from legacy / experimental decoders
+        if isinstance(out_dec, tuple):
+            if len(out_dec) == 4:
+                _log_p, pi, cost, final_td = out_dec
+            elif len(out_dec) == 3:
+                _log_p, pi, cost = out_dec
+                final_td = None
+            else:
+                _log_p = out_dec[0]
+                pi = out_dec[1] if len(out_dec) > 1 else None
+                cost = out_dec[2] if len(out_dec) > 2 else None
+                final_td = out_dec[3] if len(out_dec) > 3 else None
+        else:
+            _log_p = out_dec
+            pi = None
+            cost = None
+            final_td = None
+
+        reward = -cost if cost is not None else torch.tensor(0.0, device=outputs.device)
+        out = {"cost": cost, "reward": reward, "td": final_td}  # RL maximizes reward
 
         if _log_p is not None:
             out["log_likelihood"] = _log_p
@@ -352,7 +371,16 @@ class AttentionModel(DecodingMixin, nn.Module):
             CachedLookup: A cached lookup object containing precomputed decoder state.
         """
         embeddings, init_context = self._get_initial_embeddings(input)
-        _log_p, _pi, _cost = self.decoder(input, embeddings, init_context, None, precompute_only=True)
+        out = self.decoder(input, embeddings, init_context, None, precompute_only=True)
+
+        # Handle varying return counts from legacy / experimental decoders
+        if isinstance(out, tuple):
+            if len(out) >= 3:
+                _log_p, _pi, _cost = out[:3]
+            else:
+                _log_p = out[0]
+        else:
+            _log_p = out
 
         # Return a lookup object compatible with beam search
         # Note: The exact structure depends on what beam_search expects

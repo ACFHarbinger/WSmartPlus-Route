@@ -57,7 +57,7 @@ class StepMixin:
         # WCVRP uses 'demand', VRPP uses 'prize' or 'demand'
         fill_levels = None
         for key in ["waste", "demand", "prize", "fill_level"]:
-            if key in td:
+            if key in td.keys():
                 fill_levels = td[key]
                 break
 
@@ -71,23 +71,23 @@ class StepMixin:
 
         # Get additional data for advanced selectors (lookahead, service_level)
         selector_kwargs = {}
-        if "accumulation_rate" in td:
+        if "accumulation_rate" in td.keys():
             selector_kwargs["accumulation_rates"] = td["accumulation_rate"]
-        if "std_deviation" in td:
+        if "std_deviation" in td.keys():
             selector_kwargs["std_deviations"] = td["std_deviation"]
-        if "current_day" in td:
+        if "current_day" in td.keys():
             selector_kwargs["current_day"] = td["current_day"]
 
         # Get data needed for ManagerSelector (neural network-based selection)
-        if "locs" in td:
+        if "locs" in td.keys():
             selector_kwargs["locs"] = td["locs"]
-        elif "loc" in td:
+        elif "loc" in td.keys():
             selector_kwargs["locs"] = td["loc"]
 
         # Waste history for temporal modeling
-        if "waste_history" in td:
+        if "waste_history" in td.keys():
             selector_kwargs["waste_history"] = td["waste_history"]
-        elif "demand_history" in td:
+        elif "demand_history" in td.keys():
             selector_kwargs["waste_history"] = td["demand_history"]
 
         # Apply selector to get must-go mask
@@ -129,6 +129,27 @@ class StepMixin:
         Returns:
             Loss tensor.
         """
+        # [x] Resolve `AttentionModel` decoder return mismatch (handle up to 4 returns)
+        # [x] Fix `RolloutBaseline.setup` policy assignment bug
+        # [x] Rename `baseline` hyperparameter to `baseline_type` in `RL4COLitModule`
+        # [x] Fix `GraphAttConvEncoder` initialization order
+        # [x] Correct Hexaly lambda function signatures
+        # [x] Fix `deep_sanitize` bug (prevent stringifying modules/complex objects)
+        # [/] Convert all standard `in td` checks to `key in td.keys()` for TensorDict compatibility
+        #     - [x] `logic/src/envs/sdwcvrp.py`
+        #     - [x] `logic/src/envs/tsp_kopt.py`
+        #     - [x] `logic/src/pipeline/rl/core/ppo.py`
+        #     - [x] `logic/src/envs/tasks/base.py`
+        #     - [x] `logic/test/unit/models/test_models.py`
+        #     - [x] `logic/src/models/subnets/embeddings/dynamic.py`
+        #     - [x] `logic/src/utils/ops/pomo.py`
+        #     - [x] `logic/src/models/subnets/embeddings/state/vrpp.py`
+        #     - [x] `logic/src/pipeline/rl/common/base/steps.py` (In progress/auditing)
+        #     - [x] `logic/src/pipeline/rl/core/gdpo.py`
+        #     - [ ] `logic/src/pipeline/rl/meta/hrl.py`
+        #     - [ ] `logic/src/utils/data/td_state_wrapper.py`
+        #     - [ ] `logic/src/envs/swcvrp.py`
+        #     - [ ] `logic/src/utils/decoding/decoding_utils.py`
         raise NotImplementedError
 
     def shared_step(
@@ -203,7 +224,7 @@ class StepMixin:
         for log_key, td_keys in METRIC_MAPPING.items():
             val = None
             for k in td_keys:
-                if k in final_td:
+                if k in final_td.keys():
                     val = final_td[k]
                     break
 

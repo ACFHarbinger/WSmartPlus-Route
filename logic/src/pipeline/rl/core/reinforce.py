@@ -82,6 +82,9 @@ class REINFORCE(RL4COLitModule):
 
         # Entropy bonus (if applicable)
         if self.entropy_weight > 0 and "entropy" in out:
+            # Note: out is a standard dict here, but using .keys() would fail if it's not a dict.
+            # TensorDict also supports .items() and .keys().
+            pass
             loss = loss - self.entropy_weight * out["entropy"].mean()
 
         # Log components

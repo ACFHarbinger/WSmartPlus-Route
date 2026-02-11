@@ -179,13 +179,13 @@ class BaseProblem:
     def _ensure_required_keys(td: TensorDict, env_name: str, edges: Any, dist_matrix: Any, **kwargs: Any) -> None:
         """Ensure all required keys are present in the TensorDict."""
         bs = td.batch_size[0]
-        if "dist" not in td and dist_matrix is not None:
-            td["dist"] = dist_matrix.unsqueeze(0).expand(bs, -1, -1) if dist_matrix.dim() == 2 else dist_matrix
-        if "edges" not in td and edges is not None:
-            td["edges"] = edges.unsqueeze(0).expand(bs, -1, -1) if edges.dim() == 2 else edges
-        if "locs" not in td and "loc" in td:
+        if "dist" not in td.keys() and dist_matrix is not None:
+            td["dist"] = dist_matrix
+        if "edges" not in td.keys() and edges is not None:
+            td["edges"] = edges
+        if "locs" not in td.keys() and "loc" in td.keys():
             td["locs"] = td["loc"]
-        if "capacity" not in td:
+        if "capacity" not in td.keys():
             cap = kwargs.get("vehicle_capacity") or kwargs.get("profit_vars", {}).get("vehicle_capacity")
             if cap:
                 td["capacity"] = torch.full((bs,), cap, device=td.device)

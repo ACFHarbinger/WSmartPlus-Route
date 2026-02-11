@@ -93,7 +93,15 @@ class BatchMixin:
             mask = mask | gate_mask
 
         # Use model forward pass
-        cost, _, cost_dict, pi, _ = self.model(input, cost_weights=None, return_pi=True, pad=False, mask=mask)  # type: ignore[attr-defined]
+        out = self.model(input, cost_weights=None, return_pi=True, pad=False, mask=mask)  # type: ignore[attr-defined]
+        if isinstance(out, dict):
+            pi = out.get("actions") or out.get("pi")
+            cost = out.get("cost")
+        else:
+            cost, _, _, pi, _ = out
+
+        if pi is None:
+            raise ValueError("Model output does not contain 'actions' or 'pi'")
 
         # Calculate ucost (unweighted cost)
         ucost, cost_dict, _ = self.problem.get_costs(input, pi, cw_dict=None)  # type: ignore[attr-defined]

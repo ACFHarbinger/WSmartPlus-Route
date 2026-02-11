@@ -112,6 +112,7 @@ def test_a2c_training_loop():
         policy=policy,
         batch_size=2,
         train_data_size=10,
+        val_data_size=10,
     )
 
     trainer = Trainer(
@@ -145,6 +146,7 @@ def test_ppo_multistart_training_loop():
         critic=critic,
         batch_size=2,
         train_data_size=10,
+        val_data_size=10,
         decode_kwargs={"multistart": True, "num_starts": 5, "select_best": True},
     )
 

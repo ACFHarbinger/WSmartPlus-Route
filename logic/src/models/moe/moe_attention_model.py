@@ -46,3 +46,8 @@ class MoEAttentionModel(AttentionModel):
             n_heads=n_heads,
             **kwargs,
         )
+
+    @property
+    def total_experts(self):
+        """Get the total number of experts in the model."""
+        return self.encoder.num_experts if hasattr(self.encoder, "num_experts") else 0

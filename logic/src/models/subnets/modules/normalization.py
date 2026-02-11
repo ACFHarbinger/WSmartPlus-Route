@@ -94,12 +94,12 @@ class Normalization(nn.Module):
                 bias=bias if bias is not None else True,
             )
         elif norm_name == "group":
-            if n_groups is None:
+            if n_groups is None or embed_dim % n_groups != 0:
                 n_groups = 1
             self.normalizer = nn.GroupNorm(
-                n_groups,
-                eps=eps_alpha,
+                num_groups=n_groups,
                 num_channels=embed_dim,
+                eps=eps_alpha,
                 affine=learn_affine if learn_affine is not None else True,
             )
         elif norm_name == "local_response":

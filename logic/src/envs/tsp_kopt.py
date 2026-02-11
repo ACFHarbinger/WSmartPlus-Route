@@ -116,6 +116,6 @@ class TSPkoptEnv(ImprovementEnvBase):
         """Usually improvement continues for fixed steps or until converge.
         Here we define a max_steps entry in td if present.
         """
-        if "max_steps" in td:
+        if "max_steps" in td.keys():
             return td["i"] >= td["max_steps"]
         return torch.zeros(td.batch_size, dtype=torch.bool, device=self.device)

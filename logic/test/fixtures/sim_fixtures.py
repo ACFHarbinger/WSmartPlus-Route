@@ -299,11 +299,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
 
         return mock_instance
 
-    mocker.patch(
-        "logic.src.pipeline.simulations.states.running.tqdm",
-        side_effect=mock_tqdm_factory,
-        autospec=True,
-    )
+    # tqdm is not used in running.py anymore, it's passed via context
 
     # Return key mocks for modification in tests
     return {

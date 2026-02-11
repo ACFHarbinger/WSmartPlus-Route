@@ -86,6 +86,9 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         params_to_save = {
             k: v for k, v in locals().items() if k not in ["self", "__class__", "env", "policy", "must_go_selector"]
         }
+        # Avoid shadowing self.baseline (the object) with baseline (the string)
+        if "baseline" in params_to_save:
+            params_to_save["baseline_type"] = params_to_save.pop("baseline")
         self.save_hyperparameters(params_to_save)
 
         self.env = env
@@ -158,6 +161,8 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
         if self.baseline_type is None:
             self.baseline_type = "rollout"
+
+        # Use baseline_type and other hparams to get the baseline object
         baseline = get_baseline(self.baseline_type, self.policy, **self.hparams)  # type: ignore[arg-type]
 
         # Handle warmup

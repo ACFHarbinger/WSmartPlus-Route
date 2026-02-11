@@ -279,8 +279,6 @@ class TestReinforceBaselines:
         assert len(ds) == 2
         item = ds[0]
         # BaselineDataset now stores data in 'data' and baseline in 'baseline'
-        assert "data" in item
-        assert "baseline" in item
         assert item["data"] == 1
         assert item["baseline"] == 3
 

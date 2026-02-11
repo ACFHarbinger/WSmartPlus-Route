@@ -105,7 +105,7 @@ def temp_eval_setup(tmp_path):
         # For VRPP: typically prize is separate? Or maybe it's just indices.
         # Let's check VRPPEnv or similar if we can.
         # Assuming standard list of objects or dicts.
-        instance = {"depot": depot, "loc": loc, "waste": np.random.rand(graph_size).astype(np.float32), "capacity": 1.0}
+        instance = {"depot": depot, "locs": loc, "waste": np.random.rand(graph_size).astype(np.float32), "capacity": 1.0}
         # In many implementations, it's just a tuple of tensors/arrays
         # But load_dataset uses pickle.
         # Let's trust make_dataset usually handles raw data or filenames.
