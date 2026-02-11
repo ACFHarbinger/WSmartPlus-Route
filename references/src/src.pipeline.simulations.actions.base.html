@@ -469,6 +469,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._find_must_go"><code class="docutils literal notranslate"><span class="pre">_find_must_go()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
@@ -509,7 +510,11 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._flatten_config" title="src.pipeline.simulations.actions.base._flatten_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_config</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._find_must_go" title="src.pipeline.simulations.actions.base._find_must_go"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_must_go</span></code></a></p></td>
+<td><p>Recursively find the first occurrence of ‘must_go’ in a nested structure.
+Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListConfig, etc.).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._flatten_config" title="src.pipeline.simulations.actions.base._flatten_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_config</span></code></a></p></td>
 <td><p>Helper to flatten nested configuration structures (e.g. hgs.custom -&gt; list of dicts).</p></td>
 </tr>
 </tbody>
@@ -518,6 +523,13 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._find_must_go">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_find_must_go</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._find_must_go" title="Link to this definition">#</a></dt>
+<dd><p>Recursively find the first occurrence of ‘must_go’ in a nested structure.
+Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListConfig, etc.).</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._flatten_config">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_flatten_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._flatten_config" title="Link to this definition">#</a></dt>
@@ -594,6 +606,7 @@ context: Shared dictionary containing simulation state.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._find_must_go"><code class="docutils literal notranslate"><span class="pre">_find_must_go()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>

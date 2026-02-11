@@ -48,7 +48,7 @@
 ````{py:data} THRESHOLD_POLICIES
 :canonical: src.constants.policies.THRESHOLD_POLICIES
 :value: >
-   ['vrpp', 'sans', 'hgs', 'alns', 'bcp']
+   ['vrpp', 'sans', 'hgs_alns', 'hgs', 'alns', 'bcp']
 
 ```{autodoc2-docstring} src.constants.policies.THRESHOLD_POLICIES
 ```

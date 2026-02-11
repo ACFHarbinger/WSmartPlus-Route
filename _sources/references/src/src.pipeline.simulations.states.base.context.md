@@ -195,6 +195,22 @@
 
 ````
 
+````{py:method} _extract_must_go_prefix(parts: typing.List[str]) -> typing.Tuple[typing.List[str], typing.Optional[float], typing.Optional[str]]
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix
+```
+
+````
+
+````{py:method} _find_standard_policy(search_parts: typing.List[str]) -> bool
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy
+```
+
+````
+
 ````{py:method} _extract_threshold(policy_key: str) -> None
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold
 
