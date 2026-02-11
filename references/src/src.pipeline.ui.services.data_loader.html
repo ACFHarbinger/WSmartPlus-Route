@@ -472,6 +472,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_logs_dir"><code class="docutils literal notranslate"><span class="pre">get_logs_dir()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_simulation_output_dir"><code class="docutils literal notranslate"><span class="pre">get_simulation_output_dir()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.discover_training_runs"><code class="docutils literal notranslate"><span class="pre">discover_training_runs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.load_hparams"><code class="docutils literal notranslate"><span class="pre">load_hparams()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.load_training_metrics"><code class="docutils literal notranslate"><span class="pre">load_training_metrics()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.load_multiple_training_runs"><code class="docutils literal notranslate"><span class="pre">load_multiple_training_runs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.discover_simulation_logs"><code class="docutils literal notranslate"><span class="pre">discover_simulation_logs()</span></code></a></li>
@@ -515,30 +516,33 @@ document.write(`
 <td><p>Get the simulation output directory path.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.discover_training_runs" title="src.pipeline.ui.services.data_loader.discover_training_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_training_runs</span></code></a></p></td>
-<td><p>Discover all training runs in logs.</p></td>
+<td><p>Discover all training runs in logs/output.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_training_metrics" title="src.pipeline.ui.services.data_loader.load_training_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_training_metrics</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_hparams" title="src.pipeline.ui.services.data_loader.load_hparams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_hparams</span></code></a></p></td>
+<td><p>Load hparams.yaml for a training version.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_training_metrics" title="src.pipeline.ui.services.data_loader.load_training_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_training_metrics</span></code></a></p></td>
 <td><p>Load training metrics from a Lightning CSV file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_multiple_training_runs" title="src.pipeline.ui.services.data_loader.load_multiple_training_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_multiple_training_runs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_multiple_training_runs" title="src.pipeline.ui.services.data_loader.load_multiple_training_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_multiple_training_runs</span></code></a></p></td>
 <td><p>Load metrics from multiple training runs for comparison.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.discover_simulation_logs" title="src.pipeline.ui.services.data_loader.discover_simulation_logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_simulation_logs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.discover_simulation_logs" title="src.pipeline.ui.services.data_loader.discover_simulation_logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_simulation_logs</span></code></a></p></td>
 <td><p>Discover all simulation log files in assets/output.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_simulation_log" title="src.pipeline.ui.services.data_loader.load_simulation_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_simulation_log" title="src.pipeline.ui.services.data_loader.load_simulation_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log</span></code></a></p></td>
 <td><p>Load and parse a simulation log file (cached).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_simulation_log_fresh" title="src.pipeline.ui.services.data_loader.load_simulation_log_fresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log_fresh</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.load_simulation_log_fresh" title="src.pipeline.ui.services.data_loader.load_simulation_log_fresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log_fresh</span></code></a></p></td>
 <td><p>Load a simulation log without caching (for live tailing).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.get_simulation_metadata" title="src.pipeline.ui.services.data_loader.get_simulation_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_metadata</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.get_simulation_metadata" title="src.pipeline.ui.services.data_loader.get_simulation_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_metadata</span></code></a></p></td>
 <td><p>Extract metadata from simulation entries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.entries_to_dataframe" title="src.pipeline.ui.services.data_loader.entries_to_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entries_to_dataframe</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.entries_to_dataframe" title="src.pipeline.ui.services.data_loader.entries_to_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entries_to_dataframe</span></code></a></p></td>
 <td><p>Convert log entries to a pandas DataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.compute_daily_stats" title="src.pipeline.ui.services.data_loader.compute_daily_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_daily_stats</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.compute_daily_stats" title="src.pipeline.ui.services.data_loader.compute_daily_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_daily_stats</span></code></a></p></td>
 <td><p>Compute mean and std of metrics per day.</p></td>
 </tr>
 </tbody>
@@ -568,9 +572,19 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader.discover_training_runs">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">discover_training_runs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader.discover_training_runs" title="Link to this definition">#</a></dt>
-<dd><p>Discover all training runs in logs.</p>
+<dd><p>Discover all training runs in logs/output.</p>
 <p>Returns:
 List of (version_name, metrics_csv_path) tuples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader.load_hparams">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_hparams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader.load_hparams" title="Link to this definition">#</a></dt>
+<dd><p>Load hparams.yaml for a training version.</p>
+<p>Args:
+version_name: Version folder name (e.g., “version_0”).</p>
+<p>Returns:
+Dict with hyperparameters, or empty dict if not found.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -708,6 +722,7 @@ DataFrame with day, metric_mean, metric_std columns.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_logs_dir"><code class="docutils literal notranslate"><span class="pre">get_logs_dir()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_simulation_output_dir"><code class="docutils literal notranslate"><span class="pre">get_simulation_output_dir()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.discover_training_runs"><code class="docutils literal notranslate"><span class="pre">discover_training_runs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.load_hparams"><code class="docutils literal notranslate"><span class="pre">load_hparams()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.load_training_metrics"><code class="docutils literal notranslate"><span class="pre">load_training_metrics()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.load_multiple_training_runs"><code class="docutils literal notranslate"><span class="pre">load_multiple_training_runs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.discover_simulation_logs"><code class="docutils literal notranslate"><span class="pre">discover_simulation_logs()</span></code></a></li>

@@ -468,6 +468,12 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_benchmark_kpis"><code class="docutils literal notranslate"><span class="pre">_render_benchmark_kpis()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_benchmark_metadata"><code class="docutils literal notranslate"><span class="pre">_render_benchmark_metadata()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_performance_table"><code class="docutils literal notranslate"><span class="pre">_render_performance_table()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_comparison_charts"><code class="docutils literal notranslate"><span class="pre">_render_comparison_charts()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_latency_throughput"><code class="docutils literal notranslate"><span class="pre">_render_latency_throughput()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_per_run_details"><code class="docutils literal notranslate"><span class="pre">_render_per_run_details()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark.render_benchmark_analysis"><code class="docutils literal notranslate"><span class="pre">render_benchmark_analysis()</span></code></a></li>
 </ul>
 </li>
@@ -493,6 +499,24 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark._render_benchmark_kpis" title="src.pipeline.ui.pages.benchmark._render_benchmark_kpis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_benchmark_kpis</span></code></a></p></td>
+<td><p>Display summary KPI cards for the benchmark dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark._render_benchmark_metadata" title="src.pipeline.ui.pages.benchmark._render_benchmark_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_benchmark_metadata</span></code></a></p></td>
+<td><p>Display benchmark environment and configuration info.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark._render_performance_table" title="src.pipeline.ui.pages.benchmark._render_performance_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_performance_table</span></code></a></p></td>
+<td><p>Enhanced performance table with column selector and formatting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark._render_comparison_charts" title="src.pipeline.ui.pages.benchmark._render_comparison_charts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_comparison_charts</span></code></a></p></td>
+<td><p>Enhanced comparison charts with grouping selector.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark._render_latency_throughput" title="src.pipeline.ui.pages.benchmark._render_latency_throughput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_latency_throughput</span></code></a></p></td>
+<td><p>Latency vs throughput scatter plot.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark._render_per_run_details" title="src.pipeline.ui.pages.benchmark._render_per_run_details"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_per_run_details</span></code></a></p></td>
+<td><p>Drill-down into a single benchmark entry.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.benchmark.render_benchmark_analysis" title="src.pipeline.ui.pages.benchmark.render_benchmark_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_benchmark_analysis</span></code></a></p></td>
 <td><p>Render the Benchmark Analysis mode.</p></td>
 </tr>
@@ -502,6 +526,42 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark._render_benchmark_kpis">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_benchmark_kpis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark._render_benchmark_kpis" title="Link to this definition">#</a></dt>
+<dd><p>Display summary KPI cards for the benchmark dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark._render_benchmark_metadata">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_benchmark_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark._render_benchmark_metadata" title="Link to this definition">#</a></dt>
+<dd><p>Display benchmark environment and configuration info.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark._render_performance_table">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_performance_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark._render_performance_table" title="Link to this definition">#</a></dt>
+<dd><p>Enhanced performance table with column selector and formatting.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark._render_comparison_charts">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_comparison_charts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark._render_comparison_charts" title="Link to this definition">#</a></dt>
+<dd><p>Enhanced comparison charts with grouping selector.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark._render_latency_throughput">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_latency_throughput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark._render_latency_throughput" title="Link to this definition">#</a></dt>
+<dd><p>Latency vs throughput scatter plot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark._render_per_run_details">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_per_run_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark._render_per_run_details" title="Link to this definition">#</a></dt>
+<dd><p>Drill-down into a single benchmark entry.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.ui.pages.benchmark.render_benchmark_analysis">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">render_benchmark_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.benchmark.render_benchmark_analysis" title="Link to this definition">#</a></dt>
@@ -560,6 +620,12 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_benchmark_kpis"><code class="docutils literal notranslate"><span class="pre">_render_benchmark_kpis()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_benchmark_metadata"><code class="docutils literal notranslate"><span class="pre">_render_benchmark_metadata()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_performance_table"><code class="docutils literal notranslate"><span class="pre">_render_performance_table()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_comparison_charts"><code class="docutils literal notranslate"><span class="pre">_render_comparison_charts()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_latency_throughput"><code class="docutils literal notranslate"><span class="pre">_render_latency_throughput()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark._render_per_run_details"><code class="docutils literal notranslate"><span class="pre">_render_per_run_details()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.benchmark.render_benchmark_analysis"><code class="docutils literal notranslate"><span class="pre">render_benchmark_analysis()</span></code></a></li>
 </ul>
 </li>

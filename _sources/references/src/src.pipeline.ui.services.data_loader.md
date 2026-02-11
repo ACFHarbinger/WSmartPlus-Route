@@ -31,6 +31,10 @@
   - ```{autodoc2-docstring} src.pipeline.ui.services.data_loader.discover_training_runs
     :summary:
     ```
+* - {py:obj}`load_hparams <src.pipeline.ui.services.data_loader.load_hparams>`
+  - ```{autodoc2-docstring} src.pipeline.ui.services.data_loader.load_hparams
+    :summary:
+    ```
 * - {py:obj}`load_training_metrics <src.pipeline.ui.services.data_loader.load_training_metrics>`
   - ```{autodoc2-docstring} src.pipeline.ui.services.data_loader.load_training_metrics
     :summary:
@@ -92,6 +96,13 @@
 :canonical: src.pipeline.ui.services.data_loader.discover_training_runs
 
 ```{autodoc2-docstring} src.pipeline.ui.services.data_loader.discover_training_runs
+```
+````
+
+````{py:function} load_hparams(version_name: str) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.ui.services.data_loader.load_hparams
+
+```{autodoc2-docstring} src.pipeline.ui.services.data_loader.load_hparams
 ```
 ````
 

@@ -23,8 +23,16 @@
   - ```{autodoc2-docstring} src.utils.logging.modules.gui.send_final_output_to_gui
     :summary:
     ```
+* - {py:obj}`_get_lat_lon <src.utils.logging.modules.gui._get_lat_lon>`
+  - ```{autodoc2-docstring} src.utils.logging.modules.gui._get_lat_lon
+    :summary:
+    ```
 * - {py:obj}`_process_tour_point <src.utils.logging.modules.gui._process_tour_point>`
   - ```{autodoc2-docstring} src.utils.logging.modules.gui._process_tour_point
+    :summary:
+    ```
+* - {py:obj}`_build_all_bin_coords <src.utils.logging.modules.gui._build_all_bin_coords>`
+  - ```{autodoc2-docstring} src.utils.logging.modules.gui._build_all_bin_coords
     :summary:
     ```
 ````
@@ -45,9 +53,23 @@
 ```
 ````
 
-````{py:function} _process_tour_point(idx: int, coords_lookup: typing.Optional[pandas.DataFrame]) -> typing.Dict[str, typing.Any]
+````{py:function} _get_lat_lon(row: pandas.Series) -> tuple
+:canonical: src.utils.logging.modules.gui._get_lat_lon
+
+```{autodoc2-docstring} src.utils.logging.modules.gui._get_lat_lon
+```
+````
+
+````{py:function} _process_tour_point(node_idx: int, coords_lookup: typing.Optional[pandas.DataFrame]) -> typing.Dict[str, typing.Any]
 :canonical: src.utils.logging.modules.gui._process_tour_point
 
 ```{autodoc2-docstring} src.utils.logging.modules.gui._process_tour_point
+```
+````
+
+````{py:function} _build_all_bin_coords(coords_lookup: pandas.DataFrame, n_bins: int) -> typing.List[typing.Dict[str, typing.Any]]
+:canonical: src.utils.logging.modules.gui._build_all_bin_coords
+
+```{autodoc2-docstring} src.utils.logging.modules.gui._build_all_bin_coords
 ```
 ````

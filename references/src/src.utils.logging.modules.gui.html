@@ -470,7 +470,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui.send_daily_output_to_gui"><code class="docutils literal notranslate"><span class="pre">send_daily_output_to_gui()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui.send_final_output_to_gui"><code class="docutils literal notranslate"><span class="pre">send_final_output_to_gui()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui._get_lat_lon"><code class="docutils literal notranslate"><span class="pre">_get_lat_lon()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui._process_tour_point"><code class="docutils literal notranslate"><span class="pre">_process_tour_point()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui._build_all_bin_coords"><code class="docutils literal notranslate"><span class="pre">_build_all_bin_coords()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -501,8 +503,14 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.logging.modules.gui.send_final_output_to_gui" title="src.utils.logging.modules.gui.send_final_output_to_gui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_final_output_to_gui</span></code></a></p></td>
 <td><p>Write final simulation summary to a log file for GUI consumption.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.logging.modules.gui._process_tour_point" title="src.utils.logging.modules.gui._process_tour_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_process_tour_point</span></code></a></p></td>
-<td><p>Helper to process a single tour point’s coordinate data.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.logging.modules.gui._get_lat_lon" title="src.utils.logging.modules.gui._get_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_lat_lon</span></code></a></p></td>
+<td><p>Extract lat/lon from a row with flexible column naming.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.logging.modules.gui._process_tour_point" title="src.utils.logging.modules.gui._process_tour_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_process_tour_point</span></code></a></p></td>
+<td><p>Build a tour point dict from a node index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.logging.modules.gui._build_all_bin_coords" title="src.utils.logging.modules.gui._build_all_bin_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_all_bin_coords</span></code></a></p></td>
+<td><p>Build coordinate entries for ALL nodes using the standarized ID mapping.</p></td>
 </tr>
 </tbody>
 </table>
@@ -523,9 +531,26 @@ document.write(`
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.utils.logging.modules.gui._get_lat_lon">
+<span class="sig-prename descclassname"><span class="pre">src.utils.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">_get_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.utils.logging.modules.gui._get_lat_lon" title="Link to this definition">#</a></dt>
+<dd><p>Extract lat/lon from a row with flexible column naming.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.utils.logging.modules.gui._process_tour_point">
-<span class="sig-prename descclassname"><span class="pre">src.utils.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">_process_tour_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_lookup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.logging.modules.gui._process_tour_point" title="Link to this definition">#</a></dt>
-<dd><p>Helper to process a single tour point’s coordinate data.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">_process_tour_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_lookup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.logging.modules.gui._process_tour_point" title="Link to this definition">#</a></dt>
+<dd><p>Build a tour point dict from a node index.</p>
+<p>Standard mapping:</p>
+<ul class="simple">
+<li><p>Node 0 (Depot) -&gt; Payload ID -1</p></li>
+<li><p>Nodes 1..N (Bins) -&gt; Payload ID 0..N-1</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.logging.modules.gui._build_all_bin_coords">
+<span class="sig-prename descclassname"><span class="pre">src.utils.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">_build_all_bin_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_lookup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.logging.modules.gui._build_all_bin_coords" title="Link to this definition">#</a></dt>
+<dd><p>Build coordinate entries for ALL nodes using the standarized ID mapping.</p>
 </dd></dl>
 
 </section>
@@ -582,7 +607,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui.send_daily_output_to_gui"><code class="docutils literal notranslate"><span class="pre">send_daily_output_to_gui()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui.send_final_output_to_gui"><code class="docutils literal notranslate"><span class="pre">send_final_output_to_gui()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui._get_lat_lon"><code class="docutils literal notranslate"><span class="pre">_get_lat_lon()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui._process_tour_point"><code class="docutils literal notranslate"><span class="pre">_process_tour_point()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.logging.modules.gui._build_all_bin_coords"><code class="docutils literal notranslate"><span class="pre">_build_all_bin_coords()</span></code></a></li>
 </ul>
 </li>
 </ul>
