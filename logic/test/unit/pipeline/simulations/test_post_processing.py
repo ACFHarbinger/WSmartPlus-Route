@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.post_processing import (
+from logic.src.policies.other.post_processing import (
     PostProcessorFactory,
     FastTSPPostProcessor,
     ClassicalLocalSearchPostProcessor,

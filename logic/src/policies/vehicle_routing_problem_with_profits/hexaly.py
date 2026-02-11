@@ -93,7 +93,7 @@ def _run_hexaly_optimizer(  # noqa: C901
 
             route_load = model.sum(
                 model.range(0, count),
-                model.lambda_function(lambda i, r=route: model.at(weights_array, model.at(r, i))),
+                model.lambda_function(lambda i: model.at(weights_array, model.at(route, i))),  # noqa: B023
             )
             model.constraint(route_load <= Q_int)
             total_profit_int += route_load
@@ -101,7 +101,7 @@ def _run_hexaly_optimizer(  # noqa: C901
             d_start = model.iif(count > 0, model.at(dist_array, idx_deposito, model.at(route, 0)), 0)
             d_path = model.sum(
                 model.range(0, count - 1),
-                model.lambda_function(lambda i, r=route: model.at(dist_array, model.at(r, i), model.at(r, i + 1))),
+                model.lambda_function(lambda i: model.at(dist_array, model.at(route, i), model.at(route, i + 1))),  # noqa: B023
             )
             d_end = model.iif(
                 count > 0,

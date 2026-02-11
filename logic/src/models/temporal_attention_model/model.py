@@ -212,7 +212,15 @@ class TemporalAttentionModel(AttentionModel):
                 device=input[locs_key].device,
             )
             input["fill_history"] = fill_history
-        return super().forward(input, cost_weights, return_pi, pad, mask, expert_pi, **kwargs)
+        return super().forward(
+            input,
+            env=cost_weights,
+            return_pi=return_pi,
+            pad=pad,
+            mask=mask,
+            expert_pi=expert_pi,
+            **kwargs,
+        )
 
     def update_fill_history(self, fill_history, new_fills):
         """

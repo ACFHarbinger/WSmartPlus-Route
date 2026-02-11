@@ -74,17 +74,27 @@ def batchify(td: TensorDict, num_repeats: int) -> TensorDict:
         TensorDict [batch * num_repeats, ...]
     """
     # Use interleave to keep instances together
-    # Some TensorDict versions might not have repeat_interleave on the object
+    # Tensordict 0.3.1 might not propagate reshape(-1) to all keys correctly
     try:
         return td.repeat_interleave(num_repeats, dim=0)
-    except AttributeError:
-        # Fallback: repeat manually for each key
+    except Exception:
+        # Fallback for very old versions or nested structures
         # We must set batch_size FIRST to allow item assignment of different shape
         new_batch_size = torch.Size([td.batch_size[0] * num_repeats, *td.batch_size[1:]])
         new_td = TensorDict({}, batch_size=new_batch_size, device=td.device)
         for key, val in td.items():
             if isinstance(val, torch.Tensor):
                 new_td[key] = val.repeat_interleave(num_repeats, dim=0)
+            elif isinstance(val, (TensorDict, dict)):
+                # If it's a dict, we still need to try expanding its contents if it has tensors
+                if isinstance(val, dict):
+                    new_td[key] = {
+                        k: (v.repeat_interleave(num_repeats, dim=0) if isinstance(v, torch.Tensor) else v)
+                        for k, v in val.items()
+                    }
+                else:
+                    # Recursively call this batchify if it's a TensorDict
+                    new_td[key] = batchify(val, num_repeats)
         return new_td
 
 

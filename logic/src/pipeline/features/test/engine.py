@@ -89,11 +89,11 @@ def _resolve_data_size(opts):
     except Exception:
         area, size = opts["area"], opts["size"]
         if area == "mixrmbac":
-            return 20 if size < 20 else 50 if size < 50 else 225
+            return 20 if size <= 20 else 50 if size <= 50 else 225
         if area == "riomaior":
             return 317
         if area == "both":
-            return 57 if size < 57 else 371 if size < 371 else 485 if size < 485 else 542
+            return 57 if size <= 57 else 371 if size <= 371 else 485 if size <= 485 else 542
         return size
 
 

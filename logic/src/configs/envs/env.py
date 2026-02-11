@@ -33,3 +33,4 @@ class EnvConfig:
     min_fill: float = 0.0
     max_fill: float = 1.0
     fill_distribution: str = "uniform"
+    temporal_horizon: int = 0

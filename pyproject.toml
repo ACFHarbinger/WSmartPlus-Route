@@ -30,6 +30,7 @@ dependencies = [
     "cryptography>=45.0.6",
     "requests>=2.32.5",
     "wandb>=0.16.0",
+    "openpyxl>=3.1.5",
 ]
 
 [project.optional-dependencies]
@@ -197,7 +198,7 @@ exclude = [
 
 [tool.ruff.lint]
 # Ignore E501 (line length) for notebooks specifically if they are messy
-ignore = ["E501", "E741"]
+ignore = ["E501", "E741", "SIM118"]
 select = ["B", "C90", "E", "F", "I", "W", "SIM"]
 
 [tool.ruff.lint.mccabe]

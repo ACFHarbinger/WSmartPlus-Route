@@ -23,7 +23,7 @@ class TensorDictStateWrapper:
         self.env = env
 
         # AttentionDecoder loop expects these
-        if "ids" in td:
+        if "ids" in td.keys():
             self.ids = td["ids"]
         else:
             # Default IDs for batching
@@ -41,7 +41,7 @@ class TensorDictStateWrapper:
         # RL4CO envs provide "action_mask" where True means VALID.
         # AttentionDecoder expects mask where True means INVALID (masked out).
         # So we invert it.
-        if "action_mask" in self.td:
+        if "action_mask" in self.td.keys():
             mask = ~self.td["action_mask"]
             if mask.dim() == 2:
                 mask = mask.unsqueeze(1)
@@ -90,7 +90,7 @@ class TensorDictStateWrapper:
 
     def all_finished(self) -> bool:
         """Check if all instances in batch are finished."""
-        if "done" in self.td:
+        if "done" in self.td.keys():
             return self.td["done"].all().item()
         return False
 

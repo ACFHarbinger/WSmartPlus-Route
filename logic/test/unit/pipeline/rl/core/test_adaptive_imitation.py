@@ -26,16 +26,18 @@ class TestAdaptiveImitation:
         dummy_policy = MagicMock()
         dummy_policy.return_value = {"log_likelihood": torch.tensor([-1.0, -0.5]), "actions": torch.tensor([[0, 1]])}
 
-        # Patch _init_baseline to avoid actual baseline instantiation logic
-        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"):
+        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"), \
+             patch("logic.src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._create_expert_policy", return_value=expert_policy):
             module = AdaptiveImitation(
+                MagicMock(),
+                "test_env",
                 expert_policy=expert_policy,
                 policy=dummy_policy,
                 env=mock_env,
                 il_weight=1.0,
                 il_decay=0.5,
                 patience=2,
-                baseline="rollout",  # Use valid name, but it won't be used due to patch
+                baseline="rollout",
             )
             # Manually set baseline to a Mock since we skipped init
             module.baseline = MagicMock()
@@ -47,23 +49,35 @@ class TestAdaptiveImitation:
     def test_initialization(self, expert_policy, mock_env):
         dummy_policy = MagicMock()
 
-        # Patch _init_baseline here too
-        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"):
-            module = AdaptiveImitation(expert_policy=expert_policy, env=mock_env, policy=dummy_policy, il_weight=0.8)
+        # Patch _init_baseline and _create_expert_policy
+        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"), \
+             patch("logic.src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._create_expert_policy"):
+            module = AdaptiveImitation(
+                MagicMock(), "test_env", expert_policy=expert_policy, env=mock_env, policy=dummy_policy, il_weight=0.8
+            )
 
         assert module.il_weight == 0.8
         assert module.current_il_weight == 0.8
 
         # Test valid hparams (primitives)
-        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"):
-            module = AdaptiveImitation(expert_policy=expert_policy, env=mock_env, policy=dummy_policy, valid_arg=1)
+        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"), \
+             patch("logic.src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._create_expert_policy"):
+            module = AdaptiveImitation(
+                MagicMock(), "test_env", expert_policy=expert_policy, env=mock_env, policy=dummy_policy, valid_arg=1
+            )
         assert "valid_arg" in module.hparams
 
         # Test sanitization (complex object)
         complex_obj = MagicMock()
-        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"):
+        with patch("logic.src.pipeline.rl.common.base.RL4COLitModule._init_baseline"), \
+             patch("logic.src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._create_expert_policy"):
             module = AdaptiveImitation(
-                expert_policy=expert_policy, env=mock_env, policy=dummy_policy, complex_arg=complex_obj
+                MagicMock(),
+                "test_env",
+                expert_policy=expert_policy,
+                env=mock_env,
+                policy=dummy_policy,
+                complex_arg=complex_obj,
             )
         assert "complex_arg" not in module.hparams
         assert "il_weight" in module.hparams

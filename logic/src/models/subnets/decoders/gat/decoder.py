@@ -141,7 +141,7 @@ class DeepGATDecoder(nn.Module):
             out_cost = self.problem.get_costs(nodes, pi, None)
             cost = out_cost[0] if isinstance(out_cost, tuple) else out_cost
 
-        return _log_p, pi, cost
+        return _log_p, pi, cost, None
 
     def _select_node(self, probs, mask, strategy="greedy"):
         """Selection logic."""

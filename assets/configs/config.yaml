@@ -20,7 +20,7 @@ defaults:
   - _self_ # This file's base settings
   - tasks: train # Default task config (tasks/train.yaml)
   - envs: cwcvrp # Default environment (Capacitated Waste Collection VRP)
-  - model: am # Default model (Attention Model)
+  - models: am # Default model (Attention Model)
 
   # - data: train_data  # Optional data config (currently unused)
 

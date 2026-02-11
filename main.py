@@ -162,8 +162,8 @@ def pretty_print_hydra_config(cfg: DictConfig, filter_keys: list = None) -> None
     # If filters are provided, create a subset of the config
     display_cfg = OmegaConf.masked_copy(cfg, filter_keys) if filter_keys else cfg
 
-    # resolve=True ensures interpolations like ${model.lr} are shown as actual values
-    print(OmegaConf.to_yaml(display_cfg, resolve=True))
+    # resolve=False to avoid interpolation errors with structured configs
+    print(OmegaConf.to_yaml(display_cfg, resolve=False))
     print("=" * 80 + "\n")
 
 

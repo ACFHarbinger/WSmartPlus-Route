@@ -63,6 +63,8 @@ def simulator_testing(opts, data_size, device):
 
     manager = mp.Manager()
     lock = manager.Lock()
+    shared_metrics = manager.dict()
+    opts["shared_metrics"] = shared_metrics
     sample_idx_dict = {pol: list(range(opts["n_samples"])) for pol in opts["policies"]}
     if opts["resume"]:
         to_remove = runs_per_policy(  # type: ignore[call-arg, misc]

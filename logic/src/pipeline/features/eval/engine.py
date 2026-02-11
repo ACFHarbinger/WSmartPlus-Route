@@ -64,7 +64,7 @@ def eval_dataset_mp(
         area=opts["area"],
         dist_matrix_path=opts["dm_filepath"],
         number_edges=opts["edge_threshold"],
-        waste_weight=opts["waste_weight"],
+        waste_weight=opts.get("waste_weight", opts.get("w_waste", 1.0)),
         dist_strat=opts["distance_method"],
         edge_strat=opts["edge_method"],
     )
@@ -264,7 +264,7 @@ def _eval_singleprocess(
         area=opts["area"],
         number_edges=opts["edge_threshold"],
         dist_matrix_path=opts["dm_filepath"],
-        waste_weight=opts["waste_weight"],
+        waste_weight=opts.get("waste_weight", opts.get("w_waste", 1.0)),
         edge_strat=opts["edge_method"],
         dist_strat=opts["distance_method"],
     )

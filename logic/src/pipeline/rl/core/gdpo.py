@@ -82,7 +82,7 @@ class GDPO(REINFORCE):
             # Let's check 'out' first (standard RL4CO pattern for 'reward'), then 'td'.
             if key in out:
                 val = out[key]
-            elif key in td:
+            elif key in td.keys():
                 val = td[key]
             else:
                 # If a component is missing, we treat it as 0 (or error?)
@@ -108,7 +108,7 @@ class GDPO(REINFORCE):
             # Check if condition is met
             if self.conditional_key in out:
                 condition = out[self.conditional_key]
-            elif self.conditional_key in td:
+            elif self.conditional_key in td.keys():
                 condition = td[self.conditional_key]
             else:
                 condition = torch.ones_like(out["reward"], dtype=torch.bool)

@@ -75,9 +75,11 @@ class AttentionConvolutionLayer(nn.Module):
             lr_k,
         )
 
-    def forward(self, h, mask):
+    def forward(self, h, edges=None, mask=None):
         """Forward pass."""
-        h = self.att(h)
+        h = self.att(h, mask=mask)
         h = self.norm1(h)
-        h = self.ff_conv(h, mask)
+        # Use edges if provided (typical for graph conv), otherwise fallback to mask
+        adj = edges if edges is not None else mask
+        h = self.ff_conv(h, mask=adj)
         return self.norm2(h)

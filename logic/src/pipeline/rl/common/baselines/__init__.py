@@ -36,6 +36,7 @@ def get_baseline(name: str, policy: Optional[nn.Module] = None, **kwargs) -> Bas
     if name not in BASELINE_REGISTRY:
         raise ValueError(f"Unknown baseline: {name}")
 
+    kwargs.pop("policy", None)  # Avoid duplicate or string policy from hparams
     baseline = BASELINE_REGISTRY[name](**kwargs)
     if policy is not None:
         baseline.setup(policy)

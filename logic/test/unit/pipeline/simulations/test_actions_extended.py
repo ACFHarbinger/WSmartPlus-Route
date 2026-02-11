@@ -56,7 +56,7 @@ class TestCollectActionDetailed:
         assert base_context['ncol'] == 1
 
 class TestPostProcessActionDetailed:
-    @patch("logic.src.policies.post_processing.PostProcessorFactory.create")
+    @patch("logic.src.policies.other.post_processing.PostProcessorFactory.create")
     def test_post_process_execution(self, mock_create, base_context):
         mock_proc = MagicMock()
         mock_proc.process.return_value = [0, 1, 2, 0]

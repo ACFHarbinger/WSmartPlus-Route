@@ -58,9 +58,9 @@ def process_list_of_dicts(
 
 
 def process_dict_two_inputs(
-    data_dict: Dict[str, Any],
+    data_dict: Union[Dict[str, Any], Any],  # Accept ITraversable via duck typing
     input_key1: str,
-    input_key2_or_val: Union[str, int, float],
+    input_key2_or_val: Union[str, int, float, None],
     output_key: str,
     process_func: Callable[[Any, Any], Any],
 ) -> bool:

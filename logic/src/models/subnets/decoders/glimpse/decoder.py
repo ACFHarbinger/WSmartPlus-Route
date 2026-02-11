@@ -142,7 +142,7 @@ class GlimpseDecoder(nn.Module):
                 graph_size = nodes.shape[1]
             elif hasattr(nodes, "get"):
                 # Handle TensorDict or dict
-                loc_tensor = nodes.get("locs", nodes.get("loc"))
+                loc_tensor = nodes.get("locs") if "locs" in nodes.keys() else nodes.get("loc", None)
                 graph_size = loc_tensor.shape[1] if hasattr(loc_tensor, "shape") else 100  # type: ignore[union-attr]
             else:
                 graph_size = 100

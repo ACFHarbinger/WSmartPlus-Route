@@ -116,7 +116,7 @@ class PPO(RL4COLitModule):
         # print(f"DEBUG: env.batch_size: {self.env.batch_size}")
 
         # Remove done if present to avoid shape mismatch in reset
-        if "done" in batch:
+        if "done" in batch.keys():
             del batch["done"]
 
         env = self.env
