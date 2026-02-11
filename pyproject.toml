@@ -155,7 +155,8 @@ format = "flat"
 # Core settings
 engine = "pylance"          # pyrefly usually wraps a core engine; pylance/pyright is standard
 ai_assisted = true          # Enables the "agentic" suggestions seen in your Antigravity view
-python-interpreter-path = ".venv/bin/python"  # Use ".venv/Scripts/python.exe" on Windows
+venvPath = "."              # The directory containing the venv
+venv = ".venv"              # The name of the venv folder
 type_checking_mode = "basic"
 include = ["gui", "logic"]
 

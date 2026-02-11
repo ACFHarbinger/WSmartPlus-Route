@@ -45,11 +45,11 @@ class LoggerWriter:
         # (\x1b\[[0-9;]*m)* : Zero or more ANSI escape sequences
         # \s*               : Optional whitespace
         # \[(INFO|WARNING|ERROR)\] : The tag
-        tag_pattern = re.compile(r"^(\x1b\[[0-9;]*m)*\s*\[(INFO|WARNING|ERROR)\]")
+        tag_pattern = re.compile(r"^(\x1b\[[0-9;]*m)*\s*\[(INFO|WARNING|ERROR|DEBUG|CRITICAL)\]")
 
         # splitlines(True) keeps the line endings (\n)
         for line in message.splitlines(keepends=True):
-            if tag_pattern.match(line):
+            if tag_pattern.match(line) or ("\r" not in line and len(line.strip()) > 0):
                 self.log.write(line)
 
         self.log.flush()  # Ensure it writes immediately

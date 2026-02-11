@@ -27,9 +27,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     number_vehicles: int = 1,
     time_limit: int = 60,
 ):
-    """
-    Solve the Vehicle Routing Problem with Profits using Gurobi Optimizer.
-    """
+    """Solve the Vehicle Routing Problem with Profits."""
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
     Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 
@@ -41,11 +39,13 @@ def _run_gurobi_optimizer(  # noqa: C901
     nodes_real = [i for i in nodes if i != idx_deposito]
     S_dict = {i: pesos_reais[i] for i in nodes}
 
-    criticos = [bin_id in must_go for bin_id in binsids]
-    criticos_dict = {i: criticos[i] for i in nodes}
+    criticos_dict = {0: False}
+    for i, bin_id in enumerate(binsids, 1):
+        criticos_dict[i] = bin_id in must_go
 
     max_dist = 6000
     pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
+
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
     mdl.Params.LogToConsole = 0
 
@@ -85,7 +85,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     for i in nodes_real:
         if criticos_dict[i] or enchimentos[i] >= psi * 100:
             mdl.addConstr(g[i] == 1)
-        if enchimentos[i] < 10 and not criticos[i]:
+        if enchimentos[i] < 10 and not criticos_dict[i]:
             g[i].UB = 0
 
     for j in nodes_real:
@@ -122,8 +122,10 @@ def _run_gurobi_optimizer(  # noqa: C901
     profit = 0.0
     cost = 0.0
     mdl.optimize()
-    if mdl.status in [GRB.OPTIMAL, GRB.TIME_LIMIT] and mdl.SolCount > 0:
-        id_map = {i: binsids[i] for i in nodes}
+    if mdl.SolCount > 0:
+        id_map = {0: 0}
+        for i, bin_id in enumerate(binsids, 1):
+            id_map[i] = bin_id
         arcos_ativos = [(i, j) for i in nodes for j in nodes if i != j and x[i, j].X > 0.5]
 
         rotas = []
@@ -151,5 +153,6 @@ def _run_gurobi_optimizer(  # noqa: C901
 
         profit = float(mdl.ObjVal)
         cost = sum([x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis])
+        print(f"[DEBUG][VRPP-Gurobi] Profit: {profit}, Cost: {cost}, Collected: {len(contentores_coletados)}")
 
     return [0] + contentores_coletados, profit, cost

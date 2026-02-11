@@ -98,6 +98,16 @@ class InitializingState(SimState):
                 except (OSError, ValueError):
                     pass
 
+        # Handle must-go prefix tagged in context (e.g., 'regular' from regular_lvl3_cvrp)
+        if hasattr(ctx, "must_go_prefix") and ctx.must_go_prefix:
+            if "must_go" not in ctx.config:
+                ctx.config["must_go"] = []
+            if isinstance(ctx.config["must_go"], list):
+                if ctx.must_go_prefix not in ctx.config["must_go"]:
+                    ctx.config["must_go"].append(ctx.must_go_prefix)
+            else:
+                ctx.config["must_go"] = [ctx.config["must_go"], ctx.must_go_prefix]
+
         self._load_neural_configs(ctx)
 
     def _load_neural_configs(self, ctx):

@@ -77,6 +77,13 @@ class RunningState(SimState):
 
     def _get_current_policy_config(self, ctx):
         current_policy_config = {}  # type: ignore[var-annotated]
+
+        # Ensure global keys like 'must_go' and 'post_processing' are preserved
+        global_keys = ["must_go", "post_processing"]
+        for g_key in global_keys:
+            if ctx.config and g_key in ctx.config:
+                current_policy_config[g_key] = ctx.config[g_key]
+
         for key, cfg in (ctx.config or {}).items():
             if key in ctx.policy:
                 if isinstance(cfg, list):
@@ -84,13 +91,22 @@ class RunningState(SimState):
                         if isinstance(item, ITraversable):
                             current_policy_config.update(item)
                 elif isinstance(cfg, ITraversable):
-                    current_policy_config.update(cfg)
+                    # If the config is a dict, check if it contains engine-specific sub-configs
+                    # e.g., {'gurobi': [...]}. If so, drill down if the engine matches.
+                    found_engine = False
+                    for sub_key, sub_val in cfg.items():
+                        if sub_key in ctx.policy and isinstance(sub_val, (list, dict)):
+                            if isinstance(sub_val, list):
+                                for item in sub_val:
+                                    if isinstance(item, ITraversable):
+                                        current_policy_config.update(item)
+                            else:
+                                current_policy_config.update(sub_val)
+                            found_engine = True
+                            break
+                    if not found_engine:
+                        current_policy_config.update(cfg)
 
-        if "hgs" in ctx.pol_strip and "hgs_alns" not in ctx.pol_strip and ctx.vehicle_capacity is not None:
-            if "hgs" not in current_policy_config:
-                current_policy_config["hgs"] = {}
-            if "capacity" not in current_policy_config["hgs"]:
-                current_policy_config["hgs"]["capacity"] = ctx.vehicle_capacity
         return current_policy_config
 
     def _create_day_context(self, ctx, day, current_policy_config, realtime_log_path):

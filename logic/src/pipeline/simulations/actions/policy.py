@@ -41,9 +41,6 @@ class PolicyExecutionAction(SimulationAction):
             elif isinstance(policy_cfg, str):
                 solver_key = policy_cfg
 
-        if not solver_key and engine:
-            solver_key = engine
-
         if not solver_key:
             solver_key = policy_name
 

@@ -110,34 +110,84 @@ class SimulationContext:
     def _parse_policy_string(self) -> None:
         """parse policy string."""
         parts = self.pol_strip.split("_")
+
+        # 0. Check for must-go prefix (e.g., regular_lvl3)
+        search_parts, prefix_threshold, must_go_prefix = self._extract_must_go_prefix(parts)
+
+        # 1. Standard policy/engine parsing on the remaining parts
+        found = self._find_standard_policy(search_parts)
+
+        # 2. Fallback
+        if not found:
+            self.pol_name = "_".join(search_parts) if search_parts else self.pol_strip
+
+        # 3. If we had a prefix threshold or must_go, they override/inform
+        if prefix_threshold is not None:
+            self.pol_threshold = prefix_threshold
+
+        if must_go_prefix:
+            self.must_go_prefix = must_go_prefix
+
+    def _extract_must_go_prefix(self, parts: List[str]) -> Tuple[List[str], Optional[float], Optional[str]]:
+        """Extract must-go prefix and threshold.
+
+        Args:
+            parts (List[str]): Split policy string parts.
+
+        Returns:
+            Tuple[List[str], Optional[float], Optional[str]]: Reduced parts, threshold, and prefix.
+        """
+        if parts[0] == "regular" and len(parts) > 1:
+            must_go_prefix = "regular"
+            if parts[1].startswith("lvl"):
+                try:
+                    return parts[2:], float(parts[1][3:]), must_go_prefix
+                except ValueError:
+                    pass
+            return parts, None, must_go_prefix
+        return parts, None, None
+
+    def _find_standard_policy(self, search_parts: List[str]) -> bool:
+        """Find standard policy from registries.
+
+        Args:
+            search_parts (List[str]): Parts to search in.
+
+        Returns:
+            bool: True if a policy was found.
+        """
+        # 1. Engine Policies
         for pol_key, engines in ENGINE_POLICIES.items():
-            if pol_key in parts:
+            if pol_key in search_parts:
                 self.pol_name = pol_key
                 for eng in engines:
-                    if eng in parts:
+                    if eng in search_parts:
                         self.pol_engine = eng
                         break
                 self._extract_threshold(pol_key)
-                return
+                return True
 
+        # 2. Config Char Policies
         for pol_key, chars in CONFIG_CHAR_POLICIES.items():
-            if pol_key in parts:
+            if pol_key in search_parts:
                 self.pol_name = pol_key
                 self._extract_threshold_with_config_char(pol_key, chars)
-                return
+                return True
 
+        # 3. Threshold Policies
         for pol_key in THRESHOLD_POLICIES:
-            if pol_key in parts:
+            if pol_key in search_parts:
                 self.pol_name = pol_key
                 self._extract_threshold(pol_key)
-                return
+                return True
 
+        # 4. Simple Policies
         for keywords, name in SIMPLE_POLICIES.items():
-            if any(kw in parts or self.pol_strip.startswith(kw) for kw in keywords):
+            if any(kw in search_parts for kw in keywords):
                 self.pol_name = name
-                return
+                return True
 
-        self.pol_name = self.pol_strip
+        return False
 
     def _extract_threshold(self, policy_key: str) -> None:
         """extract threshold.
