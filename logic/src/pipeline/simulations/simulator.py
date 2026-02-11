@@ -208,7 +208,7 @@ def single_simulation(
         return {"policy": "unknown", "sample_id": sample_id, "error": str(e), "success": False}
 
 
-def sequential_simulations(
+def sequential_simulations(  # noqa: C901
     opts: Dict[str, Any],
     device: torch.device,
     indices_ls: List[Any],

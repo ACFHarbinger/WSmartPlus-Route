@@ -98,20 +98,41 @@ class BaseRoutingPolicy(IPolicyAdapter):
         from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
         config_key = self._get_config_key()
-        policy_config = config.get(config_key, {})
+        # Fallback to the config itself if the top-level key is not found
+        policy_config = config.get(config_key, config)
 
         # If we have a dataclass config, convert to dict and merge
         if self._config is not None and is_dataclass(self._config):
-            policy_config = {**policy_config, **asdict(self._config)}
+            policy_config = {**asdict(self._config), **(policy_config if isinstance(policy_config, dict) else {})}
 
-        Q, R, _, C, _ = load_area_and_waste_type_params(area, waste_type)
+        Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
 
         capacity = policy_config.get("capacity", Q)
         revenue = policy_config.get("revenue", R)
         cost_unit = policy_config.get("cost_unit", C)
+        density = policy_config.get("density", B)
+        bin_volume = policy_config.get("bin_volume", V)
 
-        values = {"Q": capacity, "R": revenue, "C": cost_unit}
-        values.update(policy_config)
+        values = {"Q": capacity, "R": revenue, "C": cost_unit, "B": density, "V": bin_volume}
+
+        # Helper to flatten nested structures
+        def flatten_to_values(target: Dict[str, Any], source: Any):
+            if isinstance(source, list):
+                for item in source:
+                    flatten_to_values(target, item)
+            elif hasattr(source, "items"):
+                for k, v in source.items():
+                    if k in ["gurobi", "ortools", "hexaly", "custom", "params"] and isinstance(v, (dict, list)):
+                        flatten_to_values(target, v)
+                    else:
+                        target[k] = v
+
+        flatten_to_values(values, policy_config)
+
+        if "Omega" not in values:
+            print(f"[DEBUG][{config_key}] 'Omega' missing!")
+            print(f"[DEBUG][{config_key}] policy_config: {policy_config}")
+            print(f"[DEBUG][{config_key}] values keys: {list(values.keys())}")
 
         return capacity, revenue, cost_unit, values
 
