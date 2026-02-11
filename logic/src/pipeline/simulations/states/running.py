@@ -86,7 +86,7 @@ class RunningState(SimState):
                 elif isinstance(cfg, ITraversable):
                     current_policy_config.update(cfg)
 
-        if "hgs" in ctx.pol_strip and ctx.vehicle_capacity is not None:
+        if "hgs" in ctx.pol_strip and "hgs_alns" not in ctx.pol_strip and ctx.vehicle_capacity is not None:
             if "hgs" not in current_policy_config:
                 current_policy_config["hgs"] = {}
             if "capacity" not in current_policy_config["hgs"]:

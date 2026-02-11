@@ -26,7 +26,7 @@ class PolicyExecutionAction(SimulationAction):
         raw_cfg = context.get("config", {})
 
         solver_key = None
-        known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bcp", "sans", "neural"]
+        known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs_alns", "hgs", "alns", "bcp", "sans", "neural"]
         for key in known_policy_keys:
             if key in raw_cfg:
                 solver_key = key
