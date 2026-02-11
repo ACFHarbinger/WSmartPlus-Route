@@ -66,6 +66,7 @@ ENGINE_POLICIES = {
 THRESHOLD_POLICIES = [
     "vrpp",  # Parse MIP gap tolerance (e.g., "vrpp_0.01" → 1% optimality gap)
     "sans",  # Parse simulated annealing temperature (e.g., "sans_0.95" → cooling rate 0.95)
+    "hgs_alns",  # Parse HGS-ALNS hybrid params (must precede "hgs" to avoid partial match)
     "hgs",  # Parse max iterations (e.g., "hgs_10000" → 10k iterations)
     "alns",  # Parse max iterations (e.g., "alns_5000" → 5k destroy-repair cycles)
     "bcp",  # Parse time limit (e.g., "bcp_300" → 300 seconds)

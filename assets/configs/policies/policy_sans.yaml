@@ -123,7 +123,7 @@ sans:
       # Maximum wall-clock seconds
 
     must_go:
-      ["mg_lookahead.yaml"]
+      ["other/mg_lookahead.yaml"]
       # Node selection strategy
 
     post_processing: []
@@ -160,7 +160,7 @@ sans:
       # Maximum wall-clock seconds
 
     must_go:
-      ["mg_lookahead.yaml"]
+      ["other/mg_lookahead.yaml"]
       # Node selection strategy
 
     post_processing: []
@@ -187,7 +187,7 @@ lac:
     engine: og
     combination: a
     time_limit: 60
-    must_go: ["mg_lookahead.yaml"]
+    must_go: ["other/mg_lookahead.yaml"]
     post_processing: []
     params:
       - 500
@@ -202,7 +202,7 @@ lac:
     engine: og
     combination: b
     time_limit: 60
-    must_go: ["mg_lookahead.yaml"]
+    must_go: ["other/mg_lookahead.yaml"]
     post_processing: []
     params:
       - 2000

@@ -196,12 +196,15 @@ def single_simulation(
         res: Optional[Dict[str, Any]] = context.run()
         return res if res is not None else {}
     except BaseException as e:
+        # Force print to real stderr to bypass any redirection
+        err_stream = sys.__stderr__ or sys.stderr
         print(
             f"CRITICAL ERROR (BaseException) in single_simulation (Sample {sample_id}, Policy {pol_id}): {e}",
-            file=sys.stdout,
+            file=err_stream,
         )
-        traceback.print_exc(file=sys.stdout)
-        sys.stdout.flush()
+        traceback.print_exc(file=err_stream)
+        if err_stream:
+            err_stream.flush()
         return {"policy": "unknown", "sample_id": sample_id, "error": str(e), "success": False}
 
 
@@ -291,6 +294,18 @@ def sequential_simulations(
                     # Always append to log_full to support uniform aggregation logic
                     log_full[policy].append(lg)
                     log[policy] = lg
+            except BaseException as e:
+                # Force print to real stderr to bypass any redirection
+                err_stream = sys.__stderr__ or sys.stderr
+                print(
+                    f"CRITICAL ERROR (BaseException) in sequential_simulations (Sample {sample_id}, Policy {pol_id}): {e}",
+                    file=err_stream,
+                )
+                traceback.print_exc(file=err_stream)
+                if err_stream:
+                    err_stream.flush()
+                # Continue with next sample/policy instead of crashing the whole process
+                pass
             except CheckpointError:
                 # Skip broken checkpoints
                 pass
