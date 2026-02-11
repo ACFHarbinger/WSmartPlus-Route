@@ -7,6 +7,7 @@ import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
+import folium
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -203,7 +204,9 @@ def _render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
 
     tour = display_entry.data.get("tour", [])
     bin_states = display_entry.data.get("bin_state_c", [])
-    bin_states_after = display_entry.data.get("bins_state_real_c_after", [])
+    collected = display_entry.data.get("bin_state_collected", [])
+    must_go: Optional[List[int]] = display_entry.data.get("must_go")
+    all_bin_coords: Optional[List[Dict[str, Any]]] = display_entry.data.get("all_bin_coords")
 
     if not tour:
         st.warning("No tour data available for this entry.")
@@ -211,22 +214,37 @@ def _render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
 
     dist_matrix = _load_custom_matrix(controls)
 
-    # Determine served bins (those with bin_state_c_after = 0, meaning collected)
-    served_indices = []
-    for i, state in enumerate(bin_states_after):
-        if state == 0 and i < len(bin_states) and bin_states[i] > 0:
-            served_indices.append(i)
-
     sim_map = create_simulation_map(
         tour=tour,
         bin_states=bin_states,
-        served_indices=served_indices,
+        must_go=must_go,
+        all_bin_coords=all_bin_coords,
+        collected=collected if collected else None,
         vehicle_id=0,
         show_route=controls["show_route"],
         zoom_start=13,
         distance_matrix=dist_matrix,
         dist_strategy=controls.get("distance_strategy", "hsd"),
     )
+
+    # Legend
+    legend_html = """
+    <div style="
+        position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+        background: rgba(255,255,255,0.92); padding: 12px 16px;
+        border-radius: 8px; border: 1px solid #ccc;
+        font-size: 13px; line-height: 1.8;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    ">
+        <b style="font-size: 14px;">Map Legend</b><br>
+        <span style="color: #007bff;">&#9679;</span> Depot<br>
+        <span style="color: #28a745;">&#9679;</span> Served (collected)<br>
+        <span style="color: #fd7e14;">&#9679;</span> Must-Go (selected)<br>
+        <span style="color: #dc3545;">&#9679;</span> Pending<br>
+        <span style="color: #fd7e14;">&#9901;</span> Must-Go + Served
+    </div>
+    """
+    sim_map.get_root().html.add_child(folium.Element(legend_html))
 
     st_folium(sim_map, width=None, height=500, returned_objects=[])
 
