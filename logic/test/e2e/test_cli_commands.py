@@ -2,8 +2,10 @@
 End-to-end smoke tests for CLI commands.
 """
 
+import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -66,37 +68,45 @@ def test_cli_gen_data_smoke(tmp_path, problem):
 @pytest.mark.e2e
 def test_cli_train_lightning_smoke():
     """Smoke test for training loop."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "main.py",
-            "train",
-            "env.name=vrpp",
-            "env.num_loc=10",
-            "train.n_epochs=1",
-            "train.batch_size=2",
-            "train.eval_batch_size=2",
-            "train.train_data_size=10",
-            "train.val_data_size=10",
-            "train.num_workers=0",  # Disable multiprocessing for faster startup
-            "train.persistent_workers=false",  # Disable persistent workers
-            "train.devices=1",  # Use only 1 GPU
-            "train.strategy=auto",  # Auto strategy for single GPU
-            "model.encoder.embed_dim=32",  # Smaller model for faster training
-            "model.encoder.hidden_dim=64",
-            "model.encoder.n_layers=1",
-            "model.encoder.n_heads=2",
-            "wandb_mode=offline",
-            "hpo.n_trials=0",  # Explicitly disable HPO
-        ],
-        capture_output=True,
-        text=True,
-        timeout=300,  # 5 minutes - generous timeout for initialization + 1 epoch
-    )
-    if result.returncode != 0:
-        print("STDOUT:", result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
-        print("STDERR:", result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr)
-    assert result.returncode == 0
+    # Path to model weights that will be created during training
+    weights_dir = Path("assets/model_weights/vrpp10_riomaior_plastic/gamma1/amgat0")
+
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "main.py",
+                "train",
+                "env.name=vrpp",
+                "env.num_loc=10",
+                "train.n_epochs=1",
+                "train.batch_size=2",
+                "train.eval_batch_size=2",
+                "train.train_data_size=10",
+                "train.val_data_size=10",
+                "train.num_workers=0",  # Disable multiprocessing for faster startup
+                "train.persistent_workers=false",  # Disable persistent workers
+                "train.devices=1",  # Use only 1 GPU
+                "train.strategy=auto",  # Auto strategy for single GPU
+                "model.encoder.embed_dim=32",  # Smaller model for faster training
+                "model.encoder.hidden_dim=64",
+                "model.encoder.n_layers=1",
+                "model.encoder.n_heads=2",
+                "wandb_mode=offline",
+                "hpo.n_trials=0",  # Explicitly disable HPO
+            ],
+            capture_output=True,
+            text=True,
+            timeout=300,  # 5 minutes - generous timeout for initialization + 1 epoch
+        )
+        if result.returncode != 0:
+            print("STDOUT:", result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
+            print("STDERR:", result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr)
+        assert result.returncode == 0
+    finally:
+        # Clean up model weights created during test
+        if weights_dir.exists():
+            shutil.rmtree(weights_dir)
 
 
 @pytest.mark.e2e
@@ -167,36 +177,44 @@ def test_cli_test_sim_smoke():
 @pytest.mark.e2e
 def test_cli_train_lightning_ppo_smoke():
     """Smoke test for PPO training loop via CLI."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "main.py",
-            "train",
-            "env.name=vrpp",
-            "env.num_loc=10",
-            "+experiment=ppo",  # Use + to append new config group if not in schema
-            "train.n_epochs=1",
-            "train.batch_size=2",
-            "train.eval_batch_size=2",
-            "train.train_data_size=10",
-            "train.val_data_size=10",
-            "train.num_workers=0",  # Disable multiprocessing for faster startup
-            "train.persistent_workers=false",  # Disable persistent workers
-            "train.devices=1",  # Use only 1 GPU
-            "train.strategy=auto",  # Auto strategy for single GPU
-            "model.encoder.embed_dim=32",  # Smaller model for faster training
-            "model.encoder.hidden_dim=64",
-            "model.encoder.n_layers=1",
-            "model.encoder.n_heads=2",
-            "wandb_mode=offline",
-            "hpo.n_trials=0",  # Explicitly disable HPO
-        ],
-        capture_output=True,
-        text=True,
-        timeout=300,  # 5 minutes - generous timeout for initialization + 1 epoch
-    )
-    if result.returncode != 0:
-        print("PPO Smoke Test Failed")
-        print("STDOUT:", result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
-        print("STDERR:", result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr)
-    assert result.returncode == 0
+    # Path to model weights that will be created during training
+    weights_dir = Path("assets/model_weights/vrpp10_riomaior_plastic/gamma1/amgat0")
+
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "main.py",
+                "train",
+                "env.name=vrpp",
+                "env.num_loc=10",
+                "+experiment=ppo",  # Use + to append new config group if not in schema
+                "train.n_epochs=1",
+                "train.batch_size=2",
+                "train.eval_batch_size=2",
+                "train.train_data_size=10",
+                "train.val_data_size=10",
+                "train.num_workers=0",  # Disable multiprocessing for faster startup
+                "train.persistent_workers=false",  # Disable persistent workers
+                "train.devices=1",  # Use only 1 GPU
+                "train.strategy=auto",  # Auto strategy for single GPU
+                "model.encoder.embed_dim=32",  # Smaller model for faster training
+                "model.encoder.hidden_dim=64",
+                "model.encoder.n_layers=1",
+                "model.encoder.n_heads=2",
+                "wandb_mode=offline",
+                "hpo.n_trials=0",  # Explicitly disable HPO
+            ],
+            capture_output=True,
+            text=True,
+            timeout=300,  # 5 minutes - generous timeout for initialization + 1 epoch
+        )
+        if result.returncode != 0:
+            print("PPO Smoke Test Failed")
+            print("STDOUT:", result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
+            print("STDERR:", result.stderr[-2000:] if len(result.stderr) > 2000 else result.stderr)
+        assert result.returncode == 0
+    finally:
+        # Clean up model weights created during test
+        if weights_dir.exists():
+            shutil.rmtree(weights_dir)

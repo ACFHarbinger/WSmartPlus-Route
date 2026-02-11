@@ -121,7 +121,7 @@ class TestInputAnalysisInteractions:
 
         with patch("PySide6.QtWidgets.QMessageBox.warning") as mock_msg:
             input_tab.plot_data()
-            mock_msg.assert_called_with(input_tab, "Plot Error", "Please select both X and Y axes for this chart type.")
+            mock_msg.assert_called_with(input_tab, "Plot Error", "Please select both X and Y axes.")
 
     def test_plot_data_heatmap(self, input_tab):
         """Test plotting logic for Heatmap."""
