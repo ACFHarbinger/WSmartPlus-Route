@@ -15,7 +15,7 @@ problem := "wcvrp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "50"
+size := "100"
 area := "riomaior"
 epochs := "100"
 batch_size := "64"
@@ -26,6 +26,8 @@ seed := "42"
 marker := "fast"
 strategy := "greedy"
 distribution := "gamma1"
+n_cores := "0"
+policies := "hgs,alns,sans,vrpp,cvrp,tsp"
 
 # --- Setup & Environment ---
 
@@ -88,7 +90,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies="hgs,alns,sans,vrpp,cvrp,tsp" days=days area=area size=size samples=samples problem=problem:
+test-sim policies="cvrp" days=days area=area size=size samples=samples problem=problem n_cores=n_cores:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -104,7 +106,8 @@ test-sim policies="hgs,alns,sans,vrpp,cvrp,tsp" days=days area=area size=size sa
         sim.n_samples={{ samples }} \
         sim.graph.area={{ area }} \
         sim.graph.num_loc={{ size }} \
-        sim.problem={{ problem }}
+        sim.problem={{ problem }} \
+        sim.cpu_cores={{ n_cores }}
 
 # Generate data with Hydra configs
 

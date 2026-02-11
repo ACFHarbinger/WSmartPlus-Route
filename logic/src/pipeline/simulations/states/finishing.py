@@ -48,7 +48,7 @@ class FinishingState(SimState):
             (np.sum(ctx.bins.collected) / ctx.bins.travel if ctx.bins.travel > 0 else 0.0),
             np.sum(ctx.bins.inoverflow) - np.sum(ctx.bins.collected) + ctx.bins.travel,
             ctx.bins.profit,
-            ctx.bins.ndays,
+            ctx.bins.day_count,
             ctx.execution_time,
         ]
 
@@ -95,6 +95,12 @@ class FinishingState(SimState):
 
         if ctx.checkpoint:
             ctx.checkpoint.clear()
+
+        # Clear shared metrics to prevent double counting in the progress bar
+        if ctx.shared_metrics is not None:
+            key = f"{ctx.policy}_{ctx.sample_id}"
+            if key in ctx.shared_metrics:
+                del ctx.shared_metrics[key]
 
         ctx.result = {ctx.policy: lg, "success": True}
 

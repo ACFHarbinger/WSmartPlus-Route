@@ -51,10 +51,21 @@ class MustGoSelectionAction(SimulationAction):
             s_name = strat_info["name"]
             s_params = strat_info["params"]
 
-            thresh = 0.0
             if isinstance(s_params, ITraversable):
-                val = s_params.get("threshold") or s_params.get("cf") or s_params.get("param") or s_params.get("lvl")
-                thresh = float(val) if val is not None else 0.0
+                thresh = (
+                    s_params.get("threshold")
+                    or s_params.get("cf")
+                    or s_params.get("param")
+                    or s_params.get("lvl")
+                    or context.get("threshold")
+                )
+            else:
+                thresh = context.get("threshold")
+
+            # Allow the system to fail later (e.g. RegularSelection) if thresh is None,
+            # as per user request to avoid "silent killers".
+
+            # print(f"[DEBUG] Strategy: {s_name} (Day {context.get('day')}), Threshold used: {thresh}")
 
             sel_ctx = SelectionContext(
                 bin_ids=np.arange(0, n_bins, dtype="int32"),

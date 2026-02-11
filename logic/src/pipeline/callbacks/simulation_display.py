@@ -107,7 +107,7 @@ class SimulationDisplay:
         self.layout.split(
             Layout(name="header", size=1),
             Layout(name="main", ratio=1),
-            Layout(name="footer", size=6),
+            Layout(name="footer", size=len(self.policies) + 2),
         )
         self.layout["main"].split(
             Layout(name="chart", ratio=2),
