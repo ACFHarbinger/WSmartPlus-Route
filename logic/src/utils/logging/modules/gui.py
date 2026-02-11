@@ -33,6 +33,7 @@ def send_daily_output_to_gui(
         coords_lookup = coordinates.copy()
         coords_lookup.columns = [str(c).upper().strip() for c in coords_lookup.columns]
 
+    # Tour contains node indices (0=depot, 1..N=bins)
     for idx in tour:
         point_data = _process_tour_point(idx, coords_lookup)
         route_coords.append(point_data)
@@ -45,8 +46,18 @@ def send_daily_output_to_gui(
             "bins_state_real_c_after": list(bins_real_c_after),
         }
     )
+
+    # Include coordinates for ALL nodes (depot + bins)
+    if coords_lookup is not None:
+        all_bin_coords = _build_all_bin_coords(coords_lookup, len(bins_c))
+        full_payload["all_bin_coords"] = all_bin_coords
+
     if must_go is not None:
-        full_payload.update({"must_go": list(must_go)})
+        # Standardize must_go to 0-indexed bin IDs (0..N-1)
+        # Selection strategies return Node IDs (1..N)
+        shifted_must_go = [i - 1 for i in must_go if i > 0]
+        full_payload.update({"must_go": shifted_must_go})
+
     log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
@@ -97,14 +108,76 @@ def send_final_output_to_gui(
             lock.release()
 
 
-def _process_tour_point(idx: int, coords_lookup: Optional[pd.DataFrame]) -> Dict[str, Any]:
-    """Helper to process a single tour point's coordinate data."""
-    point_data: Dict[str, Any] = {"id": int(idx)}
-    if coords_lookup is not None and idx in coords_lookup.index:
-        row = coords_lookup.loc[idx]
-        # Try to get coordinates from common column names
-        lat = row.get("LATITUDE") or row.get("LAT") or row.get("Y")
-        lon = row.get("LONGITUDE") or row.get("LON") or row.get("X")
+def _get_lat_lon(row: pd.Series) -> tuple:
+    """Extract lat/lon from a row with flexible column naming."""
+    lat = row.get("LATITUDE") or row.get("LAT") or row.get("Y")
+    lon = row.get("LONGITUDE") or row.get("LNG") or row.get("LON") or row.get("X")
+    return lat, lon
+
+
+def _process_tour_point(node_idx: int, coords_lookup: Optional[pd.DataFrame]) -> Dict[str, Any]:
+    """Build a tour point dict from a node index.
+
+    Standard mapping:
+    - Node 0 (Depot) -> Payload ID -1
+    - Nodes 1..N (Bins) -> Payload ID 0..N-1
+    """
+    try:
+        node_idx_int = int(node_idx)
+    except (ValueError, TypeError):
+        return {"id": node_idx}
+
+    if node_idx_int == 0:
+        gui_id = -1
+        row_idx = 0
+        p_type = "depot"
+        p_label = "Depot"
+    else:
+        gui_id = node_idx_int - 1
+        row_idx = node_idx_int
+        p_type = "bin"
+        p_label = f"Bin {gui_id}"
+
+    point_data: Dict[str, Any] = {"id": gui_id, "type": p_type}
+
+    if coords_lookup is not None and 0 <= row_idx < len(coords_lookup):
+        row = coords_lookup.iloc[row_idx]
+        lat, lon = _get_lat_lon(row)
         if lat is not None and lon is not None:
-            point_data.update({"lat": float(lat), "lon": float(lon)})
+            point_data["lat"] = float(lat)
+            point_data["lng"] = float(lon)
+            # Add Dataset ID for detailed reference
+            dataset_id = row.get("ID", row_idx)
+            point_data["popup"] = f"<b>{p_label}</b><br>Dataset ID: {dataset_id}"
+
     return point_data
+
+
+def _build_all_bin_coords(coords_lookup: pd.DataFrame, n_bins: int) -> List[Dict[str, Any]]:
+    """Build coordinate entries for ALL nodes using the standarized ID mapping."""
+    all_bin_coords: List[Dict[str, Any]] = []
+    # Total nodes in coords_lookup should be n_bins + 1 (depot)
+    for row_idx in range(len(coords_lookup)):
+        row = coords_lookup.iloc[row_idx]
+        lat, lon = _get_lat_lon(row)
+        if lat is not None and lon is not None:
+            if row_idx == 0:
+                gui_id = -1
+                p_type = "depot"
+                p_label = "Depot"
+            else:
+                gui_id = row_idx - 1
+                p_type = "bin"
+                p_label = f"Bin {gui_id}"
+
+            dataset_id = row.get("ID", row_idx)
+            all_bin_coords.append(
+                {
+                    "id": gui_id,
+                    "lat": float(lat),
+                    "lng": float(lon),
+                    "type": p_type,
+                    "popup": f"<b>{p_label}</b><br>Dataset ID: {dataset_id}",
+                }
+            )
+    return all_bin_coords
