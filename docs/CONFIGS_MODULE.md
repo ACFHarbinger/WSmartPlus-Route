@@ -2083,7 +2083,7 @@ Config
 
 - [CONSTANTS_MODULE.md](CONSTANTS_MODULE.md) - System constants and mappings
 - [UTILS_MODULE.md](UTILS_MODULE.md) - Utility functions and helpers
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - System architecture overview
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture overview
 - [CLAUDE.md](../CLAUDE.md) - Agent instructions and coding standards
 
 ---
