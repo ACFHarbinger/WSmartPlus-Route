@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
+import yaml
 
 from logic.src.pipeline.ui.services.log_parser import (
     DayLogEntry,
@@ -48,23 +49,44 @@ def get_simulation_output_dir() -> Path:
 @st.cache_data(ttl=60)
 def discover_training_runs() -> List[Tuple[str, Path]]:
     """
-    Discover all training runs in logs.
+    Discover all training runs in logs/output.
 
     Returns:
         List of (version_name, metrics_csv_path) tuples.
     """
-    logs_dir = get_logs_dir()
+    output_dir = get_logs_dir() / "output"
     runs: List[Tuple[str, Path]] = []
 
-    if not logs_dir.exists():
+    if not output_dir.exists():
         return runs
 
-    for version_dir in sorted(logs_dir.glob("version_*")):
+    for version_dir in sorted(output_dir.glob("version_*")):
         metrics_file = version_dir / "metrics.csv"
         if metrics_file.exists():
             runs.append((version_dir.name, metrics_file))
 
     return runs
+
+
+@st.cache_data(ttl=60)
+def load_hparams(version_name: str) -> Dict[str, Any]:
+    """
+    Load hparams.yaml for a training version.
+
+    Args:
+        version_name: Version folder name (e.g., "version_0").
+
+    Returns:
+        Dict with hyperparameters, or empty dict if not found.
+    """
+    hparams_path = get_logs_dir() / "output" / version_name / "hparams.yaml"
+    if not hparams_path.exists():
+        return {}
+    try:
+        with open(hparams_path) as f:
+            return yaml.safe_load(f) or {}
+    except Exception:
+        return {}
 
 
 @st.cache_data(ttl=60)

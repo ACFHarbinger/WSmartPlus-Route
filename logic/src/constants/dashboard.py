@@ -43,5 +43,6 @@ ROUTE_COLORS = [
 BIN_COLORS = {
     "served": "#28a745",  # Green (Bootstrap success) - bin was collected today
     "pending": "#dc3545",  # Red (Bootstrap danger) - bin needs collection
+    "must_go": "#fd7e14",  # Orange (Bootstrap warning) - bin was in must_go selection
     "depot": "#007bff",  # Blue (Bootstrap primary) - depot/warehouse location
 }
