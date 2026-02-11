@@ -40,8 +40,6 @@ def create_simulation_map(  # noqa: C901
     center = get_map_center(tour)
     m = folium.Map(location=center, zoom_start=zoom_start, tiles="cartodbpositron")
 
-    route_color = ROUTE_COLORS[vehicle_id % len(ROUTE_COLORS)]
-
     # Collect coordinates for route line
     route_coords: List[Tuple[float, float]] = []
     route_ids: List[int] = []
@@ -117,7 +115,7 @@ def create_simulation_map(  # noqa: C901
                 weight=2,
             ).add_to(m)
 
-    # Draw route polyline segments with info
+    # Draw route polyline segments with info, coloring each trip differently
     if show_route and len(route_coords) > 1:
         # Import strategies from network
         from logic.src.pipeline.simulations.network import (
@@ -149,9 +147,20 @@ def create_simulation_map(  # noqa: C901
         elif dist_strategy == "load_matrix":
             strategy_label = "Custom Matrix"
 
+        # Split route into trips at depot returns (id=0) for distinct coloring.
+        # Identify the depot ID (first point in the tour).
+        depot_id = route_ids[0] if route_ids else 0
+        trip_num = 1
+
         for i in range(len(route_coords) - 1):
             start = route_coords[i]
             end = route_coords[i + 1]
+
+            # Advance trip number when leaving the depot (except at the very start)
+            if i > 0 and route_ids[i] == depot_id and route_ids[i + 1] != depot_id:
+                trip_num += 1
+
+            trip_color = ROUTE_COLORS[(trip_num - 1) % len(ROUTE_COLORS)]
 
             # Distance calculation
             dist_km = 0.0
@@ -184,10 +193,10 @@ def create_simulation_map(  # noqa: C901
 
             folium.PolyLine(
                 locations=[start, end],
-                color=route_color,
+                color=trip_color,
                 weight=3,
                 opacity=0.8,
-                tooltip=f"Leg {i + 1}: {dist_km:.2f} km ({dist_source})",
+                tooltip=f"Trip {trip_num}, Leg {i + 1}: {dist_km:.2f} km ({dist_source})",
             ).add_to(m)
 
     return m
