@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.security.directories
 src.utils.security.keys
 src.utils.security.data
+src.utils.security.directories
 ```
 
 ## Package Contents

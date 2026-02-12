@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.hypernet.optimizer
 src.models.hypernet.hypernetwork
+src.models.hypernet.optimizer
 ```

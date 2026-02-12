@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.data.distributions.spatial_mix
+src.data.distributions.spatial_cluster
+src.data.distributions.spatial_mixed
 src.data.distributions.statistical
 src.data.distributions.spatial_mix_multi
-src.data.distributions.spatial_cluster
 src.data.distributions.spatial_gaussian_mixture
-src.data.distributions.spatial_mix
-src.data.distributions.spatial_mixed
 src.data.distributions.empirical
 ```
 

@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.operators.destroy.shaw
 src.policies.operators.destroy.cluster
 src.policies.operators.destroy.worst
-src.policies.operators.destroy.random
 src.policies.operators.destroy.string
-src.policies.operators.destroy.shaw
+src.policies.operators.destroy.random
 ```
 
 ## Package Contents

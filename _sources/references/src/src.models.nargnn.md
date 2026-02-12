@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.nargnn.model
 src.models.nargnn.policy
+src.models.nargnn.model
 ```
 
 ## Package Contents

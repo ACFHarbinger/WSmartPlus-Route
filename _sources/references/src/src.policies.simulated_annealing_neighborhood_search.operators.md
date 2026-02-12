@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.simulated_annealing_neighborhood_search.operators.move
-src.policies.simulated_annealing_neighborhood_search.operators.swap
-src.policies.simulated_annealing_neighborhood_search.operators.intra_move
-src.policies.simulated_annealing_neighborhood_search.operators.inter_move
-src.policies.simulated_annealing_neighborhood_search.operators.inter_swap
 src.policies.simulated_annealing_neighborhood_search.operators.intra_swap
+src.policies.simulated_annealing_neighborhood_search.operators.move
+src.policies.simulated_annealing_neighborhood_search.operators.inter_move
+src.policies.simulated_annealing_neighborhood_search.operators.intra_move
+src.policies.simulated_annealing_neighborhood_search.operators.swap
+src.policies.simulated_annealing_neighborhood_search.operators.inter_swap
 ```

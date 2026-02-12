@@ -22,10 +22,10 @@ src.pipeline.features.eval.evaluators
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.features.eval.engine
+src.pipeline.features.eval.validation
 src.pipeline.features.eval.evaluate
 src.pipeline.features.eval.eval_base
-src.pipeline.features.eval.validation
-src.pipeline.features.eval.engine
 ```
 
 ## Package Contents

@@ -15,8 +15,8 @@
 
 src.policies.branch_cut_and_price.vrpy_engine
 src.policies.branch_cut_and_price.dispatcher
-src.policies.branch_cut_and_price.ortools_engine
 src.policies.branch_cut_and_price.gurobi_engine
+src.policies.branch_cut_and_price.ortools_engine
 ```
 
 ## Package Contents

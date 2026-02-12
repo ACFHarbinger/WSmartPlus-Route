@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.ant_colony_optimization.hyper_heuristic_aco
 src.policies.ant_colony_optimization.k_sparse_aco
+src.policies.ant_colony_optimization.hyper_heuristic_aco
 ```
 
 ## Package Contents

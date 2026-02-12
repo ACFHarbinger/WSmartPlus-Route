@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.envs.tasks
 src.envs.generators
+src.envs.tasks
 src.envs.base
 ```
 
@@ -24,15 +24,15 @@ src.envs.base
 :titlesonly:
 :maxdepth: 1
 
-src.envs.cvrpp
-src.envs.vrpp
-src.envs.swcvrp
-src.envs.wcvrp
+src.envs.tsp
 src.envs.cwcvrp
 src.envs.problems
+src.envs.swcvrp
 src.envs.sdwcvrp
 src.envs.tsp_kopt
-src.envs.tsp
+src.envs.wcvrp
+src.envs.vrpp
+src.envs.cvrpp
 ```
 
 ## Package Contents

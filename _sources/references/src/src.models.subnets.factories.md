@@ -13,17 +13,17 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.factories.ggac
-src.models.subnets.factories.mdam
 src.models.subnets.factories.gcn
-src.models.subnets.factories.nar
-src.models.subnets.factories.moe
-src.models.subnets.factories.attention
-src.models.subnets.factories.gac
+src.models.subnets.factories.base
 src.models.subnets.factories.tgc
 src.models.subnets.factories.mlp
+src.models.subnets.factories.gac
+src.models.subnets.factories.attention
 src.models.subnets.factories.gfacs
-src.models.subnets.factories.base
+src.models.subnets.factories.mdam
+src.models.subnets.factories.ggac
+src.models.subnets.factories.nar
+src.models.subnets.factories.moe
 ```
 
 ## Package Contents

@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.model.loader
 src.utils.model.processing
-src.utils.model.checkpoint_utils
 src.utils.model.config_utils
+src.utils.model.checkpoint_utils
+src.utils.model.loader
 src.utils.model.problem_factory
 ```
 

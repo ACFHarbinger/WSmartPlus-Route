@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.cli.base.store_dict_key
-src.cli.base.parser
 src.cli.base.update_function_factory
+src.cli.base.parser
 src.cli.base.lowercase_action
+src.cli.base.store_dict_key
 ```
 
 ## Package Contents

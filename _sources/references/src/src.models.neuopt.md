@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.models.neuopt.decoder
-src.models.neuopt.encoder
-src.models.neuopt.model
 src.models.neuopt.policy
+src.models.neuopt.model
+src.models.neuopt.encoder
 ```
 
 ## Package Contents

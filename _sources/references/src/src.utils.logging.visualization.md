@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.logging.visualization.embeddings
-src.utils.logging.visualization.heatmaps
 src.utils.logging.visualization.landscape
+src.utils.logging.visualization.embeddings
 src.utils.logging.visualization.helpers
+src.utils.logging.visualization.heatmaps
 ```
 
 ## Package Contents

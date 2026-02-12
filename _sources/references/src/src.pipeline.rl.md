@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline.rl.meta
-src.pipeline.rl.core
 src.pipeline.rl.common
+src.pipeline.rl.meta
 src.pipeline.rl.hpo
+src.pipeline.rl.core
 ```
 
 ## Package Contents

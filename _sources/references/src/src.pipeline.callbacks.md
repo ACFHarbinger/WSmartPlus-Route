@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.callbacks.training_display
 src.pipeline.callbacks.policy_summary
+src.pipeline.callbacks.training_display
 src.pipeline.callbacks.model_summary
-src.pipeline.callbacks.reptile
 src.pipeline.callbacks.speed_monitor
+src.pipeline.callbacks.reptile
 src.pipeline.callbacks.simulation_display
 ```
 

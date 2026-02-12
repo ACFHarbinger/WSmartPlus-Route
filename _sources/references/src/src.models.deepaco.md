@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.deepaco.model
 src.models.deepaco.policy
+src.models.deepaco.model
 ```
 
 ## Package Contents

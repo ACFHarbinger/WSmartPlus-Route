@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.operators.exchange.ejection
 src.policies.operators.exchange.lambda_interchange
-src.policies.operators.exchange.or_opt
 src.policies.operators.exchange.cross
+src.policies.operators.exchange.or_opt
+src.policies.operators.exchange.ejection
 ```
 
 ## Package Contents

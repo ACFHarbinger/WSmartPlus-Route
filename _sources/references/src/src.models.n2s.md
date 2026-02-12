@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.models.n2s.decoder
-src.models.n2s.encoder
-src.models.n2s.model
 src.models.n2s.policy
+src.models.n2s.model
+src.models.n2s.encoder
 ```
 
 ## Package Contents

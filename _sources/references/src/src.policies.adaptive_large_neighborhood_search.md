@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.policies.adaptive_large_neighborhood_search.ortools_wrapper
+src.policies.adaptive_large_neighborhood_search.alns_package
 src.policies.adaptive_large_neighborhood_search.params
 src.policies.adaptive_large_neighborhood_search.alns
-src.policies.adaptive_large_neighborhood_search.alns_package
 ```
 
 ## Package Contents

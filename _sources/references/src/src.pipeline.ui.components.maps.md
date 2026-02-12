@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.ui.components.maps.simulation
 src.pipeline.ui.components.maps.heatmap
 src.pipeline.ui.components.maps.multi_route
+src.pipeline.ui.components.maps.simulation
 ```

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.matnet.model
 src.models.matnet.policy
+src.models.matnet.model
 ```
 
 ## Package Contents

@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.post_processing.random_ls
 src.policies.other.post_processing.factory
+src.policies.other.post_processing.random_ls
+src.policies.other.post_processing.ils
+src.policies.other.post_processing.local_search
 src.policies.other.post_processing.path
 src.policies.other.post_processing.registry
-src.policies.other.post_processing.local_search
-src.policies.other.post_processing.ils
 src.policies.other.post_processing.fast_tsp
 ```
 

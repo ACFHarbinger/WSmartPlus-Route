@@ -22,7 +22,7 @@ src.pipeline.ui.components.maps
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.ui.components.sidebar
 src.pipeline.ui.components.benchmark_charts
 src.pipeline.ui.components.charts
-src.pipeline.ui.components.sidebar
 ```

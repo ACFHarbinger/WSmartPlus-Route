@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.generators.vrpp
-src.envs.generators.wcvrp
-src.envs.generators.scwcvrp
 src.envs.generators.tsp
 src.envs.generators.base
+src.envs.generators.scwcvrp
+src.envs.generators.wcvrp
+src.envs.generators.vrpp
 ```
 
 ## Package Contents

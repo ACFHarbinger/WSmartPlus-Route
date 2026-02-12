@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} decoding
-:canonical: src.configs.policies.neural.NeuralConfig.decoding
-:type: src.configs.models.decoding.DecodingConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.decoding
-```
-
-````
-
 ````{py:attribute} reward
 :canonical: src.configs.policies.neural.NeuralConfig.reward
 :type: src.configs.envs.objective.ObjectiveConfig

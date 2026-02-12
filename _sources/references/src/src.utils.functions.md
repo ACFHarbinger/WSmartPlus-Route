@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.functions.rl
 src.utils.functions.sampling
-src.utils.functions.parallel
-src.utils.functions.path
-src.utils.functions.boolmask
-src.utils.functions.tensors
+src.utils.functions.rl
 src.utils.functions.lexsort
+src.utils.functions.boolmask
+src.utils.functions.parallel
 src.utils.functions.problem
+src.utils.functions.path
+src.utils.functions.tensors
 src.utils.functions.monkey_patch
 ```
 

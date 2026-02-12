@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.tgc.conv_sublayer
-src.models.subnets.encoders.tgc.mha_layer
 src.models.subnets.encoders.tgc.conv_layer
+src.models.subnets.encoders.tgc.conv_sublayer
 src.models.subnets.encoders.tgc.encoder
+src.models.subnets.encoders.tgc.mha_layer
 src.models.subnets.encoders.tgc.ff_sublayer
 ```
 

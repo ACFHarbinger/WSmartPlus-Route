@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.hooks.weight_hooks
+src.utils.hooks.activation_hooks
 src.utils.hooks.gradient_hooks
 src.utils.hooks.attention
+src.utils.hooks.weight_hooks
 src.utils.hooks.memory_hooks
-src.utils.hooks.activation_hooks
 ```
 
 ## Package Contents

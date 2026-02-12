@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline.simulations
 src.pipeline.ui
 src.pipeline.rl
-src.pipeline.callbacks
 src.pipeline.features
+src.pipeline.callbacks
+src.pipeline.simulations
 ```

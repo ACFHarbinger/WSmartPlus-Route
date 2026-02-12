@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.simulations.processor.formatting
 src.pipeline.simulations.processor.mapper
+src.pipeline.simulations.processor.formatting
 ```
 
 ## Package Contents

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.mdam.model
 src.models.mdam.policy
+src.models.mdam.model
 ```
 
 ## Package Contents

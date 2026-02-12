@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
+src.models.policies.selection
 src.models.policies.operators
 src.models.policies.hgs
-src.models.policies.selection
 src.models.policies.shared
 ```
 
@@ -25,14 +25,14 @@ src.models.policies.shared
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.random_local_search
+src.models.policies.ant_colony_system
 src.models.policies.hybrid_genetic_search
+src.models.policies.iterated_local_search
 src.models.policies.adaptive_large_neighborhood_search
+src.models.policies.random_local_search
 src.models.policies.alns
 src.models.policies.local_search
 src.models.policies.hgs_alns
-src.models.policies.iterated_local_search
-src.models.policies.ant_colony_system
 ```
 
 ## Package Contents

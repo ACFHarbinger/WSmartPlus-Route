@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.models.dact.decoder
-src.models.dact.encoder
-src.models.dact.model
 src.models.dact.policy
+src.models.dact.model
+src.models.dact.encoder
 ```
 
 ## Package Contents

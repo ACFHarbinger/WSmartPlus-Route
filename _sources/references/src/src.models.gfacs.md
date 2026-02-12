@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.gfacs.model
 src.models.gfacs.policy
+src.models.gfacs.model
 ```
 
 ## Package Contents

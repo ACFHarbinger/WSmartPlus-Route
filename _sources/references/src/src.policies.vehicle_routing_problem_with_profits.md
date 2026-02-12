@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.vehicle_routing_problem_with_profits.gurobi
-src.policies.vehicle_routing_problem_with_profits.hexaly
 src.policies.vehicle_routing_problem_with_profits.interface
+src.policies.vehicle_routing_problem_with_profits.hexaly
+src.policies.vehicle_routing_problem_with_profits.gurobi
 ```
 
 ## Package Contents

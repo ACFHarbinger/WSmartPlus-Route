@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.other.must_go
 src.policies.other.post_processing
+src.policies.other.must_go
 ```
 
 ## Package Contents

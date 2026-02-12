@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.models.subnets.decoders.common.selection
 src.models.subnets.decoders.common.feed_forward_sublayer
 src.models.subnets.decoders.common.cache
-src.models.subnets.decoders.common.selection
 ```
 
 ## Package Contents

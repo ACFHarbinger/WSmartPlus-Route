@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
-src.data.distributions
 src.data.generators
 src.data.datasets
+src.data.distributions
 ```
 
 ## Submodules
@@ -24,6 +24,6 @@ src.data.datasets
 :titlesonly:
 :maxdepth: 1
 
-src.data.transforms
 src.data.builders
+src.data.transforms
 ```

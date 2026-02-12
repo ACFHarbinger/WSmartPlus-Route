@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.data.datasets.td_dataset
-src.data.datasets.fast_td_dataset
-src.data.datasets.generator_dataset
+src.data.datasets.extra_key_dataset
 src.data.datasets.fast_gen_dataset
 src.data.datasets.baseline_dataset
-src.data.datasets.extra_key_dataset
+src.data.datasets.fast_td_dataset
+src.data.datasets.generator_dataset
+src.data.datasets.td_dataset
 ```
 
 ## Package Contents

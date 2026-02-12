@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.hgs.population
 src.models.policies.hgs.evaluation
-src.models.policies.hgs.wrapper
 src.models.policies.hgs.crossover
+src.models.policies.hgs.wrapper
+src.models.policies.hgs.population
 ```
 
 ## Package Contents

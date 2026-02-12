@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
+src.pipeline.ui.components
 src.pipeline.ui.services
 src.pipeline.ui.pages
-src.pipeline.ui.components
 src.pipeline.ui.styles
 ```
 

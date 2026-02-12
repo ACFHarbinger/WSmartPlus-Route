@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.models.decoder
-src.configs.models.normalization
-src.configs.models.decoding
-src.configs.models.optim
-src.configs.models.encoder
 src.configs.models.activation_function
+src.configs.models.normalization
+src.configs.models.decoder
+src.configs.models.decoding
 src.configs.models.model
+src.configs.models.encoder
+src.configs.models.optim
 ```
 
 ## Package Contents

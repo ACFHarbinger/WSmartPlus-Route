@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.operators.move.swap
 src.policies.operators.move.relocate
+src.policies.operators.move.swap
 ```
 
 ## Package Contents

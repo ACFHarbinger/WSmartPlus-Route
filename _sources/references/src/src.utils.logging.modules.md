@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.utils.logging.modules.metrics
-src.utils.logging.modules.storage
 src.utils.logging.modules.analysis
+src.utils.logging.modules.storage
 src.utils.logging.modules.gui
 ```
 

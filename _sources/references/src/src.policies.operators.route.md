@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.operators.route.two_opt_intra
-src.policies.operators.route.three_opt_intra
-src.policies.operators.route.swap_star
 src.policies.operators.route.two_opt_star
+src.policies.operators.route.three_opt_intra
+src.policies.operators.route.two_opt_intra
+src.policies.operators.route.swap_star
 ```
 
 ## Package Contents

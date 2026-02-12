@@ -13,20 +13,20 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.adapters.policy_alns
-src.policies.adapters.policy_hh_aco
-src.policies.adapters.policy_sans
-src.policies.adapters.policy_ks_aco
-src.policies.adapters.base_routing_policy
-src.policies.adapters.factory
-src.policies.adapters.policy_hgs
-src.policies.adapters.policy_neural
-src.policies.adapters.policy_tsp
-src.policies.adapters.policy_cvrp
-src.policies.adapters.policy_hgs_alns
 src.policies.adapters.policy_vrpp
-src.policies.adapters.registry
 src.policies.adapters.policy_lkh
-src.policies.adapters.policy_bcp
 src.policies.adapters.policy_sisr
+src.policies.adapters.policy_bcp
+src.policies.adapters.factory
+src.policies.adapters.base_routing_policy
+src.policies.adapters.policy_hgs_alns
+src.policies.adapters.policy_cvrp
+src.policies.adapters.policy_tsp
+src.policies.adapters.policy_neural
+src.policies.adapters.policy_hh_aco
+src.policies.adapters.policy_hgs
+src.policies.adapters.policy_ks_aco
+src.policies.adapters.registry
+src.policies.adapters.policy_alns
+src.policies.adapters.policy_sans
 ```

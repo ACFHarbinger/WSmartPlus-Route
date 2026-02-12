@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.ui.pages.simulation
 src.pipeline.ui.pages.training
+src.pipeline.ui.pages.simulation
 src.pipeline.ui.pages.benchmark
 ```
 

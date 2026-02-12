@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.simulations.checkpoints.hooks
 src.pipeline.simulations.checkpoints.persistence
 src.pipeline.simulations.checkpoints.manager
-src.pipeline.simulations.checkpoints.hooks
 ```
 
 ## Package Contents

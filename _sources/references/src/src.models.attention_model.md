@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.attention_model.hybrid_stage_policy
-src.models.attention_model.decoding
-src.models.attention_model.time_tracking_policy
-src.models.attention_model.model
-src.models.attention_model.policy
-src.models.attention_model.symnco_policy
 src.models.attention_model.deep_decoder_policy
+src.models.attention_model.hybrid_stage_policy
+src.models.attention_model.time_tracking_policy
+src.models.attention_model.decoding
+src.models.attention_model.symnco_policy
+src.models.attention_model.policy
+src.models.attention_model.model
 ```
 
 ## Package Contents
