@@ -17,9 +17,10 @@
 6.  [**Policy Adapter Interface**](#6-policy-adapter-interface)
 7.  [**Must-Go Selection Interface**](#7-must-go-selection-interface)
 8.  [**Post-Processing Interface**](#8-post-processing-interface)
-9.  [**Integration Examples**](#9-integration-examples)
-10. [**Best Practices**](#10-best-practices)
-11. [**Quick Reference**](#11-quick-reference)
+9.  [**Infrastructure & Utility Protocols**](#9-infrastructure--utility-protocols)
+10. [**Integration Examples**](#10-integration-examples)
+11. [**Best Practices**](#11-best-practices)
+12. [**Quick Reference**](#12-quick-reference)
 
 ---
 
@@ -530,7 +531,76 @@ print(f"Improvement: {improvement:.2f}%")
 
 ---
 
-## 9. Integration Examples
+## 9. Infrastructure & Utility Protocols
+
+These protocols provide abstract interfaces for common data structures and utility objects used across the system, ensuring that logic remains decoupled from specific storage implementations (like dictionaries vs. OmegaConf objects).
+
+### 9.1 ITraversable Protocol
+
+**Location**: `logic/src/interfaces/traversable.py`
+
+Standardizes access to configuration-like objects. It allows functions to work seamlessly with `dict`, `DictConfig` (OmegaConf), and `ListConfig` without explicit type checking.
+
+| Method                    | Description                       |
+| :------------------------ | :-------------------------------- |
+| `__getitem__`             | Access values via `obj[key]`      |
+| `get`                     | Safely access values with default |
+| `keys`, `items`, `values` | Standard dictionary views         |
+| `__contains__`            | Membership check via `key in obj` |
+
+**Usage Pattern**:
+
+```python
+def parse_params(cfg: ITraversable):
+    # Works for dict OR DictConfig
+    threshold = cfg.get("threshold", 0.5)
+    return threshold
+```
+
+### 9.2 ITensorDictLike Protocol
+
+**Location**: `logic/src/interfaces/tensor_dict_like.py`
+
+Standardizes access to objects storing batches of tensors. Primarily used for RL states, observation dictionaries, and model inputs.
+
+| Method/Property           | Description                      |
+| :------------------------ | :------------------------------- |
+| `batch_size`              | Dimensions of stored tensors     |
+| `device`                  | Current storage device (CPU/GPU) |
+| `get` / `set`             | Manage tensor storage            |
+| `keys`, `items`, `values` | Dictionary-style iteration       |
+
+**Usage Pattern**:
+
+```python
+def move_state(state: ITensorDictLike, device: torch.device):
+    # Logic can operate on any tensor-dict-like object
+    for k, v in state.items():
+        state.set(k, v.to(device))
+```
+
+### 9.3 IBinContainer Protocol
+
+**Location**: `logic/src/interfaces/bin_container.py`
+
+Standardizes access to objects managing waste bin states in simulations and environments. It unifies the interface for fill level monitoring and state transitions.
+
+| Property             | Description                                    |
+| :------------------- | :--------------------------------------------- |
+| `fill_levels`        | Current normalized fill levels (batch, n_bins) |
+| `demands`            | Current bin demands/capacity usage             |
+| `update_fill_levels` | Transition state after collection events       |
+
+**Usage Pattern**:
+
+```python
+def check_policy_selection(bins: IBinContainer, mask: torch.Tensor):
+    # Agnostic to whether bins is an Environment or a simple DataClass
+    overflow_risk = bins.fill_levels > 0.95
+    return overflow_risk & mask
+```
+
+## 10. Integration Examples
 
 ### Example 1: Building a Complete Routing Pipeline
 
@@ -642,7 +712,7 @@ result = evaluate_policy(policy, env)  # ✅ Type-safe
 
 ---
 
-## 10. Best Practices
+## 11. Best Practices
 
 ### ✅ Good Practices
 
@@ -782,7 +852,7 @@ class ISerializable(Protocol):
 
 ---
 
-## 11. Quick Reference
+## 12. Quick Reference
 
 ### Common Imports
 
@@ -794,7 +864,10 @@ from logic.src.interfaces import IEnv, IModel, IPolicy
 from logic.src.interfaces import (
     IPolicyAdapter,
     IMustGoSelection,
-    IPostProcessing
+    IPostProcessing,
+    ITraversable,
+    ITensorDictLike,
+    IBinContainer
 )
 
 # Context classes
@@ -811,17 +884,23 @@ from logic.src.interfaces.must_go import SelectionContext
 | `IPolicyAdapter`   | Bridge neural/classical        | `get_policy`, `get_model`        |
 | `IMustGoSelection` | Pre-selection strategy         | `select_bins`                    |
 | `IPostProcessing`  | Tour refinement                | `process`                        |
+| `ITraversable`     | Configuration standardization  | `get`, `items`, `keys`           |
+| `ITensorDictLike`  | Tensor storage standardization | `batch_size`, `device`, `get`    |
+| `IBinContainer`    | Bin state standardization      | `fill_levels`, `demands`         |
 
 ### File Locations
 
-| File                 | Lines | Description                 |
-| -------------------- | ----- | --------------------------- |
-| `env.py`             | ~40   | IEnv protocol definition    |
-| `model.py`           | ~30   | IModel protocol definition  |
-| `policy.py`          | ~25   | IPolicy abstract base class |
-| `adapter.py`         | ~20   | IPolicyAdapter protocol     |
-| `must_go.py`         | ~35   | IMustGoSelection protocol   |
-| `post_processing.py` | ~20   | IPostProcessing protocol    |
+| File                  | Lines | Description                 |
+| --------------------- | ----- | --------------------------- |
+| `env.py`              | ~40   | IEnv protocol definition    |
+| `model.py`            | ~30   | IModel protocol definition  |
+| `policy.py`           | ~25   | IPolicy abstract base class |
+| `adapter.py`          | ~20   | IPolicyAdapter protocol     |
+| `must_go.py`          | ~35   | IMustGoSelection protocol   |
+| `post_processing.py`  | ~20   | IPostProcessing protocol    |
+| `traversable.py`      | ~50   | ITraversable protocol       |
+| `tensor_dict_like.py` | ~60   | ITensorDictLike protocol    |
+| `bin_container.py`    | ~45   | IBinContainer protocol      |
 
 ### Related Documentation
 
