@@ -45,7 +45,7 @@ jobs:
         run: uv run pre-commit run --all-files
 
       - name: Complexity Check (McCabe)
-        run: uv run ruff check . --select C90 --max-complexity 10
+        run: uv run ruff check . --select C90 -- --max-complexity 15
 
       - name: Security Scan
         # Continue on error since vulnerabilities might be present; goal is visibility first

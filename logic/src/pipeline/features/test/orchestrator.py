@@ -357,7 +357,7 @@ def _execute_and_monitor_tasks(pool, opts, device, args, weights_path, n_cores, 
         tuple: (log, log_std, failed_log)
     """
     # Initialize display and result containers
-    display = _initialize_simulation_display(opts)
+    display = _initialize_simulation_display(opts) if not opts["no_progress_bar"] else None
     log_tmp, failed_log = _create_result_containers(manager, opts)
 
     # Create result callback closure
