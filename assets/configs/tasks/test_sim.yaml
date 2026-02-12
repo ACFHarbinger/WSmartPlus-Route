@@ -4,86 +4,34 @@
 # =============================================================================
 # Configuration for multi-day waste collection simulation testing.
 # Used by: python main.py test_sim
-#
-# Key Features:
-#   - Compare multiple routing policies
-#   - Multi-day temporal simulation
-#   - Real-world geographic areas
-#   - Statistical analysis across random seeds
 # =============================================================================
 
-# =============================================================================
 # General Configuration
-# =============================================================================
-verbose: true # Enable detailed logging output
-seed: 42 # Random seed for reproducibility
-cpu_cores:
-  0 # Number of CPU cores for parallel policy execution.
-  # 0 = auto-detect, N = use N cores
+task: test_sim
+verbose: true
+seed: 42
 
-# =============================================================================
 # Simulation Configuration
-# =============================================================================
 sim:
-  # Simulation Horizon
-  days:
-    31 # Number of days to simulate.
-    # Common values: 7 (week), 31 (month), 365 (year)
+  cpu_cores: 0
+  days: 31
+  n_samples: 10
+  problem: "vrpp"
+  output_dir: "output"
+  checkpoint_dir: "checkpoints"
+  checkpoint_days: 0
+  real_time_log: false
+  no_progress_bar: false
+  data_distribution: "gamma1"
 
-  # Problem Configuration
-  size:
-    100 # Number of bins (nodes) in the problem.
-    # Standard sizes: 20, 50, 100, 150
+  # Relative to ROOT/data/wsr_simulator/
+  graph:
+    num_loc: 100
+    area: "riomaior"
+    waste_type: "plastic"
+    waste_filepath: "daily_waste/{area}{size}_{data_distribution}_wsr{days}_N{n_samples}_seed{seed}.pkl"
+    dm_filepath: "gmaps_distmat_{waste_type}[{area}].csv"
 
-  n_samples:
-    10 # Number of random instances to test per policy.
-    # More samples = better statistical significance.
-    # Typical: 10-100
-
-  # Checkpointing
-  checkpoint_days:
-    0 # Save simulation state every N days.
-    # 0 = no checkpointing (faster)
-    # 7 = checkpoint weekly (allows resume)
-
-  real_time_log: false # Enable real-time logging to file (slower but useful for debugging)
-
-  # =============================================================================
-  # Policy Configuration
-  # =============================================================================
-  policies: # List of routing policies to compare. Options:
-    - hgs # Hybrid Genetic Search metaheuristic
-      # Options include:
-      # - neural: Neural policy (AM with GAT encoder, model variant 0)
-      # - gurobi: Exact optimization (slow but optimal)
-      # - hgs: Hybrid Genetic Search metaheuristic
-      # - alns: Adaptive Large Neighborhood Search
-      # - lookahead: Predictive policy
-      # - last_minute: Reactive threshold-based policy
-
-  # =============================================================================
-  # Vehicle Configuration
-  # =============================================================================
-  n_vehicles:
-    0 # Number of vehicles in fleet.
-    # 0 = auto-detect
-    # 1 = single-vehicle routing
-    # 2+ = multi-vehicle fleet routing
-
-  # =============================================================================
-  # Environment Configuration
-  # =============================================================================
-  problem: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
-  area: "riomaior" # Geographic area. Options: riomaior, manhattan, random
-  waste_type: "plastic" # Waste category. Options: plastic, glass, paper, organic
-
-  # =============================================================================
-  # Output Configuration
-  # =============================================================================
-  output_dir: "output" # Directory for simulation results (logs, metrics, routes)
-  checkpoint_dir: "checkpoints" # Directory for simulation checkpoints
-
-  # =============================================================================
-  # Data Distribution
-  # =============================================================================
-  data_distribution: "gamma1" # Waste generation distribution. Options: gamma1, gamma2, gamma3, empirical
+  policies:
+    - hgs
+    - sans

@@ -310,6 +310,9 @@ def hydra_entry_point(cfg: Config) -> float:
         from logic.src.pipeline.features.base import flatten_config_dict
         from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
 
+        if cfg.verbose:
+            pretty_print_hydra_config(cfg, filter_keys="eval")  # type: ignore[arg-type]
+
         # Convert Hydra config to dict
         eval_args = cast(dict[str, Any], OmegaConf.to_container(cfg.eval, resolve=True))
         # Flatten
@@ -322,6 +325,9 @@ def hydra_entry_point(cfg: Config) -> float:
         from logic.src.pipeline.features.base import flatten_config_dict
         from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
 
+        if cfg.verbose:
+            pretty_print_hydra_config(cfg, filter_keys="sim")  # type: ignore[arg-type]
+
         # Convert Hydra config to dict
         sim_args = cast(dict[str, Any], OmegaConf.to_container(cfg.sim, resolve=True))
         # Flatten
@@ -333,6 +339,9 @@ def hydra_entry_point(cfg: Config) -> float:
     elif cfg.task == "gen_data":
         from logic.src.data.generators import generate_datasets, validate_gen_data_args
         from logic.src.pipeline.features.base import flatten_config_dict
+
+        if cfg.verbose:
+            pretty_print_hydra_config(cfg, filter_keys="data")  # type: ignore[arg-type]
 
         # Convert Hydra config to dict
         data_args = cast(dict[str, Any], OmegaConf.to_container(cfg.data, resolve=True))

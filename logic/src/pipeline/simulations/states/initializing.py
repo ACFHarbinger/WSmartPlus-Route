@@ -216,6 +216,11 @@ class InitializingState(SimState):
 
     def _initialize_new_state(self, ctx, data, bins_coordinates, depot):
         opts = ctx.opts
+        # Resolve templates if present
+        for k in ["dm_filepath", "waste_filepath"]:
+            if k in opts and isinstance(opts[k], str) and "{" in opts[k]:
+                opts[k] = opts[k].format(**opts)
+
         ctx.new_data, ctx.coords = process_data(data, bins_coordinates, depot, ctx.indices)
 
         ctx.dist_tup, adj_matrix = setup_dist_path_tup(

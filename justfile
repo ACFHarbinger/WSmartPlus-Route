@@ -90,7 +90,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies="cvrp" days=days area=area size=size samples=samples problem=problem n_cores=n_cores:
+test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
