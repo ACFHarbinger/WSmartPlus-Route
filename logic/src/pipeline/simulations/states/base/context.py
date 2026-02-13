@@ -9,7 +9,6 @@ Example:
 
 from __future__ import annotations
 
-import contextlib
 import os
 import threading
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
@@ -19,11 +18,7 @@ import pandas as pd
 import torch
 
 from logic.src.constants import (
-    CONFIG_CHAR_POLICIES,
-    ENGINE_POLICIES,
     ROOT_DIR,
-    SIMPLE_POLICIES,
-    THRESHOLD_POLICIES,
     TQDM_COLOURS,
 )
 
@@ -48,11 +43,9 @@ class SimulationContext:
     start_time: Optional[float] = None
     end_time: Optional[float] = None
 
-    pol_name: Optional[str] = None
-    pol_engine: Optional[str] = None
-    pol_threshold: Optional[float] = None
+    pol_name: str = ""
     pol_id: int = 0
-    pol_strip: str = ""
+    policy_cfg: Dict[str, Any] = {}
 
     def __init__(
         self,
@@ -98,132 +91,22 @@ class SimulationContext:
             str(opts["days"]) + "_days",
             str(opts["area"]) + "_" + str(opts["size"]),
         )
-        self.policy = opts["policies"][pol_id]
-        self.pol_strip, self.data_dist = self.policy.rsplit("_", 1)
+        raw_policy = opts["policies"][pol_id]
+        if isinstance(raw_policy, dict) and len(raw_policy) == 1:
+            self.pol_name = list(raw_policy.keys())[0]
+            self.policy_cfg = raw_policy[self.pol_name]
+        elif isinstance(raw_policy, dict):
+            # Fallback for complex dicts if they don't follow single-key pattern
+            self.pol_name = opts.get("model.name") or "unknown"
+            self.policy_cfg = raw_policy
+        else:
+            self.pol_name = str(raw_policy)
+            self.policy_cfg = {}
 
-        self.pol_name = ""
-        self.pol_engine = None
-        self.pol_threshold = None
-        self._parse_policy_string()
+        # Keep self.policy as string for legacy path/checkpoint naming
+        self.policy = self.pol_name
+
         self._continue_init(variables_dict, pol_id)
-
-    def _parse_policy_string(self) -> None:
-        """parse policy string."""
-        parts = self.pol_strip.split("_")
-
-        # 0. Check for must-go prefix (e.g., regular_lvl3)
-        search_parts, prefix_threshold, must_go_prefix = self._extract_must_go_prefix(parts)
-
-        # 1. Standard policy/engine parsing on the remaining parts
-        found = self._find_standard_policy(search_parts)
-
-        # 2. Fallback
-        if not found:
-            self.pol_name = "_".join(search_parts) if search_parts else self.pol_strip
-
-        # 3. If we had a prefix threshold or must_go, they override/inform
-        if prefix_threshold is not None:
-            self.pol_threshold = prefix_threshold
-
-        if must_go_prefix:
-            self.must_go_prefix = must_go_prefix
-
-    def _extract_must_go_prefix(self, parts: List[str]) -> Tuple[List[str], Optional[float], Optional[str]]:
-        """Extract must-go prefix and threshold.
-
-        Args:
-            parts (List[str]): Split policy string parts.
-
-        Returns:
-            Tuple[List[str], Optional[float], Optional[str]]: Reduced parts, threshold, and prefix.
-        """
-        if parts[0] == "regular" and len(parts) > 1:
-            must_go_prefix = "regular"
-            if parts[1].startswith("lvl"):
-                try:
-                    return parts[2:], float(parts[1][3:]), must_go_prefix
-                except ValueError:
-                    pass
-            return parts, None, must_go_prefix
-        return parts, None, None
-
-    def _find_standard_policy(self, search_parts: List[str]) -> bool:
-        """Find standard policy from registries.
-
-        Args:
-            search_parts (List[str]): Parts to search in.
-
-        Returns:
-            bool: True if a policy was found.
-        """
-        # 1. Engine Policies
-        for pol_key, engines in ENGINE_POLICIES.items():
-            if pol_key in search_parts:
-                self.pol_name = pol_key
-                for eng in engines:
-                    if eng in search_parts:
-                        self.pol_engine = eng
-                        break
-                self._extract_threshold(pol_key)
-                return True
-
-        # 2. Config Char Policies
-        for pol_key, chars in CONFIG_CHAR_POLICIES.items():
-            if pol_key in search_parts:
-                self.pol_name = pol_key
-                self._extract_threshold_with_config_char(pol_key, chars)
-                return True
-
-        # 3. Threshold Policies
-        for pol_key in THRESHOLD_POLICIES:
-            if pol_key in search_parts:
-                self.pol_name = pol_key
-                self._extract_threshold(pol_key)
-                return True
-
-        # 4. Simple Policies
-        for keywords, name in SIMPLE_POLICIES.items():
-            if any(kw in search_parts for kw in keywords):
-                self.pol_name = name
-                return True
-
-        return False
-
-    def _extract_threshold(self, policy_key: str) -> None:
-        """extract threshold.
-
-        Args:
-            policy_key (str): Description of policy_key.
-        """
-        try:
-            parts = self.pol_strip.split(policy_key)
-            if len(parts) > 1:
-                threshold_part = parts[1].strip("_")
-                sub_parts = threshold_part.split("_")
-                if sub_parts[0]:
-                    self.pol_threshold = float(sub_parts[0])
-        except (ValueError, IndexError):
-            pass
-
-    def _extract_threshold_with_config_char(self, policy_key: str, config_chars: List[str]) -> None:
-        """extract threshold with config char.
-
-        Args:
-            policy_key (str): Description of policy_key.
-            config_chars (List[str]): Description of config_chars.
-        """
-        try:
-            parts = self.pol_strip.split(policy_key)
-            if len(parts) > 1:
-                threshold_part = parts[1].strip("_")
-                sub_parts = threshold_part.split("_")
-                if sub_parts[0] in config_chars and len(sub_parts) > 1:
-                    self.pol_threshold = float(sub_parts[1])
-                elif sub_parts[0]:
-                    with contextlib.suppress(ValueError):
-                        self.pol_threshold = float(sub_parts[0])
-        except (ValueError, IndexError):
-            pass
 
     def _continue_init(self, variables_dict: Dict[str, Any], pol_id: int) -> None:
         """continue init.

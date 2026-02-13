@@ -38,12 +38,13 @@ class DataConfig:
     mu: Optional[List[float]] = None
     sigma: Any = 0.6
     data_distributions: List[str] = field(default_factory=lambda: ["all"])
-    dataset_size: int = 128_000
-    num_locs: List[int] = field(default_factory=lambda: [20, 50, 100])
     penalty_factor: float = 3.0
     overwrite: bool = False
     seed: int = 42
     n_epochs: int = 1
     epoch_start: int = 0
     dataset_type: Optional[str] = None
+    train_graphs: List[GraphConfig] = field(default_factory=list)
+    val_graphs: List[GraphConfig] = field(default_factory=list)
+    test_graphs: List[GraphConfig] = field(default_factory=list)
     graphs: List[GraphConfig] = field(default_factory=list)
