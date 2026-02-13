@@ -5,6 +5,7 @@ Model Config module.
 from dataclasses import dataclass, field
 from typing import Optional
 
+from ..envs.objective import ObjectiveConfig
 from .decoder import DecoderConfig
 from .encoder import EncoderConfig
 
@@ -24,6 +25,7 @@ class ModelConfig:
     name: str = "am"
     encoder: EncoderConfig = field(default_factory=EncoderConfig)
     decoder: DecoderConfig = field(default_factory=DecoderConfig)
+    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
     temporal_horizon: int = 0
     policy_config: Optional[str] = None
     load_path: Optional[str] = None

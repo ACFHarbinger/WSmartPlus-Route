@@ -66,7 +66,7 @@ def _generate_problem_data(problem: str, distributions: Any, n_days: int, opts: 
 
     try:
         for dist in distributions or [None]:
-            for size, graph in zip(opts["num_locs"], opts["focus_graphs"]):
+            for size, graph in zip(opts["num_locs"], opts["focus_graph"]):
                 _process_instance_generation(problem, dist, size, graph, n_days, datadir, opts)
     except Exception as e:
         has_dists = len(distributions) >= 1 and distributions[0] is not None

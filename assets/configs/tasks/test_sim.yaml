@@ -21,16 +21,17 @@ sim:
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   real_time_log: false
-  no_progress_bar: true
+  no_progress_bar: false
   data_distribution: "gamma1"
+  waste_filepath: "daily_waste/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.pkl"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
     num_loc: 100
     area: "riomaior"
     waste_type: "plastic"
-    waste_filepath: "daily_waste/{area}{size}_{data_distribution}_wsr{days}_N{n_samples}_seed{seed}.pkl"
-    dm_filepath: "gmaps_distmat_{waste_type}[{area}].csv"
+    dm_filepath: "gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
+    focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
 
   policies:
     - hgs

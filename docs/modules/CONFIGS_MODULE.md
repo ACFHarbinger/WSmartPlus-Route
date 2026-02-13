@@ -354,7 +354,7 @@ class GraphConfig:
         waste_filepath: Path to historical waste fill data.
         edge_threshold: Edge density threshold (0 = fully connected).
         edge_method: Edge selection method ('dist', 'knn').
-        focus_graphs: Paths to specific graph files for clustering.
+        focus_graph: Paths to specific graph file for clustering.
         focus_size: Number of focus graphs to include in training.
         eval_focus_size: Number of focus graphs for evaluation.
     """
@@ -368,7 +368,7 @@ class GraphConfig:
     waste_filepath: Optional[str] = None
     edge_threshold: str = "0"
     edge_method: Optional[str] = None
-    focus_graphs: Optional[List[str]] = None
+    focus_graph: Optional[List[str]] = None
     focus_size: int = 0
     eval_focus_size: int = 0
 ```
@@ -392,7 +392,7 @@ graph_config = GraphConfig(
 
 # Focus on specific graphs for curriculum learning
 graph_config = GraphConfig(
-    focus_graphs=["data/hard_instances/*.pkl"],
+    focus_graph=["data/hard_instances/*.pkl"],
     focus_size=100
 )
 ```

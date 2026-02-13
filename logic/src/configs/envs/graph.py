@@ -3,7 +3,7 @@ Graph/instance configuration module.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 
 @dataclass
@@ -16,10 +16,9 @@ class GraphConfig:
         vertex_method: Method to transform vertex coordinates ('mmn', etc.).
         distance_method: Method to compute distance matrix ('ogd', etc.).
         dm_filepath: Path to the distance matrix file.
-        waste_filepath: Path to the file to read the waste fill for each day from.
         edge_threshold: How many of all possible edges to consider.
         edge_method: Method for getting edges ('dist', 'knn', etc.).
-        focus_graphs: Paths to the files with the coordinates of the graphs to focus on.
+        focus_graph: Paths to the files with the coordinates of the graphs to focus on.
         focus_size: Number of focus graphs to include.
         eval_focus_size: Number of focus graphs to include in evaluation.
     """
@@ -30,9 +29,8 @@ class GraphConfig:
     vertex_method: str = "mmn"
     distance_method: str = "ogd"
     dm_filepath: Optional[str] = None
-    waste_filepath: Optional[str] = None
     edge_threshold: str = "0"
     edge_method: Optional[str] = None
-    focus_graphs: Optional[List[str]] = None
-    focus_size: int = 0
-    eval_focus_size: int = 0
+    focus_graph: Optional[str] = None
+    focus_size: Optional[int] = None
+    eval_focus_size: Optional[int] = None

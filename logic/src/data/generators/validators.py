@@ -45,13 +45,13 @@ def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
         assert len(args["mu"]) == len(args["sigma"]), "Must specify same number of mu and sigma values"
 
     assert (
-        "focus_graphs" not in args
-        or args["focus_graphs"] is None
-        or len(args["focus_graphs"]) == len(args.get("num_locs", []))
+        "focus_graph" not in args
+        or args["focus_graph"] is None
+        or len(args["focus_graph"]) == len(args.get("num_locs", []))
     )
 
-    if "focus_graphs" not in args or args["focus_graphs"] is None:
-        args["focus_graphs"] = [None] * len(args.get("num_locs", []))
+    if "focus_graph" not in args or args["focus_graph"] is None:
+        args["focus_graph"] = [None] * len(args.get("num_locs", []))
     else:
         args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
         assert args["area"] in MAP_DEPOTS, "Unknown area {}, available areas: {}".format(

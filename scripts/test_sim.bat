@@ -76,7 +76,7 @@ if %VERBOSE% equ 0 (
     @echo on
 )
 python main.py test --policies %POLICIES% --data_distribution "%DATA_DIST%" --dt "%DECODE_TYPE%" --hp %HEXALY_PARAM% ^
-    --n_samples %N_SAMPLES% --area "%AREA%" --bin_idx_file "%IDX_PATH%" --size %N_BINS% --seed %SEED% --dm "%DIST_METHOD%" ^
+    --n_samples %N_SAMPLES% --area "%AREA%" --focus_graph "%IDX_PATH%" --size %N_BINS% --seed %SEED% --dm "%DIST_METHOD%" ^
     --problem "%PROBLEM%" --n_vehicles %VEHICLES% --vm "%VERTEX_METHOD%" --env_file "%ENV_FILE%" --waste_filepath "%WASTE_PATH%" ^
     --days %N_DAYS% --lvl %REGULAR_LEVEL% --cf %LAST_MINUTE_CF% --gp %GUROBI_PARAM% --lac %LOOKAHEAD_CONFIGS% ^
     --cc %N_CORES% --et %EDGE_THRESH% --em "%EDGE_METHOD%" --waste_type "%WTYPE%" --dm_filepath "%DM_PATH%" --cpd %CHECKPOINTS%
