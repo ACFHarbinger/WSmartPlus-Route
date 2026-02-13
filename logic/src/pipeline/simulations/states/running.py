@@ -105,6 +105,8 @@ class RunningState(SimState):
         return SimulationDayContext(
             graph_size=ctx.opts["size"],
             full_policy=ctx.policy,
+            policy=ctx.policy,
+            policy_name=ctx.pol_name,
             bins=ctx.bins,
             new_data=ctx.new_data,
             coords=ctx.coords,

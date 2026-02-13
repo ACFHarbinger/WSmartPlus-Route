@@ -129,10 +129,13 @@ class BaseRoutingPolicy(IPolicyAdapter):
 
         flatten_to_values(values, policy_config)
 
+        # Ensure critical weights for VRPP/lookahead are present
         if "Omega" not in values:
-            print(f"[DEBUG][{config_key}] 'Omega' missing!")
-            print(f"[DEBUG][{config_key}] policy_config: {policy_config}")
-            print(f"[DEBUG][{config_key}] values keys: {list(values.keys())}")
+            values["Omega"] = 0.1
+        if "delta" not in values:
+            values["delta"] = 0.0
+        if "psi" not in values:
+            values["psi"] = 1.0
 
         return capacity, revenue, cost_unit, values
 

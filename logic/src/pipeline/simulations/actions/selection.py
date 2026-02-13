@@ -51,33 +51,45 @@ class MustGoSelectionAction(SimulationAction):
             s_name = strat_info["name"]
             s_params = strat_info["params"]
 
-            if isinstance(s_params, ITraversable):
+            # Extract threshold and frequency parameters
+            # Handle both ITraversable (OmegaConf) and standard dicts
+            if isinstance(s_params, (dict, ITraversable)) or hasattr(s_params, "get"):
                 thresh = (
                     s_params.get("threshold")
-                    or s_params.get("cf")
-                    or s_params.get("param")
-                    or s_params.get("lvl")
-                    or context.get("threshold")
+                    if s_params.get("threshold") is not None
+                    else s_params.get("cf")
+                    if s_params.get("cf") is not None
+                    else s_params.get("param")
+                    if s_params.get("param") is not None
+                    else s_params.get("lvl")
+                    if s_params.get("lvl") is not None
+                    # Fallback to context/global thresh if not in strategy params
+                    else context.get("threshold")
                 )
+                mfill = s_params.get("max_fill")
             else:
+                # Fallback for simple string-based strategies
                 thresh = context.get("threshold")
+                mfill = context.get("max_fill")
 
-            # Allow the system to fail later (e.g. RegularSelection) if thresh is None,
-            # as per user request to avoid "silent killers".
-
-            # print(f"[DEBUG] Strategy: {s_name} (Day {context.get('day')}), Threshold used: {thresh}")
-
+            # Basic sanitization
+            final_thresh = float(thresh) if thresh is not None else 0.0
+            final_mfill = float(mfill) if mfill is not None else 100.0
             sel_ctx = SelectionContext(
                 bin_ids=np.arange(0, n_bins, dtype="int32"),
                 current_fill=np.array(current_fill) if current_fill is not None else np.array([]),
                 accumulation_rates=accumulation_rates,
                 std_deviations=std_deviations,
                 current_day=context.get("day", 0),
-                threshold=float(thresh) if thresh is not None else 0.0,
+                threshold=final_thresh,
                 next_collection_day=context.get("next_collection_day"),
                 distance_matrix=context.get("distance_matrix"),
                 paths_between_states=context.get("paths_between_states"),
                 vehicle_capacity=context.get("max_capacity", 100.0),
+                revenue_kg=context.get("revenue_kg", 1.0),
+                bin_density=context.get("bin_density", 1.0),
+                bin_volume=context.get("bin_volume", 2.5),
+                max_fill=final_mfill,
             )
 
             if "config" in strat_info:

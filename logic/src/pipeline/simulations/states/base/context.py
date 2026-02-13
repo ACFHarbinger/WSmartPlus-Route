@@ -44,6 +44,7 @@ class SimulationContext:
     end_time: Optional[float] = None
 
     pol_name: str = ""
+    pol_strip: str = ""
     pol_id: int = 0
     policy_cfg: Dict[str, Any] = {}
 
@@ -105,6 +106,7 @@ class SimulationContext:
 
         # Keep self.policy as string for legacy path/checkpoint naming
         self.policy = self.pol_name
+        self.pol_strip = self.pol_name.rsplit("_", 1)[0] if "_" in self.pol_name else self.pol_name
 
         self._continue_init(variables_dict, pol_id)
 
