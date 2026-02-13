@@ -279,7 +279,7 @@ def main_dispatch() -> None:
             pass
 
         if command in ["eval", "test_sim", "gen_data"]:
-            sys.argv.append(f"task={command}")
+            sys.argv.append(f"tasks={command}")
             sys.argv.pop(1)  # Remove the command
         elif command == "mrl_train":
             sys.argv.append("rl.use_meta=True")
