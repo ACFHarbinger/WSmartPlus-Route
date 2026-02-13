@@ -76,36 +76,25 @@ class RunningState(SimState):
                 ctx.overall_progress.update(1)
 
     def _get_current_policy_config(self, ctx):
+        """Standardizes policy config resolution from structured context."""
         current_policy_config = {}  # type: ignore[var-annotated]
 
-        # Ensure global keys like 'must_go' and 'post_processing' are preserved
-        global_keys = ["must_go", "post_processing"]
-        for g_key in global_keys:
-            if ctx.config and g_key in ctx.config:
-                current_policy_config[g_key] = ctx.config[g_key]
+        # 1. START WITH GLOBAL CONFIGS (must_go, post_processing)
+        if ctx.config:
+            for g_key in ["must_go", "post_processing"]:
+                if g_key in ctx.config:
+                    current_policy_config[g_key] = ctx.config[g_key]
 
-        for key, cfg in (ctx.config or {}).items():
-            if key in ctx.policy:
-                if isinstance(cfg, list):
-                    for item in cfg:
-                        if isinstance(item, ITraversable):
-                            current_policy_config.update(item)
-                elif isinstance(cfg, ITraversable):
-                    # If the config is a dict, check if it contains engine-specific sub-configs
-                    # e.g., {'gurobi': [...]}. If so, drill down if the engine matches.
-                    found_engine = False
-                    for sub_key, sub_val in cfg.items():
-                        if sub_key in ctx.policy and isinstance(sub_val, (list, dict)):
-                            if isinstance(sub_val, list):
-                                for item in sub_val:
-                                    if isinstance(item, ITraversable):
-                                        current_policy_config.update(item)
-                            else:
-                                current_policy_config.update(sub_val)
-                            found_engine = True
-                            break
-                    if not found_engine:
-                        current_policy_config.update(cfg)
+        # 2. ADD POLICY-SPECIFIC CONFIG FROM CONTEXT
+        # This is the new primary path for structured configurations
+        if ctx.policy_cfg:
+            current_policy_config.update(ctx.policy_cfg)
+
+        # 3. LEGACY FALLBACK: Match policy name in global config keys
+        else:
+            for key, cfg in (ctx.config or {}).items():
+                if key in ctx.pol_name and isinstance(cfg, ITraversable):
+                    current_policy_config.update(cfg)
 
         return current_policy_config
 
@@ -116,10 +105,6 @@ class RunningState(SimState):
         return SimulationDayContext(
             graph_size=ctx.opts["size"],
             full_policy=ctx.policy,
-            policy=ctx.pol_strip,
-            policy_name=ctx.pol_name or "",
-            engine=ctx.pol_engine,
-            threshold=ctx.pol_threshold,
             bins=ctx.bins,
             new_data=ctx.new_data,
             coords=ctx.coords,
@@ -160,12 +145,6 @@ class RunningState(SimState):
                 ctx.counter.value += 1
 
     def _update_metrics(self, ctx, day, output_dict, dlog):
-        if "am" in ctx.pol_strip or "transgcn" in ctx.pol_strip:
-            if ctx.pol_strip not in ctx.attention_dict:
-                ctx.attention_dict[ctx.pol_strip] = []
-            ctx.attention_dict[ctx.pol_strip].append(output_dict)
-
-        assert ctx.daily_log is not None
         if dlog is not None:
             for key, val in dlog.items():
                 ctx.daily_log[key].append(val)

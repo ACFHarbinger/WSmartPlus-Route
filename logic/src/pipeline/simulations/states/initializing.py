@@ -98,23 +98,26 @@ class InitializingState(SimState):
                 except (OSError, ValueError):
                     pass
 
-        # Handle must-go prefix tagged in context (e.g., 'regular' from regular_lvl3_cvrp)
-        if hasattr(ctx, "must_go_prefix") and ctx.must_go_prefix:
-            if "must_go" not in ctx.config:
-                ctx.config["must_go"] = []
-            if isinstance(ctx.config["must_go"], list):
-                if ctx.must_go_prefix not in ctx.config["must_go"]:
-                    ctx.config["must_go"].append(ctx.must_go_prefix)
-            else:
-                ctx.config["must_go"] = [ctx.config["must_go"], ctx.must_go_prefix]
+        # No longer handling must_go prefix from policy string.
+        # Everything should be explicitly defined in ctx.opts.
 
         self._load_neural_configs(ctx)
 
     def _load_neural_configs(self, ctx):
-        # Robust neural detection
+        # Neural if model.name or specific neural parameters are in config
         neural_keywords = ["am", "ptr", "transgcn", "neural", "ddam", "ham", "l2d"]
-        should_load_neural = any(kw in ctx.pol_strip.split("_") for kw in neural_keywords) or any(
-            ctx.pol_strip.startswith(kw) for kw in ["am", "ddam", "ptr"]
+
+        # Priority 1: policy_cfg (new structured format)
+        # Priority 2: ctx.opts (legacy/global format)
+        model_name = ""
+        if isinstance(ctx.policy_cfg, dict) and "model" in ctx.policy_cfg:
+            model_name = ctx.policy_cfg["model"].get("name", "").lower()
+
+        if not model_name:
+            model_name = ctx.opts.get("model.name", "").lower()
+
+        should_load_neural = any(kw in model_name for kw in neural_keywords) or any(
+            model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
         )
 
         neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
@@ -152,14 +155,19 @@ class InitializingState(SimState):
         return saved_state, last_day
 
     def _setup_models(self, ctx):
-        should_load_neural = any(
-            kw in ctx.pol_strip.split("_") for kw in ["am", "ptr", "transgcn", "neural", "ddam"]
-        ) or any(ctx.pol_strip.startswith(kw) for kw in ["am", "ddam", "ptr"])
+        model_name = ""
+        if isinstance(ctx.policy_cfg, dict) and "model" in ctx.policy_cfg:
+            model_name = ctx.policy_cfg["model"].get("name", "").lower()
+
+        if not model_name:
+            model_name = ctx.opts.get("model.name", "").lower()
+
+        should_load_neural = any(kw in model_name for kw in ["am", "ptr", "transgcn", "neural", "ddam"]) or any(
+            model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
+        )
 
         configs = None
-        if should_load_neural and (
-            "am" in ctx.pol_strip.split("_") or "transgcn" in ctx.pol_strip.split("_") or ctx.pol_strip.startswith("am")
-        ):
+        if should_load_neural and ("am" in model_name or "transgcn" in model_name or model_name.startswith("am")):
             # Extract decoding parameters
             opts = ctx.opts
             decoding_opts = opts.get("decoding", {})
@@ -184,7 +192,7 @@ class InitializingState(SimState):
                 worker_model=ctx.model_env,
             )
             self.configs = configs
-        elif "vrpp" in ctx.pol_strip:
+        elif "vrpp" in model_name:
             ctx.model_env = setup_env(
                 ctx.policy,
                 ctx.opts["server_run"],
@@ -237,13 +245,18 @@ class InitializingState(SimState):
             ctx.indices,
         )
 
-        should_load_neural = any(
-            kw in ctx.pol_strip.split("_") for kw in ["am", "ptr", "transgcn", "neural", "ddam"]
-        ) or any(ctx.pol_strip.startswith(kw) for kw in ["am", "ddam", "ptr"])
+        model_name = ""
+        if isinstance(ctx.policy_cfg, dict) and "model" in ctx.policy_cfg:
+            model_name = ctx.policy_cfg["model"].get("name", "").lower()
 
-        if should_load_neural and (
-            "am" in ctx.pol_strip.split("_") or "transgcn" in ctx.pol_strip.split("_") or ctx.pol_strip.startswith("am")
-        ):
+        if not model_name:
+            model_name = opts.get("model.name", "").lower()
+
+        should_load_neural = any(kw in model_name for kw in ["am", "ptr", "transgcn", "neural", "ddam"]) or any(
+            model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
+        )
+
+        if should_load_neural and ("am" in model_name or "transgcn" in model_name or model_name.startswith("am")):
             ctx.model_tup = process_model_data(
                 ctx.coords,
                 ctx.dist_tup[2],
@@ -270,24 +283,29 @@ class InitializingState(SimState):
 
     def _initialize_bins(self, ctx):
         opts = ctx.opts
-        if "gamma" in ctx.data_dist:
+        data_dist = opts.get("data_distribution", "gamma1")
+        if "gamma" in data_dist:
             ctx.bins = Bins(
                 opts["size"],
                 ctx.data_dir,
-                ctx.data_dist[:-1],
+                data_dist[:-1],
                 area=opts["area"],
                 waste_type=opts["waste_type"],
                 waste_file=opts["waste_filepath"],
                 noise_mean=opts.get("noise_mean", 0.0),
                 noise_variance=opts.get("noise_variance", 0.0),
             )
-            gamma_option = int(ctx.policy[-1]) - 1
+            # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
+            try:
+                gamma_option = int(data_dist[-1]) - 1
+            except (ValueError, IndexError):
+                gamma_option = 0
             ctx.bins.setGammaDistribution(option=gamma_option)
         else:
             ctx.bins = Bins(
                 opts["size"],
                 ctx.data_dir,
-                ctx.data_dist,
+                data_dist,
                 area=opts["area"],
                 waste_type=opts["waste_type"],
                 waste_file=opts["waste_filepath"],

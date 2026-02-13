@@ -18,6 +18,7 @@ from typing import List
 
 import numpy as np
 
+from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 
@@ -43,5 +44,5 @@ class ServiceLevelSelection(IMustGoSelectionStrategy):
         predicted_fill = (
             context.current_fill + context.accumulation_rates + (context.threshold * context.std_deviations)
         )
-        must_go = np.nonzero(predicted_fill >= 100)[0] + 1
+        must_go = np.nonzero(predicted_fill >= MAX_CAPACITY_PERCENT)[0] + 1
         return must_go.tolist()

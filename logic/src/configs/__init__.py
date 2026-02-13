@@ -59,6 +59,7 @@ class Config:
     run_name: Optional[str] = None
     verbose: bool = True
     start: int = 0
+    p: Dict[str, Any] = field(default_factory=dict)
     callbacks: Dict[str, Any] = field(default_factory=dict)
 
 

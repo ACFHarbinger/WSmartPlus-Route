@@ -39,7 +39,6 @@ from .flash_attention import (
 )
 from .gated_graph_convolution import GatedGraphConvolution as GatedGraphConvolution
 from .graph_convolution import GraphConvolution as GraphConvolution
-from .hgnn import HetGNNLayer as HetGNNLayer
 from .matnet_attention import MixedScoreMHA as MixedScoreMHA
 from .mdam_attention import (
     MultiHeadAttentionMDAM as MultiHeadAttentionMDAM,

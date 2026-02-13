@@ -11,6 +11,7 @@ import numpy as np
 import pandas
 import torch
 
+from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
 from ..wsmart_bin_analysis import GridBase
@@ -219,22 +220,26 @@ class Bins:
         self.square_diff += delta * (todaysfilling_arr - self.means)
         self.std = self.__get_stdev()
 
-        todays_lost = (np.maximum(self.real_c + todaysfilling - 100, 0) / 100) * self.volume * self.density
-        todaysfilling = np.minimum(todaysfilling, 100)
+        todays_lost = (
+            (np.maximum(self.real_c + todaysfilling - MAX_CAPACITY_PERCENT, 0) / MAX_CAPACITY_PERCENT)
+            * self.volume
+            * self.density
+        )
+        todaysfilling = np.minimum(todaysfilling, MAX_CAPACITY_PERCENT)
         self.lost += todays_lost
-        self.real_c = np.minimum(self.real_c + todaysfilling, 100)
+        self.real_c = np.minimum(self.real_c + todaysfilling, MAX_CAPACITY_PERCENT)
 
         if noisyfilling is not None:
-            self.c = np.minimum(self.c + noisyfilling, 100)
+            self.c = np.minimum(self.c + noisyfilling, MAX_CAPACITY_PERCENT)
         elif self.noise_variance > 0:
             noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n)
-            self.c = np.clip(self.real_c + noise, 0, 100)
+            self.c = np.clip(self.real_c + noise, 0, MAX_CAPACITY_PERCENT)
         else:
             self.c = self.real_c.copy()
 
         self.level_history.append(self.c.copy())
         self.real_c = np.maximum(self.real_c, 0)
-        inoverflow = self.real_c == 100
+        inoverflow = self.real_c == MAX_CAPACITY_PERCENT
         self.inoverflow += inoverflow
         return (
             int(np.sum(inoverflow)),
@@ -257,7 +262,7 @@ class Bins:
             todaysfilling = np.maximum(sampled_value, 0)
 
         if only_fill:
-            return np.minimum(todaysfilling, 100)
+            return np.minimum(todaysfilling, MAX_CAPACITY_PERCENT)
         return self._process_filling(todaysfilling)
 
     def deterministicFilling(self, date):
