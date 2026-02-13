@@ -154,6 +154,9 @@ def run_hgs(dist_matrix, demands, capacity, R, C, values, *args):
     params = HGSParams(
         time_limit=values.get("time_limit", 10),
         population_size=values.get("population_size", 50),
+        elite_size=values.get("elite_size", 10),
+        mutation_rate=values.get("mutation_rate", 0.2),
+        n_generations=values.get("n_generations", 100),
         max_vehicles=values.get("max_vehicles", 0),
     )
     solver = HGSSolver(dist_matrix, demands, capacity, R, C, params)
