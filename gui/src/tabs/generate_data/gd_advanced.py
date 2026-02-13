@@ -118,64 +118,64 @@ class GenDataAdvancedTab(QWidget):
 
         # --- Focus Graphs (Custom Header) ---
         # 1. Create a container widget for the header using the custom clickable class
-        self.focus_graphs_header_widget = ClickableHeaderWidget(self._toggle_focus_graphs)
-        self.focus_graphs_header_widget.setStyleSheet("QWidget { border: none; padding: 0; margin-top: 5px; }")
+        self.focus_graph_header_widget = ClickableHeaderWidget(self._toggle_focus_graph)
+        self.focus_graph_header_widget.setStyleSheet("QWidget { border: none; padding: 0; margin-top: 5px; }")
 
-        fg_header_layout = QHBoxLayout(self.focus_graphs_header_widget)
+        fg_header_layout = QHBoxLayout(self.focus_graph_header_widget)
         fg_header_layout.setContentsMargins(0, 0, 0, 0)
         fg_header_layout.setSpacing(5)
 
         # 2. The main text (Standard QLabel)
-        self.focus_graphs_label = QLabel("<b>Focus Graphs</b>")
+        self.focus_graph_label = QLabel("<b>Focus Graphs</b>")
 
         # CRITICAL: Remove expanding policy so the label shrinks to fit content
-        self.focus_graphs_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        self.focus_graph_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
 
         # Apply the initial (collapsed) styling to the QLabel
-        self.focus_graphs_label.setStyleSheet(
+        self.focus_graph_label.setStyleSheet(
             "QLabel { border: 1px solid #555555; border-radius: 4px; padding: 5px; background-color: transparent; }"
         )
 
         # 3. The clickable toggle button (only the +/- sign)
-        self.focus_graphs_toggle_button = QPushButton("+")
-        self.focus_graphs_toggle_button.setFlat(True)
-        self.focus_graphs_toggle_button.setFixedSize(QSize(20, 20))
-        self.focus_graphs_toggle_button.setStyleSheet(
+        self.focus_graph_toggle_button = QPushButton("+")
+        self.focus_graph_toggle_button.setFlat(True)
+        self.focus_graph_toggle_button.setFixedSize(QSize(20, 20))
+        self.focus_graph_toggle_button.setStyleSheet(
             "QPushButton { font-weight: bold; padding: 0; border: none; background: transparent; }"
         )
-        self.focus_graphs_toggle_button.clicked.connect(self._toggle_focus_graphs)
+        self.focus_graph_toggle_button.clicked.connect(self._toggle_focus_graph)
 
         # 4. Add components to the header layout
-        fg_header_layout.addWidget(self.focus_graphs_label)
+        fg_header_layout.addWidget(self.focus_graph_label)
         fg_header_layout.addStretch()
-        fg_header_layout.addWidget(self.focus_graphs_toggle_button)
+        fg_header_layout.addWidget(self.focus_graph_toggle_button)
 
         # 5. Add the header widget to the main layout, making it span the row
-        layout.addRow(self.focus_graphs_header_widget)
+        layout.addRow(self.focus_graph_header_widget)
 
         # 6. Create a container for the collapsible content
-        self.focus_graphs_container = QWidget()
-        focus_graphs_layout = QFormLayout(self.focus_graphs_container)
-        focus_graphs_layout.setContentsMargins(0, 0, 0, 0)
+        self.focus_graph_container = QWidget()
+        focus_graph_layout = QFormLayout(self.focus_graph_container)
+        focus_graph_layout.setContentsMargins(0, 0, 0, 0)
 
         # 7. Add widgets to the container's layout
         # 6. --focus_graph
-        self.focus_graphs_input = QLineEdit()
-        self.focus_graphs_input.setPlaceholderText("Paths to focus graph files")
-        focus_graphs_layout.addRow("Focus Graph Paths:", self._create_browser_layout(self.focus_graphs_input))
+        self.focus_graph_input = QLineEdit()
+        self.focus_graph_input.setPlaceholderText("Paths to focus graph files")
+        focus_graph_layout.addRow("Focus Graph Paths:", self._create_browser_layout(self.focus_graph_input))
 
         # 7. --focus_size
         self.focus_size_input = QSpinBox()
         self.focus_size_input.setRange(0, 100000)
         self.focus_size_input.setValue(0)
-        focus_graphs_layout.addRow("Number per Focus Graph:", self.focus_size_input)
+        focus_graph_layout.addRow("Number per Focus Graph:", self.focus_size_input)
 
         # 8. Add the content container to the main layout
-        layout.addWidget(self.focus_graphs_container)
+        layout.addWidget(self.focus_graph_container)
 
         # 9. Initialize state: hidden
         self.is_graphs_visible = False
-        self.focus_graphs_container.hide()
+        self.focus_graph_container.hide()
 
     def _create_browser_layout(self, line_edit, is_dir=False):
         """Helper to create a layout with a browse button."""
@@ -217,22 +217,22 @@ class GenDataAdvancedTab(QWidget):
             )
         self.is_area_visible = not self.is_area_visible
 
-    def _toggle_focus_graphs(self):
+    def _toggle_focus_graph(self):
         """Toggles the visibility of the Focus Graphs input fields and updates the +/- sign."""
         if self.is_graphs_visible:
-            self.focus_graphs_container.hide()
-            self.focus_graphs_toggle_button.setText("+")
+            self.focus_graph_container.hide()
+            self.focus_graph_toggle_button.setText("+")
 
             # Apply dark grey border to the QLabel when collapsed
-            self.focus_graphs_label.setStyleSheet(
+            self.focus_graph_label.setStyleSheet(
                 "QLabel { border: 1px solid #555555; border-radius: 4px; padding: 5px; background-color: transparent; }"
             )
         else:
-            self.focus_graphs_container.show()
-            self.focus_graphs_toggle_button.setText("-")
+            self.focus_graph_container.show()
+            self.focus_graph_toggle_button.setText("-")
 
             # Remove the border from the QLabel when expanded.
-            self.focus_graphs_label.setStyleSheet(
+            self.focus_graph_label.setStyleSheet(
                 "QLabel { border: none; padding: 5px; background-color: transparent; }"
             )
         self.is_graphs_visible = not self.is_graphs_visible
@@ -254,7 +254,7 @@ class GenDataAdvancedTab(QWidget):
             params["area"] = COUNTY_AREAS.get(self.area_input.text(), "")  # type: ignore[assignment]
             params["waste_type"] = self.waste_type_input.text().strip().lower()  # type: ignore[assignment]
 
-        if self.focus_graphs_input.text().strip():
+        if self.focus_graph_input.text().strip():
             params["focus_size"] = self.focus_size_input.value()
-            params["focus_graph"] = self.focus_graphs_input.text().strip()  # type: ignore[assignment]
+            params["focus_graph"] = self.focus_graph_input.text().strip()  # type: ignore[assignment]
         return params

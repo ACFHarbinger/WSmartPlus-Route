@@ -82,10 +82,9 @@ def _init_environment(cfg: Config):
                 "vertex_method": graph.vertex_method,
                 "distance_method": graph.distance_method,
                 "dm_filepath": graph.dm_filepath,
-                "waste_filepath": graph.waste_filepath,
                 "edge_threshold": graph.edge_threshold,
                 "edge_method": graph.edge_method,
-                "focus_graphs": graph.focus_graphs,
+                "focus_graph": graph.focus_graph,
                 "focus_size": graph.focus_size,
                 "eval_focus_size": graph.eval_focus_size,
             }

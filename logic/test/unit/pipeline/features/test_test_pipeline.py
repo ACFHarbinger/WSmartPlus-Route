@@ -17,7 +17,7 @@ class TestPipelineFeaturesTest:
             "size": 10,
             "output_dir": "test_output",
             "area": "test_area",
-            "bin_idx_file": "test_bins.json",
+            "focus_graph": "test_bins.json",
             "cpu_cores": 1,
             "no_progress_bar": True,
             "data_distribution": "test_dist",

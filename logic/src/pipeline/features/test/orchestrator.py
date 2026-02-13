@@ -100,7 +100,7 @@ def simulator_testing(opts, data_size, device):
         n_cores = task_count if task_count <= mp.cpu_count() - 1 else mp.cpu_count() - 1
 
     if data_size != opts["size"]:
-        indices = load_indices(opts["bin_idx_file"], opts["n_samples"], opts["size"], data_size, lock)
+        indices = load_indices(opts["focus_graph"], opts["n_samples"], opts["size"], data_size, lock)
         if len(indices) == 1:
             indices = [indices[0]] * opts["n_samples"]
         assert len(indices) == opts["n_samples"], (

@@ -28,7 +28,3 @@ class AdaptiveImitationConfig:
     epsilon: float = 1e-5
     policy_config: Any = None
     loss_fn: str = "nll"
-
-    def __post_init__(self):
-        """Set default policy config if not provided."""
-        pass
