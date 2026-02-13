@@ -80,8 +80,6 @@ class SimulationDayContext(Mapping):
     # Required/Core Fields
     graph_size: int = 0
     full_policy: str = ""
-    policy: str = ""
-    policy_name: str = ""
     bins: Optional[Bins] = None
     new_data: Optional[pd.DataFrame] = None
     coords: Optional[pd.DataFrame] = None
@@ -108,8 +106,6 @@ class SimulationDayContext(Mapping):
     cost_weight: float = 1.0
     waste_weight: float = 1.0
     overflow_penalty: float = 1.0
-    engine: Optional[str] = None
-    threshold: Optional[float] = None
 
     # Optional/Mutable Fields
     daily_log: Optional[Dict[str, Any]] = None

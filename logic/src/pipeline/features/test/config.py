@@ -24,7 +24,14 @@ def expand_policy_configs(opts):
     config_path = cast(Dict[str, Any], opts["config_path"])
     dist_suffix = f"_{opts['data_distribution']}"
 
-    for pol_name in opts["policies"]:
+    for item in opts["policies"]:
+        if isinstance(item, dict) and len(item) == 1:
+            pol_name = list(item.keys())[0]
+            custom_overrides = item[pol_name]
+        else:
+            pol_name = str(item)
+            custom_overrides = None
+
         cfg_path = _resolve_policy_cfg_path(pol_name)
         variants, variant_name = _extract_variants(pol_name, cfg_path)
 
@@ -38,8 +45,22 @@ def expand_policy_configs(opts):
             if not full_name.endswith(dist_suffix):
                 full_name = f"{full_name}{dist_suffix}"
 
+            final_cfg = copy.deepcopy(custom_cfg or cfg_path)
+            if custom_overrides and final_cfg:
+                if isinstance(final_cfg, str):
+                    # Load it first so we can merge
+                    final_cfg = load_config(final_cfg)
+
+                if isinstance(final_cfg, dict):
+                    # Special handling for single-key policy configs
+                    pol_key = list(final_cfg.keys())[0] if len(final_cfg) == 1 else None
+                    if pol_key and pol_key == pol_name:
+                        final_cfg[pol_key].update(custom_overrides)
+                    else:
+                        final_cfg.update(custom_overrides)
+
             policies.append(full_name)
-            config_path[full_name] = custom_cfg or cfg_path
+            config_path[full_name] = final_cfg
 
     opts["policies"] = policies
 

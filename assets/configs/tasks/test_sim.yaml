@@ -3,8 +3,25 @@
 # Test Simulator Task Configuration
 # =============================================================================
 # Configuration for multi-day waste collection simulation testing.
+# =============================================================================
 # Used by: python main.py test_sim
 # =============================================================================
+
+defaults:
+  - /policies@p.alns: policy_alns
+  - /policies@p.bcp: policy_bcp
+  - /policies@p.cvrp: policy_cvrp
+  - /policies@p.hgs: policy_hgs
+  - /policies@p.hgs_alns: policy_hgs_alns
+  - /policies@p.hh_aco: policy_hh_aco
+  - /policies@p.ks_aco: policy_ks_aco
+  - /policies@p.lkh: policy_lkh
+  - /policies@p.neural: policy_neural
+  - /policies@p.sans: policy_sans
+  - /policies@p.sisr: policy_sisr
+  - /policies@p.tsp: policy_tsp
+  - /policies@p.vrpp: policy_vrpp
+  - _self_
 
 # General Configuration
 task: test_sim
@@ -34,5 +51,16 @@ sim:
     focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
 
   policies:
-    - hgs
-    - sans
+    - hgs: ${p.hgs.hgs}
+    - sans: ${p.sans.sans}
+    - alns: ${p.alns.alns}
+    - vrpp: ${p.vrpp.vrpp}
+    - hgs_alns: ${p.hgs_alns.hgs_alns}
+    - sisr: ${p.sisr.sisr}
+    - lkh: ${p.lkh.lkh}
+    - tsp: ${p.tsp.tsp}
+    - cvrp: ${p.cvrp.cvrp}
+    - bcp: ${p.bcp.bcp}
+    - neural: ${p.neural.neural}
+    - ks_aco: ${p.ks_aco.ks_aco}
+    - hh_aco: ${p.hh_aco.hh_aco}

@@ -272,21 +272,9 @@ def main_dispatch() -> None:
     ]
 
     if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
-        # Map command to task override
-        command = sys.argv[1]
-        if command in ["train", "mrl_train", "hp_optim"]:
-            # These might have specific handling needs or default to train task
-            pass
-
-        if command in ["eval", "test_sim", "gen_data"]:
-            sys.argv.append(f"tasks={command}")
-            sys.argv.pop(1)  # Remove the command
-        elif command == "mrl_train":
-            sys.argv.append("rl.use_meta=True")
-            sys.argv.pop(1)  # Remove the command
-        else:  # For other commands like "train", "train_hydra", etc.
-            sys.argv.pop(1)  # Remove the command
-
+        command = sys.argv.pop(1)
+        sys.argv.append(f"tasks={command}")
+        sys.argv.append(f"task={command}")
         hydra_entry_point()
     else:
         main(parse_params())
@@ -328,8 +316,9 @@ def hydra_entry_point(cfg: Config) -> float:
         if cfg.verbose:
             pretty_print_hydra_config(cfg, filter_keys="sim")  # type: ignore[arg-type]
 
-        # Convert Hydra config to dict
+        # Convert Hydra config sections to dicts
         sim_args = cast(dict[str, Any], OmegaConf.to_container(cfg.sim, resolve=True))
+
         # Flatten
         sim_args = flatten_config_dict(sim_args)
         # Validate and run

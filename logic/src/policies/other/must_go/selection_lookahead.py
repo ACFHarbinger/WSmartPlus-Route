@@ -18,6 +18,7 @@ from typing import List
 
 import numpy as np
 
+from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 
@@ -33,7 +34,7 @@ class LookaheadSelection(IMustGoSelectionStrategy):
         """
         Check if bin overflows today.
         """
-        return current_fill_level + accumulation_rate >= 100
+        return current_fill_level + accumulation_rate >= MAX_CAPACITY_PERCENT
 
     def _update_fill_levels_after_first_collection(
         self, bin_indices: List[int], must_go_bins: List[int], current_fill_levels: np.ndarray
@@ -71,7 +72,7 @@ class LookaheadSelection(IMustGoSelectionStrategy):
             if rate <= 0:
                 continue
 
-            while temporary_fill_levels[i] < 100:
+            while temporary_fill_levels[i] < MAX_CAPACITY_PERCENT:
                 temporary_fill_levels[i] = temporary_fill_levels[i] + rate
                 current_day = current_day + 1
 
@@ -118,7 +119,7 @@ class LookaheadSelection(IMustGoSelectionStrategy):
                 continue
             else:
                 for j in range(current_collection_day + 1, next_collection_day):
-                    if current_fill_levels[i] + j * accumulation_rates[i] >= 100:
+                    if current_fill_levels[i] + j * accumulation_rates[i] >= MAX_CAPACITY_PERCENT:
                         must_go_bins.append(i)
                         break
         return must_go_bins

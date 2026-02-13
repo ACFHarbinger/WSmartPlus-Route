@@ -7,7 +7,6 @@ interface for executing diverse routing policies within the simulator.
 Now also includes the IPolicy interface and PolicyRegistry.
 """
 
-import warnings
 from typing import Any, Optional
 
 # --- IPolicy Interface ---
@@ -56,50 +55,7 @@ class PolicyFactory:
         if cls:
             return cls()  # type: ignore[return-value]
 
-        # Fallback for complex names or un-registered policies (backward compatibility)
-        if name == "regular" or "regular" in name:
-            # Fallback to TSP for legacy regular execution (selection happens in Action)
-            start_msg = "Using 'regular' as policy name is deprecated. "
-            warnings.warn(
-                start_msg + "Please use 'tsp' or specific policy instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            from logic.src.policies.adapters.policy_tsp import TSPPolicy
-
-            return TSPPolicy()
-        elif name == "neural" or name[:2] == "am" or name[:4] == "ddam" or "transgcn" in name:
-            from logic.src.policies.adapters.policy_neural import NeuralPolicy
-
-            return NeuralPolicy()
-        elif "vrpp" in name:
-            from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
-
-            return VRPPPolicy()
-        elif name == "tsp" or "tsp" in name:
-            from logic.src.policies.adapters.policy_tsp import TSPPolicy
-
-            return TSPPolicy()
-        elif name == "cvrp" or "cvrp" in name:
-            from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
-
-            return CVRPPolicy()
-        else:
-            # Default to CVRP or TSP based on vehicles if unknown but looks like a legacy name
-            if name.startswith("policy_") or "_policy" in name:
-                from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
-                from logic.src.policies.adapters.policy_tsp import TSPPolicy
-
-                warnings.warn(
-                    f"Implicit policy resolution for '{name}' is deprecated. Please register policy explicitly.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-                n_vehicles = kwargs.get("n_vehicles", 1)
-                return TSPPolicy() if n_vehicles == 1 else CVRPPolicy()
-
-            raise ValueError(f"Unknown policy: {name}")
+        raise ValueError(f"Unknown policy: {name}. Ensure it is registered in PolicyRegistry.")
 
 
 # Backward compatibility aliases

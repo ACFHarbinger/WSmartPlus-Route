@@ -11,43 +11,71 @@
 # =============================================================================
 # General Configuration
 # =============================================================================
-verbose: true  # Enable detailed logging
-seed: 42  # Random seed for reproducible data generation
-start: 0  # Starting epoch/index (usually 0)
+verbose: true # Enable detailed logging
+seed: 42 # Random seed for reproducible data generation
+start: 0 # Starting epoch/index (usually 0)
 
 # =============================================================================
 # Data Configuration
 # =============================================================================
 data:
-  n_epochs: 100  # Number of epochs of data to generate (for temporal problems)
-
   # Problem Configuration
-  problem: "vrpp"  # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
+  problem: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
+  data_distributions: ["gamma1"] # Waste generation distributions to use.
+  penalty_factor: 3.0
+  overwrite: false
+  seed: 42
+  n_epochs: 1
+  epoch_start: 0
+  dataset_type: "train"
+  data_dir: "daily_waste" # Directory to save generated data
+  name: "wsr"
+  filename: null
 
-  # Dataset Sizes
-  dataset_size: 1280  # Number of training instances
-  val_size: 1280  # Number of validation instances
-  test_size: 31  # Number of test instances (often fewer for slower evaluation)
+  # Training Graphs
+  train_graphs:
+    - num_loc: 20
+      n_samples: 128000
+      area: "riomaior"
+      waste_type: "plastic"
+    - num_loc: 50
+      n_samples: 128000
+      area: "riomaior"
+      waste_type: "plastic"
+    - num_loc: 100
+      n_samples: 128000
+      area: "riomaior"
+      waste_type: "plastic"
 
-  # Distribution Configuration
-  data_distributions: ["gamma1"]  # Waste generation distributions to use.
-                                  # Options: gamma1, gamma2, uniform, beta
-                                  # Can specify multiple: ["gamma1", "gamma2"]
+  # Validation Graphs
+  val_graphs:
+    - num_loc: 20
+      n_samples: 1280
+      area: "riomaior"
+      waste_type: "plastic"
+    - num_loc: 50
+      n_samples: 1280
+      area: "riomaior"
+      waste_type: "plastic"
+    - num_loc: 100
+      n_samples: 1280
+      area: "riomaior"
+      waste_type: "plastic"
 
-  # Problem Sizes
-  num_locs: [20, 50, 100, 170]  # Number of customer locations (nodes).
-                                 # Generates separate datasets for each size.
-                                 # Common benchmarks: 20, 50, 100, 200
-
-  # Dataset Type
-  dataset_type: "train_time"  # Dataset variant. Options:
-                              # - "train_time": Multi-day temporal data (for WCVRP)
-                              # - "train": Single-instance static data (for VRPP, CVRPP)
-                              # - "test": Test set
-                              # - "val": Validation set
-
-  filename: "time"  # Output filename prefix
-
-  # Temporal Data Parameters (for WCVRP/temporal problems)
-  focus_size: 31  # Number of days to simulate for temporal datasets
-  data_dir: "daily_waste"  # Directory to save generated data
+  # Test Graphs (for simulation or evaluation)
+  test_graphs:
+    - num_loc: 20
+      n_samples: 1
+      n_days: 31
+      area: "riomaior"
+      waste_type: "plastic"
+    - num_loc: 50
+      n_samples: 1
+      n_days: 31
+      area: "riomaior"
+      waste_type: "plastic"
+    - num_loc: 100
+      n_samples: 1
+      n_days: 31
+      area: "riomaior"
+      waste_type: "plastic"

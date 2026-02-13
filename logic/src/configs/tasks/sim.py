@@ -4,7 +4,7 @@ Sim Config module.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from ..envs.graph import GraphConfig
 
@@ -13,8 +13,8 @@ from ..envs.graph import GraphConfig
 class SimConfig:
     """Simulation configuration.
 
-    Attributes:
-        policies: Name of the policy(ies) to test on the WSR simulator.
+    attributes:
+        policies: List of policy configurations to test on the WSR simulator.
         data_distribution: Distribution to generate the bins daily waste fill.
         problem: The problem the model was trained to solve.
         days: Number of days to run the simulation for.
@@ -46,7 +46,7 @@ class SimConfig:
         data_dir: Directory containing the simulation data.
     """
 
-    policies: Optional[List[str]] = None
+    policies: List[Any] = field(default_factory=list)
     data_distribution: str = "gamma1"
     problem: str = "vrpp"
     days: int = 31
@@ -77,3 +77,4 @@ class SimConfig:
     real_time_log: bool = False
     stats_filepath: Optional[str] = None
     data_dir: Optional[str] = None
+    policy_configs: Dict[str, Any] = field(default_factory=dict)
