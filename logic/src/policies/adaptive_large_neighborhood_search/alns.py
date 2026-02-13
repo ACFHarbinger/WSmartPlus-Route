@@ -266,6 +266,11 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
     params = ALNSParams(
         time_limit=values.get("time_limit", 10),
         max_iterations=values.get("Iterations", 2000),
+        start_temp=values.get("start_temp", 100.0),
+        cooling_rate=values.get("cooling_rate", 0.995),
+        reaction_factor=values.get("reaction_factor", 0.1),
+        min_removal=values.get("min_removal", 1),
+        max_removal_pct=values.get("max_removal_pct", 0.3),
     )
     solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params)
     return solver.solve()

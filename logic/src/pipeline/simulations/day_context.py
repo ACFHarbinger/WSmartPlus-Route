@@ -80,6 +80,8 @@ class SimulationDayContext(Mapping):
     # Required/Core Fields
     graph_size: int = 0
     full_policy: str = ""
+    policy: str = ""
+    policy_name: str = ""
     bins: Optional[Bins] = None
     new_data: Optional[pd.DataFrame] = None
     coords: Optional[pd.DataFrame] = None
