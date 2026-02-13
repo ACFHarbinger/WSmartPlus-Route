@@ -62,7 +62,7 @@ class VRPPPolicy(BaseRoutingPolicy):
 
         # 3. Handle bins input (WSmart+ simulator passes bins object or amounts)
         amounts = bins
-        if hasattr(bins, "c"):
+        if bins is not None and hasattr(bins, "c"):
             amounts = bins.c
 
         # Ensure binsids are present (local 1-based for solver consistency)

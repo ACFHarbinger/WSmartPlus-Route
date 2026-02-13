@@ -1814,7 +1814,7 @@ opts = {
     "output_dir": "simulation_results",
     "checkpoint_dir": "checkpoints",
     "distance_method": "hsd",
-    "bin_idx_file": None,
+    "focus_graph": None,
     # ... other options
 }
 

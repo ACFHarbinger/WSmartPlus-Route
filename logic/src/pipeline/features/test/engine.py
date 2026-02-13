@@ -43,9 +43,9 @@ def run_wsr_simulator_test(opts):
     data_size = _resolve_data_size(opts)
 
     print(f"Area {opts['area']} ({data_size} available) for {opts['size']} bins")
-    if data_size != opts["size"] and not opts.get("bin_idx_file"):
+    if data_size != opts["size"] and not opts.get("focus_graph"):
         wtype_suffix = f"_{opts['waste_type']}" if opts.get("waste_type") else ""
-        opts["bin_idx_file"] = f"graphs_{opts['area']}_{opts['size']}V_{opts['n_samples']}N{wtype_suffix}.json"
+        opts["focus_graph"] = f"graphs_{opts['area']}_{opts['size']}V_{opts['n_samples']}N{wtype_suffix}.json"
 
     expand_policy_configs(opts)
     _ensure_directories(opts)

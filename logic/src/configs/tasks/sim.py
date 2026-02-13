@@ -4,12 +4,9 @@ Sim Config module.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from ..envs.graph import GraphConfig
-from ..envs.objective import ObjectiveConfig
-from ..models.decoding import DecodingConfig
-from ..policies.neural import NeuralConfig
 
 
 @dataclass
@@ -30,8 +27,6 @@ class SimConfig:
         n_samples: Number of simulation samplings for each policy.
         resume: Resume testing.
         n_vehicles: Number of vehicles.
-        bin_idx_file: File with the indices of the bins to use in the simulation.
-        decoding: Decoding configuration.
         noise_mean: Mean of Gaussian noise to inject into observed bin levels.
         noise_variance: Variance of Gaussian noise to inject into observed bin levels.
         cache_regular: Deactivate caching for policy regular (Default True).
@@ -45,8 +40,7 @@ class SimConfig:
         gapik_file: Name of the file that contains the key to use for the Google API.
         real_time_log: Activate real time results window.
         stats_filepath: Path to the file to read the statistics from.
-        policy: Neural policy configuration.
-        config_path: Path to the YAML/XML configuration file(s).
+        waste_filepath: Path to the file to read the waste fill for each day from.
         graph: Graph/instance configuration.
         reward: Objective/reward configuration.
         data_dir: Directory containing the simulation data.
@@ -67,11 +61,8 @@ class SimConfig:
 
     cpu_cores: int = 0
     n_vehicles: int = 1
+    waste_filepath: Optional[str] = None
     graph: GraphConfig = field(default_factory=GraphConfig)
-    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
-    decoding: DecodingConfig = field(default_factory=DecodingConfig)
-    policy: NeuralConfig = field(default_factory=NeuralConfig)
-    bin_idx_file: Optional[str] = None
     noise_mean: float = 0.0
     noise_variance: float = 0.0
     cache_regular: bool = True
@@ -85,5 +76,4 @@ class SimConfig:
     gapik_file: Optional[str] = None
     real_time_log: bool = False
     stats_filepath: Optional[str] = None
-    config_path: Optional[Dict[str, str]] = None
     data_dir: Optional[str] = None

@@ -18,7 +18,7 @@ def test_simulator_testing_single_core():
         "area": "mixrmbac",
         "output_dir": "test_out",
         "data_distribution": "unif",
-        "bin_idx_file": None,
+        "focus_graph": None,
         "waste_type": "residually",
     }
 
@@ -47,7 +47,7 @@ def test_simulator_testing_multi_core():
         "area": "mixrmbac",
         "output_dir": "test_out",
         "data_distribution": "unif",
-        "bin_idx_file": None,
+        "focus_graph": None,
         "no_progress_bar": True,
     }
 

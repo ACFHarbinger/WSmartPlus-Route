@@ -28,11 +28,7 @@ class DataConfig:
         n_epochs: The number of epochs to generate data for.
         epoch_start: Start at epoch #.
         dataset_type: Set type of dataset to generate ('train', 'train_time', 'test_simulator').
-        area: County area of the bins locations.
-        waste_type: Type of waste bins selected for the optimization problem.
-        focus_graphs: Path to the files with the coordinates of the graphs to focus on.
-        focus_size: Number of focus graphs to include in the data.
-        vertex_method: Method to transform vertex coordinates.
+        graph: Graph/instance configuration.
     """
 
     name: Optional[str] = None
@@ -50,4 +46,4 @@ class DataConfig:
     n_epochs: int = 1
     epoch_start: int = 0
     dataset_type: Optional[str] = None
-    graph: GraphConfig = field(default_factory=GraphConfig)
+    graphs: List[GraphConfig] = field(default_factory=list)

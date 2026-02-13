@@ -244,7 +244,7 @@ def _render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
         <span style="color: #fd7e14;">&#9901;</span> Must-Go + Served
     </div>
     """
-    sim_map.get_root().html.add_child(folium.Element(legend_html))
+    sim_map.get_root().html.add_child(folium.Element(legend_html))  # type: ignore[attr-defined]
 
     st_folium(sim_map, width=None, height=500, returned_objects=[])
 

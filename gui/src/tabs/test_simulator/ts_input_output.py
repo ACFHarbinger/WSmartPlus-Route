@@ -67,8 +67,8 @@ class TestSimIOTab(QWidget):
         self.dm_filepath_input = QLineEdit()
         form_layout.addRow("Distance Matrix File:", self._create_browser_layout(self.dm_filepath_input))
 
-        self.bin_idx_file_input = QLineEdit()
-        form_layout.addRow("Bin Index File:", self._create_browser_layout(self.bin_idx_file_input))
+        self.focus_graph_input = QLineEdit()
+        form_layout.addRow("Focus Graph File:", self._create_browser_layout(self.focus_graph_input))
 
         # Simulator Data Context
         form_layout.addRow(QLabel("<b>Simulator Data Context</b>"))
@@ -161,12 +161,12 @@ class TestSimIOTab(QWidget):
             dm_file = f"data/wsr_simulator/distance_matrix/gmaps_distmat_{waste_type_key}[{area_key}].csv"
 
             # Pattern: "graphs_50V_1N_plastic.json"
-            bin_idx_file = f"graphs_{size}V_{n_vehicles}N_{waste_type_key}.json"
+            focus_graph_file = f"graphs_{size}V_{n_vehicles}N_{waste_type_key}.json"
 
             # 4. Set the text
             self.waste_filepath_input.setText(waste_file)
             self.dm_filepath_input.setText(dm_file)
-            self.bin_idx_file_input.setText(bin_idx_file)
+            self.focus_graph_input.setText(focus_graph_file)
 
         except Exception as e:
             # Avoid crashing the GUI if a widget isn't fully initialized
@@ -194,7 +194,7 @@ class TestSimIOTab(QWidget):
             params["waste_filepath"] = self.waste_filepath_input.text().strip()
         if self.dm_filepath_input.text().strip():
             params["dm_filepath"] = self.dm_filepath_input.text().strip()
-        if self.bin_idx_file_input.text().strip():
-            params["bin_idx_file"] = self.bin_idx_file_input.text().strip()
+        if self.focus_graph_input.text().strip():
+            params["focus_graph"] = self.focus_graph_input.text().strip()
 
         return params

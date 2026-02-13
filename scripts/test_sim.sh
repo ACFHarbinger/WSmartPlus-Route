@@ -108,7 +108,7 @@ uv run python main.py test_sim \
     "sim.n_samples=${SAMPLES}" \
     "sim.graph.waste_type='${WASTE_TYPE}'" \
     "sim.data_distribution='${DATA_DIST}'" \
-    "sim.bin_idx_file='${IDX_PATH}'" \
+    "sim.graph.focus_graph='${IDX_PATH}'" \
     "sim.graph.dm_filepath='${DM_PATH}'" \
     "sim.graph.waste_filepath='${WASTE_PATH}'" \
     "sim.checkpoint_days=30" \

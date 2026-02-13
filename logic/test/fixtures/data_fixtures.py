@@ -19,7 +19,7 @@ def gen_data_opts():
         "data_distributions": ["all"],
         "area": "SomeArea",
         "waste_type": "SomeWaste",
-        "focus_graphs": ["graph.csv"],
+        "focus_graph": ["graph.csv"],
         "focus_size": 0,
         "vertex_method": "Uniform",
         "is_gaussian": False,
