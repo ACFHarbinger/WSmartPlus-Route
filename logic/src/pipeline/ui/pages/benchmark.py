@@ -114,7 +114,7 @@ def _render_performance_table(filtered_df: pd.DataFrame) -> None:
     if not selected_cols:
         selected_cols = all_cols
 
-    st.dataframe(filtered_df[selected_cols], use_container_width=True, height=400)
+    st.dataframe(filtered_df[selected_cols], width="stretch", height=400)
 
 
 def _render_comparison_charts(filtered_df: pd.DataFrame) -> None:
