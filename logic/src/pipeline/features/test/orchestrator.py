@@ -46,7 +46,8 @@ def simulator_testing(opts, data_size, device):
         original_stderr = original_stderr.terminal
 
     # Display policy summary
-    PolicySummaryCallback().display(opts)
+    if not opts.get("no_progress_bar"):
+        PolicySummaryCallback().display(opts)
 
     # Register immediate shutdown handler for CTRL+C
     def _shutdown_handler(sig, frame):
@@ -137,17 +138,18 @@ def simulator_testing(opts, data_size, device):
         f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl",
     )
     send_final_output_to_gui(log, log_std, opts["n_samples"], opts["policies"], realtime_log_path)
-    display_log_metrics(
-        opts["output_dir"],
-        opts["size"],
-        opts["n_samples"],
-        opts["days"],
-        opts["area"],
-        opts["policies"],
-        log,
-        log_std,
-        lock,
-    )
+    if not opts.get("no_progress_bar"):
+        display_log_metrics(
+            opts["output_dir"],
+            opts["size"],
+            opts["n_samples"],
+            opts["days"],
+            opts["area"],
+            opts["policies"],
+            log,
+            log_std,
+            lock,
+        )
 
 
 def _process_display_updates(
@@ -283,7 +285,7 @@ def _run_parallel_simulations(
     args = _prepare_parallel_task_args(opts, indices, sample_idx_ls)
 
     # Print execution info
-    _print_execution_info(task_count, n_cores)
+    _print_execution_info(opts, task_count, n_cores)
 
     # Create multiprocessing pool
     mp.set_start_method("spawn", force=True)
@@ -324,7 +326,7 @@ def _prepare_parallel_task_args(opts, indices, sample_idx_ls):
         return [(indices[0], 0, pol_id) for pol_id in range(len(opts["policies"]))]
 
 
-def _print_execution_info(task_count, n_cores):
+def _print_execution_info(opts, task_count, n_cores):
     """
     Print information about parallel execution configuration.
 
@@ -332,10 +334,11 @@ def _print_execution_info(task_count, n_cores):
         task_count (int): Total number of tasks to execute
         n_cores (int): Number of CPU cores to use
     """
-    print(f"Launching {task_count} WSmart Route simulations on {n_cores} CPU cores...")
-    max_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT))
-    proc_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT // n_cores))
-    print(f"[INFO] Maximum lock wait time: {max_lock_timeout} ({proc_lock_timeout} per used thread)")
+    if not opts.get("no_progress_bar"):
+        print(f"Launching {task_count} WSmart Route simulations on {n_cores} CPU cores...")
+        max_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT))
+        proc_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT // n_cores))
+        print(f"[INFO] Maximum lock wait time: {max_lock_timeout} ({proc_lock_timeout} per used thread)")
 
 
 def _execute_and_monitor_tasks(pool, opts, device, args, weights_path, n_cores, counter, manager, lock):
@@ -357,7 +360,9 @@ def _execute_and_monitor_tasks(pool, opts, device, args, weights_path, n_cores, 
         tuple: (log, log_std, failed_log)
     """
     # Initialize display and result containers
-    display = _initialize_simulation_display(opts) if not opts["no_progress_bar"] else None
+    # Check both root and sim level no_progress_bar
+    no_pbar = opts.get("no_progress_bar", False)
+    display = _initialize_simulation_display(opts) if not no_pbar else None
     log_tmp, failed_log = _create_result_containers(manager, opts)
 
     # Create result callback closure

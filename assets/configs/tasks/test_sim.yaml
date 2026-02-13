@@ -21,7 +21,7 @@ sim:
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   real_time_log: false
-  no_progress_bar: false
+  no_progress_bar: true
   data_distribution: "gamma1"
 
   # Relative to ROOT/data/wsr_simulator/
