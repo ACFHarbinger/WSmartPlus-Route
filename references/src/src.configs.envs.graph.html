@@ -475,10 +475,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.vertex_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.vertex_method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.distance_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.distance_method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.dm_filepath"><code class="docutils literal notranslate"><span class="pre">GraphConfig.dm_filepath</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.waste_filepath"><code class="docutils literal notranslate"><span class="pre">GraphConfig.waste_filepath</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.edge_threshold"><code class="docutils literal notranslate"><span class="pre">GraphConfig.edge_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.edge_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.edge_method</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graphs"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graphs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
 </ul>
@@ -526,10 +525,9 @@ waste_type: Type of waste bins selected for the optimization problem.
 vertex_method: Method to transform vertex coordinates (‘mmn’, etc.).
 distance_method: Method to compute distance matrix (‘ogd’, etc.).
 dm_filepath: Path to the distance matrix file.
-waste_filepath: Path to the file to read the waste fill for each day from.
 edge_threshold: How many of all possible edges to consider.
 edge_method: Method for getting edges (‘dist’, ‘knn’, etc.).
-focus_graphs: Paths to the files with the coordinates of the graphs to focus on.
+focus_graph: Paths to the files with the coordinates of the graphs to focus on.
 focus_size: Number of focus graphs to include.
 eval_focus_size: Number of focus graphs to include in evaluation.</p>
 <dl class="py attribute">
@@ -569,12 +567,6 @@ eval_focus_size: Number of focus graphs to include in evaluation.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.waste_filepath">
-<span class="sig-name descname"><span class="pre">waste_filepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.waste_filepath" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.edge_threshold">
 <span class="sig-name descname"><span class="pre">edge_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.edge_threshold" title="Link to this definition">#</a></dt>
 <dd><p>‘0’</p>
@@ -587,21 +579,21 @@ eval_focus_size: Number of focus graphs to include in evaluation.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.focus_graphs">
-<span class="sig-name descname"><span class="pre">focus_graphs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.focus_graphs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.focus_graph">
+<span class="sig-name descname"><span class="pre">focus_graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.focus_graph" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.focus_size">
-<span class="sig-name descname"><span class="pre">focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.focus_size" title="Link to this definition">#</a></dt>
-<dd><p>0</p>
+<span class="sig-name descname"><span class="pre">focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.focus_size" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.eval_focus_size">
-<span class="sig-name descname"><span class="pre">eval_focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.eval_focus_size" title="Link to this definition">#</a></dt>
-<dd><p>0</p>
+<span class="sig-name descname"><span class="pre">eval_focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.eval_focus_size" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
 </dd></dl>
@@ -665,10 +657,9 @@ eval_focus_size: Number of focus graphs to include in evaluation.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.vertex_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.vertex_method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.distance_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.distance_method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.dm_filepath"><code class="docutils literal notranslate"><span class="pre">GraphConfig.dm_filepath</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.waste_filepath"><code class="docutils literal notranslate"><span class="pre">GraphConfig.waste_filepath</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.edge_threshold"><code class="docutils literal notranslate"><span class="pre">GraphConfig.edge_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.edge_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.edge_method</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graphs"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graphs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
 </ul>

@@ -194,13 +194,13 @@
 
 ````
 
-````{py:attribute} graph
-:canonical: src.configs.tasks.data.DataConfig.graph
-:type: logic.src.configs.envs.graph.GraphConfig
+````{py:attribute} graphs
+:canonical: src.configs.tasks.data.DataConfig.graphs
+:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.graph
+```{autodoc2-docstring} src.configs.tasks.data.DataConfig.graphs
 ```
 
 ````

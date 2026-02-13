@@ -183,6 +183,17 @@
 
 ````
 
+````{py:attribute} waste_filepath
+:canonical: src.configs.tasks.sim.SimConfig.waste_filepath
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.waste_filepath
+```
+
+````
+
 ````{py:attribute} graph
 :canonical: src.configs.tasks.sim.SimConfig.graph
 :type: src.configs.envs.graph.GraphConfig
@@ -190,50 +201,6 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.graph
-```
-
-````
-
-````{py:attribute} reward
-:canonical: src.configs.tasks.sim.SimConfig.reward
-:type: src.configs.envs.objective.ObjectiveConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.reward
-```
-
-````
-
-````{py:attribute} decoding
-:canonical: src.configs.tasks.sim.SimConfig.decoding
-:type: src.configs.models.decoding.DecodingConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.decoding
-```
-
-````
-
-````{py:attribute} policy
-:canonical: src.configs.tasks.sim.SimConfig.policy
-:type: src.configs.policies.neural.NeuralConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.policy
-```
-
-````
-
-````{py:attribute} bin_idx_file
-:canonical: src.configs.tasks.sim.SimConfig.bin_idx_file
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.bin_idx_file
 ```
 
 ````
@@ -377,17 +344,6 @@
    None
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.stats_filepath
-```
-
-````
-
-````{py:attribute} config_path
-:canonical: src.configs.tasks.sim.SimConfig.config_path
-:type: typing.Optional[typing.Dict[str, str]]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.config_path
 ```
 
 ````

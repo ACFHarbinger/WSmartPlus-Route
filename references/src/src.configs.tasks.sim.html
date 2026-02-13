@@ -483,11 +483,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.resume"><code class="docutils literal notranslate"><span class="pre">SimConfig.resume</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.cpu_cores"><code class="docutils literal notranslate"><span class="pre">SimConfig.cpu_cores</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.n_vehicles"><code class="docutils literal notranslate"><span class="pre">SimConfig.n_vehicles</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.waste_filepath"><code class="docutils literal notranslate"><span class="pre">SimConfig.waste_filepath</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.graph"><code class="docutils literal notranslate"><span class="pre">SimConfig.graph</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.reward"><code class="docutils literal notranslate"><span class="pre">SimConfig.reward</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.decoding"><code class="docutils literal notranslate"><span class="pre">SimConfig.decoding</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.policy"><code class="docutils literal notranslate"><span class="pre">SimConfig.policy</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.bin_idx_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.bin_idx_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.noise_mean"><code class="docutils literal notranslate"><span class="pre">SimConfig.noise_mean</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.noise_variance"><code class="docutils literal notranslate"><span class="pre">SimConfig.noise_variance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.cache_regular"><code class="docutils literal notranslate"><span class="pre">SimConfig.cache_regular</span></code></a></li>
@@ -501,7 +498,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.gapik_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.gapik_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.real_time_log"><code class="docutils literal notranslate"><span class="pre">SimConfig.real_time_log</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.stats_filepath"><code class="docutils literal notranslate"><span class="pre">SimConfig.stats_filepath</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.config_path"><code class="docutils literal notranslate"><span class="pre">SimConfig.config_path</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.data_dir"><code class="docutils literal notranslate"><span class="pre">SimConfig.data_dir</span></code></a></li>
 </ul>
 </li>
@@ -556,8 +552,6 @@ log_file: Path to the system log file.
 n_samples: Number of simulation samplings for each policy.
 resume: Resume testing.
 n_vehicles: Number of vehicles.
-bin_idx_file: File with the indices of the bins to use in the simulation.
-decoding: Decoding configuration.
 noise_mean: Mean of Gaussian noise to inject into observed bin levels.
 noise_variance: Variance of Gaussian noise to inject into observed bin levels.
 cache_regular: Deactivate caching for policy regular (Default True).
@@ -571,8 +565,7 @@ symkey_name: Name of the cryptographic key used to access the API keys.
 gapik_file: Name of the file that contains the key to use for the Google API.
 real_time_log: Activate real time results window.
 stats_filepath: Path to the file to read the statistics from.
-policy: Neural policy configuration.
-config_path: Path to the YAML/XML configuration file(s).
+waste_filepath: Path to the file to read the waste fill for each day from.
 graph: Graph/instance configuration.
 reward: Objective/reward configuration.
 data_dir: Directory containing the simulation data.</p>
@@ -661,33 +654,15 @@ data_dir: Directory containing the simulation data.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.waste_filepath">
+<span class="sig-name descname"><span class="pre">waste_filepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.waste_filepath" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.graph">
 <span class="sig-name descname"><span class="pre">graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.envs.graph.html#src.configs.envs.graph.GraphConfig" title="src.configs.envs.graph.GraphConfig"><span class="pre">src.configs.envs.graph.GraphConfig</span></a></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.graph" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.reward">
-<span class="sig-name descname"><span class="pre">reward</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.envs.objective.html#src.configs.envs.objective.ObjectiveConfig" title="src.configs.envs.objective.ObjectiveConfig"><span class="pre">src.configs.envs.objective.ObjectiveConfig</span></a></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.reward" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.decoding">
-<span class="sig-name descname"><span class="pre">decoding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.models.decoding.html#src.configs.models.decoding.DecodingConfig" title="src.configs.models.decoding.DecodingConfig"><span class="pre">src.configs.models.decoding.DecodingConfig</span></a></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.decoding" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.policy">
-<span class="sig-name descname"><span class="pre">policy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.neural.html#src.configs.policies.neural.NeuralConfig" title="src.configs.policies.neural.NeuralConfig"><span class="pre">src.configs.policies.neural.NeuralConfig</span></a></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.policy" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.bin_idx_file">
-<span class="sig-name descname"><span class="pre">bin_idx_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.bin_idx_file" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -769,12 +744,6 @@ data_dir: Directory containing the simulation data.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.config_path">
-<span class="sig-name descname"><span class="pre">config_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.config_path" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.data_dir">
 <span class="sig-name descname"><span class="pre">data_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.data_dir" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -849,11 +818,8 @@ data_dir: Directory containing the simulation data.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.resume"><code class="docutils literal notranslate"><span class="pre">SimConfig.resume</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.cpu_cores"><code class="docutils literal notranslate"><span class="pre">SimConfig.cpu_cores</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.n_vehicles"><code class="docutils literal notranslate"><span class="pre">SimConfig.n_vehicles</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.waste_filepath"><code class="docutils literal notranslate"><span class="pre">SimConfig.waste_filepath</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.graph"><code class="docutils literal notranslate"><span class="pre">SimConfig.graph</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.reward"><code class="docutils literal notranslate"><span class="pre">SimConfig.reward</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.decoding"><code class="docutils literal notranslate"><span class="pre">SimConfig.decoding</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.policy"><code class="docutils literal notranslate"><span class="pre">SimConfig.policy</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.bin_idx_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.bin_idx_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.noise_mean"><code class="docutils literal notranslate"><span class="pre">SimConfig.noise_mean</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.noise_variance"><code class="docutils literal notranslate"><span class="pre">SimConfig.noise_variance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.cache_regular"><code class="docutils literal notranslate"><span class="pre">SimConfig.cache_regular</span></code></a></li>
@@ -867,7 +833,6 @@ data_dir: Directory containing the simulation data.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.gapik_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.gapik_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.real_time_log"><code class="docutils literal notranslate"><span class="pre">SimConfig.real_time_log</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.stats_filepath"><code class="docutils literal notranslate"><span class="pre">SimConfig.stats_filepath</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.config_path"><code class="docutils literal notranslate"><span class="pre">SimConfig.config_path</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.data_dir"><code class="docutils literal notranslate"><span class="pre">SimConfig.data_dir</span></code></a></li>
 </ul>
 </li>

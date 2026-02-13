@@ -95,17 +95,6 @@
 
 ````
 
-````{py:attribute} waste_filepath
-:canonical: src.configs.envs.graph.GraphConfig.waste_filepath
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.waste_filepath
-```
-
-````
-
 ````{py:attribute} edge_threshold
 :canonical: src.configs.envs.graph.GraphConfig.edge_threshold
 :type: str
@@ -128,22 +117,22 @@
 
 ````
 
-````{py:attribute} focus_graphs
-:canonical: src.configs.envs.graph.GraphConfig.focus_graphs
-:type: typing.Optional[typing.List[str]]
+````{py:attribute} focus_graph
+:canonical: src.configs.envs.graph.GraphConfig.focus_graph
+:type: typing.Optional[str]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.focus_graphs
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.focus_graph
 ```
 
 ````
 
 ````{py:attribute} focus_size
 :canonical: src.configs.envs.graph.GraphConfig.focus_size
-:type: int
+:type: typing.Optional[int]
 :value: >
-   0
+   None
 
 ```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.focus_size
 ```
@@ -152,9 +141,9 @@
 
 ````{py:attribute} eval_focus_size
 :canonical: src.configs.envs.graph.GraphConfig.eval_focus_size
-:type: int
+:type: typing.Optional[int]
 :value: >
-   0
+   None
 
 ```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.eval_focus_size
 ```

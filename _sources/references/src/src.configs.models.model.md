@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} reward
+:canonical: src.configs.models.model.ModelConfig.reward
+:type: src.configs.envs.objective.ObjectiveConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.models.model.ModelConfig.reward
+```
+
+````
+
 ````{py:attribute} temporal_horizon
 :canonical: src.configs.models.model.ModelConfig.temporal_horizon
 :type: int
