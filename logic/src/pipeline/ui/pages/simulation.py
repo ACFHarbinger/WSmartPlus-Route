@@ -361,7 +361,7 @@ def _render_bin_state_inspector(display_entry: Any) -> None:
         elif filter_opt == "Overflowing":
             filtered_df = df[df["Overflow"]]
 
-        st.dataframe(filtered_df, use_container_width=True, height=300)
+        st.dataframe(filtered_df, width="stretch", height=300)
 
 
 def _render_collection_details(display_entry: Any) -> None:
@@ -400,7 +400,7 @@ def _render_collection_details(display_entry: Any) -> None:
 
         if collected_bins:
             st.markdown("**Per-Bin Collection Breakdown:**")
-            st.dataframe(pd.DataFrame(collected_bins), use_container_width=True)
+            st.dataframe(pd.DataFrame(collected_bins), width="stretch")
 
             # Bar chart of collection amounts
             fig = create_bar_chart(
@@ -454,7 +454,7 @@ def _render_tour_details(display_entry: Any) -> None:
                     "Longitude": round(point["lng"], 6) if "lng" in point else "N/A",
                 }
             )
-        st.dataframe(pd.DataFrame(tour_rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(tour_rows), width="stretch")
 
         # must_go list display
         must_go = data.get("must_go", [])

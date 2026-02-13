@@ -198,7 +198,7 @@ def _render_run_comparison(
 
         if rows:
             comparison_df = pd.DataFrame(rows).set_index("Run").T
-            st.dataframe(comparison_df, use_container_width=True, height=400)
+            st.dataframe(comparison_df, width="stretch", height=400)
 
 
 def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
@@ -234,7 +234,7 @@ def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
 
             st.dataframe(
                 df[selected_cols].tail(n_rows),
-                use_container_width=True,
+                width="stretch",
                 height=400,
             )
 
