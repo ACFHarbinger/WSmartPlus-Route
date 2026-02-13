@@ -107,7 +107,7 @@
 ```
 ````
 
-````{py:function} _print_execution_info(task_count, n_cores)
+````{py:function} _print_execution_info(opts, task_count, n_cores)
 :canonical: src.pipeline.features.test.orchestrator._print_execution_info
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator._print_execution_info
