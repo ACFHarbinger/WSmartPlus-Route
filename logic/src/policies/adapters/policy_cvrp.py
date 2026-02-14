@@ -11,7 +11,7 @@ import numpy as np
 
 from logic.src.configs.policies import CVRPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.cvrp import find_routes
+from logic.src.policies.cvrp import find_routes, find_routes_ortools
 
 from .factory import PolicyRegistry
 
@@ -81,12 +81,16 @@ class CVRPPolicy(BaseRoutingPolicy):
         # Load capacity
         capacity, _, _, values = self._load_area_params(area, waste_type, config)
 
+        # Determine solver engine from config
+        engine = values.get("engine", "pyvrp")
+
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
             time_limit = values.get("time_limit", 2.0)
-            tour = find_routes(
+            solver_fn = find_routes_ortools if engine == "ortools" else find_routes
+            tour = solver_fn(
                 distancesC,
                 bins.c,
                 capacity,

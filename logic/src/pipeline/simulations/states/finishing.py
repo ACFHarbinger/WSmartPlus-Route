@@ -48,7 +48,7 @@ class FinishingState(SimState):
             (np.sum(ctx.bins.collected) / ctx.bins.travel if ctx.bins.travel > 0 else 0.0),
             np.sum(ctx.bins.inoverflow) - np.sum(ctx.bins.collected) + ctx.bins.travel,
             ctx.bins.profit,
-            ctx.bins.day_count,
+            ctx.bins.ndays,
             ctx.execution_time,
         ]
 
