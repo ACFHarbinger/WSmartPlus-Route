@@ -31,9 +31,9 @@
 
 ````{py:attribute} policies
 :canonical: src.configs.tasks.sim.SimConfig.policies
-:type: typing.Optional[typing.List[str]]
+:type: typing.List[typing.Any]
 :value: >
-   None
+   'field(...)'
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.policies
 ```
@@ -355,6 +355,17 @@
    None
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.data_dir
+```
+
+````
+
+````{py:attribute} policy_configs
+:canonical: src.configs.tasks.sim.SimConfig.policy_configs
+:type: typing.Dict[str, typing.Any]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.policy_configs
 ```
 
 ````

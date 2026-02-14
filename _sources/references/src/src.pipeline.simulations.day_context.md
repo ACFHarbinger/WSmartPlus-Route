@@ -376,28 +376,6 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
-````{py:attribute} engine
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.engine
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.engine
-```
-
-````
-
-````{py:attribute} threshold
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.threshold
-:type: typing.Optional[float]
-:value: >
-   None
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.threshold
-```
-
-````
-
 ````{py:attribute} daily_log
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.daily_log
 :type: typing.Optional[typing.Dict[str, typing.Any]]

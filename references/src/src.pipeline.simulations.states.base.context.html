@@ -181,7 +181,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
@@ -479,15 +478,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.start_time"><code class="docutils literal notranslate"><span class="pre">SimulationContext.start_time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.end_time"><code class="docutils literal notranslate"><span class="pre">SimulationContext.end_time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_name"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_engine"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_engine</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_threshold"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_id"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_id</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_strip"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_strip</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._parse_policy_string"><code class="docutils literal notranslate"><span class="pre">SimulationContext._parse_policy_string()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix"><code class="docutils literal notranslate"><span class="pre">SimulationContext._extract_must_go_prefix()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy"><code class="docutils literal notranslate"><span class="pre">SimulationContext._find_standard_policy()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold"><code class="docutils literal notranslate"><span class="pre">SimulationContext._extract_threshold()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold_with_config_char"><code class="docutils literal notranslate"><span class="pre">SimulationContext._extract_threshold_with_config_char()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_id"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg"><code class="docutils literal notranslate"><span class="pre">SimulationContext.policy_cfg</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._continue_init"><code class="docutils literal notranslate"><span class="pre">SimulationContext._continue_init()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.transition_to"><code class="docutils literal notranslate"><span class="pre">SimulationContext.transition_to()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.run"><code class="docutils literal notranslate"><span class="pre">SimulationContext.run()</span></code></a></li>
@@ -600,21 +593,13 @@ variables_dict (Dict[str, Any]): Description of variables_dict.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.pol_name">
-<span class="sig-name descname"><span class="pre">pol_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_name" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">pol_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Multiline-String&gt;</span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.pol_engine">
-<span class="sig-name descname"><span class="pre">pol_engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_engine" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.pol_threshold">
-<span class="sig-name descname"><span class="pre">pol_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_threshold" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
+<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.pol_strip">
+<span class="sig-name descname"><span class="pre">pol_strip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Multiline-String&gt;</span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_strip" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.pol_id">
@@ -623,51 +608,9 @@ variables_dict (Dict[str, Any]): Description of variables_dict.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.pol_strip">
-<span class="sig-name descname"><span class="pre">pol_strip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Multiline-String&gt;</span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_strip" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext._parse_policy_string">
-<span class="sig-name descname"><span class="pre">_parse_policy_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext._parse_policy_string" title="Link to this definition">#</a></dt>
-<dd><p>parse policy string.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix">
-<span class="sig-name descname"><span class="pre">_extract_must_go_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix" title="Link to this definition">#</a></dt>
-<dd><p>Extract must-go prefix and threshold.</p>
-<p>Args:
-parts (List[str]): Split policy string parts.</p>
-<p>Returns:
-Tuple[List[str], Optional[float], Optional[str]]: Reduced parts, threshold, and prefix.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy">
-<span class="sig-name descname"><span class="pre">_find_standard_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy" title="Link to this definition">#</a></dt>
-<dd><p>Find standard policy from registries.</p>
-<p>Args:
-search_parts (List[str]): Parts to search in.</p>
-<p>Returns:
-bool: True if a policy was found.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold">
-<span class="sig-name descname"><span class="pre">_extract_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold" title="Link to this definition">#</a></dt>
-<dd><p>extract threshold.</p>
-<p>Args:
-policy_key (str): Description of policy_key.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold_with_config_char">
-<span class="sig-name descname"><span class="pre">_extract_threshold_with_config_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_chars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold_with_config_char" title="Link to this definition">#</a></dt>
-<dd><p>extract threshold with config char.</p>
-<p>Args:
-policy_key (str): Description of policy_key.
-config_chars (List[str]): Description of config_chars.</p>
+<dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg">
+<span class="sig-name descname"><span class="pre">policy_cfg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -768,15 +711,9 @@ Any: Description.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.start_time"><code class="docutils literal notranslate"><span class="pre">SimulationContext.start_time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.end_time"><code class="docutils literal notranslate"><span class="pre">SimulationContext.end_time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_name"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_engine"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_engine</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_threshold"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_id"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_id</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_strip"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_strip</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._parse_policy_string"><code class="docutils literal notranslate"><span class="pre">SimulationContext._parse_policy_string()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix"><code class="docutils literal notranslate"><span class="pre">SimulationContext._extract_must_go_prefix()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy"><code class="docutils literal notranslate"><span class="pre">SimulationContext._find_standard_policy()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold"><code class="docutils literal notranslate"><span class="pre">SimulationContext._extract_threshold()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold_with_config_char"><code class="docutils literal notranslate"><span class="pre">SimulationContext._extract_threshold_with_config_char()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.pol_id"><code class="docutils literal notranslate"><span class="pre">SimulationContext.pol_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg"><code class="docutils literal notranslate"><span class="pre">SimulationContext.policy_cfg</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext._continue_init"><code class="docutils literal notranslate"><span class="pre">SimulationContext._continue_init()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.transition_to"><code class="docutils literal notranslate"><span class="pre">SimulationContext.transition_to()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.base.context.SimulationContext.run"><code class="docutils literal notranslate"><span class="pre">SimulationContext.run()</span></code></a></li>

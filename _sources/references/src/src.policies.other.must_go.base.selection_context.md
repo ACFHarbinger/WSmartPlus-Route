@@ -172,4 +172,15 @@
 
 ````
 
+````{py:attribute} max_fill
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.max_fill
+:type: float
+:value: >
+   100.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.max_fill
+```
+
+````
+
 `````

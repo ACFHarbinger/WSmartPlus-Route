@@ -135,33 +135,20 @@
 
 ````{py:attribute} pol_name
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_name
-:type: typing.Optional[str]
-:value: >
-   None
+:type: str
+:value: <Multiline-String>
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_name
 ```
 
 ````
 
-````{py:attribute} pol_engine
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_engine
-:type: typing.Optional[str]
-:value: >
-   None
+````{py:attribute} pol_strip
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_strip
+:type: str
+:value: <Multiline-String>
 
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_engine
-```
-
-````
-
-````{py:attribute} pol_threshold
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_threshold
-:type: typing.Optional[float]
-:value: >
-   None
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_threshold
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_strip
 ```
 
 ````
@@ -177,52 +164,13 @@
 
 ````
 
-````{py:attribute} pol_strip
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_strip
-:type: str
-:value: <Multiline-String>
+````{py:attribute} policy_cfg
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg
+:type: typing.Dict[str, typing.Any]
+:value: >
+   None
 
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_strip
-```
-
-````
-
-````{py:method} _parse_policy_string() -> None
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext._parse_policy_string
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._parse_policy_string
-```
-
-````
-
-````{py:method} _extract_must_go_prefix(parts: typing.List[str]) -> typing.Tuple[typing.List[str], typing.Optional[float], typing.Optional[str]]
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._extract_must_go_prefix
-```
-
-````
-
-````{py:method} _find_standard_policy(search_parts: typing.List[str]) -> bool
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._find_standard_policy
-```
-
-````
-
-````{py:method} _extract_threshold(policy_key: str) -> None
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold
-```
-
-````
-
-````{py:method} _extract_threshold_with_config_char(policy_key: str, config_chars: typing.List[str]) -> None
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold_with_config_char
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext._extract_threshold_with_config_char
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg
 ```
 
 ````

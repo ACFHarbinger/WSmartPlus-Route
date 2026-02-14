@@ -106,28 +106,6 @@
 
 ````
 
-````{py:attribute} dataset_size
-:canonical: src.configs.tasks.data.DataConfig.dataset_size
-:type: int
-:value: >
-   128000
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.dataset_size
-```
-
-````
-
-````{py:attribute} num_locs
-:canonical: src.configs.tasks.data.DataConfig.num_locs
-:type: typing.List[int]
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.num_locs
-```
-
-````
-
 ````{py:attribute} penalty_factor
 :canonical: src.configs.tasks.data.DataConfig.penalty_factor
 :type: float
@@ -190,6 +168,39 @@
    None
 
 ```{autodoc2-docstring} src.configs.tasks.data.DataConfig.dataset_type
+```
+
+````
+
+````{py:attribute} train_graphs
+:canonical: src.configs.tasks.data.DataConfig.train_graphs
+:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.data.DataConfig.train_graphs
+```
+
+````
+
+````{py:attribute} val_graphs
+:canonical: src.configs.tasks.data.DataConfig.val_graphs
+:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.data.DataConfig.val_graphs
+```
+
+````
+
+````{py:attribute} test_graphs
+:canonical: src.configs.tasks.data.DataConfig.test_graphs
+:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.data.DataConfig.test_graphs
 ```
 
 ````

@@ -181,7 +181,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
@@ -480,6 +479,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -529,7 +530,9 @@ edge_threshold: How many of all possible edges to consider.
 edge_method: Method for getting edges (‘dist’, ‘knn’, etc.).
 focus_graph: Paths to the files with the coordinates of the graphs to focus on.
 focus_size: Number of focus graphs to include.
-eval_focus_size: Number of focus graphs to include in evaluation.</p>
+eval_focus_size: Number of focus graphs to include in evaluation.
+n_samples: Number of samples/instances to generate for this graph.
+n_days: Number of days/horizon for this graph (for temporal datasets).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.area">
 <span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.area" title="Link to this definition">#</a></dt>
@@ -594,6 +597,18 @@ eval_focus_size: Number of focus graphs to include in evaluation.</p>
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.eval_focus_size">
 <span class="sig-name descname"><span class="pre">eval_focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.eval_focus_size" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.n_samples">
+<span class="sig-name descname"><span class="pre">n_samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.n_samples" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.n_days">
+<span class="sig-name descname"><span class="pre">n_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.n_days" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
 </dd></dl>
 
 </dd></dl>
@@ -662,6 +677,8 @@ eval_focus_size: Number of focus graphs to include in evaluation.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
 </ul>
 </li>
 </ul>

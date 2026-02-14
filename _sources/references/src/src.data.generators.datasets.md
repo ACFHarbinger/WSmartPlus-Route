@@ -58,14 +58,14 @@
 ```
 ````
 
-````{py:function} _generate_problem_data(problem: str, distributions: typing.Any, n_days: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_problem_data(problem: str, distributions: typing.Any, opts: typing.Dict[str, typing.Any]) -> None
 :canonical: src.data.generators.datasets._generate_problem_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_problem_data
 ```
 ````
 
-````{py:function} _process_instance_generation(problem: str, dist: typing.Any, size: int, graph: typing.Any, n_days: int, datadir: str, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _process_instance_generation(problem: str, dist: typing.Any, datadir: str, opts: typing.Dict[str, typing.Any], size: typing.Optional[int] = None, graph: typing.Any = None, graph_cfg: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
 :canonical: src.data.generators.datasets._process_instance_generation
 
 ```{autodoc2-docstring} src.data.generators.datasets._process_instance_generation

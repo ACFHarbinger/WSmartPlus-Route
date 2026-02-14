@@ -181,7 +181,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
@@ -468,6 +467,11 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._sanitize_area"><code class="docutils literal notranslate"><span class="pre">_sanitize_area()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._sanitize_waste"><code class="docutils literal notranslate"><span class="pre">_sanitize_waste()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._get_graph_list"><code class="docutils literal notranslate"><span class="pre">_get_graph_list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._validate_filename_args"><code class="docutils literal notranslate"><span class="pre">_validate_filename_args()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._validate_problem_args"><code class="docutils literal notranslate"><span class="pre">_validate_problem_args()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators.validate_gen_data_args"><code class="docutils literal notranslate"><span class="pre">validate_gen_data_args()</span></code></a></li>
 </ul>
 </li>
@@ -497,7 +501,22 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.validators.validate_gen_data_args" title="src.data.generators.validators.validate_gen_data_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_gen_data_args</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.validators._sanitize_area" title="src.data.generators.validators._sanitize_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sanitize_area</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.data.generators.validators._sanitize_waste" title="src.data.generators.validators._sanitize_waste"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sanitize_waste</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.validators._get_graph_list" title="src.data.generators.validators._get_graph_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_graph_list</span></code></a></p></td>
+<td><p>Select correct graph list based on dataset_type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.data.generators.validators._validate_filename_args" title="src.data.generators.validators._validate_filename_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_filename_args</span></code></a></p></td>
+<td><p>Validate filename constraints.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.validators._validate_problem_args" title="src.data.generators.validators._validate_problem_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_problem_args</span></code></a></p></td>
+<td><p>Problem-specific validation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.data.generators.validators.validate_gen_data_args" title="src.data.generators.validators.validate_gen_data_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_gen_data_args</span></code></a></p></td>
 <td><p>Validate and post-process arguments for data generation.</p></td>
 </tr>
 </tbody>
@@ -507,17 +526,37 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
+<dt class="sig sig-object py" id="src.data.generators.validators._sanitize_area">
+<span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_sanitize_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.generators.validators._sanitize_area" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.generators.validators._sanitize_waste">
+<span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_sanitize_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.generators.validators._sanitize_waste" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.generators.validators._get_graph_list">
+<span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_get_graph_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.generators.validators._get_graph_list" title="Link to this definition">#</a></dt>
+<dd><p>Select correct graph list based on dataset_type.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.generators.validators._validate_filename_args">
+<span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_validate_filename_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.generators.validators._validate_filename_args" title="Link to this definition">#</a></dt>
+<dd><p>Validate filename constraints.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.generators.validators._validate_problem_args">
+<span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_validate_problem_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.generators.validators._validate_problem_args" title="Link to this definition">#</a></dt>
+<dd><p>Problem-specific validation.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.data.generators.validators.validate_gen_data_args">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">validate_gen_data_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.generators.validators.validate_gen_data_args" title="Link to this definition">#</a></dt>
 <dd><p>Validate and post-process arguments for data generation.</p>
-<p>This function checks consistency between arguments, such as ensuring a
-filename is only provided when a single dataset is being generated.</p>
-<p>Args:
-args: Dictionary of parsed arguments.</p>
-<p>Returns:
-The validated and potentially modified dictionary of arguments.</p>
-<p>Raises:
-AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mismatch).</p>
 </dd></dl>
 
 </section>
@@ -572,6 +611,11 @@ AssertionError: If incompatible arguments are provided (e.g., mu/sigma length mi
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._sanitize_area"><code class="docutils literal notranslate"><span class="pre">_sanitize_area()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._sanitize_waste"><code class="docutils literal notranslate"><span class="pre">_sanitize_waste()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._get_graph_list"><code class="docutils literal notranslate"><span class="pre">_get_graph_list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._validate_filename_args"><code class="docutils literal notranslate"><span class="pre">_validate_filename_args()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators._validate_problem_args"><code class="docutils literal notranslate"><span class="pre">_validate_problem_args()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.validators.validate_gen_data_args"><code class="docutils literal notranslate"><span class="pre">validate_gen_data_args()</span></code></a></li>
 </ul>
 </li>

@@ -20,7 +20,6 @@ src.constants.stats
 src.constants.paths
 src.constants.routing
 src.constants.system
-src.constants.policies
 src.constants.testing
 src.constants.dashboard
 src.constants.simulation

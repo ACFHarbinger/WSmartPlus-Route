@@ -181,7 +181,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
@@ -500,8 +499,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.cost_weight"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.cost_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.waste_weight"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.waste_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.overflow_penalty</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.engine"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.engine</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.threshold"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.daily_log"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.daily_log</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.output_dict"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.output_dict</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.tour"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.tour</span></code></a></li>
@@ -812,18 +809,6 @@ must_go: List of must-go bins.
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.engine">
-<span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.engine" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.threshold">
-<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.threshold" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.daily_log">
 <span class="sig-name descname"><span class="pre">daily_log</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.daily_log" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -1059,8 +1044,6 @@ must_go: List of must-go bins.
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.cost_weight"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.cost_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.waste_weight"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.waste_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.overflow_penalty</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.engine"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.engine</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.threshold"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.daily_log"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.daily_log</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.output_dict"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.output_dict</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.tour"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.tour</span></code></a></li>

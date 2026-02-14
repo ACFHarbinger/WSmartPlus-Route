@@ -318,6 +318,17 @@ src.configs.models
 
 ````
 
+````{py:attribute} p
+:canonical: src.configs.Config.p
+:type: typing.Dict[str, typing.Any]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.p
+```
+
+````
+
 ````{py:attribute} callbacks
 :canonical: src.configs.Config.callbacks
 :type: typing.Dict[str, typing.Any]

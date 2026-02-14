@@ -16,7 +16,6 @@
 src.models.subnets.modules.normalized_activation_function
 src.models.subnets.modules.cross_attention
 src.models.subnets.modules.multi_head_attention
-src.models.subnets.modules.hgnn
 src.models.subnets.modules.tsp_adapter
 src.models.subnets.modules.activation_function
 src.models.subnets.modules.adapter_base
