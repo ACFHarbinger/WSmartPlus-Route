@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.pipeline.ui.styles.styling &#8212; WSmart-Route  documentation</title>
+    <title>src.pipeline.ui.pages.simulation.tour &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.ui.styles.styling';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.ui.pages.simulation.tour';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.pipeline.ui.app" href="src.pipeline.ui.app.html" />
-    <link rel="prev" title="src.pipeline.ui.styles" href="src.pipeline.ui.styles.html" />
+    <link rel="next" title="src.pipeline.ui.pages.simulation.map" href="src.pipeline.ui.pages.simulation.map.html" />
+    <link rel="prev" title="src.pipeline.ui.pages.simulation.utils" href="src.pipeline.ui.pages.simulation.utils.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -370,7 +370,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.pipeline.ui.styles.styling.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.pipeline.ui.pages.simulation.tour.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -454,7 +454,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.pipeline.ui.styles.styling</h1>
+    <h1>src.pipeline.ui.pages.simulation.tour</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -466,17 +466,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.CUSTOM_CSS"><code class="docutils literal notranslate"><span class="pre">CUSTOM_CSS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.CHART_COLORS"><code class="docutils literal notranslate"><span class="pre">CHART_COLORS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.ROUTE_COLORS"><code class="docutils literal notranslate"><span class="pre">ROUTE_COLORS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.STATUS_COLORS"><code class="docutils literal notranslate"><span class="pre">STATUS_COLORS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.get_page_config"><code class="docutils literal notranslate"><span class="pre">get_page_config()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.format_number"><code class="docutils literal notranslate"><span class="pre">format_number()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.format_percentage"><code class="docutils literal notranslate"><span class="pre">format_percentage()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.create_kpi_html"><code class="docutils literal notranslate"><span class="pre">create_kpi_html()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.create_kpi_row"><code class="docutils literal notranslate"><span class="pre">create_kpi_row()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.simulation.tour.render_tour_details"><code class="docutils literal notranslate"><span class="pre">render_tour_details()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.simulation.tour.render_raw_data_view"><code class="docutils literal notranslate"><span class="pre">render_raw_data_view()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -492,50 +484,19 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.ui.styles.styling">
-<span id="src-pipeline-ui-styles-styling"></span><h1><a class="reference internal" href="#module-src.pipeline.ui.styles.styling" title="src.pipeline.ui.styles.styling"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.styles.styling</span></code></a><a class="headerlink" href="#module-src.pipeline.ui.styles.styling" title="Link to this heading">#</a></h1>
-<p>CSS styling and layout configuration for the dashboard.</p>
-<p>Provides custom CSS and theme settings for consistent styling.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.ui.pages.simulation.tour">
+<span id="src-pipeline-ui-pages-simulation-tour"></span><h1><a class="reference internal" href="#module-src.pipeline.ui.pages.simulation.tour" title="src.pipeline.ui.pages.simulation.tour"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages.simulation.tour</span></code></a><a class="headerlink" href="#module-src.pipeline.ui.pages.simulation.tour" title="Link to this heading">#</a></h1>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.get_page_config" title="src.pipeline.ui.styles.styling.get_page_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_page_config</span></code></a></p></td>
-<td><p>Get Streamlit page configuration.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.simulation.tour.render_tour_details" title="src.pipeline.ui.pages.simulation.tour.render_tour_details"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_tour_details</span></code></a></p></td>
+<td><p>Render tour sequence and leg details.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.format_number" title="src.pipeline.ui.styles.styling.format_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_number</span></code></a></p></td>
-<td><p>Format a number with thousands separator and precision.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.format_percentage" title="src.pipeline.ui.styles.styling.format_percentage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_percentage</span></code></a></p></td>
-<td><p>Format a value as percentage.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.create_kpi_html" title="src.pipeline.ui.styles.styling.create_kpi_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_kpi_html</span></code></a></p></td>
-<td><p>Create HTML for a single KPI card.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.create_kpi_row" title="src.pipeline.ui.styles.styling.create_kpi_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_kpi_row</span></code></a></p></td>
-<td><p>Create HTML for a row of KPI cards.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.CUSTOM_CSS" title="src.pipeline.ui.styles.styling.CUSTOM_CSS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUSTOM_CSS</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.CHART_COLORS" title="src.pipeline.ui.styles.styling.CHART_COLORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CHART_COLORS</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.ROUTE_COLORS" title="src.pipeline.ui.styles.styling.ROUTE_COLORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROUTE_COLORS</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.styles.styling.STATUS_COLORS" title="src.pipeline.ui.styles.styling.STATUS_COLORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STATUS_COLORS</span></code></a></p></td>
-<td></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.simulation.tour.render_raw_data_view" title="src.pipeline.ui.pages.simulation.tour.render_raw_data_view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_raw_data_view</span></code></a></p></td>
+<td><p>Render raw data view for debugging.</p></td>
 </tr>
 </tbody>
 </table>
@@ -543,69 +504,16 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py data">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.CUSTOM_CSS">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">CUSTOM_CSS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Multiline-String&gt;</span></em><a class="headerlink" href="#src.pipeline.ui.styles.styling.CUSTOM_CSS" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.CHART_COLORS">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">CHART_COLORS</span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.CHART_COLORS" title="Link to this definition">#</a></dt>
-<dd><p>[‘#1f77b4’, ‘#ff7f0e’, ‘#2ca02c’, ‘#d62728’, ‘#9467bd’, ‘#8c564b’, ‘#e377c2’, ‘#7f7f7f’, ‘#bcbd22’, …</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.ROUTE_COLORS">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">ROUTE_COLORS</span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.ROUTE_COLORS" title="Link to this definition">#</a></dt>
-<dd><p>[‘#e41a1c’, ‘#377eb8’, ‘#4daf4a’, ‘#984ea3’, ‘#ff7f00’, ‘#ffff33’, ‘#a65628’, ‘#f781bf’]</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.STATUS_COLORS">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">STATUS_COLORS</span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.STATUS_COLORS" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.simulation.tour.render_tour_details">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.simulation.tour.</span></span><span class="sig-name descname"><span class="pre">render_tour_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.simulation.tour.render_tour_details" title="Link to this definition">#</a></dt>
+<dd><p>Render tour sequence and leg details.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.get_page_config">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">get_page_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.get_page_config" title="Link to this definition">#</a></dt>
-<dd><p>Get Streamlit page configuration.</p>
-<p>Returns:
-Dict with page config settings.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.format_number">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">format_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.format_number" title="Link to this definition">#</a></dt>
-<dd><p>Format a number with thousands separator and precision.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.format_percentage">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">format_percentage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.format_percentage" title="Link to this definition">#</a></dt>
-<dd><p>Format a value as percentage.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.create_kpi_html">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">create_kpi_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'#667eea'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.create_kpi_html" title="Link to this definition">#</a></dt>
-<dd><p>Create HTML for a single KPI card.</p>
-<p>Args:
-label: Metric label.
-value: Formatted value string.
-color: Background gradient start color.</p>
-<p>Returns:
-HTML string.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.ui.styles.styling.create_kpi_row">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.styles.styling.</span></span><span class="sig-name descname"><span class="pre">create_kpi_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.ui.styles.styling.create_kpi_row" title="Link to this definition">#</a></dt>
-<dd><p>Create HTML for a row of KPI cards.</p>
-<p>Args:
-metrics: Dict of label -&gt; value.</p>
-<p>Returns:
-HTML string for the row.</p>
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.simulation.tour.render_raw_data_view">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.simulation.tour.</span></span><span class="sig-name descname"><span class="pre">render_raw_data_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.simulation.tour.render_raw_data_view" title="Link to this definition">#</a></dt>
+<dd><p>Render raw data view for debugging.</p>
 </dd></dl>
 
 </section>
@@ -624,20 +532,20 @@ HTML string for the row.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.pipeline.ui.styles.html"
+       href="src.pipeline.ui.pages.simulation.utils.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.styles</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages.simulation.utils</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.pipeline.ui.app.html"
+       href="src.pipeline.ui.pages.simulation.map.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.app</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages.simulation.map</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -659,17 +567,9 @@ HTML string for the row.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.CUSTOM_CSS"><code class="docutils literal notranslate"><span class="pre">CUSTOM_CSS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.CHART_COLORS"><code class="docutils literal notranslate"><span class="pre">CHART_COLORS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.ROUTE_COLORS"><code class="docutils literal notranslate"><span class="pre">ROUTE_COLORS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.STATUS_COLORS"><code class="docutils literal notranslate"><span class="pre">STATUS_COLORS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.get_page_config"><code class="docutils literal notranslate"><span class="pre">get_page_config()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.format_number"><code class="docutils literal notranslate"><span class="pre">format_number()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.format_percentage"><code class="docutils literal notranslate"><span class="pre">format_percentage()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.create_kpi_html"><code class="docutils literal notranslate"><span class="pre">create_kpi_html()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.styles.styling.create_kpi_row"><code class="docutils literal notranslate"><span class="pre">create_kpi_row()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.simulation.tour.render_tour_details"><code class="docutils literal notranslate"><span class="pre">render_tour_details()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.simulation.tour.render_raw_data_view"><code class="docutils literal notranslate"><span class="pre">render_raw_data_view()</span></code></a></li>
 </ul>
 </li>
 </ul>

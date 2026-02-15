@@ -466,6 +466,7 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_project_root"><code class="docutils literal notranslate"><span class="pre">get_project_root()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_logs_dir"><code class="docutils literal notranslate"><span class="pre">get_logs_dir()</span></code></a></li>
@@ -480,6 +481,12 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_simulation_metadata"><code class="docutils literal notranslate"><span class="pre">get_simulation_metadata()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.entries_to_dataframe"><code class="docutils literal notranslate"><span class="pre">entries_to_dataframe()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_daily_stats"><code class="docutils literal notranslate"><span class="pre">compute_daily_stats()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader._METRIC_KEYS"><code class="docutils literal notranslate"><span class="pre">_METRIC_KEYS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader._filter_entries"><code class="docutils literal notranslate"><span class="pre">_filter_entries()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_cumulative_stats"><code class="docutils literal notranslate"><span class="pre">compute_cumulative_stats()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_day_deltas"><code class="docutils literal notranslate"><span class="pre">compute_day_deltas()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_summary_statistics"><code class="docutils literal notranslate"><span class="pre">compute_summary_statistics()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_metric_history"><code class="docutils literal notranslate"><span class="pre">get_metric_history()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -543,6 +550,32 @@ document.write(`
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.compute_daily_stats" title="src.pipeline.ui.services.data_loader.compute_daily_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_daily_stats</span></code></a></p></td>
 <td><p>Compute mean and std of metrics per day.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader._filter_entries" title="src.pipeline.ui.services.data_loader._filter_entries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_entries</span></code></a></p></td>
+<td><p>Filter entries by policy and/or sample_id.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.compute_cumulative_stats" title="src.pipeline.ui.services.data_loader.compute_cumulative_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cumulative_stats</span></code></a></p></td>
+<td><p>Compute cumulative totals across all days for a policy/sample.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.compute_day_deltas" title="src.pipeline.ui.services.data_loader.compute_day_deltas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_day_deltas</span></code></a></p></td>
+<td><p>Compute metric deltas between current day and previous day.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.compute_summary_statistics" title="src.pipeline.ui.services.data_loader.compute_summary_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_summary_statistics</span></code></a></p></td>
+<td><p>Compute descriptive statistics (mean, std, min, max, total) per metric across all days.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader.get_metric_history" title="src.pipeline.ui.services.data_loader.get_metric_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metric_history</span></code></a></p></td>
+<td><p>Get the last N days of mean values for a metric (for sparklines).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.services.data_loader._METRIC_KEYS" title="src.pipeline.ui.services.data_loader._METRIC_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_METRIC_KEYS</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -665,6 +698,68 @@ policy: Optional policy filter.</p>
 DataFrame with day, metric_mean, metric_std columns.</p>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader._METRIC_KEYS">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">_METRIC_KEYS</span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader._METRIC_KEYS" title="Link to this definition">#</a></dt>
+<dd><p>[‘profit’, ‘km’, ‘kg’, ‘overflows’, ‘cost’, ‘ncol’, ‘kg_lost’, ‘kg/km’]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader._filter_entries">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">_filter_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader._filter_entries" title="Link to this definition">#</a></dt>
+<dd><p>Filter entries by policy and/or sample_id.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader.compute_cumulative_stats">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">compute_cumulative_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader.compute_cumulative_stats" title="Link to this definition">#</a></dt>
+<dd><p>Compute cumulative totals across all days for a policy/sample.</p>
+<p>Args:
+entries: All log entries.
+policy: Optional policy filter.
+sample_id: Optional sample filter.</p>
+<p>Returns:
+Dict with total_profit, total_km, total_kg, total_overflows, total_cost, avg_efficiency.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader.compute_day_deltas">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">compute_day_deltas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader.compute_day_deltas" title="Link to this definition">#</a></dt>
+<dd><p>Compute metric deltas between current day and previous day.</p>
+<p>Args:
+entries: All log entries.
+current_day: The day to compute deltas for.
+policy: Optional policy filter.
+sample_id: Optional sample filter.</p>
+<p>Returns:
+Dict of metric_name -&gt; delta (current - previous), or None if no previous.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader.compute_summary_statistics">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">compute_summary_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader.compute_summary_statistics" title="Link to this definition">#</a></dt>
+<dd><p>Compute descriptive statistics (mean, std, min, max, total) per metric across all days.</p>
+<p>Args:
+entries: All log entries.
+policy: Optional policy filter.</p>
+<p>Returns:
+Dict of metric_name -&gt; {mean, std, min, max, total}.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.services.data_loader.get_metric_history">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">get_metric_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.ui.services.data_loader.get_metric_history" title="Link to this definition">#</a></dt>
+<dd><p>Get the last N days of mean values for a metric (for sparklines).</p>
+<p>Args:
+entries: All log entries.
+metric: The metric name.
+policy: Optional policy filter.
+sample_id: Optional sample filter.
+last_n_days: Number of recent days to include.</p>
+<p>Returns:
+List of mean values ordered by day (oldest first).</p>
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -716,6 +811,7 @@ DataFrame with day, metric_mean, metric_std columns.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_project_root"><code class="docutils literal notranslate"><span class="pre">get_project_root()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_logs_dir"><code class="docutils literal notranslate"><span class="pre">get_logs_dir()</span></code></a></li>
@@ -730,6 +826,12 @@ DataFrame with day, metric_mean, metric_std columns.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_simulation_metadata"><code class="docutils literal notranslate"><span class="pre">get_simulation_metadata()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.entries_to_dataframe"><code class="docutils literal notranslate"><span class="pre">entries_to_dataframe()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_daily_stats"><code class="docutils literal notranslate"><span class="pre">compute_daily_stats()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader._METRIC_KEYS"><code class="docutils literal notranslate"><span class="pre">_METRIC_KEYS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader._filter_entries"><code class="docutils literal notranslate"><span class="pre">_filter_entries()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_cumulative_stats"><code class="docutils literal notranslate"><span class="pre">compute_cumulative_stats()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_day_deltas"><code class="docutils literal notranslate"><span class="pre">compute_day_deltas()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.compute_summary_statistics"><code class="docutils literal notranslate"><span class="pre">compute_summary_statistics()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.services.data_loader.get_metric_history"><code class="docutils literal notranslate"><span class="pre">get_metric_history()</span></code></a></li>
 </ul>
 </li>
 </ul>

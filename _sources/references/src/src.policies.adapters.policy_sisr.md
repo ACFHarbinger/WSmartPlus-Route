@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SISRPolicy(config: typing.Optional[logic.src.configs.policies.SISRConfig] = None)
+`````{py:class} SISRPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.SISRConfig, typing.Dict[str, typing.Any]]] = None)
 :canonical: src.policies.adapters.policy_sisr.SISRPolicy
 
 Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
@@ -36,6 +36,12 @@ Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolic
 
 ```{autodoc2-docstring} src.policies.adapters.policy_sisr.SISRPolicy.__init__
 ```
+
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.adapters.policy_sisr.SISRPolicy._config_class
+:classmethod:
+
+````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.adapters.policy_sisr.SISRPolicy._get_config_key

@@ -466,9 +466,13 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy._flatten_raw_config"><code class="docutils literal notranslate"><span class="pre">_flatten_raw_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy.config"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy.config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._config_class()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._build_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._validate_must_go"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._validate_must_go()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._load_area_params"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._load_area_params()</span></code></a></li>
@@ -513,15 +517,36 @@ functionality like parameter loading, subset matrix creation, and tour mapping.<
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.adapters.base_routing_policy._flatten_raw_config" title="src.policies.adapters.base_routing_policy._flatten_raw_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_raw_config</span></code></a></p></td>
+<td><p>Flatten nested config structures (Hydra custom lists, engine dicts) into a flat dict.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy._flatten_raw_config">
+<span class="sig-prename descclassname"><span class="pre">src.policies.adapters.base_routing_policy.</span></span><span class="sig-name descname"><span class="pre">_flatten_raw_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.base_routing_policy._flatten_raw_config" title="Link to this definition">#</a></dt>
+<dd><p>Flatten nested config structures (Hydra custom lists, engine dicts) into a flat dict.</p>
+<p>Handles patterns like:
+{“custom”: [{“time_limit”: 60}, {“start_temp”: 100}]}
+{“ortools”: [{“time_limit”: 60}]}</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adapters.base_routing_policy.</span></span><span class="sig-name descname"><span class="pre">BaseRoutingPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.adapter.IPolicyAdapter</span></code></p>
 <p>Base class for routing policies with common utilities.</p>
-<p>Subclasses implement <code class="docutils literal notranslate"><span class="pre">_run_solver()</span></code> and optionally <code class="docutils literal notranslate"><span class="pre">_get_config_key()</span></code>.
-The <code class="docutils literal notranslate"><span class="pre">execute()</span></code> method provides a template pattern handling:
+<p>Subclasses implement <code class="docutils literal notranslate"><span class="pre">_run_solver()</span></code> and optionally <code class="docutils literal notranslate"><span class="pre">_get_config_key()</span></code>
+and <code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">execute()</span></code> method provides a template pattern handling:
 1. Must-go validation
 2. Parameter loading
 3. Subset problem creation
@@ -540,13 +565,37 @@ Tuple[List[int], float, Any]: (tour, cost, extra_output)</p>
 <p>Attributes:
 config: Optional configuration dataclass for this policy.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass.</p>
+<p>Initialize policy with optional config dataclass or raw dict.</p>
 <p>Args:
-config: Optional dataclass with policy-specific parameters.</p>
+config: Dataclass config, raw dict from YAML, or None.
+If a raw dict is passed and the subclass defines
+<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
+typed dataclass automatically.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy.config">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy.config" title="Link to this definition">#</a></dt>
 <dd><p>Return the policy configuration dataclass.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class" title="Link to this definition">#</a></dt>
+<dd><p>Return the dataclass type for this policy’s config.</p>
+<p>Override in subclasses to enable automatic config parsing.
+Returns None by default (no typed config).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_build_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config" title="Link to this definition">#</a></dt>
+<dd><p>Build a typed config dataclass from a raw config dict.</p>
+<p>Extracts the policy-specific section from the raw config (using
+<code class="docutils literal notranslate"><span class="pre">_get_config_key()</span></code>), flattens nested structures, and constructs
+the typed dataclass (from <code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>).</p>
+<p>Args:
+raw_config: Raw config dict (may be nested with policy key at top level).</p>
+<p>Returns:
+Typed config dataclass, or None if no config class is defined.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -570,10 +619,12 @@ Empty tour tuple if no targets, else None (continue processing).</p>
 <dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy._load_area_params">
 <span class="sig-name descname"><span class="pre">_load_area_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._load_area_params" title="Link to this definition">#</a></dt>
 <dd><p>Load area-specific parameters (Q, R, C) and merge with config overrides.</p>
+<p>Uses the typed config dataclass (<code class="docutils literal notranslate"><span class="pre">self._config</span></code>) when available,
+falling back to dict-based extraction for backward compatibility.</p>
 <p>Args:
 area: Geographic area name.
 waste_type: Waste type string.
-config: Policy configuration dict.</p>
+config: Policy configuration dict (from context).</p>
 <p>Returns:
 Tuple of (capacity, revenue, cost_unit, merged_values_dict)</p>
 </dd></dl>
@@ -694,9 +745,13 @@ Tuple of (tour, cost, extra_output)</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy._flatten_raw_config"><code class="docutils literal notranslate"><span class="pre">_flatten_raw_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy.config"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy.config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._config_class()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._build_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._validate_must_go"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._validate_must_go()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._load_area_params"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._load_area_params()</span></code></a></li>

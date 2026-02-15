@@ -468,6 +468,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy._run_solver()</span></code></a></li>
 </ul>
@@ -508,14 +509,19 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.adapters.policy_hgs_alns.HGSALNSPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adapters.policy_hgs_alns.</span></span><span class="sig-name descname"><span class="pre">HGSALNSPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.HGSALNSConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adapters.policy_hgs_alns.</span></span><span class="sig-name descname"><span class="pre">HGSALNSPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.HGSALNSConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Hybrid HGS-ALNS policy class for the simulator.</p>
 <p>Uses ALNS for the intensive education phase of HGS.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HGS-ALNS policy with optional config.</p>
 <p>Args:
-config: Optional HGSALNSConfig dataclass with solver parameters.</p>
+config: HGSALNSConfig dataclass, raw dict from YAML, or None.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._config_class">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._config_class" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._get_config_key" title="Link to this definition">#</a></dt>
@@ -585,6 +591,7 @@ Tuple of (routes, solver_cost)</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">HGSALNSPolicy._run_solver()</span></code></a></li>
 </ul>

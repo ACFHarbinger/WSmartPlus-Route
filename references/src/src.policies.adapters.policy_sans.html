@@ -468,6 +468,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy"><code class="docutils literal notranslate"><span class="pre">SANSPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">SANSPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">SANSPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">SANSPolicy._run_solver()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy.execute"><code class="docutils literal notranslate"><span class="pre">SANSPolicy.execute()</span></code></a></li>
@@ -516,7 +517,7 @@ Supports two engines:</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.adapters.policy_sans.SANSPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adapters.policy_sans.</span></span><span class="sig-name descname"><span class="pre">SANSPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.SANSConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adapters.policy_sans.SANSPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adapters.policy_sans.</span></span><span class="sig-name descname"><span class="pre">SANSPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.SANSConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adapters.policy_sans.SANSPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Simulated Annealing Neighborhood Search policy class.</p>
 <p>Uses SA optimization with custom initialization and must-go enforcement.
@@ -528,7 +529,12 @@ Supports two engines via the ‘engine’ parameter:</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SANS policy with optional config.</p>
 <p>Args:
-config: Optional SANSConfig dataclass with solver parameters.</p>
+config: SANSConfig dataclass, raw dict from YAML, or None.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.policy_sans.SANSPolicy._config_class">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.policy_sans.SANSPolicy._config_class" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adapters.policy_sans.SANSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.adapters.policy_sans.SANSPolicy._get_config_key" title="Link to this definition">#</a></dt>
@@ -546,18 +552,6 @@ config: Optional SANSConfig dataclass with solver parameters.</p>
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.policy_sans.SANSPolicy.execute" title="Link to this definition">#</a></dt>
 <dd><p>Execute the SANS policy.</p>
 <p>Uses specialized data preparation for simulated annealing.</p>
-<p>Args:
-**kwargs: Execution arguments including:
-- engine: ‘new’ (default) or ‘og’ for LAC algorithm
-- must_go: List of bins that must be visited
-- bins: Bin data object
-- distance_matrix: Distance matrix
-- coords: Coordinates
-- area: Area name
-- waste_type: Waste type
-- config: Configuration dictionary</p>
-<p>Returns:
-Tuple of (tour, cost, cached_data)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -627,6 +621,7 @@ Tuple of (tour, cost, cached_data)</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy"><code class="docutils literal notranslate"><span class="pre">SANSPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">SANSPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">SANSPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">SANSPolicy._run_solver()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_sans.SANSPolicy.execute"><code class="docutils literal notranslate"><span class="pre">SANSPolicy.execute()</span></code></a></li>

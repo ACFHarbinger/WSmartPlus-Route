@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.pipeline.ui.pages.simulation
+```
+
 ## Submodules
 
 ```{toctree}
@@ -14,7 +23,6 @@
 :maxdepth: 1
 
 src.pipeline.ui.pages.training
-src.pipeline.ui.pages.simulation
 src.pipeline.ui.pages.benchmark
 ```
 

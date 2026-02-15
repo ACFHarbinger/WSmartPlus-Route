@@ -7,13 +7,21 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.pipeline.features.test.orchestrator
+```
+
 ## Submodules
 
 ```{toctree}
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.features.test.orchestrator
 src.pipeline.features.test.engine
 src.pipeline.features.test.config
 src.pipeline.features.test.validation

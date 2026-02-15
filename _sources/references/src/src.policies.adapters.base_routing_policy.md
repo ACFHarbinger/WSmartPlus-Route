@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_flatten_raw_config <src.policies.adapters.base_routing_policy._flatten_raw_config>`
+  - ```{autodoc2-docstring} src.policies.adapters.base_routing_policy._flatten_raw_config
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} _flatten_raw_config(source: typing.Any) -> typing.Dict[str, typing.Any]
+:canonical: src.policies.adapters.base_routing_policy._flatten_raw_config
+
+```{autodoc2-docstring} src.policies.adapters.base_routing_policy._flatten_raw_config
+```
+````
 
 `````{py:class} BaseRoutingPolicy(config: typing.Any = None)
 :canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy
@@ -42,6 +61,24 @@ Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
 :type: typing.Any
 
 ```{autodoc2-docstring} src.policies.adapters.base_routing_policy.BaseRoutingPolicy.config
+```
+
+````
+
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class
+:classmethod:
+
+```{autodoc2-docstring} src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class
+```
+
+````
+
+````{py:method} _build_config(raw_config: typing.Dict[str, typing.Any]) -> typing.Any
+:canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config
 ```
 
 ````

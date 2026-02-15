@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LKHPolicy(config: typing.Optional[logic.src.configs.policies.LKHConfig] = None)
+`````{py:class} LKHPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.LKHConfig, typing.Dict[str, typing.Any]]] = None)
 :canonical: src.policies.adapters.policy_lkh.LKHPolicy
 
 Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
@@ -36,6 +36,12 @@ Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolic
 
 ```{autodoc2-docstring} src.policies.adapters.policy_lkh.LKHPolicy.__init__
 ```
+
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.adapters.policy_lkh.LKHPolicy._config_class
+:classmethod:
+
+````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.adapters.policy_lkh.LKHPolicy._get_config_key

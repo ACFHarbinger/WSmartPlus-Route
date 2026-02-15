@@ -466,11 +466,15 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS"><code class="docutils literal notranslate"><span class="pre">PLOTLY_LAYOUT_DEFAULTS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.apply_moving_average"><code class="docutils literal notranslate"><span class="pre">apply_moving_average()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_sparkline_svg"><code class="docutils literal notranslate"><span class="pre">create_sparkline_svg()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_training_loss_chart"><code class="docutils literal notranslate"><span class="pre">create_training_loss_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_simulation_metrics_chart"><code class="docutils literal notranslate"><span class="pre">create_simulation_metrics_chart()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_kpi_cards_html"><code class="docutils literal notranslate"><span class="pre">create_kpi_cards_html()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_radar_chart"><code class="docutils literal notranslate"><span class="pre">create_radar_chart()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_stacked_bar_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_bar_chart()</span></code></a></li>
 </ul>
 </li>
@@ -500,14 +504,20 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.apply_moving_average" title="src.pipeline.ui.components.charts.apply_moving_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_moving_average</span></code></a></p></td>
 <td><p>Apply moving average smoothing to a series.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_training_loss_chart" title="src.pipeline.ui.components.charts.create_training_loss_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_training_loss_chart</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_sparkline_svg" title="src.pipeline.ui.components.charts.create_sparkline_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_sparkline_svg</span></code></a></p></td>
+<td><p>Create a lightweight inline SVG sparkline.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_training_loss_chart" title="src.pipeline.ui.components.charts.create_training_loss_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_training_loss_chart</span></code></a></p></td>
 <td><p>Create a multi-run comparison chart with optional dual Y-axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_simulation_metrics_chart" title="src.pipeline.ui.components.charts.create_simulation_metrics_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_simulation_metrics_chart</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_simulation_metrics_chart" title="src.pipeline.ui.components.charts.create_simulation_metrics_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_simulation_metrics_chart</span></code></a></p></td>
 <td><p>Create a chart for simulation metrics over time.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_kpi_cards_html" title="src.pipeline.ui.components.charts.create_kpi_cards_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_kpi_cards_html</span></code></a></p></td>
-<td><p>Generate HTML for KPI metric cards.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_radar_chart" title="src.pipeline.ui.components.charts.create_radar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_radar_chart</span></code></a></p></td>
+<td><p>Create a radar/spider chart comparing metrics across policies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart" title="src.pipeline.ui.components.charts.create_stacked_bar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_stacked_bar_chart</span></code></a></p></td>
+<td><p>Create a stacked bar chart with multiple data series.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_bar_chart" title="src.pipeline.ui.components.charts.create_bar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_bar_chart</span></code></a></p></td>
 <td><p>Create a simple bar chart.</p></td>
@@ -516,12 +526,42 @@ document.write(`
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS" title="src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLOTLY_LAYOUT_DEFAULTS</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">PLOTLY_LAYOUT_DEFAULTS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.ui.components.charts.apply_moving_average">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">apply_moving_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.apply_moving_average" title="Link to this definition">#</a></dt>
 <dd><p>Apply moving average smoothing to a series.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_sparkline_svg">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_sparkline_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'rgba(255,255,255,0.8)'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_sparkline_svg" title="Link to this definition">#</a></dt>
+<dd><p>Create a lightweight inline SVG sparkline.</p>
+<p>Args:
+values: Data points for the sparkline.
+width: SVG width in pixels.
+height: SVG height in pixels.
+color: Stroke color for the line.</p>
+<p>Returns:
+SVG string suitable for embedding in HTML.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -552,14 +592,30 @@ Plotly Figure object.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_kpi_cards_html">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_kpi_cards_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_kpi_cards_html" title="Link to this definition">#</a></dt>
-<dd><p>Generate HTML for KPI metric cards.</p>
+<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_radar_chart">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_radar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_radar_chart" title="Link to this definition">#</a></dt>
+<dd><p>Create a radar/spider chart comparing metrics across policies.</p>
+<p>Each metric is normalized to 0-1 scale for fair comparison.</p>
 <p>Args:
-metrics: Dict of metric_name -&gt; value.
-prefix: Optional prefix for metric display names.</p>
+policy_metrics: Dict mapping policy name -&gt; {metric: value}.
+metrics: List of metric names to include as radar axes.</p>
 <p>Returns:
-HTML string for the KPI cards.</p>
+Plotly Figure object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_stacked_bar_chart">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_stacked_bar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart" title="Link to this definition">#</a></dt>
+<dd><p>Create a stacked bar chart with multiple data series.</p>
+<p>Args:
+categories: X-axis category labels.
+series: Dict mapping series name -&gt; list of values (same length as categories).
+title: Chart title.
+x_label: X-axis label.
+y_label: Y-axis label.
+colors: Optional list of colors for each series.</p>
+<p>Returns:
+Plotly Figure object.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -626,11 +682,15 @@ Plotly Figure object.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS"><code class="docutils literal notranslate"><span class="pre">PLOTLY_LAYOUT_DEFAULTS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.apply_moving_average"><code class="docutils literal notranslate"><span class="pre">apply_moving_average()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_sparkline_svg"><code class="docutils literal notranslate"><span class="pre">create_sparkline_svg()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_training_loss_chart"><code class="docutils literal notranslate"><span class="pre">create_training_loss_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_simulation_metrics_chart"><code class="docutils literal notranslate"><span class="pre">create_simulation_metrics_chart()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_kpi_cards_html"><code class="docutils literal notranslate"><span class="pre">create_kpi_cards_html()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_radar_chart"><code class="docutils literal notranslate"><span class="pre">create_radar_chart()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_stacked_bar_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_bar_chart()</span></code></a></li>
 </ul>
 </li>

@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.pipeline.ui.components.charts.apply_moving_average
     :summary:
     ```
+* - {py:obj}`create_sparkline_svg <src.pipeline.ui.components.charts.create_sparkline_svg>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_sparkline_svg
+    :summary:
+    ```
 * - {py:obj}`create_training_loss_chart <src.pipeline.ui.components.charts.create_training_loss_chart>`
   - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_training_loss_chart
     :summary:
@@ -27,8 +31,12 @@
   - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_simulation_metrics_chart
     :summary:
     ```
-* - {py:obj}`create_kpi_cards_html <src.pipeline.ui.components.charts.create_kpi_cards_html>`
-  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_kpi_cards_html
+* - {py:obj}`create_radar_chart <src.pipeline.ui.components.charts.create_radar_chart>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_radar_chart
+    :summary:
+    ```
+* - {py:obj}`create_stacked_bar_chart <src.pipeline.ui.components.charts.create_stacked_bar_chart>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_stacked_bar_chart
     :summary:
     ```
 * - {py:obj}`create_bar_chart <src.pipeline.ui.components.charts.create_bar_chart>`
@@ -37,12 +45,42 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`PLOTLY_LAYOUT_DEFAULTS <src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} PLOTLY_LAYOUT_DEFAULTS
+:canonical: src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS
+:type: typing.Dict[str, typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS
+```
+
+````
 
 ````{py:function} apply_moving_average(data: pandas.Series, window: int) -> pandas.Series
 :canonical: src.pipeline.ui.components.charts.apply_moving_average
 
 ```{autodoc2-docstring} src.pipeline.ui.components.charts.apply_moving_average
+```
+````
+
+````{py:function} create_sparkline_svg(values: typing.List[float], width: int = 60, height: int = 20, color: str = 'rgba(255,255,255,0.8)') -> str
+:canonical: src.pipeline.ui.components.charts.create_sparkline_svg
+
+```{autodoc2-docstring} src.pipeline.ui.components.charts.create_sparkline_svg
 ```
 ````
 
@@ -60,10 +98,17 @@
 ```
 ````
 
-````{py:function} create_kpi_cards_html(metrics: typing.Dict[str, typing.Any], prefix: str = '') -> str
-:canonical: src.pipeline.ui.components.charts.create_kpi_cards_html
+````{py:function} create_radar_chart(policy_metrics: typing.Dict[str, typing.Dict[str, float]], metrics: typing.List[str]) -> plotly.graph_objects.Figure
+:canonical: src.pipeline.ui.components.charts.create_radar_chart
 
-```{autodoc2-docstring} src.pipeline.ui.components.charts.create_kpi_cards_html
+```{autodoc2-docstring} src.pipeline.ui.components.charts.create_radar_chart
+```
+````
+
+````{py:function} create_stacked_bar_chart(categories: typing.List[str], series: typing.Dict[str, typing.List[float]], title: str = '', x_label: str = '', y_label: str = '', colors: typing.Optional[typing.List[str]] = None) -> plotly.graph_objects.Figure
+:canonical: src.pipeline.ui.components.charts.create_stacked_bar_chart
+
+```{autodoc2-docstring} src.pipeline.ui.components.charts.create_stacked_bar_chart
 ```
 ````
 

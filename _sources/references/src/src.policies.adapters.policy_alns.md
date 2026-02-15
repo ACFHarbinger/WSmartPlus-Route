@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ALNSPolicy(config: typing.Optional[logic.src.configs.policies.ALNSConfig] = None)
+`````{py:class} ALNSPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.ALNSConfig, typing.Dict[str, typing.Any]]] = None)
 :canonical: src.policies.adapters.policy_alns.ALNSPolicy
 
 Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy`
@@ -36,6 +36,12 @@ Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolic
 
 ```{autodoc2-docstring} src.policies.adapters.policy_alns.ALNSPolicy.__init__
 ```
+
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.adapters.policy_alns.ALNSPolicy._config_class
+:classmethod:
+
+````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.adapters.policy_alns.ALNSPolicy._get_config_key

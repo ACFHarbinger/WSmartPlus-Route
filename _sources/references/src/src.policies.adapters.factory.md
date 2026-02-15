@@ -63,7 +63,7 @@
 ```{autodoc2-docstring} src.policies.adapters.factory.PolicyFactory
 ```
 
-````{py:method} get_adapter(name: str, engine: typing.Optional[str] = None, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> src.policies.adapters.factory.IPolicy
+````{py:method} get_adapter(name: str, config: typing.Optional[dict] = None, engine: typing.Optional[str] = None, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> src.policies.adapters.factory.IPolicy
 :canonical: src.policies.adapters.factory.PolicyFactory.get_adapter
 :staticmethod:
 

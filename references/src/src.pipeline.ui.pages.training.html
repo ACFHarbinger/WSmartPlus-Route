@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.pipeline.ui.pages.training';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.pipeline.ui.pages.simulation" href="src.pipeline.ui.pages.simulation.html" />
-    <link rel="prev" title="src.pipeline.ui.pages" href="src.pipeline.ui.pages.html" />
+    <link rel="next" title="src.pipeline.ui.pages.benchmark" href="src.pipeline.ui.pages.benchmark.html" />
+    <link rel="prev" title="src.pipeline.ui.pages.simulation.kpi" href="src.pipeline.ui.pages.simulation.kpi.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -468,6 +468,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_run_overview"><code class="docutils literal notranslate"><span class="pre">_render_run_overview()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_training_progress"><code class="docutils literal notranslate"><span class="pre">_render_training_progress()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_convergence_status"><code class="docutils literal notranslate"><span class="pre">_render_convergence_status()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_lr_schedule"><code class="docutils literal notranslate"><span class="pre">_render_lr_schedule()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_training_kpis"><code class="docutils literal notranslate"><span class="pre">_render_training_kpis()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_epoch_timing"><code class="docutils literal notranslate"><span class="pre">_render_epoch_timing()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_run_comparison"><code class="docutils literal notranslate"><span class="pre">_render_run_comparison()</span></code></a></li>
@@ -500,19 +503,28 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_run_overview" title="src.pipeline.ui.pages.training._render_run_overview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_overview</span></code></a></p></td>
 <td><p>Display hyperparameters and run configuration for selected runs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_training_kpis" title="src.pipeline.ui.pages.training._render_training_kpis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_training_kpis</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_training_progress" title="src.pipeline.ui.pages.training._render_training_progress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_training_progress</span></code></a></p></td>
+<td><p>Display training progress bars based on current vs total epochs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_convergence_status" title="src.pipeline.ui.pages.training._render_convergence_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_convergence_status</span></code></a></p></td>
+<td><p>Show convergence status for each run (plateau detection).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_lr_schedule" title="src.pipeline.ui.pages.training._render_lr_schedule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_lr_schedule</span></code></a></p></td>
+<td><p>Plot learning rate over time if available.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_training_kpis" title="src.pipeline.ui.pages.training._render_training_kpis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_training_kpis</span></code></a></p></td>
 <td><p>Display summary KPI cards for each selected run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_epoch_timing" title="src.pipeline.ui.pages.training._render_epoch_timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_epoch_timing</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_epoch_timing" title="src.pipeline.ui.pages.training._render_epoch_timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_epoch_timing</span></code></a></p></td>
 <td><p>Display epoch timing analysis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_run_comparison" title="src.pipeline.ui.pages.training._render_run_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_comparison</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_run_comparison" title="src.pipeline.ui.pages.training._render_run_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_comparison</span></code></a></p></td>
 <td><p>Side-by-side run comparison table (only for 2+ runs).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_all_metrics_table" title="src.pipeline.ui.pages.training._render_all_metrics_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_all_metrics_table</span></code></a></p></td>
-<td><p>Full data explorer replacing the old ‘last 20 rows’ view.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training._render_all_metrics_table" title="src.pipeline.ui.pages.training._render_all_metrics_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_all_metrics_table</span></code></a></p></td>
+<td><p>Full data explorer with download button.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training.render_training_monitor" title="src.pipeline.ui.pages.training.render_training_monitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_training_monitor</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.pages.training.render_training_monitor" title="src.pipeline.ui.pages.training.render_training_monitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_training_monitor</span></code></a></p></td>
 <td><p>Render the Training Monitor mode.</p></td>
 </tr>
 </tbody>
@@ -525,6 +537,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.ui.pages.training._render_run_overview">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_run_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.training._render_run_overview" title="Link to this definition">#</a></dt>
 <dd><p>Display hyperparameters and run configuration for selected runs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.training._render_training_progress">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_training_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.training._render_training_progress" title="Link to this definition">#</a></dt>
+<dd><p>Display training progress bars based on current vs total epochs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.training._render_convergence_status">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_convergence_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.training._render_convergence_status" title="Link to this definition">#</a></dt>
+<dd><p>Show convergence status for each run (plateau detection).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.pages.training._render_lr_schedule">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_lr_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.training._render_lr_schedule" title="Link to this definition">#</a></dt>
+<dd><p>Plot learning rate over time if available.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -548,7 +578,7 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.ui.pages.training._render_all_metrics_table">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_all_metrics_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.ui.pages.training._render_all_metrics_table" title="Link to this definition">#</a></dt>
-<dd><p>Full data explorer replacing the old ‘last 20 rows’ view.</p>
+<dd><p>Full data explorer with download button.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -573,20 +603,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.pipeline.ui.pages.html"
+       href="src.pipeline.ui.pages.simulation.kpi.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages.simulation.kpi</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.pipeline.ui.pages.simulation.html"
+       href="src.pipeline.ui.pages.benchmark.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages.simulation</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui.pages.benchmark</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -610,6 +640,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_run_overview"><code class="docutils literal notranslate"><span class="pre">_render_run_overview()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_training_progress"><code class="docutils literal notranslate"><span class="pre">_render_training_progress()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_convergence_status"><code class="docutils literal notranslate"><span class="pre">_render_convergence_status()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_lr_schedule"><code class="docutils literal notranslate"><span class="pre">_render_lr_schedule()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_training_kpis"><code class="docutils literal notranslate"><span class="pre">_render_training_kpis()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_epoch_timing"><code class="docutils literal notranslate"><span class="pre">_render_epoch_timing()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.pages.training._render_run_comparison"><code class="docutils literal notranslate"><span class="pre">_render_run_comparison()</span></code></a></li>
