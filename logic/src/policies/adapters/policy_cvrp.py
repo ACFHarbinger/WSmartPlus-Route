@@ -5,7 +5,7 @@ Implements a multi-vehicle routing policy (CVRP) that visits a specific set of b
 Agnostic to how the targets were selected.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -24,13 +24,17 @@ class CVRPPolicy(BaseRoutingPolicy):
     Visits provided 'must_go' bins using multiple vehicles.
     """
 
-    def __init__(self, config: Optional[CVRPConfig] = None):
+    def __init__(self, config: Optional[Union[CVRPConfig, Dict[str, Any]]] = None):
         """Initialize CVRP policy with optional config.
 
         Args:
-            config: Optional CVRPConfig dataclass with solver parameters.
+            config: CVRPConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return CVRPConfig
 
     def _get_config_key(self) -> str:
         """Return config key for CVRP."""
@@ -81,14 +85,15 @@ class CVRPPolicy(BaseRoutingPolicy):
         # Load capacity
         capacity, _, _, values = self._load_area_params(area, waste_type, config)
 
-        # Determine solver engine from config
-        engine = values.get("engine", "pyvrp")
+        # Get engine and time_limit from typed config or values dict
+        cfg = self._config
+        engine = cfg.engine if cfg is not None else values.get("engine", "pyvrp")
+        time_limit = cfg.time_limit if cfg is not None else values.get("time_limit", 2.0)
 
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
-            time_limit = values.get("time_limit", 2.0)
             solver_fn = find_routes_ortools if engine == "ortools" else find_routes
             tour = solver_fn(
                 distancesC,

@@ -16,6 +16,7 @@ from streamlit_folium import st_folium
 from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.ui.components.charts import (
     create_bar_chart,
+    create_radar_chart,
     create_simulation_metrics_chart,
 )
 from logic.src.pipeline.ui.components.maps import create_bin_heatmap, create_simulation_map
@@ -209,7 +210,7 @@ def _render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     all_bin_coords: Optional[List[Dict[str, Any]]] = display_entry.data.get("all_bin_coords")
 
     if not tour:
-        st.warning("No tour data available for this entry.")
+        st.info("No tour data available for this entry.")
         return
 
     dist_matrix = _load_custom_matrix(controls)
@@ -249,254 +250,280 @@ def _render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     st_folium(sim_map, width=None, height=500, returned_objects=[])
 
 
+def _render_policy_comparison(entries: List[Any], selected_day: int) -> None:
+    """Render radar chart comparing all policies for the selected day."""
+    policies = get_unique_policies(entries)
+    if len(policies) < 2:
+        return
+
+    st.subheader("Policy Comparison")
+
+    radar_metrics = ["profit", "km", "kg", "overflows", "cost", "kg/km"]
+
+    # Compute mean metric per policy for the selected day
+    policy_metrics: Dict[str, Dict[str, float]] = {}
+    for policy in policies:
+        day_entries = filter_entries(entries, policy=policy, day=selected_day)
+        if not day_entries:
+            continue
+
+        metrics: Dict[str, float] = {}
+        for metric in radar_metrics:
+            values = [e.data.get(metric, 0) for e in day_entries if metric in e.data]
+            if values:
+                metrics[metric] = float(np.mean(values))
+        if metrics:
+            policy_metrics[policy] = metrics
+
+    if len(policy_metrics) < 2:
+        return
+
+    fig = create_radar_chart(policy_metrics, radar_metrics)
+    st.plotly_chart(fig, use_container_width=True)
+
+
 def _render_bin_heatmap(display_entry: Any) -> None:
     """Render bin fill level heatmap using the existing heatmap component."""
-    with st.expander("Bin Fill Level Heatmap", expanded=False):
-        tour = display_entry.data.get("tour", [])
-        bin_states = display_entry.data.get("bin_state_c", [])
+    tour = display_entry.data.get("tour", [])
+    bin_states = display_entry.data.get("bin_state_c", [])
 
-        if not tour or not bin_states:
-            st.info("No bin state or tour data available for heatmap.")
-            return
+    if not tour or not bin_states:
+        st.info("No bin state or tour data available for heatmap.")
+        return
 
-        # Build bin locations with matched fill levels from tour points
-        bin_locations: List[Dict[str, Any]] = []
-        matched_states: List[float] = []
+    # Build bin locations with matched fill levels from tour points
+    bin_locations: List[Dict[str, Any]] = []
+    matched_states: List[float] = []
 
-        for point in tour:
-            # Skip depot (id=0) and points without coordinates
-            if "lat" not in point or "lng" not in point:
-                continue
-            try:
-                bin_id = int(point["id"])
-            except (ValueError, TypeError):
-                continue
-            if bin_id == 0:
-                continue  # Skip depot
+    for point in tour:
+        # Skip depot (id=0) and points without coordinates
+        if "lat" not in point or "lng" not in point:
+            continue
+        try:
+            bin_id = int(point["id"])
+        except (ValueError, TypeError):
+            continue
+        if bin_id == 0:
+            continue  # Skip depot
 
-            # Map bin ID to fill level (try both 0-indexed and 1-indexed)
-            fill = 50.0
-            if 0 <= bin_id < len(bin_states):
-                fill = bin_states[bin_id]
-            elif 0 <= bin_id - 1 < len(bin_states):
-                fill = bin_states[bin_id - 1]
+        # Map bin ID to fill level (try both 0-indexed and 1-indexed)
+        fill = 50.0
+        if 0 <= bin_id < len(bin_states):
+            fill = bin_states[bin_id]
+        elif 0 <= bin_id - 1 < len(bin_states):
+            fill = bin_states[bin_id - 1]
 
-            bin_locations.append(point)
-            matched_states.append(fill)
+        bin_locations.append(point)
+        matched_states.append(fill)
 
-        if not bin_locations:
-            st.info("No bin locations found in tour data.")
-            return
+    if not bin_locations:
+        st.info("No bin locations found in tour data.")
+        return
 
-        heatmap = create_bin_heatmap(bin_locations, matched_states)
-        st_folium(heatmap, width=None, height=400, returned_objects=[])
+    heatmap = create_bin_heatmap(bin_locations, matched_states)
+    st_folium(heatmap, width=None, height=400, returned_objects=[])
 
 
 def _render_bin_state_inspector(display_entry: Any) -> None:
     """Render detailed bin state inspection table."""
-    with st.expander("Bin State Inspector", expanded=False):
-        data = display_entry.data
-        bin_states_before = data.get("bin_state_c", [])
-        bin_states_after = data.get("bins_state_real_c_after", [])
-        bin_collected = data.get("bin_state_collected", [])
-        must_go: Optional[List[int]] = data.get("must_go")
+    data = display_entry.data
+    bin_states_before = data.get("bin_state_c", [])
+    bin_states_after = data.get("bins_state_real_c_after", [])
+    bin_collected = data.get("bin_state_collected", [])
+    must_go: Optional[List[int]] = data.get("must_go")
 
-        if not bin_states_before:
-            st.info("No bin state data available.")
-            return
+    if not bin_states_before:
+        st.info("No bin state data available.")
+        return
 
-        n_bins = len(bin_states_before)
-        must_go_set = set(must_go) if must_go else set()
+    n_bins = len(bin_states_before)
+    must_go_set = set(must_go) if must_go else set()
 
-        rows = []
-        for i in range(n_bins):
-            before = bin_states_before[i] if i < len(bin_states_before) else 0
-            after = bin_states_after[i] if i < len(bin_states_after) else 0
-            collected_amount = bin_collected[i] if i < len(bin_collected) else 0
-            # must_go uses 1-indexed bin IDs
-            was_selected = (i + 1) in must_go_set
-            was_collected = collected_amount > 0
-            is_overflow = before > 100
+    rows = []
+    for i in range(n_bins):
+        before = bin_states_before[i] if i < len(bin_states_before) else 0
+        after = bin_states_after[i] if i < len(bin_states_after) else 0
+        collected_amount = bin_collected[i] if i < len(bin_collected) else 0
+        # must_go uses 1-indexed bin IDs
+        was_selected = (i + 1) in must_go_set
+        was_collected = collected_amount > 0
+        is_overflow = before > 100
 
-            rows.append(
-                {
-                    "Bin ID": i + 1,
-                    "Fill Before (%)": round(before, 1),
-                    "Fill After (%)": round(after, 1),
-                    "Collected (kg)": round(collected_amount, 2),
-                    "Selected (must_go)": was_selected,
-                    "Collected": was_collected,
-                    "Overflow": is_overflow,
-                }
-            )
-
-        df = pd.DataFrame(rows)
-
-        # Summary statistics
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Total Bins", n_bins)
-        with col2:
-            st.metric("Bins Selected", len(must_go_set))
-        with col3:
-            n_collected = sum(1 for r in rows if r["Collected"])
-            st.metric("Bins Collected", n_collected)
-        with col4:
-            n_overflow = sum(1 for r in rows if r["Overflow"])
-            st.metric("Bins Overflowing", n_overflow)
-
-        # Filter controls
-        filter_opt = st.radio(
-            "Filter bins",
-            ["All", "Selected (must_go)", "Collected", "Overflowing"],
-            horizontal=True,
-            key="bin_filter",
+        rows.append(
+            {
+                "Bin ID": i + 1,
+                "Fill Before (%)": round(before, 1),
+                "Fill After (%)": round(after, 1),
+                "Collected (kg)": round(collected_amount, 2),
+                "Selected (must_go)": was_selected,
+                "Collected": was_collected,
+                "Overflow": is_overflow,
+            }
         )
 
-        filtered_df = df
-        if filter_opt == "Selected (must_go)":
-            filtered_df = df[df["Selected (must_go)"]]
-        elif filter_opt == "Collected":
-            filtered_df = df[df["Collected"]]
-        elif filter_opt == "Overflowing":
-            filtered_df = df[df["Overflow"]]
+    df = pd.DataFrame(rows)
 
-        st.dataframe(filtered_df, width="stretch", height=300)
+    # Summary statistics
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Bins", n_bins)
+    with col2:
+        st.metric("Bins Selected", len(must_go_set))
+    with col3:
+        n_collected = sum(1 for r in rows if r["Collected"])
+        st.metric("Bins Collected", n_collected)
+    with col4:
+        n_overflow = sum(1 for r in rows if r["Overflow"])
+        st.metric("Bins Overflowing", n_overflow)
+
+    # Filter controls
+    filter_opt = st.radio(
+        "Filter bins",
+        ["All", "Selected (must_go)", "Collected", "Overflowing"],
+        horizontal=True,
+        key="bin_filter",
+    )
+
+    filtered_df = df
+    if filter_opt == "Selected (must_go)":
+        filtered_df = df[df["Selected (must_go)"]]
+    elif filter_opt == "Collected":
+        filtered_df = df[df["Collected"]]
+    elif filter_opt == "Overflowing":
+        filtered_df = df[df["Overflow"]]
+
+    st.dataframe(filtered_df, width="stretch", height=300)
 
 
 def _render_collection_details(display_entry: Any) -> None:
     """Render collection details for the day."""
-    with st.expander("Collection Details", expanded=False):
-        data = display_entry.data
-        bin_collected = data.get("bin_state_collected", [])
-        must_go: Optional[List[int]] = data.get("must_go")
+    data = display_entry.data
+    bin_collected = data.get("bin_state_collected", [])
+    must_go: Optional[List[int]] = data.get("must_go")
 
-        if not bin_collected:
-            st.info("No collection data available.")
-            return
+    if not bin_collected:
+        st.info("No collection data available.")
+        return
 
-        # Collection summary metrics
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Number of Collections", data.get("ncol", 0))
-        with col2:
-            total_kg = sum(c for c in bin_collected if c > 0)
-            st.metric("Total Collected (kg)", f"{total_kg:.2f}")
-        with col3:
-            st.metric("Bins in must_go", len(must_go) if must_go else 0)
+    # Collection summary metrics
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Number of Collections", data.get("ncol", 0))
+    with col2:
+        total_kg = sum(c for c in bin_collected if c > 0)
+        st.metric("Total Collected (kg)", f"{total_kg:.2f}")
+    with col3:
+        st.metric("Bins in must_go", len(must_go) if must_go else 0)
 
-        # Per-bin collection breakdown (only bins that were collected)
-        must_go_set = set(must_go) if must_go else set()
-        collected_bins = []
-        for i, amount in enumerate(bin_collected):
-            if amount > 0:
-                collected_bins.append(
-                    {
-                        "Bin ID": i + 1,
-                        "Amount Collected (kg)": round(amount, 2),
-                        "Was in must_go": (i + 1) in must_go_set,
-                    }
-                )
-
-        if collected_bins:
-            st.markdown("**Per-Bin Collection Breakdown:**")
-            st.dataframe(pd.DataFrame(collected_bins), width="stretch")
-
-            # Bar chart of collection amounts
-            fig = create_bar_chart(
-                data=dict(
-                    zip(
-                        [str(b["Bin ID"]) for b in collected_bins],
-                        [b["Amount Collected (kg)"] for b in collected_bins],
-                    )
-                ),
-                title="Collection Amount per Bin",
-                x_label="Bin ID",
-                y_label="Amount (kg)",
+    # Per-bin collection breakdown (only bins that were collected)
+    must_go_set = set(must_go) if must_go else set()
+    collected_bins = []
+    for i, amount in enumerate(bin_collected):
+        if amount > 0:
+            collected_bins.append(
+                {
+                    "Bin ID": i + 1,
+                    "Amount Collected (kg)": round(amount, 2),
+                    "Was in must_go": (i + 1) in must_go_set,
+                }
             )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No bins were collected on this day.")
+
+    if collected_bins:
+        st.markdown("**Per-Bin Collection Breakdown:**")
+        st.dataframe(pd.DataFrame(collected_bins), width="stretch")
+
+        # Bar chart of collection amounts
+        fig = create_bar_chart(
+            data=dict(
+                zip(
+                    [str(b["Bin ID"]) for b in collected_bins],
+                    [b["Amount Collected (kg)"] for b in collected_bins],
+                )
+            ),
+            title="Collection Amount per Bin",
+            x_label="Bin ID",
+            y_label="Amount (kg)",
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No bins were collected on this day.")
 
 
 def _render_tour_details(display_entry: Any) -> None:
     """Render tour sequence and leg details."""
-    with st.expander("Tour Details", expanded=False):
-        data = display_entry.data
-        tour = data.get("tour", [])
+    data = display_entry.data
+    tour = data.get("tour", [])
 
-        if not tour or len(tour) <= 1:
-            st.info("No tour executed on this day (empty or depot-only tour).")
-            return
+    if not tour or len(tour) <= 1:
+        st.info("No tour executed on this day (empty or depot-only tour).")
+        return
 
-        # Tour summary
-        n_stops = sum(1 for p in tour if int(p.get("id", 0)) != 0)
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Stops", n_stops)
-        with col2:
-            st.metric("Tour Length (nodes)", len(tour))
-        with col3:
-            st.metric("Distance (km)", f"{data.get('km', 0):.2f}")
+    # Tour summary
+    n_stops = sum(1 for p in tour if int(p.get("id", 0)) != 0)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Total Stops", n_stops)
+    with col2:
+        st.metric("Tour Length (nodes)", len(tour))
+    with col3:
+        st.metric("Distance (km)", f"{data.get('km', 0):.2f}")
 
-        # Tour sequence table
-        st.markdown("**Tour Sequence:**")
-        tour_rows = []
-        for i, point in enumerate(tour):
-            point_id = point.get("id", "?")
-            is_depot = str(point_id) == "0"
-            tour_rows.append(
-                {
-                    "Step": i,
-                    "Node ID": point_id,
-                    "Type": "depot" if is_depot else "bin",
-                    "Latitude": round(point["lat"], 6) if "lat" in point else "N/A",
-                    "Longitude": round(point["lng"], 6) if "lng" in point else "N/A",
-                }
-            )
-        st.dataframe(pd.DataFrame(tour_rows), width="stretch")
+    # Tour sequence table
+    st.markdown("**Tour Sequence:**")
+    tour_rows = []
+    for i, point in enumerate(tour):
+        point_id = point.get("id", "?")
+        is_depot = str(point_id) == "0"
+        tour_rows.append(
+            {
+                "Step": i,
+                "Node ID": point_id,
+                "Type": "depot" if is_depot else "bin",
+                "Latitude": round(point["lat"], 6) if "lat" in point else "N/A",
+                "Longitude": round(point["lng"], 6) if "lng" in point else "N/A",
+            }
+        )
+    st.dataframe(pd.DataFrame(tour_rows), width="stretch")
 
-        # must_go list display
-        must_go = data.get("must_go", [])
-        if must_go:
-            st.markdown(f"**must_go Selection** ({len(must_go)} bins): `{must_go}`")
+    # must_go list display
+    must_go = data.get("must_go", [])
+    if must_go:
+        st.markdown(f"**must_go Selection** ({len(must_go)} bins): `{must_go}`")
 
 
 def _render_metric_charts(entries: List[Any], controls: Dict[str, Any]) -> None:
     """Render evaluation metrics charts with user-selectable metrics."""
-    with st.expander("Metrics Over Time"):
-        df = compute_daily_stats(entries, policy=controls["selected_policy"])
+    df = compute_daily_stats(entries, policy=controls["selected_policy"])
 
-        if not df.empty:
-            all_metrics = ["profit", "km", "kg", "overflows", "ncol", "kg_lost", "kg/km", "cost"]
-            available_plot_metrics = [m for m in all_metrics if f"{m}_mean" in df.columns]
+    if not df.empty:
+        all_metrics = ["profit", "km", "kg", "overflows", "ncol", "kg_lost", "kg/km", "cost"]
+        available_plot_metrics = [m for m in all_metrics if f"{m}_mean" in df.columns]
 
-            if available_plot_metrics:
-                selected_metrics = st.multiselect(
-                    "Select metrics to plot",
-                    options=available_plot_metrics,
-                    default=available_plot_metrics[:3],
-                    key="metrics_select",
+        if available_plot_metrics:
+            selected_metrics = st.multiselect(
+                "Select metrics to plot",
+                options=available_plot_metrics,
+                default=available_plot_metrics[:3],
+                key="metrics_select",
+            )
+
+            if selected_metrics:
+                fig = create_simulation_metrics_chart(
+                    df=df,
+                    metrics=selected_metrics,
+                    show_std=True,
                 )
-
-                if selected_metrics:
-                    fig = create_simulation_metrics_chart(
-                        df=df,
-                        metrics=selected_metrics,
-                        show_std=True,
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
 
 
 def _render_raw_data_view(display_entry: Any) -> None:
     """Render raw data view for debugging."""
-    with st.expander("Raw Data (JSON)"):
-        st.markdown(
-            f"**Policy**: `{display_entry.policy}` | "
-            f"**Sample**: `{display_entry.sample_id}` | "
-            f"**Day**: `{display_entry.day}`"
-        )
-        st.json(display_entry.data)
+    st.markdown(
+        f"**Policy**: `{display_entry.policy}` | "
+        f"**Sample**: `{display_entry.sample_id}` | "
+        f"**Day**: `{display_entry.day}`"
+    )
+    st.json(display_entry.data)
 
 
 def render_simulation_visualizer() -> None:
@@ -508,7 +535,7 @@ def render_simulation_visualizer() -> None:
     logs = discover_simulation_logs()
 
     if not logs:
-        st.warning(
+        st.info(
             "No simulation logs found in `assets/output/`.\n\n"
             "Run a simulation with `python main.py test_sim` to generate logs."
         )
@@ -546,14 +573,15 @@ def render_simulation_visualizer() -> None:
 
     selected_path = log_paths[controls["selected_log"]]
 
-    try:
-        entries = load_simulation_log_fresh(selected_path)
-    except Exception as e:
-        st.error(f"Failed to load log file: {e}")
-        return
+    with st.spinner("Loading simulation data..."):
+        try:
+            entries = load_simulation_log_fresh(selected_path)
+        except Exception as e:
+            st.error(f"Failed to load log file: {e}")
+            return
 
     if not entries:
-        st.warning("The selected log file is empty or contains no valid entries.")
+        st.info("The selected log file is empty or contains no valid entries.")
         return
 
     # Update metadata after loading (in case user switched logs)
@@ -565,7 +593,7 @@ def render_simulation_visualizer() -> None:
     filtered = _filter_simulation_data(entries, controls, day_range)
 
     if not filtered:
-        st.warning("No entries match the selected filters.")
+        st.info("No entries match the selected filters. Try adjusting the sidebar controls.")
         return
 
     # Get the entry to display (first one matching filters)
@@ -576,31 +604,52 @@ def render_simulation_visualizer() -> None:
     if tour:
         display_entry.data["tour"] = _normalize_tour_points(tour)
 
-    # 1. KPI Dashboard (expanded with all metrics)
+    # Determine the selected day for policy comparison
+    selected_day = display_entry.day
+
+    # 1. KPI Dashboard (always visible)
     if controls["show_stats"]:
         _render_kpi_dashboard(display_entry)
 
     # 2. Policy Configuration
     _render_policy_info(display_entry)
 
-    # 3. Map Visualization
+    # 3. Map Visualization (always visible)
     _render_map_view(display_entry, controls)
 
-    # 4. Bin Fill Heatmap
-    _render_bin_heatmap(display_entry)
+    # Divider before tabs
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # 5. Bin State Inspector
-    _render_bin_state_inspector(display_entry)
+    # 4. Tabbed detail sections
+    tab_analysis, tab_bins, tab_tour = st.tabs(["Analysis", "Bins", "Tour & Data"])
 
-    # 6. Collection Details
-    _render_collection_details(display_entry)
+    with tab_analysis:
+        # Policy comparison radar chart
+        _render_policy_comparison(entries, selected_day)
 
-    # 7. Tour Details
-    _render_tour_details(display_entry)
+        # Metrics over time
+        if controls["show_stats"]:
+            st.subheader("Metrics Over Time")
+            _render_metric_charts(entries, controls)
 
-    # 8. Metrics over time (with selectable metrics)
-    if controls["show_stats"]:
-        _render_metric_charts(entries, controls)
+    with tab_bins:
+        # Bin Fill Heatmap
+        st.subheader("Bin Fill Level Heatmap")
+        _render_bin_heatmap(display_entry)
 
-    # 9. Raw data
-    _render_raw_data_view(display_entry)
+        # Bin State Inspector
+        st.subheader("Bin State Inspector")
+        _render_bin_state_inspector(display_entry)
+
+        # Collection Details
+        st.subheader("Collection Details")
+        _render_collection_details(display_entry)
+
+    with tab_tour:
+        # Tour Details
+        st.subheader("Tour Details")
+        _render_tour_details(display_entry)
+
+        # Raw data
+        st.subheader("Raw Data (JSON)")
+        _render_raw_data_view(display_entry)

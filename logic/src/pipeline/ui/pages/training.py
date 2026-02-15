@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from logic.src.pipeline.ui.components.charts import (
+    PLOTLY_LAYOUT_DEFAULTS,
     create_training_loss_chart,
 )
 from logic.src.pipeline.ui.components.sidebar import (
@@ -148,6 +149,7 @@ def _render_epoch_timing(runs_data: Dict[str, pd.DataFrame]) -> None:
             yaxis_title="Time (seconds)",
             height=350,
             hovermode="x unified",
+            **PLOTLY_LAYOUT_DEFAULTS,
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -250,18 +252,20 @@ def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
 def render_training_monitor() -> None:
     """Render the Training Monitor mode."""
     st.title("Training Monitor")
-    st.markdown("Monitor and compare PyTorch Lightning training runs.")
 
     # Discover available runs
     runs = discover_training_runs()
 
     if not runs:
-        st.warning(
+        st.info(
             "No training runs found in `logs/output/`.\n\nStart a training run with PyTorch Lightning to see metrics here."
         )
         return
 
     run_names = [name for name, _ in runs]
+
+    # Subtitle with quick stats
+    st.markdown(f"Monitor and compare PyTorch Lightning training runs. **{len(run_names)} run(s)** available.")
 
     # Get available metrics from first run
     first_run_data = load_multiple_training_runs([run_names[0]])
@@ -282,7 +286,8 @@ def render_training_monitor() -> None:
     selected_runs: List[str] = controls["selected_runs"]
 
     # Load selected runs
-    runs_data = load_multiple_training_runs(selected_runs)
+    with st.spinner(f"Loading {len(selected_runs)} training run(s)..."):
+        runs_data = load_multiple_training_runs(selected_runs)
 
     # 1. Run Overview / Hyperparameters
     _render_run_overview(selected_runs)

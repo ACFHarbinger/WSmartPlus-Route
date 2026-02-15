@@ -7,7 +7,7 @@ Supports two engines:
   - 'og': Original look-ahead algorithm for collection (LAC)
 """
 
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
 import numpy as np
 import pandas as pd
@@ -46,13 +46,17 @@ class SANSPolicy(BaseRoutingPolicy):
       - 'og': Original look-ahead collection (LAC) algorithm
     """
 
-    def __init__(self, config: Optional[SANSConfig] = None):
+    def __init__(self, config: Optional[Union[SANSConfig, Dict[str, Any]]] = None):
         """Initialize SANS policy with optional config.
 
         Args:
-            config: Optional SANSConfig dataclass with solver parameters.
+            config: SANSConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return SANSConfig
 
     def _get_config_key(self) -> str:
         """Return config key for SANS."""
@@ -76,25 +80,16 @@ class SANSPolicy(BaseRoutingPolicy):
         Execute the SANS policy.
 
         Uses specialized data preparation for simulated annealing.
-
-        Args:
-            **kwargs: Execution arguments including:
-                - engine: 'new' (default) or 'og' for LAC algorithm
-                - must_go: List of bins that must be visited
-                - bins: Bin data object
-                - distance_matrix: Distance matrix
-                - coords: Coordinates
-                - area: Area name
-                - waste_type: Waste type
-                - config: Configuration dictionary
-
-        Returns:
-            Tuple of (tour, cost, cached_data)
         """
-        # Determine engine from config or kwargs
-        config = kwargs.get("config", {})
-        sans_config = config.get("sans", config.get("lac", {}))
-        engine: Literal["new", "og"] = kwargs.get("engine", sans_config.get("engine", "new"))
+        # Determine engine from typed config, raw config, or kwargs
+        cfg = self._config
+        if cfg is not None:
+            engine: Literal["new", "og"] = cfg.engine
+        else:
+            config = kwargs.get("config", {})
+            sans_config = config.get("sans", config.get("lac", {}))
+            raw_engine = kwargs.get("engine", sans_config.get("engine", "new"))
+            engine = "og" if raw_engine == "og" else "new"
 
         if engine == "og":
             return self._execute_og(**kwargs)
@@ -114,18 +109,12 @@ class SANSPolicy(BaseRoutingPolicy):
         area = kwargs.get("area", "Rio Maior")
         waste_type = kwargs.get("waste_type", "plastic")
         config = kwargs.get("config", {})
-        sans_config = config.get("sans", {})
 
         # Load area parameters
         Q, R, C, values = self._load_area_params(area, waste_type, config)
 
-        # Load B and V defaults which are not returned by base
-        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
-
-        _, _, B_def, _, V_def = load_area_and_waste_type_params(area, waste_type)
-
-        B = values.get("B", B_def)
-        V = values.get("V", V_def)
+        B = values.get("B", 0)
+        V = values.get("V", 0)
 
         # Prepare data for SANS logic
         data = pd.DataFrame(
@@ -153,27 +142,37 @@ class SANSPolicy(BaseRoutingPolicy):
             if b not in route_set:
                 current_route.insert(1, b)
 
-        params = (
-            sans_config.get("T_init", 75),
-            sans_config.get("iterations_per_T", 5000),
-            sans_config.get("alpha", 0.95),
-            sans_config.get("T_min", 0.01),
-        )
+        # Get SA parameters from typed config or raw config
+        cfg = self._config
+        if cfg is not None:
+            sa_params = (cfg.T_init, cfg.iterations_per_T, cfg.alpha, cfg.T_min)
+            time_limit = cfg.time_limit
+            perc_overflow = cfg.perc_bins_can_overflow
+        else:
+            sans_config = config.get("sans", {})
+            sa_params = (
+                sans_config.get("T_init", 75),
+                sans_config.get("iterations_per_T", 5000),
+                sans_config.get("alpha", 0.95),
+                sans_config.get("T_min", 0.01),
+            )
+            time_limit = values.get("time_limit", 60)
+            perc_overflow = sans_config.get("perc_bins_can_overflow", 0.0)
 
         optimized_routes, best_profit, last_distance, _, _ = improved_simulated_annealing(
             [current_route],
             distance_matrix,
-            values.get("time_limit", 60),
+            time_limit,
             id_to_index,
             data,
             Q,
-            *params,
+            *sa_params,
             R,
             V,
             B,
             C,
             must_go_1,
-            perc_bins_can_overflow=sans_config.get("perc_bins_can_overflow", 0.0),
+            perc_bins_can_overflow=perc_overflow,
             volume=V,
             density_val=B,
             max_vehicles=1,
@@ -232,7 +231,14 @@ class SANSPolicy(BaseRoutingPolicy):
 
         points = create_points(new_data, coords)
 
-        combination = lac_config.get("combination", DEFAULT_COMBINATION)
+        # Get combination and time_limit from typed config or raw config
+        cfg = self._config
+        combination = (
+            cfg.combination
+            if cfg is not None and cfg.combination
+            else lac_config.get("combination", DEFAULT_COMBINATION)
+        )
+        og_time_limit = cfg.time_limit if cfg is not None else lac_config.get("time_limit", DEFAULT_TIME_LIMIT)
 
         try:
             res, _, _ = find_solutions(
@@ -244,7 +250,7 @@ class SANSPolicy(BaseRoutingPolicy):
                 values,
                 bins.n,
                 points,
-                time_limit=lac_config.get("time_limit", DEFAULT_TIME_LIMIT),
+                time_limit=og_time_limit,
             )
         except Exception:
             return [0, 0], 0.0, None
