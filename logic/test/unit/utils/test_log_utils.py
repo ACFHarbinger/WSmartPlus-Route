@@ -1,0 +1,135 @@
+import os
+import json
+from unittest.mock import MagicMock, patch
+import pandas as pd
+import torch
+from logic.src.utils.logging.log_utils import (
+    log_epoch,
+    log_to_json,
+    log_to_json2,
+    log_values,
+    output_stats,
+    runs_per_policy,
+)
+from logic.src.utils.logging.log_visualization import log_training
+
+class TestLogUtils:
+    """Class for log_utils tests."""
+
+    @patch("logic.src.utils.logging.modules.metrics.wandb")
+    def test_log_epoch(self, mock_wandb):
+        """Test log_epoch with mocked wandb."""
+        opts = {"train_time": False, "wandb_mode": "online"}
+        x_tup = ("epoch", 1)
+        loss_keys = ["loss"]
+        epoch_loss = {"loss": [torch.tensor([1.0]), torch.tensor([2.0])]}
+        log_epoch(x_tup, loss_keys, epoch_loss, opts)
+        assert mock_wandb.log.called
+
+    @patch("logic.src.utils.logging.log_visualization.wandb")
+    @patch("logic.src.utils.logging.log_visualization.plt")
+    def test_log_training(self, mock_plt, mock_wandb):
+        """Test log_training with mocked components."""
+        opts = {
+            "train_time": False,
+            "wandb_mode": "online",
+            "log_dir": "logs",
+            "save_dir": "checkpoints/run1",
+            "checkpoints_dir": "checkpoints",
+        }
+        columns = pd.MultiIndex.from_tuples([("loss", "mean"), ("loss", "std"), ("loss", "max"), ("loss", "min")])
+        table_df = pd.DataFrame([[1.0, 0.1, 1.2, 0.8]], columns=columns)
+        loss_keys = ["loss"]
+
+        with patch("os.makedirs"), patch("pandas.DataFrame.to_parquet"):
+            log_training(loss_keys, table_df, opts)
+        assert mock_wandb.log.called
+
+    @patch("logic.src.utils.logging.modules.storage.os.path.isfile")
+    @patch("logic.src.utils.logging.modules.storage.read_json")
+    @patch("builtins.open", new_callable=MagicMock)
+    @patch("json.dump")
+    def test_log_to_json(self, mock_dump, mock_open, mock_read, mock_isfile):
+        """Test log_to_json with mock file."""
+        mock_isfile.return_value = True
+        mock_read.return_value = {"runs": []}
+        mock_open.return_value.__enter__.return_value = MagicMock()
+        with (
+            patch("logic.src.utils.logging.modules.storage._sort_log"),
+        ):
+            res = log_to_json("path.json", ["val"], {"key": [1]}, sort_log_flag=True)
+            assert res is not None
+            assert mock_dump.called
+
+    @patch("logic.src.utils.logging.modules.storage.os.path.isfile")
+    @patch("logic.src.utils.logging.modules.storage.read_json")
+    @patch("builtins.open", new_callable=MagicMock)
+    @patch("json.dump")
+    def test_log_to_json2(self, mock_dump, mock_open, mock_read, mock_isfile):
+        """Test log_to_json2 (thread-safe version) with mock file."""
+        mock_isfile.return_value = False
+        mock_read.return_value = []
+        mock_open.return_value.__enter__.return_value = MagicMock()
+        with patch("json.load", return_value=[]):
+            res = log_to_json2("path.json", ["val"], {"key": [2]})
+            assert res is not None
+            assert mock_dump.called
+
+    @patch("logic.src.utils.logging.modules.metrics.wandb")
+    def test_log_values(self, mock_wandb):
+        """Test log_values function."""
+        cost = torch.tensor([10.0])
+        grad_norms = (
+            [torch.tensor([1.0]), torch.tensor([1.5])],
+            [torch.tensor([0.5]), torch.tensor([0.6])],
+        )
+        epoch = 1
+        batch_id = 5
+        step = 100
+        l_dict = {
+            "reinforce_loss": torch.tensor([1.0]),
+            "nll": torch.tensor([0.5]),
+            "imitation_loss": torch.tensor([0.1]),
+            "baseline_loss": torch.tensor([0.2]),
+        }
+        tb_logger = MagicMock()
+        opts = {
+            "train_time": False,
+            "no_tensorboard": False,
+            "baseline": "critic",
+            "wandb_mode": "online",
+        }
+        log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
+        assert mock_wandb.log.called
+        assert tb_logger.add_scalar.called
+
+    @patch("logic.src.utils.logging.modules.analysis.os.path.isfile")
+    @patch("logic.src.utils.logging.modules.analysis.read_json")
+    @patch("builtins.open", new_callable=MagicMock)
+    @patch("json.dump")
+    def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_isfile):
+        """Test output_stats function."""
+        mock_isfile.return_value = True
+        # Call 1: mean_dit, Call 2: std_dit, Call 3: data
+        mock_read.side_effect = [
+            {},  # mean_dit
+            {},  # std_dit
+            [
+                {"policy1": {"cost": 10.0}},
+                {"policy1": {"cost": 20.0}},
+            ],  # data
+        ]
+        mock_open_file.return_value.__enter__.return_value = MagicMock()
+        mean, std = output_stats("home", 1, 50, "out", "area", 2, ["policy1"], ["cost"], print_output=False)
+        assert isinstance(mean, dict)
+        assert isinstance(std, dict)
+        assert mock_dump.called
+
+    @patch("logic.src.utils.logging.modules.analysis.read_json")
+    def test_runs_per_policy(self, mock_read):
+        """Test runs_per_policy function."""
+        mock_read.return_value = [{"policy1": "res"}, {}]
+        res = runs_per_policy("home", 1, [50], "out", "area", [100], ["policy1"], print_output=True)
+        assert isinstance(res, list)
+        assert len(res) == 1
+        assert res[0]["policy1"] == [0]
