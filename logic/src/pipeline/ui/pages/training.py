@@ -2,7 +2,7 @@
 Training Monitor mode for the Streamlit dashboard.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -20,7 +20,7 @@ from logic.src.pipeline.ui.services.data_loader import (
     load_hparams,
     load_multiple_training_runs,
 )
-from logic.src.pipeline.ui.styles.styling import create_kpi_row
+from logic.src.pipeline.ui.styles.kpi import create_kpi_row
 
 # ---------------------------------------------------------------------------
 # Section renderers
@@ -58,6 +58,132 @@ def _render_run_overview(selected_runs: List[str]) -> None:
 
             if len(selected_runs) > 1:
                 st.markdown("---")
+
+
+def _render_training_progress(runs_data: Dict[str, pd.DataFrame], selected_runs: List[str]) -> None:
+    """Display training progress bars based on current vs total epochs."""
+    for run_name in selected_runs:
+        hparams = load_hparams(run_name)
+        total_epochs = hparams.get("n_epochs")
+        if total_epochs is None:
+            continue
+
+        df = runs_data.get(run_name)
+        if df is None or df.empty or "epoch" not in df.columns:
+            continue
+
+        epoch_vals = df["epoch"].dropna()
+        if epoch_vals.empty:
+            continue
+
+        current = int(epoch_vals.max()) + 1
+        total = int(total_epochs)
+        if total <= 0:
+            continue
+
+        pct = min(current / total, 1.0)
+        label = f"{run_name}: {current}/{total} epochs ({pct:.0%})"
+
+        if current >= total:
+            st.progress(1.0, text=f"{label} -- Complete")
+        else:
+            st.progress(pct, text=label)
+
+
+def _render_convergence_status(runs_data: Dict[str, pd.DataFrame]) -> None:
+    """Show convergence status for each run (plateau detection)."""
+    window = 10
+    threshold = 0.001  # 0.1% relative improvement
+
+    for run_name, df in runs_data.items():
+        if df.empty:
+            continue
+
+        # Find the loss column
+        loss_col: Optional[str] = None
+        for col in ["train/rl_loss", "train/il_loss", "train_loss"]:
+            if col in df.columns:
+                loss_col = col
+                break
+
+        if loss_col is None:
+            continue
+
+        valid = df[loss_col].dropna()
+        if len(valid) < window + 1:
+            continue
+
+        recent = valid.iloc[-window:]
+        earlier = valid.iloc[-(window + 1)]
+
+        best_recent = float(recent.min())
+        rel_improvement = abs(earlier - best_recent) / (abs(earlier) + 1e-8)
+
+        if rel_improvement < threshold:
+            plateau_epochs = window
+            # Check how far back the plateau extends
+            for i in range(window + 1, min(len(valid), 50)):
+                val = float(valid.iloc[-i])
+                if abs(val - best_recent) / (abs(val) + 1e-8) > threshold:
+                    break
+                plateau_epochs = i
+
+            st.markdown(
+                f'<span class="status-pill warning">{run_name}: Loss plateaued for ~{plateau_epochs} epochs</span>',
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f'<span class="status-pill good">{run_name}: Converging (improving)</span>',
+                unsafe_allow_html=True,
+            )
+
+
+def _render_lr_schedule(runs_data: Dict[str, pd.DataFrame]) -> None:
+    """Plot learning rate over time if available."""
+    has_lr = False
+    fig = go.Figure()
+
+    for run_name, df in runs_data.items():
+        if df.empty:
+            continue
+
+        # Find LR columns (Lightning logs as lr-Adam, lr-SGD, etc.)
+        lr_cols = [col for col in df.columns if col.startswith("lr")]
+        if not lr_cols:
+            continue
+
+        for lr_col in lr_cols:
+            lr_data = df[["step", lr_col]].dropna() if "step" in df.columns else df[[lr_col]].dropna()
+            if lr_data.empty:
+                continue
+
+            has_lr = True
+            x_data = lr_data["step"] if "step" in lr_data.columns else list(range(len(lr_data)))
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_data,
+                    y=lr_data[lr_col],
+                    mode="lines",
+                    name=f"{run_name} - {lr_col}",
+                    hovertemplate=f"LR: %{{y:.2e}}<extra>{run_name}</extra>",
+                )
+            )
+
+    if not has_lr:
+        return
+
+    st.subheader("Learning Rate Schedule")
+    fig.update_layout(
+        xaxis_title="Step",
+        yaxis_title="Learning Rate",
+        yaxis_type="log",
+        height=300,
+        hovermode="x unified",
+        **PLOTLY_LAYOUT_DEFAULTS,
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def _render_training_kpis(runs_data: Dict[str, pd.DataFrame]) -> None:
@@ -115,43 +241,44 @@ def _render_epoch_timing(runs_data: Dict[str, pd.DataFrame]) -> None:
     if not has_timing:
         return
 
-    with st.expander("Epoch Timing"):
-        fig = go.Figure()
+    st.subheader("Epoch Timing")
+    fig = go.Figure()
 
-        for run_name, df in runs_data.items():
-            if "time/epoch_s" not in df.columns:
-                continue
-            timing_df = df[["step", "time/epoch_s"]].dropna()
-            if timing_df.empty:
-                continue
+    for run_name, df in runs_data.items():
+        if "time/epoch_s" not in df.columns:
+            continue
+        timing_df = df[["step", "time/epoch_s"]].dropna()
+        if timing_df.empty:
+            continue
 
-            fig.add_trace(
-                go.Scatter(
-                    x=list(range(len(timing_df))),
-                    y=timing_df["time/epoch_s"],
-                    mode="lines+markers",
-                    name=run_name,
-                    marker=dict(size=4),
-                )
+        fig.add_trace(
+            go.Scatter(
+                x=list(range(len(timing_df))),
+                y=timing_df["time/epoch_s"],
+                mode="lines+markers",
+                name=run_name,
+                marker=dict(size=4),
+                hovertemplate="Time: %{y:.1f}s<extra>%{x}</extra>",
             )
-
-            # Summary stats
-            times = timing_df["time/epoch_s"]
-            total = times.sum()
-            st.markdown(
-                f"**{run_name}**: mean={times.mean():.1f}s, "
-                f"min={times.min():.1f}s, max={times.max():.1f}s, "
-                f"total={total:.0f}s ({total / 60:.1f}min)"
-            )
-
-        fig.update_layout(
-            xaxis_title="Logged Step",
-            yaxis_title="Time (seconds)",
-            height=350,
-            hovermode="x unified",
-            **PLOTLY_LAYOUT_DEFAULTS,
         )
-        st.plotly_chart(fig, use_container_width=True)
+
+        # Summary stats
+        times = timing_df["time/epoch_s"]
+        total = times.sum()
+        st.markdown(
+            f"**{run_name}**: mean={times.mean():.1f}s, "
+            f"min={times.min():.1f}s, max={times.max():.1f}s, "
+            f"total={total:.0f}s ({total / 60:.1f}min)"
+        )
+
+    fig.update_layout(
+        xaxis_title="Logged Step",
+        yaxis_title="Time (seconds)",
+        height=350,
+        hovermode="x unified",
+        **PLOTLY_LAYOUT_DEFAULTS,
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def _render_run_comparison(
@@ -162,49 +289,49 @@ def _render_run_comparison(
     if len(selected_runs) < 2:
         return
 
-    with st.expander("Run Comparison"):
-        rows: List[Dict[str, Any]] = []
+    st.subheader("Run Comparison")
+    rows: List[Dict[str, Any]] = []
 
-        for run_name in selected_runs:
-            df = runs_data.get(run_name)
-            if df is None or df.empty:
+    for run_name in selected_runs:
+        df = runs_data.get(run_name)
+        if df is None or df.empty:
+            continue
+
+        row: Dict[str, Any] = {"Run": run_name}
+
+        # Epochs
+        if "epoch" in df.columns and not df["epoch"].dropna().empty:
+            row["Epochs"] = int(df["epoch"].dropna().max()) + 1
+
+        # Final and best for each numeric column
+        for col in df.columns:
+            if col in ("epoch", "step"):
                 continue
+            valid = df[col].dropna()
+            if valid.empty:
+                continue
+            row[f"{col} (final)"] = round(float(valid.iloc[-1]), 4)
+            row[f"{col} (best)"] = round(float(valid.min()), 4)
 
-            row: Dict[str, Any] = {"Run": run_name}
+        # Hparams highlights
+        hparams = load_hparams(run_name)
+        if hparams:
+            row["optimizer"] = hparams.get("optimizer", "")
+            opt_kwargs = hparams.get("optimizer_kwargs", {})
+            if isinstance(opt_kwargs, dict):
+                row["lr"] = opt_kwargs.get("lr", "")
+            row["batch_size"] = hparams.get("batch_size", "")
+            row["baseline"] = hparams.get("baseline", "")
 
-            # Epochs
-            if "epoch" in df.columns and not df["epoch"].dropna().empty:
-                row["Epochs"] = int(df["epoch"].dropna().max()) + 1
+        rows.append(row)
 
-            # Final and best for each numeric column
-            for col in df.columns:
-                if col in ("epoch", "step"):
-                    continue
-                valid = df[col].dropna()
-                if valid.empty:
-                    continue
-                row[f"{col} (final)"] = round(float(valid.iloc[-1]), 4)
-                row[f"{col} (best)"] = round(float(valid.min()), 4)
-
-            # Hparams highlights
-            hparams = load_hparams(run_name)
-            if hparams:
-                row["optimizer"] = hparams.get("optimizer", "")
-                opt_kwargs = hparams.get("optimizer_kwargs", {})
-                if isinstance(opt_kwargs, dict):
-                    row["lr"] = opt_kwargs.get("lr", "")
-                row["batch_size"] = hparams.get("batch_size", "")
-                row["baseline"] = hparams.get("baseline", "")
-
-            rows.append(row)
-
-        if rows:
-            comparison_df = pd.DataFrame(rows).set_index("Run").T
-            st.dataframe(comparison_df, width="stretch", height=400)
+    if rows:
+        comparison_df = pd.DataFrame(rows).set_index("Run").T
+        st.dataframe(comparison_df, use_container_width=True, height=400)
 
 
 def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
-    """Full data explorer replacing the old 'last 20 rows' view."""
+    """Full data explorer with download button."""
     with st.expander("Full Metrics Table"):
         for run_name, df in runs_data.items():
             if df.empty:
@@ -236,8 +363,18 @@ def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
 
             st.dataframe(
                 df[selected_cols].tail(n_rows),
-                width="stretch",
+                use_container_width=True,
                 height=400,
+            )
+
+            # Download button
+            csv = df.to_csv(index=False)
+            st.download_button(
+                f"Download {run_name} CSV",
+                csv,
+                file_name=f"{run_name}_metrics.csv",
+                mime="text/csv",
+                key=f"download_{run_name}",
             )
 
             if len(runs_data) > 1:
@@ -296,7 +433,13 @@ def render_training_monitor() -> None:
     st.subheader("Training Summary")
     _render_training_kpis(runs_data)
 
-    # 3. Loss Curves (existing)
+    # 3. Training Progress
+    _render_training_progress(runs_data, selected_runs)
+
+    # 4. Convergence Status
+    _render_convergence_status(runs_data)
+
+    # 5. Loss Curves
     st.subheader("Loss Curves")
     fig = create_training_loss_chart(
         runs_data=runs_data,
@@ -307,11 +450,14 @@ def render_training_monitor() -> None:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4. Epoch Timing
+    # 6. Learning Rate Schedule
+    _render_lr_schedule(runs_data)
+
+    # 7. Epoch Timing (promoted from expander to section)
     _render_epoch_timing(runs_data)
 
-    # 5. Run Comparison (2+ runs)
+    # 8. Run Comparison (promoted from expander, 2+ runs)
     _render_run_comparison(selected_runs, runs_data)
 
-    # 6. Full Metrics Table
+    # 9. Full Metrics Table (with download)
     _render_all_metrics_table(runs_data)

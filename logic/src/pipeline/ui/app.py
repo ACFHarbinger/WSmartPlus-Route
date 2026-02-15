@@ -23,7 +23,8 @@ from logic.src.pipeline.ui.pages import (
     render_simulation_visualizer,
     render_training_monitor,
 )
-from logic.src.pipeline.ui.styles.styling import CUSTOM_CSS, get_page_config
+from logic.src.pipeline.ui.styles.colors import get_page_config
+from logic.src.pipeline.ui.styles.css import CUSTOM_CSS
 
 
 def main() -> None:
@@ -41,11 +42,14 @@ def main() -> None:
 
     # Main content based on mode
     if mode == "training":
-        render_training_monitor()
+        with st.spinner("Loading Training Monitor..."):
+            render_training_monitor()
     elif mode == "simulation":
-        render_simulation_visualizer()
+        with st.spinner("Loading Simulation Digital Twin..."):
+            render_simulation_visualizer()
     else:
-        render_benchmark_analysis()
+        with st.spinner("Loading Benchmark Analysis..."):
+            render_benchmark_analysis()
 
     # Auto-refresh handling
     if auto_refresh:
