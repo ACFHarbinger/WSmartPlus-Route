@@ -26,7 +26,11 @@ sys.path.insert(0, str(project_root))
 pytest_plugins = [
     "logic.test.fixtures.arg_fixtures",
     "logic.test.fixtures.data_fixtures",
-    "logic.test.fixtures.sim_fixtures",
+    "logic.test.fixtures.base_fixtures",
+    "logic.test.fixtures.bin_fixtures",
+    "logic.test.fixtures.checkpoint_fixtures",
+    "logic.test.fixtures.sim_deps_fixtures",
+    "logic.test.fixtures.day_fixtures",
     "logic.test.fixtures.policy_fixtures",
     "logic.test.fixtures.mrl_fixtures",
     "logic.test.fixtures.model_fixtures",
