@@ -4,3 +4,5 @@ MLOps Control Tower Dashboard.
 
 A unified Streamlit interface for monitoring DL training and VRP simulations.
 """
+
+__version__ = "2.1.0"

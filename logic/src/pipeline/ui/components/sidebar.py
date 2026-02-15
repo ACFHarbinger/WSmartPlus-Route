@@ -132,7 +132,7 @@ def _render_filter_controls(available_logs: List[str], policies: List[str], samp
     st.sidebar.markdown("---")
     st.sidebar.subheader("🗺️ Simulation Controls")
 
-    # Log file selector
+    # Log file selector (always visible)
     selected_log = st.sidebar.selectbox(
         "Select Log File",
         options=available_logs,
@@ -140,28 +140,29 @@ def _render_filter_controls(available_logs: List[str], policies: List[str], samp
         help="Choose a simulation output file to visualize",
     )
 
-    # Policy filter
+    # Policy and sample filters in expander
     selected_policy = None
-    if policies:
-        selected_policy = st.sidebar.selectbox(
-            "Filter by Policy",
-            options=["All"] + policies,
-            index=0,
-        )
-        if selected_policy == "All":
-            selected_policy = None
-
-    # Sample selector
     selected_sample = None
-    if samples:
-        sample_options = ["All"] + [str(s) for s in samples]
-        selected_sample_str = st.sidebar.selectbox(
-            "Select Sample",
-            options=sample_options,
-            index=0,
-        )
-        if selected_sample_str != "All":
-            selected_sample = int(selected_sample_str)
+
+    with st.sidebar.expander("Filters", expanded=False):
+        if policies:
+            selected_policy = st.selectbox(
+                "Filter by Policy",
+                options=["All"] + policies,
+                index=0,
+            )
+            if selected_policy == "All":
+                selected_policy = None
+
+        if samples:
+            sample_options = ["All"] + [str(s) for s in samples]
+            selected_sample_str = st.selectbox(
+                "Select Sample",
+                options=sample_options,
+                index=0,
+            )
+            if selected_sample_str != "All":
+                selected_sample = int(selected_sample_str)
 
     return {
         "selected_log": selected_log,
@@ -207,42 +208,43 @@ def _render_matrix_loader(distance_strategy: str) -> Dict[str, Any]:
 
         from logic.src.constants import ROOT_DIR
 
-        matrix_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix")
+        with st.sidebar.expander("Distance Matrix", expanded=False):
+            matrix_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix")
 
-        # Helper to recursively find files
-        matrix_files = []
-        if os.path.exists(matrix_dir):
-            for root, _dirs, files in os.walk(matrix_dir):
-                for file in files:
-                    if file.endswith((".csv", ".xlsx", ".txt")):
-                        rel_path = os.path.relpath(os.path.join(root, file), matrix_dir)
-                        matrix_files.append(rel_path)
+            # Helper to recursively find files
+            matrix_files = []
+            if os.path.exists(matrix_dir):
+                for root, _dirs, files in os.walk(matrix_dir):
+                    for file in files:
+                        if file.endswith((".csv", ".xlsx", ".txt")):
+                            rel_path = os.path.relpath(os.path.join(root, file), matrix_dir)
+                            matrix_files.append(rel_path)
 
-        selected_matrix_file = st.sidebar.selectbox(
-            "Select Matrix File",
-            options=sorted(matrix_files),
-            index=0 if matrix_files else 0,
-            help="Select the distance matrix file to load.",
-        )
+            selected_matrix_file = st.selectbox(
+                "Select Matrix File",
+                options=sorted(matrix_files),
+                index=0 if matrix_files else 0,
+                help="Select the distance matrix file to load.",
+            )
 
-        # Bin Index File Selector
-        bins_selection_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "bins_selection")
-        index_files = []
-        if os.path.exists(bins_selection_dir):
-            for root, _dirs, files in os.walk(bins_selection_dir):
-                for file in files:
-                    if file.endswith(".json"):
-                        rel_path = os.path.relpath(os.path.join(root, file), bins_selection_dir)
-                        index_files.append(rel_path)
+            # Bin Index File Selector
+            bins_selection_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "bins_selection")
+            index_files = []
+            if os.path.exists(bins_selection_dir):
+                for root, _dirs, files in os.walk(bins_selection_dir):
+                    for file in files:
+                        if file.endswith(".json"):
+                            rel_path = os.path.relpath(os.path.join(root, file), bins_selection_dir)
+                            index_files.append(rel_path)
 
-        selected_index_file = st.sidebar.selectbox(
-            "Select Bin Index File (Optional)",
-            options=["None"] + sorted(index_files),
-            index=0,
-            help="Select a JSON file containing bin indices to subset the matrix.",
-        )
-        if selected_index_file == "None":
-            selected_index_file = None
+            selected_index_file = st.selectbox(
+                "Select Bin Index File (Optional)",
+                options=["None"] + sorted(index_files),
+                index=0,
+                help="Select a JSON file containing bin indices to subset the matrix.",
+            )
+            if selected_index_file == "None":
+                selected_index_file = None
 
     return {
         "selected_matrix_file": selected_matrix_file,
@@ -274,30 +276,32 @@ def render_simulation_controls(
     # 2. Playback Controls
     playback_opts = _render_playback_controls(day_range)
 
-    # 3. Display Options
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("👁️ Display Options")
+    # 3. Display Options (in expander)
+    show_route = True
+    show_stats = True
+    distance_strategy = "load_matrix"
 
-    show_route = st.sidebar.checkbox("Show Route Lines", value=True)
-    show_stats = st.sidebar.checkbox("Show Statistics", value=True)
+    with st.sidebar.expander("Display Options", expanded=False):
+        show_route = st.checkbox("Show Route Lines", value=True)
+        show_stats = st.checkbox("Show Statistics", value=True)
 
-    display_options = {
-        "Haversine (Spherical)": "hsd",
-        "Geodesic (WGS84)": "gdsc",
-        "Euclidean (Planar)": "ogd",
-        "Load Matrix (Custom)": "load_matrix",
-    }
+        display_options = {
+            "Haversine (Spherical)": "hsd",
+            "Geodesic (WGS84)": "gdsc",
+            "Euclidean (Planar)": "ogd",
+            "Load Matrix (Custom)": "load_matrix",
+        }
 
-    strategy_label = st.sidebar.selectbox(
-        "Distance Strategy",
-        options=list(display_options.keys()),
-        index=3,  # Default to Load Matrix if available, or Haversine
-        help="Choose method for calculating edge distances.\n'Load Matrix' allows selecting a custom file.",
-    )
+        strategy_label = st.selectbox(
+            "Distance Strategy",
+            options=list(display_options.keys()),
+            index=3,
+            help="Choose method for calculating edge distances.\n'Load Matrix' allows selecting a custom file.",
+        )
 
-    distance_strategy = display_options[strategy_label]
+        distance_strategy = display_options[strategy_label]
 
-    # 4. Matrix Loader (Conditional)
+    # 4. Matrix Loader (Conditional, in expander)
     matrix_opts = _render_matrix_loader(distance_strategy)
 
     # Merge all options
@@ -313,6 +317,7 @@ def render_simulation_controls(
 
 def render_about_section() -> None:
     """Render an about section at the bottom of the sidebar."""
+    from logic.src.pipeline.ui import __version__
     from logic.src.pipeline.ui.services.data_loader import (
         discover_simulation_logs,
         discover_training_runs,
@@ -340,10 +345,10 @@ def render_about_section() -> None:
         )
 
     st.sidebar.markdown(
-        """
+        f"""
         <div style="text-align: center; color: #9aa0a6; font-size: 11px;">
             <p style="margin: 0;">WSmart+ Route</p>
-            <p style="margin: 2px 0 0 0;">MLOps Control Tower v2.0.0</p>
+            <p style="margin: 2px 0 0 0;">MLOps Control Tower v{__version__}</p>
         </div>
         """,
         unsafe_allow_html=True,

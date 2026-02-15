@@ -15,17 +15,22 @@ from streamlit_folium import st_folium
 
 from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.ui.components.charts import (
-    create_bar_chart,
     create_radar_chart,
     create_simulation_metrics_chart,
+    create_sparkline_svg,
+    create_stacked_bar_chart,
 )
 from logic.src.pipeline.ui.components.maps import create_bin_heatmap, create_simulation_map
 from logic.src.pipeline.ui.components.sidebar import (
     render_simulation_controls,
 )
 from logic.src.pipeline.ui.services.data_loader import (
+    compute_cumulative_stats,
     compute_daily_stats,
+    compute_day_deltas,
+    compute_summary_statistics,
     discover_simulation_logs,
+    get_metric_history,
     load_simulation_log_fresh,
 )
 from logic.src.pipeline.ui.services.log_parser import (
@@ -34,7 +39,7 @@ from logic.src.pipeline.ui.services.log_parser import (
     get_unique_policies,
     get_unique_samples,
 )
-from logic.src.pipeline.ui.styles.styling import create_kpi_row
+from logic.src.pipeline.ui.styles.kpi import create_kpi_row, create_kpi_row_with_deltas
 
 
 def _normalize_tour_points(tour: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -62,32 +67,89 @@ def _filter_simulation_data(entries: List[Any], controls: Dict[str, Any], day_ra
     return filtered
 
 
-def _render_kpi_dashboard(display_entry: Any) -> None:
-    """Render the Key Performance Indicators section."""
+# Mapping from data keys to display labels for KPI deltas
+_PRIMARY_KPI_MAP = {
+    "profit": "Profit",
+    "km": "Distance (km)",
+    "kg": "Waste (kg)",
+    "overflows": "Overflows",
+}
+
+_SECONDARY_KPI_MAP = {
+    "ncol": "Collections",
+    "kg_lost": "Waste Lost (kg)",
+    "kg/km": "Efficiency (kg/km)",
+    "cost": "Cost",
+}
+
+
+def _render_kpi_dashboard(
+    display_entry: Any,
+    entries: List[Any],
+    controls: Dict[str, Any],
+) -> None:
+    """Render the Key Performance Indicators section with deltas and sparklines."""
     st.subheader("Key Metrics")
 
     data = display_entry.data
+    current_day = display_entry.day
 
-    # Row 1: Primary metrics
-    primary_kpis = {
-        "Day": display_entry.day,
-        "Profit": data.get("profit", 0),
-        "Distance (km)": data.get("km", 0),
-        "Waste (kg)": data.get("kg", 0),
-        "Overflows": data.get("overflows", 0),
+    # Compute day-over-day deltas
+    deltas = compute_day_deltas(
+        entries,
+        current_day=current_day,
+        policy=controls["selected_policy"],
+        sample_id=controls["selected_sample"],
+    )
+
+    # Build sparklines from metric history
+    sparklines: Dict[str, str] = {}
+    for data_key, label in {**_PRIMARY_KPI_MAP, **_SECONDARY_KPI_MAP}.items():
+        history = get_metric_history(
+            entries,
+            metric=data_key,
+            policy=controls["selected_policy"],
+            sample_id=controls["selected_sample"],
+            last_n_days=7,
+        )
+        svg = create_sparkline_svg(history)
+        if svg:
+            sparklines[label] = svg
+
+    # Row 1: Primary metrics with deltas
+    primary_kpis: Dict[str, Tuple[Any, Optional[float]]] = {
+        "Day": (display_entry.day, None),
+        "Profit": (data.get("profit", 0), deltas.get("profit")),
+        "Distance (km)": (data.get("km", 0), deltas.get("km")),
+        "Waste (kg)": (data.get("kg", 0), deltas.get("kg")),
+        "Overflows": (data.get("overflows", 0), deltas.get("overflows")),
     }
-    st.markdown(create_kpi_row(primary_kpis), unsafe_allow_html=True)
+    st.markdown(create_kpi_row_with_deltas(primary_kpis, sparklines), unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Row 2: Secondary/efficiency metrics
-    secondary_kpis = {
-        "Collections": data.get("ncol", 0),
-        "Waste Lost (kg)": data.get("kg_lost", 0),
-        "Efficiency (kg/km)": data.get("kg/km", 0),
-        "Cost": data.get("cost", 0),
+    # Row 2: Secondary/efficiency metrics with deltas
+    secondary_kpis: Dict[str, Tuple[Any, Optional[float]]] = {
+        "Collections": (data.get("ncol", 0), deltas.get("ncol")),
+        "Waste Lost (kg)": (data.get("kg_lost", 0), deltas.get("kg_lost")),
+        "Efficiency (kg/km)": (data.get("kg/km", 0), deltas.get("kg/km")),
+        "Cost": (data.get("cost", 0), deltas.get("cost")),
     }
-    st.markdown(create_kpi_row(secondary_kpis), unsafe_allow_html=True)
+    st.markdown(create_kpi_row_with_deltas(secondary_kpis, sparklines), unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
+
+
+def _render_cumulative_summary(entries: List[Any], controls: Dict[str, Any]) -> None:
+    """Render cumulative/aggregate statistics across all days."""
+    cumulative = compute_cumulative_stats(
+        entries,
+        policy=controls["selected_policy"],
+        sample_id=controls["selected_sample"],
+    )
+    if not cumulative:
+        return
+
+    with st.expander("Cumulative Summary (All Days)", expanded=False):
+        st.markdown(create_kpi_row(cumulative), unsafe_allow_html=True)
 
 
 def _render_policy_info(display_entry: Any) -> None:
@@ -282,6 +344,32 @@ def _render_policy_comparison(entries: List[Any], selected_day: int) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
+def _render_summary_statistics(entries: List[Any], controls: Dict[str, Any]) -> None:
+    """Render descriptive statistics table (mean, std, min, max per metric)."""
+    summary = compute_summary_statistics(entries, policy=controls["selected_policy"])
+    if not summary:
+        return
+
+    st.subheader("Summary Statistics")
+
+    rows = []
+    for metric, stats in summary.items():
+        rows.append(
+            {
+                "Metric": metric,
+                "Mean": round(stats["mean"], 2),
+                "Std": round(stats["std"], 2),
+                "Min": round(stats["min"], 2),
+                "Max": round(stats["max"], 2),
+                "Total": round(stats["total"], 2),
+            }
+        )
+
+    if rows:
+        df = pd.DataFrame(rows).set_index("Metric")
+        st.dataframe(df, use_container_width=True)
+
+
 def _render_bin_heatmap(display_entry: Any) -> None:
     """Render bin fill level heatmap using the existing heatmap component."""
     tour = display_entry.data.get("tour", [])
@@ -322,6 +410,33 @@ def _render_bin_heatmap(display_entry: Any) -> None:
 
     heatmap = create_bin_heatmap(bin_locations, matched_states)
     st_folium(heatmap, width=None, height=400, returned_objects=[])
+
+
+def _style_bin_table(df: pd.DataFrame) -> Any:
+    """Apply conditional formatting to the bin state table."""
+    return (
+        df.style.background_gradient(
+            subset=["Fill Before (%)"],
+            cmap="RdYlGn_r",
+            vmin=0,
+            vmax=120,
+        )
+        .map(
+            lambda v: "background-color: #ffebee; font-weight: bold" if v else "",
+            subset=["Overflow"],
+        )
+        .map(
+            lambda v: "color: #2e7d32; font-weight: bold" if v else "",
+            subset=["Collected"],
+        )
+        .format(
+            {
+                "Fill Before (%)": "{:.1f}",
+                "Fill After (%)": "{:.1f}",
+                "Collected (kg)": "{:.2f}",
+            }
+        )
+    )
 
 
 def _render_bin_state_inspector(display_entry: Any) -> None:
@@ -392,13 +507,16 @@ def _render_bin_state_inspector(display_entry: Any) -> None:
     elif filter_opt == "Overflowing":
         filtered_df = df[df["Overflow"]]
 
-    st.dataframe(filtered_df, width="stretch", height=300)
+    # Apply conditional formatting
+    styled = _style_bin_table(pd.DataFrame(filtered_df))
+    st.dataframe(styled, height=300, use_container_width=True)
 
 
 def _render_collection_details(display_entry: Any) -> None:
     """Render collection details for the day."""
     data = display_entry.data
     bin_collected = data.get("bin_state_collected", [])
+    bin_states_before = data.get("bin_state_c", [])
     must_go: Optional[List[int]] = data.get("must_go")
 
     if not bin_collected:
@@ -420,9 +538,11 @@ def _render_collection_details(display_entry: Any) -> None:
     collected_bins = []
     for i, amount in enumerate(bin_collected):
         if amount > 0:
+            fill_before = bin_states_before[i] if i < len(bin_states_before) else 0
             collected_bins.append(
                 {
                     "Bin ID": i + 1,
+                    "Fill Before (%)": round(fill_before, 1),
                     "Amount Collected (kg)": round(amount, 2),
                     "Was in must_go": (i + 1) in must_go_set,
                 }
@@ -430,19 +550,23 @@ def _render_collection_details(display_entry: Any) -> None:
 
     if collected_bins:
         st.markdown("**Per-Bin Collection Breakdown:**")
-        st.dataframe(pd.DataFrame(collected_bins), width="stretch")
+        st.dataframe(pd.DataFrame(collected_bins), use_container_width=True)
 
-        # Bar chart of collection amounts
-        fig = create_bar_chart(
-            data=dict(
-                zip(
-                    [str(b["Bin ID"]) for b in collected_bins],
-                    [b["Amount Collected (kg)"] for b in collected_bins],
-                )
-            ),
-            title="Collection Amount per Bin",
+        # Stacked bar chart: fill remaining vs collected
+        categories = [str(b["Bin ID"]) for b in collected_bins]
+        collected_values = [b["Amount Collected (kg)"] for b in collected_bins]
+        remaining_values = [float(max(0, b["Fill Before (%)"] - b["Amount Collected (kg)"])) for b in collected_bins]
+
+        fig = create_stacked_bar_chart(
+            categories=categories,
+            series={
+                "Collected (kg)": collected_values,
+                "Remaining (%)": remaining_values,
+            },
+            title="Collection Breakdown per Bin",
             x_label="Bin ID",
-            y_label="Amount (kg)",
+            y_label="Amount",
+            colors=["#43a047", "#e8eaed"],
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -483,7 +607,7 @@ def _render_tour_details(display_entry: Any) -> None:
                 "Longitude": round(point["lng"], 6) if "lng" in point else "N/A",
             }
         )
-    st.dataframe(pd.DataFrame(tour_rows), width="stretch")
+    st.dataframe(pd.DataFrame(tour_rows), use_container_width=True)
 
     # must_go list display
     must_go = data.get("must_go", [])
@@ -514,6 +638,16 @@ def _render_metric_charts(entries: List[Any], controls: Dict[str, Any]) -> None:
                     show_std=True,
                 )
                 st.plotly_chart(fig, use_container_width=True)
+
+        # Download button for daily stats
+        csv = df.to_csv(index=False)
+        st.download_button(
+            "Download Daily Stats CSV",
+            csv,
+            file_name="daily_stats.csv",
+            mime="text/csv",
+            key="download_daily_stats",
+        )
 
 
 def _render_raw_data_view(display_entry: Any) -> None:
@@ -609,23 +743,31 @@ def render_simulation_visualizer() -> None:
 
     # 1. KPI Dashboard (always visible)
     if controls["show_stats"]:
-        _render_kpi_dashboard(display_entry)
+        _render_kpi_dashboard(display_entry, entries, controls)
 
-    # 2. Policy Configuration
+    # 2. Cumulative Summary
+    if controls["show_stats"]:
+        _render_cumulative_summary(entries, controls)
+
+    # 3. Policy Configuration
     _render_policy_info(display_entry)
 
-    # 3. Map Visualization (always visible)
+    # 4. Map Visualization (always visible)
     _render_map_view(display_entry, controls)
 
     # Divider before tabs
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # 4. Tabbed detail sections
+    # 5. Tabbed detail sections
     tab_analysis, tab_bins, tab_tour = st.tabs(["Analysis", "Bins", "Tour & Data"])
 
     with tab_analysis:
         # Policy comparison radar chart
         _render_policy_comparison(entries, selected_day)
+
+        # Summary statistics
+        if controls["show_stats"]:
+            _render_summary_statistics(entries, controls)
 
         # Metrics over time
         if controls["show_stats"]:

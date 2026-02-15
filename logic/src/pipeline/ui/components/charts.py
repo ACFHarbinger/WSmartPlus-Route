@@ -20,6 +20,11 @@ PLOTLY_LAYOUT_DEFAULTS: Dict[str, Any] = {
     "margin": dict(l=40, r=20, t=50, b=40),
     "xaxis": dict(gridcolor="#e8eaed", gridwidth=1, zeroline=False),
     "yaxis": dict(gridcolor="#e8eaed", gridwidth=1, zeroline=False),
+    "hoverlabel": dict(
+        bgcolor="white",
+        font_size=13,
+        font_family="Inter, sans-serif",
+    ),
 }
 
 
@@ -28,6 +33,52 @@ def apply_moving_average(data: pd.Series, window: int) -> pd.Series:
     if window <= 1:
         return data
     return data.rolling(window=window, min_periods=1).mean()
+
+
+def create_sparkline_svg(
+    values: List[float],
+    width: int = 60,
+    height: int = 20,
+    color: str = "rgba(255,255,255,0.8)",
+) -> str:
+    """
+    Create a lightweight inline SVG sparkline.
+
+    Args:
+        values: Data points for the sparkline.
+        width: SVG width in pixels.
+        height: SVG height in pixels.
+        color: Stroke color for the line.
+
+    Returns:
+        SVG string suitable for embedding in HTML.
+    """
+    if not values or len(values) < 2:
+        return ""
+
+    min_val = min(values)
+    max_val = max(values)
+    val_range = max_val - min_val if max_val > min_val else 1.0
+
+    padding = 2
+    plot_w = width - 2 * padding
+    plot_h = height - 2 * padding
+
+    points = []
+    for i, v in enumerate(values):
+        x = padding + (i / (len(values) - 1)) * plot_w
+        y = padding + plot_h - ((v - min_val) / val_range) * plot_h
+        points.append(f"{x:.1f},{y:.1f}")
+
+    polyline_points = " ".join(points)
+
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" '
+        f'xmlns="http://www.w3.org/2000/svg">'
+        f'<polyline points="{polyline_points}" fill="none" '
+        f'stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+        f"</svg>"
+    )
 
 
 def create_training_loss_chart(
@@ -80,6 +131,7 @@ def create_training_loss_chart(
                         mode="lines",
                         name=f"{run_name} - {metric_y1}",
                         line=dict(color=color),
+                        hovertemplate=f"{metric_y1}: %{{y:.4f}}<extra>{run_name}</extra>",
                     ),
                     secondary_y=False,
                 )
@@ -99,6 +151,7 @@ def create_training_loss_chart(
                         mode="lines",
                         name=f"{run_name} - {metric_y2}",
                         line=dict(color=color, dash="dash"),
+                        hovertemplate=f"{metric_y2}: %{{y:.4f}}<extra>{run_name}</extra>",
                     ),
                     secondary_y=True,
                 )
@@ -159,6 +212,7 @@ def create_simulation_metrics_chart(
                 name=metric,
                 line=dict(color=color),
                 marker=dict(size=6),
+                hovertemplate=f"{metric}: %{{y:.2f}}<extra>Day %{{x}}</extra>",
             )
         )
 
@@ -263,45 +317,54 @@ def create_radar_chart(
     return fig
 
 
-def create_kpi_cards_html(metrics: Dict[str, Any], prefix: str = "") -> str:
+def create_stacked_bar_chart(
+    categories: List[str],
+    series: Dict[str, List[float]],
+    title: str = "",
+    x_label: str = "",
+    y_label: str = "",
+    colors: Optional[List[str]] = None,
+) -> go.Figure:
     """
-    Generate HTML for KPI metric cards.
+    Create a stacked bar chart with multiple data series.
 
     Args:
-        metrics: Dict of metric_name -> value.
-        prefix: Optional prefix for metric display names.
+        categories: X-axis category labels.
+        series: Dict mapping series name -> list of values (same length as categories).
+        title: Chart title.
+        x_label: X-axis label.
+        y_label: Y-axis label.
+        colors: Optional list of colors for each series.
 
     Returns:
-        HTML string for the KPI cards.
+        Plotly Figure object.
     """
-    from logic.src.pipeline.ui.styles.styling import (
-        KPI_COLORS,
-        KPI_FALLBACK_COLORS,
-        create_kpi_html,
+    default_colors = px.colors.qualitative.Set2
+    fig = go.Figure()
+
+    for i, (name, values) in enumerate(series.items()):
+        bar_color = colors[i] if colors and i < len(colors) else default_colors[i % len(default_colors)]
+        fig.add_trace(
+            go.Bar(
+                x=categories,
+                y=values,
+                name=name,
+                marker_color=bar_color,
+                hovertemplate=f"{name}: %{{y:.2f}}<extra>%{{x}}</extra>",
+            )
+        )
+
+    fig.update_layout(
+        barmode="stack",
+        title=title,
+        xaxis_title=x_label,
+        yaxis_title=y_label,
+        height=400,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        **PLOTLY_LAYOUT_DEFAULTS,
     )
 
-    cards_html = '<div style="display: flex; flex-wrap: wrap; gap: 14px;">'
-
-    for i, (name, value) in enumerate(metrics.items()):
-        display_name = f"{prefix}{name}" if prefix else name
-
-        if isinstance(value, float):
-            formatted_value = f"{value:,.2f}"
-        elif isinstance(value, int):
-            formatted_value = f"{value:,}"
-        else:
-            formatted_value = str(value)
-
-        if display_name in KPI_COLORS:
-            color, color_end = KPI_COLORS[display_name]
-        else:
-            fallback = KPI_FALLBACK_COLORS[i % len(KPI_FALLBACK_COLORS)]
-            color, color_end = fallback
-
-        cards_html += create_kpi_html(display_name, formatted_value, color, color_end)
-
-    cards_html += "</div>"
-    return cards_html
+    return fig
 
 
 def create_bar_chart(
@@ -328,6 +391,7 @@ def create_bar_chart(
                 x=list(data.keys()),
                 y=list(data.values()),
                 marker_color=px.colors.qualitative.Set2,
+                hovertemplate="%{x}<br>%{y:.2f}<extra></extra>",
             )
         ]
     )
