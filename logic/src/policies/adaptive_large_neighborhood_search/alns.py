@@ -265,7 +265,7 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
     # Default: Custom internal ALNS solver
     params = ALNSParams(
         time_limit=values.get("time_limit", 10),
-        max_iterations=values.get("Iterations", 2000),
+        max_iterations=values.get("max_iterations", 2000),
         start_temp=values.get("start_temp", 100.0),
         cooling_rate=values.get("cooling_rate", 0.995),
         reaction_factor=values.get("reaction_factor", 0.1),

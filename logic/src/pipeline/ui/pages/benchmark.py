@@ -15,7 +15,7 @@ from logic.src.pipeline.ui.services.benchmark_loader import (
     get_unique_benchmarks,
     load_benchmark_data,
 )
-from logic.src.pipeline.ui.styles.styling import create_kpi_row
+from logic.src.pipeline.ui.styles.kpi import create_kpi_row
 
 # ---------------------------------------------------------------------------
 # Section renderers
