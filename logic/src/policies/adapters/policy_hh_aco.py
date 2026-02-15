@@ -4,7 +4,7 @@ Hyper-ACO Policy Adapter.
 Adapts the Hyper-Heuristic ACO solver to the common policy interface.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -23,13 +23,17 @@ class HyperACOPolicy(BaseRoutingPolicy):
     Uses ACO to construct sequences of local search operators.
     """
 
-    def __init__(self, config: Optional[ACOConfig] = None):
+    def __init__(self, config: Optional[Union[ACOConfig, Dict[str, Any]]] = None):
         """Initialize Hyper-ACO policy with optional config.
 
         Args:
-            config: Optional ACOConfig dataclass with solver parameters.
+            config: ACOConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return ACOConfig
 
     def _get_config_key(self) -> str:
         """Return config key for Hyper-ACO."""

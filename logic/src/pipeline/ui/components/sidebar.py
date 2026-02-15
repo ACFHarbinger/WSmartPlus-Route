@@ -313,12 +313,37 @@ def render_simulation_controls(
 
 def render_about_section() -> None:
     """Render an about section at the bottom of the sidebar."""
+    from logic.src.pipeline.ui.services.data_loader import (
+        discover_simulation_logs,
+        discover_training_runs,
+    )
+
     st.sidebar.markdown("---")
+
+    # Quick stats
+    n_runs = len(discover_training_runs())
+    n_logs = len(discover_simulation_logs())
+
+    if n_runs > 0 or n_logs > 0:
+        stats_parts = []
+        if n_runs > 0:
+            stats_parts.append(f"{n_runs} training run{'s' if n_runs != 1 else ''}")
+        if n_logs > 0:
+            stats_parts.append(f"{n_logs} simulation log{'s' if n_logs != 1 else ''}")
+
+        st.sidebar.markdown(
+            f'<div style="text-align: center; color: #5f6368; font-size: 12px; '
+            f'background: #f1f3f4; border-radius: 8px; padding: 8px; margin-bottom: 8px;">'
+            f"{'&nbsp;&bull;&nbsp;'.join(stats_parts)}"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
     st.sidebar.markdown(
         """
-        <div style="text-align: center; color: #666; font-size: 12px;">
-            <p>WSmart+ Route<br>MLOps Control Tower</p>
-            <p>v1.0.0</p>
+        <div style="text-align: center; color: #9aa0a6; font-size: 11px;">
+            <p style="margin: 0;">WSmart+ Route</p>
+            <p style="margin: 2px 0 0 0;">MLOps Control Tower v2.0.0</p>
         </div>
         """,
         unsafe_allow_html=True,

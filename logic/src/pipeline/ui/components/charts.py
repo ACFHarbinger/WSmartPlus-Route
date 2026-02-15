@@ -12,6 +12,16 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# Shared Plotly layout defaults for visual consistency across all charts
+PLOTLY_LAYOUT_DEFAULTS: Dict[str, Any] = {
+    "font_family": "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "margin": dict(l=40, r=20, t=50, b=40),
+    "xaxis": dict(gridcolor="#e8eaed", gridwidth=1, zeroline=False),
+    "yaxis": dict(gridcolor="#e8eaed", gridwidth=1, zeroline=False),
+}
+
 
 def apply_moving_average(data: pd.Series, window: int) -> pd.Series:
     """Apply moving average smoothing to a series."""
@@ -57,7 +67,6 @@ def create_training_loss_chart(
 
         # Primary metric
         if metric_y1 in df.columns and x_axis in df.columns:
-            # Filter rows where both x and y are not NaN to ensure alignment
             plot_df = df[[x_axis, metric_y1]].dropna()
 
             if not plot_df.empty:
@@ -77,7 +86,6 @@ def create_training_loss_chart(
 
         # Secondary metric
         if has_secondary and metric_y2 in df.columns and x_axis in df.columns:
-            # Filter rows where both x and y are not NaN to ensure alignment
             plot_df_sec = df[[x_axis, metric_y2]].dropna()
 
             if not plot_df_sec.empty:
@@ -104,6 +112,7 @@ def create_training_loss_chart(
         height=500,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         hovermode="x unified",
+        **PLOTLY_LAYOUT_DEFAULTS,
     )
 
     return fig
@@ -166,7 +175,7 @@ def create_simulation_metrics_chart(
                     fill="toself",
                     fillcolor=color.replace("rgb", "rgba").replace(")", ",0.2)"),
                     line=dict(color="rgba(0,0,0,0)"),
-                    name=f"{metric} ± std",
+                    name=f"{metric} +/- std",
                     showlegend=False,
                     hoverinfo="skip",
                 )
@@ -178,6 +187,77 @@ def create_simulation_metrics_chart(
         height=400,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         hovermode="x unified",
+        **PLOTLY_LAYOUT_DEFAULTS,
+    )
+
+    return fig
+
+
+def create_radar_chart(
+    policy_metrics: Dict[str, Dict[str, float]],
+    metrics: List[str],
+) -> go.Figure:
+    """
+    Create a radar/spider chart comparing metrics across policies.
+
+    Each metric is normalized to 0-1 scale for fair comparison.
+
+    Args:
+        policy_metrics: Dict mapping policy name -> {metric: value}.
+        metrics: List of metric names to include as radar axes.
+
+    Returns:
+        Plotly Figure object.
+    """
+    if not policy_metrics or not metrics:
+        return go.Figure()
+
+    # Compute min/max for normalization
+    metric_ranges: Dict[str, tuple] = {}
+    for metric in metrics:
+        values = [pm.get(metric, 0) for pm in policy_metrics.values()]
+        min_val = min(values) if values else 0
+        max_val = max(values) if values else 1
+        metric_ranges[metric] = (min_val, max_val)
+
+    colors = px.colors.qualitative.Set2
+    fig = go.Figure()
+
+    for i, (policy, pm) in enumerate(policy_metrics.items()):
+        normalized = []
+        for metric in metrics:
+            val = pm.get(metric, 0)
+            mn, mx = metric_ranges[metric]
+            norm = (val - mn) / (mx - mn) if mx > mn else 0.5
+            normalized.append(norm)
+
+        # Close the polygon
+        normalized.append(normalized[0])
+        labels = [m.replace("_", " ").capitalize() for m in metrics]
+        labels.append(labels[0])
+
+        color = colors[i % len(colors)]
+        fig.add_trace(
+            go.Scatterpolar(
+                r=normalized,
+                theta=labels,
+                fill="toself",
+                name=policy,
+                line=dict(color=color),
+                opacity=0.85,
+            )
+        )
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 1], showticklabels=False),
+        ),
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
+        height=420,
+        font_family=PLOTLY_LAYOUT_DEFAULTS["font_family"],
+        paper_bgcolor=PLOTLY_LAYOUT_DEFAULTS["paper_bgcolor"],
+        margin=PLOTLY_LAYOUT_DEFAULTS["margin"],
     )
 
     return fig
@@ -194,9 +274,15 @@ def create_kpi_cards_html(metrics: Dict[str, Any], prefix: str = "") -> str:
     Returns:
         HTML string for the KPI cards.
     """
-    cards_html = '<div style="display: flex; flex-wrap: wrap; gap: 16px;">'
+    from logic.src.pipeline.ui.styles.styling import (
+        KPI_COLORS,
+        KPI_FALLBACK_COLORS,
+        create_kpi_html,
+    )
 
-    for name, value in metrics.items():
+    cards_html = '<div style="display: flex; flex-wrap: wrap; gap: 14px;">'
+
+    for i, (name, value) in enumerate(metrics.items()):
         display_name = f"{prefix}{name}" if prefix else name
 
         if isinstance(value, float):
@@ -206,15 +292,13 @@ def create_kpi_cards_html(metrics: Dict[str, Any], prefix: str = "") -> str:
         else:
             formatted_value = str(value)
 
-        card = (
-            f'<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); '
-            f"border-radius: 12px; padding: 20px; min-width: 150px; text-align: center; "
-            f'color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">'
-            f'<div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">{display_name}</div>'
-            f'<div style="font-size: 24px; font-weight: bold;">{formatted_value}</div>'
-            f"</div>"
-        )
-        cards_html += card
+        if display_name in KPI_COLORS:
+            color, color_end = KPI_COLORS[display_name]
+        else:
+            fallback = KPI_FALLBACK_COLORS[i % len(KPI_FALLBACK_COLORS)]
+            color, color_end = fallback
+
+        cards_html += create_kpi_html(display_name, formatted_value, color, color_end)
 
     cards_html += "</div>"
     return cards_html
@@ -253,6 +337,7 @@ def create_bar_chart(
         xaxis_title=x_label,
         yaxis_title=y_label,
         height=400,
+        **PLOTLY_LAYOUT_DEFAULTS,
     )
 
     return fig

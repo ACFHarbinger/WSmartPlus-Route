@@ -8,7 +8,8 @@ This eliminates code duplication across policy_*.py files.
 """
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import asdict, fields, is_dataclass
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import numpy as np
 
@@ -16,11 +17,33 @@ from logic.src.interfaces.adapter import IPolicyAdapter
 from logic.src.policies.tsp import get_route_cost
 
 
+def _flatten_raw_config(source: Any) -> Dict[str, Any]:
+    """Flatten nested config structures (Hydra custom lists, engine dicts) into a flat dict.
+
+    Handles patterns like:
+        {"custom": [{"time_limit": 60}, {"start_temp": 100}]}
+        {"ortools": [{"time_limit": 60}]}
+    """
+    result: Dict[str, Any] = {}
+    if isinstance(source, list):
+        for item in source:
+            result.update(_flatten_raw_config(item))
+    elif hasattr(source, "items"):
+        for k, v in source.items():
+            if k in ("gurobi", "ortools", "hexaly", "custom", "params") and isinstance(v, (dict, list)):
+                result.update(_flatten_raw_config(v))
+            else:
+                result[k] = v
+    return result
+
+
 class BaseRoutingPolicy(IPolicyAdapter):
     """
     Base class for routing policies with common utilities.
 
-    Subclasses implement `_run_solver()` and optionally `_get_config_key()`.
+    Subclasses implement `_run_solver()` and optionally `_get_config_key()`
+    and `_config_class()`.
+
     The `execute()` method provides a template pattern handling:
         1. Must-go validation
         2. Parameter loading
@@ -45,17 +68,63 @@ class BaseRoutingPolicy(IPolicyAdapter):
     """
 
     def __init__(self, config: Any = None):
-        """Initialize policy with optional config dataclass.
+        """Initialize policy with optional config dataclass or raw dict.
 
         Args:
-            config: Optional dataclass with policy-specific parameters.
+            config: Dataclass config, raw dict from YAML, or None.
+                    If a raw dict is passed and the subclass defines
+                    ``_config_class()``, it will be parsed into the
+                    typed dataclass automatically.
         """
-        self._config = config
+        if config is not None and isinstance(config, dict):
+            self._config = self._build_config(config)
+        else:
+            self._config = config
 
     @property
     def config(self) -> Any:
         """Return the policy configuration dataclass."""
         return self._config
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        """Return the dataclass type for this policy's config.
+
+        Override in subclasses to enable automatic config parsing.
+        Returns None by default (no typed config).
+        """
+        return None
+
+    @classmethod
+    def _build_config(cls, raw_config: Dict[str, Any]) -> Any:
+        """Build a typed config dataclass from a raw config dict.
+
+        Extracts the policy-specific section from the raw config (using
+        ``_get_config_key()``), flattens nested structures, and constructs
+        the typed dataclass (from ``_config_class()``).
+
+        Args:
+            raw_config: Raw config dict (may be nested with policy key at top level).
+
+        Returns:
+            Typed config dataclass, or None if no config class is defined.
+        """
+        config_cls = cls._config_class()
+        if config_cls is None:
+            return None
+
+        # Extract policy-specific section
+        config_key = cls._get_config_key(cls)  # type: ignore[arg-type]
+        policy_section = raw_config.get(config_key, raw_config)
+
+        # Flatten nested structures (custom lists, engine dicts)
+        flat = _flatten_raw_config(policy_section)
+
+        # Filter to only fields the dataclass accepts
+        valid_fields = {f.name for f in fields(config_cls)}
+        filtered = {k: v for k, v in flat.items() if k in valid_fields}
+
+        return config_cls(**filtered)
 
     def _get_config_key(self) -> str:
         """
@@ -85,27 +154,40 @@ class BaseRoutingPolicy(IPolicyAdapter):
         """
         Load area-specific parameters (Q, R, C) and merge with config overrides.
 
+        Uses the typed config dataclass (``self._config``) when available,
+        falling back to dict-based extraction for backward compatibility.
+
         Args:
             area: Geographic area name.
             waste_type: Waste type string.
-            config: Policy configuration dict.
+            config: Policy configuration dict (from context).
 
         Returns:
             Tuple of (capacity, revenue, cost_unit, merged_values_dict)
         """
-        from dataclasses import asdict, is_dataclass
-
         from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
-        config_key = self._get_config_key()
-        # Fallback to the config itself if the top-level key is not found
-        policy_config = config.get(config_key, config)
-
-        # If we have a dataclass config, convert to dict and merge
-        if self._config is not None and is_dataclass(self._config):
-            policy_config = {**asdict(self._config), **(policy_config if isinstance(policy_config, dict) else {})}
-
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
+
+        # Build the policy config dict from the typed config or raw dict
+        if self._config is not None and is_dataclass(self._config):
+            # Typed config takes priority, then overlay any runtime overrides
+            config_key = self._get_config_key()
+            runtime_overrides = config.get(config_key, {})
+            if not isinstance(runtime_overrides, dict):
+                runtime_overrides = (
+                    _flatten_raw_config(runtime_overrides) if hasattr(runtime_overrides, "items") else {}
+                )
+            policy_config = {**asdict(self._config), **runtime_overrides}
+        else:
+            # Legacy path: extract from raw config dict
+            config_key = self._get_config_key()
+            policy_section = config.get(config_key, config)
+            policy_config = (
+                _flatten_raw_config(policy_section)
+                if hasattr(policy_section, "items") or isinstance(policy_section, list)
+                else {}
+            )
 
         capacity = policy_config.get("capacity", Q)
         revenue = policy_config.get("revenue", R)
@@ -113,21 +195,15 @@ class BaseRoutingPolicy(IPolicyAdapter):
         density = policy_config.get("density", B)
         bin_volume = policy_config.get("bin_volume", V)
 
-        values = {"Q": capacity, "R": revenue, "C": cost_unit, "B": density, "V": bin_volume}
-
-        # Helper to flatten nested structures
-        def flatten_to_values(target: Dict[str, Any], source: Any):
-            if isinstance(source, list):
-                for item in source:
-                    flatten_to_values(target, item)
-            elif hasattr(source, "items"):
-                for k, v in source.items():
-                    if k in ["gurobi", "ortools", "hexaly", "custom", "params"] and isinstance(v, (dict, list)):
-                        flatten_to_values(target, v)
-                    else:
-                        target[k] = v
-
-        flatten_to_values(values, policy_config)
+        values: Dict[str, Any] = {
+            "Q": capacity,
+            "R": revenue,
+            "C": cost_unit,
+            "B": density,
+            "V": bin_volume,
+        }
+        # Merge all policy config params into values for solver consumption
+        values.update(policy_config)
 
         # Ensure critical weights for VRPP/lookahead are present
         if "Omega" not in values:

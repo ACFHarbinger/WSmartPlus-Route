@@ -24,10 +24,25 @@ class PolicyFactory:
 
     @staticmethod
     def get_adapter(
-        name: str, engine: Optional[str] = None, threshold: Optional[float] = None, **kwargs: Any
+        name: str,
+        config: Optional[dict] = None,
+        engine: Optional[str] = None,
+        threshold: Optional[float] = None,
+        **kwargs: Any,
     ) -> IPolicy:
         """
         Create and return the appropriate PolicyAdapter for the given parameters.
+
+        Args:
+            name: Policy name (e.g., 'alns', 'hgs', 'tsp').
+            config: Raw policy config dict from YAML. If provided, the adapter's
+                    typed config dataclass is built automatically.
+            engine: Deprecated. Engine should be specified in config.
+            threshold: Deprecated. Threshold should be specified in config.
+            **kwargs: Additional keyword arguments (unused, for backward compat).
+
+        Returns:
+            Instantiated policy adapter with typed config.
         """
         # Local imports to avoid circular dependencies and trigger registration
         import logic.src.policies.neural_agent as neural_agent  # noqa
@@ -53,6 +68,8 @@ class PolicyFactory:
         cls = PolicyRegistry.get(name) or PolicyRegistry.get(f"policy_{name}")
 
         if cls:
+            if config is not None:
+                return cls(config=config)  # type: ignore[return-value]
             return cls()  # type: ignore[return-value]
 
         raise ValueError(f"Unknown policy: {name}. Ensure it is registered in PolicyRegistry.")

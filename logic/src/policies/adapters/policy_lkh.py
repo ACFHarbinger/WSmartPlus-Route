@@ -4,12 +4,11 @@ LKH Policy Adapter.
 Uses Lin-Kernighan-Helsgaun heuristic for TSP optimization.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
 from logic.src.configs.policies import LKHConfig
-from logic.src.interfaces import ITraversable
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
 from logic.src.policies.tsp import get_multi_tour, get_route_cost
@@ -25,13 +24,17 @@ class LKHPolicy(BaseRoutingPolicy):
     Uses LKH-tour improvement for TSP with capacity-based splitting.
     """
 
-    def __init__(self, config: Optional[LKHConfig] = None):
+    def __init__(self, config: Optional[Union[LKHConfig, Dict[str, Any]]] = None):
         """Initialize LKH policy with optional config.
 
         Args:
-            config: Optional LKHConfig dataclass with solver parameters.
+            config: LKHConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return LKHConfig
 
     def _get_config_key(self) -> str:
         """Return config key for LKH."""
@@ -70,24 +73,10 @@ class LKHPolicy(BaseRoutingPolicy):
         # Load area parameters (capacity, revenue, etc.)
         capacity, _, _, _ = self._load_area_params(area, waste_type, config)
 
-        # Handle nested configuration
-        lkh_cfg = config.get("lkh", {})
-        engine = "custom"
-
-        values = {"check_capacity": True, "max_iterations": 100}
-        if engine in lkh_cfg:
-            opt_cfg = lkh_cfg[engine]
-            if isinstance(opt_cfg, list):
-                for item in opt_cfg:
-                    if isinstance(item, ITraversable):
-                        values.update(item)
-            elif isinstance(opt_cfg, ITraversable):
-                values.update(opt_cfg)
-        else:
-            values.update(lkh_cfg)
-
-        max_iterations = values.get("max_iterations", 100)
-        check_capacity = values.get("check_capacity", True)
+        # Get solver parameters from typed config or defaults
+        cfg = self._config
+        max_iterations = cfg.max_iterations if cfg is not None else 100
+        check_capacity = cfg.check_capacity if cfg is not None else True
 
         # Map to local subset
         # subset_indices[0] = depot (0), subset_indices[1..M] = must_go bins

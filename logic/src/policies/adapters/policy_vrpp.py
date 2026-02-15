@@ -4,7 +4,7 @@ VRPP Policy Wrapper.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -21,13 +21,17 @@ class VRPPPolicy(BaseRoutingPolicy):
     Delegates to run_vrpp_optimizer.
     """
 
-    def __init__(self, config: Optional[VRPPConfig] = None):
+    def __init__(self, config: Optional[Union[VRPPConfig, Dict[str, Any]]] = None):
         """Initialize VRPP policy with optional config.
 
         Args:
-            config: Optional VRPPConfig dataclass with solver parameters.
+            config: VRPPConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return VRPPConfig
 
     def _get_config_key(self) -> str:
         return "vrpp"
@@ -69,7 +73,12 @@ class VRPPPolicy(BaseRoutingPolicy):
         n_bins = len(amounts) if amounts is not None else 0
         binsids = list(range(1, n_bins + 1))
 
-        # 4. Run optimizer
+        # 4. Get solver parameters from typed config or values dict
+        cfg = self._config
+        time_limit = int(cfg.time_limit) if cfg is not None else int(values.get("time_limit", 60))
+        optimizer = cfg.engine if cfg is not None else values.get("engine", "gurobi")
+
+        # 5. Run optimizer
         route, profit, cost = run_vrpp_optimizer(
             bins=amounts,  # type: ignore[arg-type]
             distance_matrix=distance_matrix,  # type: ignore[arg-type]
@@ -80,8 +89,8 @@ class VRPPPolicy(BaseRoutingPolicy):
             binsids=binsids,
             must_go=must_go,
             number_vehicles=kwargs.get("number_vehicles", 1),
-            time_limit=int(values.get("time_limit", 60)),
-            optimizer=values.get("engine", "gurobi"),
+            time_limit=time_limit,
+            optimizer=optimizer,
         )
 
         return route, cost, {"profit": profit}
