@@ -5,7 +5,7 @@ Implements a single-vehicle routing policy (TSP) that visits a specific set of b
 Agnostic to how the targets were selected.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -25,13 +25,17 @@ class TSPPolicy(BaseRoutingPolicy):
     capacity-based tour splitting.
     """
 
-    def __init__(self, config: Optional[TSPConfig] = None):
+    def __init__(self, config: Optional[Union[TSPConfig, Dict[str, Any]]] = None):
         """Initialize TSP policy with optional config.
 
         Args:
-            config: Optional TSPConfig dataclass with solver parameters.
+            config: TSPConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return TSPConfig
 
     def _get_config_key(self) -> str:
         """Return config key for TSP."""
@@ -117,12 +121,15 @@ class TSPPolicy(BaseRoutingPolicy):
         # Load capacity
         capacity, _, _, values = self._load_area_params(area, waste_type, config)
 
+        # Get time_limit from typed config or values dict
+        cfg = self._config
+        time_limit = cfg.time_limit if cfg is not None else values.get("time_limit", 2.0)
+
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
             to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
-            time_limit = values.get("time_limit", 2.0)
             tour = find_route(distancesC, to_collect, time_limit=time_limit)
             tour = get_multi_tour(tour, bins.c, capacity, distancesC)
 

@@ -71,7 +71,7 @@ class PolicyExecutionAction(SimulationAction):
         try:
             # We no longer pass 'engine' and 'threshold' as separate args from here
             # because they should be inside 'context' or 'config' handled by adapter
-            adapter = PolicyFactory.get_adapter(solver_key)
+            adapter = PolicyFactory.get_adapter(solver_key, config=raw_cfg)
             tour, cost, extra_output = adapter.execute(**context)
 
             context["tour"] = tour

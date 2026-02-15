@@ -4,7 +4,7 @@ BCP Policy Adapter.
 Adapts the Branch-Cut-and-Price (BCP) logic to the agnostic interface.
 """
 
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
 
 import numpy as np
 
@@ -23,13 +23,17 @@ class BCPPolicy(BaseRoutingPolicy):
     Visits pre-selected 'must_go' bins using exact or heuristic BCP solvers.
     """
 
-    def __init__(self, config: Optional[BCPConfig] = None):
+    def __init__(self, config: Optional[Union[BCPConfig, Dict[str, Any]]] = None):
         """Initialize BCP policy with optional config.
 
         Args:
-            config: Optional BCPConfig dataclass with solver parameters.
+            config: BCPConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return BCPConfig
 
     def _get_config_key(self) -> str:
         """Return config key for BCP."""

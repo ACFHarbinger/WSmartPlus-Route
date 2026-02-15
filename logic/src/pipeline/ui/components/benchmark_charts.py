@@ -7,6 +7,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+from logic.src.pipeline.ui.components.charts import PLOTLY_LAYOUT_DEFAULTS
+
 
 def create_benchmark_comparison_chart(
     df: pd.DataFrame, metric: str, title: str, x_axis: str = "policy", color_col: str = "num_nodes"
@@ -59,6 +61,7 @@ def create_benchmark_comparison_chart(
         xaxis_title=selected_x.replace("_", " ").capitalize(),
         yaxis_title=metric.replace("_", " ").capitalize(),
         legend_title=color_col.capitalize() if color_col in df_plot.columns else None,
+        **PLOTLY_LAYOUT_DEFAULTS,
     )
 
     return fig
@@ -111,6 +114,7 @@ def create_latency_throughput_scatter(
         height=400,
         xaxis_title="Latency (s)",
         yaxis_title="Throughput (inst/s)",
+        **PLOTLY_LAYOUT_DEFAULTS,
     )
 
     return fig

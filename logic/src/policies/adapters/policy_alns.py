@@ -4,7 +4,7 @@ ALNS Policy Adapter.
 Adapts the Adaptive Large Neighborhood Search (ALNS) logic to the agnostic interface.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -23,13 +23,17 @@ class ALNSPolicy(BaseRoutingPolicy):
     Visits pre-selected 'must_go' bins using Adaptive Large Neighborhood Search.
     """
 
-    def __init__(self, config: Optional[ALNSConfig] = None):
+    def __init__(self, config: Optional[Union[ALNSConfig, Dict[str, Any]]] = None):
         """Initialize ALNS policy with optional config.
 
         Args:
-            config: Optional ALNSConfig dataclass with solver parameters.
+            config: ALNSConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return ALNSConfig
 
     def _get_config_key(self) -> str:
         """Return config key for ALNS."""
