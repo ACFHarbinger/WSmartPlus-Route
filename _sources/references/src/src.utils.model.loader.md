@@ -31,10 +31,6 @@
   - ```{autodoc2-docstring} src.utils.model.loader._load_hyperparameters
     :summary:
     ```
-* - {py:obj}`_migrate_and_load_state_dict <src.utils.model.loader._migrate_and_load_state_dict>`
-  - ```{autodoc2-docstring} src.utils.model.loader._migrate_and_load_state_dict
-    :summary:
-    ```
 ````
 
 ### API
@@ -64,12 +60,5 @@
 :canonical: src.utils.model.loader._load_hyperparameters
 
 ```{autodoc2-docstring} src.utils.model.loader._load_hyperparameters
-```
-````
-
-````{py:function} _migrate_and_load_state_dict(model: torch.nn.Module, loaded_state_dict: typing.Dict[str, typing.Any]) -> None
-:canonical: src.utils.model.loader._migrate_and_load_state_dict
-
-```{autodoc2-docstring} src.utils.model.loader._migrate_and_load_state_dict
 ```
 ````

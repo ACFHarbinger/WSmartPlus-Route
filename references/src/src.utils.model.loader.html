@@ -471,7 +471,6 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._find_latest_checkpoint"><code class="docutils literal notranslate"><span class="pre">_find_latest_checkpoint()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._parse_hydra_config"><code class="docutils literal notranslate"><span class="pre">_parse_hydra_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._load_hyperparameters"><code class="docutils literal notranslate"><span class="pre">_load_hyperparameters()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._migrate_and_load_state_dict"><code class="docutils literal notranslate"><span class="pre">_migrate_and_load_state_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -508,9 +507,6 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.model.loader._load_hyperparameters" title="src.utils.model.loader._load_hyperparameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_hyperparameters</span></code></a></p></td>
 <td><p>Helper to detect and load hyperparameters from various formats.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.model.loader._migrate_and_load_state_dict" title="src.utils.model.loader._migrate_and_load_state_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_migrate_and_load_state_dict</span></code></a></p></td>
-<td><p>Helper to migrate old state dict keys and load into model.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -546,12 +542,6 @@ ValueError: If no valid epoch files found in directory.</p>
 <dt class="sig sig-object py" id="src.utils.model.loader._load_hyperparameters">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.loader.</span></span><span class="sig-name descname"><span class="pre">_load_hyperparameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.model.loader._load_hyperparameters" title="Link to this definition">#</a></dt>
 <dd><p>Helper to detect and load hyperparameters from various formats.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.utils.model.loader._migrate_and_load_state_dict">
-<span class="sig-prename descclassname"><span class="pre">src.utils.model.loader.</span></span><span class="sig-name descname"><span class="pre">_migrate_and_load_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.model.loader._migrate_and_load_state_dict" title="Link to this definition">#</a></dt>
-<dd><p>Helper to migrate old state dict keys and load into model.</p>
 </dd></dl>
 
 </section>
@@ -610,7 +600,6 @@ ValueError: If no valid epoch files found in directory.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._find_latest_checkpoint"><code class="docutils literal notranslate"><span class="pre">_find_latest_checkpoint()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._parse_hydra_config"><code class="docutils literal notranslate"><span class="pre">_parse_hydra_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._load_hyperparameters"><code class="docutils literal notranslate"><span class="pre">_load_hyperparameters()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.loader._migrate_and_load_state_dict"><code class="docutils literal notranslate"><span class="pre">_migrate_and_load_state_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>

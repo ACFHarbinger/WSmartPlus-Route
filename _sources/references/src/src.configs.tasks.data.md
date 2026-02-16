@@ -172,39 +172,6 @@
 
 ````
 
-````{py:attribute} train_graphs
-:canonical: src.configs.tasks.data.DataConfig.train_graphs
-:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.train_graphs
-```
-
-````
-
-````{py:attribute} val_graphs
-:canonical: src.configs.tasks.data.DataConfig.val_graphs
-:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.val_graphs
-```
-
-````
-
-````{py:attribute} test_graphs
-:canonical: src.configs.tasks.data.DataConfig.test_graphs
-:type: typing.List[logic.src.configs.envs.graph.GraphConfig]
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.test_graphs
-```
-
-````
-
 ````{py:attribute} graphs
 :canonical: src.configs.tasks.data.DataConfig.graphs
 :type: typing.List[logic.src.configs.envs.graph.GraphConfig]

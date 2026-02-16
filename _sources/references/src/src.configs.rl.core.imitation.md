@@ -73,12 +73,4 @@
 
 ````
 
-````{py:method} __post_init__()
-:canonical: src.configs.rl.core.imitation.ImitationConfig.__post_init__
-
-```{autodoc2-docstring} src.configs.rl.core.imitation.ImitationConfig.__post_init__
-```
-
-````
-
 `````

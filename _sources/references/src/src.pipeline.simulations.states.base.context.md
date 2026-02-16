@@ -143,16 +143,6 @@
 
 ````
 
-````{py:attribute} pol_strip
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_strip
-:type: str
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_strip
-```
-
-````
-
 ````{py:attribute} pol_id
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_id
 :type: int
@@ -164,13 +154,22 @@
 
 ````
 
-````{py:attribute} policy_cfg
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg
+````{py:attribute} pol_cfg
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pol_cfg
 :type: typing.Dict[str, typing.Any]
 :value: >
    None
 
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.policy_cfg
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_cfg
+```
+
+````
+
+````{py:property} policy
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.policy
+:type: str
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.policy
 ```
 
 ````

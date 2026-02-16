@@ -42,7 +42,7 @@
 
 ````{py:attribute} beam_width
 :canonical: src.configs.models.decoding.DecodingConfig.beam_width
-:type: int
+:type: typing.Any
 :value: >
    1
 
