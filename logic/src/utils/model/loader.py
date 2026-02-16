@@ -75,13 +75,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     factory_type = cast(Type[NeuralComponentFactory], factory_class)
     component_factory = factory_type()
 
-    # Map model name to decoder_type for backward compatibility
-    decoder_type_map = {
-        "am": "attention",
-        "tam": "attention",
-        "ddam": "deep",
-    }
-    decoder_type = decoder_type_map.get(args.get("model", "am"), "attention")
+    decoder_type = args.get("decoder_type", "glimpse")
 
     # Use TemporalAttentionModel only for 'tam', otherwise AttentionModel
     model_class = TemporalAttentionModel if args.get("model") == "tam" else AttentionModel
@@ -128,7 +122,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     data = torch_load_cpu(model_filename)
     loaded_state_dict = data.get("model", {})
 
-    _migrate_and_load_state_dict(model, loaded_state_dict)
+    model.load_state_dict(loaded_state_dict, strict=False)
     print("  [*] Loaded model from {}".format(model_filename))
     model.eval()
     return model, args
@@ -228,20 +222,3 @@ def _load_hyperparameters(path: str) -> Dict[str, Any]:
         return load_args(args_json_path)
 
     return {}
-
-
-def _migrate_and_load_state_dict(model: nn.Module, loaded_state_dict: Dict[str, Any]) -> None:
-    """Helper to migrate old state dict keys and load into model."""
-    model_state_dict = model.state_dict()
-    new_state_dict = {}
-    for key, value in loaded_state_dict.items():
-        if key in model_state_dict:
-            new_state_dict[key] = value
-        elif "decoder." + key in model_state_dict:
-            new_state_dict["decoder." + key] = value
-        elif "context_embedder." + key in model_state_dict:
-            new_state_dict["context_embedder." + key] = value
-        else:
-            new_state_dict[key] = value
-
-    model.load_state_dict({**model_state_dict, **new_state_dict})

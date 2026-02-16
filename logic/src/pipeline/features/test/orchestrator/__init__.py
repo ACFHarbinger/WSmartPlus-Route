@@ -21,6 +21,7 @@ from logic.src.pipeline.simulations.simulator import (
     sequential_simulations,
 )
 from logic.src.utils.logging.log_utils import (
+    output_stats,
     runs_per_policy,
     send_final_output_to_gui,
 )

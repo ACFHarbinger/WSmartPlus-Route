@@ -44,6 +44,16 @@ from logic.src.utils.logging.log_utils import log_to_json, output_stats
 from .checkpoints import CheckpointError
 from .states import SimulationContext
 
+
+def get_pol_name(pol_obj: Union[str, Dict[str, Any]]) -> str:
+    """Extract policy name from structured or string config."""
+    if isinstance(pol_obj, dict):
+        if len(pol_obj) == 1:
+            return list(pol_obj.keys())[0]
+        return "complex_policy"
+    return str(pol_obj)
+
+
 if TYPE_CHECKING:
     pass
 
@@ -194,7 +204,14 @@ def single_simulation(
 
         context = SimulationContext(opts, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
         res: Optional[Dict[str, Any]] = context.run()
-        return res if res is not None else {}
+        # Aggregate execution result
+        if res and "success" in res and res["success"]:
+            # If successful, extract the policy name to return the correct dictionary key
+            pol_name = get_pol_name(opts["policies"][pol_id])
+            if pol_name in res:
+                return {pol_name: res[pol_name], "success": True}
+
+        return res or {"error": "Unknown error", "policy": "unknown", "sample_id": sample_id, "success": False}
     except BaseException as e:
         # Force print to real stderr to bypass any redirection
         err_stream = sys.__stderr__ or sys.stderr
@@ -247,7 +264,7 @@ def sequential_simulations(  # noqa: C901
 
     # Always initialize accumulation structures to support metrics for N=1 case
     log_std = {}
-    log_full = {policy: [] for policy in opts["policies"]}
+    log_full = {get_pol_name(policy): [] for policy in opts["policies"]}
 
     # Create overall progress bar FIRST with position=1
     overall_progress = tqdm(
@@ -267,6 +284,7 @@ def sequential_simulations(  # noqa: C901
     )
 
     for pol_id, policy in enumerate(opts["policies"]):
+        pol_name = get_pol_name(policy)
         for sample_id in sample_idx_ls[pol_id]:
             try:
                 variables_dict: Dict[str, Any] = {
@@ -289,11 +307,11 @@ def sequential_simulations(  # noqa: C901
 
                 # Aggregate execution result
                 if result_dict and "success" in result_dict and result_dict["success"]:
-                    lg = result_dict[policy]
+                    lg = result_dict[pol_name]
 
                     # Always append to log_full to support uniform aggregation logic
-                    log_full[policy].append(lg)
-                    log[policy] = lg
+                    log_full[pol_name].append(lg)
+                    log[pol_name] = lg
             except BaseException as e:
                 # Force print to real stderr to bypass any redirection
                 err_stream = sys.__stderr__ or sys.stderr
@@ -315,7 +333,7 @@ def sequential_simulations(  # noqa: C901
                 res_log, res_std = output_stats(
                     results_dir,
                     opts["n_samples"],
-                    [policy],
+                    [pol_name],
                     SIM_METRICS,
                     lock=lock,
                 )
@@ -323,25 +341,25 @@ def sequential_simulations(  # noqa: C901
                     log.update(res_log)
                 if res_std and log_std is not None:
                     log_std.update(res_std)
-            elif policy in log_full and log_full[policy]:
-                log[policy] = [*map(statistics.mean, zip(*log_full[policy]))]
-                if len(log_full[policy]) > 1:
+            elif pol_name in log_full and log_full[pol_name]:
+                log[pol_name] = [*map(statistics.mean, zip(*log_full[pol_name]))]
+                if len(log_full[pol_name]) > 1:
                     if log_std is not None:
-                        log_std[policy] = [*map(statistics.stdev, zip(*log_full[policy]))]
+                        log_std[pol_name] = [*map(statistics.stdev, zip(*log_full[pol_name]))]
                 elif log_std is not None:
-                    log_std[policy] = [0.0] * len(log[policy])
+                    log_std[pol_name] = [0.0] * len(log[pol_name])
 
                 log_to_json(
                     os.path.join(results_dir, f"log_mean_{opts['n_samples']}N.json"),
                     SIM_METRICS,
-                    {policy: log[policy]},
+                    {pol_name: log[pol_name]},
                     lock=lock,
                 )
                 if log_std is not None:
                     log_to_json(
                         os.path.join(results_dir, f"log_std_{opts['n_samples']}N.json"),
                         SIM_METRICS,
-                        {policy: log_std[policy]},
+                        {pol_name: log_std[pol_name]},
                         lock=lock,
                     )
 

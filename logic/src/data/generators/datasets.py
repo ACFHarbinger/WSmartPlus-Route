@@ -80,11 +80,13 @@ def _generate_problem_data(problem: str, distributions: Any, opts: Dict[str, Any
                 for graph_cfg in graphs:
                     _process_instance_generation(problem, dist, datadir, opts, graph_cfg=graph_cfg)
             else:
-                # Fallback to legacy fields if no graphs provided
-                num_locs = opts.get("num_locs", [50])
-                focus_graphs = opts.get("focus_graph", [None] * len(num_locs))
-                for size, graph in zip(num_locs, focus_graphs):
-                    _process_instance_generation(problem, dist, datadir, opts, size=size, graph=graph)
+                # If no graphs in dst_type-specific list, check the generic graphs list
+                generic_graphs = opts.get("graphs", [])
+                if generic_graphs:
+                    for graph_cfg in generic_graphs:
+                        _process_instance_generation(problem, dist, datadir, opts, graph_cfg=graph_cfg)
+                else:
+                    print("[WARNING] No graphs provided for instance generation. Skipping.")
     except Exception as e:
         has_dists = len(distributions) >= 1 and distributions[0] is not None
         raise Exception(

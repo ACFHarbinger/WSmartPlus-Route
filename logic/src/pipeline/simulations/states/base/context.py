@@ -44,9 +44,13 @@ class SimulationContext:
     end_time: Optional[float] = None
 
     pol_name: str = ""
-    pol_strip: str = ""
     pol_id: int = 0
-    policy_cfg: Dict[str, Any] = {}
+    pol_cfg: Dict[str, Any] = {}
+
+    @property
+    def policy(self) -> str:
+        """Alias for pol_name for backward compatibility."""
+        return self.pol_name
 
     def __init__(
         self,
@@ -95,18 +99,14 @@ class SimulationContext:
         raw_policy = opts["policies"][pol_id]
         if isinstance(raw_policy, dict) and len(raw_policy) == 1:
             self.pol_name = list(raw_policy.keys())[0]
-            self.policy_cfg = raw_policy[self.pol_name]
+            self.pol_cfg = raw_policy[self.pol_name]
         elif isinstance(raw_policy, dict):
             # Fallback for complex dicts if they don't follow single-key pattern
             self.pol_name = opts.get("model.name") or "unknown"
-            self.policy_cfg = raw_policy
+            self.pol_cfg = raw_policy
         else:
             self.pol_name = str(raw_policy)
-            self.policy_cfg = {}
-
-        # Keep self.policy as string for legacy path/checkpoint naming
-        self.policy = self.pol_name
-        self.pol_strip = self.pol_name.rsplit("_", 1)[0] if "_" in self.pol_name else self.pol_name
+            self.pol_cfg = {}
 
         self._continue_init(variables_dict, pol_id)
 

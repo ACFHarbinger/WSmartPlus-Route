@@ -2,13 +2,13 @@ import statistics
 from collections import defaultdict
 
 import logic.src.constants as udef
+from logic.src.utils.logging.log_utils import output_stats
 
 
 def aggregate_final_results(log_tmp, opts, lock):
     """
     Aggregate results from all finished simulation samples.
     """
-    from logic.src.utils.logging.log_utils import output_stats
 
     if opts["n_samples"] > 1:
         if opts["resume"]:
