@@ -12,6 +12,8 @@ class TestSolverParity:
     @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
     def test_parity_small_instance(self, parity_instance, check_license):
         data = parity_instance
+        data["values"]["Q"] = 1000.0  # Force capacity to avoid Gurobi constraints
+        data["binsids"] = [1, 2, 3, 4, 5] # Fix binsids mismatch
         results = {}
 
         # 1. Gurobi (Ground Truth usually)

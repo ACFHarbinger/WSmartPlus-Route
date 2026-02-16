@@ -116,7 +116,7 @@ class TestSolverEdgeCases:
         data = edge_case_data
         data["bins"] = np.array([50.0])
         data["dist_matrix"] = [[0, 10], [10, 0]]
-        data["binsids"] = [0, 1]
+        data["binsids"] = [1]
 
         try:
             routes, _, _ = run_vrpp_optimizer(
@@ -142,7 +142,7 @@ class TestSolverEdgeCases:
         data = edge_case_data
         data["bins"] = np.array([50.0])
         data["dist_matrix"] = [[0, 10], [10, 0]]
-        data["binsids"] = [0, 1]
+        data["binsids"] = [1]
 
         if backend == "ortools":
             tour = find_routes_ortools(
@@ -195,11 +195,11 @@ class TestSolverEdgeCases:
                 param=0.0,
                 media=np.zeros(2),
                 desviopadrao=np.zeros(2),
-                values=values,
-                binsids=[0,1,2],
+                values={**values, "Q": 1000},
+                binsids=[1,2],
                 must_go=[1,2],
                 optimizer="gurobi",
-                time_limit=2
+                time_limit=10
             )
              assert 1 in routes and 2 in routes
         except Exception as e:

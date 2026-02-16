@@ -20,6 +20,8 @@ def mock_opts():
         "area": "mixrmbac",
         "size": 50,
         "policies": ["am_dirichlet", "vrpp_gurobi_dirichlet"],
+        "model.name": "am",
+        "problem": "vrpp",
         "resume": False,
         "checkpoint_dir": "checkpoints",
         "waste_type": "glass",
@@ -49,9 +51,8 @@ def mock_opts():
         "log_file": "sim.log",
         "log_level": "INFO",
         "checkpoint_days": 1,
-        "w_length": 1.0,
-        "w_waste": 1.0,
-        "w_overflows": 1.0
+        "w_overflows": 1.0,
+        "no_progress_bar": True
     }
 
 @pytest.fixture
@@ -75,8 +76,7 @@ class TestSimulationContext:
             model_weights_path="weights",
             variables_dict=ctx_vars
         )
-        assert ctx.policy == "am_dirichlet"
-        assert ctx.pol_name == "neural"
+        assert ctx.pol_name == "am_dirichlet"
         assert isinstance(ctx.current_state, InitializingState)
 
     @patch("logic.src.pipeline.simulations.states.InitializingState.handle")
@@ -133,6 +133,7 @@ class TestInitializingState:
     def test_initializing_handle_vrpp(self, mock_makedirs, mock_exists, mock_area_params, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_setup_env, mock_opts, ctx_vars, tmp_path):
         mock_opts["output_dir"] = str(tmp_path)
         mock_opts["policies"] = ["vrpp_gurobi_dirichlet"]
+        mock_opts["model.name"] = "vrpp"
         ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
 
         mock_exists.return_value = False
@@ -146,8 +147,7 @@ class TestInitializingState:
 
         assert isinstance(ctx.current_state, RunningState)
         mock_setup_env.assert_called()
-        assert ctx.pol_name == "vrpp"
-        assert ctx.pol_engine == "gurobi"
+        assert ctx.pol_name == "vrpp_gurobi_dirichlet"
 
     @patch("logic.src.pipeline.simulations.states.initializing.setup_basedata")
     @patch("logic.src.pipeline.simulations.states.initializing.Bins")
@@ -157,6 +157,7 @@ class TestInitializingState:
     def test_initializing_handle_resume(self, mock_makedirs, mock_exists, mock_checkpoint, mock_bins, mock_base, mock_opts, ctx_vars, tmp_path):
         # Use a simple policy that doesn't need setup_model
         mock_opts["policies"] = ["regular_dirichlet"]
+        mock_opts["model.name"] = ""
         mock_opts["resume"] = True
         mock_opts["output_dir"] = str(tmp_path)
         ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)

@@ -51,7 +51,7 @@ class InitializingState(SimState):
         self._setup_capacities(ctx)
 
         # Checkpoints
-        ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, ctx.opts["checkpoint_dir"], ctx.policy, ctx.sample_id)
+        ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, ctx.opts["checkpoint_dir"], ctx.pol_name, ctx.sample_id)
         saved_state, last_day = self._load_checkpoint_if_needed(ctx)
 
         # Setup Models
@@ -63,7 +63,7 @@ class InitializingState(SimState):
         else:
             self._initialize_new_state(ctx, data, bins_coordinates, depot)
 
-        logger.info(f"Initialization complete. Transitioning to RunningState for {ctx.policy} policy.")
+        logger.info(f"Initialization complete. Transitioning to RunningState for {ctx.pol_name} policy.")
         from .running import RunningState
 
         ctx.transition_to(RunningState())
@@ -110,8 +110,8 @@ class InitializingState(SimState):
         # Priority 1: policy_cfg (new structured format)
         # Priority 2: ctx.opts (legacy/global format)
         model_name = ""
-        if isinstance(ctx.policy_cfg, dict) and "model" in ctx.policy_cfg:
-            model_name = ctx.policy_cfg["model"].get("name", "").lower()
+        if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
+            model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
         if not model_name:
             model_name = ctx.opts.get("model.name", "").lower()
@@ -156,8 +156,8 @@ class InitializingState(SimState):
 
     def _setup_models(self, ctx):
         model_name = ""
-        if isinstance(ctx.policy_cfg, dict) and "model" in ctx.policy_cfg:
-            model_name = ctx.policy_cfg["model"].get("name", "").lower()
+        if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
+            model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
         if not model_name:
             model_name = ctx.opts.get("model.name", "").lower()
@@ -175,7 +175,7 @@ class InitializingState(SimState):
             strat = decoding_opts.get("strategy", opts.get("decoding.strategy", opts.get("strategy", "greedy")))
 
             ctx.model_env, configs = setup_model(
-                ctx.policy,
+                ctx.pol_name,
                 ctx.model_weights_path,
                 opts["model_path"],
                 ctx.device,
@@ -187,14 +187,14 @@ class InitializingState(SimState):
                 opts,
                 ctx.device,
                 configs,
-                policy=ctx.policy,
+                policy=ctx.pol_name,
                 base_path=ctx.model_weights_path,
                 worker_model=ctx.model_env,
             )
             self.configs = configs
         elif "vrpp" in model_name:
             ctx.model_env = setup_env(
-                ctx.policy,
+                ctx.pol_name,
                 ctx.opts["server_run"],
                 ctx.opts["gplic_file"],
                 ctx.opts["symkey_name"],
@@ -246,8 +246,8 @@ class InitializingState(SimState):
         )
 
         model_name = ""
-        if isinstance(ctx.policy_cfg, dict) and "model" in ctx.policy_cfg:
-            model_name = ctx.policy_cfg["model"].get("name", "").lower()
+        if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
+            model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
         if not model_name:
             model_name = opts.get("model.name", "").lower()
@@ -262,7 +262,7 @@ class InitializingState(SimState):
                 ctx.dist_tup[2],
                 ctx.device,
                 opts["vertex_method"],
-                self.configs,
+                ctx.config,
                 opts["edge_threshold"],
                 opts["edge_method"],
                 opts["area"],

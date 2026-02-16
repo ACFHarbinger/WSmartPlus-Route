@@ -190,6 +190,9 @@ def cleanup_test_root(request):
         path_to_clean = project_root / "assets" / "test_output"
         if path_to_clean.exists():
             shutil.rmtree(path_to_clean)
+        path_to_clean_out = project_root / "assets" / "test_out"
+        if path_to_clean_out.exists():
+            shutil.rmtree(path_to_clean_out)
 
     request.addfinalizer(finalizer)
 
@@ -209,6 +212,7 @@ def session_cleanup():
         project_root / "assets" / "keys" / "testkey.salt",
         project_root / "assets" / "output" / "2_days",
         project_root / "assets" / "output" / "5_days",
+        project_root / "assets" / "test_out",
     ]
 
     # We use os.getcwd() to look in the current working directory where tests were run

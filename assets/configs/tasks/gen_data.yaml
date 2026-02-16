@@ -32,8 +32,8 @@ data:
   name: "wsr"
   filename: null
 
-  # Training Graphs
-  train_graphs:
+  # Graphs Configuration
+  graphs:
     - num_loc: 20
       n_samples: 128000
       area: "riomaior"
@@ -44,38 +44,5 @@ data:
       waste_type: "plastic"
     - num_loc: 100
       n_samples: 128000
-      area: "riomaior"
-      waste_type: "plastic"
-
-  # Validation Graphs
-  val_graphs:
-    - num_loc: 20
-      n_samples: 1280
-      area: "riomaior"
-      waste_type: "plastic"
-    - num_loc: 50
-      n_samples: 1280
-      area: "riomaior"
-      waste_type: "plastic"
-    - num_loc: 100
-      n_samples: 1280
-      area: "riomaior"
-      waste_type: "plastic"
-
-  # Test Graphs (for simulation or evaluation)
-  test_graphs:
-    - num_loc: 20
-      n_samples: 1
-      n_days: 31
-      area: "riomaior"
-      waste_type: "plastic"
-    - num_loc: 50
-      n_samples: 1
-      n_days: 31
-      area: "riomaior"
-      waste_type: "plastic"
-    - num_loc: 100
-      n_samples: 1
-      n_days: 31
       area: "riomaior"
       waste_type: "plastic"

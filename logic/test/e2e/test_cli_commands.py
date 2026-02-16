@@ -34,12 +34,10 @@ def test_cli_gen_data_smoke(tmp_path, problem):
             sys.executable,
             "main.py",
             "gen_data",
-            "task=gen_data",
             "data.dataset_type=test_simulator",
             f"data.problem={problem}",
-            "data.data_distributions=['unif']",
-            "data.num_locs=[10]",
-            "data.dataset_size=2",
+            "data.data_distributions=[unif]",
+            "data.graphs=[{num_loc: 10, n_days: 1, n_samples: 2}]",
             f"data.data_dir={output_dir}",
             "data.name=smoke_test",
             "data.overwrite=true",
@@ -60,8 +58,8 @@ def test_cli_gen_data_smoke(tmp_path, problem):
 
     # Expected filename for test_simulator: {area}{size}_{dist}_{name}_N{dataset_size}_seed{seed}.pkl
     # area defaults to 'riomaior', seed defaults to 42
-    # riomaior10_unif_smoke_test_N2_seed42.pkl
-    expected_file = output_dir / "riomaior10_unif_smoke_test_N2_seed42.pkl"
+    # riomaior10_unif_smoke_test1_N2_seed42.pkl
+    expected_file = output_dir / "riomaior10_unif_smoke_test1_N2_seed42.pkl"
     assert expected_file.exists(), f"Generated data file not found at {expected_file}"
 
 
@@ -121,12 +119,10 @@ def test_cli_eval_smoke(tmp_path):
             sys.executable,
             "main.py",
             "gen_data",
-            "task=gen_data",
             "data.dataset_type=test_simulator",
             "data.problem=vrpp",
-            "data.data_distributions=['unif']",
-            "data.num_locs=[10]",
-            "data.dataset_size=2",
+            "data.data_distributions=[unif]",
+            "data.graphs=[{num_loc: 10, n_days: 1, n_samples: 2}]",
             f"data.data_dir={data_dir}",
             "data.name=eval_test",
             "data.overwrite=true",
@@ -135,13 +131,21 @@ def test_cli_eval_smoke(tmp_path):
         capture_output=True,
     )
 
-    data_file = data_dir / "riomaior10_unif_eval_test_N2_seed42.pkl"
+    data_file = data_dir / "riomaior10_unif_eval_test1_N2_seed42.pkl"
     assert data_file.exists()
 
-    # Run evaluation (using a random model policy if possible, or fails if no model provided?)
-    # Eval usually needs a model. But we can hopefully run with a dummy or classic policy if supported?
-    # Logic src/pipeline/features/eval.py says it supports models.
-    # If we don't have a trained model, we might skip this upgrade or rely on 'random'?
+    # Run evaluation
+    # Use policy.model.path to specify checkpoint if needed, or rely on default
+    # The user wants to use 'policy' instead of 'model'.
+    # If policy is a NeuralConfig, it has a 'model' field which is ModelConfig.
+    # ModelConfig likely has a 'path' or 'load_path' field.
+    # Let's assume we don't pass a specific model path for smoke test, or use a dummy one.
+    # But wait, the previous test failure was "Key 'model' not in 'EvalConfig'".
+    # Now that we removed it, we must ensure we DON'T pass 'model=...' in CLI.
+    # The previous test run didn't explicitly pass 'model', it was failing on config composition?
+    # No, the error was "Key 'model' not in 'EvalConfig'" when loading 'tasks/evaluation.yaml'.
+    # 'evaluation.yaml' has 'model: checkpoints/best_model.pt'.
+    # We need to update 'evaluation.yaml' to use 'policy.model.path' or remove 'model' key there too.
     # CLI help says --model.
     # Let's revert to help check for eval if model is required and cannot be mocked easily.
     # But wait, we can check --help for test_sim.

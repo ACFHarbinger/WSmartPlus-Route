@@ -61,6 +61,10 @@ def mock_engine_data():
             "hgs": {"engine": None},
             "alns": {"engine": None},
             "vrpp": {},
+            "n_encode_layers": 3,
+            "n_encode_sublayers": 1,
+            "n_decode_layers": 1,
+            "n_heads": 8,
             "lookahead": {
                 "sans": {},
                 "Omega": 0.1
@@ -72,15 +76,9 @@ def mock_engine_data():
     }
 
 def test_policy_factory_standardized():
-    # Test that PolicyFactory correctly identifies policies from Registry or Fallback
-    # Registry test (standard name)
+    # Test that PolicyFactory correctly identifies policies from Registry
     p = PolicyFactory.get_adapter("hgs")
     assert isinstance(p, HGSPolicy)
-
-    # Fallback test (legacy name)
-    p = PolicyFactory.get_adapter("policy_regular")
-    from logic.src.policies.adapters.policy_tsp import TSPPolicy
-    assert isinstance(p, TSPPolicy)
 
 @pytest.mark.unit
 def test_bcp_engine_override(mock_engine_data):
@@ -103,7 +101,7 @@ def test_vrpp_engine_override(mocker, mock_engine_data):
                  return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
     with patch("logic.src.policies.adapters.policy_vrpp.run_vrpp_optimizer") as mock_opt:
-        mock_opt.return_value = ([0, 1, 0], 10.0)
+        mock_opt.return_value = ([0, 1, 0], 10.0, 5.0)
 
         policy = PolicyRegistry.get("vrpp")()
         policy.execute(**mock_engine_data)
