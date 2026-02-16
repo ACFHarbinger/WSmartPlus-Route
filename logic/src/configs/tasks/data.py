@@ -44,7 +44,4 @@ class DataConfig:
     n_epochs: int = 1
     epoch_start: int = 0
     dataset_type: Optional[str] = None
-    train_graphs: List[GraphConfig] = field(default_factory=list)
-    val_graphs: List[GraphConfig] = field(default_factory=list)
-    test_graphs: List[GraphConfig] = field(default_factory=list)
     graphs: List[GraphConfig] = field(default_factory=list)

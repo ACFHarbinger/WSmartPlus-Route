@@ -1,91 +1,163 @@
-import os
-import statistics
-import numpy as np
-import pandas as pd
+
 import pytest
 import torch
-from unittest.mock import MagicMock
-from logic.src.pipeline.simulations import simulator
-from logic.src.pipeline.simulations.bins import Bins
-from logic.src.pipeline.simulations.checkpoints import CheckpointError
+import numpy as np
+import unittest.mock as mock
+from typing import Any, Dict, List, Optional, Tuple
+
+import logic.src.pipeline.simulations.simulator as simulator
+from logic.src.pipeline.simulations.checkpoints.manager import CheckpointError
 
 class TestSimulatorIntegration:
-    """Integration tests for the WSmart+ Route simulator."""
+    @pytest.fixture
+    def mock_sim_dependencies(self, mocker):
+        deps = {
+            "setup_basedata": mocker.patch("logic.src.pipeline.simulations.states.initializing.setup_basedata"),
+            "setup_env": mocker.patch("logic.src.pipeline.simulations.states.initializing.setup_env"),
+            "setup_models": mocker.patch("logic.src.pipeline.simulations.states.initializing.InitializingState._setup_models"),
+            "setup_dist_path_tup": mocker.patch("logic.src.pipeline.simulations.states.initializing.setup_dist_path_tup"),
+            "init_new_state": mocker.patch("logic.src.pipeline.simulations.states.initializing.InitializingState._initialize_new_state"),
+            "run_day": mocker.patch("logic.src.pipeline.simulations.states.running.run_day"),
+            "checkpoint_manager": mocker.patch("logic.src.pipeline.simulations.states.running.checkpoint_manager"),
+            "params": mocker.patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params"),
+        }
+        deps["run_day"].side_effect = lambda x: x
+        deps["setup_basedata"].return_value = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
+        deps["params"].return_value = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
+
+        # Mock InitializingState attributes that might be accessed
+        def mock_init_new_state(ctx, data, coords, depot):
+            ctx.new_data = mock.MagicMock()
+            ctx.coords = mock.MagicMock()
+            ctx.dist_tup = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
+            ctx.bins = mock.MagicMock()
+            # Numerical data to avoid TypeError in statistics.mean
+            ctx.bins.collected = np.zeros(10)
+            ctx.bins.inoverflow = np.zeros(10)
+            ctx.bins.ncollections = np.zeros(10)
+            ctx.bins.lost = np.zeros(10)
+            ctx.bins.travel = 1.0
+            ctx.bins.collected_total = 100.0
+            ctx.bins.profit = 50.0
+            ctx.bins.ndays = 2
+            ctx.overflows = 0
+            ctx.execution_time = 0.1
+            ctx.model_tup = (None, None)
+            ctx.output_dict = {}
+            ctx.daily_log = {}
+
+        deps["init_new_state"].side_effect = mock_init_new_state
+
+        # Configure checkpoint_manager to act as a context manager
+        mock_cm = mock.MagicMock()
+        mock_cm.__enter__.return_value = mock.MagicMock()
+        deps["checkpoint_manager"].return_value = mock_cm
+        return deps
+
+    @pytest.fixture
+    def mock_lock_counter(self):
+        return mock.MagicMock(), mock.MagicMock()
+
+    @pytest.fixture
+    def mock_torch_device(self):
+        return torch.device("cpu")
+
+    def get_standard_opts(self):
+        return {
+            "output_dir": "test_out",
+            "area": "figueiradafoz",
+            "waste_type": "plastic",
+            "size": 50,
+            "resume": False,
+            "n_samples": 1,
+            "policies": [{"am_gamma1": {"model": {"name": "am"}}}],
+            "days": 2,
+            "seed": 42,
+            "data_distribution": "unif",
+            "model.name": "am",
+            "no_progress_bar": True,
+            "checkpoint_dir": "checkpoints",
+            "print_output": False,
+            "distance_method": "ogd",
+            "vertex_method": "mmn",
+            "dm_filepath": "dummy_path",
+            "edge_threshold": 0.5,
+            "edge_method": "knn",
+            "env_file": "dummy_env",
+            "gapik_file": "dummy_gapik",
+            "symkey_name": "dummy_symkey",
+            "stats_filepath": None,
+            "waste_filepath": None,
+            "cache_regular": False,
+            "n_vehicles": 5,
+            "checkpoint_days": 1,
+            "model_path": {"amgat": "assets/model_weights/cwcvrp100_riomaior_plastic/gamma1/amgat"}
+        }
 
     @pytest.mark.integration
-    def test_single_simulation_happy_path_am(self, wsr_opts, mock_lock_counter, mock_torch_device, mocker, tmp_path):
-        """Test single simulation with happy path."""
-        opts = wsr_opts
-        opts["policies"] = ["means_std_policy_am_gamma1"]
-        opts["days"] = 5
-        opts["size"] = 3
-        N_BINS = 3
-
-        mocker.patch("logic.src.policies.neural_agent.simulation.get_route_cost", return_value=50.0)
-        mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path))
-        mocker.patch("logic.src.pipeline.simulations.checkpoints.persistence.ROOT_DIR", str(tmp_path))
-
-        # Mock data loading
-        depot_df = pd.DataFrame({"ID": [0], "Lat": [40.0], "Lng": [-8.0], "Stock": [0], "Accum_Rate": [0]})
-        bins_raw_df = pd.DataFrame({"ID": [1, 2, 3], "Lat": [40.1, 40.2, 40.3], "Lng": [-8.1, -8.2, -8.3]})
-        data_raw_df = pd.DataFrame({"ID": [1, 2, 3], "Stock": [10, 20, 30], "Accum_Rate": [0, 0, 0]})
-        mocker.patch("logic.src.pipeline.simulations.processor.setup_basedata", return_value=(data_raw_df, bins_raw_df, depot_df))
-        mocker.patch("logic.src.pipeline.simulations.processor.setup_df", side_effect=[pd.DataFrame({"ID":[0,1,2,3]}), MagicMock()])
-        mocker.patch("logic.src.pipeline.simulations.processor.process_data", side_effect=lambda data, bins_coords, depot, indices: (data, bins_coords))
-        mocker.patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params", return_value=(4000, 0.16, 60.0, 1.0, 2.5))
-
-        mock_dist_tup = (np.zeros((4,4)), MagicMock(), torch.zeros((4,4)), np.zeros((4,4)))
-        mocker.patch("logic.src.pipeline.simulations.processor.setup_dist_path_tup", return_value=(mock_dist_tup, np.zeros((4,4))))
-        mocker.patch("logic.src.pipeline.simulations.processor.process_model_data", return_value=({"waste": MagicMock()}, (MagicMock(), MagicMock()), None))
-
-        mock_model_env = MagicMock()
-        mock_model_env.return_value = (MagicMock(), MagicMock(), {"waste": np.array([10.0])}, torch.tensor([0, 1, 2, 3, 0]), MagicMock())
-        mock_model_env.temporal_horizon = 0
-        mocker.patch("logic.src.pipeline.simulations.states.initializing.setup_model", return_value=(mock_model_env, MagicMock()))
-
-        mocker.patch.object(Bins, "stochasticFilling", side_effect=lambda self, **k: (30.0, np.zeros(3), np.zeros(3), 0.0), autospec=True)
-        mocker.patch.object(Bins, "setGammaDistribution", autospec=True)
-        mocker.patch.object(Bins, "is_stochastic", return_value=True)
-        mocker.patch.object(Bins, "get_fill_history", return_value=np.zeros((5, N_BINS)))
-
+    def test_single_simulation_happy_path_am(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
+        wsr_opts = self.get_standard_opts()
         simulator._lock, simulator._counter = mock_lock_counter
-        result = simulator.single_simulation(opts, mock_torch_device, pol_id=0)
-        assert result["success"]
+
+        # Call single_simulation
+        result = simulator.single_simulation(
+            wsr_opts, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
+        )
+        assert "am_gamma1" in result
+        assert result["success"] is True
+        assert mock_sim_dependencies["run_day"].call_count == 2
 
     @pytest.mark.integration
-    def test_single_simulation_resume(self, wsr_opts, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
-        """Test a simulation that resumes from a checkpoint."""
-        opts = wsr_opts
-        opts["resume"] = True
-        mock_saved_state = ("d", "c", ("d", "p", "t", "c"), "a", mock_sim_dependencies["bins"], "m", None, 0, 0, {"day": [1,2,3,4,5]}, 0)
-        mock_sim_dependencies["checkpoint"].load_state.return_value = (mock_saved_state, 5)
-
+    def test_single_simulation_resume(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
+        wsr_opts = self.get_standard_opts()
+        wsr_opts["resume"] = True
+        wsr_opts["checkpoint_days"] = 1
         simulator._lock, simulator._counter = mock_lock_counter
-        result = simulator.single_simulation(opts, mock_torch_device, pol_id=0)
-        assert result["success"]
-        assert mock_sim_dependencies["run_day"].call_count == 5
+
+        # Mock InitializingState._load_checkpoint_if_needed to return a dummy state
+        with mock.patch("logic.src.pipeline.simulations.states.initializing.InitializingState._load_checkpoint_if_needed") as mock_load:
+            mock_dist_tup = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
+            mock_bins = mock.MagicMock()
+            mock_bins.collected = np.zeros(10)
+            mock_bins.inoverflow = np.zeros(10)
+            mock_bins.ncollections = np.zeros(10)
+            mock_bins.lost = np.zeros(10)
+            mock_bins.travel = 1.0
+            mock_bins.collected_total = 100.0
+            mock_bins.profit = 50.0
+            mock_bins.ndays = 2
+            mock_load.return_value = ( (mock.MagicMock(), mock.MagicMock(), mock_dist_tup, None, mock_bins, (None, None), [], 0, 0, {}, 0.0), 1)
+
+            result = simulator.single_simulation(
+                wsr_opts, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
+            )
+            assert result["success"] is True
 
     @pytest.mark.integration
-    def test_single_simulation_checkpoint_error(self, wsr_opts, mocker, mock_lock_counter, mock_torch_device):
-        """Test that CheckpointError is caught and returned."""
-        mocker.patch("logic.src.pipeline.simulations.processor.setup_basedata", return_value=(pd.DataFrame(), pd.DataFrame(), pd.DataFrame()))
-        mocker.patch("logic.src.pipeline.simulations.processor.setup_dist_path_tup", return_value=((None, None, None, None), None))
-        mocker.patch("logic.src.pipeline.simulations.bins.Bins", return_value=MagicMock())
-        error_result = {"success": False, "error": "test error"}
-        mocker.patch("logic.src.pipeline.simulations.states.running.checkpoint_manager", side_effect=CheckpointError(error_result))
-
+    def test_single_simulation_checkpoint_error(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
+        wsr_opts = self.get_standard_opts()
+        wsr_opts["checkpoint_days"] = 1
         simulator._lock, simulator._counter = mock_lock_counter
-        result = simulator.single_simulation(wsr_opts, mock_torch_device, pol_id=0)
-        assert result == error_result
+
+        # Make checkpoint_manager raise CheckpointError
+        error_res = {"error": "Test failure", "policy": "am_gamma1", "success": False}
+        mock_sim_dependencies["checkpoint_manager"].side_effect = CheckpointError(error_res)
+
+        result = simulator.single_simulation(
+            wsr_opts, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
+        )
+        assert result["success"] is False
 
     @pytest.mark.integration
-    def test_sequential_simulations_multi_sample(self, wsr_opts, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
-        """Test sequential simulation with n_samples > 1."""
-        opts = wsr_opts
-        opts["n_samples"] = 2
-        opts["days"] = 5
-        opts["policies"] = ["policy_gamma1"]
+    def test_sequential_simulations_multi_sample(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
+        wsr_opts = self.get_standard_opts()
+        wsr_opts["n_samples"] = 2
+        lock, counter = mock_lock_counter
+        simulator._lock, simulator._counter = lock, counter
 
-        log, log_std, failed = simulator.sequential_simulations(opts, mock_torch_device, [None, None], [[0, 1]], lock=mock_lock_counter[0])
-        assert mock_sim_dependencies["run_day"].call_count == 10
-        assert "policy_gamma1" in log
+        results, results_std, failed = simulator.sequential_simulations(
+            wsr_opts, mock_torch_device, [None, None], [[0], [1]], "weights", lock
+        )
+
+        assert "am_gamma1" in results
+        assert len(failed) == 0

@@ -62,7 +62,7 @@ class FinishingState(SimState):
             log_to_json(
                 log_path,
                 SIM_METRICS,
-                {ctx.policy: lg},
+                {ctx.pol_name: lg},
                 sample_id=ctx.sample_id,
                 lock=ctx.lock,
             )
@@ -70,17 +70,17 @@ class FinishingState(SimState):
             log_to_json(
                 daily_log_path,
                 DAY_METRICS,
-                {f"{ctx.pol_strip} #{ctx.sample_id}": ctx.daily_log.values()},
+                {f"{ctx.pol_name} #{ctx.sample_id}": ctx.daily_log.values()},
                 lock=ctx.lock,
             )
         else:
             log_path = os.path.join(ctx.results_dir, f"log_mean_{opts['n_samples']}N.json")
-            log_to_json(log_path, SIM_METRICS, {ctx.policy: lg}, lock=ctx.lock)
+            log_to_json(log_path, SIM_METRICS, {ctx.pol_name: lg}, lock=ctx.lock)
             assert ctx.daily_log is not None
             log_to_json(
                 daily_log_path,
                 DAY_METRICS,
-                {ctx.pol_strip: ctx.daily_log.values()},
+                {ctx.pol_name: ctx.daily_log.values()},
                 lock=ctx.lock,
             )
 
@@ -89,7 +89,7 @@ class FinishingState(SimState):
             ctx.results_dir,
             opts["seed"],
             opts["data_distribution"],
-            ctx.policy,
+            ctx.pol_name,
             ctx.sample_id,
         )
 
@@ -98,13 +98,13 @@ class FinishingState(SimState):
 
         # Clear shared metrics to prevent double counting in the progress bar
         if ctx.shared_metrics is not None:
-            key = f"{ctx.policy}_{ctx.sample_id}"
+            key = f"{ctx.pol_name}_{ctx.sample_id}"
             if key in ctx.shared_metrics:
                 del ctx.shared_metrics[key]
 
-        ctx.result = {ctx.policy: lg, "success": True}
+        ctx.result = {ctx.pol_name: lg, "success": True}
 
         if opts.get("print_output"):
-            final_simulation_summary({ctx.policy: lg}, ctx.policy, opts["n_samples"])
+            final_simulation_summary({ctx.pol_name: lg}, ctx.pol_name, opts["n_samples"])
 
         ctx.transition_to(None)

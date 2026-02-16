@@ -32,14 +32,7 @@ def _sanitize_waste(waste: Optional[str]) -> str:
 def _get_graph_list(args: Dict[str, Any]) -> tuple[str, list[Dict[str, Any]]]:
     """Select correct graph list based on dataset_type."""
     dst_type = args.get("dataset_type", "train")
-    if dst_type == "train":
-        graphs = args.get("train_graphs", [])
-    elif dst_type == "val":
-        graphs = args.get("val_graphs", [])
-    elif dst_type in ["test", "test_simulator"]:
-        graphs = args.get("test_graphs", [])
-    else:
-        graphs = args.get("graphs", [])
+    graphs = args.get("graphs", [])
     return dst_type, graphs
 
 
@@ -86,13 +79,6 @@ def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
             graph["focus_size"] = 31
 
     # Update back into args
-    key_map = {
-        "train": "train_graphs",
-        "val": "val_graphs",
-        "test": "test_graphs",
-        "test_simulator": "test_graphs",
-    }
-    target_key = key_map.get(dst_type, "graphs")
-    args[target_key] = graphs
+    args["graphs"] = graphs
 
     return args

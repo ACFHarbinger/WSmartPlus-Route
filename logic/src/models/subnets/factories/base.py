@@ -32,7 +32,7 @@ def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
         ValueError: If decoder_type is not recognized.
     """
     decoder_type = decoder_type.lower()
-    if decoder_type == "attention":
+    if decoder_type in ("attention", "glimpse"):
         return GlimpseDecoder(**kwargs)
     elif decoder_type in ("deep", "gat", "graph_attention"):
         return DeepGATDecoder(**kwargs)
@@ -46,7 +46,7 @@ def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
         return ACODecoder(**kwargs)
     else:
         raise ValueError(
-            f"Unknown decoder_type: {decoder_type}. Choose from 'attention', 'deep', 'pointer', 'mdam', 'polynet', 'aco'."
+            f"Unknown decoder_type: {decoder_type}. Choose from 'attention', 'glimpse', 'deep', 'pointer', 'mdam', 'polynet', 'aco'."
         )
 
 

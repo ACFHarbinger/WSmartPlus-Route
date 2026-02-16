@@ -262,18 +262,19 @@ def main_dispatch() -> None:
     #   - test_suite -> Hydra with test config group
     #   - file_system -> Hydra with filesystem operations config
     # ========================================================================
-    HYDRA_COMMANDS = [
-        "train",
-        "mrl_train",
-        "hp_optim",
-        "eval",
-        "test_sim",
-        "gen_data",
-    ]
+    HYDRA_COMMAND_MAP = {
+        "train": "train",
+        "mrl_train": "meta_train",
+        "hp_optim": "hpo",
+        "eval": "evaluation",
+        "test_sim": "test_sim",
+        "gen_data": "gen_data",
+    }
 
-    if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMANDS:
+    if len(sys.argv) > 1 and sys.argv[1] in HYDRA_COMMAND_MAP:
         command = sys.argv.pop(1)
-        sys.argv.append(f"tasks={command}")
+        config_name = HYDRA_COMMAND_MAP[command]
+        sys.argv.append(f"tasks={config_name}")
         sys.argv.append(f"task={command}")
         hydra_entry_point()
     else:

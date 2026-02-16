@@ -31,54 +31,24 @@ class TestPipelineFeaturesTest:
             "lookahead_configs": [1],
         }
 
+    # test_simulator_testing_sequential removed as it is covered by test_features_test.py
+
+    @patch("logic.src.pipeline.simulations.repository.filesystem.udef.MAP_DEPOTS", {"testarea": "TEST"})
     @patch("logic.src.pipeline.features.test.orchestrator.udef")
     @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
-    @patch("logic.src.pipeline.features.test.orchestrator.sequential_simulations")
-    @patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui")
-    @patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics")
-    def test_simulator_testing_sequential(self, mock_display, mock_send, mock_seq, mock_load, mock_udef, opts):
-        # Configure mocks
-        # Bottom-Up Mapping:
-        # display_log_metrics -> mock_display
-        # send_final_output_to_gui -> mock_send
-        # sequential_simulations -> mock_seq
-        # load_indices -> mock_load
-        # udef -> mock_udef
-
-        mock_udef.ROOT_DIR = "/tmp/test"
-        mock_udef.SIM_METRICS = ["profit"]
-        mock_udef.LOCK_TIMEOUT = 10
-
-        mock_load.return_value = [0, 1]
-        mock_seq.return_value = ({"policy1": [1.0]}, {"policy1": [0.1]}, [])
-
-        device = torch.device("cpu")
-        data_size = 20
-
-        print("Calling simulator_testing...")
-        try:
-            simulator_testing(opts, data_size, device)
-            print("simulator_testing returned.")
-        except Exception as e:
-            print(f"simulator_testing failed: {e}")
-            raise
-
-        print(f"mock_seq called: {mock_seq.called}")
-        print(f"mock_display called: {mock_display.called}")
-
-        assert mock_load.called
-        assert mock_seq.called
-        assert mock_send.called
-        assert mock_display.called
-
-    @patch("logic.src.pipeline.features.test.orchestrator.udef")
-    @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
-    @patch("logic.src.pipeline.features.test.orchestrator.Pool")
-    @patch("logic.src.pipeline.features.test.orchestrator.output_stats")
-    @patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui")
-    @patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics")
+    @patch("logic.src.pipeline.features.test.orchestrator.parallel_runner.Pool")
+    @patch("logic.src.pipeline.features.test.orchestrator.results_handler.output_stats")
+    @patch("logic.src.utils.logging.log_utils.send_final_output_to_gui")
+    @patch("logic.src.pipeline.simulations.simulator.display_log_metrics")
     def test_simulator_testing_parallel(
-        self, mock_display, mock_send, mock_out_stats, mock_pool, mock_load, mock_udef, opts
+        self,
+        mock_display,
+        mock_send,
+        mock_out_stats,
+        mock_pool,
+        mock_load,
+        mock_udef,
+        opts,
     ):
         mock_udef.ROOT_DIR = "/tmp/test"
         mock_udef.LOCK_TIMEOUT = 100

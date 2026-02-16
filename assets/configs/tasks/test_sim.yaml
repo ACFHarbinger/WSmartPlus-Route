@@ -50,6 +50,7 @@ sim:
     dm_filepath: "gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
     focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
 
+  # Policies to run
   policies:
     - hgs: ${p.hgs.hgs}
     - sans: ${p.sans.sans}

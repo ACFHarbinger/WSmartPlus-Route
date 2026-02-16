@@ -54,7 +54,9 @@ eval:
 
   # I/O Configuration
   results_dir: "results_eval" # Directory to save evaluation results
-  model: "checkpoints/best_model.pt" # Path to trained model checkpoint
+  policy:
+    model:
+      load_path: "checkpoints/best_model.pt" # Path to trained model checkpoint
   datasets:
     ["data/example_vrp_50.pkl"] # List of dataset paths to evaluate.
     # Can specify multiple for batch evaluation.

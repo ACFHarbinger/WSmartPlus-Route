@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, Optional, cast
 
 from loguru import logger
 
-from logic.src.interfaces import ITraversable
 from logic.src.utils.logging.log_utils import final_simulation_summary
 
 from ..checkpoints import CheckpointError, checkpoint_manager
@@ -55,7 +54,7 @@ class RunningState(SimState):
         except CheckpointError as e:
             ctx.result = e.error_result
             if opts.get("print_output") and ctx.result:
-                final_simulation_summary(ctx.result, ctx.policy, opts["n_samples"])
+                final_simulation_summary(ctx.result, ctx.pol_name, opts["n_samples"])
             ctx.transition_to(None)
 
     def _run_simulation_days(self, ctx, iterator, hook, realtime_log_path):
@@ -87,14 +86,8 @@ class RunningState(SimState):
 
         # 2. ADD POLICY-SPECIFIC CONFIG FROM CONTEXT
         # This is the new primary path for structured configurations
-        if ctx.policy_cfg:
-            current_policy_config.update(ctx.policy_cfg)
-
-        # 3. LEGACY FALLBACK: Match policy name in global config keys
-        else:
-            for key, cfg in (ctx.config or {}).items():
-                if key in ctx.pol_name and isinstance(cfg, ITraversable):
-                    current_policy_config.update(cfg)
+        if ctx.pol_cfg:
+            current_policy_config.update(ctx.pol_cfg)
 
         return current_policy_config
 
@@ -104,8 +97,8 @@ class RunningState(SimState):
 
         return SimulationDayContext(
             graph_size=ctx.opts["size"],
-            full_policy=ctx.policy,
-            policy=ctx.policy,
+            full_policy=ctx.pol_name,
+            policy=ctx.pol_name,
             policy_name=ctx.pol_name,
             bins=ctx.bins,
             new_data=ctx.new_data,
@@ -157,10 +150,10 @@ class RunningState(SimState):
                 cumulative_metrics = {
                     k: sum(v) for k, v in (ctx.daily_log or {}).items() if k in METRICS and k != "kg/km"
                 }
-                ctx.shared_metrics[f"{ctx.policy}_{ctx.sample_id}"] = {
+                ctx.shared_metrics[f"{ctx.pol_name}_{ctx.sample_id}"] = {
                     "day": day,
                     "metrics": cumulative_metrics,
                     "daily_delta": dlog,
-                    "policy": ctx.policy,
+                    "policy": ctx.pol_name,
                     "sample_id": ctx.sample_id,
                 }

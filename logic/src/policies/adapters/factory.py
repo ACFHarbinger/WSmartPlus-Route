@@ -69,7 +69,7 @@ class PolicyFactory:
 
         if cls:
             if config is not None:
-                return cls(config=config)  # type: ignore[return-value]
+                return cls(config=config)  # type: ignore[return-value,call-arg]
             return cls()  # type: ignore[return-value]
 
         raise ValueError(f"Unknown policy: {name}. Ensure it is registered in PolicyRegistry.")
