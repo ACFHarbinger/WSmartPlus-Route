@@ -22,17 +22,25 @@ def render_mode_selector() -> str:
 
     mode = st.sidebar.radio(
         "📊 Dashboard Mode",
-        options=["Training Monitor", "Simulation Digital Twin", "Benchmark Analysis"],
+        options=[
+            "Training Monitor",
+            "Simulation Digital Twin",
+            "Benchmark Analysis",
+            "Data Explorer",
+            "Live Monitor",
+        ],
         index=1,  # Default to Simulation
-        help="Switch between training metrics, simulation visualization, and benchmark analysis",
+        help="Switch between training metrics, simulation visualization, benchmark analysis, data exploration, and live monitoring",
     )
 
-    if mode == "Training Monitor":
-        return "training"
-    elif mode == "Simulation Digital Twin":
-        return "simulation"
-    else:
-        return "benchmark"
+    mode_map = {
+        "Training Monitor": "training",
+        "Simulation Digital Twin": "simulation",
+        "Benchmark Analysis": "benchmark",
+        "Data Explorer": "data_explorer",
+        "Live Monitor": "live_monitor",
+    }
+    return mode_map.get(mode, "simulation")
 
 
 def render_auto_refresh_toggle() -> Tuple[bool, int]:
