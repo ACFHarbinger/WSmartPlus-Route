@@ -77,7 +77,7 @@ class SimulationDisplay:
         if isinstance(main_console_out, LoggerWriter):
             main_console_out = main_console_out.terminal
 
-        self.console = Console(file=main_console_out, force_terminal=True, force_interactive=True)
+        self.console = Console(file=main_console_out)
         self.layout = Layout()
         self.live: Optional[Live] = None
         self.progress: Optional[Progress] = None
@@ -140,6 +140,13 @@ class SimulationDisplay:
 
     def start(self) -> None:
         """Start the live display."""
+        # Only start Live if we are in a terminal to avoid log spam/corruption
+        if not self.console.is_terminal:
+            self.console.print(
+                "[yellow]Non-TTY detected: Simulation live dashboard disabled. Progress will be logged periodically.[/]"
+            )
+            return
+
         self.live = Live(
             self.layout,
             console=self.console,
@@ -192,7 +199,7 @@ class SimulationDisplay:
                 self.daily_history[pol][day].append(metrics[self.chart_metric])
 
         # Render and refresh Live
-        if self.live:
+        if self.live and self.live.is_started:
             self.live.update(self._render_layout())
 
     def _render_layout(self) -> Layout:
@@ -263,12 +270,15 @@ class SimulationDisplay:
         for h in headers:
             table.add_column(h, justify="right")
 
-        for pol in self.policies:
+        for i, pol in enumerate(self.policies):
             stats = self.policy_stats[pol]
             metrics = stats["metrics"]
             completed = stats["completed"]
 
-            row = [pol[:20] + "..." if len(pol) > 20 else pol, f"{completed}/{self.n_samples}"]
+            # Use the same color as the chart scatter points
+            color = self.colors[i % len(self.colors)]
+            pol_display = pol[:20] + "..." if len(pol) > 20 else pol
+            row = [f"[{color}]{pol_display}[/]", f"{completed}/{self.n_samples}"]
 
             # Map SIM_METRICS values to row
             # SIM_METRICS: overflows, kg, ncol, kg_lost, km, kg/km, cost, profit, days, time
