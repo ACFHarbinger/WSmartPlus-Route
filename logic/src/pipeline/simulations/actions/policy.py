@@ -74,22 +74,36 @@ class PolicyExecutionAction(SimulationAction):
             "ptr",
             "ddam",
         ]
-        if any(k in str(solver_key).lower() for k in selection_keys) and not any(
-            k in str(solver_key).lower() for k in engine_keys
+
+        # Prioritize exact matches in Registry to avoid false positives (e.g. 'gamma' contains 'am')
+        from logic.src.policies.adapters.registry import PolicyRegistry
+
+        # If solver_key is already a valid registered policy, keep it
+        if solver_key and (PolicyRegistry.get(str(solver_key)) or PolicyRegistry.get(f"policy_{solver_key}")):
+            pass
+        elif any(f"{k}" in str(solver_key).lower() for k in selection_keys) and not any(
+            # Robust check: engine must be preceded/followed by _ or be a whole word
+            f"_{k}" in str(solver_key).lower() or f"{k}_" in str(solver_key).lower() or k == str(solver_key).lower()
+            for k in engine_keys
         ):
             solver_key = "tsp"
-
         # Final robust fallback: if still unknown or it's an expanded name, try to find an engine keyword
-        if solver_key not in engine_keys:
+        elif solver_key not in engine_keys:
             for engine in engine_keys:
-                if engine in str(solver_key).lower():
+                # Robust match: engine word or part of _snake_case_
+                if (
+                    f"_{engine}" in str(solver_key).lower()
+                    or f"{engine}_" in str(solver_key).lower()
+                    or engine == str(solver_key).lower()
+                ):
                     # Handle special mapping for neural
                     solver_key = "neural" if engine in ["am", "ptr", "ddam"] else engine
                     break
 
         # If no nodes to collect, return early (unless neural/VRPP which handle empty)
         must_go = context.get("must_go", [])
-        if not must_go and not any(k in str(solver_key).lower() for k in ["neural", "am", "ddam", "vrpp"]):
+        neural_engines = ["neural", "am", "ddam", "ptr"]
+        if not must_go and not any(k in str(solver_key).lower() for k in neural_engines + ["vrpp"]):
             context["tour"] = [0, 0]
             context["cost"] = 0.0
             context["extra_output"] = None
