@@ -97,7 +97,7 @@ def make_day_context():
     """Fixture providing a factory to create a default SimulationDayContext with overrides."""
 
     def _make(**kwargs):
-        full_policy = kwargs.get("full_policy", "policy_regular3_gamma1")
+        full_policy = kwargs.get("full_policy", "regular_lvl3_cvrp_ortools_gamma1")
 
             # Determine policy_name and policy if not provided
         if "policy_name" not in kwargs or "policy" not in kwargs:
@@ -109,9 +109,9 @@ def make_day_context():
 
         defaults = {
             "graph_size": 3,
-            "full_policy": "policy_regular3_gamma1",
-            "policy": "policy_regular3",
-            "policy_name": "policy_regular3",
+            "full_policy": "regular_lvl3_cvrp_ortools_gamma1",
+            "policy": "regular_lvl3_cvrp_ortools",
+            "policy_name": "regular_lvl3_cvrp_ortools",
             "bins": MagicMock(),
             "new_data": MagicMock(),
             "coords": MagicMock(),

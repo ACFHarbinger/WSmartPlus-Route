@@ -34,6 +34,10 @@ class NeuralPolicy(IPolicy):
         None: This class is a stateless wrapper.
     """
 
+    def __init__(self, config: Optional[Any] = None):
+        """Initialize NeuralPolicy."""
+        pass
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the neural policy.

@@ -21,7 +21,7 @@ def mock_params():
 
     return {
         "bins": MockBins(n_bins),
-        "distancesC": distancesC,
+        "distance_matrix": distancesC,
         "waste_type": "plastic",
         "area": "test_area",
         "n_vehicles": 2,
