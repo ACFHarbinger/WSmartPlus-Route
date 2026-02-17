@@ -59,7 +59,7 @@ def _create_objective(
     """Set the objective function: Minimize Cost + Penalties."""
     travel_cost = gp.quicksum(dist_matrix[i][j] * C * x[i, j] for i in nodes for j in nodes if i != j)
 
-    revenue_penalty = 0
+    revenue_penalty = gp.LinExpr(0)
     m_nodes = mandatory_nodes if mandatory_nodes is not None else set()
     for i in customers:
         d = demands.get(i, 0)
@@ -106,7 +106,7 @@ def _extract_solution(
         return [], 0.0
 
     active_edges = [edge for edge, var in x.items() if var.X > 0.5]
-    adj = {i: [] for i in nodes}
+    adj: Dict[int, List[int]] = {i: [] for i in nodes}
     for i, j in active_edges:
         adj[i].append(j)
 

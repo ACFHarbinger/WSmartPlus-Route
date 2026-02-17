@@ -14,7 +14,7 @@ Example:
 
 import random
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -39,6 +39,7 @@ class HGSALNSSolver(HGSSolver):
         C: float,
         params: HGSParams,
         alns_education_iterations: int = 50,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize the hybrid HGS-ALNS solver.
@@ -51,8 +52,9 @@ class HGSALNSSolver(HGSSolver):
             C: Cost multiplier.
             params: Detailed HGS parameters.
             alns_education_iterations: Number of ALNS iterations used during education.
+            mandatory_nodes: Optional list of mandatory node indices.
         """
-        super().__init__(dist_matrix, demands, capacity, R, C, params)
+        super().__init__(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
         self.alns_iter = alns_education_iterations
 
         # Initialize ALNS solver with limited iterations for intensive education

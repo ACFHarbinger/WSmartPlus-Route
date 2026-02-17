@@ -106,12 +106,12 @@ def run_bcp_ortools(
             if route:
                 routes.append(route)
 
-        real_dist_cost = 0
+        real_dist_cost = 0.0
         for r in routes:
             full_r = [0] + r + [0]
             for i in range(len(full_r) - 1):
                 u, v = full_r[i], full_r[i + 1]
-                real_dist_cost += dist_matrix[u][v]
+                real_dist_cost += float(dist_matrix[u][v])
 
         return routes, real_dist_cost * C
 
