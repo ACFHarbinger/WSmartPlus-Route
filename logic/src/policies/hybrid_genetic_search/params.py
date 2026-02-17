@@ -28,6 +28,7 @@ class HGSParams:
     population_size: int = 50
     elite_size: int = 10
     mutation_rate: float = 0.2
+    crossover_rate: float = 0.7
     n_generations: int = 100
     max_vehicles: int = 0
 
@@ -46,6 +47,7 @@ class HGSParams:
             population_size=config.population_size,
             elite_size=config.elite_size,
             mutation_rate=config.mutation_rate,
+            crossover_rate=config.crossover_rate,
             n_generations=config.n_generations,
             max_vehicles=config.max_vehicles,
         )
