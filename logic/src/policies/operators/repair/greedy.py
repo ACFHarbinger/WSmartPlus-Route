@@ -24,76 +24,83 @@ def greedy_insertion(
     demands: Dict[int, float],
     capacity: float,
     R: Optional[float] = None,
+    mandatory_nodes: Optional[List[int]] = None,
 ) -> List[List[int]]:
     """
     Insert removed nodes into their best (cheapest) positions greedily.
 
     Iterates through all unassigned nodes and all possible insertion positions,
     finding the globally cheapest insertion and applying it. Repeats until all
-    nodes are inserted.
+    nodes are inserted OR skipping occurs based on profitability (VRPP).
 
     Args:
         routes: Partial routes.
-        removed_nodes: Nodes to be re-inserted.
+        removed_nodes: List of unassigned node indices.
         dist_matrix: Distance matrix.
         demands: Demand look-up.
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
+        mandatory_nodes: List of mandatory node indices.
 
     Returns:
         List[List[int]]: New routes after insertion.
     """
+    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
     # Calculate current loads
     loads = []
     for route in routes:
-        loads.append(sum(demands.get(n, 0) for n in route))
+        loads.append(sum(demands.get(node, 0) for node in route))
 
-    # Shuffle removed nodes to avoid deterministic bias
-    # But for pure greedy, order matters. ALNS usually randomizes slightly.
-    # Here we stick to input order or simple iteration.
-
-    for node in removed_nodes:
-        demand = demands.get(node, 0)
+    unassigned = list(removed_nodes)
+    while unassigned:
         best_cost = float("inf")
-        best_r_idx = -1
+        best_node = -1
+        best_route_idx = -1
         best_pos = -1
 
-        # Check existing routes
-        for r_idx, route in enumerate(routes):
-            if loads[r_idx] + demand > capacity:
-                continue
+        for node in unassigned:
+            node_demand = demands.get(node, 0)
+            revenue = node_demand * R if R is not None else float("inf")
+            is_mandatory = node in mandatory_nodes_set
 
-            for pos in range(len(route) + 1):
-                prev = 0 if pos == 0 else route[pos - 1]
-                nex = 0 if pos == len(route) else route[pos]
+            for i, route in enumerate(routes):
+                if loads[i] + node_demand > capacity:
+                    continue
 
-                cost = dist_matrix[prev][node] + dist_matrix[node][nex] - dist_matrix[prev][nex]
+                for pos in range(len(route) + 1):
+                    # Cost increase: d(i-1, node) + d(node, i) - d(i-1, i)
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
 
-                if cost < best_cost:
-                    best_cost = cost
-                    best_r_idx = r_idx
-                    best_pos = pos
+                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
 
-        # Check new route
-        # Cost is 0 -> node -> 0
-        new_route_cost = dist_matrix[0][node] + dist_matrix[node][0]
-        if new_route_cost < best_cost:
-            best_cost = new_route_cost
-            best_r_idx = len(routes)
-            best_pos = 0
+                    if cost < best_cost:
+                        # VRPP check: skip if cost > revenue and not mandatory
+                        if R is not None and cost > revenue and not is_mandatory:
+                            continue
 
-        # VRPP Profit Check
-        if R is not None:
-            revenue = demand * R
-            if best_cost > revenue:
-                continue
+                        best_cost = cost
+                        best_node = node
+                        best_route_idx = i
+                        best_pos = pos
 
-        # Apply insertion
-        if best_r_idx == len(routes):
-            routes.append([node])
-            loads.append(demand)
+        if best_node != -1:
+            routes[best_route_idx].insert(best_pos, best_node)
+            loads[best_route_idx] += demands.get(best_node, 0)
+            unassigned.remove(best_node)
         else:
-            routes[best_r_idx].insert(best_pos, node)
-            loads[best_r_idx] += demand
+            # If no feasible insertions are found, we must handle any remaining mandatory nodes
+            # by creating new routes if necessary, but ALNS usually relies on destroy/repair loops.
+            # For VRPP, we allow skipping non-mandatory nodes.
+            # If there are remaining mandatory nodes, we should probably try to create new routes.
+            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
+            if mandatory_remaining:
+                node = mandatory_remaining[0]
+                routes.append([node])
+                loads.append(demands.get(node, 0))
+                unassigned.remove(node)
+            else:
+                # No more mandatory nodes and no more profitable/feasible insertions
+                break
 
     return routes

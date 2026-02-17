@@ -37,6 +37,7 @@ class ALNSSolver:
         R: float,
         C: float,
         params: ALNSParams,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize the ALNS solver.
@@ -48,6 +49,7 @@ class ALNSSolver:
             R: Revenue multiplier.
             C: Cost multiplier.
             params: Detailed ALNS parameters.
+            mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
         self.demands = demands
@@ -55,6 +57,7 @@ class ALNSSolver:
         self.R = R
         self.C = C
         self.params = params
+        self.mandatory_nodes = mandatory_nodes
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -66,8 +69,12 @@ class ALNSSolver:
             lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes),
         ]
         self.repair_ops = [
-            lambda r, n: greedy_insertion(r, n, self.dist_matrix, self.demands, self.capacity, R=self.R),
-            lambda r, n: regret_2_insertion(r, n, self.dist_matrix, self.demands, self.capacity, R=self.R),
+            lambda r, n: greedy_insertion(
+                r, n, self.dist_matrix, self.demands, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
+            ),
+            lambda r, n: regret_2_insertion(
+                r, n, self.dist_matrix, self.demands, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
+            ),
         ]
 
         self.destroy_weights = [1.0] * len(self.destroy_ops)
@@ -239,7 +246,7 @@ class ALNSSolver:
         return routes
 
 
-def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
+def run_alns(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, *args):
     """
     Main ALNS entry point with dispatching to different algorithm variants.
 
@@ -250,6 +257,7 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
         R: Revenue multiplier.
         C: Cost multiplier.
         values: Dictionary of parameters and config.
+        mandatory_nodes: List of mandatory node indices.
         *args: Additional arguments (ignored or passed through).
 
     Returns:
@@ -272,5 +280,5 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, *args):
         min_removal=values.get("min_removal", 1),
         max_removal_pct=values.get("max_removal_pct", 0.3),
     )
-    solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params)
+    solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

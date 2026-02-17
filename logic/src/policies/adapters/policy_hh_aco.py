@@ -47,6 +47,7 @@ class HyperACOPolicy(BaseRoutingPolicy):
         revenue: float,
         cost_unit: float,
         values: Dict[str, Any],
+        mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float]:
         """
@@ -63,6 +64,7 @@ class HyperACOPolicy(BaseRoutingPolicy):
             revenue,
             cost_unit,
             values,
+            mandatory_nodes=mandatory_nodes,
         )
 
         return routes, solver_cost

@@ -11,7 +11,7 @@ import numpy as np
 
 from logic.src.configs.policies import TSPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.tsp import find_route, get_multi_tour
+from logic.src.policies.tsp import find_route, get_multi_tour, get_route_cost
 
 from .factory import PolicyRegistry
 
@@ -49,95 +49,44 @@ class TSPPolicy(BaseRoutingPolicy):
         revenue: float,
         cost_unit: float,
         values: Dict[str, Any],
+        mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float]:
         """
-        Run TSP solver with capacity-based tour splitting.
-
-        Note: TSP uses 1-based node IDs directly (not the local subset mapping),
-        so we need to handle the indices differently.
+        Run TSP solver with capacity-based splitting.
         """
-        # Get the subset_indices from context for mapping
-        must_go = kwargs.get("must_go", [])
-        distancesC = kwargs.get("distancesC")
-        bins = kwargs.get("bins")
+        n_nodes = len(sub_dist_matrix)
+        nodes_to_visit = list(range(1, n_nodes))
 
-        # Use distancesC if available (TSP uses integer distances)
-        dist_matrix = distancesC if distancesC is not None else kwargs.get("distance_matrix")
+        # 1. Find a giant tour visiting all potential targets
+        # Note: find_route expects global indices usually, but we pass local ones here.
+        # It takes C (dist_matrix), to_collect, and time_limit.
+        time_limit = values.get("time_limit", 2.0)
+        tour = find_route(sub_dist_matrix, nodes_to_visit, time_limit=time_limit)
 
-        # TSP works directly with must_go indices (1-based global IDs)
-        to_collect = list(must_go) if must_go else []
+        # demands_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
+        demands_arr_bins = np.array([sub_demands[i] for i in range(1, n_nodes)])
 
-        if not to_collect:
-            return [[]], 0.0
+        # 2. Split the tour greedily based on capacity
+        full_tour = get_multi_tour(tour, demands_arr_bins, capacity, sub_dist_matrix)
 
-        # Find TSP route
-        tour = find_route(dist_matrix, to_collect)
+        # 3. Convert flat tour to List[List[int]]
+        real_routes = []
+        curr_route = []
+        for node in full_tour:
+            if node == 0:
+                if curr_route:
+                    real_routes.append(curr_route)
+                    curr_route = []
+            else:
+                curr_route.append(node)
+        if curr_route:
+            real_routes.append(curr_route)
 
-        # Ensure bins is not None
-        if bins is None:
-            return [[]], 0.0
+        # 4. Calculate total distance cost
+        total_dist = 0.0
+        for r in real_routes:
+            full_r = [0] + r + [0]
+            total_dist += get_route_cost(sub_dist_matrix, full_r)
 
-        # Split by capacity
-        tour = get_multi_tour(tour, bins.c, capacity, dist_matrix)
-
-        # Convert tour to route format expected by base class
-        # Tour is [0, a, b, ..., 0] format, we return as list of routes
-        routes: List[List[int]] = []
-        if tour and len(tour) > 2:
-            current_route: List[int] = []
-            for node in tour:
-                if node == 0:
-                    if current_route:
-                        routes.append(current_route)
-                        current_route = []
-                else:
-                    current_route.append(node)
-            if current_route:
-                routes.append(current_route)
-
-        return routes, 0.0
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
-        """
-        Execute TSP policy.
-
-        Overrides base execute because TSP has unique handling for cached tours
-        and uses different distance matrix key.
-        """
-        must_go = kwargs.get("must_go", [])
-        early_result = self._validate_must_go(must_go)
-        if early_result is not None:
-            return early_result
-
-        bins = kwargs["bins"]
-        area = kwargs.get("area", "Rio Maior")
-        waste_type = kwargs.get("waste_type", "plastic")
-        cached = kwargs.get("cached")
-        config = kwargs.get("config", {})
-        distancesC = kwargs.get("distancesC")
-        distance_matrix = kwargs.get("distance_matrix", distancesC)
-
-        # Load capacity
-        capacity, _, _, values = self._load_area_params(area, waste_type, config)
-
-        # Get time_limit from typed config or values dict
-        cfg = self._config
-        time_limit = cfg.time_limit if cfg is not None else values.get("time_limit", 2.0)
-
-        # Use cached route if available and no specific must_go
-        if cached is not None and len(cached) > 1 and not must_go:
-            tour = cached
-        else:
-            to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
-            tour = find_route(distancesC, to_collect, time_limit=time_limit)
-            tour = get_multi_tour(tour, bins.c, capacity, distancesC)
-
-        # Ensure list format
-        if hasattr(tour, "tolist"):
-            tour = tour.tolist()
-        elif not isinstance(tour, list):
-            tour = list(tour)
-
-        cost = self._compute_cost(distance_matrix, tour)
-        return tour, cost, tour
+        return real_routes, total_dist * cost_unit

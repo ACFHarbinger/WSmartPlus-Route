@@ -15,7 +15,7 @@ Example:
 """
 
 import random
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -43,7 +43,9 @@ class HyperOperatorContext:
         dist_matrix: np.ndarray,
         demands: Dict[int, float],
         capacity: float,
+        R: float,
         C: float,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize HyperOperatorContext.
@@ -53,13 +55,17 @@ class HyperOperatorContext:
             dist_matrix: Distance matrix.
             demands: Node demands.
             capacity: Vehicle capacity.
-            C: Parameter C.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            mandatory_nodes: List of mandatory node indices.
         """
         self.routes = routes
         self.d = dist_matrix
         self.demands = demands
         self.Q = capacity
+        self.R = R
         self.C = C
+        self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
         self.route_loads: List[float] = []
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}

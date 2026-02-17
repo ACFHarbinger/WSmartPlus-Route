@@ -24,6 +24,7 @@ class LinearSplit:
         R: float,
         C: float,
         max_vehicles: int = 0,
+        mandatory_nodes: List[int] = None,
     ):
         """
         Initialize the LinearSplit solver.
@@ -35,6 +36,7 @@ class LinearSplit:
             R: Revenue multiplier.
             C: Cost multiplier.
             max_vehicles: Maximum number of vehicles allowed (0 for unlimited).
+            mandatory_nodes: List of local node indices that MUST be visited.
         """
         self.dist_matrix = np.array(dist_matrix)
         self.demands = demands
@@ -42,6 +44,7 @@ class LinearSplit:
         self.R = R
         self.C = C
         self.max_vehicles = max_vehicles
+        self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
 
     def split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
         """
@@ -169,6 +172,12 @@ class LinearSplit:
                 V[i] = best_A + B_i
                 P[i] = best_j
 
+            # 2. Skip transition (only if NOT mandatory)
+            node = nodes[i - 1]
+            if node not in self.mandatory_nodes and V[i - 1] > V[i]:
+                V[i] = V[i - 1]
+                P[i] = -2  # Marker for skip
+
             if i < n:
                 j_new = i
                 if V[j_new] > -float("inf"):
@@ -199,6 +208,7 @@ class LinearSplit:
 
         P = [[-1] * (n + 1) for _ in range(K + 1)]
         best_profit = -float("inf")
+        best_k = 0
 
         C_cost = self.C
         cap = self.capacity
@@ -225,6 +235,12 @@ class LinearSplit:
                     B_i = cum_rev[i] - C_cost * (cum_dist[i] + d_x_0[i])
                     V_curr[i] = best_A + B_i
                     P[k][i] = best_j
+
+                # 2. Skip transition (only if NOT mandatory)
+                node = nodes[i - 1]
+                if node not in self.mandatory_nodes and V_curr[i - 1] > V_curr[i]:
+                    V_curr[i] = V_curr[i - 1]
+                    P[k][i] = -2  # Marker for skip
 
                 if i < n:
                     j_new = i
@@ -265,10 +281,19 @@ class LinearSplit:
             prev = P[k][curr]
             if prev == -1:
                 return [], -float("inf")
+            if prev == -2:
+                # Skip current node
+                curr -= 1
+                continue
             segment = nodes[prev:curr]
             routes.append(segment)
             curr = prev
             k -= 1
+
+        if curr != 0:
+            # Handle remaining skipped nodes if any
+            while curr > 0 and P[k][curr] == -2:
+                curr -= 1
 
         if curr != 0:
             return [], -float("inf")
@@ -286,13 +311,17 @@ class LinearSplit:
             prev = P[curr]
             if prev == -1:
                 return [], -float("inf")
+            if prev == -2:
+                # Skip current node
+                curr -= 1
+                continue
             routes.append(nodes[prev:curr])
             curr = prev
         routes.reverse()
         return routes, total_profit
 
 
-def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values):
+def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None):
     """
     Convenience wrapper for the LinearSplit algorithm.
 
@@ -304,9 +333,10 @@ def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C,
         R: Revenue multiplier.
         C: Cost multiplier.
         values: Configuration parameters including `max_vehicles`.
+        mandatory_nodes: List of mandatory node indices.
 
     Returns:
         Tuple[List[List[int]], float]: Decoded routes and total profit.
     """
-    s = LinearSplit(dist_matrix, demands, capacity, R, C, values.get("max_vehicles", 0))
+    s = LinearSplit(dist_matrix, demands, capacity, R, C, values.get("max_vehicles", 0), mandatory_nodes)
     return s.split(giant_tour)

@@ -27,6 +27,7 @@ def run_hyper_heuristic_aco(
     R: float,
     C: float,
     values: Dict[str, Any],
+    mandatory_nodes: Optional[List[int]] = None,
     *args: Any,
 ) -> Tuple[List[List[int]], float, float]:
     """
@@ -39,6 +40,7 @@ def run_hyper_heuristic_aco(
         R: Revenue multiplier.
         C: Cost multiplier.
         values: Configuration dictionary with Hyper-ACO parameters.
+        mandatory_nodes: List of mandatory node indices.
         *args: Optional initial routes as the first extra argument.
 
     Returns:
@@ -70,8 +72,8 @@ def run_hyper_heuristic_aco(
         # Build a simple greedy construction if none provided
         initial_routes = _build_greedy_solution(list(demands.keys()), dist_matrix, demands, capacity)
 
-    solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params)  # type: ignore[arg-type]
-    return solver.solve(initial_routes)
+    solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params, initial_routes, mandatory_nodes)
+    return solver.solve()
 
 
 def _build_greedy_solution(
@@ -80,35 +82,34 @@ def _build_greedy_solution(
     demands: Dict[int, float],
     capacity: float,
 ) -> List[List[int]]:
-    """Build initial greedy solution using nearest neighbor."""
-    # Filter out depot (0) if it's in nodes, but usually demands keys are the nodes to visit
-    unvisited = set(n for n in nodes if n != 0)
-    routes = []
+    """Build a basic feasible solution using a greedy constructive heuristic."""
+    unvisited = set(nodes)
+    if 0 in unvisited:
+        unvisited.remove(0)
 
+    routes = []
     while unvisited:
         route = []
-        current = 0  # Start from depot
-        route_load = 0.0
-
+        load = 0.0
+        current = 0
         while unvisited:
-            best_node = None
+            # Find closest unvisited node that fits in capacity
+            best_next = None
             best_dist = float("inf")
-
             for node in unvisited:
-                demand = demands.get(node, 0)
-                if route_load + demand <= capacity:
-                    dist = dist_matrix[current, node]
-                    if dist < best_dist:
-                        best_dist = dist
-                        best_node = node
+                if load + demands.get(node, 0) <= capacity:
+                    d = dist_matrix[current][node]
+                    if d < best_dist:
+                        best_dist = d
+                        best_next = node
 
-            if best_node is None:
+            if best_next is None:
                 break
 
-            route.append(best_node)
-            route_load += demands.get(best_node, 0)
-            unvisited.remove(best_node)
-            current = best_node
+            route.append(best_next)
+            load += demands.get(best_next, 0)
+            unvisited.remove(best_next)
+            current = best_next
 
         if route:
             routes.append(route)

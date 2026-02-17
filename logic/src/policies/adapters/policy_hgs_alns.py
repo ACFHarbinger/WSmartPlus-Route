@@ -48,6 +48,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
         revenue: float,
         cost_unit: float,
         values: Dict[str, Any],
+        mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float]:
         """
@@ -84,6 +85,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             alns_education_iterations=alns_iter,
+            mandatory_nodes=mandatory_nodes,
         )
 
         routes, _, solver_cost = solver.solve()

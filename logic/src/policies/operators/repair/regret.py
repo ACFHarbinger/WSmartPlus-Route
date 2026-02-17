@@ -26,6 +26,7 @@ def regret_2_insertion(
     demands: Dict[int, float],
     capacity: float,
     R: Optional[float] = None,
+    mandatory_nodes: Optional[List[int]] = None,
 ) -> List[List[int]]:
     """
     Insert removed nodes based on the regret-2 criterion.
@@ -41,14 +42,17 @@ def regret_2_insertion(
         demands: Demand look-up.
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional).
+        mandatory_nodes: Optional list of mandatory node indices.
 
     Returns:
         List[List[int]]: New routes after insertion.
     """
-    return regret_k_insertion(routes, removed_nodes, dist_matrix, demands, capacity, k=2, R=R)
+    return regret_k_insertion(
+        routes, removed_nodes, dist_matrix, demands, capacity, k=2, R=R, mandatory_nodes=mandatory_nodes
+    )
 
 
-def regret_k_insertion(
+def regret_k_insertion(  # noqa: C901
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
@@ -56,59 +60,51 @@ def regret_k_insertion(
     capacity: float,
     k: int = 2,
     R: Optional[float] = None,
+    mandatory_nodes: Optional[List[int]] = None,
 ) -> List[List[int]]:
     """
-    Regret-k Insertion Heuristic.
+    Insert removed nodes using the regret-k heuristic.
 
-    Generalization of regret insertion to k-th best option.
-    Calculates regret as cost(k-th best) - cost(best).
-
-    For each unassigned node, calculate the difference between the best and
-    k-th best insertion cost. Insert the node with maximum regret first.
+    Computes the 'regret' for each unassigned node, defined as the difference
+    between the cost of the best insertion and the k-th best insertion. Node
+    with the maximum regret is inserted first into its best position.
 
     Args:
         routes: Partial routes.
-        demands: Node demands.
+        removed_nodes: Nodes to be re-inserted.
+        dist_matrix: Distance matrix.
+        demands: Demand look-up.
         capacity: Vehicle capacity.
         k: Regret degree (2, 3, etc.).
+        R: Revenue multiplier (Optional).
+        mandatory_nodes: Optional list of mandatory node indices.
 
     Returns:
-        Routes with all nodes inserted.
+        List[List[int]]: New routes after insertion.
     """
-    # Initialize loads
+    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
+    # Calculate current loads
     loads = []
     for route in routes:
-        loads.append(sum(demands.get(n, 0) for n in route))
+        loads.append(sum(demands.get(node, 0) for node in route))
 
     unassigned = list(removed_nodes)
-
     while unassigned:
-        # Calculate insertion costs for all unassigned nodes in all positions
-        # node -> [(cost, r_idx, pos), ...]
         all_candidates = []
         unprofitable_nodes = []
 
         for node in unassigned:
             demand = demands.get(node, 0)
-
-            # Optimization: If R is provided, check straight insertion cost first?
-            # No, need context of routes.
-
             node_options = []
 
-            # Check existing routes
             for r_idx, route in enumerate(routes):
                 if loads[r_idx] + demand > capacity:
                     continue
 
-                # Optimization:
-                # If route is long, maybe skip? No.
-
                 for pos in range(len(route) + 1):
-                    prev = 0 if pos == 0 else route[pos - 1]
-                    nex = 0 if pos == len(route) else route[pos]
-
-                    cost = dist_matrix[prev][node] + dist_matrix[node][nex] - dist_matrix[prev][nex]
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
                     node_options.append((cost, r_idx, pos))
 
             # New route option
@@ -122,7 +118,7 @@ def regret_k_insertion(
             best_cost = node_options[0][0]
             if R is not None:
                 revenue = demand * R
-                if best_cost > revenue:
+                if best_cost > revenue and node not in mandatory_nodes_set:
                     unprofitable_nodes.append(node)
                     continue
 
@@ -146,7 +142,16 @@ def regret_k_insertion(
 
         if not all_candidates:
             # No feasible/profitable insertions left
-            break
+            # For remaining mandatory nodes, we'll hit this break and need to handle them
+            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
+            if mandatory_remaining:
+                node = mandatory_remaining[0]
+                routes.append([node])
+                loads.append(demands.get(node, 0))
+                unassigned.remove(node)
+                continue
+            else:
+                break
 
         # Pick node with max regret
         all_candidates.sort(key=lambda x: x[0], reverse=True)

@@ -34,5 +34,6 @@ class ALNSConfig:
     min_removal: int = 1
     max_removal_pct: float = 0.3
     engine: str = "custom"
+    vrpp: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
