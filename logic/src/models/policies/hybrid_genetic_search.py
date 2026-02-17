@@ -9,8 +9,8 @@ from typing import Any, Optional, Tuple
 
 import torch
 
-from logic.src.models.policies.hgs.crossover import vectorized_ordered_crossover
-from logic.src.models.policies.hgs.population import VectorizedPopulation
+from logic.src.models.policies.hgs_core.crossover import vectorized_ordered_crossover
+from logic.src.models.policies.hgs_core.population import VectorizedPopulation
 from logic.src.models.policies.local_search import (
     vectorized_relocate,
     vectorized_swap,
@@ -125,42 +125,7 @@ class VectorizedHGS:
             # 6. Education Phase (Local Search Intensification):
             # Apply a sequence of neighborhood operators to improve the offspring's cost.
             # This 'Education' step is what makes it a 'Hybrid' genetic algorithm.
-            max_l = max(len(r) for r in routes_list)
-            offspring_routes = torch.zeros((B, max_l), dtype=torch.long, device=self.device)
-            for b in range(B):
-                r = routes_list[b]
-                offspring_routes[b, : len(r)] = torch.tensor(r, device=self.device)
-
-            if max_l > 2:
-                # Apply various local search moves iteratively
-                improved_routes = vectorized_two_opt(offspring_routes, self.dist_matrix, max_iterations=50)
-                improved_routes = vectorized_three_opt(improved_routes, self.dist_matrix, max_iterations=20)
-                improved_routes = vectorized_swap(improved_routes, self.dist_matrix, max_iterations=50)
-                improved_routes = vectorized_relocate(improved_routes, self.dist_matrix, max_iterations=50)
-                improved_routes = vectorized_two_opt_star(improved_routes, self.dist_matrix, max_iterations=50)
-                improved_routes = vectorized_swap_star(improved_routes, self.dist_matrix, max_iterations=50)
-
-                # Re-calculate costs after local search optimization
-                from_n = improved_routes[:, :-1]
-                to_n = improved_routes[:, 1:]
-
-                # Flexible distance matrix support (batch, non-batch, 2D, 3D)
-                if self.dist_matrix.dim() == 3 and self.dist_matrix.size(0) == B:
-                    batch_ids = torch.arange(B, device=self.device).view(B, 1)
-                    dists = self.dist_matrix[batch_ids, from_n, to_n]
-                else:
-                    expanded_dm = self.dist_matrix
-                    if expanded_dm.dim() == 2:
-                        expanded_dm = expanded_dm.unsqueeze(0)
-                    if expanded_dm.size(0) == 1 and B > 1:
-                        expanded_dm = expanded_dm.expand(B, -1, -1)
-                    batch_ids = torch.arange(B, device=self.device).view(B, 1)
-                    dists = expanded_dm[batch_ids, from_n, to_n]
-
-                improved_costs = dists.sum(dim=1)
-            else:
-                improved_routes = offspring_routes
-                improved_costs = split_costs
+            improved_routes, improved_costs = self.educate(routes_list, split_costs, max_vehicles)
 
             # 7. Giant Tour Reconstruction:
             # Flatten the improved routes back into a single sequence for the next generation.
@@ -242,3 +207,50 @@ class VectorizedHGS:
             max_vehicles=max_vehicles,
         )
         return best_routes, best_final_costs
+
+    def educate(
+        self, routes_list: list[list[int]], split_costs: torch.Tensor, max_vehicles: int = 0
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Education Phase (Local Search Intensification).
+        Applies standard neighborhood operators.
+        """
+        B = len(routes_list)
+        max_l = max(len(r) for r in routes_list)
+        offspring_routes = torch.zeros((B, max_l), dtype=torch.long, device=self.device)
+        for b in range(B):
+            r = routes_list[b]
+            offspring_routes[b, : len(r)] = torch.tensor(r, device=self.device)
+
+        if max_l > 2:
+            # Apply various local search moves iteratively
+            improved_routes = vectorized_two_opt(offspring_routes, self.dist_matrix, max_iterations=50)
+            improved_routes = vectorized_three_opt(improved_routes, self.dist_matrix, max_iterations=20)
+            improved_routes = vectorized_swap(improved_routes, self.dist_matrix, max_iterations=50)
+            improved_routes = vectorized_relocate(improved_routes, self.dist_matrix, max_iterations=50)
+            improved_routes = vectorized_two_opt_star(improved_routes, self.dist_matrix, max_iterations=50)
+            improved_routes = vectorized_swap_star(improved_routes, self.dist_matrix, max_iterations=50)
+
+            # Re-calculate costs after local search optimization
+            from_n = improved_routes[:, :-1]
+            to_n = improved_routes[:, 1:]
+
+            # Flexible distance matrix support (batch, non-batch, 2D, 3D)
+            if self.dist_matrix.dim() == 3 and self.dist_matrix.size(0) == B:
+                batch_ids = torch.arange(B, device=self.device).view(B, 1)
+                dists = self.dist_matrix[batch_ids, from_n, to_n]
+            else:
+                expanded_dm = self.dist_matrix
+                if expanded_dm.dim() == 2:
+                    expanded_dm = expanded_dm.unsqueeze(0)
+                if expanded_dm.size(0) == 1 and B > 1:
+                    expanded_dm = expanded_dm.expand(B, -1, -1)
+                batch_ids = torch.arange(B, device=self.device).view(B, 1)
+                dists = expanded_dm[batch_ids, from_n, to_n]
+
+            improved_costs = dists.sum(dim=1)
+        else:
+            improved_routes = offspring_routes
+            improved_costs = split_costs
+
+        return improved_routes, improved_costs

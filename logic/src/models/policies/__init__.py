@@ -38,6 +38,7 @@ from .alns import VectorizedALNS
 from .ant_colony_system import VectorizedACOPolicy
 from .hgs import VectorizedHGS
 from .hgs_alns import VectorizedHGSALNS
+from .hybrid_volleyball_premier_league import VectorizedHVPL
 from .iterated_local_search import IteratedLocalSearchPolicy
 
 # Short-name registry: CLI model name -> (module_path, class_name)
@@ -58,6 +59,9 @@ _POLICY_REGISTRY_SPEC = {
     "polynet": ("logic.src.models.polynet.policy", "PolyNetPolicy"),
     "symnco": ("logic.src.models.attention_model.symnco_policy", "SymNCOPolicy"),
     "temporal": ("logic.src.models.temporal_attention_model.policy", "TemporalAMPolicy"),
+    "hvpl": ("logic.src.models.policies.hybrid_volleyball_premier_league", "VectorizedHVPL"),
+    "hgs": ("logic.src.models.policies.hgs", "VectorizedHGS"),
+    "hgs_alns": ("logic.src.models.policies.hgs_alns", "VectorizedHGSALNS"),
 }
 
 
@@ -124,5 +128,6 @@ __all__ = [
     "VectorizedACOPolicy",
     "VectorizedALNS",
     "VectorizedHGS",
+    "VectorizedHVPL",
     "NeuralHeuristicHybrid",
 ]
