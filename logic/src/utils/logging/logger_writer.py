@@ -37,9 +37,6 @@ class LoggerWriter:
             self.terminal.write(message)
 
         # Logic to filter based on tags: [INFO], [WARNING], [ERROR]
-        # We split the message into lines and check each one.
-        # We use regex to check if a line STARTS with one of these tags,
-        # allowing for optional ANSI color codes (e.g., colors) preceding them.
         # Pattern matches:
         # ^                 : Start of string
         # (\x1b\[[0-9;]*m)* : Zero or more ANSI escape sequences
@@ -47,10 +44,16 @@ class LoggerWriter:
         # \[(INFO|WARNING|ERROR)\] : The tag
         tag_pattern = re.compile(r"^(\x1b\[[0-9;]*m)*\s*\[(INFO|WARNING|ERROR|DEBUG|CRITICAL)\]")
 
+        # Pattern to match ANSI escape sequences (colors, styles, cursor control)
+        # matches \x1b[ (start), then 0-9; (params), then m, K, H, F (codes)
+        ansi_escape = re.compile(r"\x1b\[[0-9;]*[mKHF]")
+
         # splitlines(True) keeps the line endings (\n)
         for line in message.splitlines(keepends=True):
             if tag_pattern.match(line) or ("\r" not in line and len(line.strip()) > 0):
-                self.log.write(line)
+                # Strip ANSI codes before writing to log file
+                clean_line = ansi_escape.sub("", line)
+                self.log.write(clean_line)
 
         self.log.flush()  # Ensure it writes immediately
 
