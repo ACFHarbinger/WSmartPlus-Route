@@ -104,7 +104,6 @@ def simulator_testing(opts, data_size, device):
             original_stderr,
         )
     else:
-        print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
         log, log_std, _failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)
 
     realtime_log_path = os.path.join(
