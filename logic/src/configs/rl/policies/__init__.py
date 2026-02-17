@@ -40,6 +40,7 @@ These configs are used in:
 """
 
 from .aco import ACOConfig
+from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
@@ -51,6 +52,7 @@ __all__ = [
     # Main expert policies
     "HGSConfig",
     "HVPLConfig",
+    "AHVPLConfig",
     "ALNSConfig",
     "ILSConfig",
     "RLSConfig",

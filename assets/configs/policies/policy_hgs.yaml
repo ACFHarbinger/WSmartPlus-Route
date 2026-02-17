@@ -61,6 +61,11 @@ hgs:
       # Range: 0.0-0.5 (0.0 = pure crossover, 0.5 = high randomness)
       # Recommendation: 0.1-0.2 for CVRP, 0.3-0.4 for VRPTW
 
+    - crossover_rate: 0.7
+      # Probability of applying crossover after mutation
+      # Range: 0.0-1.0 (0.0 = pure mutation, 1.0 = pure crossover)
+      # Recommendation: 0.7 for CVRP, 0.5 for VRPTW
+
     # Crossover operator: Order Crossover (OX)
     #   - Preserves relative order from parents
     #   - Controlled by crossover_rate: 0.95 (hardcoded)

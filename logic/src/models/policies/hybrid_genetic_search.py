@@ -4,6 +4,7 @@ Vectorized HGS Algorithm.
 
 from __future__ import annotations
 
+import random
 import time
 from typing import Any, Optional, Tuple
 
@@ -61,6 +62,7 @@ class VectorizedHGS:
         elite_size: int = 5,
         time_limit: Optional[float] = None,
         max_vehicles: int = 0,
+        crossover_rate: float = 0.7,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Runs the HGS algorithm starting from a set of initial solutions (Expert Imitation Mode).
@@ -72,6 +74,7 @@ class VectorizedHGS:
             elite_size (int): Number of elite individuals to preserve during restarting.
             time_limit (float, optional): Override time limit in seconds.
             max_vehicles (int, optional): Maximum number of vehicles allowed (0 for unlimited).
+            crossover_rate (float): Probability of applying crossover per generation.
 
         Returns:
             tuple: (best_routes, best_cost)
@@ -110,7 +113,8 @@ class VectorizedHGS:
 
             # 4. Crossover: Ordered Crossover (OX) for giant tours
             # Combines segments from parents while maintaining relative order of cities.
-            offspring_giant = vectorized_ordered_crossover(p1, p2)
+            # With probability (1 - crossover_rate), skip crossover and clone parent.
+            offspring_giant = vectorized_ordered_crossover(p1, p2) if random.random() < crossover_rate else p1.clone()
 
             # 5. Evaluation & Splitting:
             # Convert the giant tour offspring into actual routes using a linear split algorithm.
