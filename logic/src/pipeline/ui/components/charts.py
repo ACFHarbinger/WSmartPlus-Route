@@ -367,6 +367,93 @@ def create_stacked_bar_chart(
     return fig
 
 
+def create_heatmap_chart(
+    df: pd.DataFrame,
+    title: str = "Heatmap",
+) -> go.Figure:
+    """
+    Create a Plotly heatmap from a numeric DataFrame.
+
+    Args:
+        df: DataFrame with numeric values. Rows are Y-axis, columns are X-axis.
+        title: Chart title.
+
+    Returns:
+        Plotly Figure object.
+    """
+    numeric_df = df.select_dtypes(include=["number"])
+    if numeric_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(text="No numeric data for heatmap", showarrow=False)
+        return fig
+
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=numeric_df.values,
+            x=[str(c) for c in numeric_df.columns],
+            y=list(range(len(numeric_df))),
+            colorscale="Viridis",
+            hovertemplate="Row %{y}, Col %{x}<br>Value: %{z:.4f}<extra></extra>",
+        )
+    )
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Columns",
+        yaxis_title="Row Index",
+        height=500,
+        **PLOTLY_LAYOUT_DEFAULTS,
+    )
+
+    return fig
+
+
+def create_area_chart(
+    x: Any,
+    y: Any,
+    x_label: str = "X",
+    y_label: str = "Y",
+    title: str = "Area Chart",
+) -> go.Figure:
+    """
+    Create a filled area chart with a line overlay.
+
+    Args:
+        x: X-axis data (array-like).
+        y: Y-axis data (array-like).
+        x_label: X-axis label.
+        y_label: Y-axis label.
+        title: Chart title.
+
+    Returns:
+        Plotly Figure object.
+    """
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Scatter(
+            x=x,
+            y=y,
+            mode="lines",
+            fill="tozeroy",
+            fillcolor="rgba(31, 119, 180, 0.3)",
+            line=dict(color="#1f77b4"),
+            name=y_label,
+            hovertemplate=f"{y_label}: %{{y:.4f}}<extra>%{{x}}</extra>",
+        )
+    )
+
+    fig.update_layout(
+        title=title,
+        xaxis_title=x_label,
+        yaxis_title=y_label,
+        height=400,
+        **PLOTLY_LAYOUT_DEFAULTS,
+    )
+
+    return fig
+
+
 def create_bar_chart(
     data: Dict[str, float],
     title: str = "Comparison",
