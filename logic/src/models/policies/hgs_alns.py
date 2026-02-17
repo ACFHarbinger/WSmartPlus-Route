@@ -174,9 +174,14 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
             [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
         )
 
+        # Compute reward using the same cost function as the model
+        from logic.src.models.policies.hgs import VectorizedHGS
+
+        reward = VectorizedHGS._compute_reward(td, env, padded_actions)
+
         return {
             "actions": padded_actions,
-            "reward": -costs.to(device),
+            "reward": reward,
             "cost": costs.to(device),
             "log_likelihood": torch.zeros(batch_size, device=device),
         }
