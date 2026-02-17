@@ -54,11 +54,38 @@ class PolicyExecutionAction(SimulationAction):
 
         # Standardize 'tsp' for selection strategies that don't specify a solver
         selection_keys = ["regular", "last_minute", "select_all", "lookahead", "means_std", "revenue", "service_level"]
+        engine_keys = [
+            "hgs",
+            "alns",
+            "hgs_alns",
+            "vrpp",
+            "neural",
+            "bcp",
+            "sans",
+            "ils",
+            "lkh",
+            "aco",
+            "hh_aco",
+            "ks_aco",
+            "sisr",
+            "cvrp",
+            "tsp",
+            "am",
+            "ptr",
+            "ddam",
+        ]
         if any(k in str(solver_key).lower() for k in selection_keys) and not any(
-            k in str(solver_key).lower()
-            for k in ["hgs", "alns", "vrpp", "neural", "bcp", "sans", "ils", "lkh", "aco", "sisr"]
+            k in str(solver_key).lower() for k in engine_keys
         ):
             solver_key = "tsp"
+
+        # Final robust fallback: if still unknown or it's an expanded name, try to find an engine keyword
+        if solver_key not in engine_keys:
+            for engine in engine_keys:
+                if engine in str(solver_key).lower():
+                    # Handle special mapping for neural
+                    solver_key = "neural" if engine in ["am", "ptr", "ddam"] else engine
+                    break
 
         # If no nodes to collect, return early (unless neural/VRPP which handle empty)
         must_go = context.get("must_go", [])

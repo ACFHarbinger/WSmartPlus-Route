@@ -85,7 +85,12 @@ class RunningState(SimState):
                     current_policy_config[g_key] = ctx.config[g_key]
 
         # 2. ADD POLICY-SPECIFIC CONFIG FROM CONTEXT
-        # This is the new primary path for structured configurations
+        # This can come from ctx.pol_cfg (structured) or ctx.config[ctx.pol_name] (auto-expanded test-sim)
+        if ctx.config and ctx.pol_name in ctx.config:
+            pol_data = ctx.config[ctx.pol_name]
+            if isinstance(pol_data, dict):
+                current_policy_config.update(pol_data)
+
         if ctx.pol_cfg:
             current_policy_config.update(ctx.pol_cfg)
 
