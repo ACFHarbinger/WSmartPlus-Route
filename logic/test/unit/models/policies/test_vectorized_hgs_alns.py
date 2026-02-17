@@ -1,0 +1,37 @@
+import torch
+from tensordict import TensorDict
+from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+
+def test_vectorized_hgs_alns():
+    batch_size = 2
+    num_nodes = 10
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    # Mock data
+    td = TensorDict({
+        "locs": torch.rand(batch_size, num_nodes - 1, 2, device=device),
+        "depot": torch.rand(batch_size, 2, device=device),
+        "waste": torch.rand(batch_size, num_nodes - 1, device=device),
+        "capacity": torch.full((batch_size,), 10.0, device=device)
+    }, batch_size=[batch_size])
+
+    policy = VectorizedHGSALNS(
+        env_name="vrpp",
+        time_limit=0.5,
+        population_size=10,
+        n_generations=2,
+        elite_size=2,
+        alns_education_iterations=5
+    ).to(device)
+
+    out = policy(td)
+
+    assert "actions" in out
+    assert "reward" in out
+    assert "cost" in out
+    assert out["actions"].shape[0] == batch_size
+    assert out["reward"].shape[0] == batch_size
+    print("Vectorized HGS-ALNS test passed!")
+
+if __name__ == "__main__":
+    test_vectorized_hgs_alns()
