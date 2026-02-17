@@ -46,6 +46,7 @@ class PolicyFactory:
         """
         # Local imports to avoid circular dependencies and trigger registration
         import logic.src.policies.neural_agent as neural_agent  # noqa
+        import logic.src.policies.adapters.policy_neural as policy_neural  # noqa
         import logic.src.policies.adapters.policy_alns as policy_alns  # noqa
         import logic.src.policies.adapters.policy_bcp as policy_bcp  # noqa
         import logic.src.policies.adapters.policy_cvrp as policy_cvrp  # noqa
