@@ -18,7 +18,10 @@ def print_execution_info(opts: dict, task_count: int, n_cores: int):
     """
     Print information about parallel execution configuration.
     """
-    print(f"Launching {task_count} WSmart Route simulations on {n_cores} CPU cores...")
-    max_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT))
-    proc_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.CORE_LOCK_WAIT_TIME))
-    print(f"[INFO] Maximum lock wait time: {max_lock_timeout} ({proc_lock_timeout} per used thread)")
+    if n_cores > 1:
+        print(f"Launching {task_count} WSmart Route simulations on {n_cores} CPU cores...")
+        max_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.LOCK_TIMEOUT))
+        proc_lock_timeout = time.strftime("%H:%M:%S", time.gmtime(udef.CORE_LOCK_WAIT_TIME))
+        print(f"[INFO] Maximum lock wait time: {max_lock_timeout} ({proc_lock_timeout} per used thread)")
+    else:
+        print(f"Launching {task_count} WSmart Route simulations on a single CPU core...")
