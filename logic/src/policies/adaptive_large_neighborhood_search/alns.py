@@ -222,6 +222,7 @@ class ALNSSolver:
     def build_initial_solution(self) -> List[List[int]]:
         """
         Build a basic feasible solution using a greedy constructive heuristic.
+        For VRPP, it only includes profitable nodes.
 
         Returns:
             List[List[int]]: Initial routes.
@@ -231,8 +232,18 @@ class ALNSSolver:
         routes = []
         curr_route = []
         load = 0.0
+        mandatory_set = set(self.mandatory_nodes) if self.mandatory_nodes else set()
+
         for node in nodes:
             demand = self.demands.get(node, 0)
+            revenue = demand * self.R
+            is_mandatory = node in mandatory_set
+
+            # Basic VRPP check for initial solution: is node potentially profitable?
+            # (Heuristic: revenue > cost to depot and back)
+            if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
+                continue
+
             if load + demand <= self.capacity:
                 curr_route.append(node)
                 load += demand

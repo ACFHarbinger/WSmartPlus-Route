@@ -33,6 +33,6 @@ class HGSConfig:
     n_generations: int = 100
     max_vehicles: int = 0
     engine: str = "custom"
-    vrpp: bool = False
+    vrpp: bool = True
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

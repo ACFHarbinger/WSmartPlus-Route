@@ -25,6 +25,7 @@ def greedy_insertion(
     capacity: float,
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
+    cost_unit: float = 1.0,
 ) -> List[List[int]]:
     """
     Insert removed nodes into their best (cheapest) positions greedily.
@@ -41,6 +42,7 @@ def greedy_insertion(
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
         mandatory_nodes: List of mandatory node indices.
+        cost_unit: Cost per distance unit.
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -75,8 +77,8 @@ def greedy_insertion(
                     cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
 
                     if cost < best_cost:
-                        # VRPP check: skip if cost > revenue and not mandatory
-                        if R is not None and cost > revenue and not is_mandatory:
+                        # VRPP check: skip if cost * cost_unit > revenue and not mandatory
+                        if R is not None and cost * cost_unit > revenue and not is_mandatory:
                             continue
 
                         best_cost = cost

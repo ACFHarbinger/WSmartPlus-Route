@@ -28,5 +28,6 @@ class HVPLConfig:
     alns: ALNSConfig = field(default_factory=ALNSConfig)
 
     # Common policy fields
+    vrpp: bool = True
     must_go: List[str] = field(default_factory=list)
     post_processing: List[Any] = field(default_factory=list)

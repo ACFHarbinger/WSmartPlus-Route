@@ -27,6 +27,7 @@ def regret_2_insertion(
     capacity: float,
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
+    cost_unit: float = 1.0,
 ) -> List[List[int]]:
     """
     Insert removed nodes based on the regret-2 criterion.
@@ -48,7 +49,15 @@ def regret_2_insertion(
         List[List[int]]: New routes after insertion.
     """
     return regret_k_insertion(
-        routes, removed_nodes, dist_matrix, demands, capacity, k=2, R=R, mandatory_nodes=mandatory_nodes
+        routes,
+        removed_nodes,
+        dist_matrix,
+        demands,
+        capacity,
+        k=2,
+        R=R,
+        mandatory_nodes=mandatory_nodes,
+        cost_unit=cost_unit,
     )
 
 
@@ -61,6 +70,7 @@ def regret_k_insertion(  # noqa: C901
     k: int = 2,
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
+    cost_unit: float = 1.0,
 ) -> List[List[int]]:
     """
     Insert removed nodes using the regret-k heuristic.
@@ -118,7 +128,7 @@ def regret_k_insertion(  # noqa: C901
             best_cost = node_options[0][0]
             if R is not None:
                 revenue = demand * R
-                if best_cost > revenue and node not in mandatory_nodes_set:
+                if best_cost * cost_unit > revenue and node not in mandatory_nodes_set:
                     unprofitable_nodes.append(node)
                     continue
 
