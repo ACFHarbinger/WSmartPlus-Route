@@ -43,12 +43,14 @@ from .aco import ACOConfig
 from .alns import ALNSConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
+from .hvpl import HVPLConfig
 from .ils import ILSConfig
 from .rls import RLSConfig
 
 __all__ = [
     # Main expert policies
     "HGSConfig",
+    "HVPLConfig",
     "ALNSConfig",
     "ILSConfig",
     "RLSConfig",

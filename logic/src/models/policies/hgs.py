@@ -1,0 +1,113 @@
+"""
+HGS Policy wrapper for RL4CO using vectorized implementation.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
+
+import torch
+from tensordict import TensorDict
+
+from logic.src.constants.simulation import VEHICLE_CAPACITY
+from logic.src.envs.base import RL4COEnvBase
+from logic.src.models.common.improvement_policy import ImprovementPolicy
+from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
+
+
+class VectorizedHGS(ImprovementPolicy):
+    """
+    HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
+    """
+
+    def __init__(
+        self,
+        env_name: str,
+        time_limit: float = 5.0,
+        population_size: int = 50,
+        n_generations: int = 50,
+        elite_size: int = 10,
+        max_vehicles: int = 0,
+        **kwargs,
+    ):
+        """Initialize HGSPolicy with vectorized solver."""
+        super().__init__(env_name=env_name, **kwargs)
+        self.time_limit = time_limit
+        self.population_size = population_size
+        self.n_generations = n_generations
+        self.elite_size = elite_size
+        self.max_vehicles = max_vehicles
+
+    def forward(
+        self,
+        td: TensorDict,
+        env: Optional[RL4COEnvBase] = None,
+        strategy: str = "greedy",
+        num_starts: int = 1,
+        max_steps: Optional[int] = None,
+        phase: str = "train",
+        return_actions: bool = True,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """
+        Solve instances in the batch using vectorized HGS.
+        """
+        batch_size = td.batch_size[0]
+        device = td.device if td.device is not None else td["locs"].device
+
+        # 1. Setup Data
+        locs = td["locs"]
+        num_nodes = locs.shape[1]
+        if locs.dim() == 3 and locs.shape[-1] == 2:
+            diff = locs.unsqueeze(2) - locs.unsqueeze(1)
+            dist_matrix = torch.sqrt((diff**2).sum(dim=-1))
+        else:
+            dist_matrix = locs
+
+        waste_at_nodes = td.get("waste", torch.zeros(batch_size, num_nodes - 1, device=device))
+        waste = torch.cat([torch.zeros(batch_size, 1, device=device), waste_at_nodes], dim=1)
+        capacity = td.get("capacity", torch.ones(batch_size, device=device) * VEHICLE_CAPACITY)
+        if capacity.dim() == 0:
+            capacity = capacity.expand(batch_size)
+
+        # 2. Initialization: Random permutations
+        initial_solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+
+        # 3. Solver Execution
+        solver = VectorizedHGSEngine(
+            dist_matrix=dist_matrix,
+            demands=waste,
+            vehicle_capacity=capacity,
+            time_limit=self.time_limit,
+            device=str(device),
+        )
+
+        best_routes_list, costs = solver.solve(
+            initial_solutions=initial_solutions,
+            n_generations=self.n_generations,
+            population_size=self.population_size,
+            elite_size=self.elite_size,
+            max_vehicles=self.max_vehicles,
+            time_limit=self.time_limit,
+        )
+
+        # 4. Format Actions
+        # Vectorized linear split output reconstruction (padded)
+        all_actions = []
+        for b in range(batch_size):
+            routes = best_routes_list[b]
+            # Convert to flat action sequence with depot 0
+            a = routes if isinstance(routes, torch.Tensor) else torch.tensor(routes, device=device, dtype=torch.long)
+            all_actions.append(a)
+
+        max_len = max([len(a) for a in all_actions] + [2])
+        padded_actions = torch.stack(
+            [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
+        )
+
+        return {
+            "actions": padded_actions,
+            "reward": -costs.to(device),
+            "cost": costs.to(device),
+            "log_likelihood": torch.zeros(batch_size, device=device),
+        }

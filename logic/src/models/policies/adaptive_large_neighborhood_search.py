@@ -6,7 +6,7 @@ Vehicle Routing Problems (VRP), optimized for GPU execution using PyTorch.
 """
 
 import time
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import torch
 
@@ -62,7 +62,7 @@ class VectorizedALNS:
         max_vehicles: int = 0,
         start_temp: float = 0.5,
         cooling_rate: float = 0.9995,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[List[List[int]], torch.Tensor]:
         """
         High-performance ALNS Solve.
         Optimizes the giant tour as a TSP and splits only at the end.
