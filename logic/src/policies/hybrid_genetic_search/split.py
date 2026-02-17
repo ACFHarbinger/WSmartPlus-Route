@@ -6,7 +6,7 @@ a giant tour into optimal routes based on vehicle capacity.
 """
 
 from collections import deque
-from typing import Deque, Dict, List, Tuple
+from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -24,7 +24,7 @@ class LinearSplit:
         R: float,
         C: float,
         max_vehicles: int = 0,
-        mandatory_nodes: List[int] = None,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize the LinearSplit solver.
@@ -321,7 +321,16 @@ class LinearSplit:
         return routes, total_profit
 
 
-def split_algorithm(giant_tour: List[int], dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None):
+def split_algorithm(
+    giant_tour: List[int],
+    dist_matrix: np.ndarray,
+    demands: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    values: Dict[str, Any],
+    mandatory_nodes: Optional[List[int]] = None,
+):
     """
     Convenience wrapper for the LinearSplit algorithm.
 
