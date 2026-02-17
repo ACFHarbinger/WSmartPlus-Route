@@ -12,12 +12,12 @@ from tensordict import TensorDict
 
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.improvement_policy import ImprovementPolicy
+from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
 from logic.src.models.policies.shared.linear import vectorized_linear_split
 
 
-class VectorizedHVPL(ImprovementPolicy):
+class VectorizedHVPL(AutoregressivePolicy):
     """
     Vectorized Hybrid Volleyball Premier League (HVPL) Policy.
 
@@ -101,7 +101,7 @@ class VectorizedHVPL(ImprovementPolicy):
                 self._substitution_phase(population_tours, instance_costs, dist_matrix, tau, eta)
 
         # 8. Final packaging
-        return self._format_output(best_tours, dist_matrix, waste, capacity)
+        return self._format_output(td, best_tours, dist_matrix, waste, capacity, env=env)
 
     def _setup_data(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Extract problem data from TensorDict."""
@@ -195,9 +195,17 @@ class VectorizedHVPL(ImprovementPolicy):
                     population_tours[b, idx] = sub_tours[b, s]
 
     def _format_output(
-        self, best_tours: torch.Tensor, dist_matrix: torch.Tensor, waste: torch.Tensor, capacity: torch.Tensor
+        self,
+        td: TensorDict,
+        best_tours: torch.Tensor,
+        dist_matrix: torch.Tensor,
+        waste: torch.Tensor,
+        capacity: torch.Tensor,
+        env: Optional[RL4COEnvBase] = None,
     ) -> Dict[str, Any]:
         """Final conversion to split routes and packaged output."""
+        from logic.src.models.policies.hgs import VectorizedHGS
+
         batch_size = best_tours.shape[0]
         device = best_tours.device
 
@@ -211,9 +219,14 @@ class VectorizedHVPL(ImprovementPolicy):
                 a = torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)])
             all_actions.append(a)
 
+        padded_actions = torch.stack(all_actions)
+
+        # Compute reward using the same cost function as the model
+        reward = VectorizedHGS._compute_reward(td, env, padded_actions)
+
         return {
-            "actions": torch.stack(all_actions),
-            "reward": -final_costs.to(device),
+            "actions": padded_actions,
+            "reward": reward,
             "cost": final_costs.to(device),
             "log_likelihood": torch.zeros(batch_size, device=device),
         }

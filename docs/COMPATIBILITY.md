@@ -161,16 +161,16 @@ These are GPU-accelerated, PyTorch-native (`nn.Module`) policy implementations i
 
 | Policy | Registry Key | Base Class | Approach | TSP | CVRP | VRPP | WCVRP | SDWCVRP |
 | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **HGS** | `hgs` | `ImprovementPolicy` | Genetic + Local Search | ✅ | ✅ | ✅ | ✅ | ✅¹ |
-| **ALNS** | `alns` | `ImprovementPolicy` | Destroy-Repair + SA | ✅ | ✅ | ✅ | ✅ | ✅¹ |
+| **HGS** | `hgs` | `AutoregressivePolicy` | Genetic + Local Search | ✅ | ✅ | ✅ | ✅ | ✅¹ |
+| **ALNS** | `alns` | `AutoregressivePolicy` | Destroy-Repair + SA | ✅ | ✅ | ✅ | ✅ | ✅¹ |
 | **ACO** | `aco` | `AutoregressivePolicy` | Ant Colony (Pheromone) | ✅ | ✅ | - | - | - |
-| **HVPL** | `hvpl` | `ImprovementPolicy` | Population (ACO+ALNS) | ✅ | ✅ | ✅ | ✅ | ✅¹ |
-| **AHVPL** | `ahvpl` | `ImprovementPolicy` | Population (HGS+ACO+ALNS) | ✅ | ✅ | ✅ | ✅ | ✅¹ |
-| **HGS-ALNS** | `hgs_alns` | `ImprovementPolicy` | Genetic + ALNS Education | ✅ | ✅ | ✅ | ✅ | ✅¹ |
+| **HVPL** | `hvpl` | `AutoregressivePolicy` | Population (ACO+ALNS) | ✅ | ✅ | ✅ | ✅ | ✅¹ |
+| **AHVPL** | `ahvpl` | `AutoregressivePolicy` | Population (HGS+ACO+ALNS) | ✅ | ✅ | ✅ | ✅ | ✅¹ |
+| **HGS-ALNS** | `hgs_alns` | `AutoregressivePolicy` | Genetic + ALNS Education | ✅ | ✅ | ✅ | ✅ | ✅¹ |
 | **ILS** | - | `ImprovementPolicy` | Local Search + Perturbation | ✅ | ✅ | ✅ | ✅ | ✅¹ |
 | **RandomLS** | - | `ImprovementPolicy` | Stochastic Local Search | ✅ | ✅ | ✅ | ✅ | ✅¹ |
 
-> ¹ All improvement policies accept a generic `demands` tensor. SDWCVRP stochastic demand is resolved in the environment layer; the policy receives expected demands.
+> ¹ All constructive policies accept a generic `demands` tensor. SDWCVRP stochastic demand is resolved in the environment layer; the policy receives expected demands.
 
 ### 6.2 Policy Class Hierarchy
 
@@ -178,15 +178,15 @@ These are GPU-accelerated, PyTorch-native (`nn.Module`) policy implementations i
 nn.Module
 ├── ConstructivePolicy
 │   ├── AutoregressivePolicy
-│   │   └── ACO (VectorizedACOPolicy)
+│   │   ├── ACO (VectorizedACOPolicy)
+│   │   ├── HGS (VectorizedHGS)
+│   │   │   └── HGS-ALNS (VectorizedHGSALNS)
+│   │   ├── ALNS (VectorizedALNS)
+│   │   └── HVPL (VectorizedHVPL)
+│   │       └── AHVPL (VectorizedAHVPL)
 │   └── NonAutoregressivePolicy
 │
 └── ImprovementPolicy
-    ├── HGS (VectorizedHGS)
-    ├── ALNS (VectorizedALNS)
-    ├── HVPL (VectorizedHVPL)
-    ├── AHVPL (VectorizedAHVPL)
-    ├── HGS-ALNS (VectorizedHGSALNS)
     ├── ILS (IteratedLocalSearchPolicy)
     └── RandomLS (RandomLocalSearchPolicy)
 ```

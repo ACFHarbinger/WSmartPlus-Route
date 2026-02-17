@@ -140,7 +140,7 @@ class VectorizedAHVPL(VectorizedHVPL):
                 self._ahvpl_substitution(pop_manager, dist_matrix, waste, capacity, tau, eta)
 
         # 10. Final packaging
-        return self._format_output(best_tours, dist_matrix, waste, capacity)
+        return self._format_output(td, best_tours, dist_matrix, waste, capacity, env=env)
 
     def _ahvpl_substitution(
         self,

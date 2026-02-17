@@ -11,11 +11,11 @@ from tensordict import TensorDict
 
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.improvement_policy import ImprovementPolicy
+from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
 
 
-class VectorizedHGS(ImprovementPolicy):
+class VectorizedHGS(AutoregressivePolicy):
     """
     HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
     """
@@ -108,9 +108,26 @@ class VectorizedHGS(ImprovementPolicy):
             [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
         )
 
+        # Compute reward using the same cost function as the model
+        reward = self._compute_reward(td, env, padded_actions)
+
         return {
             "actions": padded_actions,
-            "reward": -costs.to(device),
+            "reward": reward,
             "cost": costs.to(device),
             "log_likelihood": torch.zeros(batch_size, device=device),
         }
+
+    @staticmethod
+    def _compute_reward(td: TensorDict, env: Optional[RL4COEnvBase], actions: torch.Tensor) -> torch.Tensor:
+        """Replay actions through the environment to compute the exact same
+        reward as the neural model (via ``env.get_reward``)."""
+        if env is None:
+            return -torch.ones(td.batch_size[0], device=actions.device)
+
+        with torch.no_grad():
+            curr_td = env.reset(td)
+            for i in range(actions.size(1)):
+                curr_td["action"] = actions[:, i]
+                curr_td = env.step(curr_td)["next"]
+            return env.get_reward(curr_td, actions)
