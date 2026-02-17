@@ -71,8 +71,8 @@ class TSPPolicy(BaseRoutingPolicy):
         full_tour = get_multi_tour(tour, demands_arr_bins, capacity, sub_dist_matrix)
 
         # 3. Convert flat tour to List[List[int]]
-        real_routes = []
-        curr_route = []
+        real_routes: List[List[int]] = []
+        curr_route: List[int] = []
         for node in full_tour:
             if node == 0:
                 if curr_route:
