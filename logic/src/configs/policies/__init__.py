@@ -8,7 +8,6 @@ from .bcp import BCPConfig
 from .cvrp import CVRPConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
-from .ils import ILSConfig
 from .lkh import LKHConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
@@ -24,7 +23,6 @@ __all__ = [
     "CVRPConfig",
     "HGSConfig",
     "HGSALNSConfig",
-    "ILSConfig",
     "LKHConfig",
     "NeuralConfig",
     "SANSConfig",

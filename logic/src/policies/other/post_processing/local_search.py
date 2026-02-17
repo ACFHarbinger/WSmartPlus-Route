@@ -12,7 +12,7 @@ from logic.src.interfaces import IPostProcessor
 from .registry import PostProcessorRegistry
 
 
-@PostProcessorRegistry.register("classical")
+@PostProcessorRegistry.register("classical_local_search")
 class ClassicalLocalSearchPostProcessor(IPostProcessor):
     """
     Wrapper for vectorized local search operators from

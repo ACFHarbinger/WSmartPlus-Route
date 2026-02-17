@@ -15,7 +15,7 @@ Example:
 """
 
 import random
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 import numpy as np
 
@@ -40,6 +40,9 @@ class SolutionConstructor:
         nodes: List[int],
         params: ACOParams,
         tau_0: float,
+        R: float = 0.0,
+        C: float = 1.0,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize Solution Constructor.
@@ -54,6 +57,9 @@ class SolutionConstructor:
             nodes: List of all nodes (excluding depot).
             params: ACO parameters.
             tau_0: Initial pheromone value.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+            mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
         self.demands = demands
@@ -64,6 +70,9 @@ class SolutionConstructor:
         self.nodes = nodes
         self.params = params
         self.tau_0 = tau_0
+        self.R = R
+        self.C = C
+        self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
 
     def construct(self) -> List[List[int]]:
         """
@@ -73,16 +82,48 @@ class SolutionConstructor:
             List of routes, each a list of node indices.
         """
         unvisited: Set[int] = set(self.nodes)
+        mandatory_unvisited = set(self.mandatory_nodes)
         routes: List[List[int]] = []
 
+        # We continue as long as there are mandatory nodes OR if we want to visit more
+        # In VRPP mode, if mandatory_unvisited is empty, we only continue if profitable nodes exist.
         while unvisited:
+            if not mandatory_unvisited:
+                # Optional: break if no profitable/useful nodes left in unvisited
+                # For ACS, we usually continue until a termination condition.
+                # Here we check if any remaining node is profitable.
+                has_profitable = False
+                for j in unvisited:
+                    revenue = self.demands.get(j, 0) * self.R
+                    # Heuristic check: is revenue > cost to depot and back?
+                    if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
+                        has_profitable = True
+                        break
+                if not has_profitable:
+                    break
+
             route: List[int] = []
             load = 0.0
             current = 0  # Start from depot
 
             while unvisited:
                 # Find feasible next nodes
-                feasible = [j for j in unvisited if load + self.demands.get(j, 0) <= self.capacity]
+                feasible = []
+                for j in unvisited:
+                    if load + self.demands.get(j, 0) <= self.capacity:
+                        # VRPP Logic: Only consider j if mandatory or potentially profitable
+                        if j in mandatory_unvisited:
+                            feasible.append(j)
+                        else:
+                            revenue = self.demands.get(j, 0) * self.R
+                            # Skip if immediately unprofitable compared to staying at depot
+                            # (Very conservative check)
+                            if (
+                                revenue
+                                > (self.dist_matrix[current][j] + self.dist_matrix[j][0] - self.dist_matrix[current][0])
+                                * self.C
+                            ):
+                                feasible.append(j)
 
                 if not feasible:
                     break
@@ -96,6 +137,8 @@ class SolutionConstructor:
                 route.append(next_node)
                 load += self.demands.get(next_node, 0)
                 unvisited.remove(next_node)
+                if next_node in mandatory_unvisited:
+                    mandatory_unvisited.remove(next_node)
                 current = next_node
 
             if route:

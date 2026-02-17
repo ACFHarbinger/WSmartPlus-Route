@@ -47,18 +47,20 @@ class BCPPolicy(BaseRoutingPolicy):
         revenue: float,
         cost_unit: float,
         values: Dict[str, Any],
+        mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float]:
         """
         Run BCP solver.
 
-        All nodes in sub_demands are treated as must-go for the solver.
+        All nodes in mandatory_nodes are treated as must-go for the solver.
+        In VRPP mode, additional nodes from sub_demands might be collected if profitable.
 
         Returns:
             Tuple of (routes, solver_cost)
         """
-        # All subset nodes are must-go (matching HGS strategy)
-        must_go_subset: Set[int] = set(sub_demands.keys())
+        # Convert local mandatory indices to a set of must-go nodes for the solver
+        must_go_indices: Set[int] = set(mandatory_nodes)
 
         routes, solver_cost = run_bcp(
             sub_dist_matrix,
@@ -67,7 +69,7 @@ class BCPPolicy(BaseRoutingPolicy):
             revenue,
             cost_unit,
             values,
-            must_go_indices=must_go_subset,
+            must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
         )
         return routes, solver_cost

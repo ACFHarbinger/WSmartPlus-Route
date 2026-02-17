@@ -6,10 +6,10 @@ from logic.src.interfaces import IPostProcessor
 
 from .factory import PostProcessorFactory
 from .fast_tsp import FastTSPPostProcessor
-from .ils import IteratedLocalSearchPostProcessor
+from .iterated_local_search import IteratedLocalSearchPostProcessor
 from .local_search import ClassicalLocalSearchPostProcessor
 from .path import PathPostProcessor
-from .random_ls import RandomLocalSearchPostProcessor
+from .random_local_search import RandomLocalSearchPostProcessor
 from .registry import PostProcessorRegistry
 
 __all__ = [

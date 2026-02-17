@@ -65,8 +65,15 @@ class HGSLocalSearch(LocalSearch):
         self._optimize_internal()
 
         solution.routes = self.routes
-        gt = []
+        new_gt = []
         for r in self.routes:
-            gt.extend(r)
-        solution.giant_tour = gt
+            new_gt.extend(r)
+
+        # Preserve all nodes in giant_tour for genetic consistency (OX crossover)
+        # Append any nodes that are NOT in the current routes to the end of giant_tour
+        visited_set = set(new_gt)
+        missing_nodes = [node for node in solution.giant_tour if node not in visited_set]
+        new_gt.extend(missing_nodes)
+
+        solution.giant_tour = new_gt
         return solution

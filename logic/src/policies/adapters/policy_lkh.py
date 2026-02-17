@@ -48,65 +48,52 @@ class LKHPolicy(BaseRoutingPolicy):
         revenue: float,
         cost_unit: float,
         values: Dict[str, Any],
+        mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float]:
-        """Not used - LKH requires specialized execute()."""
-        return [[]], 0.0
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
-        Execute the LKH policy.
+        Run LKH solver.
 
-        Uses specialized local-to-global mapping for LK solver.
+        Returns:
+            Tuple of (routes, solver_cost)
         """
-        must_go = kwargs.get("must_go", [])
-        early_result = self._validate_must_go(must_go)
-        if early_result is not None:
-            return early_result
+        # Convert sub_demands dict to array for solve_lkh
+        n_nodes = len(sub_dist_matrix)
+        demands_arr = np.zeros(n_nodes)
+        for i, d in sub_demands.items():
+            demands_arr[i] = d
 
-        bins = kwargs["bins"]
-        distance_matrix = kwargs["distance_matrix"]
-        area = kwargs.get("area", "Rio Maior")
-        waste_type = kwargs.get("waste_type", "plastic")
-        config = kwargs.get("config", {})
-
-        # Load area parameters (capacity, revenue, etc.)
-        capacity, _, _, _ = self._load_area_params(area, waste_type, config)
-
-        # Get solver parameters from typed config or defaults
-        cfg = self._config
-        max_iterations = cfg.max_iterations if cfg is not None else 100
-        check_capacity = cfg.check_capacity if cfg is not None else True
-
-        # Map to local subset
-        # subset_indices[0] = depot (0), subset_indices[1..M] = must_go bins
-        map_local_to_global = {0: 0}
-        for idx, i in enumerate(must_go):
-            # i is already a 1-based bin ID
-            map_local_to_global[idx + 1] = i
-
-        n_nodes = len(must_go) + 1
-        sub_matrix = np.zeros((n_nodes, n_nodes))
-        local_waste = np.zeros(n_nodes)
-
-        for r in range(n_nodes):
-            orig_node_idx = map_local_to_global[r]
-            # orig_node_idx is 1-based ID for bins, 0 for depot
-            local_waste[r] = bins.c[orig_node_idx - 1] if r > 0 else 0
-            for c in range(n_nodes):
-                sub_matrix[r, c] = distance_matrix[map_local_to_global[r]][map_local_to_global[c]]
-
-        lk_tour_local, _ = solve_lkh(
-            sub_matrix,
-            waste=local_waste,
+        # solve_lkh returns a single tour (closed, [0, ..., 0])
+        tour, _ = solve_lkh(
+            sub_dist_matrix,
+            waste=demands_arr,
             capacity=capacity,
-            max_iterations=max_iterations,
+            max_iterations=values.get("max_iterations", 100),
         )
-        lk_tour_global = [map_local_to_global[i] for i in lk_tour_local]
 
-        # Final capacity check/splitting
-        if check_capacity:
-            lk_tour_global = get_multi_tour(lk_tour_global, bins.c, capacity, distance_matrix)
+        # demands_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
+        demands_arr_bins = np.array([sub_demands[i] for i in range(1, n_nodes)])
 
-        cost = get_route_cost(distance_matrix, lk_tour_global)
-        return lk_tour_global, cost, None
+        # Split into multiple routes if capacity is violated
+        full_tour = get_multi_tour(tour, demands_arr_bins, capacity, sub_dist_matrix)
+
+        # Convert flat tour [0, 1, 2, 0, 3, 0] to List[List[int]]
+        real_routes = []
+        curr_route = []
+        for node in full_tour:
+            if node == 0:
+                if curr_route:
+                    real_routes.append(curr_route)
+                    curr_route = []
+            else:
+                curr_route.append(node)
+        if curr_route:
+            real_routes.append(curr_route)
+
+        # Calculate total distance cost
+        total_dist = 0.0
+        for r in real_routes:
+            full_r = [0] + r + [0]
+            total_dist += get_route_cost(sub_dist_matrix, full_r)
+
+        return real_routes, total_dist * cost_unit

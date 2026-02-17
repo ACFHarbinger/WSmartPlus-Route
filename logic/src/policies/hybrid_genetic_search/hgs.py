@@ -12,7 +12,7 @@ Reference:
 
 import random
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -37,6 +37,7 @@ class HGSSolver:
         R: float,
         C: float,
         params: HGSParams,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize the HGS solver.
@@ -48,6 +49,7 @@ class HGSSolver:
             R: Revenue multiplier.
             C: Cost multiplier.
             params: Detailed HGS parameters.
+            mandatory_nodes: List of local node indices that MUST be visited.
         """
         self.d = dist_matrix
         self.demands = demands
@@ -55,11 +57,12 @@ class HGSSolver:
         self.R = R
         self.C = C
         self.params = params
+        self.mandatory_nodes = mandatory_nodes
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
-        self.split_manager = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles)
+        self.split_manager = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles, mandatory_nodes)
         self.ls = HGSLocalSearch(dist_matrix, demands, capacity, R, C, params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
@@ -118,7 +121,7 @@ class HGSSolver:
         return tournament(), tournament()
 
 
-def run_hgs(dist_matrix, demands, capacity, R, C, values, *args):
+def run_hgs(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, *args):
     """
     Main HGS entry point with dispatching logic.
 
@@ -129,6 +132,7 @@ def run_hgs(dist_matrix, demands, capacity, R, C, values, *args):
         R: Revenue multiplier.
         C: Cost multiplier.
         values: Dictionary of parameters and config.
+        mandatory_nodes: List of local node indices that MUST be visited.
         *args: Additional arguments (ignored or passed through).
 
     Returns:
@@ -159,5 +163,5 @@ def run_hgs(dist_matrix, demands, capacity, R, C, values, *args):
         n_generations=values.get("n_generations", 100),
         max_vehicles=values.get("max_vehicles", 0),
     )
-    solver = HGSSolver(dist_matrix, demands, capacity, R, C, params)
+    solver = HGSSolver(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

@@ -34,5 +34,6 @@ class HGSALNSConfig:
     n_generations: int = 100
     max_vehicles: int = 0
     engine: str = "hgs_alns"
+    vrpp: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

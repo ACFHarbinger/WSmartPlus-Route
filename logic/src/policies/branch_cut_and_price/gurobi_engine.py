@@ -2,11 +2,13 @@
 Gurobi engine for Branch-Cut-and-Price module.
 """
 
+from typing import Any, Dict, List, Optional, Set, Tuple
+
 import gurobipy as gp
 from gurobipy import GRB
 
 
-def _setup_model(values, env):
+def _setup_model(values: Dict[str, Any], env: Optional[gp.Env]) -> gp.Model:
     """Initialize Gurobi model with parameters."""
     model = gp.Model("CVRP", env=env) if env else gp.Model("CVRP")
     model.setParam("TimeLimit", values.get("time_limit", 30))
@@ -14,7 +16,13 @@ def _setup_model(values, env):
     return model
 
 
-def _create_variables(model, nodes, customers, demands, capacity):
+def _create_variables(
+    model: gp.Model,
+    nodes: List[int],
+    customers: List[int],
+    demands: Dict[int, float],
+    capacity: float,
+) -> Tuple[Dict[Tuple[int, int], gp.Var], Dict[int, gp.Var], Dict[int, gp.Var]]:
     """Create decision variables x, y, u."""
     # x[i,j]: 1 if edge (i,j) used.
     x = {}
@@ -36,15 +44,27 @@ def _create_variables(model, nodes, customers, demands, capacity):
     return x, y, u
 
 
-def _create_objective(model, x, y, dist_matrix, demands, nodes, customers, R, C, must_go_indices):
+def _create_objective(
+    model: gp.Model,
+    x: Dict[Tuple[int, int], gp.Var],
+    y: Dict[int, gp.Var],
+    dist_matrix: Any,
+    demands: Dict[int, float],
+    nodes: List[int],
+    customers: List[int],
+    R: float,
+    C: float,
+    mandatory_nodes: Optional[Set[int]],
+) -> None:
     """Set the objective function: Minimize Cost + Penalties."""
     travel_cost = gp.quicksum(dist_matrix[i][j] * C * x[i, j] for i in nodes for j in nodes if i != j)
 
     revenue_penalty = 0
+    m_nodes = mandatory_nodes if mandatory_nodes is not None else set()
     for i in customers:
         d = demands.get(i, 0)
         rev = d * R
-        if i in must_go_indices:
+        if i in m_nodes:
             # Must Visit constraint
             model.addConstr(y[i] == 1, name=f"must_visit_{i}")
         else:
@@ -54,14 +74,23 @@ def _create_objective(model, x, y, dist_matrix, demands, nodes, customers, R, C,
     model.setObjective(travel_cost + revenue_penalty, GRB.MINIMIZE)
 
 
-def _add_constraints(model, x, y, u, nodes, customers, demands, capacity):
+def _add_constraints(
+    model: gp.Model,
+    x: Dict[Tuple[int, int], gp.Var],
+    y: Dict[int, gp.Var],
+    u: Dict[int, gp.Var],
+    nodes: List[int],
+    customers: List[int],
+    demands: Dict[int, float],
+    capacity: float,
+) -> None:
     """Add flow conservation and capacity constraints."""
     # Flow Conservation
     for i in customers:
-        model.addConstr(gp.quicksum(x[i, j] for j in nodes if i != j) == y[i], name=f"flow_out_{i}")
-        model.addConstr(gp.quicksum(x[j, i] for j in nodes if i != j) == y[i], name=f"flow_in_{i}")
+        model.addConstr(gp.quicksum(x[i, j] for j in nodes if i != j) == y[i], name=f"out_{i}")
+        model.addConstr(gp.quicksum(x[j, i] for j in nodes if i != j) == y[i], name=f"in_{i}")
 
-    # MTZ Constraints
+    # MTZ Constraints (Subtour elimination and load tracking)
     for i in customers:
         for j in customers:
             if i != j:
@@ -69,61 +98,71 @@ def _add_constraints(model, x, y, u, nodes, customers, demands, capacity):
                 model.addConstr(u[j] >= u[i] + d_j - capacity * (1 - x[i, j]), name=f"mtz_{i}_{j}")
 
 
-def _extract_solution(model, x, nodes):
+def _extract_solution(
+    model: gp.Model, x: Dict[Tuple[int, int], gp.Var], nodes: List[int]
+) -> Tuple[List[List[int]], float]:
     """Extract optimal routes from the model."""
     if model.status not in [GRB.OPTIMAL, GRB.TIME_LIMIT] or model.SolCount == 0:
         return [], 0.0
 
-    routes = []
-    # Build adjacency list
-    adj = {i: [] for i in nodes}  # type: ignore[var-annotated]
-    for i in nodes:
-        for j in nodes:
-            if i != j and x[i, j].X > 0.5:
-                adj[i].append(j)
+    active_edges = [edge for edge, var in x.items() if var.X > 0.5]
+    adj = {i: [] for i in nodes}
+    for i, j in active_edges:
+        adj[i].append(j)
 
-    # Trace routes
+    routes = []
+    # Find all paths starting from depot (0)
     for start_node in adj[0]:
-        route = []
-        curr = start_node
-        while curr != 0:
-            route.append(curr)
-            if not adj[curr]:
-                break
-            curr = adj[curr][0]
+        route = [start_node]
+        current = start_node
+        while current != 0 and current in adj and adj[current]:
+            next_node = adj[current][0]
+            if next_node != 0:
+                route.append(next_node)
+            current = next_node
         routes.append(route)
 
     return routes, model.objVal
 
 
-def run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None):
+def run_bcp_gurobi(
+    dist_matrix: Any,
+    demands: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    values: Dict[str, Any],
+    mandatory_nodes: Optional[List[int]] = None,
+    env: Optional[gp.Env] = None,
+) -> Tuple[List[List[int]], float]:
     """
     Solve Prize-Collecting CVRP using Gurobi MIP solver.
 
-    Implements 2-index flow formulation with MTZ constraints.
+    Args:
+        dist_matrix: NxN distance matrix.
+        demands: Dictionary of node demands.
+        capacity: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Config dictionary (time_limit).
+        mandatory_nodes: List of mandatory node indices.
+        env: Gurobi environment (Optional).
+
+    Returns:
+        Tuple[List[List[int]], float]: (routes, total_cost)
     """
-    if must_go_indices is None:
-        must_go_indices = set()
+    m_set = set(mandatory_nodes) if mandatory_nodes else set()
 
     # Identifying Customer Nodes: Indices 1..N
-    N = len(dist_matrix) - 1
-    customers = [i for i in range(1, N + 1)]
-    nodes = [0] + customers
+    num_nodes = len(dist_matrix)
+    nodes = list(range(num_nodes))
+    customers = list(range(1, num_nodes))
 
-    # 1. Setup Model
     model = _setup_model(values, env)
-
-    # 2. Create Variables
     x, y, u = _create_variables(model, nodes, customers, demands, capacity)
-
-    # 3. Objective
-    _create_objective(model, x, y, dist_matrix, demands, nodes, customers, R, C, must_go_indices)
-
-    # 4. Constraints
+    _create_objective(model, x, y, dist_matrix, demands, nodes, customers, R, C, m_set)
     _add_constraints(model, x, y, u, nodes, customers, demands, capacity)
 
-    # 5. Optimize
     model.optimize()
 
-    # 6. Extract Solution
     return _extract_solution(model, x, nodes)
