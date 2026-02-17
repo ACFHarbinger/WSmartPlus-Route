@@ -11,12 +11,12 @@ from tensordict import TensorDict
 
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.improvement_policy import ImprovementPolicy
+from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 
 from .adaptive_large_neighborhood_search import VectorizedALNS as VectorizedALNSEngine
 
 
-class VectorizedALNS(ImprovementPolicy):
+class VectorizedALNS(AutoregressivePolicy):
     """
     ALNS-based Policy wrapper using vectorized GPU-accelerated implementation.
     """
@@ -78,21 +78,8 @@ class VectorizedALNS(ImprovementPolicy):
         if capacity.dim() == 0:
             capacity = capacity.expand(batch_size)
 
-        # Create initial solutions
-        if kwargs.get("initial_solution") is not None:
-            initial_solutions = kwargs["initial_solution"]
-            # Ensure it's a giant tour (permutation of 1..num_nodes-1)
-            # If it's already a giant tour, great. If it has 0s, we might need to filter.
-            # For simplicity, we assume if provided it's usable or we fall back.
-            if initial_solutions.size(1) != num_nodes - 1:
-                # Fallback to random
-                initial_solutions = torch.stack(
-                    [torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)]
-                )
-        else:
-            initial_solutions = torch.stack(
-                [torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)]
-            )
+        # Create initial solutions (random permutations)
+        initial_solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
 
         solver = VectorizedALNSEngine(
             dist_matrix=dist_matrix,
@@ -128,20 +115,13 @@ class VectorizedALNS(ImprovementPolicy):
             [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
         )
 
-        # Compute rewards (profit - cost)
-        R = getattr(env, "waste_weight", 1.0)
-        C = getattr(env, "cost_weight", 1.0)
+        # Compute reward using the same cost function as the model
+        from logic.src.models.policies.hgs import VectorizedHGS
 
-        # Approximate rewards for now (similar to HGS implementation)
-        all_rewards = []
-        for b in range(batch_size):
-            collected_nodes = set(all_actions[b].tolist()) - {0}
-            profit = sum(waste[b, node].item() * R for node in collected_nodes if node < num_nodes)
-            cost = costs[b].item() * C
-            all_rewards.append(torch.tensor(profit - cost, device=device))
+        reward = VectorizedHGS._compute_reward(td, env, padded_actions)
 
         return {
-            "reward": torch.stack(all_rewards),
+            "reward": reward,
             "actions": padded_actions,
             "log_likelihood": torch.zeros(batch_size, device=device),
             "cost": costs,
