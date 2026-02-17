@@ -25,5 +25,6 @@ class HGSConfig:
     population_size: int = 50
     elite_size: int = 10
     mutation_rate: float = 0.2
+    crossover_rate: float = 0.7
     n_generations: int = 100
     max_vehicles: int = 0

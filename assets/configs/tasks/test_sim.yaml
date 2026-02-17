@@ -21,6 +21,8 @@ defaults:
   - /policies@p.sisr: policy_sisr
   - /policies@p.tsp: policy_tsp
   - /policies@p.vrpp: policy_vrpp
+  - /policies@p.ahvpl: policy_ahvpl
+  - /policies@p.hvpl: policy_hvpl
   - _self_
 
 # General Configuration

@@ -28,6 +28,7 @@ class VectorizedHGS(ImprovementPolicy):
         n_generations: int = 50,
         elite_size: int = 10,
         max_vehicles: int = 0,
+        crossover_rate: float = 0.7,
         **kwargs,
     ):
         """Initialize HGSPolicy with vectorized solver."""
@@ -37,6 +38,7 @@ class VectorizedHGS(ImprovementPolicy):
         self.n_generations = n_generations
         self.elite_size = elite_size
         self.max_vehicles = max_vehicles
+        self.crossover_rate = crossover_rate
 
     def forward(
         self,
@@ -89,6 +91,7 @@ class VectorizedHGS(ImprovementPolicy):
             elite_size=self.elite_size,
             max_vehicles=self.max_vehicles,
             time_limit=self.time_limit,
+            crossover_rate=self.crossover_rate,
         )
 
         # 4. Format Actions

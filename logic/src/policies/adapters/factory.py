@@ -60,6 +60,7 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_hh_aco as policy_hh_aco  # noqa
         import logic.src.policies.adapters.policy_sisr as policy_sisr  # noqa
         import logic.src.policies.adapters.policy_hvpl as policy_hvpl  # noqa
+        import logic.src.policies.adapters.policy_ahvpl as policy_ahvpl  # noqa
 
         # Normalize name
         if not isinstance(name, str):

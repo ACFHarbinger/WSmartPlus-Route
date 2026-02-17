@@ -1,22 +1,14 @@
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import logic.src.policies.adapters.policy_ahvpl as policy_ahvpl_module
 import numpy as np
 import pandas as pd
-
-# Import explicit modules for patch.object
-import logic.src.policies.adapters.policy_bcp as policy_bcp_module
-import logic.src.policies.adapters.policy_vrpp as policy_vrpp_module
-import logic.src.policies.adapters.policy_hgs as policy_hgs_module
-import logic.src.policies.adapters.policy_alns as policy_alns_module
-import logic.src.policies.adapters.policy_sans as policy_sans_module
-
-from logic.src.policies.adapters import PolicyRegistry, PolicyFactory
-from logic.src.policies.adapters.policy_bcp import BCPPolicy
-from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
+import pytest
+from logic.src.policies.adapters import PolicyFactory, PolicyRegistry
+from logic.src.policies.adapters.policy_ahvpl import AHVPLPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
-from logic.src.policies.adapters.policy_alns import ALNSPolicy
-from logic.src.policies.adapters.policy_sans import SANSPolicy
+
 
 class MockBins:
     def __init__(self, n=5):
@@ -149,3 +141,19 @@ def test_sans_execution(mock_engine_data):
         policy.execute(**mock_engine_data)
 
         assert mock_sans.called
+
+@pytest.mark.unit
+def test_ahvpl_engine_override(mock_engine_data):
+    with patch.object(policy_ahvpl_module, "AHVPLSolver") as mock_solver_cls:
+        mock_instance = MagicMock()
+        mock_instance.solve.return_value = ([[1, 2]], 10.0, 5.0)
+        mock_solver_cls.return_value = mock_instance
+
+        mock_engine_data["config"]["ahvpl"] = {}
+
+        policy = PolicyRegistry.get("ahvpl")()
+        assert isinstance(policy, AHVPLPolicy)
+        policy.execute(**mock_engine_data)
+
+        assert mock_solver_cls.called
+        assert mock_instance.solve.called

@@ -34,6 +34,11 @@ mutation_rate: 0.2
 # Probability of mutation after crossover
 # Range: 0.0-0.5 (0.1 = conservative, 0.2 = balanced, 0.4 = aggressive)
 
+crossover_rate: 0.7
+# Probability of applying crossover after mutation
+# Range: 0.0-1.0 (0.0 = pure mutation, 1.0 = pure crossover)
+# Recommendation: 0.7 for CVRP, 0.5 for VRPTW
+
 # Evolution Control
 n_generations: 100
 # Maximum number of generations

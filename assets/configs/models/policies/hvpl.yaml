@@ -1,0 +1,42 @@
+# @package _global_
+
+# =============================================================================
+# HVPL Expert Policy Configuration for RL Training
+# =============================================================================
+# PURPOSE:
+#   Configuration for using Hybrid Volleyball Premier League (HVPL) as expert
+#   policy in Imitation Learning or Adaptive Imitation Learning.
+#
+# USAGE:
+#   python main.py train rl.imitation.policy_config=tasks/policies/rl/hvpl
+# =============================================================================
+
+_target_: logic.src.configs.rl.policies.HVPLConfig
+
+# Runtime Control
+time_limit: 30.0
+# Maximum wall-clock seconds for HVPL solver
+# Range: 10-60 (10s = fast, 30s = balanced, 60s = high quality)
+
+# VPL League Parameters
+n_teams: 10
+# Number of solutions (teams) in the league
+# Range: 5-20
+
+max_iterations: 50
+# Number of league seasons
+# Range: 20-100
+
+sub_rate: 0.2
+# Fraction of weakest teams replaced per iteration
+# Range: 0.1-0.5
+
+# ACO Parameters
+aco_iterations: 1
+# ACO iterations per construction call
+# Range: 1-5
+
+# ALNS Coaching Parameters
+alns_iterations: 100
+# Number of destroy-repair cycles per coaching session
+# Range: 50-500
