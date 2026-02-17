@@ -24,5 +24,6 @@ class LKHConfig:
     check_capacity: bool = True
     max_iterations: int = 100
     engine: str = "custom"
+    vrpp: bool = True
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

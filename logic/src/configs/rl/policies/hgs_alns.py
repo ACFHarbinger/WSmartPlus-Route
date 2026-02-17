@@ -29,3 +29,6 @@ class HGSALNSConfig:
     alns_education_iterations: int = 50
     n_generations: int = 100
     max_vehicles: int = 0
+    vrpp: bool = True
+    crossover_rate: float = 0.8
+    engine: str = "custom"

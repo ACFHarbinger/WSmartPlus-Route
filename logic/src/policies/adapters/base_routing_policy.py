@@ -190,14 +190,18 @@ class BaseRoutingPolicy(IPolicyAdapter):
             )
 
         capacity = policy_config.get("capacity", Q)
-        revenue = policy_config.get("revenue", R)
+        revenue_kg = policy_config.get("revenue", R)
         cost_unit = policy_config.get("cost_unit", C)
         density = policy_config.get("density", B)
         bin_volume = policy_config.get("bin_volume", V)
 
+        # Scale revenue to euro per percent for VRPP/Classical solvers
+        # revenue_kg (€/kg) * density (kg/L) * bin_volume (L) / 100 = € per 1% fill
+        revenue_scaled = revenue_kg * (density * bin_volume / 100.0)
+
         values: Dict[str, Any] = {
             "Q": capacity,
-            "R": revenue,
+            "R": revenue_scaled,
             "C": cost_unit,
             "B": density,
             "V": bin_volume,
@@ -213,7 +217,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         if "psi" not in values:
             values["psi"] = 1.0
 
-        return capacity, revenue, cost_unit, values
+        return capacity, revenue_scaled, cost_unit, values
 
     def _create_subset_problem(
         self,

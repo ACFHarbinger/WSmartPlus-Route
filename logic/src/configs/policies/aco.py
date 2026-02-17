@@ -50,6 +50,6 @@ class ACOConfig:
     elitist_weight: float = 1.0
     operators: List[str] = field(default_factory=lambda: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"])
     engine: str = "custom"
-    vrpp: bool = False
+    vrpp: bool = True
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

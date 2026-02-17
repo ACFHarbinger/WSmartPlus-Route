@@ -9,13 +9,13 @@ from logic.src.pipeline.features.test.orchestrator.monitor import (
     monitor_tasks_until_complete,
 )
 from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
-from logic.src.pipeline.features.test.orchestrator.utils import (
-    prepare_parallel_task_args,
-    print_execution_info,
-)
 from logic.src.pipeline.simulations.simulator import (
     init_single_sim_worker,
     single_simulation,
+)
+from logic.src.utils.tasks.simulation_utils import (
+    prepare_parallel_task_args,
+    print_execution_info,
 )
 
 
