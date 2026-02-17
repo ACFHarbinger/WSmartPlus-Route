@@ -36,6 +36,7 @@ from logic.src.models.temporal_attention_model.policy import TemporalAMPolicy
 
 from .alns import VectorizedALNS
 from .ant_colony_system import VectorizedACOPolicy
+from .augmented_hybrid_volleyball_premier_league import VectorizedAHVPL
 from .hgs import VectorizedHGS
 from .hgs_alns import VectorizedHGSALNS
 from .hybrid_volleyball_premier_league import VectorizedHVPL
@@ -60,6 +61,7 @@ _POLICY_REGISTRY_SPEC = {
     "symnco": ("logic.src.models.attention_model.symnco_policy", "SymNCOPolicy"),
     "temporal": ("logic.src.models.temporal_attention_model.policy", "TemporalAMPolicy"),
     "hvpl": ("logic.src.models.policies.hybrid_volleyball_premier_league", "VectorizedHVPL"),
+    "ahvpl": ("logic.src.models.policies.augmented_hybrid_volleyball_premier_league", "VectorizedAHVPL"),
     "hgs": ("logic.src.models.policies.hgs", "VectorizedHGS"),
     "hgs_alns": ("logic.src.models.policies.hgs_alns", "VectorizedHGSALNS"),
 }
@@ -129,5 +131,6 @@ __all__ = [
     "VectorizedALNS",
     "VectorizedHGS",
     "VectorizedHVPL",
+    "VectorizedAHVPL",
     "NeuralHeuristicHybrid",
 ]
