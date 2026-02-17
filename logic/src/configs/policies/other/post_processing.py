@@ -30,6 +30,23 @@ class PostProcessingConfig:
     perturbation_strength: float = 0.2
     ls_operator: str = "2opt"
     perturbation_type: str = "double_bridge"
+    op_probs: Dict[str, float] = field(
+        default_factory=lambda: {
+            "two_opt": 0.25,
+            "swap": 0.15,
+            "relocate": 0.15,
+            "two_opt_star": 0.2,
+            "swap_star": 0.15,
+            "three_opt": 0.1,
+        }
+    )
+    perturb_probs: Dict[str, float] = field(
+        default_factory=lambda: {
+            "double_bridge": 0.5,
+            "shuffle": 0.3,
+            "random_swap": 0.2,
+        }
+    )
 
     # Execution parameters
     time_limit: float = 10.0

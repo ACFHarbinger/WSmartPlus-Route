@@ -3,12 +3,22 @@ VRPy engine for Branch-Cut-and-Price module.
 """
 
 import logging
+from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
+import numpy as np
 from vrpy import VehicleRoutingProblem
 
 
-def run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
+def run_bcp_vrpy(
+    dist_matrix: np.ndarray,
+    demands: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    values: Dict[str, Any],
+    mandatory_nodes: Optional[List[int]] = None,
+) -> Tuple[List[List[int]], float]:
     """
     Solve CVRP using VRPy (Column Generation / Branch-and-Price).
 
@@ -16,19 +26,16 @@ def run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
     configuration. This implementation solves standard CVRP for ALL nodes
     present in the demands dictionary (no node dropping).
 
-    Uses NetworkX DiGraph representation with:
-    - Source/Sink virtual nodes for depot
-    - Edge costs scaled by C coefficient
-    - Load capacity constraints
-    - Column generation solver from VRPy library
+    Uses NetworkX DiGraph representation.
 
     Args:
-        dist_matrix (np.ndarray): Distance matrix (N x N)
-        demands (dict): Node demands {node_id: demand_value}
-        capacity (float): Vehicle capacity
-        R (float): Revenue per unit demand (unused in this variant)
-        C (float): Cost per unit distance
-        values (dict): Config with 'time_limit' (default: 30)
+        dist_matrix: Distance matrix (N x N)
+        demands: Node demands {node_id: demand_value}
+        capacity: Vehicle capacity
+        R: Revenue per unit demand (unused in this variant)
+        C: Cost per unit distance
+        values: Config with 'time_limit' (default: 30)
+        mandatory_nodes: Optional list of mandatory node indices (unused).
 
     Returns:
         Tuple[List[List[int]], float]: Routes and total cost
@@ -48,23 +55,24 @@ def run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
 
     # Add Nodes
     for i in range(1, n_nodes + 1):
-        d = demands.get(i, 0)
+        d = demands.get(i, 0.0)
         G.add_node(i, demand=d)
+
+    # Source and Sink
+    SOURCE = "Source"
+    SINK = "Sink"
 
     # Add Edges
     for i in range(1, n_nodes + 1):
-        cost = dist_matrix[0][i] * C
-        G.add_edge("Source", i, cost=cost)
-
-    for i in range(1, n_nodes + 1):
-        cost = dist_matrix[i][0] * C
-        G.add_edge(i, "Sink", cost=cost)
+        # Depot to customer
+        G.add_edge(SOURCE, i, cost=float(dist_matrix[0][i] * C))
+        # Customer to depot
+        G.add_edge(i, SINK, cost=float(dist_matrix[i][0] * C))
 
     for i in range(1, n_nodes + 1):
         for j in range(1, n_nodes + 1):
             if i != j:
-                cost = dist_matrix[i][j] * C
-                G.add_edge(i, j, cost=cost)
+                G.add_edge(i, j, cost=float(dist_matrix[i][j] * C))
 
     prob = VehicleRoutingProblem(G, load_capacity=capacity)
 
@@ -72,11 +80,12 @@ def run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values):
     prob.solve(time_limit=time_limit)
 
     if prob.best_routes:
+        # VRPy best_routes is a list of paths (each path is a list of nodes)
         routes = []
-        for _r_id, path in prob.best_routes.items():
-            clean_route = [node for node in path if node not in {"Source", "Sink"}]
+        for path in prob.best_routes:
+            clean_route = [node for node in path if node not in {SOURCE, SINK}]
             if clean_route:
                 routes.append(clean_route)
-        return routes, prob.best_value
+        return routes, float(prob.best_value)
     else:
         return [], 0.0

@@ -15,7 +15,7 @@ Example:
 """
 
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -41,6 +41,7 @@ class KSparseACOSolver:
         R: float,
         C: float,
         params: ACOParams,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize the K-Sparse ACO solver.
@@ -52,6 +53,7 @@ class KSparseACOSolver:
             R: Revenue multiplier.
             C: Cost multiplier.
             params: ACO hyperparameters.
+            mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
         self.demands = demands
@@ -59,6 +61,7 @@ class KSparseACOSolver:
         self.R = R
         self.C = C
         self.params = params
+        self.mandatory_nodes = mandatory_nodes
 
         self.n_nodes = len(dist_matrix)
         self.nodes = list(range(1, self.n_nodes))  # Exclude depot (0)
@@ -101,6 +104,9 @@ class KSparseACOSolver:
             self.nodes,
             params,
             self.tau_0,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
         )
 
     def _nearest_neighbor_cost(self) -> float:

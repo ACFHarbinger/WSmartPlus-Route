@@ -13,7 +13,7 @@ Example:
     >>> result = run_k_sparse_aco(dist_matrix, demands, capacity, ...)
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -28,6 +28,7 @@ def run_k_sparse_aco(
     R: float,
     C: float,
     values: Dict[str, Any],
+    mandatory_nodes: Optional[List[int]] = None,
     *args: Any,
 ) -> Tuple[List[List[int]], float, float]:
     """
@@ -40,6 +41,7 @@ def run_k_sparse_aco(
         R: Revenue multiplier.
         C: Cost multiplier.
         values: Configuration dictionary with ACO parameters.
+        mandatory_nodes: List of mandatory node indices.
         *args: Additional arguments (ignored).
 
     Returns:
@@ -61,5 +63,5 @@ def run_k_sparse_aco(
         elitist_weight=values.get("elitist_weight", 1.0),
     )
 
-    solver = KSparseACOSolver(dist_matrix, demands, capacity, R, C, params)
+    solver = KSparseACOSolver(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

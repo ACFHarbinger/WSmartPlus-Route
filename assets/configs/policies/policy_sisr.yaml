@@ -1,7 +1,7 @@
 # Policy Configuration
 
 # =============================================================================
-# SISR (Stochastic Iterative Solution Refinement) Configuration
+# SISR (Slack Induction by String Removals) Configuration
 # =============================================================================
 # PURPOSE:
 #   Hybridizes string removal/insertion (from ALNS) with simulated annealing

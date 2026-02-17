@@ -12,7 +12,7 @@ from logic.src.interfaces import IPostProcessor
 from .registry import PostProcessorRegistry
 
 
-@PostProcessorRegistry.register("random")
+@PostProcessorRegistry.register("random_local_search")
 class RandomLocalSearchPostProcessor(IPostProcessor):
     """
     Performs stochastic local search refinement by applying random operators.

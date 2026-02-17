@@ -2,59 +2,57 @@
 OR-Tools engine for Branch-Cut-and-Price module.
 """
 
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 
-def run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indices=None):
+def run_bcp_ortools(
+    dist_matrix: np.ndarray,
+    demands: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    values: Dict[str, Any],
+    mandatory_nodes: Optional[List[int]] = None,
+) -> Tuple[List[List[int]], float]:
     """
     Solve Prize-Collecting CVRP using Google OR-Tools.
 
-    Uses OR-Tools' constraint programming routing solver with:
-    - Disjunction for optional node visits (Prize Collecting)
-    - Penalties equal to revenue for skipped nodes
-    - Infinite penalty for must-go nodes
-    - PATH_CHEAPEST_ARC first solution strategy
-    - GUIDED_LOCAL_SEARCH for improvement
-
     Args:
-        dist_matrix (np.ndarray): Distance matrix (N x N)
-        demands (dict): Node demands {node_id: demand_value}
-        capacity (float): Vehicle capacity
-        R (float): Revenue per unit demand
-        C (float): Cost per unit distance
-        values (dict): Config with 'time_limit' (default: 30)
-        must_go_indices (set, optional): Nodes that must be visited
+        dist_matrix: NxN distance matrix.
+        demands: Dictionary of node demands.
+        capacity: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Config dictionary (time_limit, num_vehicles).
+        mandatory_nodes: Optional list of mandatory node indices.
 
     Returns:
-        Tuple[List[List[int]], float]: Routes and total cost
+        Tuple[List[List[int]], float]: (routes, total_cost)
     """
-    # 1. Prepare Data
-    if must_go_indices is None:
-        must_go_indices = set()
-
-    SCALE = 100
-    scaled_dist_matrix = (dist_matrix * SCALE * C).astype(int)
-
     num_nodes = len(dist_matrix)
-    num_vehicles = num_nodes
-    depot = 0
+    num_vehicles = values.get("num_vehicles", num_nodes)  # Dynamic fleet
+    depot_index = 0
 
-    manager = pywrapcp.RoutingIndexManager(num_nodes, num_vehicles, depot)
+    # 1. Create Routing Manager and Model
+    manager = pywrapcp.RoutingIndexManager(num_nodes, num_vehicles, depot_index)
     routing = pywrapcp.RoutingModel(manager)
 
-    # 2. Add Distance Callback
+    # 2. Define Cost distance callback
+    SCALE = 1000  # OR-Tools works better with integers
+
     def distance_callback(from_index, to_index):
-        """Returns the distance between the two nodes."""
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
-        return scaled_dist_matrix[from_node][to_node]
+        return int(dist_matrix[from_node][to_node] * SCALE)
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    # 3. Add Capacity Constraint
+    # 3. Add Capacity Constraints
     def demand_callback(from_index):
-        """Returns the demand of the node."""
         from_node = manager.IndexToNode(from_index)
         if from_node == 0:
             return 0
@@ -66,12 +64,13 @@ def run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indice
 
     # 4. Add Penalties (Prize Collecting)
     MUST_GO_PENALTY = 1_000_000_000
+    m_set = set(mandatory_nodes) if mandatory_nodes else set()
 
     for i in range(1, num_nodes):
         d = demands.get(i, 0)
         revenue = d * R
 
-        penalty = MUST_GO_PENALTY if i in must_go_indices else int(revenue * SCALE)
+        penalty = MUST_GO_PENALTY if i in m_set else int(revenue * SCALE)
 
         routing.AddDisjunction([manager.NodeToIndex(i)], penalty)
 

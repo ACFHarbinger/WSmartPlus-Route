@@ -13,7 +13,7 @@ from logic.src.interfaces import IPostProcessor, ITraversable
 from .registry import PostProcessorRegistry
 
 
-@PostProcessorRegistry.register("ils")
+@PostProcessorRegistry.register("iterated_local_search")
 class IteratedLocalSearchPostProcessor(IPostProcessor):
     """
     Iterated Local Search (ILS) post-processor.
@@ -37,12 +37,12 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
         self.perturbation_strength = perturbation_strength
 
         self.default_op_probs = {
-            "2opt": 0.25,
+            "two_opt": 0.25,
             "swap": 0.15,
             "relocate": 0.15,
             "two_opt_star": 0.2,
             "swap_star": 0.15,
-            "3opt": 0.1,
+            "three_opt": 0.1,
         }
 
         self.default_perturb_probs = {
