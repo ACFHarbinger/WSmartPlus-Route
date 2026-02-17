@@ -12,7 +12,7 @@ from logic.src.models.policies.hybrid_genetic_search import (
     VectorizedPopulation,
     vectorized_ordered_crossover,
 )
-from logic.src.models.policies.hgs.evaluation import calc_broken_pairs_distance
+from logic.src.models.policies.hgs_core.evaluation import calc_broken_pairs_distance
 from logic.src.models.policies.operators import (
     vectorized_relocate,
     vectorized_swap,
