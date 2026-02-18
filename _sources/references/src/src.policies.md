@@ -13,10 +13,12 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.augmented_hybrid_volleyball_premier_league
 src.policies.branch_cut_and_price
 src.policies.ant_colony_optimization
 src.policies.local_search
 src.policies.slack_induction_by_string_removal
+src.policies.hybrid_volleyball_premier_league
 src.policies.other
 src.policies.operators
 src.policies.adapters

@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} NeuralPolicy
+`````{py:class} NeuralPolicy(config: typing.Optional[typing.Any] = None)
 :canonical: src.policies.adapters.policy_neural.NeuralPolicy
 
 Bases: {py:obj}`logic.src.policies.adapters.IPolicy`
 
 ```{autodoc2-docstring} src.policies.adapters.policy_neural.NeuralPolicy
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.adapters.policy_neural.NeuralPolicy.__init__
 ```
 
 ````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]

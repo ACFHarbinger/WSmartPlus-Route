@@ -20,6 +20,7 @@ src.policies.adapters.policy_bcp
 src.policies.adapters.factory
 src.policies.adapters.base_routing_policy
 src.policies.adapters.policy_hgs_alns
+src.policies.adapters.policy_hvpl
 src.policies.adapters.policy_cvrp
 src.policies.adapters.policy_tsp
 src.policies.adapters.policy_neural
@@ -27,6 +28,7 @@ src.policies.adapters.policy_hh_aco
 src.policies.adapters.policy_hgs
 src.policies.adapters.policy_ks_aco
 src.policies.adapters.registry
+src.policies.adapters.policy_ahvpl
 src.policies.adapters.policy_alns
 src.policies.adapters.policy_sans
 ```

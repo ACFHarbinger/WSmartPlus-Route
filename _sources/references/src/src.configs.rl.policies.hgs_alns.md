@@ -106,4 +106,37 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp
+```
+
+````
+
+````{py:attribute} crossover_rate
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate
+```
+
+````
+
+````{py:attribute} engine
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine
+:type: str
+:value: >
+   'custom'
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine
+```
+
+````
+
 `````

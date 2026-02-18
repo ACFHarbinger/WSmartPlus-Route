@@ -14,11 +14,13 @@
 :maxdepth: 1
 
 src.configs.rl.policies.aco
+src.configs.rl.policies.ahvpl
 src.configs.rl.policies.hgs
 src.configs.rl.policies.ils
 src.configs.rl.policies.alns
 src.configs.rl.policies.hgs_alns
 src.configs.rl.policies.rls
+src.configs.rl.policies.hvpl
 ```
 
 ## Package Contents
@@ -40,7 +42,7 @@ src.configs.rl.policies.rls
 ````{py:data} __all__
 :canonical: src.configs.rl.policies.__all__
 :value: >
-   ['HGSConfig', 'ALNSConfig', 'ILSConfig', 'RLSConfig', 'ACOConfig', 'HGSALNSConfig', 'RLSConfig']
+   ['HGSConfig', 'HVPLConfig', 'AHVPLConfig', 'ALNSConfig', 'ILSConfig', 'RLSConfig', 'ACOConfig', 'HGS...
 
 ```{autodoc2-docstring} src.configs.rl.policies.__all__
 ```

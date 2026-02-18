@@ -230,10 +230,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -475,6 +477,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.alns_education_iterations"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.alns_education_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.n_generations"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.n_generations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.max_vehicles</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.crossover_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.engine</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -567,6 +572,24 @@ post_processing: List of post-processing operations to apply.</p>
 <dd><p>0</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate">
+<span class="sig-name descname"><span class="pre">crossover_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate" title="Link to this definition">#</a></dt>
+<dd><p>0.8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine">
+<span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine" title="Link to this definition">#</a></dt>
+<dd><p>‘custom’</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -629,6 +652,9 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.alns_education_iterations"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.alns_education_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.n_generations"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.n_generations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.max_vehicles</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.crossover_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine"><code class="docutils literal notranslate"><span class="pre">HGSALNSConfig.engine</span></code></a></li>
 </ul>
 </li>
 </ul>

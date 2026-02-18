@@ -23,6 +23,8 @@ src.pipeline.ui.pages.simulation
 :maxdepth: 1
 
 src.pipeline.ui.pages.training
+src.pipeline.ui.pages.live_monitor
+src.pipeline.ui.pages.data_explorer
 src.pipeline.ui.pages.benchmark
 ```
 
@@ -45,7 +47,7 @@ src.pipeline.ui.pages.benchmark
 ````{py:data} __all__
 :canonical: src.pipeline.ui.pages.__all__
 :value: >
-   ['render_training_monitor', 'render_simulation_visualizer', 'render_benchmark_analysis']
+   ['render_training_monitor', 'render_simulation_visualizer', 'render_benchmark_analysis', 'render_dat...
 
 ```{autodoc2-docstring} src.pipeline.ui.pages.__all__
 ```

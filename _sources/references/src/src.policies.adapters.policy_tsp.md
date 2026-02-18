@@ -51,18 +51,10 @@ Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolic
 
 ````
 
-````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_demands: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_demands: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.adapters.policy_tsp.TSPPolicy._run_solver
 
 ```{autodoc2-docstring} src.policies.adapters.policy_tsp.TSPPolicy._run_solver
-```
-
-````
-
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
-:canonical: src.policies.adapters.policy_tsp.TSPPolicy.execute
-
-```{autodoc2-docstring} src.policies.adapters.policy_tsp.TSPPolicy.execute
 ```
 
 ````

@@ -35,10 +35,18 @@
 ```{autodoc2-docstring} src.models.policies.hybrid_genetic_search.VectorizedHGS.__init__
 ```
 
-````{py:method} solve(initial_solutions: torch.Tensor, n_generations: int = 50, population_size: int = 10, elite_size: int = 5, time_limit: typing.Optional[float] = None, max_vehicles: int = 0) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} solve(initial_solutions: torch.Tensor, n_generations: int = 50, population_size: int = 10, elite_size: int = 5, time_limit: typing.Optional[float] = None, max_vehicles: int = 0, crossover_rate: float = 0.7) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.hybrid_genetic_search.VectorizedHGS.solve
 
 ```{autodoc2-docstring} src.models.policies.hybrid_genetic_search.VectorizedHGS.solve
+```
+
+````
+
+````{py:method} educate(routes_list: list[list[int]], split_costs: torch.Tensor, max_vehicles: int = 0) -> typing.Tuple[torch.Tensor, torch.Tensor]
+:canonical: src.models.policies.hybrid_genetic_search.VectorizedHGS.educate
+
+```{autodoc2-docstring} src.models.policies.hybrid_genetic_search.VectorizedHGS.educate
 ```
 
 ````

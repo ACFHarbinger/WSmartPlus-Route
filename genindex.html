@@ -594,10 +594,12 @@ window.addEventListener("load", load);
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -894,7 +896,7 @@ document.write(`
 </li>
         <li><a href="references/src/src.models.policies.html#src.models.policies.__all__">(in module src.models.policies)</a>
 </li>
-        <li><a href="references/src/src.models.policies.hgs.html#src.models.policies.hgs.__all__">(in module src.models.policies.hgs)</a>
+        <li><a href="references/src/src.models.policies.hgs_core.html#src.models.policies.hgs_core.__all__">(in module src.models.policies.hgs_core)</a>
 </li>
         <li><a href="references/src/src.models.policies.local_search.html#src.models.policies.local_search.__all__">(in module src.models.policies.local_search)</a>
 </li>
@@ -1247,6 +1249,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution">_accept_solution() (src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
 </li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._aco_construct">_aco_construct() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
+</li>
       <li><a href="references/src/src.pipeline.ui.components.maps.simulation.html#src.pipeline.ui.components.maps.simulation._add_bin_marker">_add_bin_marker() (in module src.pipeline.ui.components.maps.simulation)</a>
 </li>
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._add_bins_to_collect">_add_bins_to_collect() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
@@ -1267,7 +1271,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.attention_model.model.html#src.models.attention_model.model.AttentionModel._aggregate_graph_context">_aggregate_graph_context() (src.models.attention_model.model.AttentionModel method)</a>
 </li>
+      <li><a href="references/src/src.models.policies.augmented_hybrid_volleyball_premier_league.html#src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL._ahvpl_substitution">_ahvpl_substitution() (src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL method)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.train.model_factory.registry.html#src.pipeline.features.train.model_factory.registry._ALGO_REGISTRY">_ALGO_REGISTRY (in module src.pipeline.features.train.model_factory.registry)</a>
+</li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching">_alns_coaching() (src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
 </li>
       <li><a href="references/src/src.pipeline.callbacks.reptile.html#src.pipeline.callbacks.reptile.ReptileCallback._alpha_scheduler">_alpha_scheduler() (src.pipeline.callbacks.reptile.ReptileCallback method)</a>
 </li>
@@ -1286,8 +1294,6 @@ document.write(`
       <li><a href="references/src/src.models.attention_model.hybrid_stage_policy.html#src.models.attention_model.hybrid_stage_policy.HybridTwoStagePolicy._apply_operator_step">_apply_operator_step() (src.models.attention_model.hybrid_stage_policy.HybridTwoStagePolicy method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.actions.post_process.html#src.pipeline.simulations.actions.post_process.PostProcessAction._apply_processors">_apply_processors() (src.pipeline.simulations.actions.post_process.PostProcessAction method)</a>
-</li>
-      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._apply_sequence">_apply_sequence() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_i.html#src.models.policies.operators.unstringing.type_i._apply_type_i_move">_apply_type_i_move() (in module src.models.policies.operators.unstringing.type_i)</a>
 </li>
@@ -1342,6 +1348,8 @@ document.write(`
       <ul>
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.solver.html#src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver._calculate_cost">(src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver method)</a>
 </li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._calculate_cost">(src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.slack_induction_by_string_removal.solver.html#src.policies.slack_induction_by_string_removal.solver.SISRSolver._calculate_cost">(src.policies.slack_induction_by_string_removal.solver.SISRSolver method)</a>
 </li>
       </ul></li>
@@ -1350,6 +1358,8 @@ document.write(`
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._calculate_next_collection_days">_calculate_next_collection_days() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.html#src.policies.simulated_annealing_neighborhood_search.common.solution_initialization._categorize_bins_by_zone">_categorize_bins_by_zone() (in module src.policies.simulated_annealing_neighborhood_search.common.solution_initialization)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer._CHART_TYPES">_CHART_TYPES (in module src.pipeline.ui.pages.data_explorer)</a>
 </li>
       <li><a href="references/src/src.envs.base.ops.html#src.envs.base.ops.OpsMixin._check_done">_check_done() (src.envs.base.ops.OpsMixin method)</a>
 
@@ -1369,6 +1379,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.envs.generators.base.html#src.envs.generators.base.Generator._clustered_locations">_clustered_locations() (src.envs.generators.base.Generator method)</a>
 </li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._coaching_phase">_coaching_phase() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
+</li>
       <li><a href="references/src/src.file_system.html#src.file_system._collect_directories_to_delete">_collect_directories_to_delete() (in module src.file_system)</a>
 </li>
       <li><a href="references/src/src.policies.adapters.base_routing_policy.html#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._compute_cost">_compute_cost() (src.policies.adapters.base_routing_policy.BaseRoutingPolicy method)</a>
@@ -1377,11 +1389,15 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.decoders.mdam.decoder.html#src.models.subnets.decoders.mdam.decoder.MDAMDecoder._compute_initial_kl_divergence">_compute_initial_kl_divergence() (src.models.subnets.decoders.mdam.decoder.MDAMDecoder method)</a>
 </li>
+      <li><a href="references/src/src.models.policies.hgs.html#src.models.policies.hgs.VectorizedHGS._compute_reward">_compute_reward() (src.models.policies.hgs.VectorizedHGS static method)</a>
+</li>
       <li><a href="references/src/src.models.subnets.decoders.deepaco.decoder.html#src.models.subnets.decoders.deepaco.decoder.ACODecoder._compute_tour_cost">_compute_tour_cost() (src.models.subnets.decoders.deepaco.decoder.ACODecoder method)</a>
 </li>
       <li><a href="references/src/src.policies.adapters.base_routing_policy.html#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._config_class">_config_class() (src.policies.adapters.base_routing_policy.BaseRoutingPolicy class method)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.adapters.policy_ahvpl.html#src.policies.adapters.policy_ahvpl.AHVPLPolicy._config_class">(src.policies.adapters.policy_ahvpl.AHVPLPolicy class method)</a>
+</li>
         <li><a href="references/src/src.policies.adapters.policy_alns.html#src.policies.adapters.policy_alns.ALNSPolicy._config_class">(src.policies.adapters.policy_alns.ALNSPolicy class method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_bcp.html#src.policies.adapters.policy_bcp.BCPPolicy._config_class">(src.policies.adapters.policy_bcp.BCPPolicy class method)</a>
@@ -1393,6 +1409,8 @@ document.write(`
         <li><a href="references/src/src.policies.adapters.policy_hgs_alns.html#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._config_class">(src.policies.adapters.policy_hgs_alns.HGSALNSPolicy class method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_hh_aco.html#src.policies.adapters.policy_hh_aco.HyperACOPolicy._config_class">(src.policies.adapters.policy_hh_aco.HyperACOPolicy class method)</a>
+</li>
+        <li><a href="references/src/src.policies.adapters.policy_hvpl.html#src.policies.adapters.policy_hvpl.HVPLPolicy._config_class">(src.policies.adapters.policy_hvpl.HVPLPolicy class method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_ks_aco.html#src.policies.adapters.policy_ks_aco.ACOPolicy._config_class">(src.policies.adapters.policy_ks_aco.ACOPolicy class method)</a>
 </li>
@@ -1409,7 +1427,7 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.pipeline.features.train.model_factory.builder.html#src.pipeline.features.train.model_factory.builder._config_to_dict">_config_to_dict() (in module src.pipeline.features.train.model_factory.builder)</a>
 </li>
-      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._construct_sequence">_construct_sequence() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._construct_individual">_construct_individual() (src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
 </li>
       <li><a href="references/src/src.models.policies.ant_colony_system.html#src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions">_construct_solutions() (src.models.policies.ant_colony_system.VectorizedACOPolicy method)</a>
 </li>
@@ -1499,8 +1517,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.ui.styles.kpi.html#src.pipeline.ui.styles.kpi._delta_css_class">_delta_css_class() (in module src.pipeline.ui.styles.kpi)</a>
 </li>
-      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._deposit_pheromones">_deposit_pheromones() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
-</li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_suite.html#src.pipeline.simulations.wsmart_bin_analysis.test.test_suite.PyTestRunner._discover_test_modules">_discover_test_modules() (src.pipeline.simulations.wsmart_bin_analysis.test.test_suite.PyTestRunner method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.td_learning.html#src.pipeline.rl.meta.td_learning.CostWeightManager._discretize">_discretize() (src.pipeline.rl.meta.td_learning.CostWeightManager method)</a>
@@ -1579,8 +1595,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.model.loader.html#src.utils.model.loader._find_latest_checkpoint">_find_latest_checkpoint() (in module src.utils.model.loader)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.actions.base.html#src.pipeline.simulations.actions.base._find_must_go">_find_must_go() (in module src.pipeline.simulations.actions.base)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.actions.base.html#src.pipeline.simulations.actions.base._flatten_config">_flatten_config() (in module src.pipeline.simulations.actions.base)</a>
@@ -1601,7 +1615,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.processor.formatting.html#src.pipeline.simulations.processor.formatting._format_mmn">_format_mmn() (in module src.pipeline.simulations.processor.formatting)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.processor.formatting.html#src.pipeline.simulations.processor.formatting._format_mun">_format_mun() (in module src.pipeline.simulations.processor.formatting)</a>
+</li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._format_output">_format_output() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.processor.formatting.html#src.pipeline.simulations.processor.formatting._format_s4d">_format_s4d() (in module src.pipeline.simulations.processor.formatting)</a>
 </li>
@@ -1685,6 +1703,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.envs.tasks.base.html#src.envs.tasks.base.BaseProblem._get_batch_info">_get_batch_info() (src.envs.tasks.base.BaseProblem static method)</a>
 </li>
+      <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._get_best">_get_best() (src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.html#src.policies.simulated_annealing_neighborhood_search.common.solution_initialization._get_bin_stock">_get_bin_stock() (in module src.policies.simulated_annealing_neighborhood_search.common.solution_initialization)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.repository.filesystem.html#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_both_areas_data">_get_both_areas_data() (src.pipeline.simulations.repository.filesystem.FileSystemRepository method)</a>
@@ -1692,6 +1712,8 @@ document.write(`
       <li><a href="references/src/src.policies.adapters.base_routing_policy.html#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._get_config_key">_get_config_key() (src.policies.adapters.base_routing_policy.BaseRoutingPolicy method)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.adapters.policy_ahvpl.html#src.policies.adapters.policy_ahvpl.AHVPLPolicy._get_config_key">(src.policies.adapters.policy_ahvpl.AHVPLPolicy method)</a>
+</li>
         <li><a href="references/src/src.policies.adapters.policy_alns.html#src.policies.adapters.policy_alns.ALNSPolicy._get_config_key">(src.policies.adapters.policy_alns.ALNSPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_bcp.html#src.policies.adapters.policy_bcp.BCPPolicy._get_config_key">(src.policies.adapters.policy_bcp.BCPPolicy method)</a>
@@ -1703,6 +1725,8 @@ document.write(`
         <li><a href="references/src/src.policies.adapters.policy_hgs_alns.html#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._get_config_key">(src.policies.adapters.policy_hgs_alns.HGSALNSPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_hh_aco.html#src.policies.adapters.policy_hh_aco.HyperACOPolicy._get_config_key">(src.policies.adapters.policy_hh_aco.HyperACOPolicy method)</a>
+</li>
+        <li><a href="references/src/src.policies.adapters.policy_hvpl.html#src.policies.adapters.policy_hvpl.HVPLPolicy._get_config_key">(src.policies.adapters.policy_hvpl.HVPLPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_ks_aco.html#src.policies.adapters.policy_ks_aco.ACOPolicy._get_config_key">(src.policies.adapters.policy_ks_aco.ACOPolicy method)</a>
 </li>
@@ -1827,6 +1851,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.modules.polynet_attention.html#src.models.subnets.modules.polynet_attention.PolyNetAttention._get_strategy_vectors">_get_strategy_vectors() (src.models.subnets.modules.polynet_attention.PolyNetAttention method)</a>
 </li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._global_competition">_global_competition() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
+</li>
       <li><a href="references/src/src.data.distributions.spatial_gaussian_mixture.html#src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture._global_min_max_scaling">_global_min_max_scaling() (src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture method)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.solver.html#src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver._global_pheromone_update">_global_pheromone_update() (src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver method)</a>
@@ -1869,8 +1895,6 @@ document.write(`
         <li><a href="references/src/src.models.subnets.modules.mdam_attention.html#src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM._init_parameters">(src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._init_pheromones">_init_pheromones() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
-</li>
       <li><a href="references/src/src.pipeline.features.train.model_factory.builder.html#src.pipeline.features.train.model_factory.builder._init_policy">_init_policy() (in module src.pipeline.features.train.model_factory.builder)</a>
 </li>
       <li><a href="references/src/src.models.hrl_manager.model.html#src.models.hrl_manager.model.GATLSTManager._init_shared_encoder_dim">_init_shared_encoder_dim() (src.models.hrl_manager.model.GATLSTManager method)</a>
@@ -1888,6 +1912,8 @@ document.write(`
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._initialize_lists_bins">_initialize_lists_bins() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.initializing.html#src.pipeline.simulations.states.initializing.InitializingState._initialize_new_state">_initialize_new_state() (src.pipeline.simulations.states.initializing.InitializingState method)</a>
+</li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._initialize_population">_initialize_population() (src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.heuristics.sans.html#src.policies.simulated_annealing_neighborhood_search.heuristics.sans._initialize_solution_state">_initialize_solution_state() (in module src.policies.simulated_annealing_neighborhood_search.heuristics.sans)</a>
 </li>
@@ -1925,6 +1951,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.callbacks.reptile.html#src.pipeline.callbacks.reptile.ReptileCallback._load_task">_load_task() (src.pipeline.callbacks.reptile.ReptileCallback method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer._load_uploaded_file">_load_uploaded_file() (in module src.pipeline.ui.pages.data_explorer)</a>
+</li>
       <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.construction.html#src.policies.ant_colony_optimization.k_sparse_aco.construction.SolutionConstructor._local_pheromone_update">_local_pheromone_update() (src.policies.ant_colony_optimization.k_sparse_aco.construction.SolutionConstructor method)</a>
 </li>
       <li><a href="references/src/src.models.glop.policy.html#src.models.glop.policy.GLOPPolicy._local_policy">_local_policy() (src.models.glop.policy.GLOPPolicy method)</a>
@@ -1960,6 +1988,8 @@ document.write(`
       <li><a href="references/src/src.utils.functions.boolmask.html#src.utils.functions.boolmask._mask_byte2long">_mask_byte2long() (in module src.utils.functions.boolmask)</a>
 </li>
       <li><a href="references/src/src.utils.functions.boolmask.html#src.utils.functions.boolmask._mask_long2byte">_mask_long2byte() (in module src.utils.functions.boolmask)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._MAX_LOG_LINES">_MAX_LOG_LINES (in module src.pipeline.ui.pages.live_monitor)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader._METRIC_KEYS">_METRIC_KEYS (in module src.pipeline.ui.services.data_loader)</a>
 </li>
@@ -2051,6 +2081,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.local_search.local_search_base.html#src.policies.local_search.local_search_base.LocalSearch._process_node">_process_node() (src.policies.local_search.local_search_base.LocalSearch method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer._process_raw_to_dfs">_process_raw_to_dfs() (in module src.pipeline.ui.pages.data_explorer)</a>
+</li>
       <li><a href="references/src/src.utils.logging.modules.gui.html#src.utils.logging.modules.gui._process_tour_point">_process_tour_point() (in module src.utils.logging.modules.gui)</a>
 </li>
       <li><a href="references/src/src.utils.io.value_processing.html#src.utils.io.value_processing._process_val_pair">_process_val_pair() (in module src.utils.io.value_processing)</a>
@@ -2058,6 +2090,8 @@ document.write(`
       <li><a href="references/src/src.policies.operators.destroy.string.html#src.policies.operators.destroy.string._propagate_string_removal">_propagate_string_removal() (in module src.policies.operators.destroy.string)</a>
 </li>
       <li><a href="references/src/src.utils.docs.add_docstrings_batch.html#src.utils.docs.add_docstrings_batch.DocstringInjector._queue_docstrings">_queue_docstrings() (src.utils.docs.add_docstrings_batch.DocstringInjector method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._read_raw_lines">_read_raw_lines() (in module src.pipeline.ui.pages.live_monitor)</a>
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search.split.html#src.policies.hybrid_genetic_search.split.LinearSplit._reconstruct">_reconstruct() (src.policies.hybrid_genetic_search.split.LinearSplit method)</a>
 </li>
@@ -2077,6 +2111,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.ui.pages.benchmark.html#src.pipeline.ui.pages.benchmark._render_benchmark_metadata">_render_benchmark_metadata() (in module src.pipeline.ui.pages.benchmark)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer._render_chart">_render_chart() (in module src.pipeline.ui.pages.data_explorer)</a>
+</li>
       <li><a href="references/src/src.pipeline.ui.pages.benchmark.html#src.pipeline.ui.pages.benchmark._render_comparison_charts">_render_comparison_charts() (in module src.pipeline.ui.pages.benchmark)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.pages.training.html#src.pipeline.ui.pages.training._render_convergence_status">_render_convergence_status() (in module src.pipeline.ui.pages.training)</a>
@@ -2093,6 +2129,12 @@ document.write(`
         <li><a href="references/src/src.pipeline.callbacks.training_display.html#src.pipeline.callbacks.training_display.TrainingDisplayCallback._render_layout">(src.pipeline.callbacks.training_display.TrainingDisplayCallback method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._render_live_chart">_render_live_chart() (in module src.pipeline.ui.pages.live_monitor)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._render_live_kpis">_render_live_kpis() (in module src.pipeline.ui.pages.live_monitor)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._render_log_viewer">_render_log_viewer() (in module src.pipeline.ui.pages.live_monitor)</a>
+</li>
       <li><a href="references/src/src.pipeline.ui.pages.training.html#src.pipeline.ui.pages.training._render_lr_schedule">_render_lr_schedule() (in module src.pipeline.ui.pages.training)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.components.sidebar.html#src.pipeline.ui.components.sidebar._render_matrix_loader">_render_matrix_loader() (in module src.pipeline.ui.components.sidebar)</a>
@@ -2106,6 +2148,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.ui.pages.training.html#src.pipeline.ui.pages.training._render_run_comparison">_render_run_comparison() (in module src.pipeline.ui.pages.training)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.pages.training.html#src.pipeline.ui.pages.training._render_run_overview">_render_run_overview() (in module src.pipeline.ui.pages.training)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._render_sidebar_controls">_render_sidebar_controls() (in module src.pipeline.ui.pages.live_monitor)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.pages.training.html#src.pipeline.ui.pages.training._render_training_kpis">_render_training_kpis() (in module src.pipeline.ui.pages.training)</a>
 </li>
@@ -2135,6 +2179,8 @@ document.write(`
         <li><a href="references/src/src.envs.wcvrp.html#src.envs.wcvrp.WCVRPEnv._reset_instance">(src.envs.wcvrp.WCVRPEnv method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer._resolve_column">_resolve_column() (in module src.pipeline.ui.pages.data_explorer)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.test.engine.html#src.pipeline.features.test.engine._resolve_data_size">_resolve_data_size() (in module src.pipeline.features.test.engine)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.test.config.html#src.pipeline.features.test.config._resolve_policy_cfg_path">_resolve_policy_cfg_path() (in module src.pipeline.features.test.config)</a>
@@ -2151,6 +2197,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.rollout.html#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset">_rollout_dataset() (src.pipeline.rl.common.baselines.rollout.RolloutBaseline method)</a>
 </li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._routes_to_giant_tour">_routes_to_giant_tour() (src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver static method)</a>
+</li>
+      <li><a href="references/src/src.models.policies.augmented_hybrid_volleyball_premier_league.html#src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL._routes_to_giant_tours">_routes_to_giant_tours() (src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL method)</a>
+</li>
       <li><a href="references/src/src.models.subnets.modules.efficient_graph_convolution.html#src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution._run_aggregator">_run_aggregator() (src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution method)</a>
 </li>
       <li><a href="references/src/src.models.subnets.decoders.deepaco.decoder.html#src.models.subnets.decoders.deepaco.decoder.ACODecoder._run_ants">_run_ants() (src.models.subnets.decoders.deepaco.decoder.ACODecoder method)</a>
@@ -2164,6 +2214,8 @@ document.write(`
       <li><a href="references/src/src.policies.adapters.base_routing_policy.html#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._run_solver">_run_solver() (src.policies.adapters.base_routing_policy.BaseRoutingPolicy method)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.adapters.policy_ahvpl.html#src.policies.adapters.policy_ahvpl.AHVPLPolicy._run_solver">(src.policies.adapters.policy_ahvpl.AHVPLPolicy method)</a>
+</li>
         <li><a href="references/src/src.policies.adapters.policy_alns.html#src.policies.adapters.policy_alns.ALNSPolicy._run_solver">(src.policies.adapters.policy_alns.ALNSPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_bcp.html#src.policies.adapters.policy_bcp.BCPPolicy._run_solver">(src.policies.adapters.policy_bcp.BCPPolicy method)</a>
@@ -2175,6 +2227,8 @@ document.write(`
         <li><a href="references/src/src.policies.adapters.policy_hgs_alns.html#src.policies.adapters.policy_hgs_alns.HGSALNSPolicy._run_solver">(src.policies.adapters.policy_hgs_alns.HGSALNSPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_hh_aco.html#src.policies.adapters.policy_hh_aco.HyperACOPolicy._run_solver">(src.policies.adapters.policy_hh_aco.HyperACOPolicy method)</a>
+</li>
+        <li><a href="references/src/src.policies.adapters.policy_hvpl.html#src.policies.adapters.policy_hvpl.HVPLPolicy._run_solver">(src.policies.adapters.policy_hvpl.HVPLPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_ks_aco.html#src.policies.adapters.policy_ks_aco.ACOPolicy._run_solver">(src.policies.adapters.policy_ks_aco.ACOPolicy method)</a>
 </li>
@@ -2217,15 +2271,19 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.construction.html#src.policies.ant_colony_optimization.k_sparse_aco.construction.SolutionConstructor._select_next_node">_select_next_node() (src.policies.ant_colony_optimization.k_sparse_aco.construction.SolutionConstructor method)</a>
 </li>
-      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._select_next_operator">_select_next_operator() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
-</li>
       <li><a href="references/src/src.models.subnets.decoders.gat.decoder.html#src.models.subnets.decoders.gat.decoder.DeepGATDecoder._select_node">_select_node() (src.models.subnets.decoders.gat.decoder.DeepGATDecoder method)</a>
 
       <ul>
         <li><a href="references/src/src.models.subnets.decoders.glimpse.decoder.html#src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._select_node">(src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.policies.hybrid_genetic_search.hgs.html#src.policies.hybrid_genetic_search.hgs.HGSSolver._select_parents">_select_parents() (src.policies.hybrid_genetic_search.hgs.HGSSolver method)</a>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._select_parents">_select_parents() (src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_genetic_search.hgs.html#src.policies.hybrid_genetic_search.hgs.HGSSolver._select_parents">(src.policies.hybrid_genetic_search.hgs.HGSSolver method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._select_sequence">_select_sequence() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.contextual_bandits.html#src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit._select_thompson_sampling">_select_thompson_sampling() (src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit method)</a>
 </li>
@@ -2238,6 +2296,8 @@ document.write(`
       <li><a href="references/src/src.envs.base.ops.html#src.envs.base.ops.OpsMixin._set_seed">_set_seed() (src.envs.base.ops.OpsMixin method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.initializing.html#src.pipeline.simulations.states.initializing.InitializingState._setup_capacities">_setup_capacities() (src.pipeline.simulations.states.initializing.InitializingState method)</a>
+</li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._setup_data">_setup_data() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.initializing.html#src.pipeline.simulations.states.initializing.InitializingState._setup_logging_and_dirs">_setup_logging_and_dirs() (src.pipeline.simulations.states.initializing.InitializingState method)</a>
 </li>
@@ -2311,7 +2371,11 @@ document.write(`
         <li><a href="references/src/src.policies.other.post_processing.registry.html#src.policies.other.post_processing.registry.PostProcessorRegistry._strategies">(src.policies.other.post_processing.registry.PostProcessorRegistry attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._substitution_phase">_substitution_phase() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
+</li>
       <li><a href="references/src/src.envs.base.batch.html#src.envs.base.batch.BatchMixin._sync_spec_shapes">_sync_spec_shapes() (src.envs.base.batch.BatchMixin method)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor._TARGET_METRICS">_TARGET_METRICS (in module src.pipeline.ui.pages.live_monitor)</a>
 </li>
       <li><a href="references/src/src.utils.functions.lexsort.html#src.utils.functions.lexsort._torch_lexsort_cuda">_torch_lexsort_cuda() (in module src.utils.functions.lexsort)</a>
 </li>
@@ -2320,6 +2384,8 @@ document.write(`
       <li><a href="references/src/src.policies.lin_kernighan_helsgaun.html#src.policies.lin_kernighan_helsgaun._try_3opt_move">_try_3opt_move() (in module src.policies.lin_kernighan_helsgaun)</a>
 </li>
       <li><a href="references/src/src.policies.operators.exchange.ejection.html#src.policies.operators.exchange.ejection._try_insert_with_chain">_try_insert_with_chain() (in module src.policies.operators.exchange.ejection)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer._try_vrpp_split">_try_vrpp_split() (in module src.pipeline.ui.pages.data_explorer)</a>
 </li>
       <li><a href="references/src/src.models.subnets.decoders.deepaco.decoder.html#src.models.subnets.decoders.deepaco.decoder.ACODecoder._two_opt">_two_opt() (src.models.subnets.decoders.deepaco.decoder.ACODecoder method)</a>
 </li>
@@ -2344,7 +2410,15 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.states.running.html#src.pipeline.simulations.states.running.RunningState._update_metrics">_update_metrics() (src.pipeline.simulations.states.running.RunningState method)</a>
 </li>
       <li><a href="references/src/src.models.policies.ant_colony_system.html#src.models.policies.ant_colony_system.VectorizedACOPolicy._update_pheromones">_update_pheromones() (src.models.policies.ant_colony_system.VectorizedACOPolicy method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._update_pheromones">(src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
 </li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._update_pheromones">(src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._update_pheromones">(src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.heuristics.anneal.html#src.policies.simulated_annealing_neighborhood_search.heuristics.anneal._update_removed_bins">_update_removed_bins() (in module src.policies.simulated_annealing_neighborhood_search.heuristics.anneal)</a>
 </li>
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights">_update_weights() (src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
@@ -2381,6 +2455,24 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.accumulation_steps">accumulation_steps (src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.aco">aco (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.aco">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.aco_iterations">aco_iterations (src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig.aco_iterations">(src.configs.rl.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.aco_params">aco_params (src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams.aco_params">(src.policies.hybrid_volleyball_premier_league.params.HVPLParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig">ACOConfig (class in src.configs.policies.aco)</a>
 
       <ul>
@@ -2451,7 +2543,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.gui_parser.html#src.cli.gui_parser.add_gui_args">add_gui_args() (in module src.cli.gui_parser)</a>
 </li>
-      <li><a href="references/src/src.models.policies.hgs.population.html#src.models.policies.hgs.population.VectorizedPopulation.add_individuals">add_individuals() (src.models.policies.hgs.population.VectorizedPopulation method)</a>
+      <li><a href="references/src/src.models.policies.hgs_core.population.html#src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals">add_individuals() (src.models.policies.hgs_core.population.VectorizedPopulation method)</a>
 </li>
       <li><a href="references/src/src.utils.hooks.memory_hooks.html#src.utils.hooks.memory_hooks.add_memory_leak_detector_hook">add_memory_leak_detector_hook() (in module src.utils.hooks.memory_hooks)</a>
 </li>
@@ -2511,13 +2603,25 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.pipeline.features.test.orchestrator.results_handler.html#src.pipeline.features.test.orchestrator.results_handler.aggregate_final_results">aggregate_final_results() (in module src.pipeline.features.test.orchestrator.results_handler)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.ui.services.log_parser.html#src.pipeline.ui.services.log_parser.aggregate_metrics_by_day">aggregate_metrics_by_day() (in module src.pipeline.ui.services.log_parser)</a>
 </li>
       <li><a href="references/src/src.configs.models.encoder.html#src.configs.models.encoder.EncoderConfig.aggregation_graph">aggregation_graph (src.configs.models.encoder.EncoderConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.models.encoder.html#src.configs.models.encoder.EncoderConfig.aggregation_node">aggregation_node (src.configs.models.encoder.EncoderConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig">AHVPLConfig (class in src.configs.policies.ahvpl)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig">(class in src.configs.rl.policies.ahvpl)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams">AHVPLParams (class in src.policies.augmented_hybrid_volleyball_premier_league.params)</a>
+</li>
+      <li><a href="references/src/src.policies.adapters.policy_ahvpl.html#src.policies.adapters.policy_ahvpl.AHVPLPolicy">AHVPLPolicy (class in src.policies.adapters.policy_ahvpl)</a>
+</li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver">AHVPLSolver (class in src.policies.augmented_hybrid_volleyball_premier_league.ahvpl)</a>
 </li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.algorithm">algorithm (src.configs.rl.RLConfig attribute)</a>
 </li>
@@ -2527,10 +2631,28 @@ document.write(`
         <li><a href="references/src/src.utils.decoding.batch_beam.html#src.utils.decoding.batch_beam.BatchBeam.all_finished">(src.utils.decoding.batch_beam.BatchBeam method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.alns">alns (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.alns">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.alns_education_iterations">alns_education_iterations (src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#src.configs.rl.policies.hgs_alns.HGSALNSConfig.alns_education_iterations">(src.configs.rl.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.alns_iterations">alns_iterations (src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig.alns_iterations">(src.configs.rl.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.alns_params">alns_params (src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams.alns_params">(src.policies.hybrid_volleyball_premier_league.params.HVPLParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns_package.html#src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_greedy_insertion">alns_pkg_greedy_insertion() (in module src.policies.adaptive_large_neighborhood_search.alns_package)</a>
@@ -2569,6 +2691,8 @@ document.write(`
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.params.html#src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.alpha">(src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.alpha_diversity">alpha_diversity (src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
       <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.analyze_file">analyze_file() (in module src.utils.docs.check_google_style)</a>
 
       <ul>
@@ -2711,10 +2835,10 @@ document.write(`
         <li><a href="references/src/src.models.attention_model.decoding.html#src.models.attention_model.decoding.DecodingMixin.beam_search">(src.models.attention_model.decoding.DecodingMixin method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.models.decoding.html#src.configs.models.decoding.DecodingConfig.beam_width">beam_width (src.configs.models.decoding.DecodingConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.utils.decoding.beam_search.html#src.utils.decoding.beam_search.BeamSearch">BeamSearch (class in src.utils.decoding.beam_search)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.hooks.html#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.before_day">before_day() (src.pipeline.simulations.checkpoints.hooks.CheckpointHook method)</a>
@@ -2763,6 +2887,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution">build_initial_solution() (src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
 </li>
+      <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO.build_solution">build_solution() (src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO method)</a>
+</li>
       <li><a href="references/src/src.data.builders.html#src.data.builders.VRPInstanceBuilder.build_td">build_td() (src.data.builders.VRPInstanceBuilder method)</a>
 </li>
   </ul></td>
@@ -2785,7 +2911,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.cacl_freq_tables">cacl_freq_tables() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase method)</a>
 </li>
-      <li><a href="references/src/src.models.policies.hgs.evaluation.html#src.models.policies.hgs.evaluation.calc_broken_pairs_distance">calc_broken_pairs_distance() (in module src.models.policies.hgs.evaluation)</a>
+      <li><a href="references/src/src.models.policies.hgs_core.evaluation.html#src.models.policies.hgs_core.evaluation.calc_broken_pairs_distance">calc_broken_pairs_distance() (in module src.models.policies.hgs_core.evaluation)</a>
 </li>
       <li><a href="references/src/src.models.subnets.decoders.ptr.decoder.html#src.models.subnets.decoders.ptr.decoder.PointerDecoder.calc_logits">calc_logits() (src.models.subnets.decoders.ptr.decoder.PointerDecoder method)</a>
 </li>
@@ -2991,7 +3117,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.neural_agent.batch.html#src.policies.neural_agent.batch.BatchMixin.compute_batch_sim">compute_batch_sim() (src.policies.neural_agent.batch.BatchMixin method)</a>
 </li>
-      <li><a href="references/src/src.models.policies.hgs.population.html#src.models.policies.hgs.population.VectorizedPopulation.compute_biased_fitness">compute_biased_fitness() (src.models.policies.hgs.population.VectorizedPopulation method)</a>
+      <li><a href="references/src/src.models.policies.hgs_core.population.html#src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness">compute_biased_fitness() (src.models.policies.hgs_core.population.VectorizedPopulation method)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.services.data_loader.html#src.pipeline.ui.services.data_loader.compute_cumulative_stats">compute_cumulative_stats() (in module src.pipeline.ui.services.data_loader)</a>
 </li>
@@ -3043,14 +3169,14 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.penalties.html#src.policies.simulated_annealing_neighborhood_search.common.penalties.compute_transportation_cost">compute_transportation_cost() (in module src.policies.simulated_annealing_neighborhood_search.common.penalties)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch.compute_validation_metrics">compute_validation_metrics() (in module src.pipeline.rl.common.epoch)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.penalties.html#src.policies.simulated_annealing_neighborhood_search.common.penalties.compute_vehicle_use_penalty">compute_vehicle_use_penalty() (in module src.policies.simulated_annealing_neighborhood_search.common.penalties)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.revenue.html#src.policies.simulated_annealing_neighborhood_search.common.revenue.compute_waste_collection_revenue">compute_waste_collection_revenue() (in module src.policies.simulated_annealing_neighborhood_search.common.revenue)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.utils.hooks.weight_hooks.html#src.utils.hooks.weight_hooks.compute_weight_changes">compute_weight_changes() (in module src.utils.hooks.weight_hooks)</a>
 </li>
       <li><a href="references/src/src.configs.rl.core.gdpo.html#src.configs.rl.core.gdpo.GDPOConfig.conditional_key">conditional_key (src.configs.rl.core.gdpo.GDPOConfig attribute)</a>
@@ -3171,6 +3297,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.other.post_processing.factory.html#src.policies.other.post_processing.factory.PostProcessorFactory.create">create() (src.policies.other.post_processing.factory.PostProcessorFactory static method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_area_chart">create_area_chart() (in module src.pipeline.ui.components.charts)</a>
+</li>
       <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_bar_chart">create_bar_chart() (in module src.pipeline.ui.components.charts)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.components.benchmark_charts.html#src.pipeline.ui.components.benchmark_charts.create_benchmark_comparison_chart">create_benchmark_comparison_chart() (in module src.pipeline.ui.components.benchmark_charts)</a>
@@ -3235,6 +3363,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.post_processing.factory.html#src.policies.other.post_processing.factory.PostProcessorFactory.create_from_config">(src.policies.other.post_processing.factory.PostProcessorFactory class method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.ui.components.charts.html#src.pipeline.ui.components.charts.create_heatmap_chart">create_heatmap_chart() (in module src.pipeline.ui.components.charts)</a>
+</li>
       <li><a href="references/src/src.pipeline.ui.styles.kpi.html#src.pipeline.ui.styles.kpi.create_kpi_html">create_kpi_html() (in module src.pipeline.ui.styles.kpi)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.styles.kpi.html#src.pipeline.ui.styles.kpi.create_kpi_row">create_kpi_row() (in module src.pipeline.ui.styles.kpi)</a>
@@ -3281,6 +3411,18 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.html#src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.cross_exchange">(in module src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.hgs.html#src.configs.policies.hgs.HGSConfig.crossover_rate">crossover_rate (src.configs.policies.hgs.HGSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.crossover_rate">(src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hgs.html#src.configs.rl.policies.hgs.HGSConfig.crossover_rate">(src.configs.rl.policies.hgs.HGSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate">(src.configs.rl.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_genetic_search.params.html#src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate">(src.policies.hybrid_genetic_search.params.HGSParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.pipeline.features.train.html#src.pipeline.features.train.cs">cs (in module src.pipeline.features.train)</a>
@@ -3585,6 +3727,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.encoders.nargnn.edge_heatmap_generator.html#src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator">EdgeHeatmapGenerator (class in src.models.subnets.encoders.nargnn.edge_heatmap_generator)</a>
 </li>
+      <li><a href="references/src/src.models.policies.hgs_alns.html#src.models.policies.hgs_alns.VectorizedHGSALNSEngine.educate">educate() (src.models.policies.hgs_alns.VectorizedHGSALNSEngine method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hybrid_genetic_search.html#src.models.policies.hybrid_genetic_search.VectorizedHGS.educate">(src.models.policies.hybrid_genetic_search.VectorizedHGS method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.efficiency_weight">efficiency_weight (src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.post_processing.html#src.pipeline.rl.common.post_processing.EfficiencyOptimizer">EfficiencyOptimizer (class in src.pipeline.rl.common.post_processing)</a>
@@ -3597,6 +3745,8 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.elite_size">(src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.elite_size">(src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.hgs.html#src.configs.rl.policies.hgs.HGSConfig.elite_size">(src.configs.rl.policies.hgs.HGSConfig attribute)</a>
 </li>
@@ -3652,6 +3802,8 @@ document.write(`
       <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.engine">engine (src.configs.policies.aco.ACOConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.engine">(src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.engine">(src.configs.policies.alns.ALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.bcp.html#src.configs.policies.bcp.BCPConfig.engine">(src.configs.policies.bcp.BCPConfig attribute)</a>
@@ -3662,6 +3814,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.engine">(src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.engine">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.lkh.html#src.configs.policies.lkh.LKHConfig.engine">(src.configs.policies.lkh.LKHConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.sans.html#src.configs.policies.sans.SANSConfig.engine">(src.configs.policies.sans.SANSConfig attribute)</a>
@@ -3669,6 +3823,10 @@ document.write(`
         <li><a href="references/src/src.configs.policies.sisr.html#src.configs.policies.sisr.SISRConfig.engine">(src.configs.policies.sisr.SISRConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vrpp.html#src.configs.policies.vrpp.VRPPConfig.engine">(src.configs.policies.vrpp.VRPPConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine">(src.configs.rl.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.engine">(src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.utils.functions.rl.html#src.utils.functions.rl.ensure_tensordict">ensure_tensordict() (in module src.utils.functions.rl)</a>
@@ -3695,6 +3853,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.common.baselines.warmup.html#src.pipeline.rl.common.baselines.warmup.WarmupBaseline.epoch_callback">(src.pipeline.rl.common.baselines.warmup.WarmupBaseline method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.tasks.data.html#src.configs.tasks.data.DataConfig.epoch_start">epoch_start (src.configs.tasks.data.DataConfig attribute)</a>
 
       <ul>
@@ -3707,8 +3867,6 @@ document.write(`
         <li><a href="references/src/src.configs.rl.core.ppo.html#src.configs.rl.core.ppo.PPOConfig.epochs">(src.configs.rl.core.ppo.PPOConfig attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.rl.core.ppo.html#src.configs.rl.core.ppo.PPOConfig.eps_clip">eps_clip (src.configs.rl.core.ppo.PPOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.models.normalization.html#src.configs.models.normalization.NormalizationConfig.epsilon">epsilon (src.configs.models.normalization.NormalizationConfig attribute)</a>
@@ -3806,13 +3964,9 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.adapters.policy_cvrp.html#src.policies.adapters.policy_cvrp.CVRPPolicy.execute">(src.policies.adapters.policy_cvrp.CVRPPolicy method)</a>
 </li>
-        <li><a href="references/src/src.policies.adapters.policy_lkh.html#src.policies.adapters.policy_lkh.LKHPolicy.execute">(src.policies.adapters.policy_lkh.LKHPolicy method)</a>
-</li>
         <li><a href="references/src/src.policies.adapters.policy_neural.html#src.policies.adapters.policy_neural.NeuralPolicy.execute">(src.policies.adapters.policy_neural.NeuralPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_sans.html#src.policies.adapters.policy_sans.SANSPolicy.execute">(src.policies.adapters.policy_sans.SANSPolicy method)</a>
-</li>
-        <li><a href="references/src/src.policies.adapters.policy_tsp.html#src.policies.adapters.policy_tsp.TSPPolicy.execute">(src.policies.adapters.policy_tsp.TSPPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_vrpp.html#src.policies.adapters.policy_vrpp.VRPPPolicy.execute">(src.policies.adapters.policy_vrpp.VRPPPolicy method)</a>
 </li>
@@ -4070,9 +4224,13 @@ document.write(`
 </li>
         <li><a href="references/src/src.models.policies.ant_colony_system.html#src.models.policies.ant_colony_system.VectorizedACOPolicy.forward">(src.models.policies.ant_colony_system.VectorizedACOPolicy method)</a>
 </li>
-        <li><a href="references/src/src.models.policies.hgs.wrapper.html#src.models.policies.hgs.wrapper.VectorizedHGS.forward">(src.models.policies.hgs.wrapper.VectorizedHGS method)</a>
+        <li><a href="references/src/src.models.policies.augmented_hybrid_volleyball_premier_league.html#src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.forward">(src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL method)</a>
+</li>
+        <li><a href="references/src/src.models.policies.hgs.html#src.models.policies.hgs.VectorizedHGS.forward">(src.models.policies.hgs.VectorizedHGS method)</a>
 </li>
         <li><a href="references/src/src.models.policies.hgs_alns.html#src.models.policies.hgs_alns.VectorizedHGSALNS.forward">(src.models.policies.hgs_alns.VectorizedHGSALNS method)</a>
+</li>
+        <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.forward">(src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
 </li>
         <li><a href="references/src/src.models.policies.iterated_local_search.html#src.models.policies.iterated_local_search.IteratedLocalSearchPolicy.forward">(src.models.policies.iterated_local_search.IteratedLocalSearchPolicy method)</a>
 </li>
@@ -4571,7 +4729,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.ui.styles.colors.html#src.pipeline.ui.styles.colors.get_page_config">get_page_config() (in module src.pipeline.ui.styles.colors)</a>
 </li>
-      <li><a href="references/src/src.models.policies.hgs.population.html#src.models.policies.hgs.population.VectorizedPopulation.get_parents">get_parents() (src.models.policies.hgs.population.VectorizedPopulation method)</a>
+      <li><a href="references/src/src.models.policies.hgs_core.population.html#src.models.policies.hgs_core.population.VectorizedPopulation.get_parents">get_parents() (src.models.policies.hgs_core.population.VectorizedPopulation method)</a>
 </li>
       <li><a href="references/src/src.cli.registry.html#src.cli.registry.get_parser">get_parser() (in module src.cli.registry)</a>
 </li>
@@ -4779,6 +4937,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.hexlic_file">hexlic_file (src.configs.tasks.sim.SimConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.hgs">hgs (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.hgs_params">hgs_params (src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+</li>
       <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig">HGSALNSConfig (class in src.configs.policies.hgs_alns)</a>
 
       <ul>
@@ -4819,10 +4981,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.html#src.configs.Config.hpo">hpo (src.configs.Config attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig">HPOConfig (class in src.configs.tasks.hpo)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.hrl_clip_eps">hrl_clip_eps (src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.hrl_entropy_coef">hrl_entropy_coef (src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
@@ -4850,6 +5012,18 @@ document.write(`
       <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.hrl_threshold">hrl_threshold (src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.hrl.html#src.pipeline.rl.meta.hrl.HRLModule">HRLModule (class in src.pipeline.rl.meta.hrl)</a>
+</li>
+      <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig">HVPLConfig (class in src.configs.policies.hvpl)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig">(class in src.configs.rl.policies.hvpl)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams">HVPLParams (class in src.policies.hybrid_volleyball_premier_league.params)</a>
+</li>
+      <li><a href="references/src/src.policies.adapters.policy_hvpl.html#src.policies.adapters.policy_hvpl.HVPLPolicy">HVPLPolicy (class in src.policies.adapters.policy_hvpl)</a>
+</li>
+      <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver">HVPLSolver (class in src.policies.hybrid_volleyball_premier_league.hvpl)</a>
 </li>
       <li><a href="references/src/src.models.attention_model.hybrid_stage_policy.html#src.models.attention_model.hybrid_stage_policy.HybridTwoStagePolicy">HybridTwoStagePolicy (class in src.models.attention_model.hybrid_stage_policy)</a>
 </li>
@@ -4895,12 +5069,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.rl.core.adaptive_imitation.html#src.configs.rl.core.adaptive_imitation.AdaptiveImitationConfig.il_weight">il_weight (src.configs.rl.core.adaptive_imitation.AdaptiveImitationConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig">ILSConfig (class in src.configs.policies.ils)</a>
-
-      <ul>
-        <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig">(class in src.configs.rl.policies.ils)</a>
+      <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig">ILSConfig (class in src.configs.rl.policies.ils)</a>
 </li>
-      </ul></li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.imitation">imitation (src.configs.rl.RLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.utils.logging.visualization.landscape.html#src.utils.logging.visualization.landscape.imitation_loss_fn">imitation_loss_fn() (in module src.utils.logging.visualization.landscape)</a>
@@ -4983,7 +5153,7 @@ document.write(`
         <li><a href="references/src/src.models.weight_adjustment_rnn.model.html#src.models.weight_adjustment_rnn.model.WeightAdjustmentRNN.init_weights">(src.models.weight_adjustment_rnn.model.WeightAdjustmentRNN method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.models.policies.hgs.population.html#src.models.policies.hgs.population.VectorizedPopulation.initialize">initialize() (src.models.policies.hgs.population.VectorizedPopulation method)</a>
+      <li><a href="references/src/src.models.policies.hgs_core.population.html#src.models.policies.hgs_core.population.VectorizedPopulation.initialize">initialize() (src.models.policies.hgs_core.population.VectorizedPopulation method)</a>
 
       <ul>
         <li><a href="references/src/src.utils.decoding.batch_beam.html#src.utils.decoding.batch_beam.BatchBeam.initialize">(src.utils.decoding.batch_beam.BatchBeam static method)</a>
@@ -5041,7 +5211,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.iterated_local_search.html#src.models.policies.iterated_local_search.IteratedLocalSearchPolicy">IteratedLocalSearchPolicy (class in src.models.policies.iterated_local_search)</a>
 </li>
-      <li><a href="references/src/src.policies.other.post_processing.ils.html#src.policies.other.post_processing.ils.IteratedLocalSearchPostProcessor">IteratedLocalSearchPostProcessor (class in src.policies.other.post_processing.ils)</a>
+      <li><a href="references/src/src.policies.other.post_processing.iterated_local_search.html#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor">IteratedLocalSearchPostProcessor (class in src.policies.other.post_processing.iterated_local_search)</a>
 </li>
       <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.iterations">iterations (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 </li>
@@ -5245,10 +5415,10 @@ document.write(`
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.params.html#src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.local_search">(src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.search.random_search.html#src.policies.simulated_annealing_neighborhood_search.search.random_search.local_search">local_search() (in module src.policies.simulated_annealing_neighborhood_search.search.random_search)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.search.random_search.html#src.policies.simulated_annealing_neighborhood_search.search.random_search.local_search">local_search() (in module src.policies.simulated_annealing_neighborhood_search.search.random_search)</a>
+</li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.search.deterministic.html#src.policies.simulated_annealing_neighborhood_search.search.deterministic.local_search_2">local_search_2() (in module src.policies.simulated_annealing_neighborhood_search.search.deterministic)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.search.reversed.html#src.policies.simulated_annealing_neighborhood_search.search.reversed.local_search_reversed">local_search_reversed() (in module src.policies.simulated_annealing_neighborhood_search.search.reversed)</a>
@@ -5369,17 +5539,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.models.optim.html#src.configs.models.optim.OptimConfig.lr_scheduler_kwargs">lr_scheduler_kwargs (src.configs.models.optim.OptimConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.ls_iterations">ls_iterations (src.configs.policies.ils.ILSConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.ls_iterations">ls_iterations (src.configs.rl.policies.ils.ILSConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator">ls_operator (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 
       <ul>
-        <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.ls_iterations">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.ls_operator">ls_operator (src.configs.policies.ils.ILSConfig attribute)</a>
-
-      <ul>
-        <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator">(src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
-</li>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.ls_operator">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
       </ul></li>
@@ -5482,7 +5646,11 @@ document.write(`
       <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.max_iterations">max_iterations (src.configs.policies.aco.ACOConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.max_iterations">(src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.max_iterations">(src.configs.policies.alns.ALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.max_iterations">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.lkh.html#src.configs.policies.lkh.LKHConfig.max_iterations">(src.configs.policies.lkh.LKHConfig attribute)</a>
 </li>
@@ -5490,13 +5658,21 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.rl.policies.aco.html#src.configs.rl.policies.aco.ACOConfig.max_iterations">(src.configs.rl.policies.aco.ACOConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.max_iterations">(src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.rl.policies.alns.html#src.configs.rl.policies.alns.ALNSConfig.max_iterations">(src.configs.rl.policies.alns.ALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig.max_iterations">(src.configs.rl.policies.hvpl.HVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.params.html#src.policies.adaptive_large_neighborhood_search.params.ALNSParams.max_iterations">(src.policies.adaptive_large_neighborhood_search.params.ALNSParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.ant_colony_optimization.hyper_heuristic_aco.params.html#src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams.max_iterations">(src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.params.html#src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.max_iterations">(src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.max_iterations">(src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams.max_iterations">(src.policies.hybrid_volleyball_premier_league.params.HVPLParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.slack_induction_by_string_removal.params.html#src.policies.slack_induction_by_string_removal.params.SISRParams.max_iterations">(src.policies.slack_induction_by_string_removal.params.SISRParams attribute)</a>
 </li>
@@ -5707,6 +5883,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.aco.html#module-src.configs.policies.aco">src.configs.policies.aco</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#module-src.configs.policies.ahvpl">src.configs.policies.ahvpl</a>
+</li>
         <li><a href="references/src/src.configs.policies.alns.html#module-src.configs.policies.alns">src.configs.policies.alns</a>
 </li>
         <li><a href="references/src/src.configs.policies.bcp.html#module-src.configs.policies.bcp">src.configs.policies.bcp</a>
@@ -5717,7 +5895,7 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.hgs_alns.html#module-src.configs.policies.hgs_alns">src.configs.policies.hgs_alns</a>
 </li>
-        <li><a href="references/src/src.configs.policies.ils.html#module-src.configs.policies.ils">src.configs.policies.ils</a>
+        <li><a href="references/src/src.configs.policies.hvpl.html#module-src.configs.policies.hvpl">src.configs.policies.hvpl</a>
 </li>
         <li><a href="references/src/src.configs.policies.lkh.html#module-src.configs.policies.lkh">src.configs.policies.lkh</a>
 </li>
@@ -5761,11 +5939,15 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.rl.policies.aco.html#module-src.configs.rl.policies.aco">src.configs.rl.policies.aco</a>
 </li>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#module-src.configs.rl.policies.ahvpl">src.configs.rl.policies.ahvpl</a>
+</li>
         <li><a href="references/src/src.configs.rl.policies.alns.html#module-src.configs.rl.policies.alns">src.configs.rl.policies.alns</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.hgs.html#module-src.configs.rl.policies.hgs">src.configs.rl.policies.hgs</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#module-src.configs.rl.policies.hgs_alns">src.configs.rl.policies.hgs_alns</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#module-src.configs.rl.policies.hvpl">src.configs.rl.policies.hvpl</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.ils.html#module-src.configs.rl.policies.ils">src.configs.rl.policies.ils</a>
 </li>
@@ -6099,19 +6281,23 @@ document.write(`
 </li>
         <li><a href="references/src/src.models.policies.ant_colony_system.html#module-src.models.policies.ant_colony_system">src.models.policies.ant_colony_system</a>
 </li>
+        <li><a href="references/src/src.models.policies.augmented_hybrid_volleyball_premier_league.html#module-src.models.policies.augmented_hybrid_volleyball_premier_league">src.models.policies.augmented_hybrid_volleyball_premier_league</a>
+</li>
         <li><a href="references/src/src.models.policies.hgs.html#module-src.models.policies.hgs">src.models.policies.hgs</a>
-</li>
-        <li><a href="references/src/src.models.policies.hgs.crossover.html#module-src.models.policies.hgs.crossover">src.models.policies.hgs.crossover</a>
-</li>
-        <li><a href="references/src/src.models.policies.hgs.evaluation.html#module-src.models.policies.hgs.evaluation">src.models.policies.hgs.evaluation</a>
-</li>
-        <li><a href="references/src/src.models.policies.hgs.population.html#module-src.models.policies.hgs.population">src.models.policies.hgs.population</a>
-</li>
-        <li><a href="references/src/src.models.policies.hgs.wrapper.html#module-src.models.policies.hgs.wrapper">src.models.policies.hgs.wrapper</a>
 </li>
         <li><a href="references/src/src.models.policies.hgs_alns.html#module-src.models.policies.hgs_alns">src.models.policies.hgs_alns</a>
 </li>
+        <li><a href="references/src/src.models.policies.hgs_core.html#module-src.models.policies.hgs_core">src.models.policies.hgs_core</a>
+</li>
+        <li><a href="references/src/src.models.policies.hgs_core.crossover.html#module-src.models.policies.hgs_core.crossover">src.models.policies.hgs_core.crossover</a>
+</li>
+        <li><a href="references/src/src.models.policies.hgs_core.evaluation.html#module-src.models.policies.hgs_core.evaluation">src.models.policies.hgs_core.evaluation</a>
+</li>
+        <li><a href="references/src/src.models.policies.hgs_core.population.html#module-src.models.policies.hgs_core.population">src.models.policies.hgs_core.population</a>
+</li>
         <li><a href="references/src/src.models.policies.hybrid_genetic_search.html#module-src.models.policies.hybrid_genetic_search">src.models.policies.hybrid_genetic_search</a>
+</li>
+        <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#module-src.models.policies.hybrid_volleyball_premier_league">src.models.policies.hybrid_volleyball_premier_league</a>
 </li>
         <li><a href="references/src/src.models.policies.iterated_local_search.html#module-src.models.policies.iterated_local_search">src.models.policies.iterated_local_search</a>
 </li>
@@ -6529,8 +6715,6 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.features.test.orchestrator.results_handler.html#module-src.pipeline.features.test.orchestrator.results_handler">src.pipeline.features.test.orchestrator.results_handler</a>
 </li>
-        <li><a href="references/src/src.pipeline.features.test.orchestrator.utils.html#module-src.pipeline.features.test.orchestrator.utils">src.pipeline.features.test.orchestrator.utils</a>
-</li>
         <li><a href="references/src/src.pipeline.features.test.validation.html#module-src.pipeline.features.test.validation">src.pipeline.features.test.validation</a>
 </li>
         <li><a href="references/src/src.pipeline.features.train.html#module-src.pipeline.features.train">src.pipeline.features.train</a>
@@ -6817,6 +7001,10 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.ui.pages.benchmark.html#module-src.pipeline.ui.pages.benchmark">src.pipeline.ui.pages.benchmark</a>
 </li>
+        <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#module-src.pipeline.ui.pages.data_explorer">src.pipeline.ui.pages.data_explorer</a>
+</li>
+        <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#module-src.pipeline.ui.pages.live_monitor">src.pipeline.ui.pages.live_monitor</a>
+</li>
         <li><a href="references/src/src.pipeline.ui.pages.simulation.html#module-src.pipeline.ui.pages.simulation">src.pipeline.ui.pages.simulation</a>
 </li>
         <li><a href="references/src/src.pipeline.ui.pages.simulation.bins.html#module-src.pipeline.ui.pages.simulation.bins">src.pipeline.ui.pages.simulation.bins</a>
@@ -6857,6 +7045,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.adapters.factory.html#module-src.policies.adapters.factory">src.policies.adapters.factory</a>
 </li>
+        <li><a href="references/src/src.policies.adapters.policy_ahvpl.html#module-src.policies.adapters.policy_ahvpl">src.policies.adapters.policy_ahvpl</a>
+</li>
         <li><a href="references/src/src.policies.adapters.policy_alns.html#module-src.policies.adapters.policy_alns">src.policies.adapters.policy_alns</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_bcp.html#module-src.policies.adapters.policy_bcp">src.policies.adapters.policy_bcp</a>
@@ -6868,6 +7058,8 @@ document.write(`
         <li><a href="references/src/src.policies.adapters.policy_hgs_alns.html#module-src.policies.adapters.policy_hgs_alns">src.policies.adapters.policy_hgs_alns</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_hh_aco.html#module-src.policies.adapters.policy_hh_aco">src.policies.adapters.policy_hh_aco</a>
+</li>
+        <li><a href="references/src/src.policies.adapters.policy_hvpl.html#module-src.policies.adapters.policy_hvpl">src.policies.adapters.policy_hvpl</a>
 </li>
         <li><a href="references/src/src.policies.adapters.policy_ks_aco.html#module-src.policies.adapters.policy_ks_aco">src.policies.adapters.policy_ks_aco</a>
 </li>
@@ -6919,6 +7111,12 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.solver.html#module-src.policies.ant_colony_optimization.k_sparse_aco.solver">src.policies.ant_colony_optimization.k_sparse_aco.solver</a>
 </li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.html#module-src.policies.augmented_hybrid_volleyball_premier_league">src.policies.augmented_hybrid_volleyball_premier_league</a>
+</li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#module-src.policies.augmented_hybrid_volleyball_premier_league.ahvpl">src.policies.augmented_hybrid_volleyball_premier_league.ahvpl</a>
+</li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#module-src.policies.augmented_hybrid_volleyball_premier_league.params">src.policies.augmented_hybrid_volleyball_premier_league.params</a>
+</li>
         <li><a href="references/src/src.policies.branch_cut_and_price.html#module-src.policies.branch_cut_and_price">src.policies.branch_cut_and_price</a>
 </li>
         <li><a href="references/src/src.policies.branch_cut_and_price.dispatcher.html#module-src.policies.branch_cut_and_price.dispatcher">src.policies.branch_cut_and_price.dispatcher</a>
@@ -6946,6 +7144,12 @@ document.write(`
         <li><a href="references/src/src.policies.hybrid_genetic_search.pyvrp_wrapper.html#module-src.policies.hybrid_genetic_search.pyvrp_wrapper">src.policies.hybrid_genetic_search.pyvrp_wrapper</a>
 </li>
         <li><a href="references/src/src.policies.hybrid_genetic_search.split.html#module-src.policies.hybrid_genetic_search.split">src.policies.hybrid_genetic_search.split</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.html#module-src.policies.hybrid_volleyball_premier_league">src.policies.hybrid_volleyball_premier_league</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#module-src.policies.hybrid_volleyball_premier_league.hvpl">src.policies.hybrid_volleyball_premier_league.hvpl</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#module-src.policies.hybrid_volleyball_premier_league.params">src.policies.hybrid_volleyball_premier_league.params</a>
 </li>
         <li><a href="references/src/src.policies.lin_kernighan_helsgaun.html#module-src.policies.lin_kernighan_helsgaun">src.policies.lin_kernighan_helsgaun</a>
 </li>
@@ -7071,13 +7275,13 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.other.post_processing.fast_tsp.html#module-src.policies.other.post_processing.fast_tsp">src.policies.other.post_processing.fast_tsp</a>
 </li>
-        <li><a href="references/src/src.policies.other.post_processing.ils.html#module-src.policies.other.post_processing.ils">src.policies.other.post_processing.ils</a>
+        <li><a href="references/src/src.policies.other.post_processing.iterated_local_search.html#module-src.policies.other.post_processing.iterated_local_search">src.policies.other.post_processing.iterated_local_search</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.local_search.html#module-src.policies.other.post_processing.local_search">src.policies.other.post_processing.local_search</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.path.html#module-src.policies.other.post_processing.path">src.policies.other.post_processing.path</a>
 </li>
-        <li><a href="references/src/src.policies.other.post_processing.random_ls.html#module-src.policies.other.post_processing.random_ls">src.policies.other.post_processing.random_ls</a>
+        <li><a href="references/src/src.policies.other.post_processing.random_local_search.html#module-src.policies.other.post_processing.random_local_search">src.policies.other.post_processing.random_local_search</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.registry.html#module-src.policies.other.post_processing.registry">src.policies.other.post_processing.registry</a>
 </li>
@@ -7381,6 +7585,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.utils.tasks.losses.html#module-src.utils.tasks.losses">src.utils.tasks.losses</a>
 </li>
+        <li><a href="references/src/src.utils.tasks.simulation_utils.html#module-src.utils.tasks.simulation_utils">src.utils.tasks.simulation_utils</a>
+</li>
         <li><a href="references/src/src.utils.tasks.task_utils.html#module-src.utils.tasks.task_utils">src.utils.tasks.task_utils</a>
 </li>
         <li><a href="references/src/src.utils.tasks.training_utils.html#module-src.utils.tasks.training_utils">src.utils.tasks.training_utils</a>
@@ -7511,6 +7717,8 @@ document.write(`
       <ul>
         <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.must_go">(src.configs.policies.aco.ACOConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.must_go">(src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.must_go">(src.configs.policies.alns.ALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.bcp.html#src.configs.policies.bcp.BCPConfig.must_go">(src.configs.policies.bcp.BCPConfig attribute)</a>
@@ -7521,7 +7729,7 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.must_go">(src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
 </li>
-        <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.must_go">(src.configs.policies.ils.ILSConfig attribute)</a>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.must_go">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.lkh.html#src.configs.policies.lkh.LKHConfig.must_go">(src.configs.policies.lkh.LKHConfig attribute)</a>
 </li>
@@ -7594,8 +7802,6 @@ document.write(`
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.params.html#src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.n_ants">(src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.configs.envs.graph.html#src.configs.envs.graph.GraphConfig.n_days">n_days (src.configs.envs.graph.GraphConfig attribute)</a>
-</li>
       <li><a href="references/src/src.configs.tasks.data.html#src.configs.tasks.data.DataConfig.n_epochs">n_epochs (src.configs.tasks.data.DataConfig attribute)</a>
 
       <ul>
@@ -7640,11 +7846,9 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.models.decoder.html#src.configs.models.decoder.DecoderConfig.n_predictor_layers">n_predictor_layers (src.configs.models.decoder.DecoderConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.n_restarts">n_restarts (src.configs.policies.ils.ILSConfig attribute)</a>
+      <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts">n_restarts (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 
       <ul>
-        <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts">(src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
-</li>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.n_restarts">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
       </ul></li>
@@ -7658,6 +7862,20 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.models.encoder.html#src.configs.models.encoder.EncoderConfig.n_sublayers">n_sublayers (src.configs.models.encoder.EncoderConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.n_teams">n_teams (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.n_teams">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.n_teams">(src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig.n_teams">(src.configs.rl.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.n_teams">(src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams.n_teams">(src.policies.hybrid_volleyball_premier_league.params.HVPLParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.n_trials">n_trials (src.configs.tasks.hpo.HPOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.n_vehicles">n_vehicles (src.configs.tasks.sim.SimConfig attribute)</a>
@@ -7714,12 +7932,12 @@ document.write(`
         <li><a href="references/src/src.envs.tsp_kopt.html#src.envs.tsp_kopt.TSPkoptEnv.name">(src.envs.tsp_kopt.TSPkoptEnv attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.VRPPEnv.NAME">NAME (src.envs.vrpp.VRPPEnv attribute)</a>
 </li>
       <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.VRPPEnv.name">name (src.envs.vrpp.VRPPEnv attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.envs.wcvrp.html#src.envs.wcvrp.WCVRPEnv.NAME">NAME (src.envs.wcvrp.WCVRPEnv attribute)</a>
 </li>
       <li><a href="references/src/src.envs.wcvrp.html#src.envs.wcvrp.WCVRPEnv.name">name (src.envs.wcvrp.WCVRPEnv attribute)</a>
@@ -7940,7 +8158,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.decoders.glimpse.attention.html#src.models.subnets.decoders.glimpse.attention.one_to_many_logits">one_to_many_logits() (in module src.models.subnets.decoders.glimpse.attention)</a>
 </li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.op_probs">op_probs (src.configs.policies.ils.ILSConfig attribute)</a>
+      <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs">op_probs (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.op_probs">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
@@ -8088,25 +8306,21 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.operators.perturbation.perturb.html#src.policies.operators.perturbation.perturb.perturb">perturb() (in module src.policies.operators.perturbation.perturb)</a>
 </li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.perturb_probs">perturb_probs (src.configs.policies.ils.ILSConfig attribute)</a>
+      <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs">perturb_probs (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.perturb_probs">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.perturbation_strength">perturbation_strength (src.configs.policies.ils.ILSConfig attribute)</a>
+      <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength">perturbation_strength (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 
       <ul>
-        <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength">(src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
-</li>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.perturbation_strength">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.perturbation_type">perturbation_type (src.configs.policies.ils.ILSConfig attribute)</a>
+      <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type">perturbation_type (src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 
       <ul>
-        <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type">(src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
-</li>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.perturbation_type">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
       </ul></li>
@@ -8220,12 +8434,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy.post_decoder_hook">post_decoder_hook() (src.utils.decoding.base.DecodingStrategy method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.html#src.configs.Config.post_processing">post_processing (src.configs.Config attribute)</a>
 
       <ul>
         <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.post_processing">(src.configs.policies.aco.ACOConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.post_processing">(src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.post_processing">(src.configs.policies.alns.ALNSConfig attribute)</a>
 </li>
@@ -8237,7 +8451,7 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.post_processing">(src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
 </li>
-        <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.post_processing">(src.configs.policies.ils.ILSConfig attribute)</a>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.post_processing">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.lkh.html#src.configs.policies.lkh.LKHConfig.post_processing">(src.configs.policies.lkh.LKHConfig attribute)</a>
 </li>
@@ -8252,6 +8466,8 @@ document.write(`
         <li><a href="references/src/src.configs.policies.vrpp.html#src.configs.policies.vrpp.VRPPConfig.post_processing">(src.configs.policies.vrpp.VRPPConfig attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.post_processing_epochs">post_processing_epochs (src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.actions.post_process.html#src.pipeline.simulations.actions.post_process.PostProcessAction">PostProcessAction (class in src.pipeline.simulations.actions.post_process)</a>
@@ -8296,7 +8512,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.weight_optimizer.html#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.prepare_meta_learning_batch">prepare_meta_learning_batch() (src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer method)</a>
 </li>
-      <li><a href="references/src/src.pipeline.features.test.orchestrator.utils.html#src.pipeline.features.test.orchestrator.utils.prepare_parallel_task_args">prepare_parallel_task_args() (in module src.pipeline.features.test.orchestrator.utils)</a>
+      <li><a href="references/src/src.utils.tasks.simulation_utils.html#src.utils.tasks.simulation_utils.prepare_parallel_task_args">prepare_parallel_task_args() (in module src.utils.tasks.simulation_utils)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.time_training.html#src.pipeline.rl.common.time_training.prepare_time_dataset">prepare_time_dataset() (in module src.pipeline.rl.common.time_training)</a>
 </li>
@@ -8310,7 +8526,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.hooks.activation_hooks.html#src.utils.hooks.activation_hooks.print_activation_summary">print_activation_summary() (in module src.utils.hooks.activation_hooks)</a>
 </li>
-      <li><a href="references/src/src.pipeline.features.test.orchestrator.utils.html#src.pipeline.features.test.orchestrator.utils.print_execution_info">print_execution_info() (in module src.pipeline.features.test.orchestrator.utils)</a>
+      <li><a href="references/src/src.utils.tasks.simulation_utils.html#src.utils.tasks.simulation_utils.print_execution_info">print_execution_info() (in module src.utils.tasks.simulation_utils)</a>
 </li>
       <li><a href="references/src/src.utils.hooks.gradient_hooks.html#src.utils.hooks.gradient_hooks.print_gradient_statistics">print_gradient_statistics() (in module src.utils.hooks.gradient_hooks)</a>
 </li>
@@ -8337,13 +8553,13 @@ document.write(`
       <ul>
         <li><a href="references/src/src.policies.other.post_processing.fast_tsp.html#src.policies.other.post_processing.fast_tsp.FastTSPPostProcessor.process">(src.policies.other.post_processing.fast_tsp.FastTSPPostProcessor method)</a>
 </li>
-        <li><a href="references/src/src.policies.other.post_processing.ils.html#src.policies.other.post_processing.ils.IteratedLocalSearchPostProcessor.process">(src.policies.other.post_processing.ils.IteratedLocalSearchPostProcessor method)</a>
+        <li><a href="references/src/src.policies.other.post_processing.iterated_local_search.html#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor.process">(src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor method)</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.local_search.html#src.policies.other.post_processing.local_search.ClassicalLocalSearchPostProcessor.process">(src.policies.other.post_processing.local_search.ClassicalLocalSearchPostProcessor method)</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.path.html#src.policies.other.post_processing.path.PathPostProcessor.process">(src.policies.other.post_processing.path.PathPostProcessor method)</a>
 </li>
-        <li><a href="references/src/src.policies.other.post_processing.random_ls.html#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor.process">(src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor method)</a>
+        <li><a href="references/src/src.policies.other.post_processing.random_local_search.html#src.policies.other.post_processing.random_local_search.RandomLocalSearchPostProcessor.process">(src.policies.other.post_processing.random_local_search.RandomLocalSearchPostProcessor method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.pipeline.simulations.processor.html#src.pipeline.simulations.processor.process_coordinates">process_coordinates() (in module src.pipeline.simulations.processor)</a>
@@ -8434,7 +8650,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.random_local_search.html#src.models.policies.random_local_search.RandomLocalSearchPolicy">RandomLocalSearchPolicy (class in src.models.policies.random_local_search)</a>
 </li>
-      <li><a href="references/src/src.policies.other.post_processing.random_ls.html#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor">RandomLocalSearchPostProcessor (class in src.policies.other.post_processing.random_ls)</a>
+      <li><a href="references/src/src.policies.other.post_processing.random_local_search.html#src.policies.other.post_processing.random_local_search.RandomLocalSearchPostProcessor">RandomLocalSearchPostProcessor (class in src.policies.other.post_processing.random_local_search)</a>
 </li>
       <li><a href="references/src/src.configs.models.activation_function.html#src.configs.models.activation_function.ActivationConfig.range">range (src.configs.models.activation_function.ActivationConfig attribute)</a>
 </li>
@@ -8544,7 +8760,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.ui.pages.simulation.kpi.html#src.pipeline.ui.pages.simulation.kpi.render_cumulative_summary">render_cumulative_summary() (in module src.pipeline.ui.pages.simulation.kpi)</a>
 </li>
+      <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#src.pipeline.ui.pages.data_explorer.render_data_explorer">render_data_explorer() (in module src.pipeline.ui.pages.data_explorer)</a>
+</li>
       <li><a href="references/src/src.pipeline.ui.pages.simulation.kpi.html#src.pipeline.ui.pages.simulation.kpi.render_kpi_dashboard">render_kpi_dashboard() (in module src.pipeline.ui.pages.simulation.kpi)</a>
+</li>
+      <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#src.pipeline.ui.pages.live_monitor.render_live_monitor">render_live_monitor() (in module src.pipeline.ui.pages.live_monitor)</a>
 </li>
       <li><a href="references/src/src.pipeline.ui.pages.simulation.map.html#src.pipeline.ui.pages.simulation.map.render_map_view">render_map_view() (in module src.pipeline.ui.pages.simulation.map)</a>
 </li>
@@ -9137,8 +9357,6 @@ document.write(`
       <li><a href="references/src/src.models.policies.adaptive_large_neighborhood_search.html#src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.solve">solve() (src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS method)</a>
 
       <ul>
-        <li><a href="references/src/src.models.policies.hgs_alns.html#src.models.policies.hgs_alns.VectorizedHGSALNS.solve">(src.models.policies.hgs_alns.VectorizedHGSALNS method)</a>
-</li>
         <li><a href="references/src/src.models.policies.hybrid_genetic_search.html#src.models.policies.hybrid_genetic_search.VectorizedHGS.solve">(src.models.policies.hybrid_genetic_search.VectorizedHGS method)</a>
 </li>
         <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve">(src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
@@ -9147,9 +9365,13 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.solver.html#src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver.solve">(src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver method)</a>
 </li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.solve">(src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.hgs_alns.html#src.policies.hgs_alns.HGSALNSSolver.solve">(src.policies.hgs_alns.HGSALNSSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.hybrid_genetic_search.hgs.html#src.policies.hybrid_genetic_search.hgs.HGSSolver.solve">(src.policies.hybrid_genetic_search.hgs.HGSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver.solve">(src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.slack_induction_by_string_removal.solver.html#src.policies.slack_induction_by_string_removal.solver.SISRSolver.solve">(src.policies.slack_induction_by_string_removal.solver.SISRSolver method)</a>
 </li>
@@ -9378,6 +9600,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.configs.policies.ahvpl
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#module-src.configs.policies.ahvpl">module</a>
+</li>
+      </ul></li>
+      <li>
     src.configs.policies.alns
 
       <ul>
@@ -9413,10 +9642,10 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.configs.policies.ils
+    src.configs.policies.hvpl
 
       <ul>
-        <li><a href="references/src/src.configs.policies.ils.html#module-src.configs.policies.ils">module</a>
+        <li><a href="references/src/src.configs.policies.hvpl.html#module-src.configs.policies.hvpl">module</a>
 </li>
       </ul></li>
       <li>
@@ -9567,6 +9796,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.configs.rl.policies.ahvpl
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#module-src.configs.rl.policies.ahvpl">module</a>
+</li>
+      </ul></li>
+      <li>
     src.configs.rl.policies.alns
 
       <ul>
@@ -9585,6 +9821,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#module-src.configs.rl.policies.hgs_alns">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.configs.rl.policies.hvpl
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#module-src.configs.rl.policies.hvpl">module</a>
 </li>
       </ul></li>
       <li>
@@ -10750,38 +10993,17 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.models.policies.augmented_hybrid_volleyball_premier_league
+
+      <ul>
+        <li><a href="references/src/src.models.policies.augmented_hybrid_volleyball_premier_league.html#module-src.models.policies.augmented_hybrid_volleyball_premier_league">module</a>
+</li>
+      </ul></li>
+      <li>
     src.models.policies.hgs
 
       <ul>
         <li><a href="references/src/src.models.policies.hgs.html#module-src.models.policies.hgs">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.models.policies.hgs.crossover
-
-      <ul>
-        <li><a href="references/src/src.models.policies.hgs.crossover.html#module-src.models.policies.hgs.crossover">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.models.policies.hgs.evaluation
-
-      <ul>
-        <li><a href="references/src/src.models.policies.hgs.evaluation.html#module-src.models.policies.hgs.evaluation">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.models.policies.hgs.population
-
-      <ul>
-        <li><a href="references/src/src.models.policies.hgs.population.html#module-src.models.policies.hgs.population">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.models.policies.hgs.wrapper
-
-      <ul>
-        <li><a href="references/src/src.models.policies.hgs.wrapper.html#module-src.models.policies.hgs.wrapper">module</a>
 </li>
       </ul></li>
       <li>
@@ -10792,10 +11014,45 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.models.policies.hgs_core
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hgs_core.html#module-src.models.policies.hgs_core">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.policies.hgs_core.crossover
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hgs_core.crossover.html#module-src.models.policies.hgs_core.crossover">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.policies.hgs_core.evaluation
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hgs_core.evaluation.html#module-src.models.policies.hgs_core.evaluation">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.policies.hgs_core.population
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hgs_core.population.html#module-src.models.policies.hgs_core.population">module</a>
+</li>
+      </ul></li>
+      <li>
     src.models.policies.hybrid_genetic_search
 
       <ul>
         <li><a href="references/src/src.models.policies.hybrid_genetic_search.html#module-src.models.policies.hybrid_genetic_search">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.policies.hybrid_volleyball_premier_league
+
+      <ul>
+        <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#module-src.models.policies.hybrid_volleyball_premier_league">module</a>
 </li>
       </ul></li>
       <li>
@@ -12016,8 +12273,6 @@ document.write(`
         <li><a href="references/src/src.models.subnets.other.gru_fill_predictor.html#module-src.models.subnets.other.gru_fill_predictor">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.models.subnets.other.lstm_fill_predictor
 
@@ -12039,6 +12294,8 @@ document.write(`
         <li><a href="references/src/src.models.temporal_attention_model.model.html#module-src.models.temporal_attention_model.model">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.models.temporal_attention_model.policy
 
@@ -12254,13 +12511,6 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.features.test.orchestrator.results_handler.html#module-src.pipeline.features.test.orchestrator.results_handler">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.pipeline.features.test.orchestrator.utils
-
-      <ul>
-        <li><a href="references/src/src.pipeline.features.test.orchestrator.utils.html#module-src.pipeline.features.test.orchestrator.utils">module</a>
 </li>
       </ul></li>
       <li>
@@ -13265,6 +13515,20 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.pipeline.ui.pages.data_explorer
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.pages.data_explorer.html#module-src.pipeline.ui.pages.data_explorer">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.ui.pages.live_monitor
+
+      <ul>
+        <li><a href="references/src/src.pipeline.ui.pages.live_monitor.html#module-src.pipeline.ui.pages.live_monitor">module</a>
+</li>
+      </ul></li>
+      <li>
     src.pipeline.ui.pages.simulation
 
       <ul>
@@ -13405,6 +13669,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.policies.adapters.policy_ahvpl
+
+      <ul>
+        <li><a href="references/src/src.policies.adapters.policy_ahvpl.html#module-src.policies.adapters.policy_ahvpl">module</a>
+</li>
+      </ul></li>
+      <li>
     src.policies.adapters.policy_alns
 
       <ul>
@@ -13444,6 +13715,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.adapters.policy_hh_aco.html#module-src.policies.adapters.policy_hh_aco">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.adapters.policy_hvpl
+
+      <ul>
+        <li><a href="references/src/src.policies.adapters.policy_hvpl.html#module-src.policies.adapters.policy_hvpl">module</a>
 </li>
       </ul></li>
       <li>
@@ -13622,6 +13900,27 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.policies.augmented_hybrid_volleyball_premier_league
+
+      <ul>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.html#module-src.policies.augmented_hybrid_volleyball_premier_league">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.augmented_hybrid_volleyball_premier_league.ahvpl
+
+      <ul>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#module-src.policies.augmented_hybrid_volleyball_premier_league.ahvpl">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.augmented_hybrid_volleyball_premier_league.params
+
+      <ul>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#module-src.policies.augmented_hybrid_volleyball_premier_league.params">module</a>
+</li>
+      </ul></li>
+      <li>
     src.policies.branch_cut_and_price
 
       <ul>
@@ -13717,6 +14016,27 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.hybrid_genetic_search.split.html#module-src.policies.hybrid_genetic_search.split">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.hybrid_volleyball_premier_league
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.html#module-src.policies.hybrid_volleyball_premier_league">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.hybrid_volleyball_premier_league.hvpl
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#module-src.policies.hybrid_volleyball_premier_league.hvpl">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.hybrid_volleyball_premier_league.params
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#module-src.policies.hybrid_volleyball_premier_league.params">module</a>
 </li>
       </ul></li>
       <li>
@@ -14154,10 +14474,10 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.policies.other.post_processing.ils
+    src.policies.other.post_processing.iterated_local_search
 
       <ul>
-        <li><a href="references/src/src.policies.other.post_processing.ils.html#module-src.policies.other.post_processing.ils">module</a>
+        <li><a href="references/src/src.policies.other.post_processing.iterated_local_search.html#module-src.policies.other.post_processing.iterated_local_search">module</a>
 </li>
       </ul></li>
       <li>
@@ -14175,10 +14495,10 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.policies.other.post_processing.random_ls
+    src.policies.other.post_processing.random_local_search
 
       <ul>
-        <li><a href="references/src/src.policies.other.post_processing.random_ls.html#module-src.policies.other.post_processing.random_ls">module</a>
+        <li><a href="references/src/src.policies.other.post_processing.random_local_search.html#module-src.policies.other.post_processing.random_local_search">module</a>
 </li>
       </ul></li>
       <li>
@@ -15239,6 +15559,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.utils.tasks.simulation_utils
+
+      <ul>
+        <li><a href="references/src/src.utils.tasks.simulation_utils.html#module-src.utils.tasks.simulation_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     src.utils.tasks.task_utils
 
       <ul>
@@ -15401,6 +15728,20 @@ document.write(`
 </li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.SUB_NET_ENCS">SUB_NET_ENCS (in module src.constants.models)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.sub_rate">sub_rate (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.sub_rate">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.sub_rate">(src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig.sub_rate">(src.configs.rl.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.sub_rate">(src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams.sub_rate">(src.policies.hybrid_volleyball_premier_league.params.HVPLParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping.subprob_coordinates">subprob_coordinates (src.models.subnets.modules.subproblem_mapping.SubproblemMapping attribute)</a>
 </li>
       <li><a href="references/src/src.models.subnets.modules.adapter_base.html#src.models.subnets.modules.adapter_base.SubproblemAdapter.subproblem_env_name">subproblem_env_name (src.models.subnets.modules.adapter_base.SubproblemAdapter attribute)</a>
@@ -15639,8 +15980,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.encoders.tgc.mha_layer.html#src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer">TGCMultiHeadAttentionLayer (class in src.models.subnets.encoders.tgc.mha_layer)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.models.activation_function.html#src.configs.models.activation_function.ActivationConfig.threshold">threshold (src.configs.models.activation_function.ActivationConfig attribute)</a>
 
       <ul>
@@ -15648,12 +15987,18 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.rl.core.adaptive_imitation.html#src.configs.rl.core.adaptive_imitation.AdaptiveImitationConfig.threshold">(src.configs.rl.core.adaptive_imitation.AdaptiveImitationConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.threshold">(src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
+</li>
         <li><a href="references/src/src.policies.other.must_go.base.selection_context.html#src.policies.other.must_go.base.selection_context.SelectionContext.threshold">(src.policies.other.must_go.base.selection_context.SelectionContext attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.time_limit">time_limit (src.configs.policies.aco.ACOConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.time_limit">(src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.time_limit">(src.configs.policies.alns.ALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.bcp.html#src.configs.policies.bcp.BCPConfig.time_limit">(src.configs.policies.bcp.BCPConfig attribute)</a>
@@ -15664,7 +16009,7 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.time_limit">(src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
 </li>
-        <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.time_limit">(src.configs.policies.ils.ILSConfig attribute)</a>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.time_limit">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.other.post_processing.html#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit">(src.configs.policies.other.post_processing.PostProcessingConfig attribute)</a>
 </li>
@@ -15678,11 +16023,15 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.rl.policies.aco.html#src.configs.rl.policies.aco.ACOConfig.time_limit">(src.configs.rl.policies.aco.ACOConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.rl.policies.ahvpl.html#src.configs.rl.policies.ahvpl.AHVPLConfig.time_limit">(src.configs.rl.policies.ahvpl.AHVPLConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.rl.policies.alns.html#src.configs.rl.policies.alns.ALNSConfig.time_limit">(src.configs.rl.policies.alns.ALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.hgs.html#src.configs.rl.policies.hgs.HGSConfig.time_limit">(src.configs.rl.policies.hgs.HGSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#src.configs.rl.policies.hgs_alns.HGSALNSConfig.time_limit">(src.configs.rl.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hvpl.html#src.configs.rl.policies.hvpl.HVPLConfig.time_limit">(src.configs.rl.policies.hvpl.HVPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.time_limit">(src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
@@ -15694,7 +16043,11 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.params.html#src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.time_limit">(src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams attribute)</a>
 </li>
+        <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.params.html#src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.time_limit">(src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams attribute)</a>
+</li>
         <li><a href="references/src/src.policies.hybrid_genetic_search.params.html#src.policies.hybrid_genetic_search.params.HGSParams.time_limit">(src.policies.hybrid_genetic_search.params.HGSParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.params.html#src.policies.hybrid_volleyball_premier_league.params.HVPLParams.time_limit">(src.policies.hybrid_volleyball_premier_league.params.HVPLParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.slack_induction_by_string_removal.params.html#src.policies.slack_induction_by_string_removal.params.SISRParams.time_limit">(src.policies.slack_induction_by_string_removal.params.SISRParams attribute)</a>
 </li>
@@ -15943,7 +16296,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.shared.linear.html#src.models.policies.shared.linear.vectorized_linear_split">vectorized_linear_split() (in module src.models.policies.shared.linear)</a>
 </li>
-      <li><a href="references/src/src.models.policies.hgs.crossover.html#src.models.policies.hgs.crossover.vectorized_ordered_crossover">vectorized_ordered_crossover() (in module src.models.policies.hgs.crossover)</a>
+      <li><a href="references/src/src.models.policies.hgs_core.crossover.html#src.models.policies.hgs_core.crossover.vectorized_ordered_crossover">vectorized_ordered_crossover() (in module src.models.policies.hgs_core.crossover)</a>
 </li>
       <li><a href="references/src/src.models.policies.shared.limited.html#src.models.policies.shared.limited.vectorized_split_limited">vectorized_split_limited() (in module src.models.policies.shared.limited)</a>
 </li>
@@ -15957,23 +16310,29 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.ant_colony_system.html#src.models.policies.ant_colony_system.VectorizedACOPolicy">VectorizedACOPolicy (class in src.models.policies.ant_colony_system)</a>
 </li>
+      <li><a href="references/src/src.models.policies.augmented_hybrid_volleyball_premier_league.html#src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL">VectorizedAHVPL (class in src.models.policies.augmented_hybrid_volleyball_premier_league)</a>
+</li>
       <li><a href="references/src/src.models.policies.adaptive_large_neighborhood_search.html#src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS">VectorizedALNS (class in src.models.policies.adaptive_large_neighborhood_search)</a>
 
       <ul>
         <li><a href="references/src/src.models.policies.alns.html#src.models.policies.alns.VectorizedALNS">(class in src.models.policies.alns)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.models.policies.hgs.wrapper.html#src.models.policies.hgs.wrapper.VectorizedHGS">VectorizedHGS (class in src.models.policies.hgs.wrapper)</a>
+      <li><a href="references/src/src.models.policies.hgs.html#src.models.policies.hgs.VectorizedHGS">VectorizedHGS (class in src.models.policies.hgs)</a>
 
       <ul>
         <li><a href="references/src/src.models.policies.hybrid_genetic_search.html#src.models.policies.hybrid_genetic_search.VectorizedHGS">(class in src.models.policies.hybrid_genetic_search)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.policies.hgs_alns.html#src.models.policies.hgs_alns.VectorizedHGSALNS">VectorizedHGSALNS (class in src.models.policies.hgs_alns)</a>
 </li>
-      <li><a href="references/src/src.models.policies.hgs.population.html#src.models.policies.hgs.population.VectorizedPopulation">VectorizedPopulation (class in src.models.policies.hgs.population)</a>
+      <li><a href="references/src/src.models.policies.hgs_alns.html#src.models.policies.hgs_alns.VectorizedHGSALNSEngine">VectorizedHGSALNSEngine (class in src.models.policies.hgs_alns)</a>
+</li>
+      <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL">VectorizedHVPL (class in src.models.policies.hybrid_volleyball_premier_league)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.models.policies.hgs_core.population.html#src.models.policies.hgs_core.population.VectorizedPopulation">VectorizedPopulation (class in src.models.policies.hgs_core.population)</a>
 </li>
       <li><a href="references/src/src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector">VectorizedSelector (class in src.models.policies.selection.base)</a>
 </li>
@@ -16017,6 +16376,24 @@ document.write(`
 </li>
       <li><a href="references/src/src.envs.tasks.vrpp.html#src.envs.tasks.vrpp.VRPP">VRPP (class in src.envs.tasks.vrpp)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.vrpp">vrpp (src.configs.policies.aco.ACOConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.vrpp">(src.configs.policies.alns.ALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.bcp.html#src.configs.policies.bcp.BCPConfig.vrpp">(src.configs.policies.bcp.BCPConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.hgs.html#src.configs.policies.hgs.HGSConfig.vrpp">(src.configs.policies.hgs.HGSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.vrpp">(src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.hvpl.html#src.configs.policies.hvpl.HVPLConfig.vrpp">(src.configs.policies.hvpl.HVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.lkh.html#src.configs.policies.lkh.LKHConfig.vrpp">(src.configs.policies.lkh.LKHConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp">(src.configs.rl.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.VRPP_STEP_CONTEXT_OFFSET">VRPP_STEP_CONTEXT_OFFSET (in module src.constants.models)</a>
 </li>
       <li><a href="references/src/src.configs.policies.vrpp.html#src.configs.policies.vrpp.VRPPConfig">VRPPConfig (class in src.configs.policies.vrpp)</a>

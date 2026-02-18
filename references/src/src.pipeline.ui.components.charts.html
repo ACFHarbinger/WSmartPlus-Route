@@ -230,10 +230,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -475,6 +477,8 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_simulation_metrics_chart"><code class="docutils literal notranslate"><span class="pre">create_simulation_metrics_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_radar_chart"><code class="docutils literal notranslate"><span class="pre">create_radar_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_stacked_bar_chart()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_heatmap_chart"><code class="docutils literal notranslate"><span class="pre">create_heatmap_chart()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_area_chart"><code class="docutils literal notranslate"><span class="pre">create_area_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_bar_chart()</span></code></a></li>
 </ul>
 </li>
@@ -518,6 +522,12 @@ document.write(`
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart" title="src.pipeline.ui.components.charts.create_stacked_bar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_stacked_bar_chart</span></code></a></p></td>
 <td><p>Create a stacked bar chart with multiple data series.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_heatmap_chart" title="src.pipeline.ui.components.charts.create_heatmap_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_heatmap_chart</span></code></a></p></td>
+<td><p>Create a Plotly heatmap from a numeric DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_area_chart" title="src.pipeline.ui.components.charts.create_area_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_area_chart</span></code></a></p></td>
+<td><p>Create a filled area chart with a line overlay.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.ui.components.charts.create_bar_chart" title="src.pipeline.ui.components.charts.create_bar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_bar_chart</span></code></a></p></td>
 <td><p>Create a simple bar chart.</p></td>
@@ -619,6 +629,31 @@ Plotly Figure object.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_heatmap_chart">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_heatmap_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Heatmap'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_heatmap_chart" title="Link to this definition">#</a></dt>
+<dd><p>Create a Plotly heatmap from a numeric DataFrame.</p>
+<p>Args:
+df: DataFrame with numeric values. Rows are Y-axis, columns are X-axis.
+title: Chart title.</p>
+<p>Returns:
+Plotly Figure object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_area_chart">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_area_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'X'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Y'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Area</span> <span class="pre">Chart'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_area_chart" title="Link to this definition">#</a></dt>
+<dd><p>Create a filled area chart with a line overlay.</p>
+<p>Args:
+x: X-axis data (array-like).
+y: Y-axis data (array-like).
+x_label: X-axis label.
+y_label: Y-axis label.
+title: Chart title.</p>
+<p>Returns:
+Plotly Figure object.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.ui.components.charts.create_bar_chart">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_bar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Comparison'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Category'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Value'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.pipeline.ui.components.charts.create_bar_chart" title="Link to this definition">#</a></dt>
 <dd><p>Create a simple bar chart.</p>
@@ -691,6 +726,8 @@ Plotly Figure object.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_simulation_metrics_chart"><code class="docutils literal notranslate"><span class="pre">create_simulation_metrics_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_radar_chart"><code class="docutils literal notranslate"><span class="pre">create_radar_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_stacked_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_stacked_bar_chart()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_heatmap_chart"><code class="docutils literal notranslate"><span class="pre">create_heatmap_chart()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_area_chart"><code class="docutils literal notranslate"><span class="pre">create_area_chart()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.ui.components.charts.create_bar_chart"><code class="docutils literal notranslate"><span class="pre">create_bar_chart()</span></code></a></li>
 </ul>
 </li>

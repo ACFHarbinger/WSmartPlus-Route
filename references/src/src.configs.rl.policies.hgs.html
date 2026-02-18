@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.configs.rl.policies.ils" href="src.configs.rl.policies.ils.html" />
-    <link rel="prev" title="src.configs.rl.policies.aco" href="src.configs.rl.policies.aco.html" />
+    <link rel="prev" title="src.configs.rl.policies.ahvpl" href="src.configs.rl.policies.ahvpl.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -230,10 +230,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -472,6 +474,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.population_size"><code class="docutils literal notranslate"><span class="pre">HGSConfig.population_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.elite_size"><code class="docutils literal notranslate"><span class="pre">HGSConfig.elite_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.n_generations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.n_generations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSConfig.max_vehicles</span></code></a></li>
 </ul>
@@ -548,6 +551,12 @@ post_processing: List of post-processing operations to apply.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.crossover_rate">
+<span class="sig-name descname"><span class="pre">crossover_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate" title="Link to this definition">#</a></dt>
+<dd><p>0.7</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.n_generations">
 <span class="sig-name descname"><span class="pre">n_generations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.n_generations" title="Link to this definition">#</a></dt>
 <dd><p>100</p>
@@ -577,12 +586,12 @@ post_processing: List of post-processing operations to apply.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.configs.rl.policies.aco.html"
+       href="src.configs.rl.policies.ahvpl.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.aco</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.ahvpl</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -618,6 +627,7 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.population_size"><code class="docutils literal notranslate"><span class="pre">HGSConfig.population_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.elite_size"><code class="docutils literal notranslate"><span class="pre">HGSConfig.elite_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.n_generations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.n_generations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSConfig.max_vehicles</span></code></a></li>
 </ul>

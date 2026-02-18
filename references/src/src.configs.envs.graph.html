@@ -230,10 +230,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -480,7 +482,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -530,8 +531,7 @@ edge_threshold: How many of all possible edges to consider.
 edge_method: Method for getting edges (‘dist’, ‘knn’, etc.).
 focus_graph: Paths to the files with the coordinates of the graphs to focus on.
 focus_size: Number of focus graphs to include.
-n_samples: Number of samples/instances to generate for this graph.
-n_days: Number of days/horizon for this graph (for temporal datasets).</p>
+n_samples: Number of samples/instances to generate for this graph.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.area">
 <span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.area" title="Link to this definition">#</a></dt>
@@ -604,12 +604,6 @@ n_days: Number of days/horizon for this graph (for temporal datasets).</p>
 <dd><p>1</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.n_days">
-<span class="sig-name descname"><span class="pre">n_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.n_days" title="Link to this definition">#</a></dt>
-<dd><p>1</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -677,7 +671,6 @@ n_days: Number of days/horizon for this graph (for temporal datasets).</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
 </ul>
 </li>
 </ul>

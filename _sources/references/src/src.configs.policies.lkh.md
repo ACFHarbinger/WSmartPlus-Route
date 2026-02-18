@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.lkh.LKHConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.lkh.LKHConfig.vrpp
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.lkh.LKHConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

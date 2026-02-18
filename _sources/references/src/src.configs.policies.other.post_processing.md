@@ -95,6 +95,28 @@
 
 ````
 
+````{py:attribute} op_probs
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.op_probs
+:type: typing.Dict[str, float]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.op_probs
+```
+
+````
+
+````{py:attribute} perturb_probs
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs
+:type: typing.Dict[str, float]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.other.post_processing.PostProcessingConfig.time_limit
 :type: float

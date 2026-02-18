@@ -39,6 +39,14 @@
   - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_stacked_bar_chart
     :summary:
     ```
+* - {py:obj}`create_heatmap_chart <src.pipeline.ui.components.charts.create_heatmap_chart>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_heatmap_chart
+    :summary:
+    ```
+* - {py:obj}`create_area_chart <src.pipeline.ui.components.charts.create_area_chart>`
+  - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_area_chart
+    :summary:
+    ```
 * - {py:obj}`create_bar_chart <src.pipeline.ui.components.charts.create_bar_chart>`
   - ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_bar_chart
     :summary:
@@ -109,6 +117,20 @@
 :canonical: src.pipeline.ui.components.charts.create_stacked_bar_chart
 
 ```{autodoc2-docstring} src.pipeline.ui.components.charts.create_stacked_bar_chart
+```
+````
+
+````{py:function} create_heatmap_chart(df: pandas.DataFrame, title: str = 'Heatmap') -> plotly.graph_objects.Figure
+:canonical: src.pipeline.ui.components.charts.create_heatmap_chart
+
+```{autodoc2-docstring} src.pipeline.ui.components.charts.create_heatmap_chart
+```
+````
+
+````{py:function} create_area_chart(x: typing.Any, y: typing.Any, x_label: str = 'X', y_label: str = 'Y', title: str = 'Area Chart') -> plotly.graph_objects.Figure
+:canonical: src.pipeline.ui.components.charts.create_area_chart
+
+```{autodoc2-docstring} src.pipeline.ui.components.charts.create_area_chart
 ```
 ````
 

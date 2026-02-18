@@ -7,40 +7,51 @@
 :allowtitles:
 ```
 
-## Submodules
+## Module Contents
 
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.models.policies.hgs.evaluation
-src.models.policies.hgs.crossover
-src.models.policies.hgs.wrapper
-src.models.policies.hgs.population
-```
-
-## Package Contents
-
-### Data
+### Classes
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`__all__ <src.models.policies.hgs.__all__>`
-  - ```{autodoc2-docstring} src.models.policies.hgs.__all__
+* - {py:obj}`VectorizedHGS <src.models.policies.hgs.VectorizedHGS>`
+  - ```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS
     :summary:
     ```
 ````
 
 ### API
 
-````{py:data} __all__
-:canonical: src.models.policies.hgs.__all__
-:value: >
-   ['VectorizedPopulation', 'vectorized_ordered_crossover', 'calc_broken_pairs_distance', 'VectorizedHG...
+`````{py:class} VectorizedHGS(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 10, max_vehicles: int = 0, crossover_rate: float = 0.7, **kwargs)
+:canonical: src.models.policies.hgs.VectorizedHGS
 
-```{autodoc2-docstring} src.models.policies.hgs.__all__
+Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePolicy`
+
+```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS.__init__
+```
+
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+:canonical: src.models.policies.hgs.VectorizedHGS.forward
+
+```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS.forward
 ```
 
 ````
+
+````{py:method} _compute_reward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase], actions: torch.Tensor) -> torch.Tensor
+:canonical: src.models.policies.hgs.VectorizedHGS._compute_reward
+:staticmethod:
+
+```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS._compute_reward
+```
+
+````
+
+`````

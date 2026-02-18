@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} crossover_rate
+:canonical: src.configs.rl.policies.hgs.HGSConfig.crossover_rate
+:type: float
+:value: >
+   0.7
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs.HGSConfig.crossover_rate
+```
+
+````
+
 ````{py:attribute} n_generations
 :canonical: src.configs.rl.policies.hgs.HGSConfig.n_generations
 :type: int

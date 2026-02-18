@@ -107,7 +107,7 @@ Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
 
 ````
 
-````{py:method} _create_subset_problem(must_go: typing.List[int], distance_matrix: typing.Any, bins: typing.Any) -> typing.Tuple[numpy.ndarray, typing.Dict[int, float], typing.List[int]]
+````{py:method} _create_subset_problem(must_go: typing.List[int], distance_matrix: typing.Any, bins: typing.Any, use_all_bins: bool = True) -> typing.Tuple[numpy.ndarray, typing.Dict[int, float], typing.List[int], typing.List[int]]
 :canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy._create_subset_problem
 
 ```{autodoc2-docstring} src.policies.adapters.base_routing_policy.BaseRoutingPolicy._create_subset_problem
@@ -131,7 +131,7 @@ Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
 
 ````
 
-````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_demands: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_demands: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy._run_solver
 :abstractmethod:
 

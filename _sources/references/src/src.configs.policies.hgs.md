@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} crossover_rate
+:canonical: src.configs.policies.hgs.HGSConfig.crossover_rate
+:type: float
+:value: >
+   0.7
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.crossover_rate
+```
+
+````
+
 ````{py:attribute} n_generations
 :canonical: src.configs.policies.hgs.HGSConfig.n_generations
 :type: int
@@ -102,6 +113,17 @@
    'custom'
 
 ```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.engine
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.hgs.HGSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.vrpp
 ```
 
 ````

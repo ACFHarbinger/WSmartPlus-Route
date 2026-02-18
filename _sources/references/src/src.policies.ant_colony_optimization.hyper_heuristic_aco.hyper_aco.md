@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HyperHeuristicACO(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, heuristic_matrix: numpy.ndarray, problem: str = 'vrpp', params: typing.Optional[src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams] = None, **kwargs)
+`````{py:class} HyperHeuristicACO(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams] = None, initial_solution: typing.Optional[typing.List[typing.List[int]]] = None, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO
@@ -35,15 +35,7 @@
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO.__init__
 ```
 
-````{py:method} _init_pheromones()
-:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._init_pheromones
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._init_pheromones
-```
-
-````
-
-````{py:method} solve(initial_routes: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO.solve
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO.solve
@@ -51,26 +43,18 @@
 
 ````
 
-````{py:method} _construct_sequence() -> typing.List[str]
-:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._construct_sequence
+````{py:method} build_solution() -> typing.List[typing.List[int]]
+:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO.build_solution
 
-```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._construct_sequence
+```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO.build_solution
 ```
 
 ````
 
-````{py:method} _select_next_operator(current: int) -> int
-:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._select_next_operator
+````{py:method} _select_sequence() -> typing.List[str]
+:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._select_sequence
 
-```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._select_next_operator
-```
-
-````
-
-````{py:method} _apply_sequence(routes: typing.List[typing.List[int]], sequence: typing.List[str]) -> typing.List[typing.List[int]]
-:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._apply_sequence
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._apply_sequence
+```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._select_sequence
 ```
 
 ````
@@ -87,14 +71,6 @@
 :canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._evaporate_pheromones
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._evaporate_pheromones
-```
-
-````
-
-````{py:method} _deposit_pheromones(solutions: typing.List[typing.Tuple[typing.List[typing.List[int]], float, typing.List[str]]])
-:canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._deposit_pheromones
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO._deposit_pheromones
 ```
 
 ````

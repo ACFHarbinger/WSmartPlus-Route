@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.models.policies.hgs.crossover &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.adapters.policy_hvpl &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.models.policies.hgs.crossover';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.adapters.policy_hvpl';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.models.policies.hgs.wrapper" href="src.models.policies.hgs.wrapper.html" />
-    <link rel="prev" title="src.models.policies.hgs.evaluation" href="src.models.policies.hgs.evaluation.html" />
+    <link rel="next" title="src.policies.adapters.policy_cvrp" href="src.policies.adapters.policy_cvrp.html" />
+    <link rel="prev" title="src.policies.adapters.policy_hgs_alns" href="src.policies.adapters.policy_hgs_alns.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -229,14 +229,16 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vehicle_routing_problem_with_profits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vehicle_routing_problem_with_profits</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
@@ -287,7 +289,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.models.temporal_attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.temporal_attention_model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.nargnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.nargnn</span></code></a></li>
@@ -299,7 +301,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.models.n2s.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.n2s</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.attention_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.attention_model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.hypernet.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.hypernet</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.deepaco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.deepaco</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.weight_adjustment_rnn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.weight_adjustment_rnn</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.models.moe.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.moe</span></code></a></li>
@@ -370,7 +372,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.models.policies.hgs.crossover.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.adapters.policy_hvpl.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -454,7 +456,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.models.policies.hgs.crossover</h1>
+    <h1>src.policies.adapters.policy_hvpl</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -465,9 +467,14 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.hgs.crossover.vectorized_ordered_crossover"><code class="docutils literal notranslate"><span class="pre">vectorized_ordered_crossover()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy._config_class()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy._run_solver()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -483,17 +490,18 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.hgs.crossover">
-<span id="src-models-policies-hgs-crossover"></span><h1><a class="reference internal" href="#module-src.models.policies.hgs.crossover" title="src.models.policies.hgs.crossover"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.hgs.crossover</span></code></a><a class="headerlink" href="#module-src.models.policies.hgs.crossover" title="Link to this heading">#</a></h1>
-<p>Genetic Crossover Operators for HGS.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.adapters.policy_hvpl">
+<span id="src-policies-adapters-policy-hvpl"></span><h1><a class="reference internal" href="#module-src.policies.adapters.policy_hvpl" title="src.policies.adapters.policy_hvpl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_hvpl</span></code></a><a class="headerlink" href="#module-src.policies.adapters.policy_hvpl" title="Link to this heading">#</a></h1>
+<p>HVPL Policy Adapter.</p>
+<p>Adapts the Hybrid Volleyball Premier League (HVPL) logic to the agnostic interface.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.hgs.crossover.vectorized_ordered_crossover" title="src.models.policies.hgs.crossover.vectorized_ordered_crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_ordered_crossover</span></code></a></p></td>
-<td><p>Vectorized Ordered Crossover (OX1) with shared cuts across batch.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.adapters.policy_hvpl.HVPLPolicy" title="src.policies.adapters.policy_hvpl.HVPLPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HVPLPolicy</span></code></a></p></td>
+<td><p>HVPL policy class.</p></td>
 </tr>
 </tbody>
 </table>
@@ -501,15 +509,35 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py function">
-<dt class="sig sig-object py" id="src.models.policies.hgs.crossover.vectorized_ordered_crossover">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.hgs.crossover.</span></span><span class="sig-name descname"><span class="pre">vectorized_ordered_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.hgs.crossover.vectorized_ordered_crossover" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Ordered Crossover (OX1) with shared cuts across batch.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.adapters.policy_hvpl.HVPLPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adapters.policy_hvpl.</span></span><span class="sig-name descname"><span class="pre">HVPLPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.hvpl.HVPLConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adapters.policy_hvpl.HVPLPolicy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.adapters.base_routing_policy.BaseRoutingPolicy</span></code></p>
+<p>HVPL policy class.</p>
+<p>Visits pre-selected ‘must_go’ bins using the population-based HVPL metaheuristic.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize HVPL policy with optional config.</p>
 <p>Args:
-parent1: (B, N)
-parent2: (B, N)</p>
+config: HVPLConfig dataclass, raw dict from YAML, or None.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.policy_hvpl.HVPLPolicy._config_class">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._config_class" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.policy_hvpl.HVPLPolicy._get_config_key">
+<span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._get_config_key" title="Link to this definition">#</a></dt>
+<dd><p>Return config key for HVPL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.policy_hvpl.HVPLPolicy._run_solver">
+<span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_demands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._run_solver" title="Link to this definition">#</a></dt>
+<dd><p>Run HVPL solver.</p>
 <p>Returns:
-offspring: (B, N)</p>
+Tuple of (routes, profit, solver_cost)</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -528,20 +556,20 @@ offspring: (B, N)</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.models.policies.hgs.evaluation.html"
+       href="src.policies.adapters.policy_hgs_alns.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.hgs.evaluation</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_hgs_alns</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.models.policies.hgs.wrapper.html"
+       href="src.policies.adapters.policy_cvrp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.hgs.wrapper</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters.policy_cvrp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -562,9 +590,14 @@ offspring: (B, N)</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.hgs.crossover.vectorized_ordered_crossover"><code class="docutils literal notranslate"><span class="pre">vectorized_ordered_crossover()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy._config_class()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.policy_hvpl.HVPLPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">HVPLPolicy._run_solver()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

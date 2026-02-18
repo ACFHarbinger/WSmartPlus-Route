@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.policies.other.post_processing.random_ls &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.other.post_processing.iterated_local_search &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,10 +61,10 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.other.post_processing.random_ls';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.other.post_processing.iterated_local_search';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.other.post_processing.ils" href="src.policies.other.post_processing.ils.html" />
+    <link rel="next" title="src.policies.other.post_processing.random_local_search" href="src.policies.other.post_processing.random_local_search.html" />
     <link rel="prev" title="src.policies.other.post_processing.factory" href="src.policies.other.post_processing.factory.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -230,10 +230,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -370,7 +372,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.policies.other.post_processing.random_ls.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.other.post_processing.iterated_local_search.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -454,7 +456,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.policies.other.post_processing.random_ls</h1>
+    <h1>src.policies.other.post_processing.iterated_local_search</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -467,8 +469,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor"><code class="docutils literal notranslate"><span class="pre">IteratedLocalSearchPostProcessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">IteratedLocalSearchPostProcessor.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -486,18 +488,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.other.post_processing.random_ls">
-<span id="src-policies-other-post-processing-random-ls"></span><h1><a class="reference internal" href="#module-src.policies.other.post_processing.random_ls" title="src.policies.other.post_processing.random_ls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.post_processing.random_ls</span></code></a><a class="headerlink" href="#module-src.policies.other.post_processing.random_ls" title="Link to this heading">#</a></h1>
-<p>Random Local Search Post-Processor.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.other.post_processing.iterated_local_search">
+<span id="src-policies-other-post-processing-iterated-local-search"></span><h1><a class="reference internal" href="#module-src.policies.other.post_processing.iterated_local_search" title="src.policies.other.post_processing.iterated_local_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.post_processing.iterated_local_search</span></code></a><a class="headerlink" href="#module-src.policies.other.post_processing.iterated_local_search" title="Link to this heading">#</a></h1>
+<p>Iterated Local Search Post-Processor.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor" title="src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a></p></td>
-<td><p>Performs stochastic local search refinement by applying random operators.
-Mirrors the logic of RandomLocalSearchPolicy but as a post-processor.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor" title="src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IteratedLocalSearchPostProcessor</span></code></a></p></td>
+<td><p>Iterated Local Search (ILS) post-processor.</p></td>
 </tr>
 </tbody>
 </table>
@@ -506,20 +507,16 @@ Mirrors the logic of RandomLocalSearchPolicy but as a post-processor.</p></td>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.other.post_processing.random_ls.</span></span><span class="sig-name descname"><span class="pre">RandomLocalSearchPostProcessor</span></span><a class="headerlink" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.other.post_processing.iterated_local_search.</span></span><span class="sig-name descname"><span class="pre">IteratedLocalSearchPostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls_operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'2opt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'double_bridge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_restarts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ls_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbation_strength</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IPostProcessor</span></code></p>
-<p>Performs stochastic local search refinement by applying random operators.
-Mirrors the logic of RandomLocalSearchPolicy but as a post-processor.</p>
+<p>Iterated Local Search (ILS) post-processor.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the ILS post-processor.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor.process" title="Link to this definition">#</a></dt>
-<dd><p>Apply random local search operators stochastically.</p>
-<p>Args:
-tour: The initial tour to refine.
-**kwargs: Context containing ‘distance_matrix’, ‘n_iterations’, and optionally ‘op_probs’.</p>
-<p>Returns:
-List[int]: The refined tour.</p>
+<dt class="sig sig-object py" id="src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor.process" title="Link to this definition">#</a></dt>
+<dd><p>Apply ILS to refine the tour.</p>
 </dd></dl>
 
 </dd></dl>
@@ -549,11 +546,11 @@ List[int]: The refined tour.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.other.post_processing.ils.html"
+       href="src.policies.other.post_processing.random_local_search.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.post_processing.ils</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.post_processing.random_local_search</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -576,8 +573,8 @@ List[int]: The refined tour.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.random_ls.RandomLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostProcessor.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor"><code class="docutils literal notranslate"><span class="pre">IteratedLocalSearchPostProcessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.post_processing.iterated_local_search.IteratedLocalSearchPostProcessor.process"><code class="docutils literal notranslate"><span class="pre">IteratedLocalSearchPostProcessor.process()</span></code></a></li>
 </ul>
 </li>
 </ul>

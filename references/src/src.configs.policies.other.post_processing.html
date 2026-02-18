@@ -230,10 +230,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
@@ -474,6 +476,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_strength</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.ls_operator</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturb_probs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.params"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.params</span></code></a></li>
 </ul>
@@ -562,6 +566,18 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.op_probs">
+<span class="sig-name descname"><span class="pre">op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs">
+<span class="sig-name descname"><span class="pre">perturb_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>10.0</p>
@@ -634,6 +650,8 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_strength</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.ls_operator</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturb_probs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.params"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.params</span></code></a></li>
 </ul>

@@ -26,7 +26,7 @@
 `````{py:class} VectorizedALNS(env_name: str, time_limit: float = 5.0, max_iterations: int = 500, max_vehicles: int = 0, **kwargs)
 :canonical: src.models.policies.alns.VectorizedALNS
 
-Bases: {py:obj}`logic.src.models.common.improvement_policy.ImprovementPolicy`
+Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePolicy`
 
 ```{autodoc2-docstring} src.models.policies.alns.VectorizedALNS
 ```

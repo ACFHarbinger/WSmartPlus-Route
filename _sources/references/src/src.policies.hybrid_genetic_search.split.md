@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} LinearSplit(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, max_vehicles: int = 0)
+`````{py:class} LinearSplit(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, max_vehicles: int = 0, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hybrid_genetic_search.split.LinearSplit
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.split.LinearSplit
@@ -97,7 +97,7 @@
 
 `````
 
-````{py:function} split_algorithm(giant_tour: typing.List[int], dist_matrix, demands, capacity, R, C, values)
+````{py:function} split_algorithm(giant_tour: typing.List[int], dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hybrid_genetic_search.split.split_algorithm
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.split.split_algorithm

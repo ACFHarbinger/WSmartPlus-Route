@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} crossover_rate
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate
+:type: float
+:value: >
+   0.7
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate
+```
+
+````
+
 ````{py:attribute} n_generations
 :canonical: src.policies.hybrid_genetic_search.params.HGSParams.n_generations
 :type: int

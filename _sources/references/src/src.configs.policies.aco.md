@@ -205,6 +205,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.aco.ACOConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.aco.ACOConfig.vrpp
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.aco.ACOConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

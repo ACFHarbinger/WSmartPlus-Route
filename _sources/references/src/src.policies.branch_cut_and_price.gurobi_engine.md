@@ -43,42 +43,42 @@
 
 ### API
 
-````{py:function} _setup_model(values, env)
+````{py:function} _setup_model(values: typing.Dict[str, typing.Any], env: typing.Optional[gurobipy.Env]) -> gurobipy.Model
 :canonical: src.policies.branch_cut_and_price.gurobi_engine._setup_model
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine._setup_model
 ```
 ````
 
-````{py:function} _create_variables(model, nodes, customers, demands, capacity)
+````{py:function} _create_variables(model: gurobipy.Model, nodes: typing.List[int], customers: typing.List[int], demands: typing.Dict[int, float], capacity: float) -> typing.Tuple[typing.Dict[typing.Tuple[int, int], gurobipy.Var], typing.Dict[int, gurobipy.Var], typing.Dict[int, gurobipy.Var]]
 :canonical: src.policies.branch_cut_and_price.gurobi_engine._create_variables
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine._create_variables
 ```
 ````
 
-````{py:function} _create_objective(model, x, y, dist_matrix, demands, nodes, customers, R, C, must_go_indices)
+````{py:function} _create_objective(model: gurobipy.Model, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], y: typing.Dict[int, gurobipy.Var], dist_matrix: typing.Any, demands: typing.Dict[int, float], nodes: typing.List[int], customers: typing.List[int], R: float, C: float, mandatory_nodes: typing.Optional[typing.Set[int]]) -> None
 :canonical: src.policies.branch_cut_and_price.gurobi_engine._create_objective
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine._create_objective
 ```
 ````
 
-````{py:function} _add_constraints(model, x, y, u, nodes, customers, demands, capacity)
+````{py:function} _add_constraints(model: gurobipy.Model, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], y: typing.Dict[int, gurobipy.Var], u: typing.Dict[int, gurobipy.Var], nodes: typing.List[int], customers: typing.List[int], demands: typing.Dict[int, float], capacity: float) -> None
 :canonical: src.policies.branch_cut_and_price.gurobi_engine._add_constraints
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine._add_constraints
 ```
 ````
 
-````{py:function} _extract_solution(model, x, nodes)
+````{py:function} _extract_solution(model: gurobipy.Model, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], nodes: typing.List[int]) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_cut_and_price.gurobi_engine._extract_solution
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine._extract_solution
 ```
 ````
 
-````{py:function} run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices=None, env=None)
+````{py:function} run_bcp_gurobi(dist_matrix: typing.Any, demands: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, env: typing.Optional[gurobipy.Env] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_cut_and_price.gurobi_engine.run_bcp_gurobi
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine.run_bcp_gurobi

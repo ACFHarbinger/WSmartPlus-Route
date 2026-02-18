@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.__init__
 ```
 
-````{py:method} solve(initial_solutions: torch.Tensor, n_iterations: int = 2000, time_limit: typing.Optional[float] = None, max_vehicles: int = 0, start_temp: float = 0.5, cooling_rate: float = 0.9995) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} solve(initial_solutions: torch.Tensor, n_iterations: int = 2000, time_limit: typing.Optional[float] = None, max_vehicles: int = 0, start_temp: float = 0.5, cooling_rate: float = 0.9995) -> typing.Tuple[typing.List[typing.List[int]], torch.Tensor]
 :canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.solve
 
 ```{autodoc2-docstring} src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.solve

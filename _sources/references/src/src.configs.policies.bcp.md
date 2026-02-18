@@ -51,6 +51,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.bcp.BCPConfig.vrpp
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bcp.BCPConfig.vrpp
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.bcp.BCPConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
