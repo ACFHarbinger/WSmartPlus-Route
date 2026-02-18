@@ -25,7 +25,7 @@ samples := "10"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "gamma1"
+distribution := "emp"
 n_cores := "0"
 policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
 
@@ -90,7 +90,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores:
+test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -99,11 +99,13 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py test_sim \
         sim.policies=[{{ policies }}] \
         sim.days={{ days }} \
         sim.n_samples={{ samples }} \
+        sim.data_distribution={{ distribution }} \
         sim.graph.area={{ area }} \
         sim.graph.num_loc={{ size }} \
         sim.problem={{ problem }} \

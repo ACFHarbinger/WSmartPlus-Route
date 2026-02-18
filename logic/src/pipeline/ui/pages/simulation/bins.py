@@ -99,7 +99,7 @@ def render_bin_state_inspector(display_entry: Any) -> None:
         filtered_df = df[df["Overflow"]]
 
     styled = style_bin_table(pd.DataFrame(filtered_df))
-    st.dataframe(styled, height=300, use_container_width=True)
+    st.dataframe(styled, height=300, width="stretch")
 
 
 def render_collection_details(display_entry: Any) -> None:
@@ -138,7 +138,7 @@ def render_collection_details(display_entry: Any) -> None:
 
     if collected_bins:
         st.markdown("**Per-Bin Collection Breakdown:**")
-        st.dataframe(pd.DataFrame(collected_bins), use_container_width=True)
+        st.dataframe(pd.DataFrame(collected_bins), width="stretch")
         categories = [str(b["Bin ID"]) for b in collected_bins]
         fig = create_stacked_bar_chart(
             categories=categories,
