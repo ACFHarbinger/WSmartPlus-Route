@@ -46,9 +46,9 @@ class VRPPPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """Not used - VRPP requires specialized execute()."""
-        return [], 0.0
+        return [], 0.0, 0.0
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """

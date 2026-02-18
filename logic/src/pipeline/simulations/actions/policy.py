@@ -4,7 +4,7 @@ Action for routing policy execution.
 
 from typing import Any, Dict
 
-from logic.src.policies.adapters import PolicyFactory
+from logic.src.policies import PolicyFactory
 
 from .base import SimulationAction, _flatten_config
 
@@ -73,6 +73,8 @@ class PolicyExecutionAction(SimulationAction):
             "am",
             "ptr",
             "ddam",
+            "ahvpl",
+            "hvpl",
         ]
 
         # Prioritize exact matches in Registry to avoid false positives (e.g. 'gamma' contains 'am')

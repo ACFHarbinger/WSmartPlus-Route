@@ -27,7 +27,7 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma1"
 n_cores := "0"
-policies := "hgs,alns,sans,vrpp,cvrp,tsp"
+policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
 
 # --- Setup & Environment ---
 

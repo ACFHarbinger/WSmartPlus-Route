@@ -50,14 +50,14 @@ class HGSPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run HGS solver.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
-        routes, _, solver_cost = run_hgs(
+        routes, profit, solver_cost = run_hgs(
             sub_dist_matrix,
             sub_demands,
             capacity,
@@ -66,4 +66,4 @@ class HGSPolicy(BaseRoutingPolicy):
             values,
             mandatory_nodes=mandatory_nodes,
         )
-        return routes, solver_cost
+        return routes, profit, solver_cost

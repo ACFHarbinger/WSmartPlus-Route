@@ -49,7 +49,7 @@ class BCPPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run BCP solver.
 
@@ -57,7 +57,7 @@ class BCPPolicy(BaseRoutingPolicy):
         In VRPP mode, additional nodes from sub_demands might be collected if profitable.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
         # Convert local mandatory indices to a set of must-go nodes for the solver
         must_go_indices: Set[int] = set(mandatory_nodes)
@@ -72,4 +72,15 @@ class BCPPolicy(BaseRoutingPolicy):
             must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
         )
-        return routes, solver_cost
+
+        # Compute profit: collected revenue - distance cost
+        visited = {n for route in routes for n in route}
+        collected_revenue = sum(sub_demands.get(n, 0) * revenue for n in visited)
+        dist_cost = 0.0
+        for route in routes:
+            path = [0] + route + [0]
+            for i in range(len(path) - 1):
+                dist_cost += sub_dist_matrix[path[i]][path[i + 1]]
+        profit = collected_revenue - dist_cost * cost_unit
+
+        return routes, profit, solver_cost

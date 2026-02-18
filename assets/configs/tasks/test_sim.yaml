@@ -47,6 +47,7 @@ sim:
   # Relative to ROOT/data/wsr_simulator/
   graph:
     num_loc: 100
+    n_samples: 10
     area: "riomaior"
     waste_type: "plastic"
     dm_filepath: "gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"

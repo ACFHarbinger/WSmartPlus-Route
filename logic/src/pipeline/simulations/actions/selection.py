@@ -57,12 +57,12 @@ class MustGoSelectionAction(SimulationAction):
                 thresh = (
                     s_params.get("threshold")
                     if s_params.get("threshold") is not None
-                    else s_params.get("cf")
-                    if s_params.get("cf") is not None
-                    else s_params.get("param")
-                    if s_params.get("param") is not None
-                    else s_params.get("lvl")
-                    if s_params.get("lvl") is not None
+                    else s_params.get("frequency")
+                    if s_params.get("frequency") is not None
+                    else s_params.get("current_collection_day")
+                    if s_params.get("current_collection_day") is not None
+                    else s_params.get("confidence_factor")
+                    if s_params.get("confidence_factor") is not None
                     # Fallback to context/global thresh if not in strategy params
                     else context.get("threshold")
                 )

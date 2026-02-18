@@ -108,6 +108,8 @@ class SimulationDayContext(Mapping):
     cost_weight: float = 1.0
     waste_weight: float = 1.0
     overflow_penalty: float = 1.0
+    engine: Optional[str] = None
+    threshold: Optional[float] = None
 
     # Optional/Mutable Fields
     daily_log: Optional[Dict[str, Any]] = None

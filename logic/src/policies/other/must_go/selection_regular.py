@@ -24,7 +24,7 @@ class RegularSelection(IMustGoSelectionStrategy):
     Periodic collection strategy.
 
     Logic: Collect all bins if today is a scheduled collection day.
-    Scheduled if (current_day % (frequency + 1)) == 1.
+    Scheduled if (current_day % frequency) == 1.
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
@@ -38,14 +38,11 @@ class RegularSelection(IMustGoSelectionStrategy):
             List[int]: List of all bin IDs if collection day, else empty.
         """
         # threshold is used as frequency 'lvl'
-        # Prevent ZeroDivisionError if threshold + 1 is 0 (i.e., threshold is -1)
-        if context.threshold < 0:
-            return []
-
-        if context.threshold == 0:
+        if context.threshold <= 0:
             return (context.bin_ids + 1).tolist()
 
-        if (context.current_day % (int(context.threshold) + 1)) == 1:
+        is_collect = (context.current_day % int(context.threshold)) == 0
+        if is_collect:
             # Return all bins (1-based IDs)
             return (context.bin_ids + 1).tolist()
         return []
