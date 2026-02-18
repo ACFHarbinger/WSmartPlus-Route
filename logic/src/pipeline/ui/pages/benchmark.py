@@ -239,20 +239,27 @@ def render_benchmark_analysis() -> None:
 
     # 2. Benchmark Environment
     _render_benchmark_metadata(filtered_df)
+    st.write("")
 
-    # 3. Analysis Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(
-        ["Performance Table", "Comparison Charts", "Latency & Throughput", "Per-Run Details"]
+    # 3. Analysis Sections (Persistent Tabs)
+    tab_labels = ["Performance Table", "Comparison Charts", "Latency & Throughput", "Per-Run Details"]
+    selected_tab = st.segmented_control(
+        "Benchmark Analysis View",
+        options=tab_labels,
+        default=tab_labels[0],
+        key="bm_active_tab",
+        label_visibility="collapsed",
     )
+    st.write("")
 
-    with tab1:
+    if selected_tab == "Performance Table":
         _render_performance_table(filtered_df)
 
-    with tab2:
+    elif selected_tab == "Comparison Charts":
         _render_comparison_charts(filtered_df)
 
-    with tab3:
+    elif selected_tab == "Latency & Throughput":
         _render_latency_throughput(filtered_df)
 
-    with tab4:
+    elif selected_tab == "Per-Run Details":
         _render_per_run_details(filtered_df)
