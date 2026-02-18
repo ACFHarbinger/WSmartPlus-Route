@@ -327,7 +327,8 @@ def _render_run_comparison(
 
     if rows:
         comparison_df = pd.DataFrame(rows).set_index("Run").T
-        st.dataframe(comparison_df, width="stretch", height=400)
+        # Fix Arrow conversion error by casting to string (mixed floats/strings)
+        st.dataframe(comparison_df.astype(str), width="stretch", height=400)
 
 
 def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
@@ -351,13 +352,15 @@ def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
             if not selected_cols:
                 selected_cols = all_cols
 
-            # Row limit
+            # Row limit (Robust constraints)
+            max_r = len(df)
+            min_r = min(10, max_r)
             n_rows = st.number_input(
                 "Max rows",
-                min_value=10,
-                max_value=len(df),
-                value=min(len(df), 100),
-                step=10,
+                min_value=min_r,
+                max_value=max_r,
+                value=min(max_r, 100),
+                step=max(1, min(10, max_r // 10)),
                 key=f"rows_{run_name}",
             )
 

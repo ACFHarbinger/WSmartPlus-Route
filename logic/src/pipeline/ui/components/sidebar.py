@@ -25,20 +25,20 @@ def render_mode_selector() -> str:
         options=[
             "Training Monitor",
             "Simulation Digital Twin",
+            "Simulation Summary",
             "Benchmark Analysis",
             "Data Explorer",
-            "Live Monitor",
         ],
         index=1,  # Default to Simulation
-        help="Switch between training metrics, simulation visualization, benchmark analysis, data exploration, and live monitoring",
+        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, and data exploration",
     )
 
     mode_map = {
         "Training Monitor": "training",
         "Simulation Digital Twin": "simulation",
+        "Simulation Summary": "simulation_summary",
         "Benchmark Analysis": "benchmark",
         "Data Explorer": "data_explorer",
-        "Live Monitor": "live_monitor",
     }
     return mode_map.get(mode, "simulation")
 
