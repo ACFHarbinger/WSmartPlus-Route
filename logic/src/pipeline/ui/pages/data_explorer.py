@@ -155,7 +155,7 @@ def _render_chart(df: pd.DataFrame, chart_type: str, x_col: str, y_col: str) -> 
     """Render the selected chart type."""
     if chart_type == "Heatmap":
         fig = create_heatmap_chart(df, title="Heatmap")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         return
 
     if not x_col or not y_col:
@@ -227,7 +227,7 @@ def _render_chart(df: pd.DataFrame, chart_type: str, x_col: str, y_col: str) -> 
         st.warning(f"Unknown chart type: {chart_type}")
         return
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _resolve_column(columns: List[Any], col_text: str) -> Any:
@@ -286,7 +286,7 @@ def render_data_explorer() -> None:
 
     with tab_data:
         st.markdown(f"**Shape**: {df.shape[0]} rows x {df.shape[1]} columns")
-        st.dataframe(df, use_container_width=True, height=400)
+        st.dataframe(df, width="stretch", height=400)
 
         csv = df.to_csv(index=False)
         st.download_button("Download as CSV", csv, file_name=f"{selected_table}.csv", mime="text/csv")
