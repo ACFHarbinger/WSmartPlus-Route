@@ -131,6 +131,8 @@ class RunningState(SimState):
             cost_weight=ctx.opts.get("cost_weight", 1.0),
             waste_weight=ctx.opts.get("waste_weight", 1.0),
             overflow_penalty=ctx.opts.get("overflow_penalty", 1.0),
+            engine=ctx.opts.get("engine"),
+            threshold=ctx.opts.get("threshold"),
         )
 
     def _update_ctx_from_day_context(self, ctx, day_context):

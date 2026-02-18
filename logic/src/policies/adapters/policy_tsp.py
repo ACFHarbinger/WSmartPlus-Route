@@ -51,7 +51,7 @@ class TSPPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run TSP solver with capacity-based splitting.
         """
@@ -89,4 +89,4 @@ class TSPPolicy(BaseRoutingPolicy):
             full_r = [0] + r + [0]
             total_dist += get_route_cost(sub_dist_matrix, full_r)
 
-        return real_routes, total_dist * cost_unit
+        return real_routes, 0.0, total_dist * cost_unit

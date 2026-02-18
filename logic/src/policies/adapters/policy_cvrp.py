@@ -50,14 +50,14 @@ class CVRPPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run CVRP solver.
 
         Note: CVRP uses global indices directly, not the subset mapping.
         """
         # Not used - we override execute() for CVRP
-        return [[]], 0.0
+        return [[]], 0.0, 0.0
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """

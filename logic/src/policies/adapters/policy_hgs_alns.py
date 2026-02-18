@@ -50,12 +50,12 @@ class HGSALNSPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run HGS-ALNS hybrid solver.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
         cfg = self._config
         if cfg is not None:
@@ -88,5 +88,5 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             mandatory_nodes=mandatory_nodes,
         )
 
-        routes, _, solver_cost = solver.solve()
-        return routes, solver_cost
+        routes, profit, solver_cost = solver.solve()
+        return routes, profit, solver_cost

@@ -49,14 +49,14 @@ class ALNSPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run ALNS solver.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
-        routes, _, solver_cost = run_alns(
+        routes, profit, solver_cost = run_alns(
             sub_dist_matrix,
             sub_demands,
             capacity,
@@ -65,4 +65,4 @@ class ALNSPolicy(BaseRoutingPolicy):
             values,
             mandatory_nodes,
         )
-        return routes, solver_cost
+        return routes, profit, solver_cost

@@ -50,12 +50,12 @@ class LKHPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run LKH solver.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
         # Convert sub_demands dict to array for solve_lkh
         n_nodes = len(sub_dist_matrix)
@@ -96,4 +96,4 @@ class LKHPolicy(BaseRoutingPolicy):
             full_r = [0] + r + [0]
             total_dist += get_route_cost(sub_dist_matrix, full_r)
 
-        return real_routes, total_dist * cost_unit
+        return real_routes, 0.0, total_dist * cost_unit

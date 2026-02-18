@@ -37,11 +37,13 @@ def expand_policy_configs(opts):
 
         for prefix, suffix, custom_cfg in variants:
             middle_name = pol_name.replace("policy_", "")
-            if variant_name and variant_name.lower() != "default":
+            # Only append variant name if it's not already in the middle_name
+            if variant_name and variant_name.lower() != "default" and variant_name.lower() not in middle_name.lower():
                 middle_name = f"{middle_name}_{variant_name}"
 
-            # Prevent doubling of data distribution suffixes
-            full_name = f"{prefix}{middle_name}{suffix}"
+            # Prevent doubling of prefixes if the policy name is already expanded
+            full_name = pol_name if prefix and prefix in pol_name else f"{prefix}{middle_name}{suffix}"
+
             if not full_name.endswith(dist_suffix):
                 full_name = f"{full_name}{dist_suffix}"
 
@@ -78,13 +80,23 @@ def _resolve_policy_cfg_path(pol_name: str) -> str:
         if p and os.path.exists(p):
             return p
 
-    # If not found, try to find a base policy file by splitting (e.g. sans_gamma1 -> policy_sans.yaml)
+    # If not found, try to find a base policy file by splitting
     parts = pol_name.split("_")
     for i in range(len(parts), 0, -1):
         prefix = "_".join(parts[:i])
         paths = [
             os.path.join(base_dir, f"{prefix}.yaml"),
             os.path.join(base_dir, f"policy_{prefix}.yaml"),
+        ]
+        for p in paths:
+            if os.path.exists(p):
+                return p
+
+    # If still not found, check individual parts (e.g. regular_lvl3_cvrp_ortools -> cvrp)
+    for part in parts:
+        paths = [
+            os.path.join(base_dir, f"{part}.yaml"),
+            os.path.join(base_dir, f"policy_{part}.yaml"),
         ]
         for p in paths:
             if os.path.exists(p):
@@ -111,6 +123,14 @@ def _extract_variants(pol_name: str, cfg_path: str):
             for mg_item in mg_list:
                 prefix = f"{_clean_id(mg_item, 'mg_')}_"
                 suffix = f"_{_clean_id(pp_list[0], 'pp_')}" if pp_list else ""
+
+                # If the policy name already contains the prefix, we are likely looking at an expanded name
+                # In that case, only yield the variant that matches this prefix
+                clean_prefix = prefix.rstrip("_")
+                if clean_prefix in pol_name:
+                    var_cfg = copy.deepcopy(pol_cfg)
+                    _apply_mg_override(var_cfg, match_idx, mg_item)
+                    return [(prefix, suffix, var_cfg)], variant_name
 
                 var_cfg = copy.deepcopy(pol_cfg)
                 _apply_mg_override(var_cfg, match_idx, mg_item)

@@ -52,12 +52,12 @@ class HVPLPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run HVPL solver.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
         # Extract sub-params for ACO and ALNS
         # 'values' contains the flattened config
@@ -100,5 +100,5 @@ class HVPLPolicy(BaseRoutingPolicy):
             mandatory_nodes,
         )
 
-        routes, _, solver_cost = solver.solve()
-        return routes, solver_cost
+        routes, profit, solver_cost = solver.solve()
+        return routes, profit, solver_cost
