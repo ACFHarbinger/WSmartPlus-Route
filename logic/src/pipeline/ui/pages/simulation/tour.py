@@ -37,7 +37,7 @@ def render_tour_details(display_entry: Any) -> None:
                 "Longitude": round(point["lng"], 6) if "lng" in point else "N/A",
             }
         )
-    st.dataframe(pd.DataFrame(tour_rows), use_container_width=True)
+    st.dataframe(pd.DataFrame(tour_rows), width="stretch")
 
     must_go = data.get("must_go", [])
     if must_go:

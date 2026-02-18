@@ -64,7 +64,7 @@ def render_summary_statistics(entries: List[Any], controls: Dict[str, Any]) -> N
 
     if rows:
         df = pd.DataFrame(rows).set_index("Metric")
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width="stretch")
 
 
 def render_metric_charts(entries: List[Any], controls: Dict[str, Any]) -> None:
