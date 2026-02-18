@@ -72,9 +72,9 @@ class SANSPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """Not used - SANS requires specialized execute()."""
-        return [[]], 0.0
+        return [[]], 0.0, 0.0
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
@@ -180,7 +180,7 @@ class SANSPolicy(BaseRoutingPolicy):
         )
 
         tour = optimized_routes[0] if optimized_routes else [0, 0]
-        return tour, last_distance, None
+        return tour, last_distance, {"profit": best_profit}
 
     def _execute_og(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """Execute the original LAC (look-ahead collection) engine."""
@@ -259,4 +259,9 @@ class SANSPolicy(BaseRoutingPolicy):
         tour = res[0] if res else [0, 0]
         cost = get_route_cost(distance_matrix, tour)
 
-        return tour, cost, None
+        # Compute profit: collected revenue - distance cost
+        visited = {n for n in tour if n != 0}
+        collected_revenue = sum(float(bins.c[n - 1]) * R for n in visited if 1 <= n <= bins.n)
+        profit = collected_revenue - cost * C
+
+        return tour, cost, {"profit": profit}

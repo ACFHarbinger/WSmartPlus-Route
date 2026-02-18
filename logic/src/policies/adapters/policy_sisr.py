@@ -46,12 +46,12 @@ class SISRPolicy(BaseRoutingPolicy):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run SISR solver.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
         cfg = self._config
         if cfg is not None:
@@ -79,4 +79,4 @@ class SISRPolicy(BaseRoutingPolicy):
 
         solver = SISRSolver(sub_dist_matrix, sub_demands, capacity, revenue, cost_unit, params)
         routes, profit, cost = solver.solve()
-        return routes, cost
+        return routes, profit, cost

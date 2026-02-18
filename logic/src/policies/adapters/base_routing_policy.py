@@ -316,7 +316,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         values: Dict[str, Any],
         mandatory_nodes: List[int],
         **kwargs: Any,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Run the specific solver for this policy.
 
@@ -331,7 +331,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
             **kwargs: Additional solver-specific arguments.
 
         Returns:
-            Tuple of (routes, solver_cost)
+            Tuple of (routes, profit, solver_cost)
         """
         pass
 
@@ -372,7 +372,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         )
 
         # 5. Run solver (subclass-specific)
-        routes, _ = self._run_solver(
+        routes, profit, _ = self._run_solver(
             sub_dist_matrix,
             sub_demands,
             capacity,
@@ -389,4 +389,4 @@ class BaseRoutingPolicy(IPolicyAdapter):
         # 7. Compute cost
         cost = self._compute_cost(distance_matrix, tour)
 
-        return tour, cost, None
+        return tour, cost, {"profit": profit}
