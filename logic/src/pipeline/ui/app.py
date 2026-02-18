@@ -21,7 +21,7 @@ from logic.src.pipeline.ui.components.sidebar import (
 from logic.src.pipeline.ui.pages import (
     render_benchmark_analysis,
     render_data_explorer,
-    render_live_monitor,
+    render_simulation_summary,
     render_simulation_visualizer,
     render_training_monitor,
 )
@@ -49,12 +49,12 @@ def main() -> None:
     elif mode == "simulation":
         with st.spinner("Loading Simulation Digital Twin..."):
             render_simulation_visualizer()
+    elif mode == "simulation_summary":
+        with st.spinner("Loading Simulation Summary..."):
+            render_simulation_summary()
     elif mode == "data_explorer":
         with st.spinner("Loading Data Explorer..."):
             render_data_explorer()
-    elif mode == "live_monitor":
-        with st.spinner("Loading Live Monitor..."):
-            render_live_monitor()
     else:
         with st.spinner("Loading Benchmark Analysis..."):
             render_benchmark_analysis()
