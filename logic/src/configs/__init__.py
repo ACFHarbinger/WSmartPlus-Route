@@ -47,6 +47,7 @@ class Config:
     data: DataConfig = field(default_factory=DataConfig)
     must_go: MustGoConfig = field(default_factory=MustGoConfig)
     post_processing: PostProcessingConfig = field(default_factory=PostProcessingConfig)
+    load_dataset: Optional[str] = None
     seed: int = 42
     device: str = "cuda"
     experiment_name: Optional[str] = None

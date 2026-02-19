@@ -33,6 +33,7 @@ verbose: true # Enable detailed logging output. Set false for production runs.
 task: "train" # Active task type. Valid: train, eval, test_sim, gen_data, mrl_train, hp_optim.
 start: 0 # Starting epoch/iteration. Useful for resuming interrupted training.
 device: "cuda" # Compute device. Options: "cuda", "cpu", "cuda:0", "cuda:1", etc.
+load_dataset: null # Path to pre-generated dataset (.td for training, .npz for simulation). Overridden by task configs.
 
 # =============================================================================
 # Training Defaults (Overridden by tasks/train.yaml)

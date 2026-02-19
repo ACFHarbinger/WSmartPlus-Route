@@ -10,11 +10,15 @@ from .extra_key_dataset import ExtraKeyDataset
 from .fast_gen_dataset import TensorDictDatasetFastGeneration
 from .fast_td_dataset import FastTdDataset
 from .generator_dataset import GeneratorDataset
+from .np_pkl_dataset import NumpyPickleDataset
+from .npz_dataset import NumpyDictDataset
 from .td_dataset import TensorDictDataset
 
 __all__ = [
     "BaselineDataset",
     "ExtraKeyDataset",
+    "NumpyDictDataset",
+    "NumpyPickleDataset",
     "TensorDictDatasetFastGeneration",
     "FastTdDataset",
     "GeneratorDataset",

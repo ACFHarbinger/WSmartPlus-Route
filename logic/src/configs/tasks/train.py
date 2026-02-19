@@ -23,7 +23,6 @@ class TrainConfig:
         val_dataset: Path to pre-generated validation dataset.
         num_workers: Number of data loading workers.
         data_distribution: Distribution for on-the-fly data generation.
-        load_dataset: If True, loads pre-generated training dataset from path pattern.
         graph: Graph configuration.
         reward: Objective/reward configuration.
         decoding: Decoding configuration.
@@ -35,8 +34,6 @@ class TrainConfig:
     train_data_size: int = 100000
     val_data_size: int = 10000
     val_dataset: Optional[str] = None
-    train_dataset: Optional[str] = None
-    load_dataset: Optional[str] = None
     num_workers: int = 4
     data_distribution: Optional[str] = None
     seed: int = 42

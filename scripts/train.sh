@@ -102,7 +102,7 @@ uv run python main.py train \
     "train.batch_size=${B_SIZE}" \
     "train.final_model_path='${FINAL_MODEL_PATH}'" \
     "train.data_distribution='${DATA_DISTRIBUTION}'" \
-    "train.load_dataset='${LOAD_DATASET_PATH}'" \
+    "load_dataset='${LOAD_DATASET_PATH}'" \
     "seed=${SEED}" \
     "hpo.n_trials=0" \
     "${CLI_OVERRIDES[@]}" \
