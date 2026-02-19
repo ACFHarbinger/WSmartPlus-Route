@@ -2,7 +2,7 @@
 Hierarchical Reinforcement Learning (HRL) module.
 
 Implements a Manager-Worker architecture:
-- Manager: GATLSTManager (decides must-go bins and dispatch)
+- Manager: MustGoManager (decides must-go bins and dispatch)
 - Worker: ConstructivePolicy (decides the route)
 
 The manager outputs:
@@ -20,8 +20,8 @@ import torch.nn.functional as F
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.constructive import ConstructivePolicy
-from logic.src.models.hrl_manager import GATLSTManager
+from logic.src.models.common.autoregressive.constructive import ConstructivePolicy
+from logic.src.models.meta.hrl_manager import MustGoManager
 
 
 class HRLModule(pl.LightningModule):
@@ -33,7 +33,7 @@ class HRLModule(pl.LightningModule):
 
     def __init__(
         self,
-        manager: GATLSTManager,
+        manager: MustGoManager,
         worker: ConstructivePolicy,
         env: RL4COEnvBase,
         lr: float = 1e-4,
@@ -48,7 +48,7 @@ class HRLModule(pl.LightningModule):
         Initialize HRLModule.
 
         Args:
-            manager: High-level GATLSTManager for must-go selection and dispatch.
+            manager: High-level MustGoManager for must-go selection and dispatch.
             worker: Low-level ConstructivePolicy for routing.
             env: RL environment.
             lr: Learning rate for manager optimizer.

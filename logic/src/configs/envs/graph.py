@@ -35,3 +35,4 @@ class GraphConfig:
     focus_size: Optional[int] = None
     eval_focus_size: Optional[int] = None
     n_samples: int = 1
+    n_days: int = 1

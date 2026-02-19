@@ -4,8 +4,8 @@ import torch
 from tensordict import TensorDict
 from unittest.mock import MagicMock
 
-from logic.src.models.nargnn import NARGNN
-from logic.src.models.nargnn.policy import NARGNNPolicy
+from logic.src.models.core.nargnn import NARGNN
+from logic.src.models.core.nargnn.policy import NARGNNPolicy
 
 
 class TestNARGNN:

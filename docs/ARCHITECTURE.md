@@ -967,7 +967,7 @@ Decoder (per step):
 ### 8.3 Hierarchical RL (Manager-Worker)
 
 ```
-                    GATLSTManager (High-Level)
+                    MustGoManager (High-Level)
                            │
                     ┌──────┴──────┐
                     │  GAT + LSTM │

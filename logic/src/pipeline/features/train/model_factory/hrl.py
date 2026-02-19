@@ -28,7 +28,7 @@ def _create_hrl(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningMod
         Any: Description of return value.
     """
     # Improved import handling to avoid circular deps if they exist
-    from logic.src.models.hrl_manager import GATLSTManager
+    from logic.src.models.meta.hrl_manager import MustGoManager
 
-    manager = GATLSTManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
+    manager = MustGoManager(device=cfg.device, hidden_dim=cfg.meta_rl.meta_hidden_dim)
     return HRLModule(manager=manager, worker=policy, env=env, lr=cfg.meta_rl.meta_lr)

@@ -19,6 +19,7 @@ from logic.src.interfaces import ITraversable
 from logic.src.models.policies import (
     AttentionModelPolicy,
     DeepDecoderPolicy,
+    HybridTwoStagePolicy,
     MoEPolicy,
     NeuralHeuristicHybrid,
     PointerNetworkPolicy,
@@ -123,6 +124,7 @@ def _init_policy(cfg: Config, env: Any):
         "hgs": VectorizedHGS,
         "hgs_alns": VectorizedHGSALNS,
         "hybrid": NeuralHeuristicHybrid,
+        "hybrid_two_stage": HybridTwoStagePolicy,
     }
 
     if cfg.model.name == "hybrid":

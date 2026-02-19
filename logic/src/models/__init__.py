@@ -44,35 +44,37 @@ from logic.src.pipeline.rl.common.baselines import (
     WarmupBaseline as WarmupBaseline,
 )
 
-from .attention_model import AttentionModel as AttentionModel
-from .common.active_search import ActiveSearch as ActiveSearch
-from .common.eas import EAS as EAS
-from .common.transductive_base import TransductiveModel as TransductiveModel
-from .critic_network import CriticNetwork as CriticNetwork
-from .dact import DACT as DACT
-from .deepaco import DeepACO as DeepACO
-from .gfacs import GFACS as GFACS
-from .glop import GLOP as GLOP
-from .hrl_manager import GATLSTManager as GATLSTManager
-from .hypernet import (
-    HyperNetwork as HyperNetwork,
-)
-from .hypernet import (
-    HyperNetworkOptimizer as HyperNetworkOptimizer,
-)
-from .matnet import MatNet as MatNet
-from .mdam import MDAM as MDAM
-from .moe import (
+from .common.critic_network.policy import CriticNetwork as CriticNetwork
+from .common.transductive.active_search import ActiveSearch as ActiveSearch
+from .common.transductive.base import TransductiveModel as TransductiveModel
+from .common.transductive.eas import EAS as EAS
+from .core.attention_model import AttentionModel as AttentionModel
+from .core.dact import DACT as DACT
+from .core.deepaco import DeepACO as DeepACO
+from .core.gfacs import GFACS as GFACS
+from .core.glop import GLOP as GLOP
+from .core.matnet import MatNet as MatNet
+from .core.mdam import MDAM as MDAM
+from .core.moe import (
     MoEAttentionModel as MoEAttentionModel,
 )
-from .moe import (
+from .core.moe import (
     MoETemporalAttentionModel as MoETemporalAttentionModel,
 )
-from .n2s import N2S as N2S
-from .nargnn import NARGNN as NARGNN
-from .neuopt import NeuOpt as NeuOpt
-from .pointer_network import PointerNetwork as PointerNetwork
-from .polynet import PolyNet as PolyNet
+from .core.n2s import N2S as N2S
+from .core.nargnn import NARGNN as NARGNN
+from .core.neuopt import NeuOpt as NeuOpt
+from .core.pointer_network import PointerNetwork as PointerNetwork
+from .core.polynet import PolyNet as PolyNet
+from .core.temporal_attention_model import TemporalAttentionModel as TemporalAttentionModel
+from .meta.hrl_manager import MustGoManager as MustGoManager
+from .meta.hypernet import (
+    HyperNetwork as HyperNetwork,
+)
+from .meta.hypernet import (
+    HyperNetworkOptimizer as HyperNetworkOptimizer,
+)
+from .meta.weight_adjustment_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
 from .subnets import (
     GatedGraphAttConvEncoder as GatedGraphAttConvEncoder,
 )
@@ -88,15 +90,13 @@ from .subnets import (
 from .subnets import (
     TransGraphConvEncoder as TransGraphConvEncoder,
 )
-from .temporal_attention_model import TemporalAttentionModel as TemporalAttentionModel
-from .weight_adjustment_rnn import WeightAdjustmentRNN as WeightAdjustmentRNN
 
 __all__ = [
     # Core Models
     "AttentionModel",
     "TemporalAttentionModel",
     "CriticNetwork",
-    "GATLSTManager",
+    "MustGoManager",
     "WeightAdjustmentRNN",
     "HyperNetwork",
     "HyperNetworkOptimizer",

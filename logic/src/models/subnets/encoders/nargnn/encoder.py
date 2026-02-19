@@ -8,7 +8,7 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
-from logic.src.models.common.nonautoregressive_encoder import NonAutoregressiveEncoder
+from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
 from logic.src.models.subnets.embeddings import get_init_embedding
 
 from .edge_embedding import SimplifiedEdgeEmbedding

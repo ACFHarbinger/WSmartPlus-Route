@@ -1,9 +1,9 @@
 import torch
 import pytest
-from logic.src.models.hrl_manager.model import GATLSTManager
+from logic.src.models.meta.hrl_manager import MustGoManager
 
 def test_gatlst_manager_init():
-    manager = GATLSTManager(
+    manager = MustGoManager(
         input_dim_static=2,
         input_dim_dynamic=10,
         global_input_dim=2,
@@ -13,7 +13,7 @@ def test_gatlst_manager_init():
         n_heads=2,
         device="cpu"
     )
-    assert isinstance(manager, GATLSTManager)
+    assert isinstance(manager, MustGoManager)
     assert manager.hidden_dim == 16
 
 def test_gatlst_manager_forward():
@@ -21,7 +21,7 @@ def test_gatlst_manager_forward():
     num_nodes = 10
     history_len = 10
 
-    manager = GATLSTManager(
+    manager = MustGoManager(
         input_dim_static=2,
         input_dim_dynamic=history_len,
         global_input_dim=2,
@@ -47,7 +47,7 @@ def test_gatlst_manager_select_action():
     num_nodes = 10
     history_len = 10
 
-    manager = GATLSTManager(
+    manager = MustGoManager(
         input_dim_static=2,
         input_dim_dynamic=history_len,
         global_input_dim=2,

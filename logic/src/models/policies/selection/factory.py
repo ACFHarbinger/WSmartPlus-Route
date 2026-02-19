@@ -123,7 +123,7 @@ def get_vectorized_selector(name: str, **kwargs) -> VectorizedSelector:
             - 'lookahead': Predictive overflow-based selection
             - 'revenue': Revenue-based selection
             - 'service_level': Statistical overflow prediction
-            - 'manager': Neural network-based selection (GATLSTManager)
+            - 'manager': Neural network-based selection (MustGoManager)
         **kwargs: Parameters passed to the selector constructor.
 
     Returns:
