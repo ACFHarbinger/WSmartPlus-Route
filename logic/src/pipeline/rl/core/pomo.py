@@ -13,7 +13,7 @@ from typing import Callable, Optional, Union
 
 from tensordict import TensorDict
 
-from logic.src.data.transforms import StateAugmentation
+from logic.src.data.generators.transforms import StateAugmentation
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 
 

@@ -29,10 +29,10 @@ class HPOConfig:
     n_trials: int = 0
     n_epochs_per_trial: int = 10
     num_workers: int = 4
-    search_space: Dict[str, List[Any]] = field(
+    search_space: Dict[str, Dict[str, Any]] = field(
         default_factory=lambda: {
-            "rl.entropy_weight": [0.0, 0.1],
-            "optim.lr": [1e-5, 1e-3],
+            "rl.entropy_weight": {"type": "float", "low": 0.0, "high": 0.1},
+            "optim.lr": {"type": "float", "low": 1e-5, "high": 1e-3, "log": True},
         }
     )
     # NEW FIELDS:

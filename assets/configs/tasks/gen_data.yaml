@@ -28,7 +28,7 @@ data:
   n_epochs: 1
   epoch_start: 0
   dataset_type: "train"
-  data_dir: "daily_waste" # Directory to save generated data
+  data_dir: "datasets" # Directory to save generated data
   name: "wsr"
   filename: null
 
@@ -36,13 +36,16 @@ data:
   graphs:
     - num_loc: 20
       n_samples: 128000
+      n_days: 31
       area: "riomaior"
       waste_type: "plastic"
     - num_loc: 50
       n_samples: 128000
+      n_days: 31
       area: "riomaior"
       waste_type: "plastic"
     - num_loc: 100
       n_samples: 128000
+      n_days: 31
       area: "riomaior"
       waste_type: "plastic"

@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import logic.src.constants as udef
 from logic.src.constants import METRICS, SIM_METRICS
-from logic.src.pipeline.callbacks.simulation_display import SimulationDisplay
+from logic.src.pipeline.callbacks import SimulationDisplayCallback
 
 
 def initialize_simulation_display(opts):
@@ -17,13 +17,13 @@ def initialize_simulation_display(opts):
     if opts.get("no_progress_bar"):
         return None
 
-    display = SimulationDisplay(policies=opts["policies"], n_samples=opts["n_samples"], total_days=opts["days"])
+    display = SimulationDisplayCallback(policies=opts["policies"], n_samples=opts["n_samples"], total_days=opts["days"])
     display.start()
     return display
 
 
 def process_display_updates(
-    display: SimulationDisplay,
+    display: SimulationDisplayCallback,
     shared_metrics: dict,
     log_tmp: dict,
     last_reported_days: dict,
