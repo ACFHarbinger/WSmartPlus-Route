@@ -1,60 +1,65 @@
 """
 Differential Evolution Hyperband (DEHB) wrapper.
+
+Extends :class:`BaseHPO` to optimise hyperparameters via the DEHB algorithm,
+supporting float, int, and categorical parameter types through the shared
+typed search-space specification.
 """
 
 import time
-from typing import Callable, Dict, Tuple, Union
+from typing import Any, Callable, Dict, Optional
 
-import ConfigSpace
 from dehb import DEHB
 
-from logic.src.interfaces import ITraversable
+from logic.src.configs import Config
+
+from .base import BaseHPO, ParamSpec
 
 
-class DifferentialEvolutionHyperband(DEHB):
+class DifferentialEvolutionHyperband(BaseHPO):
     """
-    Wrapper for DEHB to be compatible with the existing interface expected by
-    the WSmart-Route HPO pipeline and tests.
+    HPO backend using Differential Evolution Hyperband.
+
+    This wrapper builds a ``ConfigSpace.ConfigurationSpace`` from the typed
+    search-space dict and delegates the optimisation loop to the upstream
+    :class:`dehb.DEHB` solver.
     """
 
     def __init__(
         self,
-        cs: Dict[str, Union[Tuple[float, float], list]],
-        f: Callable,
+        cfg: Config,
+        objective_fn: Callable,
+        search_space: Optional[Dict[str, ParamSpec]] = None,
         min_fidelity: int = 1,
         max_fidelity: int = 10,
         eta: int = 3,
         n_workers: int = 1,
         output_path: str = "./dehb_output",
-        **kwargs,
+        **kwargs: Any,
     ):
-        """
-        Initialize DifferentialEvolutionHyperband wrapper.
+        """Initialize DEHB wrapper.
 
         Args:
-            cs: Configuration space definition (dict of ranges).
-            f: Objective function to minimize.
+            cfg: Root application configuration.
+            objective_fn: Callable ``(config_dict, fidelity) -> dict``
+                returning at least ``{"fitness": float}`` (lower is better).
+            search_space: Optional pre-normalised search space.
             min_fidelity: Minimum fidelity (e.g. epochs).
             max_fidelity: Maximum fidelity.
             eta: Halving rate.
             n_workers: Number of workers.
             output_path: Path for logs and results.
-            **kwargs: Additional arguments for DEHB.
+            **kwargs: Extra arguments forwarded to :class:`dehb.DEHB`.
         """
-        self.parameter_names = list(cs.keys()) if isinstance(cs, ITraversable) else []
+        super().__init__(cfg, objective_fn, search_space)
 
-        # Convert simple dict config space to ConfigSpace object if needed
-        config_space: Union[ConfigSpace.ConfigurationSpace, Dict] = cs
-        if isinstance(cs, ITraversable):
-            config_space = ConfigSpace.ConfigurationSpace()
-            for name, (low, high) in cs.items():
-                # specific handling for validation that expects floats
-                hp = ConfigSpace.UniformFloatHyperparameter(name, lower=low, upper=high)
-                config_space.add_hyperparameter(hp)
+        # Build ConfigSpace from typed specs
+        config_space = self.build_configspace(self.search_space)
 
-        super().__init__(
+        # Store DEHB solver as an attribute rather than inheriting from it
+        self._dehb = DEHB(
             cs=config_space,
-            f=f,
+            f=objective_fn,
             min_fidelity=min_fidelity,
             max_fidelity=max_fidelity,
             eta=eta,
@@ -63,30 +68,30 @@ class DifferentialEvolutionHyperband(DEHB):
             **kwargs,
         )
 
-    def run(self, fevals: int = 100, **kwargs):
-        """
-        Run DEHB optimization.
-
-        Args:
-            fevals: Number of function evaluations budget.
+    def run(self) -> float:
+        """Run DEHB optimization.
 
         Returns:
-            Tuple of (best_config, runtime, history)
+            Best metric value found (as maximisation target, i.e. negated fitness).
         """
-        start_time = time.time()
+        fevals = self.cfg.hpo.fevals if hasattr(self.cfg.hpo, "fevals") else self.cfg.hpo.n_trials
+        start = time.time()
 
-        # DEHB.run returns (traj, runtime, history) arrays
-        # We pass fevals to DEHB.run
-        super().run(fevals=fevals, **kwargs)
+        self._dehb.run(fevals=fevals)
 
-        total_runtime = time.time() - start_time
+        elapsed = time.time() - start
 
-        # Get best configuration found
-        # incumbents returns (config, score)
-        best_config, best_score = self.get_incumbents()
+        # Extract best result
+        best_config, best_score = self._dehb.get_incumbents()
 
-        # Convert ConfigSpace configuration to dict for compatibility
         if hasattr(best_config, "get_dictionary"):
             best_config = best_config.get_dictionary()
 
-        return best_config, total_runtime, self.history
+        # Store for external inspection
+        self.best_config = best_config
+        self.best_score = best_score
+        self.runtime = elapsed
+        self.history = self._dehb.history
+
+        # DEHB minimises fitness; we negate to return a maximisation value
+        return float(-best_score) if best_score is not None else 0.0

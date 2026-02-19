@@ -15,7 +15,7 @@ import numpy as np
 import torch
 
 from logic.src.constants import ROOT_DIR
-from logic.src.data.builders import VRPInstanceBuilder
+from logic.src.data.generators.builders import VRPInstanceBuilder
 from logic.src.utils.data.data_utils import check_extension, save_simulation_dataset, save_td_dataset
 
 

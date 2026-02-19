@@ -2,26 +2,49 @@
 Optuna HPO Integration.
 """
 
-from typing import Callable
+from typing import Any, Callable, Dict, Optional
 
 import optuna
 
 from logic.src.configs import Config
 
+from .base import BaseHPO, ParamSpec
 
-class OptunaHPO:
+
+class OptunaHPO(BaseHPO):
     """
     Handles Optuna-based Hyperparameter Optimization.
     Supports TPE, Random, Grid, and Hyperband pruning.
+
+    All parameter types are supported via the typed search-space format:
+      - float (with optional log scale and step)
+      - int   (with optional step and log scale)
+      - categorical (list of choices)
     """
 
-    def __init__(self, cfg: Config, objective_fn: Callable):
-        """Initialize OptunaHPO."""
-        self.cfg = cfg
-        self.objective_fn = objective_fn
+    def __init__(
+        self,
+        cfg: Config,
+        objective_fn: Callable,
+        search_space: Optional[Dict[str, ParamSpec]] = None,
+    ):
+        """Initialize OptunaHPO.
+
+        Args:
+            cfg: Root application configuration.
+            objective_fn: Callable ``(trial, cfg) -> float`` that trains
+                a model for one trial and returns the metric to maximise.
+            search_space: Optional pre-normalised search space.  If *None*,
+                the space is read from ``cfg.hpo.search_space``.
+        """
+        super().__init__(cfg, objective_fn, search_space)
 
     def run(self) -> float:
-        """Run the optimization study."""
+        """Run the optimization study.
+
+        Returns:
+            The best metric value found across all trials.
+        """
         sampler = self._get_sampler()
         pruner = self._get_pruner()
 
@@ -40,27 +63,40 @@ class OptunaHPO:
         return study.best_value
 
     def _get_sampler(self) -> optuna.samplers.BaseSampler:
-        """get sampler.
+        """Build Optuna sampler based on HPO method config.
 
         Returns:
-            Any: Description.
+            An Optuna sampler instance.
         """
         seed = self.cfg.seed
-        if self.cfg.hpo.method == "random":
+        method = self.cfg.hpo.method
+
+        if method == "random":
             return optuna.samplers.RandomSampler(seed=seed)
-        elif self.cfg.hpo.method == "grid":
-            # Grid sampler requires search space to be static
-            search_space = {k: v for k, v in self.cfg.hpo.search_space.items()}
-            return optuna.samplers.GridSampler(search_space)
-        else:
-            # Default TPE
-            return optuna.samplers.TPESampler(seed=seed)
+        elif method == "grid":
+            # Build a static grid from categorical / discrete specs
+            grid: Dict[str, Any] = {}
+            for name, spec in self.search_space.items():
+                if spec["type"] == "categorical":
+                    grid[name] = spec["choices"]
+                elif spec["type"] == "int":
+                    step = spec.get("step", 1)
+                    grid[name] = list(range(spec["low"], spec["high"] + 1, step))
+                elif spec["type"] == "float":
+                    # For grid search, fall back to linspace
+                    import numpy as np
+
+                    grid[name] = np.linspace(spec["low"], spec["high"], 5).tolist()
+            return optuna.samplers.GridSampler(grid)
+
+        # Default: TPE
+        return optuna.samplers.TPESampler(seed=seed)
 
     def _get_pruner(self) -> optuna.pruners.BasePruner:
-        """get pruner.
+        """Build Optuna pruner based on HPO method config.
 
         Returns:
-            Any: Description.
+            An Optuna pruner instance.
         """
         if self.cfg.hpo.method == "hyperband":
             return optuna.pruners.HyperbandPruner()
