@@ -63,7 +63,12 @@ class ProcessManager(QObject):
                 policies_str = test_sim_tab.get_params().get("policies", "")
                 policy_names = policies_str.split() if policies_str else ["Unknown Policy"]
 
-            self.results_window = SimulationResultsWindow(policy_names)
+            dataset_path = None
+            io_tab = self.window.test_sim_tabs_map.get("IO Settings")
+            if io_tab and hasattr(io_tab, "get_params"):
+                dataset_path = io_tab.get_params().get("waste_filepath")
+
+            self.results_window = SimulationResultsWindow(policy_names, dataset_path=dataset_path)
             self.results_window.show()
         else:
             self.results_window = None

@@ -70,6 +70,7 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     bin_states = data.get("bin_state_c", [])
     collected = data.get("bin_state_collected", [])
     must_go = data.get("must_go")
+    tour_indices = data.get("tour_indices")
     all_bin_coords = data.get("all_bin_coords")
 
     if not tour:
@@ -81,6 +82,7 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     sim_map = create_simulation_map(
         tour=tour,
         bin_states=bin_states,
+        served_indices=tour_indices,
         must_go=must_go,
         all_bin_coords=all_bin_coords,
         collected=collected if collected else None,

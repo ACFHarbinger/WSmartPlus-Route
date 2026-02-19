@@ -69,7 +69,19 @@ class SimulationDataManager:
 
         # Update metrics
         for k, v in record.items():
-            if k in ["policy", "sample", "day", "timestamp", "routes", "total_fill"]:
+            if k in [
+                "policy",
+                "sample",
+                "day",
+                "timestamp",
+                "routes",
+                "total_fill",
+                "tour_indices",
+                "must_go",
+                "bin_state_c",
+                "bin_state_collected",
+                "bins_state_real_c_after",
+            ]:
                 continue
 
             if k not in self.accumulated_data[target_key]:

@@ -47,10 +47,9 @@ def send_daily_output_to_gui(
         }
     )
 
-    # Include coordinates for ALL nodes (depot + bins)
-    if coords_lookup is not None:
-        all_bin_coords = _build_all_bin_coords(coords_lookup, len(bins_c))
-        full_payload["all_bin_coords"] = all_bin_coords
+    # Tour bin indices: 0-indexed bin IDs visited in route order (excluding depot)
+    tour_indices = [int(idx) - 1 for idx in tour if int(idx) > 0]
+    full_payload["tour_indices"] = tour_indices
 
     if must_go is not None:
         # Standardize must_go to 0-indexed bin IDs (0..N-1)
@@ -151,33 +150,3 @@ def _process_tour_point(node_idx: int, coords_lookup: Optional[pd.DataFrame]) ->
             point_data["popup"] = f"<b>{p_label}</b><br>Dataset ID: {dataset_id}"
 
     return point_data
-
-
-def _build_all_bin_coords(coords_lookup: pd.DataFrame, n_bins: int) -> List[Dict[str, Any]]:
-    """Build coordinate entries for ALL nodes using the standarized ID mapping."""
-    all_bin_coords: List[Dict[str, Any]] = []
-    # Total nodes in coords_lookup should be n_bins + 1 (depot)
-    for row_idx in range(len(coords_lookup)):
-        row = coords_lookup.iloc[row_idx]
-        lat, lon = _get_lat_lon(row)
-        if lat is not None and lon is not None:
-            if row_idx == 0:
-                gui_id = -1
-                p_type = "depot"
-                p_label = "Depot"
-            else:
-                gui_id = row_idx - 1
-                p_type = "bin"
-                p_label = f"Bin {gui_id}"
-
-            dataset_id = row.get("ID", row_idx)
-            all_bin_coords.append(
-                {
-                    "id": gui_id,
-                    "lat": float(lat),
-                    "lng": float(lon),
-                    "type": p_type,
-                    "popup": f"<b>{p_label}</b><br>Dataset ID: {dataset_id}",
-                }
-            )
-    return all_bin_coords
