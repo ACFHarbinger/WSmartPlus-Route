@@ -29,10 +29,21 @@ class Config:
         data: Data generation configuration.
         must_go: Must-go selection strategy configuration.
         post_processing: Route refinement configuration.
+        load_dataset: Optional path to a dataset file to load.
         seed: Random seed.
         device: Device to use ('cpu', 'cuda').
         experiment_name: Optional name for the experiment.
         task: Task to perform ('train', 'eval', 'test_sim', 'gen_data').
+        wandb_mode: Weights & Biases mode ('online', 'offline', 'disabled').
+        no_tensorboard: If True, disable TensorBoard logging.
+        no_progress_bar: If True, disable the progress bar.
+        output_dir: Directory to save model outputs and artifacts.
+        log_dir: Directory to save logs.
+        run_name: Specific name for the run (separate from experiment_name).
+        verbose: If True, enable verbose logging.
+        start: Starting index or offset (e.g., for resuming or dataset slicing).
+        p: Dictionary for arbitrary additional parameters.
+        callbacks: Dictionary of callback configurations.
     """
 
     env: EnvConfig = field(default_factory=EnvConfig)

@@ -45,9 +45,6 @@ def run_training(cfg: Config) -> float:
                 with contextlib.suppress(Exception):
                     callbacks.append(hydra.utils.instantiate(cb_cfg))
 
-    # DEBUG: Print callbacks
-    print(f"[Engine] Active callbacks: {[type(c).__name__ for c in callbacks]}")
-
     # Link Progress Bar and Chart if both exist
     # This is necessary because they are instantiated separately by Hydra
     progress_bar = next((c for c in callbacks if c.__class__.__name__ == "CleanProgressBar"), None)
