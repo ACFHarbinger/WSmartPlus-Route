@@ -212,9 +212,8 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
     common_kwargs.update(train_params)
 
     # Dataset paths
-    train_path = getattr(cfg.train, "load_dataset", getattr(cfg.train, "train_dataset", None))
-    if train_path:
-        common_kwargs["train_dataset_path"] = train_path
+    if cfg.load_dataset:
+        common_kwargs["train_dataset_path"] = cfg.load_dataset
     if "val_dataset" in common_kwargs:
         common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 

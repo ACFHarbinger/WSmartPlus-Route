@@ -11,6 +11,7 @@ import pandas
 import torch
 
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
+from logic.src.data.datasets import NumpyDictDataset, NumpyPickleDataset
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
 from ..wsmart_bin_analysis import GridBase
@@ -112,13 +113,15 @@ class Bins:
         else:
             self.grid = grid  # type: ignore[assignment]
 
+        self.waste_dataset: Optional[Union[NumpyDictDataset, NumpyPickleDataset]] = None
         if waste_file is not None:
-            data = np.load(os.path.join(data_dir, waste_file))
-            self.waste_fills = data["waste"]
-            self.noisy_waste_fills = data["noisy_waste"]
-        else:
-            self.waste_fills = None
-            self.noisy_waste_fills = None
+            path = os.path.join(data_dir, waste_file)
+            if waste_file.endswith(".pkl"):
+                self.waste_dataset = NumpyPickleDataset.load(path)
+            else:
+                self.waste_dataset = NumpyDictDataset.load(path)
+        self.waste_fills = None
+        self.noisy_waste_fills = None
 
     def __get_stdev(self):
         """Computes current standard deviation."""
@@ -138,7 +141,7 @@ class Bins:
 
     def is_stochastic(self) -> bool:
         """Checks if using stochastic filling."""
-        return self.waste_fills is None
+        return self.waste_dataset is None
 
     def get_fill_history(self, device: Optional[torch.device] = None) -> Union[np.ndarray, torch.Tensor]:
         """Retrieves history of daily fill increments."""
@@ -165,8 +168,10 @@ class Bins:
 
     def set_sample_waste(self, sample_id: int) -> None:
         """Sets current waste profile from pre-recorded data."""
-        self.waste_fills = self.waste_fills[sample_id]
-        self.noisy_waste_fills = self.noisy_waste_fills[sample_id]
+        assert self.waste_dataset is not None
+        sample = self.waste_dataset[sample_id]
+        self.waste_fills = sample["waste"]
+        self.noisy_waste_fills = sample["noisy_waste"]
 
         if self.start_with_fill:
             self.real_c = self.waste_fills[0].copy()
