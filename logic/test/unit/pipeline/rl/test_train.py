@@ -36,7 +36,7 @@ class TestTrainingOrchestration:
 
         with patch("logic.src.pipeline.features.train.get_env"), patch(
             "logic.src.pipeline.features.train.AttentionModelPolicy"
-        ), patch("logic.src.models.critic_network.create_critic_from_actor"):
+        ), patch("logic.src.models.common.critic_network.policy.create_critic_from_actor"):
             model = create_model(cfg)
             from logic.src.pipeline.rl.core.ppo import PPO
 
@@ -91,7 +91,7 @@ class TestTrainingOrchestration:
 
             with patch("logic.src.pipeline.features.train.get_env"), \
                  patch("logic.src.pipeline.features.train.AttentionModelPolicy"), \
-                 patch("logic.src.models.critic_network.create_critic_from_actor"):
+                 patch("logic.src.models.common.critic_network.policy.create_critic_from_actor"):
 
                 model = create_model(cfg)
                 assert model is not None

@@ -36,7 +36,7 @@ class AugmentationEval(EvalBase):
             kwargs (Any): Description of kwargs.
         """
         super().__init__(env, progress, **kwargs)
-        from logic.src.data.transforms import StateAugmentation
+        from logic.src.data.generators.transforms import StateAugmentation
 
         self.samples = num_augment
         self.augmentation = StateAugmentation(num_augment=num_augment, augment_fn=augment_fn)

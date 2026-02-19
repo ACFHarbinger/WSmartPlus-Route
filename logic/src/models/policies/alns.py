@@ -99,14 +99,16 @@ class VectorizedALNS(AutoregressivePolicy):
         # Convert routes to actions (padded tensor)
         all_actions = []
         for b in range(batch_size):
-            route_nodes = routes_list[b]
+            route_nodes_raw = routes_list[b]
             # Ensure it starts and ends with 0 if not already
-            if not isinstance(route_nodes, torch.Tensor):
-                route_nodes = torch.tensor(route_nodes, device=device)
+            if isinstance(route_nodes_raw, torch.Tensor):
+                route_tensor = route_nodes_raw
+            else:
+                route_tensor = torch.tensor(route_nodes_raw, device=device)
 
             # vectorized_linear_split usually returns routes with 0s.
             # If not, we add them.
-            actions = route_nodes if route_nodes.size(0) > 0 else torch.tensor([0, 0], device=device)
+            actions = route_tensor if route_tensor.size(0) > 0 else torch.tensor([0, 0], device=device)
             all_actions.append(actions)
 
         # Pad actions
