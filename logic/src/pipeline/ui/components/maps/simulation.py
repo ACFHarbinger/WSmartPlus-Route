@@ -131,7 +131,7 @@ def create_simulation_map(  # noqa: C901
     must_go_set = set(must_go) if must_go else set()
 
     # Build set of bin IDs that appear in the tour
-    toured_ids: set = set()
+    toured_ids: set = set(served_indices) if served_indices else set()
     for point in tour:
         with contextlib.suppress(ValueError, TypeError):
             id_val = int(point.get("id", -100))

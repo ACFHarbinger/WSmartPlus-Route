@@ -8,9 +8,16 @@ for specialized sub-widgets and data managers.
 
 import os
 import webbrowser
+from typing import Optional
 
 import folium
 import logic.src.constants as udef
+from logic.src.data.datasets import (
+    NumpyDictDataset,
+    NumpyPickleDataset,
+    PandasExcelDataset,
+    SimulationDataset,
+)
 from PySide6.QtCore import QMutex, Qt, QThread, Signal, Slot
 from PySide6.QtWidgets import (
     QLabel,
@@ -32,13 +39,15 @@ class SimulationResultsWindow(QWidget):
 
     start_chart_processing = Signal(str)
 
-    def __init__(self, policy_names, log_path=None):
+    def __init__(self, policy_names, log_path=None, dataset_path=None):
         """
         Initialize the simulation results orchestration window.
 
         Args:
             policy_names (list[str]): List of policy identifiers used to track results.
             log_path (str, optional): Absolute path to the simulation log file to tail.
+            dataset_path (str, optional): Path to the simulation dataset file (.npz/.pkl/.xlsx)
+                used to load bin coordinates for map visualization.
         """
         super().__init__()
         self.setWindowTitle("Simulation Results")
@@ -52,11 +61,30 @@ class SimulationResultsWindow(QWidget):
         self.data_manager = SimulationDataManager(policy_names)
         self.historical_routes = {}  # key -> day -> routes
 
+        # Load simulation dataset for bin coordinates
+        self.dataset: Optional[SimulationDataset] = self._load_dataset(dataset_path)
+
         # UI Initialization
         self.setup_ui()
 
         # Worker Threads
         self.setup_workers(log_path)
+
+    @staticmethod
+    def _load_dataset(dataset_path: Optional[str]) -> Optional[SimulationDataset]:
+        """Load a simulation dataset from the given path for coordinate access."""
+        if not dataset_path:
+            return None
+        # Resolve relative paths against ROOT_DIR
+        if not os.path.isabs(dataset_path):
+            dataset_path = os.path.join(udef.ROOT_DIR, dataset_path)
+        if not os.path.isfile(dataset_path):
+            return None
+        if dataset_path.endswith(".pkl"):
+            return NumpyPickleDataset.load(dataset_path)
+        if dataset_path.endswith(".xlsx"):
+            return PandasExcelDataset.load(dataset_path)
+        return NumpyDictDataset.load(dataset_path)
 
     def setup_ui(self):
         """Build the main window layout."""
@@ -143,7 +171,13 @@ class SimulationResultsWindow(QWidget):
         if "routes" in record:
             if key not in self.historical_routes:
                 self.historical_routes[key] = {}
-            self.historical_routes[key][record.get("day", 0)] = record["routes"]
+            self.historical_routes[key][record.get("day", 0)] = {
+                "routes": record["routes"],
+                "tour_indices": record.get("tour_indices"),
+                "must_go": record.get("must_go"),
+                "bin_state_c": record.get("bin_state_c"),
+                "bin_state_collected": record.get("bin_state_collected"),
+            }
 
     @Slot(str, dict)
     def _update_ui_on_data_ready(self, target_key, processed_data):
@@ -180,7 +214,8 @@ class SimulationResultsWindow(QWidget):
         """
         Generate a Folium-based HTML map for the selected route and open it in the web browser.
 
-        Uses stored coordinates from the route cache to draw polylines.
+        Uses the loaded dataset for bin coordinates and the per-day cache
+        for tour indices, must-go selections, and bin states.
         """
         policy = self.dashboard_tab.policy_combo.currentText()
         sample = self.dashboard_tab.sample_combo.currentText()
@@ -190,14 +225,86 @@ class SimulationResultsWindow(QWidget):
 
         key = f"{policy}_{sample}"
         day = int(day_str)
-        routes = self.historical_routes.get(key, {}).get(day)
+        day_cache = self.historical_routes.get(key, {}).get(day)
+        if not day_cache:
+            return
+
+        routes = day_cache.get("routes", [])
         if not routes:
             return
 
-        # Simplified map generation logic (delegated from original)
-        m = folium.Map(location=[routes[0]["lat"], routes[0]["lng"]], zoom_start=13)
-        coords = [(r["lat"], r["lng"]) for r in routes]
-        folium.PolyLine(coords, color="blue", weight=2.5).add_to(m)
+        tour_indices_set = set(day_cache.get("tour_indices") or [])
+        must_go_set = set(day_cache.get("must_go") or [])
+        bin_states = day_cache.get("bin_state_c") or []
+        collected = day_cache.get("bin_state_collected") or []
+
+        collected_set = {i for i, amt in enumerate(collected) if amt > 0}
+
+        # Center on first route point
+        center = [routes[0].get("lat", 0), routes[0].get("lng", 0)]
+        m = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
+
+        # Depot marker
+        for point in routes:
+            if point.get("type") == "depot" and "lat" in point and "lng" in point:
+                folium.Marker(
+                    location=[point["lat"], point["lng"]],
+                    popup=f"Depot<br>Lat: {point['lat']:.4f}<br>Lng: {point['lng']:.4f}",
+                    icon=folium.Icon(color="blue", icon="home", prefix="fa"),
+                ).add_to(m)
+                break
+
+        # All bins from dataset (toured + non-toured)
+        sample_idx = int(sample)
+        if self.dataset is not None and sample_idx < len(self.dataset):
+            sample_data = self.dataset[sample_idx]
+            locs = sample_data["locs"]  # (n_bins, 2) — lat, lng
+            depot = sample_data["depot"]  # (2,) — lat, lng
+
+            # If no depot marker was found in routes, add from dataset
+            if not any(p.get("type") == "depot" for p in routes):
+                folium.Marker(
+                    location=[float(depot[0]), float(depot[1])],
+                    popup=f"Depot<br>Lat: {depot[0]:.4f}<br>Lng: {depot[1]:.4f}",
+                    icon=folium.Icon(color="blue", icon="home", prefix="fa"),
+                ).add_to(m)
+
+            for bin_id in range(len(locs)):
+                lat, lng = float(locs[bin_id, 0]), float(locs[bin_id, 1])
+
+                is_toured = bin_id in tour_indices_set
+                is_served = bin_id in collected_set
+                is_must_go = bin_id in must_go_set
+
+                fill = bin_states[bin_id] if 0 <= bin_id < len(bin_states) else 50.0
+                color = "#28a745" if is_served else "#fd7e14" if is_must_go else "#dc3545"
+                radius = (5 + (fill / 100.0) * 10) if is_toured else (4 + (fill / 100.0) * 4)
+                opacity = 0.7 if is_toured else 0.35
+                weight = 4 if is_must_go else 2
+
+                popup = f"Bin {bin_id}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill:.1f}%"
+                if is_must_go:
+                    popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
+                if is_served:
+                    popup += "<br><b style='color: #28a745;'>Served</b>"
+                if not is_toured:
+                    popup += "<br><i>Not in route</i>"
+
+                folium.CircleMarker(
+                    location=[lat, lng],
+                    radius=radius,
+                    popup=popup,
+                    color=color,
+                    fill=True,
+                    fillColor="#fd7e14" if is_must_go and is_served else color,
+                    fillOpacity=opacity,
+                    weight=weight,
+                ).add_to(m)
+
+        # Route polyline
+        route_coords = [(p["lat"], p["lng"]) for p in routes if "lat" in p and "lng" in p]
+        if len(route_coords) > 1:
+            folium.PolyLine(route_coords, color="#3388ff", weight=3, opacity=0.8).add_to(m)
 
         temp_path = os.path.join(udef.ROOT_DIR, "temp", f"route_{key}_{day}.html")
         os.makedirs(os.path.dirname(temp_path), exist_ok=True)
