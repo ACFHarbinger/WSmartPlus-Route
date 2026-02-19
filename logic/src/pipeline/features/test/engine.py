@@ -11,10 +11,11 @@ import torch
 from omegaconf import OmegaConf
 
 import logic.src.constants as udef
-from logic.src.data.datasets import NumpyDictDataset
+from logic.src.data.datasets import NumpyDictDataset, PandasExcelDataset
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
     NumpyDictRepository,
+    PandasExcelRepository,
     load_simulator_data,
     set_repository,
 )
@@ -90,13 +91,17 @@ def _prepare_opts(opts):
 
 def _resolve_data_size(opts):
     """Resolve the available data size for the given area and requested size."""
-    load_dataset = opts.get("load_dataset")
+    load_dataset = opts.get("load_dataset", None)
     if load_dataset is not None and str(load_dataset).endswith(".npz"):
         dataset = NumpyDictDataset.load(load_dataset)
         set_repository(NumpyDictRepository(dataset))
         return opts["size"]
-
-    set_repository(FileSystemRepository(udef.ROOT_DIR))
+    elif load_dataset is not None and str(load_dataset).endswith(".xlsx"):
+        dataset = PandasExcelDataset.load(load_dataset)
+        set_repository(PandasExcelRepository(dataset))
+        return opts["size"]
+    else:
+        set_repository(FileSystemRepository(udef.ROOT_DIR))
     try:
         data_tmp, _ = load_simulator_data(opts.get("data_dir"), opts["size"], opts["area"], opts["waste_type"])
         return len(data_tmp)

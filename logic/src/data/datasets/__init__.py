@@ -5,24 +5,30 @@ Dataset classes for WSmart-Route.
 # Import from utils.data.td_utils, not from a local td_utils
 from logic.src.utils.data.td_utils import td_kwargs, tensordict_collate_fn
 
-from .baseline_dataset import BaselineDataset
-from .extra_key_dataset import ExtraKeyDataset
-from .fast_gen_dataset import TensorDictDatasetFastGeneration
-from .fast_td_dataset import FastTdDataset
-from .generator_dataset import GeneratorDataset
-from .np_pkl_dataset import NumpyPickleDataset
-from .npz_dataset import NumpyDictDataset
-from .td_dataset import TensorDictDataset
+from .pytorch.baseline_dataset import BaselineDataset
+from .pytorch.extra_key_dataset import ExtraKeyDataset
+from .pytorch.fast_gen_dataset import TensorDictDatasetFastGeneration
+from .pytorch.fast_td_dataset import FastTdDataset
+from .pytorch.generator_dataset import GeneratorDataset
+from .pytorch.td_dataset import TensorDictDataset
+from .simulation.np_pkl_dataset import NumpyPickleDataset
+from .simulation.npz_dataset import NumpyDictDataset
+from .simulation.pd_xlsx_dataset import PandasExcelDataset
+from .simulation.sim_dataset import SimulationDataset
 
 __all__ = [
+    "td_kwargs",
+    "tensordict_collate_fn",
+    # PyTorch datasets
     "BaselineDataset",
     "ExtraKeyDataset",
-    "NumpyDictDataset",
-    "NumpyPickleDataset",
     "TensorDictDatasetFastGeneration",
     "FastTdDataset",
     "GeneratorDataset",
     "TensorDictDataset",
-    "td_kwargs",
-    "tensordict_collate_fn",
+    # Simulation datasets
+    "SimulationDataset",
+    "NumpyDictDataset",
+    "NumpyPickleDataset",
+    "PandasExcelDataset",
 ]

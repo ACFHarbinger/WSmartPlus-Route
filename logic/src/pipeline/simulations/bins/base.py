@@ -11,7 +11,12 @@ import pandas
 import torch
 
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
-from logic.src.data.datasets import NumpyDictDataset, NumpyPickleDataset
+from logic.src.data.datasets import (
+    NumpyDictDataset,
+    NumpyPickleDataset,
+    PandasExcelDataset,
+    SimulationDataset,
+)
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
 from ..wsmart_bin_analysis import GridBase
@@ -113,15 +118,18 @@ class Bins:
         else:
             self.grid = grid  # type: ignore[assignment]
 
-        self.waste_dataset: Optional[Union[NumpyDictDataset, NumpyPickleDataset]] = None
+        self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
             path = os.path.join(data_dir, waste_file)
             if waste_file.endswith(".pkl"):
                 self.waste_dataset = NumpyPickleDataset.load(path)
+            elif waste_file.endswith(".xlsx"):
+                self.waste_dataset = PandasExcelDataset.load(path)
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
-        self.waste_fills = None
-        self.noisy_waste_fills = None
+
+        self.waste_fills: Optional[np.ndarray] = None
+        self.noisy_waste_fills: Optional[np.ndarray] = None
 
     def __get_stdev(self):
         """Computes current standard deviation."""

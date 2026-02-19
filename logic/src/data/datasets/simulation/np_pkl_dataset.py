@@ -7,8 +7,10 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
+from .sim_dataset import SimulationDataset
 
-class NumpyPickleDataset:
+
+class NumpyPickleDataset(SimulationDataset):
     """
     Dataset wrapping legacy pickle simulation data.
 
