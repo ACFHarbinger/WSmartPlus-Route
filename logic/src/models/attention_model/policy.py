@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Union
 import torch
 from tensordict import TensorDict
 
-from logic.src.data.transforms import batchify
+from logic.src.data.generators.transforms import batchify
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive_policy import AutoregressivePolicy
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder

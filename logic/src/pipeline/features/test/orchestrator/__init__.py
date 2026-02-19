@@ -11,7 +11,7 @@ import sys
 from loguru import logger
 
 import logic.src.constants as udef
-from logic.src.pipeline.callbacks.policy_summary import PolicySummaryCallback
+from logic.src.pipeline.callbacks import PolicySummaryCallback
 
 # Local imports from modular components
 from logic.src.pipeline.features.test.orchestrator.parallel_runner import run_parallel_simulations

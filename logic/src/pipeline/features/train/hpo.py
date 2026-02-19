@@ -2,53 +2,57 @@
 Hyperparameter Optimization logic for training pipeline.
 """
 
-from typing import Dict, Tuple, Union, cast
+from typing import Any, Dict
 
 import optuna
 import torch
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import OmegaConf
 
 from logic.src.configs import Config
 from logic.src.pipeline.features.train.model_factory import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
+from logic.src.pipeline.rl.hpo.base import apply_params, normalise_search_space
 from logic.src.utils.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
 
 
 def objective(trial: optuna.Trial, base_cfg: Config) -> float:
-    """Optuna objective function for HPO."""
-    from optuna.integration import PyTorchLightningPruningCallback
+    """Optuna objective function for HPO.
 
-    # 1. Sample Hyperparameters
+    Samples hyperparameters from the typed search space, applies them to
+    a copy of the config, trains, and returns the metric to maximise.
+
+    Args:
+        trial: The Optuna trial object.
+        base_cfg: The base configuration to copy and mutate.
+
+    Returns:
+        The validation reward (or ``-inf`` on failure).
+    """
+    from logic.src.pipeline.rl.hpo.base import BaseHPO
+
+    try:
+        from optuna.integration import PyTorchLightningPruningCallback
+    except ImportError:
+        from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
+
+    # 1. Deep-copy config
     cfg = OmegaConf.to_object(base_cfg)
     assert isinstance(cfg, Config)
 
-    # Map search space from config to trial suggestions
-    for key, range_val in base_cfg.hpo.search_space.items():
-        if isinstance(range_val[0], float):
-            val = trial.suggest_float(
-                key,
-                range_val[0],
-                range_val[1],
-                log=(bool(range_val[0] > 0 and range_val[1] / range_val[0] > 10)),
-            )
-        elif isinstance(range_val[0], int):
-            val = trial.suggest_int(key, range_val[0], range_val[1])
-        else:
-            val = trial.suggest_categorical(key, range_val)
+    # 2. Normalise and sample from the typed search space
+    search_space = normalise_search_space(base_cfg.hpo.search_space)
+    params: Dict[str, Any] = {}
+    for name, spec in search_space.items():
+        params[name] = BaseHPO.suggest_param_optuna(trial, name, spec)
 
-        # Recursive attribute setting (e.g., 'optim.lr')
-        parts = key.split(".")
-        obj = cfg
-        for part in parts[:-1]:
-            obj = getattr(obj, part)
-        setattr(obj, parts[-1], val)
+    # 3. Apply sampled parameters to config
+    apply_params(cfg, params)
 
-    # 2. Initialize Model and Trainer
+    # 4. Build model and trainer
     model = create_model(cfg)
 
-    # Use pruning callback
     pruning_callback = PyTorchLightningPruningCallback(trial, monitor="val/reward")
 
     trainer = WSTrainer(
@@ -61,7 +65,7 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
         log_every_n_steps=cfg.train.log_step,
     )
 
-    # 3. Train
+    # 5. Train
     try:
         trainer.fit(model)
         return trainer.callback_metrics.get("val/reward", torch.tensor(float("-inf"))).item()
@@ -78,49 +82,61 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
 
 
 def run_hpo(cfg: Config) -> float:
-    """Run Hyperparameter Optimization."""
+    """Run Hyperparameter Optimization.
+
+    Chooses the backend (DEHB or Optuna) based on ``cfg.hpo.method`` and
+    executes the search over the typed search space defined in
+    ``cfg.hpo.search_space``.
+
+    Args:
+        cfg: Root application configuration.
+
+    Returns:
+        The best metric value found.
+    """
     from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband, OptunaHPO
 
     # Enable Tensor Core acceleration for Ampere+ GPUs
     if torch.cuda.is_available() and cfg.train.precision in ["16-mixed", "bf16-mixed"]:
         torch.set_float32_matmul_precision("medium")
 
+    # Normalise the search space once
+    search_space = normalise_search_space(cfg.hpo.search_space)
+
     # 1. DEHB Method
     if cfg.hpo.method == "dehb":
 
-        def dehb_obj(config, fidelity):
-            """DEHB objective function."""
+        def dehb_obj(config: Dict[str, Any], fidelity: float) -> Dict[str, float]:
+            """DEHB objective function (minimises fitness)."""
             temp_cfg = OmegaConf.to_object(cfg)
-            # Update config with suggested values
-            for k, v in config.items():
-                parts = k.split(".")
-                obj = temp_cfg
-                for part in parts[:-1]:
-                    if obj is not None:
-                        obj = getattr(obj, part)
-                setattr(obj, parts[-1], v)
+            assert isinstance(temp_cfg, Config)
 
-            model = create_model(cast(DictConfig, temp_cfg))  # type: ignore[arg-type]
+            # Convert ConfigSpace config to plain dict if needed
+            config_dict = config.get_dictionary() if hasattr(config, "get_dictionary") else dict(config)
+            apply_params(temp_cfg, config_dict)
+
+            model = create_model(temp_cfg)
             trainer = WSTrainer(
                 max_epochs=int(fidelity),
                 enable_progress_bar=False,
                 logger=False,
-                log_every_n_steps=temp_cfg.train.log_step,  # type: ignore[union-attr]
+                log_every_n_steps=temp_cfg.train.log_step,
             )
             trainer.fit(model)
             reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
             return {"fitness": -reward}
 
         dehb = DifferentialEvolutionHyperband(
-            cs=cast(Dict[str, Union[Tuple[float, float], list]], cfg.hpo.search_space),
-            f=dehb_obj,
-            min_fidelity=getattr(cfg.hpo, "min_epochs", 1) or 1,
+            cfg=cfg,
+            objective_fn=dehb_obj,
+            search_space=search_space,
+            min_fidelity=getattr(cfg.hpo, "min_fidelity", 1) or 1,
             max_fidelity=cfg.hpo.n_epochs_per_trial,
         )
-        best_config, runtime, _ = dehb.run(fevals=cfg.hpo.n_trials)
-        logger.info(f"DEHB complete in {runtime:.2f}s. Best config: {best_config}")
-        return 0.0
+        best_val = dehb.run()
+        logger.info(f"DEHB complete in {dehb.runtime:.2f}s. Best config: {dehb.best_config}")
+        return best_val
 
     # 2. Optuna Methods (TPE, Grid, Random, Hyperband)
-    hpo_runner = OptunaHPO(cfg, objective)
+    hpo_runner = OptunaHPO(cfg, objective, search_space=search_space)
     return hpo_runner.run()

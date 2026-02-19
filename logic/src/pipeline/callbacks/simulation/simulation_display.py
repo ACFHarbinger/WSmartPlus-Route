@@ -31,7 +31,7 @@ from rich.text import Text
 # METRICS is now imported inside methods where needed to avoid unused import warning
 
 
-class SimulationDisplay:
+class SimulationDisplayCallback:
     """
     Real-time terminal dashboard for simulation testing.
 

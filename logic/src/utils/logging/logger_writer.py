@@ -100,7 +100,7 @@ def setup_logger_redirection(log_file=None, silent=False):
 
     # Tee stdout and stderr
     # stdout/stderr goes to log, but NOT terminal (echo_to_terminal=False)
-    # The dashboard in SimulationDisplay will use .terminal to bypass this.
+    # The dashboard in SimulationDisplayCallback will use .terminal to bypass this.
     sys.stdout = LoggerWriter(sys.stdout, log_file, echo_to_terminal=False)
     sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=False)
 

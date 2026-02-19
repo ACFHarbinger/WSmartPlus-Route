@@ -1,9 +1,8 @@
 """Tests for data augmentation transforms."""
 
 import torch
-import pytest
 from tensordict import TensorDict
-from logic.src.data.transforms import (
+from logic.src.data.generators.transforms import (
     batchify,
     dihedral_8_augmentation,
     symmetric_augmentation,
