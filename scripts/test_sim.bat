@@ -56,7 +56,7 @@ set EDGE_METHOD=knn
 set VERTEX_METHOD=mmn
 set DIST_METHOD=gmaps
 set DM_PATH=data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv
-set WASTE_PATH=daily_waste/riomaior170_emp_wsr31_N10_seed42.pkl
+set WASTE_PATH=daily_waste/riomaior170_emp_wsr31_N10_seed42.npz
 
 set CHECKPOINTS=40
 
