@@ -84,28 +84,6 @@
 
 ````
 
-````{py:attribute} train_dataset
-:canonical: src.configs.tasks.train.TrainConfig.train_dataset
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.train_dataset
-```
-
-````
-
-````{py:attribute} load_dataset
-:canonical: src.configs.tasks.train.TrainConfig.load_dataset
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.load_dataset
-```
-
-````
-
 ````{py:attribute} num_workers
 :canonical: src.configs.tasks.train.TrainConfig.num_workers
 :type: int

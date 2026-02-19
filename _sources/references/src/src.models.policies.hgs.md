@@ -26,7 +26,7 @@
 `````{py:class} VectorizedHGS(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 10, max_vehicles: int = 0, crossover_rate: float = 0.7, **kwargs)
 :canonical: src.models.policies.hgs.VectorizedHGS
 
-Bases: {py:obj}`logic.src.models.common.autoregressive_policy.AutoregressivePolicy`
+Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`
 
 ```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS
 ```

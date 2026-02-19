@@ -41,7 +41,7 @@ src.utils.data.data_utils
 ````{py:data} __all__
 :canonical: src.utils.data.__all__
 :value: >
-   ['check_extension', 'save_dataset', 'save_td_dataset', 'load_td_dataset', 'load_dataset', 'collate_f...
+   ['check_extension', 'save_dataset', 'save_simulation_dataset', 'save_td_dataset', 'load_td_dataset',...
 
 ```{autodoc2-docstring} src.utils.data.__all__
 ```

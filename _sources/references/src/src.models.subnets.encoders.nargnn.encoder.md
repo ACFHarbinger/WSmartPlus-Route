@@ -26,7 +26,7 @@
 `````{py:class} NARGNNEncoder(embed_dim: int = 64, env_name: str = 'tsp', init_embedding: typing.Optional[torch.nn.Module] = None, edge_embedding: typing.Optional[torch.nn.Module] = None, graph_network: typing.Optional[torch.nn.Module] = None, heatmap_generator: typing.Optional[torch.nn.Module] = None, num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, act_fn: str = 'silu', agg_fn: str = 'mean', linear_bias: bool = True, k_sparse: typing.Optional[int] = None, **kwargs)
 :canonical: src.models.subnets.encoders.nargnn.encoder.NARGNNEncoder
 
-Bases: {py:obj}`logic.src.models.common.nonautoregressive_encoder.NonAutoregressiveEncoder`
+Bases: {py:obj}`logic.src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder`
 
 ```{autodoc2-docstring} src.models.subnets.encoders.nargnn.encoder.NARGNNEncoder
 ```

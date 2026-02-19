@@ -14,6 +14,8 @@
 :maxdepth: 1
 
 src.pipeline.simulations.repository.base
+src.pipeline.simulations.repository.npz
+src.pipeline.simulations.repository.xlsx
 src.pipeline.simulations.repository.filesystem
 ```
 
@@ -25,6 +27,10 @@ src.pipeline.simulations.repository.filesystem
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`set_repository <src.pipeline.simulations.repository.set_repository>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository
+    :summary:
+    ```
 * - {py:obj}`load_indices <src.pipeline.simulations.repository.load_indices>`
   - ```{autodoc2-docstring} src.pipeline.simulations.repository.load_indices
     :summary:
@@ -49,8 +55,8 @@ src.pipeline.simulations.repository.filesystem
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`_repository <src.pipeline.simulations.repository._repository>`
-  - ```{autodoc2-docstring} src.pipeline.simulations.repository._repository
+* - {py:obj}`_REPOSITORY <src.pipeline.simulations.repository._REPOSITORY>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.repository._REPOSITORY
     :summary:
     ```
 * - {py:obj}`__all__ <src.pipeline.simulations.repository.__all__>`
@@ -61,14 +67,21 @@ src.pipeline.simulations.repository.filesystem
 
 ### API
 
-````{py:data} _repository
-:canonical: src.pipeline.simulations.repository._repository
+````{py:data} _REPOSITORY
+:canonical: src.pipeline.simulations.repository._REPOSITORY
 :value: >
-   'FileSystemRepository(...)'
+   None
 
-```{autodoc2-docstring} src.pipeline.simulations.repository._repository
+```{autodoc2-docstring} src.pipeline.simulations.repository._REPOSITORY
 ```
 
+````
+
+````{py:function} set_repository(repo: typing.Union[src.pipeline.simulations.repository.filesystem.FileSystemRepository, src.pipeline.simulations.repository.npz.NumpyDictRepository, src.pipeline.simulations.repository.xlsx.PandasExcelRepository]) -> None
+:canonical: src.pipeline.simulations.repository.set_repository
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository
+```
 ````
 
 ````{py:function} load_indices(filename, n_samples, n_nodes, data_size, lock=None)
@@ -102,7 +115,7 @@ src.pipeline.simulations.repository.filesystem
 ````{py:data} __all__
 :canonical: src.pipeline.simulations.repository.__all__
 :value: >
-   ['SimulationRepository', 'FileSystemRepository', 'load_indices', 'load_depot', 'load_simulator_data'...
+   ['SimulationRepository', 'FileSystemRepository', 'NumpyDictRepository', 'PandasExcelRepository', 'se...
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.__all__
 ```

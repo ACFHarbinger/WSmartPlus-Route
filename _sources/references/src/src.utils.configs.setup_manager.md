@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} setup_hrl_manager(opts: typing.Dict[str, typing.Any], device: torch.device, configs: typing.Optional[typing.Dict[str, typing.Any]] = None, policy: typing.Optional[str] = None, base_path: typing.Optional[str] = None, worker_model: typing.Optional[torch.nn.Module] = None) -> typing.Optional[logic.src.models.GATLSTManager]
+````{py:function} setup_hrl_manager(opts: typing.Dict[str, typing.Any], device: torch.device, configs: typing.Optional[typing.Dict[str, typing.Any]] = None, policy: typing.Optional[str] = None, base_path: typing.Optional[str] = None, worker_model: typing.Optional[torch.nn.Module] = None) -> typing.Optional[logic.src.models.MustGoManager]
 :canonical: src.utils.configs.setup_manager.setup_hrl_manager
 
 ```{autodoc2-docstring} src.utils.configs.setup_manager.setup_hrl_manager

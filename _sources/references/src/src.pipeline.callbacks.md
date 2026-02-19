@@ -7,18 +7,14 @@
 :allowtitles:
 ```
 
-## Submodules
+## Subpackages
 
 ```{toctree}
 :titlesonly:
-:maxdepth: 1
+:maxdepth: 3
 
-src.pipeline.callbacks.policy_summary
-src.pipeline.callbacks.training_display
-src.pipeline.callbacks.model_summary
-src.pipeline.callbacks.speed_monitor
-src.pipeline.callbacks.reptile
-src.pipeline.callbacks.simulation_display
+src.pipeline.callbacks.pytorch
+src.pipeline.callbacks.simulation
 ```
 
 ## Package Contents
@@ -40,7 +36,7 @@ src.pipeline.callbacks.simulation_display
 ````{py:data} __all__
 :canonical: src.pipeline.callbacks.__all__
 :value: >
-   ['TrainingDisplayCallback', 'ReptileCallback', 'SpeedMonitor', 'ModelSummaryCallback']
+   ['TrainingDisplayCallback', 'ReptileCallback', 'SpeedMonitor', 'ModelSummaryCallback', 'SimulationDi...
 
 ```{autodoc2-docstring} src.pipeline.callbacks.__all__
 ```

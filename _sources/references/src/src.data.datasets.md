@@ -7,18 +7,14 @@
 :allowtitles:
 ```
 
-## Submodules
+## Subpackages
 
 ```{toctree}
 :titlesonly:
-:maxdepth: 1
+:maxdepth: 3
 
-src.data.datasets.extra_key_dataset
-src.data.datasets.fast_gen_dataset
-src.data.datasets.baseline_dataset
-src.data.datasets.fast_td_dataset
-src.data.datasets.generator_dataset
-src.data.datasets.td_dataset
+src.data.datasets.pytorch
+src.data.datasets.simulation
 ```
 
 ## Package Contents
@@ -40,7 +36,7 @@ src.data.datasets.td_dataset
 ````{py:data} __all__
 :canonical: src.data.datasets.__all__
 :value: >
-   ['BaselineDataset', 'ExtraKeyDataset', 'TensorDictDatasetFastGeneration', 'FastTdDataset', 'Generato...
+   ['td_kwargs', 'tensordict_collate_fn', 'BaselineDataset', 'ExtraKeyDataset', 'TensorDictDatasetFastG...
 
 ```{autodoc2-docstring} src.data.datasets.__all__
 ```

@@ -26,7 +26,7 @@
 `````{py:class} RandomLocalSearchPolicy(env_name: str, n_iterations: int = 100, op_probs: dict[str, float] | None = None, **kwargs)
 :canonical: src.models.policies.random_local_search.RandomLocalSearchPolicy
 
-Bases: {py:obj}`logic.src.models.common.improvement_policy.ImprovementPolicy`
+Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`
 
 ```{autodoc2-docstring} src.models.policies.random_local_search.RandomLocalSearchPolicy
 ```

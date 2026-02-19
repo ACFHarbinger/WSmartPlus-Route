@@ -13,27 +13,11 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.temporal_attention_model
 src.models.common
-src.models.nargnn
-src.models.dact
-src.models.glop
-src.models.polynet
-src.models.hrl_manager
-src.models.gfacs
-src.models.n2s
-src.models.attention_model
-src.models.hypernet
+src.models.meta
 src.models.policies
-src.models.deepaco
-src.models.weight_adjustment_rnn
-src.models.moe
-src.models.mdam
-src.models.matnet
-src.models.critic_network
-src.models.neuopt
+src.models.core
 src.models.subnets
-src.models.pointer_network
 ```
 
 ## Package Contents
@@ -55,7 +39,7 @@ src.models.pointer_network
 ````{py:data} __all__
 :canonical: src.models.__all__
 :value: >
-   ['AttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'GATLSTManager', 'WeightAdjustmentRNN'...
+   ['AttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'MustGoManager', 'WeightAdjustmentRNN'...
 
 ```{autodoc2-docstring} src.models.__all__
 ```

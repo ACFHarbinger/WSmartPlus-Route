@@ -186,6 +186,17 @@ src.configs.models
 
 ````
 
+````{py:attribute} load_dataset
+:canonical: src.configs.Config.load_dataset
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.Config.load_dataset
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.Config.seed
 :type: int

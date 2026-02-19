@@ -1,0 +1,56 @@
+# {py:mod}`src.models.core.matnet.model`
+
+```{py:module} src.models.core.matnet.model
+```
+
+```{autodoc2-docstring} src.models.core.matnet.model
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`MatNet <src.models.core.matnet.model.MatNet>`
+  - ```{autodoc2-docstring} src.models.core.matnet.model.MatNet
+    :summary:
+    ```
+````
+
+### API
+
+`````{py:class} MatNet(embed_dim: int = 256, hidden_dim: int = 512, num_layers: int = 5, n_heads: int = 8, tanh_clipping: float = 10.0, normalization: str = 'instance', baseline: str = 'rollout', env_name: typing.Optional[str] = None, **kwargs)
+:canonical: src.models.core.matnet.model.MatNet
+
+Bases: {py:obj}`torch.nn.Module`
+
+```{autodoc2-docstring} src.models.core.matnet.model.MatNet
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.models.core.matnet.model.MatNet.__init__
+```
+
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, **kwargs) -> typing.Dict[str, typing.Any]
+:canonical: src.models.core.matnet.model.MatNet.forward
+
+```{autodoc2-docstring} src.models.core.matnet.model.MatNet.forward
+```
+
+````
+
+````{py:method} set_strategy(strategy: str, **kwargs)
+:canonical: src.models.core.matnet.model.MatNet.set_strategy
+
+```{autodoc2-docstring} src.models.core.matnet.model.MatNet.set_strategy
+```
+
+````
+
+`````

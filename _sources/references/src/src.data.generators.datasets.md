@@ -72,35 +72,35 @@
 ```
 ````
 
-````{py:function} _apply_noise_config(builder: logic.src.data.builders.VRPInstanceBuilder, problem: str, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _apply_noise_config(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, opts: typing.Dict[str, typing.Any]) -> None
 :canonical: src.data.generators.datasets._apply_noise_config
 
 ```{autodoc2-docstring} src.data.generators.datasets._apply_noise_config
 ```
 ````
 
-````{py:function} _generate_test_simulator_data(builder: logic.src.data.builders.VRPInstanceBuilder, n_days: int, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_test_simulator_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, n_days: int, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
 :canonical: src.data.generators.datasets._generate_test_simulator_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_test_simulator_data
 ```
 ````
 
-````{py:function} _generate_train_time_data(builder: logic.src.data.builders.VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_train_time_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
 :canonical: src.data.generators.datasets._generate_train_time_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_time_data
 ```
 ````
 
-````{py:function} _generate_train_data(builder: logic.src.data.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
 :canonical: src.data.generators.datasets._generate_train_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_data
 ```
 ````
 
-````{py:function} _verify_and_save(builder: logic.src.data.builders.VRPInstanceBuilder, filename: str, opts: typing.Dict[str, typing.Any], is_td: bool = False) -> None
+````{py:function} _verify_and_save(builder: logic.src.data.generators.builders.VRPInstanceBuilder, filename: str, opts: typing.Dict[str, typing.Any], is_td: bool = False) -> None
 :canonical: src.data.generators.datasets._verify_and_save
 
 ```{autodoc2-docstring} src.data.generators.datasets._verify_and_save

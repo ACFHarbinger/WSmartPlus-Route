@@ -23,8 +23,10 @@
 
 ### API
 
-`````{py:class} OptunaHPO(cfg: logic.src.configs.Config, objective_fn: typing.Callable)
+`````{py:class} OptunaHPO(cfg: logic.src.configs.Config, objective_fn: typing.Callable, search_space: typing.Optional[typing.Dict[str, src.pipeline.rl.hpo.base.ParamSpec]] = None)
 :canonical: src.pipeline.rl.hpo.optuna_hpo.OptunaHPO
+
+Bases: {py:obj}`src.pipeline.rl.hpo.base.BaseHPO`
 
 ```{autodoc2-docstring} src.pipeline.rl.hpo.optuna_hpo.OptunaHPO
 ```

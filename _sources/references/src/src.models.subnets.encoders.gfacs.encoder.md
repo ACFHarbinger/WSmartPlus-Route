@@ -26,7 +26,7 @@
 `````{py:class} GFACSEncoder(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, feedforward_dim: int = 512, dropout: float = 0.0, input_dim: int = 2, **kwargs)
 :canonical: src.models.subnets.encoders.gfacs.encoder.GFACSEncoder
 
-Bases: {py:obj}`logic.src.models.common.nonautoregressive_encoder.NonAutoregressiveEncoder`
+Bases: {py:obj}`logic.src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder`
 
 ```{autodoc2-docstring} src.models.subnets.encoders.gfacs.encoder.GFACSEncoder
 ```

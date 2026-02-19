@@ -43,6 +43,14 @@
   - ```{autodoc2-docstring} src.utils.data.loader.load_dataset
     :summary:
     ```
+* - {py:obj}`save_simulation_dataset <src.utils.data.loader.save_simulation_dataset>`
+  - ```{autodoc2-docstring} src.utils.data.loader.save_simulation_dataset
+    :summary:
+    ```
+* - {py:obj}`load_simulation_dataset <src.utils.data.loader.load_simulation_dataset>`
+  - ```{autodoc2-docstring} src.utils.data.loader.load_simulation_dataset
+    :summary:
+    ```
 ````
 
 ### API
@@ -93,5 +101,19 @@
 :canonical: src.utils.data.loader.load_dataset
 
 ```{autodoc2-docstring} src.utils.data.loader.load_dataset
+```
+````
+
+````{py:function} save_simulation_dataset(dataset: typing.Dict[str, numpy.ndarray], filename: str) -> None
+:canonical: src.utils.data.loader.save_simulation_dataset
+
+```{autodoc2-docstring} src.utils.data.loader.save_simulation_dataset
+```
+````
+
+````{py:function} load_simulation_dataset(filename: str) -> typing.Dict[str, numpy.ndarray]
+:canonical: src.utils.data.loader.load_simulation_dataset
+
+```{autodoc2-docstring} src.utils.data.loader.load_simulation_dataset
 ```
 ````

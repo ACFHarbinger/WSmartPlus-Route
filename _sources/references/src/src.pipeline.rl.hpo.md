@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.rl.hpo.base
 src.pipeline.rl.hpo.dehb
 src.pipeline.rl.hpo.optuna_hpo
 ```
@@ -36,7 +37,7 @@ src.pipeline.rl.hpo.optuna_hpo
 ````{py:data} __all__
 :canonical: src.pipeline.rl.hpo.__all__
 :value: >
-   ['DifferentialEvolutionHyperband', 'OptunaHPO']
+   ['BaseHPO', 'DifferentialEvolutionHyperband', 'OptunaHPO']
 
 ```{autodoc2-docstring} src.pipeline.rl.hpo.__all__
 ```

@@ -42,7 +42,7 @@
 ```
 ````
 
-````{py:function} process_display_updates(display: logic.src.pipeline.callbacks.simulation_display.SimulationDisplay, shared_metrics: dict, log_tmp: dict, last_reported_days: dict, opts: dict, loop_tic: float, counter: typing.Any)
+````{py:function} process_display_updates(display: logic.src.pipeline.callbacks.SimulationDisplayCallback, shared_metrics: dict, log_tmp: dict, last_reported_days: dict, opts: dict, loop_tic: float, counter: typing.Any)
 :canonical: src.pipeline.features.test.orchestrator.monitor.process_display_updates
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.monitor.process_display_updates

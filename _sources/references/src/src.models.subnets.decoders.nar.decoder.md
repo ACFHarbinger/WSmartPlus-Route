@@ -26,7 +26,7 @@
 `````{py:class} SimpleNARDecoder(**kwargs)
 :canonical: src.models.subnets.decoders.nar.decoder.SimpleNARDecoder
 
-Bases: {py:obj}`logic.src.models.common.nonautoregressive_decoder.NonAutoregressiveDecoder`
+Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder`
 
 ```{autodoc2-docstring} src.models.subnets.decoders.nar.decoder.SimpleNARDecoder
 ```

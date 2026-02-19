@@ -23,10 +23,10 @@
 
 ### API
 
-`````{py:class} DifferentialEvolutionHyperband(cs: typing.Dict[str, typing.Union[typing.Tuple[float, float], list]], f: typing.Callable, min_fidelity: int = 1, max_fidelity: int = 10, eta: int = 3, n_workers: int = 1, output_path: str = './dehb_output', **kwargs)
+`````{py:class} DifferentialEvolutionHyperband(cfg: logic.src.configs.Config, objective_fn: typing.Callable, search_space: typing.Optional[typing.Dict[str, src.pipeline.rl.hpo.base.ParamSpec]] = None, min_fidelity: int = 1, max_fidelity: int = 10, eta: int = 3, n_workers: int = 1, output_path: str = './dehb_output', **kwargs: typing.Any)
 :canonical: src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband
 
-Bases: {py:obj}`dehb.DEHB`
+Bases: {py:obj}`src.pipeline.rl.hpo.base.BaseHPO`
 
 ```{autodoc2-docstring} src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband
 ```
@@ -37,7 +37,7 @@ Bases: {py:obj}`dehb.DEHB`
 ```{autodoc2-docstring} src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband.__init__
 ```
 
-````{py:method} run(fevals: int = 100, **kwargs)
+````{py:method} run() -> float
 :canonical: src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband.run
 
 ```{autodoc2-docstring} src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband.run

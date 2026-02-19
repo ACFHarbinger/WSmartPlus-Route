@@ -161,4 +161,15 @@
 
 ````
 
+````{py:attribute} n_days
+:canonical: src.configs.envs.graph.GraphConfig.n_days
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.n_days
+```
+
+````
+
 `````

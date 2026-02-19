@@ -26,7 +26,7 @@
 `````{py:class} MDAMGraphAttentionEncoder(num_heads: int, embed_dim: int, num_layers: int, node_dim: typing.Optional[int] = None, normalization: str = 'batch', feed_forward_hidden: int = 512)
 :canonical: src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder
 
-Bases: {py:obj}`logic.src.models.common.autoregressive_encoder.AutoregressiveEncoder`
+Bases: {py:obj}`logic.src.models.common.autoregressive.encoder.AutoregressiveEncoder`
 
 ```{autodoc2-docstring} src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder
 ```

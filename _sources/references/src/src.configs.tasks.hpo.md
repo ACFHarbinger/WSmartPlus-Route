@@ -86,7 +86,7 @@
 
 ````{py:attribute} search_space
 :canonical: src.configs.tasks.hpo.HPOConfig.search_space
-:type: typing.Dict[str, typing.List[typing.Any]]
+:type: typing.Dict[str, typing.Dict[str, typing.Any]]
 :value: >
    'field(...)'
 
