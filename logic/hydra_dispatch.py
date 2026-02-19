@@ -36,7 +36,7 @@ def hydra_entry_point(cfg: Config) -> float:
             return run_hpo(cfg)
         return run_training(cfg)
 
-    if task == "evaluation":
+    if task == "eval":
         from logic.src.pipeline.features.base import flatten_config_dict
         from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
 

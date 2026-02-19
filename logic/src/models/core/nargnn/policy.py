@@ -171,7 +171,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         # Post-decoding result preparation
         out = {
             "actions": actions,
-            "reward": env.get_reward(td, actions),
+            "reward": env.get_reward(td, actions) if env is not None else None,
             "log_likelihood": get_log_likelihood(logprobs, None, td.get("mask", None), True),
             "heatmap": heatmap,
             "node_embed": node_embed,

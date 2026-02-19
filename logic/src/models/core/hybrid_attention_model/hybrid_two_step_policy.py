@@ -159,6 +159,8 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             elif algo_name == "aco":
                 out = self.aco_model(sub_td, env, **kwargs)
                 sub_tours = out["actions"]
+            else:
+                raise ValueError(f"Unknown initialization algorithm: {algo_name}")
 
             if not isinstance(sub_tours, list):
                 tours[mask] = sub_tours.to(dtype=torch.long)
@@ -206,6 +208,18 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             new_sub_tours, new_sub_removed = self._execute_refinement_operator(
                 operator_fn, sub_tours, sub_dist, sub_removed, device
             )
+
+            # Handle shape mismatch: Expand next_tours if new tours are longer
+            if new_sub_tours.size(1) > next_tours.size(1):
+                diff = new_sub_tours.size(1) - next_tours.size(1)
+                padding = torch.zeros((batch_size, diff), dtype=next_tours.dtype, device=device)
+                next_tours = torch.cat([next_tours, padding], dim=1)
+
+            # Pad new_sub_tours if shorter than current max width
+            if new_sub_tours.size(1) < next_tours.size(1):
+                diff = next_tours.size(1) - new_sub_tours.size(1)
+                padding = torch.zeros((new_sub_tours.size(0), diff), dtype=new_sub_tours.dtype, device=device)
+                new_sub_tours = torch.cat([new_sub_tours, padding], dim=1)
 
             next_tours[mask] = new_sub_tours
             sub_indices = torch.nonzero(mask).squeeze(-1)
@@ -279,7 +293,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         # 3. Stage 2: Refinement Loop
         dist_matrix_all = self._get_dist_matrix(td)
         removed_nodes_state = torch.zeros((td.size(0), 0), dtype=torch.long, device=td.device)
-        log_likelihood = 0.0
+        log_likelihood = torch.zeros(td.size(0), device=td.device)
 
         for _step in range(self.refine_steps):
             current_tours, removed_nodes_state, step_log_p = self._apply_operator_step(

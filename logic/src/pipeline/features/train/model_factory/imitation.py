@@ -129,7 +129,7 @@ def _create_critic_helper(policy, cfg: Config) -> Any:
     Returns:
         Initialized critic network.
     """
-    from logic.src.models.critic_network.policy import create_critic_from_actor
+    from logic.src.models.common.critic_network.policy import create_critic_from_actor
 
     return create_critic_from_actor(
         policy,
