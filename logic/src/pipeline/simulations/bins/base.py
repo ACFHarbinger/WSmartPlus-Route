@@ -4,7 +4,6 @@ Bin State Management and Waste Accumulation Simulation.
 
 import math
 import os
-import pickle
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -114,11 +113,12 @@ class Bins:
             self.grid = grid  # type: ignore[assignment]
 
         if waste_file is not None:
-            with open(os.path.join(data_dir, waste_file), "rb") as file:
-                self.waste_fills = pickle.load(file)
+            data = np.load(os.path.join(data_dir, waste_file))
+            self.waste_fills = data["waste"]
+            self.noisy_waste_fills = data["noisy_waste"]
         else:
             self.waste_fills = None
-        self.noisy_waste_fills = None
+            self.noisy_waste_fills = None
 
     def __get_stdev(self):
         """Computes current standard deviation."""
@@ -165,23 +165,12 @@ class Bins:
 
     def set_sample_waste(self, sample_id: int) -> None:
         """Sets current waste profile from pre-recorded data."""
-        if isinstance(self.waste_fills[sample_id], (list, tuple)) and len(self.waste_fills[sample_id]) == 2:
-            self.noisy_waste_fills = self.waste_fills[sample_id][1]
-            self.waste_fills = self.waste_fills[sample_id][0]
-        else:
-            self.waste_fills = self.waste_fills[sample_id]
+        self.waste_fills = self.waste_fills[sample_id]
+        self.noisy_waste_fills = self.noisy_waste_fills[sample_id]
 
         if self.start_with_fill:
             self.real_c = self.waste_fills[0].copy()
-            if self.noisy_waste_fills is not None:
-                self.c = self.noisy_waste_fills[0].copy()
-            else:
-                noise = (
-                    np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n)
-                    if self.noise_variance > 0
-                    else np.zeros(self.n)
-                )
-                self.c = np.clip(self.real_c + noise, 0, 100)
+            self.c = self.noisy_waste_fills[0].copy()
             self.level_history.append(self.c.copy())
 
     def collect(self, idsfull: List[int], cost: float = 0) -> Tuple[np.ndarray, float, int, float]:

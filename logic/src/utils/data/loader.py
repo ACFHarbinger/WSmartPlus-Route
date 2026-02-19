@@ -175,3 +175,35 @@ def load_dataset(filename: str) -> Any:
     """
     with open(check_extension(filename, ".pkl"), "rb") as f:
         return pickle.load(f)
+
+
+def save_simulation_dataset(dataset: Dict[str, np.ndarray], filename: str) -> None:
+    """
+    Saves a simulation dataset as a compressed .npz file.
+
+    Args:
+        dataset: Dict of named numpy arrays (e.g. 'waste', 'noisy_waste', 'depot', 'locs', 'max_waste').
+        filename: Target filename (extension will be set to .npz).
+    """
+    filedir = os.path.split(filename)[0]
+    if filedir and not os.path.isdir(filedir):
+        try:
+            os.makedirs(filedir, exist_ok=True)
+        except Exception as e:
+            raise Exception("directories to save datasets do not exist and could not be created") from e
+
+    np.savez_compressed(check_extension(filename, ".npz"), **dataset)
+
+
+def load_simulation_dataset(filename: str) -> Dict[str, np.ndarray]:
+    """
+    Loads a simulation dataset from a .npz file.
+
+    Args:
+        filename: The filename.
+
+    Returns:
+        Dict of named numpy arrays.
+    """
+    data = np.load(check_extension(filename, ".npz"))
+    return dict(data)

@@ -73,7 +73,7 @@ set DM_PATH=data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].c
 set N_BINS=170
 set N_DAYS=31
 set N_SAMPLES=10
-set WASTE_PATH=daily_waste/riomaior170_gamma1_wsr31_N10_seed42.pkl
+set WASTE_PATH=daily_waste/riomaior170_gamma1_wsr31_N10_seed42.npz
 
 set SEED=42
 set START=0
