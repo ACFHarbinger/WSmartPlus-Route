@@ -61,7 +61,7 @@ class MVMoE_POMO(POMO):
             moe_kwargs = DEFAULT_MOE_KWARGS
 
         if policy is None:
-            from logic.src.models.policies.am import AttentionModelPolicy
+            from logic.src.models.core.attention_model import AttentionModelPolicy
 
             env_name = kwargs.get("env_name", "vrpp")
             # Inject MoE kwargs into policy, using MVMoE recommended defaults

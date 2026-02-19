@@ -1,6 +1,7 @@
 """Tests for Non-Autoregressive models."""
 
 import torch
+import pytest
 from tensordict import TensorDict
 from unittest.mock import MagicMock
 
@@ -19,19 +20,13 @@ class TestNonAutoregressiveBase:
     def test_encoder_abc(self):
         """Verify NonAutoregressiveEncoder is abstract."""
         # Should not be instantiable directly
-        try:
-            encoder = NonAutoregressiveEncoder()
-            assert False, "Should raise TypeError"
-        except TypeError:
-            pass  # Expected
+        with pytest.raises(TypeError, match="abstract"):
+            NonAutoregressiveEncoder()  # type: ignore[abstract]
 
     def test_decoder_abc(self):
         """Verify NonAutoregressiveDecoder is abstract."""
-        try:
-            decoder = NonAutoregressiveDecoder()
-            assert False, "Should raise TypeError"
-        except TypeError:
-            pass  # Expected
+        with pytest.raises(TypeError, match="abstract"):
+            NonAutoregressiveDecoder()  # type: ignore[abstract]
 
 
 class TestDeepACOEncoder:

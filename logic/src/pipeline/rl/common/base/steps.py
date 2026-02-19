@@ -17,7 +17,7 @@ from logic.src.utils.logging.pylogger import get_pylogger
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
     from logic.src.interfaces.policy import IPolicy
-    from logic.src.policies.must_go import VectorizedSelector
+    from logic.src.policies.other.must_go import VectorizedSelector
 
 logger = get_pylogger(__name__)
 
@@ -129,27 +129,6 @@ class StepMixin:
         Returns:
             Loss tensor.
         """
-        # [x] Resolve `AttentionModel` decoder return mismatch (handle up to 4 returns)
-        # [x] Fix `RolloutBaseline.setup` policy assignment bug
-        # [x] Rename `baseline` hyperparameter to `baseline_type` in `RL4COLitModule`
-        # [x] Fix `GraphAttConvEncoder` initialization order
-        # [x] Correct Hexaly lambda function signatures
-        # [x] Fix `deep_sanitize` bug (prevent stringifying modules/complex objects)
-        # [/] Convert all standard `in td` checks to `key in td.keys()` for TensorDict compatibility
-        #     - [x] `logic/src/envs/sdwcvrp.py`
-        #     - [x] `logic/src/envs/tsp_kopt.py`
-        #     - [x] `logic/src/pipeline/rl/core/ppo.py`
-        #     - [x] `logic/src/envs/tasks/base.py`
-        #     - [x] `logic/test/unit/models/test_models.py`
-        #     - [x] `logic/src/models/subnets/embeddings/dynamic.py`
-        #     - [x] `logic/src/utils/ops/pomo.py`
-        #     - [x] `logic/src/models/subnets/embeddings/state/vrpp.py`
-        #     - [x] `logic/src/pipeline/rl/common/base/steps.py` (In progress/auditing)
-        #     - [x] `logic/src/pipeline/rl/core/gdpo.py`
-        #     - [ ] `logic/src/pipeline/rl/meta/hrl.py`
-        #     - [ ] `logic/src/utils/data/td_state_wrapper.py`
-        #     - [ ] `logic/src/envs/swcvrp.py`
-        #     - [ ] `logic/src/utils/decoding/decoding_utils.py`
         raise NotImplementedError
 
     def shared_step(
