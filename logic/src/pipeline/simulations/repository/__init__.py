@@ -7,12 +7,13 @@ from typing import Union
 from .base import SimulationRepository
 from .filesystem import FileSystemRepository
 from .npz import NumpyDictRepository
+from .xlsx import PandasExcelRepository
 
 # Singleton repository instance
 _REPOSITORY = None
 
 
-def set_repository(repo: Union[FileSystemRepository, NumpyDictRepository]) -> None:
+def set_repository(repo: Union[FileSystemRepository, NumpyDictRepository, PandasExcelRepository]) -> None:
     """
     Replace the singleton repository instance.
 
@@ -59,6 +60,7 @@ __all__ = [
     "SimulationRepository",
     "FileSystemRepository",
     "NumpyDictRepository",
+    "PandasExcelRepository",
     "set_repository",
     "load_indices",
     "load_depot",
