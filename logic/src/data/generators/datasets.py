@@ -16,7 +16,7 @@ import torch
 
 from logic.src.constants import ROOT_DIR
 from logic.src.data.builders import VRPInstanceBuilder
-from logic.src.utils.data.data_utils import check_extension, save_dataset, save_td_dataset
+from logic.src.utils.data.data_utils import check_extension, save_simulation_dataset, save_td_dataset
 
 
 def generate_datasets(opts: Dict[str, Any]) -> None:
@@ -203,7 +203,7 @@ def _generate_test_simulator_data(
     if "filename" not in opts or opts["filename"] is None:
         filename = os.path.join(
             datadir,
-            "{}{}{}_{}{}_N{}_seed{}.pkl".format(
+            "{}{}{}_{}{}_N{}_seed{}.npz".format(
                 opts["area"],
                 size,
                 "_{}".format(dist) if dist is not None else "",
@@ -214,7 +214,7 @@ def _generate_test_simulator_data(
             ),
         )
     else:
-        filename = check_extension(opts["filename"])
+        filename = check_extension(opts["filename"], ".npz")
 
     _verify_and_save(builder, filename, opts, is_td=False)
 
@@ -305,7 +305,7 @@ def _generate_train_data(
 
 def _verify_and_save(builder: VRPInstanceBuilder, filename: str, opts: Dict[str, Any], is_td: bool = False) -> None:
     """Verify file existence and save the dataset."""
-    ext = ".td" if is_td else ".pkl"
+    ext = ".td" if is_td else ".npz"
     assert opts.get("f", opts.get("overwrite", False)) or not os.path.isfile(check_extension(filename, ext)), (
         "File already exists! Try running with -f option to overwrite."
     )
@@ -314,6 +314,5 @@ def _verify_and_save(builder: VRPInstanceBuilder, filename: str, opts: Dict[str,
         dataset = builder.build_td()
         save_td_dataset(dataset, filename)
     else:
-        full_dataset = builder.build()
-        dataset = [(x[2], x[3]) for x in full_dataset] if len(full_dataset[0]) == 5 else [x[2] for x in full_dataset]
-        save_dataset(dataset, filename)
+        dataset = builder.build()
+        save_simulation_dataset(dataset, filename)

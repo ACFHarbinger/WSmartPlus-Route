@@ -223,6 +223,28 @@ def _load_jsonl_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
     return tables
 
 
+def _load_npz_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
+    """Load a .npz file into named DataFrames, one per array key."""
+    tables: Dict[str, pd.DataFrame] = {}
+    data = np.load(uploaded_file)
+    for key in data.files:
+        arr = data[key]
+        if arr.ndim == 1:
+            df = pd.DataFrame(arr, columns=[key])
+        elif arr.ndim == 2:
+            df = pd.DataFrame(arr)
+        elif arr.ndim == 3:
+            # (samples, days, bins) → one table per sample dimension
+            for i in range(arr.shape[0]):
+                slice_df = pd.DataFrame(arr[i])
+                tables[f"{key} [sample {i}] ({slice_df.shape[0]}x{slice_df.shape[1]})"] = slice_df
+            continue
+        else:
+            df = pd.DataFrame(arr.reshape(arr.shape[0], -1))
+        tables[f"{key} ({df.shape[0]}x{df.shape[1]})"] = df
+    return tables
+
+
 def _load_uploaded_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
     """Parse an uploaded file into named DataFrames."""
     name = uploaded_file.name
@@ -241,6 +263,9 @@ def _load_uploaded_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
 
     elif name.endswith(".jsonl"):
         return _load_jsonl_file(uploaded_file)
+
+    elif name.endswith(".npz"):
+        return _load_npz_file(uploaded_file)
 
     elif name.endswith(".pkl"):
         raw_data = pd.read_pickle(uploaded_file)
@@ -757,16 +782,16 @@ def render_data_explorer() -> None:
     """Render the Data Explorer page."""
     st.title("Data Explorer")
     st.markdown(
-        "Upload and analyse CSV, XLSX, PKL, JSON, or JSONL data files "
+        "Upload and analyse CSV, XLSX, NPZ, PKL, JSON, or JSONL data files "
         "with interactive charts, statistics, and correlation analysis."
     )
 
     uploaded_file = st.file_uploader(
         "Upload a data file",
-        type=["csv", "xlsx", "pkl", "json", "jsonl"],
+        type=["csv", "xlsx", "npz", "pkl", "json", "jsonl"],
         help=(
-            "Supports CSV, Excel, Pickle, JSON, and JSONL files. "
-            "PKL files with VRPP/WCVRP structure are auto-split. "
+            "Supports CSV, Excel, NumPy (.npz), Pickle, JSON, and JSONL files. "
+            "NPZ simulation datasets display each named array as a table. "
             "JSON simulation results are pivoted with distribution metadata."
         ),
     )

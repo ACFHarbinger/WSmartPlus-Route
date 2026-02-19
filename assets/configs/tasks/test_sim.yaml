@@ -42,7 +42,7 @@ sim:
   real_time_log: false
   no_progress_bar: false
   data_distribution: "gamma1"
-  waste_filepath: "daily_waste/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.pkl"
+  waste_filepath: "daily_waste/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:

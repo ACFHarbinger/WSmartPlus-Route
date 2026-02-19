@@ -154,8 +154,8 @@ class TestSimIOTab(QWidget):
 
             # 3. Construct file paths based on original default patterns
 
-            # Pattern: "daily_waste/riomaior50_gamma1_wsr31_N10_seed42.pkl"
-            waste_file = f"daily_waste/{area_key}{size}_{data_dist_key}_wsr{days}_N{n_samples}_seed{seed}.pkl"
+            # Pattern: "daily_waste/riomaior50_gamma1_wsr31_N10_seed42.npz"
+            waste_file = f"daily_waste/{area_key}{size}_{data_dist_key}_wsr{days}_N{n_samples}_seed{seed}.npz"
 
             # Pattern: "data/wsr_simulator/distance_matrix/gmaps_distmat_plastic[riomaior].csv"
             dm_file = f"data/wsr_simulator/distance_matrix/gmaps_distmat_{waste_type_key}[{area_key}].csv"

@@ -120,14 +120,15 @@ class VRPInstanceBuilder:
 
     def build(self):
         """
-        Generates the dataset based on configured parameters.
+        Generates the simulation dataset as a dict of numpy arrays.
 
         Returns:
-            list: A list of problem instances, where each instance is a tuple containing:
-                  - depot (list): Coordinates of the depot.
-                  - loc (list): Coordinates of customer nodes.
-                  - waste (list): Waste levels (or demand) for nodes.
-                  - max_waste (float): Maximum capacity or waste limit.
+            dict: A dictionary of numpy arrays:
+                - 'depot': np.ndarray of shape (dataset_size, coord_dim)
+                - 'locs': np.ndarray of shape (dataset_size, problem_size, coord_dim)
+                - 'waste': np.ndarray of shape (dataset_size, num_days, problem_size)
+                - 'noisy_waste': np.ndarray of same shape as waste (equals waste when not SWCVRP)
+                - 'max_waste': np.ndarray of shape (dataset_size,)
         """
         depot, loc, bins, idx = self._prepare_coordinates()
 
@@ -141,40 +142,22 @@ class VRPInstanceBuilder:
                 waste = waste[None, :]
             fill_values.append(waste)
 
-        # Transpose to (dataset_size, num_days, problem_size)
-        fill_values = np.transpose(np.array(fill_values), (1, 0, 2))  # type: ignore[assignment]
+        # Shape: (dataset_size, num_days, problem_size)
+        fill_arr = np.transpose(np.array(fill_values), (1, 0, 2))
 
-        # Construct the output list
         if self._problem_name == "swcvrp":
-            # SWCVRP Case: Generate Noisy Waste
-            real_waste_list = fill_values.tolist()  # type: ignore[attr-defined]
-
-            # Generate Noise
-            noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_values.shape)  # type: ignore[attr-defined]
-            noisy_fill_values = np.clip(fill_values + noise, 0, MAX_WASTE)  # type: ignore[operator]
-            noisy_waste_list = noisy_fill_values.tolist()
-
-            return list(
-                zip(
-                    depot.tolist(),
-                    loc.tolist(),
-                    real_waste_list,
-                    noisy_waste_list,
-                    np.full(self._dataset_size, MAX_WASTE).tolist(),
-                )
-            )
+            noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_arr.shape)
+            noisy_fill_arr = np.clip(fill_arr + noise, 0, MAX_WASTE)
         else:
-            # Standard WCVRP/VRPP Case
-            waste_list = fill_values.tolist()  # type: ignore[attr-defined]
+            noisy_fill_arr = fill_arr
 
-            return list(
-                zip(
-                    depot.tolist(),
-                    loc.tolist(),
-                    waste_list,
-                    np.full(self._dataset_size, MAX_WASTE).tolist(),
-                )
-            )
+        return {
+            "depot": depot,
+            "locs": loc,
+            "waste": fill_arr,
+            "noisy_waste": noisy_fill_arr,
+            "max_waste": np.full(self._dataset_size, MAX_WASTE),
+        }
 
     def build_td(self) -> TensorDict:
         """
