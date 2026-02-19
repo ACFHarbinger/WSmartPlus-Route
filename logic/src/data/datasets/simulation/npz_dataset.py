@@ -6,8 +6,10 @@ from typing import Dict
 
 import numpy as np
 
+from .sim_dataset import SimulationDataset
 
-class NumpyDictDataset:
+
+class NumpyDictDataset(SimulationDataset):
     """
     Dataset wrapping a dict of named numpy arrays loaded from a .npz file.
 
