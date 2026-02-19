@@ -461,6 +461,7 @@ mcp.json
 **/fill_history/
 outputs/
 checkpoints/
+assets/output/**/*.jsonl
 
 # To include
 !assets/logs
