@@ -7,10 +7,10 @@ import torch.nn as nn
 from logic.src.data.datasets import BaselineDataset
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP
-from logic.src.models.attention_model import AttentionModel
+from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.modules.moe_layer import MoE
 from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
-from logic.src.models.moe import MoEAttentionModel, MoETemporalAttentionModel
+from logic.src.models.core.moe import MoEAttentionModel, MoETemporalAttentionModel
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 from logic.src.pipeline.rl.common.baselines import (
     CriticBaseline as CriticBaseline,
@@ -133,8 +133,8 @@ class TestAttentionModel:
         assert "kg" in ret_dict
 
 
-class TestGATLSTManager:
-    """Tests for the GATLSTManager architecture."""
+class TestMustGoManager:
+    """Tests for the MustGoManager architecture."""
 
     def test_forward(self, gat_lstm_setup):
         """Verifies forward pass logic."""
@@ -161,7 +161,7 @@ class TestGATLSTManager:
 
     def test_shared_encoder(self, am_setup):
         """Verifies shared encoder initialization."""
-        from logic.src.models.hrl_manager import GATLSTManager
+        from logic.src.models.meta.hrl_manager import MustGoManager
 
         worker_model = am_setup
         B, N = 1, 5
@@ -169,7 +169,7 @@ class TestGATLSTManager:
         dynamic = torch.rand(B, N, 10)
         global_features = torch.rand(B, 2)
 
-        manager = GATLSTManager(
+        manager = MustGoManager(
             input_dim_static=2,
             input_dim_dynamic=10,
             hidden_dim=128,

@@ -12,7 +12,7 @@ from .base import VectorizedSelector
 
 class ManagerSelector(VectorizedSelector):
     """
-    Neural network-based must-go selection using GATLSTManager.
+    Neural network-based must-go selection using MustGoManager.
 
     This selector wraps a trained HRL manager to make must-go decisions
     based on learned patterns from temporal waste data and spatial context.
@@ -30,7 +30,7 @@ class ManagerSelector(VectorizedSelector):
         Initialize ManagerSelector.
 
         Args:
-            manager: Pre-instantiated GATLSTManager. If None, creates one from config.
+            manager: Pre-instantiated MustGoManager. If None, creates one from config.
             manager_config: Configuration dict for creating manager if not provided.
             threshold: Probability threshold for must_go decision.
             device: Device for computation ('cpu' or 'cuda').
@@ -42,10 +42,10 @@ class ManagerSelector(VectorizedSelector):
             self.manager = manager
         else:
             # Lazy import to avoid circular dependencies
-            from logic.src.models.hrl_manager import GATLSTManager
+            from logic.src.models.meta.hrl_manager import MustGoManager
 
             config = manager_config or {}
-            self.manager = GATLSTManager(
+            self.manager = MustGoManager(
                 hidden_dim=config.get("hidden_dim", 128),
                 lstm_hidden=config.get("lstm_hidden", 64),
                 input_dim_dynamic=config.get("history_length", 10),

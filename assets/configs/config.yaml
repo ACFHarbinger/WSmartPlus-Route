@@ -44,7 +44,7 @@ train:
   log_step: 10 # Log metrics every N steps
   callbacks:
     - display:
-        _target_: logic.src.pipeline.callbacks.training_display.TrainingDisplayCallback
+        _target_: logic.src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback
         metric_keys: ["train/reward", "val/reward"]
         chart_title: "📈 Training Progress"
         history_length: null

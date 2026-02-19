@@ -7,8 +7,8 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.tsp_kopt import TSPkoptEnv
-from logic.src.models.n2s import N2S
-from logic.src.models.n2s.policy import N2SPolicy
+from logic.src.models.core.n2s import N2S
+from logic.src.models.core.n2s.policy import N2SPolicy
 
 
 def test_n2s_policy_forward():

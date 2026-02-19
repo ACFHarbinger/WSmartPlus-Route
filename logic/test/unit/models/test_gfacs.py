@@ -4,8 +4,8 @@ import torch
 from tensordict import TensorDict
 from unittest.mock import MagicMock
 
-from logic.src.models.gfacs import GFACS
-from logic.src.models.gfacs.policy import GFACSPolicy
+from logic.src.models.core.gfacs import GFACS
+from logic.src.models.core.gfacs.policy import GFACSPolicy
 from logic.src.models.subnets.encoders.gfacs.encoder import GFACSEncoder
 
 

@@ -83,7 +83,7 @@ def test_time_optimized_reinforce():
     module.baseline = MockBaseline()
 
     # Verify wrapping
-    from logic.src.models.attention_model.time_tracking_policy import TimeTrackingPolicy
+    from logic.src.models.common.time_tracking_policy import TimeTrackingPolicy
     assert isinstance(module.policy, TimeTrackingPolicy)
 
     # Run forward pass

@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import torch
 from logic.src.envs.problems import VRPP
-from logic.src.models import AttentionModel
+from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.pipeline.features.eval import eval_dataset
 

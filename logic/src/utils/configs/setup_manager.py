@@ -5,13 +5,15 @@ HRL Manager setup utilities.
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import torch
 from torch import nn
 
-from logic.src.models import GATLSTManager
 from logic.src.utils.functions import torch_load_cpu
+
+if TYPE_CHECKING:
+    from logic.src.models import MustGoManager
 
 
 def setup_hrl_manager(
@@ -21,7 +23,7 @@ def setup_hrl_manager(
     policy: Optional[str] = None,
     base_path: Optional[str] = None,
     worker_model: Optional[nn.Module] = None,
-) -> Optional[GATLSTManager]:
+) -> Optional[MustGoManager]:
     """
     Initializes and loads the Manager model for Hierarchical RL.
 
@@ -36,6 +38,8 @@ def setup_hrl_manager(
     Returns:
         The initialized manager model, or None if not applicable.
     """
+    from logic.src.models import MustGoManager
+
     if configs is None:
         configs = {}
 
@@ -91,7 +95,7 @@ def setup_hrl_manager(
         if detected_dim > 0 and detected_dim != global_input_dim:
             global_input_dim = detected_dim
 
-    manager: GATLSTManager = GATLSTManager(
+    manager: MustGoManager = MustGoManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
         hidden_dim=gat_hidden,
