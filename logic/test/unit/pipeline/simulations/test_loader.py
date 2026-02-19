@@ -5,7 +5,6 @@ import pandas as pd
 import pytest
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
-    _repository,
     load_area_and_waste_type_params,
 )
 

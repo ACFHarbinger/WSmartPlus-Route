@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 import torch
 
 from logic.src.interfaces import ITraversable
-from logic.src.models.hypernet.optimizer import HyperNetworkOptimizer
+from logic.src.models.meta.hypernet.optimizer import HyperNetworkOptimizer
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
 

@@ -595,7 +595,7 @@ This section maintains a registry of intelligent agents, orchestration component
 | **AttentionModel (AM)**  | `attention_model.py`  | Transformer        | **Worker Agent**. Constructive routing with Multi-Head Attention. |
 | **DeepDecoderAM (DDAM)** | `deep_decoder_am.py`  | Deep Transformer   | Deep decoder variant for complex problems.                        |
 | **TemporalAM (TAM)**     | `temporal_am.py`      | Transformer        | Time-dependent attention for multi-day scenarios.                 |
-| **GATLSTManager**        | `gat_lstm_manager.py` | GAT + LSTM         | **High-Level Agent**. Temporal gating for HRL.                    |
+| **MustGoManager**        | `hrl_manager.py`      | GAT + LSTM         | **High-Level Agent**. Temporal gating for HRL.                    |
 | **PointerNetwork**       | `pointer_network.py`  | RNN + Attention    | Classic pointer mechanism implementation.                         |
 | **MetaRNN**              | `meta_rnn.py`         | RNN/LSTM           | Meta-learning for distribution generalization.                    |
 | **ContextEmbedder**      | `context_embedder.py` | Embedding          | Problem-specific context embeddings (VRPP, WC).                   |

@@ -59,7 +59,7 @@ def test_cli_gen_data_smoke(tmp_path, problem):
     # Expected filename for test_simulator: {area}{size}_{dist}_{name}_N{dataset_size}_seed{seed}.pkl
     # area defaults to 'riomaior', seed defaults to 42
     # riomaior10_unif_smoke_test1_N2_seed42.pkl
-    expected_file = output_dir / "riomaior10_unif_smoke_test1_N2_seed42.pkl"
+    expected_file = output_dir / "riomaior10_unif_smoke_test1_N2_seed42.npz"
     assert expected_file.exists(), f"Generated data file not found at {expected_file}"
 
 
@@ -131,7 +131,7 @@ def test_cli_eval_smoke(tmp_path):
         capture_output=True,
     )
 
-    data_file = data_dir / "riomaior10_unif_eval_test1_N2_seed42.pkl"
+    data_file = data_dir / "riomaior10_unif_eval_test1_N2_seed42.npz"
     assert data_file.exists()
 
     # Run evaluation

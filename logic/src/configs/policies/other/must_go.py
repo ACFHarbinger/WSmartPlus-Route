@@ -24,7 +24,7 @@ class MustGoConfig:
             - "lookahead": Predictive (collect if overflow within N days)
             - "revenue": Revenue-based (collect if revenue exceeds threshold)
             - "service_level": Statistical overflow prediction
-            - "manager": Neural network-based selection (GATLSTManager)
+            - "manager": Neural network-based selection (MustGoManager)
             - "combined": Combine multiple strategies with OR logic
             - None: No must-go constraint (default behavior)
         threshold: Fill level threshold for last_minute/manager strategy (0-1).

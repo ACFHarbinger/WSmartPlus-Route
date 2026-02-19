@@ -12,7 +12,6 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.constants import MAX_WASTE
-from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.processor import process_coordinates
 from logic.src.utils.data.data_utils import generate_waste, load_focus_coords
 from logic.src.utils.functions import get_path_until_string
@@ -263,6 +262,8 @@ class VRPInstanceBuilder:
                 loc = np.concatenate((loc, locs))  # type: ignore[assignment]
             bins = None
             if self._distribution == "emp":
+                from logic.src.pipeline.simulations.bins import Bins
+
                 data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")
                 bins = Bins(
                     self._problem_size,

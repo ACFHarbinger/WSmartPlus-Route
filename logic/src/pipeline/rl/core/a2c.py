@@ -16,7 +16,7 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.models.common.constructive import ConstructivePolicy
+from logic.src.models.common.autoregressive.constructive import ConstructivePolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 
 

@@ -2,7 +2,7 @@ import pytest
 import torch
 from tensordict import TensorDict
 
-from logic.src.models.attention_model.hybrid_stage_policy import (
+from logic.src.models.core.hybrid_attention_model.hybrid_two_step_policy import (
     HybridTwoStagePolicy,
     ImprovementStepDecoder,
 )

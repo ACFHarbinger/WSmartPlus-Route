@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import torch
-from logic.src.models.attention_model import AttentionModel
+from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories import NeuralComponentFactory
 
 

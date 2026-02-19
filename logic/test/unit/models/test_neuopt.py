@@ -7,8 +7,8 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.tsp_kopt import TSPkoptEnv
-from logic.src.models.neuopt import NeuOpt
-from logic.src.models.neuopt.policy import NeuOptPolicy
+from logic.src.models.core.neuopt import NeuOpt
+from logic.src.models.core.neuopt.policy import NeuOptPolicy
 
 
 def test_neuopt_policy_forward():

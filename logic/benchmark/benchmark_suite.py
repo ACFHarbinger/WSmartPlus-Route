@@ -5,7 +5,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.problems import VRPP
-from logic.src.models.attention_model import AttentionModel
+from logic.src.models import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
 from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
 from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
