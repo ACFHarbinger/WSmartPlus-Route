@@ -1,5 +1,5 @@
 import os
-from typing import Any, cast
+from typing import Any
 
 import hydra
 from hydra.core.config_store import ConfigStore
@@ -37,15 +37,11 @@ def hydra_entry_point(cfg: Config) -> float:
         return run_training(cfg)
 
     if task == "eval":
-        from logic.src.pipeline.features.base import flatten_config_dict
-        from logic.src.pipeline.features.eval import run_evaluate_model, validate_eval_args
+        from logic.src.pipeline.features.eval import run_evaluate_model
 
         if cfg.verbose:
             _pretty_print_hydra_config(cfg, filter_keys="eval")  # type: ignore[arg-type]
-        eval_args = cast(dict[str, Any], OmegaConf.to_container(cfg.eval, resolve=True))
-        eval_args = flatten_config_dict(eval_args)
-        args = validate_eval_args(eval_args)
-        run_evaluate_model(args)
+        run_evaluate_model(cfg)
         return 0.0
 
     if task == "test_sim":
@@ -57,15 +53,11 @@ def hydra_entry_point(cfg: Config) -> float:
         return 0.0
 
     if task == "gen_data":
-        from logic.src.data.generators import generate_datasets, validate_gen_data_args
-        from logic.src.pipeline.features.base import flatten_config_dict
+        from logic.src.data.generators import generate_datasets
 
         if cfg.verbose:
             _pretty_print_hydra_config(cfg, filter_keys="data")  # type: ignore[arg-type]
-        data_args = cast(dict[str, Any], OmegaConf.to_container(cfg.data, resolve=True))
-        data_args = flatten_config_dict(data_args)
-        args = validate_gen_data_args(data_args)
-        generate_datasets(args)
+        generate_datasets(cfg)
         return 0.0
 
     raise ValueError(f"Unknown task: {task}")

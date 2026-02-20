@@ -9,11 +9,14 @@ Example:
 
 import os
 import random
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import numpy as np
 import torch
 
+from logic.src.configs import Config
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.tasks.data import DataConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.data.generators.builders import VRPInstanceBuilder
 from logic.src.pipeline.simulations.repository import FileSystemRepository, set_repository
@@ -24,17 +27,28 @@ from logic.src.utils.data.data_utils import (
 )
 
 
-def generate_datasets(opts: Dict[str, Any]) -> None:
+def generate_datasets(cfg: Config) -> None:
     """
-    Generates VRP datasets based on the provided configuration options.
+    Generates VRP datasets based on the typed Hydra configuration.
+
+    Args:
+        cfg: Root Hydra configuration with ``cfg.data`` containing data
+            generation parameters.
     """
+    from logic.src.data.generators.validators import validate_data_config
+
+    # Validate and sanitize config values
+    validate_data_config(cfg)
+
     # Initialize the filesystem repository for coordinate/depot loading
     set_repository(FileSystemRepository(ROOT_DIR))
 
+    data = cfg.data
+
     # Set the random seed and execute the program
-    random.seed(opts["seed"])
-    np.random.seed(opts["seed"])
-    torch.manual_seed(opts["seed"])
+    random.seed(data.seed)
+    np.random.seed(data.seed)
+    torch.manual_seed(data.seed)
 
     gamma_dists = ["gamma1", "gamma2", "gamma3", "gamma4"]
     distributions_per_problem = {
@@ -44,61 +58,46 @@ def generate_datasets(opts: Dict[str, Any]) -> None:
     }
 
     # Define the problem distribution(s)
-    if opts["problem"] == "all":
+    if data.problem == "all":
         problems = distributions_per_problem
     else:
         problems = {
-            opts["problem"]: (
-                distributions_per_problem[opts["problem"]]
-                if len(opts["data_distributions"]) == 1 and opts["data_distributions"][0] == "all"
-                else [data_dist for data_dist in opts["data_distributions"]]
+            data.problem: (
+                distributions_per_problem[data.problem]
+                if len(data.data_distributions) == 1 and data.data_distributions[0] == "all"
+                else list(data.data_distributions)
             )
         }
 
     for problem, distributions in problems.items():
-        _generate_problem_data(problem, distributions, opts)
+        _generate_problem_data(problem, distributions, data)
 
 
-def _generate_problem_data(problem: str, distributions: Any, opts: Dict[str, Any]) -> None:
+def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -> None:
     """Helper to generate data for a specific problem and its distributions."""
     datadir = (
-        os.path.join(ROOT_DIR, "data", opts["data_dir"], problem)
-        if opts["dataset_type"] in ["train_time", "train"]
-        else os.path.join(ROOT_DIR, "data", "wsr_simulator", opts["data_dir"])
+        os.path.join(ROOT_DIR, "data", data.data_dir, problem)
+        if data.dataset_type in ["train_time", "train"]
+        else os.path.join(ROOT_DIR, "data", "wsr_simulator", data.data_dir)
     )
     try:
         os.makedirs(datadir, exist_ok=True)
     except Exception as e:
         raise Exception("directories to save generated data files do not exist and could not be created") from e
 
-    # Select correct graph list based on dataset_type
-    dst_type = opts.get("dataset_type", "train")
-    if dst_type == "train":
-        graphs = opts.get("train_graphs", [])
-    elif dst_type == "val":
-        graphs = opts.get("val_graphs", [])
-    elif dst_type in ["test", "test_simulator"]:
-        graphs = opts.get("test_graphs", [])
-    else:
-        graphs = opts.get("graphs", [])
+    graphs = list(data.graphs) if data.graphs else []
 
     try:
         for dist in distributions or [None]:
             if graphs:
                 for graph_cfg in graphs:
-                    _process_instance_generation(problem, dist, datadir, opts, graph_cfg=graph_cfg)
+                    _process_instance_generation(problem, dist, datadir, data, graph_cfg=graph_cfg)
             else:
-                # If no graphs in dst_type-specific list, check the generic graphs list
-                generic_graphs = opts.get("graphs", [])
-                if generic_graphs:
-                    for graph_cfg in generic_graphs:
-                        _process_instance_generation(problem, dist, datadir, opts, graph_cfg=graph_cfg)
-                else:
-                    print("[WARNING] No graphs provided for instance generation. Skipping.")
+                print("[WARNING] No graphs provided for instance generation. Skipping.")
     except Exception as e:
         has_dists = len(distributions) >= 1 and distributions[0] is not None
         raise Exception(
-            "failed to generate data for problem {}{} due to {}".format(
+            "failed to generate data for problem {}{}  due to {}".format(
                 problem, f" {distributions}" if has_dists else "", repr(e)
             )
         ) from e
@@ -108,33 +107,31 @@ def _process_instance_generation(
     problem: str,
     dist: Any,
     datadir: str,
-    opts: Dict[str, Any],
-    size: Optional[int] = None,
-    graph: Any = None,
-    graph_cfg: Optional[Dict[str, Any]] = None,
+    data: DataConfig,
+    graph_cfg: Optional[GraphConfig] = None,
 ) -> None:
     """Configure builder and save datasets for a specific configuration."""
-    # Surcharge parameters from graph_cfg if provided
-    if graph_cfg:
-        size = graph_cfg.get("num_loc", size)
-        graph = graph_cfg.get("focus_graph", graph)
-        area = graph_cfg.get("area", opts.get("area", "riomaior"))
-        waste_type = graph_cfg.get("waste_type", opts.get("waste_type", "plastic"))
-        vertex_method = graph_cfg.get("vertex_method", opts.get("vertex_method", "mmn"))
-        focus_size = graph_cfg.get("focus_size", opts.get("focus_size", 31))
-        n_days = graph_cfg.get("n_days", opts.get("n_epochs", 1) - opts.get("epoch_start", 0))
-        n_samples = graph_cfg.get("n_samples", opts.get("dataset_size", 128_000))
+    if graph_cfg is not None:
+        size = graph_cfg.num_loc
+        graph = graph_cfg.focus_graph
+        area = graph_cfg.area
+        waste_type = graph_cfg.waste_type
+        vertex_method = graph_cfg.vertex_method
+        focus_size = graph_cfg.focus_size if graph_cfg.focus_size is not None else 31
+        n_days = graph_cfg.n_days if graph_cfg.n_days is not None else max(data.n_epochs - data.epoch_start, 1)
+        n_samples = graph_cfg.n_samples if graph_cfg.n_samples is not None else data.dataset_size
     else:
-        area = opts.get("area", "riomaior")
-        waste_type = opts.get("waste_type", "plastic")
-        vertex_method = opts.get("vertex_method", "mmn")
-        focus_size = opts.get("focus_size", 31)
-        n_days = opts.get("n_epochs", 1) - opts.get("epoch_start", 0)
-        n_samples = opts.get("dataset_size", 128_000)
+        size = 50
+        graph = None
+        area = "riomaior"
+        waste_type = "plastic"
+        vertex_method = "mmn"
+        focus_size = 31
+        n_days = max(data.n_epochs - data.epoch_start, 1)
+        n_samples = data.dataset_size
 
-    # dataset_type == "train" implies 0 days in legacy logic for some reason,
-    # but let's stick to explicit n_days if possible.
-    if opts["dataset_type"] == "train":
+    # dataset_type == "train" implies 0 days in legacy logic
+    if data.dataset_type == "train":
         n_days = 0
 
     if graph is not None and not os.path.isfile(graph):
@@ -147,16 +144,13 @@ def _process_instance_generation(
     assert size is not None, "size must be provided"
     assert waste_type is not None, "waste_type must be provided"
     assert area is not None, "area must be provided"
-    assert focus_size is not None, "focus_size must be provided"
-    assert vertex_method is not None, "vertex_method must be provided"
-    assert n_days is not None, "n_days must be provided"
-    assert n_samples is not None, "n_samples must be provided"
 
+    name = data.name or "dataset"
     print(
         "Generating '{}{}' ({}) dataset for the {} with {} locations{}{}".format(
-            opts["name"],
+            name,
             n_days if n_days > 0 else "",
-            opts["dataset_type"],
+            data.dataset_type or "train",
             problem.upper(),
             size,
             " and using '{}' as the instance distribution".format(dist),
@@ -165,41 +159,33 @@ def _process_instance_generation(
     )
 
     builder = VRPInstanceBuilder()
-    # For test_simulator datasets, focus_size must match n_samples so depot/locs
-    # dimensions are consistent with waste arrays (both indexed by sample).
-    effective_focus_size = n_samples if opts["dataset_type"] == "test_simulator" else focus_size
+    effective_focus_size = n_samples if data.dataset_type == "test_simulator" else focus_size
     builder.set_dataset_size(n_samples).set_problem_size(size).set_waste_type(waste_type).set_distribution(
         dist or "empty"
     ).set_area(area).set_focus_graph(graph, effective_focus_size).set_method(vertex_method).set_problem_name(problem)
 
-    _apply_noise_config(builder, problem, opts)
+    _apply_noise_config(builder, problem, data)
 
-    # Re-inject surcharged values into opts for filename generation
-    temp_opts = opts.copy()
-    temp_opts["area"] = area
-    temp_opts["waste_type"] = waste_type
-    temp_opts["dataset_size"] = n_samples
-
-    if opts["dataset_type"] == "test_simulator":
-        _generate_test_simulator_data(builder, n_days, datadir, dist, size, temp_opts)
-    elif opts["dataset_type"] == "train_time":
-        _generate_train_time_data(builder, problem, n_days, datadir, dist, size, temp_opts)
+    if data.dataset_type == "test_simulator":
+        _generate_test_simulator_data(builder, n_days, datadir, dist, size, data, area, waste_type, n_samples)
+    elif data.dataset_type == "train_time":
+        _generate_train_time_data(builder, problem, n_days, datadir, dist, size, data)
     else:
-        _generate_train_data(builder, problem, datadir, dist, size, temp_opts)
+        _generate_train_data(builder, problem, datadir, dist, size, data)
 
 
-def _apply_noise_config(builder: VRPInstanceBuilder, problem: str, opts: Dict[str, Any]) -> None:
+def _apply_noise_config(builder: VRPInstanceBuilder, problem: str, data: DataConfig) -> None:
     """Apply noise parameters to the builder."""
-    if opts.get("mu") is not None:
-        sigma = opts.get("sigma", 1.0)
+    if data.mu is not None:
+        sigma = data.sigma
         if isinstance(sigma, list):
             sigma = sigma[0]
-        builder.set_noise(opts["mu"], (sigma**2 if sigma > 0 else 0.0))
+        builder.set_noise(data.mu[0] if isinstance(data.mu, list) else data.mu, (sigma**2 if sigma > 0 else 0.0))
     elif problem == "swcvrp":
-        sigma = opts.get("sigma", 1.0)
+        sigma = data.sigma
         if isinstance(sigma, list):
             sigma = sigma[0]
-        mu = opts.get("mu", 0.0)
+        mu = data.mu[0] if isinstance(data.mu, list) and data.mu else 0.0
         builder.set_noise(
             mu if mu is not None else 0.0,
             (sigma**2 if sigma > 0 else 1.0),
@@ -207,48 +193,60 @@ def _apply_noise_config(builder: VRPInstanceBuilder, problem: str, opts: Dict[st
 
 
 def _generate_test_simulator_data(
-    builder: VRPInstanceBuilder, n_days: int, datadir: str, dist: Any, size: int, opts: Dict[str, Any]
+    builder: VRPInstanceBuilder,
+    n_days: int,
+    datadir: str,
+    dist: Any,
+    size: int,
+    data: DataConfig,
+    area: str,
+    waste_type: str,
+    n_samples: int,
 ) -> None:
     """Generate and save test simulator data."""
+    name = data.name or "dataset"
     builder.set_num_days(n_days)
-    if "filename" not in opts or opts["filename"] is None:
+    if data.filename is None:
         filename = os.path.join(
             datadir,
             "{}{}{}_{}{}_N{}_seed{}.npz".format(
-                opts["area"],
+                area,
                 size,
                 "_{}".format(dist) if dist is not None else "",
-                opts["name"],
+                name,
                 n_days if n_days > 0 else "",
-                opts["dataset_size"],
-                opts["seed"],
+                n_samples,
+                data.seed,
             ),
         )
     else:
-        filename = check_extension(opts["filename"], ".npz")
+        filename = check_extension(data.filename, ".npz")
 
-    _verify_and_save(builder, filename, opts, is_td=False)
+    _verify_and_save(builder, filename, data, is_td=False)
 
 
 def _generate_train_time_data(
-    builder: VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: Any, size: int, opts: Dict[str, Any]
+    builder: VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: Any, size: int, data: DataConfig
 ) -> None:
     """Generate and save train time data."""
-    builder.set_num_days(opts["n_epochs"])
-    if "filename" not in opts or opts["filename"] is None:
+    name = data.name or "dataset"
+    builder.set_num_days(data.n_epochs)
+    if data.filename is None:
         ext = ".td"
-        if opts.get("mu") is not None:
+        if data.mu is not None:
+            mu_val = data.mu[0] if isinstance(data.mu, list) else data.mu
+            sigma_val = data.sigma[0] if isinstance(data.sigma, list) else data.sigma
             filename = os.path.join(
                 datadir,
                 "{}{}{}_{}{}_seed{}_{}_{}{}".format(
                     problem,
                     size,
                     "_{}".format(dist) if dist is not None else "",
-                    opts["name"],
+                    name,
                     n_days if n_days > 0 else "",
-                    opts["seed"],
-                    f"gaussian{opts['mu']}",
-                    f"_{opts['sigma']}",
+                    data.seed,
+                    f"gaussian{mu_val}",
+                    f"_{sigma_val}",
                     ext,
                 ),
             )
@@ -259,39 +257,42 @@ def _generate_train_time_data(
                     problem,
                     size,
                     "_{}".format(dist) if dist is not None else "",
-                    opts["name"],
+                    name,
                     n_days if n_days > 0 else "",
-                    opts["seed"],
+                    data.seed,
                     ext,
                 ),
             )
     else:
-        filename = check_extension(opts["filename"], ".td")
+        filename = check_extension(data.filename, ".td")
 
-    _verify_and_save(builder, filename, opts, is_td=True)
+    _verify_and_save(builder, filename, data, is_td=True)
 
 
 def _generate_train_data(
-    builder: VRPInstanceBuilder, problem: str, datadir: str, dist: Any, size: int, opts: Dict[str, Any]
+    builder: VRPInstanceBuilder, problem: str, datadir: str, dist: Any, size: int, data: DataConfig
 ) -> None:
     """Generate and save standard training data."""
+    name = data.name or "dataset"
     builder.set_num_days(1)
-    for epoch in range(opts["epoch_start"], opts["n_epochs"]):
+    for epoch in range(data.epoch_start, data.n_epochs):
         print("- Generating epoch {} data".format(epoch))
-        if "filename" not in opts or opts["filename"] is None:
+        if data.filename is None:
             ext = ".td"
-            if opts.get("mu") is not None:
+            if data.mu is not None:
+                mu_val = data.mu[0] if isinstance(data.mu, list) else data.mu
+                sigma_val = data.sigma[0] if isinstance(data.sigma, list) else data.sigma
                 filename = os.path.join(
                     datadir,
                     "{}{}{}_{}{}_seed{}_{}_{}{}".format(
                         problem,
                         size,
                         ("_{}".format(dist) if dist is not None else ""),
-                        opts["name"],
-                        epoch if opts["n_epochs"] > 1 else "",
-                        opts["seed"],
-                        f"gaussian{opts['mu']}",
-                        f"_{opts['sigma']}",
+                        name,
+                        epoch if data.n_epochs > 1 else "",
+                        data.seed,
+                        f"gaussian{mu_val}",
+                        f"_{sigma_val}",
                         ext,
                     ),
                 )
@@ -302,22 +303,22 @@ def _generate_train_data(
                         problem,
                         size,
                         ("_{}".format(dist) if dist is not None else ""),
-                        opts["name"],
-                        epoch if opts["n_epochs"] > 1 else "",
-                        opts["seed"],
+                        name,
+                        epoch if data.n_epochs > 1 else "",
+                        data.seed,
                         ext,
                     ),
                 )
         else:
-            filename = check_extension(opts["filename"], ".td")
+            filename = check_extension(data.filename, ".td")
 
-        _verify_and_save(builder, filename, opts, is_td=True)
+        _verify_and_save(builder, filename, data, is_td=True)
 
 
-def _verify_and_save(builder: VRPInstanceBuilder, filename: str, opts: Dict[str, Any], is_td: bool = False) -> None:
+def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfig, is_td: bool = False) -> None:
     """Verify file existence and save the dataset."""
     ext = ".td" if is_td else ".npz"
-    assert opts.get("f", opts.get("overwrite", False)) or not os.path.isfile(check_extension(filename, ext)), (
+    assert data.overwrite or not os.path.isfile(check_extension(filename, ext)), (
         "File already exists! Try running with -f option to overwrite."
     )
 

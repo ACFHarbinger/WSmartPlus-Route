@@ -3,31 +3,50 @@ Validation logic for evaluation pipeline.
 """
 
 import re
-from typing import Any, Dict
 
+from logic.src.configs import Config
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 
 
-def validate_eval_args(args: Dict[str, Any]) -> Dict[str, Any]:
+def validate_eval_config(cfg: Config) -> None:
     """
-    Validates and post-processes arguments for eval.
+    Validates and sanitizes evaluation configuration values in-place.
+
+    Performs the same checks previously done by ``validate_eval_args``
+    on the flattened opts dict, now applied directly to the typed Config.
+
+    Args:
+        cfg: Root Hydra configuration with ``cfg.eval`` containing evaluation
+            parameters.
+
+    Raises:
+        AssertionError: If any validation constraint is violated.
     """
-    args = args.copy()
-    # Handle the -o alias for output_filename
-    if "output_filename" in args and args["output_filename"] is not None:
-        args["o"] = args["output_filename"]
+    ev = cfg.eval
+    graph = ev.graph
 
-    assert (
-        "o" not in args
-        or args["o"] is None
-        or (len(args.get("datasets") or []) == 1 and len(args.get("beam_width") or []) <= 1)
-    ), "Cannot specify result filename with more than one dataset or more than one beam_width"
+    # --- Output filename constraint ---
+    if ev.output_filename is not None:
+        datasets = ev.datasets or []
+        beam_widths = ev.decoding.beam_width if ev.decoding else None
+        bw_count = len(beam_widths) if isinstance(beam_widths, (list, tuple)) else (1 if beam_widths else 0)
+        assert len(datasets) == 1 and bw_count <= 1, (
+            "Cannot specify result filename with more than one dataset or more than one beam_width"
+        )
 
-    args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
-    assert args["area"] in MAP_DEPOTS, "Unknown area {}, available areas: {}".format(args["area"], MAP_DEPOTS.keys())
+    # --- Sanitize area ---
+    area = re.sub(r"[^a-zA-Z]", "", (graph.area or "").lower())
+    assert area in MAP_DEPOTS, f"Unknown area {area}, available areas: {list(MAP_DEPOTS.keys())}"
+    graph.area = area
 
-    args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
-    assert args["waste_type"] in WASTE_TYPES or args["waste_type"] is None, (
-        "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+    # --- Sanitize waste_type ---
+    waste = re.sub(r"[^a-zA-Z]", "", (graph.waste_type or "").lower())
+    assert waste in WASTE_TYPES or waste == "", (
+        f"Unknown waste type {waste}, available waste types: {list(WASTE_TYPES.keys())}"
     )
-    return args
+    if waste:
+        graph.waste_type = waste
+
+
+# Keep backward-compatible alias
+validate_eval_args = validate_eval_config
