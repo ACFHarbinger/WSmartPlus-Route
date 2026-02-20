@@ -8,6 +8,7 @@ import os
 import re
 import sys
 from datetime import datetime
+from typing import Optional
 
 import hydra
 
@@ -80,12 +81,21 @@ class LoggerWriter:
         return getattr(self.terminal, name)
 
 
-def setup_logger_redirection(log_file=None, silent=False):
+def setup_logger_redirection(
+    log_file: Optional[str] = None,
+    silent: bool = False,
+    redirect_stdout: bool = True,
+    redirect_stderr: bool = True,
+    echo_to_terminal: bool = False,
+) -> str:
     """Redirects stdout and stderr to a timestamped log file.
 
     Args:
         log_file: Optional path to an existing log file to reuse.
         silent: If True, do not print the redirection announcement.
+        redirect_stdout: If True, redirect sys.stdout.
+        redirect_stderr: If True, redirect sys.stderr.
+        echo_to_terminal: If True, keep echoing to the original terminal.
     """
     if log_file is None:
         try:
@@ -98,11 +108,11 @@ def setup_logger_redirection(log_file=None, silent=False):
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         log_file = os.path.join(log_dir, f"{timestamp}.log")
 
-    # Tee stdout and stderr
-    # stdout/stderr goes to log, but NOT terminal (echo_to_terminal=False)
-    # The dashboard in SimulationDisplayCallback will use .terminal to bypass this.
-    sys.stdout = LoggerWriter(sys.stdout, log_file, echo_to_terminal=False)
-    sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=False)
+    # Tee stdout and stderr based on flags
+    if redirect_stdout:
+        sys.stdout = LoggerWriter(sys.stdout, log_file, echo_to_terminal=echo_to_terminal)
+    if redirect_stderr:
+        sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=echo_to_terminal)
 
     # Reconfigure Loguru to use the redirected sys.stderr
     try:

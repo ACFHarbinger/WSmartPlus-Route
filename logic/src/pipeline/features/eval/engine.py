@@ -15,7 +15,6 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 from logic.src.configs import Config
-from logic.src.configs.tasks.eval import EvalConfig
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.data_utils import save_dataset
@@ -224,7 +223,7 @@ def eval_dataset(
         use_cuda = False
 
     # Resolve strategy
-    resolved_strategy = strategy or method or (ev.decoding.strategy if ev.decoding else "greedy")
+    # resolved_strategy = strategy or method or (ev.decoding.strategy if ev.decoding else "greedy")
 
     if ev.multiprocessing:
         results = _eval_multiprocessing(dataset_path, beam_width, softmax_temp, cfg)

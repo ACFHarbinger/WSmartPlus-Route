@@ -61,13 +61,8 @@ def validate_data_config(cfg: Config) -> None:
     for graph in graphs:
         graph.area = _sanitize_area(graph.area)
         graph.waste_type = _sanitize_waste(graph.waste_type)
-
-        if graph.num_loc is None:
-            graph.num_loc = 50
-        if graph.vertex_method is None:
-            graph.vertex_method = "mmn"
-        if graph.focus_size is None:
-            graph.focus_size = 31
+        if graph.vertex_method is not None and data.dataset_type == "test_simulator":
+            graph.vertex_method = None
 
     data.graphs = graphs
 
