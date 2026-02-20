@@ -190,12 +190,12 @@ class A2C(RL4COLitModule):
         """
         Execute a single training step with both optimizers.
         """
-        opts = self.optimizers()
-        if isinstance(opts, list):
-            actor_opt, critic_opt = opts
+        optimizers = self.optimizers()
+        if isinstance(optimizers, list):
+            actor_opt, critic_opt = optimizers
         else:
             # Fallback if only one optimizer is returned
-            actor_opt = opts
+            actor_opt = optimizers
             critic_opt = None
 
         # Execute step

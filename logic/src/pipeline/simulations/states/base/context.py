@@ -35,7 +35,7 @@ class SimulationContext:
 
     Stores the simulation configuration and runtime state. All simulation
     states access configuration via ``self.cfg.sim.*`` (typed) instead of
-    the legacy ``self.opts[...]`` dict pattern.
+    the legacy ``self.args[...]`` dict pattern.
     """
 
     lock: Optional[threading.Lock]

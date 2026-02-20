@@ -6,7 +6,7 @@ Handles temporal aspects of the WCVRP environment:
 - Simulation of waste accumulation.
 """
 
-from typing import Dict, List
+from typing import List
 
 import torch
 from tensordict import TensorDict
@@ -15,9 +15,13 @@ from tensordict import TensorDict
 class TimeBasedMixin:
     """Mixin for time-based/temporal training support."""
 
-    def setup_time_training(self, opts: Dict):
-        """Initialize time-based training state."""
-        self.temporal_horizon = opts.get("temporal_horizon", 0)
+    def setup_time_training(self, temporal_horizon: int = 0):
+        """Initialize time-based training state.
+
+        Args:
+            temporal_horizon: Number of temporal steps to track. Defaults to 0.
+        """
+        self.temporal_horizon = temporal_horizon
         self.current_day = 0
         self.fill_history: List[List[torch.Tensor]] = []
         # Store a REFERENCE to the dataset we are modifying
