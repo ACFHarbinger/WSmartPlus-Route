@@ -73,13 +73,27 @@ def parse_log_file(file_path: Path) -> List[DayLogEntry]:
         List of parsed DayLogEntry objects.
     """
     entries: List[DayLogEntry] = []
+    coords_cache = {}
 
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             for line in f:
                 entry = parse_day_log_line(line)
                 if entry is not None:
+                    key = (entry.policy, entry.sample_id)
+                    if "all_bin_coords" in entry.data:
+                        coords_cache[key] = entry.data["all_bin_coords"]
+                    elif key in coords_cache:
+                        entry.data["all_bin_coords"] = coords_cache[key]
+
                     entries.append(entry)
+
+            # Second pass to backfill entries that were parsed before Day 1
+            for entry in entries:
+                key = (entry.policy, entry.sample_id)
+                if "all_bin_coords" not in entry.data and key in coords_cache:
+                    entry.data["all_bin_coords"] = coords_cache[key]
+
     except (IOError, OSError):
         # Return empty list if file can't be read
         pass
@@ -100,13 +114,26 @@ def stream_log_file(file_path: Path, start_line: int = 0) -> Iterator[DayLogEntr
     Yields:
         DayLogEntry objects as they are parsed.
     """
+    coords_cache = {}
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             for i, line in enumerate(f):
                 if i < start_line:
+                    # Keep coords cache warm even if skipping lines
+                    if "all_bin_coords" in line:
+                        entry = parse_day_log_line(line)
+                        if entry is not None and "all_bin_coords" in entry.data:
+                            coords_cache[(entry.policy, entry.sample_id)] = entry.data["all_bin_coords"]
                     continue
+
                 entry = parse_day_log_line(line)
                 if entry is not None:
+                    key = (entry.policy, entry.sample_id)
+                    if "all_bin_coords" in entry.data:
+                        coords_cache[key] = entry.data["all_bin_coords"]
+                    elif key in coords_cache:
+                        entry.data["all_bin_coords"] = coords_cache[key]
+
                     yield entry
     except (IOError, OSError):
         return
