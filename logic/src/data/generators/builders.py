@@ -12,6 +12,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.constants import MAX_WASTE
+from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.pipeline.simulations.processor import process_coordinates
 from logic.src.utils.data.data_utils import generate_waste, load_focus_coords
 from logic.src.utils.functions import get_path_until_string
@@ -144,9 +145,13 @@ class VRPInstanceBuilder:
         # Shape: (dataset_size, num_days, problem_size)
         fill_arr = np.transpose(np.array(fill_values), (1, 0, 2))
 
+        # generate_waste returns values in [0, 1] normalized scale;
+        # simulation datasets store in [0, 100] percentage scale to match Bins.
+        fill_arr = fill_arr * MAX_CAPACITY_PERCENT
+
         if self._problem_name == "swcvrp":
             noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_arr.shape)
-            noisy_fill_arr = np.clip(fill_arr + noise, 0, MAX_WASTE)
+            noisy_fill_arr = np.clip(fill_arr + noise, 0, MAX_CAPACITY_PERCENT)
         else:
             noisy_fill_arr = fill_arr
 
@@ -155,7 +160,7 @@ class VRPInstanceBuilder:
             "locs": loc,
             "waste": fill_arr,
             "noisy_waste": noisy_fill_arr,
-            "max_waste": np.full(self._dataset_size, MAX_WASTE),
+            "max_waste": np.full(self._dataset_size, MAX_CAPACITY_PERCENT),
         }
 
     def build_td(self) -> TensorDict:

@@ -56,6 +56,7 @@ def hydra_entry_point(cfg: Config) -> float:
             _pretty_print_hydra_config(cfg, filter_keys="sim")  # type: ignore[arg-type]
         sim_args = cast(dict[str, Any], OmegaConf.to_container(cfg.sim, resolve=True))
         sim_args = flatten_config_dict(sim_args)
+        sim_args["load_dataset"] = cfg.load_dataset
         args = validate_test_sim_args(sim_args)
         run_wsr_simulator_test(args)
         return 0.0

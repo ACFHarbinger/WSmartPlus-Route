@@ -113,20 +113,23 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
 
 # Generate data with Hydra configs
 
-# Usage: just gen-data problem=wcvrp size=50 samples=10000 distribution=gamma
-gen-data problem=problem size=size distribution=distribution data_type="virtual":
+# Usage: just gen-data wcvrp 100 emp test_simulator 10 31
+gen-data problem=problem size=size distribution=distribution data_type="train" n_samples="128000" n_days="1":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset Type:" "{{ data_type }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ n_samples }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "{{ n_days }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py gen_data \
         data.dataset_type={{ data_type }} \
         data.problem={{ problem }} \
-        data.num_locs=[{{ size }}] \
-        data.data_distributions=[{{ distribution }}]
+        data.data_distributions=[{{ distribution }}] \
+        'data.graphs=[{num_loc: {{ size }}, n_samples: {{ n_samples }}, area: {{ area }}, waste_type: plastic, n_days: {{ n_days }}, focus_graph: graphs_{{ size }}V_1N_plastic.json}]'
 
 # Launch the GUI
 gui:
