@@ -28,21 +28,13 @@ def send_daily_output_to_gui(
     must_go: Optional[Sequence[int]] = None,
 ) -> None:
     """Write daily simulation output to a log file for GUI consumption."""
+    import gzip
+
     full_payload = {k: v for k, v in daily_log.items() if k in udef.DAY_METRICS[:-1]}
-    route_coords = []
-    coords_lookup = None
-    if isinstance(coordinates, pd.DataFrame):
-        coords_lookup = coordinates.copy()
-        coords_lookup.columns = [str(c).upper().strip() for c in coords_lookup.columns]
 
-    # Tour contains node indices (0=depot, 1..N=bins)
-    for idx in tour:
-        point_data = _process_tour_point(idx, coords_lookup)
-        route_coords.append(point_data)
-
-    full_payload.update({udef.DAY_METRICS[-1]: route_coords})
     full_payload.update(
         {
+            "tour": list(tour),
             "bin_state_c": list(bins_c),
             "bin_state_collected": list(collected),
             "bins_state_real_c_after": list(bins_real_c_after),
@@ -66,7 +58,7 @@ def send_daily_output_to_gui(
     if not acquired:
         return
     try:
-        with open(log_path, "a") as f:
+        with gzip.open(log_path, "at", encoding="utf-8") as f:
             f.write(log_msg + "\n")
             f.flush()
     except Exception as e:
@@ -101,12 +93,14 @@ def send_final_output_to_gui(
     summary_data = deep_sanitize(summary_data)
     summary_data = OmegaConf.to_container(OmegaConf.create(summary_data), resolve=True)
 
+    import gzip
+
     summary_message = f"GUI_SUMMARY_LOG_START: {json.dumps(summary_data)}"
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return
     try:
-        with open(log_path, "a") as f:
+        with gzip.open(log_path, "at", encoding="utf-8") as f:
             f.write(summary_message + "\n")
             f.flush()
     except Exception as e:

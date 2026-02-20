@@ -25,6 +25,7 @@ ROOT_KEYS = [
     "run_name",
     "verbose",
     "start",
+    "profile",
 ]
 
 

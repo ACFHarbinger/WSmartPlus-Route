@@ -75,6 +75,7 @@ class SimulationDataManager:
                 "day",
                 "timestamp",
                 "routes",
+                "tour",
                 "total_fill",
                 "tour_indices",
                 "must_go",
@@ -91,9 +92,9 @@ class SimulationDataManager:
             self.metrics.add(k)
 
         # Store rich data per day for bars and maps
-        if "routes" in record or "total_fill" in record:
+        if "tour" in record or "total_fill" in record:
             self.day_data[target_key][day] = {
-                "routes": record.get("routes"),
+                "tour": record.get("tour"),
                 "total_fill": record.get("total_fill"),
                 "metrics": {k: v for k, v in record.items() if k in self.metrics},
             }

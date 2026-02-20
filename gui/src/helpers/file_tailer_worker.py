@@ -52,7 +52,14 @@ class FileTailerWorker(QObject):
                     continue
 
                 with open(self.file_path, "r") as f:
-                    # Move to the last read position
+                    pass
+
+                # Move to the last read position
+                import gzip
+
+                open_func = gzip.open if self.file_path.endswith(".gz") else open
+
+                with open_func(self.file_path, "rt", encoding="utf-8") as f:
                     f.seek(current_pos)
 
                     new_line = f.readline()
