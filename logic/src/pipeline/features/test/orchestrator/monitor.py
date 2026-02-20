@@ -3,21 +3,25 @@ import sys
 import time
 import traceback
 from collections import defaultdict
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 import logic.src.constants as udef
 from logic.src.constants import METRICS, SIM_METRICS
 from logic.src.pipeline.callbacks import SimulationDisplayCallback
 
 
-def initialize_simulation_display(opts):
+def initialize_simulation_display(
+    policies: List[str], n_samples: int, total_days: int
+) -> Optional[SimulationDisplayCallback]:
     """
-    Initialize the simulation dashboard display if enabled.
-    """
-    if opts.get("no_progress_bar"):
-        return None
+    Initialize the simulation dashboard display.
 
-    display = SimulationDisplayCallback(policies=opts["policies"], n_samples=opts["n_samples"], total_days=opts["days"])
+    Args:
+        policies: List of expanded policy names.
+        n_samples: Number of samples per policy.
+        total_days: Total simulation days.
+    """
+    display = SimulationDisplayCallback(policies=policies, n_samples=n_samples, total_days=total_days)
     display.start()
     return display
 
@@ -27,15 +31,15 @@ def process_display_updates(
     shared_metrics: dict,
     log_tmp: dict,
     last_reported_days: dict,
-    opts: dict,
+    policies: List[str],
     loop_tic: float,
     counter: Any,
-):
+) -> None:
     """
     Process real-time simulation metrics and update the dashboard display.
     """
-    policy_updates = {}
-    new_daily_data = []  # For chart updates
+    policy_updates: Dict[str, Any] = {}
+    new_daily_data: List[Dict[str, Any]] = []
 
     policy_days_done: Dict[str, int] = defaultdict(int)
     policy_sample_metrics: Dict[str, Dict[str, list]] = defaultdict(lambda: {k: [] for k in SIM_METRICS})  # type: ignore[assignment]
@@ -71,11 +75,11 @@ def process_display_updates(
 
     # 3. Calculate averages and update display
     elapsed_total = time.time() - loop_tic
-    for pol in opts["policies"]:
+    for pol in policies:
         n_finished = len(log_tmp[pol])
         divisor = max(1, policy_sample_counts[pol])
 
-        avg_metrics = {}
+        avg_metrics: Dict[str, Any] = {}
         for k in SIM_METRICS:
             vals = policy_sample_metrics[pol][k]
             if not vals:
@@ -100,28 +104,35 @@ def process_display_updates(
     display.update(counter.value, policy_updates, new_daily_data)
 
 
-def monitor_tasks_until_complete(tasks, display, opts, counter, log_tmp):
+def monitor_tasks_until_complete(
+    tasks: list,
+    display: Optional[SimulationDisplayCallback],
+    policies: List[str],
+    shared_metrics: Any,
+    counter: Any,
+    log_tmp: Any,
+) -> None:
     """
     Monitor task progress and update display until all tasks complete.
     """
-    last_reported_days = {}  # type: ignore[var-annotated]
+    last_reported_days: Dict[Any, int] = {}
     loop_tic = time.time()
 
     while not all(task.ready() for task in tasks):
         if display:
             process_display_updates(
                 display=display,
-                shared_metrics=opts["shared_metrics"],
+                shared_metrics=shared_metrics,
                 log_tmp=log_tmp,
                 last_reported_days=last_reported_days,
-                opts=opts,
+                policies=policies,
                 loop_tic=loop_tic,
                 counter=counter,
             )
         time.sleep(udef.PBAR_WAIT_TIME)
 
 
-def collect_all_task_results(tasks):
+def collect_all_task_results(tasks: list) -> None:
     """
     Collect results from all tasks, logging any exceptions.
     """

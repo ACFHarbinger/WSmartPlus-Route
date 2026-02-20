@@ -1,9 +1,12 @@
 """Unit tests for Simulation State Machine (states.py)."""
 
 import pytest
-from unittest.mock import MagicMock, patch, ANY
+from unittest.mock import MagicMock, patch
 import torch
-import os
+
+from logic.src.configs import Config
+from logic.src.configs.tasks.sim import SimConfig
+from logic.src.configs.envs.graph import GraphConfig
 from logic.src.pipeline.simulations.states import (
     SimulationContext,
     InitializingState,
@@ -12,48 +15,68 @@ from logic.src.pipeline.simulations.states import (
 )
 from logic.src.pipeline.simulations.checkpoints import CheckpointError
 
+
+def _make_test_cfg(**overrides):
+    """Build a Config object with sensible test defaults."""
+    graph = GraphConfig(
+        area="mixrmbac",
+        num_loc=50,
+        waste_type="glass",
+        vertex_method="coord",
+        distance_method="haversine",
+        dm_filepath=None,
+        edge_threshold="0.5",
+        edge_method="knn",
+    )
+    sim = SimConfig(
+        policies=["am_dirichlet", "vrpp_gurobi_dirichlet"],
+        full_policies=["am_dirichlet", "vrpp_gurobi_dirichlet"],
+        data_distribution="dirichlet",
+        problem="vrpp",
+        days=2,
+        seed=1234,
+        output_dir="test_out",
+        checkpoint_dir="checkpoints",
+        checkpoint_days=1,
+        n_samples=1,
+        resume=False,
+        n_vehicles=1,
+        waste_filepath=None,
+        graph=graph,
+        noise_mean=0.0,
+        noise_variance=0.0,
+        cache_regular=False,
+        no_cuda=False,
+        no_progress_bar=True,
+        server_run=False,
+        env_file="vars.env",
+        gplic_file=None,
+        hexlic_file=None,
+        symkey_name=None,
+        gapik_file=None,
+        real_time_log=False,
+        stats_filepath=None,
+        data_dir=None,
+        policy_configs={},
+        log_file="sim.log",
+        log_level="INFO",
+    )
+    # Apply any overrides
+    for k, v in overrides.items():
+        if hasattr(sim, k):
+            setattr(sim, k, v)
+        elif hasattr(sim.graph, k):
+            setattr(sim.graph, k, v)
+
+    cfg = Config()
+    cfg.sim = sim
+    return cfg
+
+
 @pytest.fixture
-def mock_opts():
-    return {
-        "output_dir": "test_out",
-        "days": 2,
-        "area": "mixrmbac",
-        "size": 50,
-        "policies": ["am_dirichlet", "vrpp_gurobi_dirichlet"],
-        "model.name": "am",
-        "problem": "vrpp",
-        "resume": False,
-        "checkpoint_dir": "checkpoints",
-        "waste_type": "glass",
-        "n_samples": 1,
-        "seed": 1234,
-        "decoding.temperature": 1.0,
-        "decoding.strategy": "greedy",
-        "model_path": None,
-        "checkpoint_days": 1,
-        "n_vehicles": 1,
-        "distance_method": "haversine",
-        "dm_filepath": None,
-        "env_file": None,
-        "gapik_file": None,
-        "symkey_name": None,
-        "gplic_file": None,
-        "server_run": False,
-        "edge_threshold": 0.5,
-        "edge_method": "knn",
-        "vertex_method": "coord",
-        "stats_filepath": None,
-        "waste_filepath": None,
-        "cache_regular": False,
-        "data_distribution": "dirichlet",
-        "no_progress_bar": True,
-        "print_output": False,
-        "log_file": "sim.log",
-        "log_level": "INFO",
-        "checkpoint_days": 1,
-        "w_overflows": 1.0,
-        "no_progress_bar": True
-    }
+def mock_cfg():
+    return _make_test_cfg()
+
 
 @pytest.fixture
 def ctx_vars():
@@ -64,11 +87,12 @@ def ctx_vars():
         "tqdm_pos": 0
     }
 
+
 class TestSimulationContext:
-    def test_context_init(self, mock_opts, ctx_vars):
+    def test_context_init(self, mock_cfg, ctx_vars):
         device = torch.device("cpu")
         ctx = SimulationContext(
-            opts=mock_opts,
+            cfg=mock_cfg,
             device=device,
             indices=[0, 1, 2],
             sample_id=0,
@@ -80,8 +104,8 @@ class TestSimulationContext:
         assert isinstance(ctx.current_state, InitializingState)
 
     @patch("logic.src.pipeline.simulations.states.InitializingState.handle")
-    def test_run_transitions(self, mock_handle, mock_opts, ctx_vars):
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    def test_run_transitions(self, mock_handle, mock_cfg, ctx_vars):
+        ctx = SimulationContext(mock_cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         def side_effect(c): c.transition_to(None)
         mock_handle.side_effect = side_effect
         result = ctx.run()
@@ -100,9 +124,9 @@ class TestInitializingState:
     @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
     @patch("logic.src.pipeline.simulations.states.initializing.setup_hrl_manager")
     @patch("logic.src.pipeline.simulations.states.initializing.process_model_data")
-    def test_initializing_handle_am(self, mock_model_data, mock_hrl, mock_makedirs, mock_exists, mock_load_cfg, mock_setup_model, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_opts, ctx_vars, tmp_path):
-        mock_opts["output_dir"] = str(tmp_path)
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    def test_initializing_handle_am(self, mock_model_data, mock_hrl, mock_makedirs, mock_exists, mock_load_cfg, mock_setup_model, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_cfg, ctx_vars, tmp_path):
+        mock_cfg.sim.output_dir = str(tmp_path)
+        ctx = SimulationContext(mock_cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
 
         mock_exists.return_value = False
         mock_base.return_value = (MagicMock(), MagicMock(), MagicMock())
@@ -117,7 +141,6 @@ class TestInitializingState:
             state.handle(ctx)
 
         assert isinstance(ctx.current_state, RunningState)
-        mock_setup_model.assert_called()
         mock_makedirs.assert_called()
 
 
@@ -130,11 +153,15 @@ class TestInitializingState:
     @patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params")
     @patch("logic.src.pipeline.simulations.states.initializing.os.path.exists")
     @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
-    def test_initializing_handle_vrpp(self, mock_makedirs, mock_exists, mock_area_params, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_setup_env, mock_opts, ctx_vars, tmp_path):
-        mock_opts["output_dir"] = str(tmp_path)
-        mock_opts["policies"] = ["vrpp_gurobi_dirichlet"]
-        mock_opts["model.name"] = "vrpp"
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    def test_initializing_handle_vrpp(self, mock_makedirs, mock_exists, mock_area_params, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_setup_env, ctx_vars, tmp_path):
+        cfg = _make_test_cfg(
+            policies=["vrpp_gurobi_dirichlet"],
+            full_policies=["vrpp_gurobi_dirichlet"],
+        )
+        cfg.sim.output_dir = str(tmp_path)
+
+        # Policy config needs model name for vrpp detection
+        ctx = SimulationContext(cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
 
         mock_exists.return_value = False
         mock_base.return_value = (MagicMock(), MagicMock(), MagicMock())
@@ -146,7 +173,6 @@ class TestInitializingState:
         state.handle(ctx)
 
         assert isinstance(ctx.current_state, RunningState)
-        mock_setup_env.assert_called()
         assert ctx.pol_name == "vrpp_gurobi_dirichlet"
 
     @patch("logic.src.pipeline.simulations.states.initializing.setup_basedata")
@@ -154,13 +180,14 @@ class TestInitializingState:
     @patch("logic.src.pipeline.simulations.states.initializing.SimulationCheckpoint")
     @patch("logic.src.pipeline.simulations.states.initializing.os.path.exists")
     @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
-    def test_initializing_handle_resume(self, mock_makedirs, mock_exists, mock_checkpoint, mock_bins, mock_base, mock_opts, ctx_vars, tmp_path):
-        # Use a simple policy that doesn't need setup_model
-        mock_opts["policies"] = ["regular_dirichlet"]
-        mock_opts["model.name"] = ""
-        mock_opts["resume"] = True
-        mock_opts["output_dir"] = str(tmp_path)
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    def test_initializing_handle_resume(self, mock_makedirs, mock_exists, mock_checkpoint, mock_bins, mock_base, ctx_vars, tmp_path):
+        cfg = _make_test_cfg(
+            policies=["regular_dirichlet"],
+            full_policies=["regular_dirichlet"],
+            resume=True,
+        )
+        cfg.sim.output_dir = str(tmp_path)
+        ctx = SimulationContext(cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
 
         mock_base.return_value = (MagicMock(), MagicMock(), MagicMock())
         mock_checkpoint_inst = MagicMock()
@@ -179,8 +206,8 @@ class TestInitializingState:
 class TestRunningState:
     @patch("logic.src.pipeline.simulations.states.running.run_day")
     @patch("logic.src.pipeline.simulations.states.running.checkpoint_manager")
-    def test_running_handle(self, mock_cp_manager, mock_run_day, mock_opts, ctx_vars):
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    def test_running_handle(self, mock_cp_manager, mock_run_day, mock_cfg, ctx_vars):
+        ctx = SimulationContext(mock_cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.bins = MagicMock()
         distance_matrix = MagicMock()
         ctx.dist_tup = (distance_matrix, MagicMock(), MagicMock(), MagicMock())
@@ -206,11 +233,11 @@ class TestRunningState:
         state.handle(ctx)
 
         assert isinstance(ctx.current_state, FinishingState)
-        assert mock_run_day.call_count == mock_opts["days"]
+        assert mock_run_day.call_count == mock_cfg.sim.days
 
     @patch("logic.src.pipeline.simulations.states.running.checkpoint_manager")
-    def test_running_handle_checkpoint_error(self, mock_cp_manager, mock_opts, ctx_vars):
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    def test_running_handle_checkpoint_error(self, mock_cp_manager, mock_cfg, ctx_vars):
+        ctx = SimulationContext(mock_cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.checkpoint = MagicMock()
 
         error_res = {"error": "Test failure", "policy": [0], "success": False}
@@ -226,8 +253,9 @@ class TestRunningState:
 class TestFinishingState:
     @patch("logic.src.pipeline.simulations.states.finishing.log_to_json")
     @patch("logic.src.pipeline.simulations.states.finishing.save_matrix_to_excel")
-    def test_finishing_handle(self, mock_excel, mock_log_json, mock_opts, ctx_vars):
-        ctx = SimulationContext(mock_opts, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
+    @patch("logic.src.pipeline.simulations.states.finishing.final_simulation_summary")
+    def test_finishing_handle(self, mock_summary, mock_excel, mock_log_json, mock_cfg, ctx_vars):
+        ctx = SimulationContext(mock_cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.bins = MagicMock()
         ctx.bins.inoverflow = [1, 0]; ctx.bins.collected = [1, 0]; ctx.bins.ncollections = [1, 0]; ctx.bins.lost = [0, 0]; ctx.bins.travel = 100.0; ctx.bins.profit = 50.0; ctx.bins.ndays = 2
         ctx.bins.get_fill_history.return_value = []

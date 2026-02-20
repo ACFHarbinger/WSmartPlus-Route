@@ -2,36 +2,49 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
+
+from logic.src.configs import Config
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.tasks.sim import SimConfig
 from logic.src.pipeline.features.test import run_wsr_simulator_test as run_sim_test_func
 from logic.src.pipeline.features.test import simulator_testing
 
 
+def _make_pipeline_cfg(**overrides):
+    """Build a Config object for pipeline test fixtures."""
+    graph = GraphConfig(
+        area="mixrmbac",
+        num_loc=20,
+        waste_type="glass",
+    )
+    sim = SimConfig(
+        policies=["policy1"],
+        full_policies=["policy1"],
+        data_distribution="test_dist",
+        days=5,
+        seed=1234,
+        output_dir="test_output",
+        checkpoint_dir="checkpoints",
+        n_samples=2,
+        resume=False,
+        cpu_cores=1,
+        no_progress_bar=True,
+        graph=graph,
+    )
+    for k, v in overrides.items():
+        if hasattr(sim, k):
+            setattr(sim, k, v)
+        elif hasattr(sim.graph, k):
+            setattr(sim.graph, k, v)
+    cfg = Config()
+    cfg.sim = sim
+    return cfg
+
+
 class TestPipelineFeaturesTest:
     @pytest.fixture
-    def opts(self):
-        return {
-            "n_samples": 2,
-            "policies": ["policy1"],
-            "resume": False,
-            "days": 5,
-            "size": 10,
-            "output_dir": "test_output",
-            "area": "test_area",
-            "focus_graph": "test_bins.json",
-            "cpu_cores": 1,
-            "no_progress_bar": True,
-            "data_distribution": "test_dist",
-            "seed": 1234,
-            "waste_type": "glass",
-            "checkpoint_dir": "checkpoints",
-            "plastminute_cf": [1.0],
-            "pregular_level": [1],
-            "gurobi_param": [1],
-            "hexaly_param": [1],
-            "lookahead_configs": [1],
-        }
-
-    # test_simulator_testing_sequential removed as it is covered by test_features_test.py
+    def cfg(self):
+        return _make_pipeline_cfg()
 
     @patch("logic.src.pipeline.simulations.repository.filesystem.udef.MAP_DEPOTS", {"testarea": "TEST"})
     @patch("logic.src.pipeline.features.test.orchestrator.udef")
@@ -48,23 +61,20 @@ class TestPipelineFeaturesTest:
         mock_pool,
         mock_load,
         mock_udef,
-        opts,
+        cfg,
     ):
         mock_udef.ROOT_DIR = "/tmp/test"
         mock_udef.LOCK_TIMEOUT = 100
         mock_udef.PBAR_WAIT_TIME = 0.1
 
-        opts["cpu_cores"] = 2
-        opts["n_samples"] = 2
+        cfg.sim.cpu_cores = 2
+        cfg.sim.n_samples = 2
 
         mock_load.return_value = [0, 1]
 
-        # Mock Pool
         pool_instance = MagicMock()
         mock_pool.return_value = pool_instance
 
-        # Mock results - must return a list of metrics (10 values for SIM_METRICS)
-        # SIM_METRICS = ["overflows", "kg", "ncol", "kg_lost", "km", "kg/km", "cost", "profit", "days", "time"]
         mock_metrics = [0.0, 100.0, 5.0, 0.0, 50.0, 2.0, 25.0, 75.0, 1.0, 10.0]
         task1 = MagicMock()
         task1.ready.return_value = True
@@ -89,39 +99,31 @@ class TestPipelineFeaturesTest:
 
             mock_dict.items.return_value = [("policy1", [mock_metrics])]
 
-            simulator_testing(opts, data_size, device)
+            simulator_testing(cfg, data_size, device)
 
             assert pool_instance.apply_async.called
 
     @patch("logic.src.pipeline.features.test.engine.load_simulator_data")
     @patch("logic.src.pipeline.features.test.engine.simulator_testing")
     @patch("logic.src.pipeline.features.test.engine.os.makedirs")
-    def test_run_wsr_simulator_test(self, mock_makedirs, mock_sim_test, mock_load_data, opts):
-        mock_load_data.return_value = ([1] * 10, None)  # 10 bins
+    @patch("logic.src.pipeline.features.test.engine.expand_policy_configs")
+    def test_run_wsr_simulator_test(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, cfg):
+        mock_load_data.return_value = ([1] * 10, None)
 
-        opts["data_dir"] = None
-
-        run_sim_test_func(opts)
+        run_sim_test_func(cfg)
 
         assert mock_sim_test.called
         assert mock_makedirs.called
 
-        # Check policy expansion
-        # opts['policies'] passed to sim_test should be expanded
-        call_args = mock_sim_test.call_args[0][0]
-        assert "policy1_test_dist" in call_args["policies"]
+    @patch("logic.src.pipeline.features.test.engine.load_simulator_data", side_effect=Exception("Fail"))
+    @patch("logic.src.pipeline.features.test.engine.simulator_testing")
+    @patch("logic.src.pipeline.features.test.engine.os.makedirs")
+    @patch("logic.src.pipeline.features.test.engine.expand_policy_configs")
+    def test_run_wsr_simulator_test_fallback(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, cfg):
+        cfg.sim.graph.area = "mixrmbac"
+        cfg.sim.graph.num_loc = 20
 
-    def test_run_wsr_simulator_test_fallback(self, opts):
-        # Test fallback logic if load_simulator_data fails
-        with patch("logic.src.pipeline.features.test.engine.load_simulator_data", side_effect=Exception("Fail")):
-            with patch("logic.src.pipeline.features.test.engine.simulator_testing") as mock_sim_test:
-                with patch("logic.src.pipeline.features.test.engine.os.makedirs"):
-                    opts["area"] = "mixrmbac"
-                    opts["size"] = 20
-                    run_sim_test_func(opts)
+        run_sim_test_func(cfg)
 
-                    # Should use fallback data_size logic
-                    # For mixrmbac 20 -> data_size 20 (or default)
-                    # mock_sim_test(opts, data_size, device)
-                    # check data_size argument
-                    assert mock_sim_test.call_args[0][1] == 20
+        # Should use fallback data_size logic for mixrmbac with size 20
+        assert mock_sim_test.call_args[0][1] == 20

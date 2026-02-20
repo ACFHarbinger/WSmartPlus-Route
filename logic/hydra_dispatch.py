@@ -49,16 +49,11 @@ def hydra_entry_point(cfg: Config) -> float:
         return 0.0
 
     if task == "test_sim":
-        from logic.src.pipeline.features.base import flatten_config_dict
-        from logic.src.pipeline.features.test import run_wsr_simulator_test, validate_test_sim_args
+        from logic.src.pipeline.features.test import run_wsr_simulator_test
 
         if cfg.verbose:
             _pretty_print_hydra_config(cfg, filter_keys="sim")  # type: ignore[arg-type]
-        sim_args = cast(dict[str, Any], OmegaConf.to_container(cfg.sim, resolve=True))
-        sim_args = flatten_config_dict(sim_args)
-        sim_args["load_dataset"] = cfg.load_dataset
-        args = validate_test_sim_args(sim_args)
-        run_wsr_simulator_test(args)
+        run_wsr_simulator_test(cfg)
         return 0.0
 
     if task == "gen_data":

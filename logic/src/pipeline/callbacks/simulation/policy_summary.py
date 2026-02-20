@@ -73,6 +73,18 @@ class PolicySummaryCallback:
         console.print(table)
         console.print("\n")
 
+    def display_from_cfg(self, cfg: Any) -> None:
+        """Display the policy summary using a typed Config object.
+
+        Args:
+            cfg: Root Config with ``cfg.sim.full_policies`` and ``cfg.sim.config_path``.
+        """
+        opts: Dict[str, Any] = {
+            "policies": cfg.sim.full_policies,
+            "config_path": dict(cfg.sim.config_path) if cfg.sim.config_path else {},
+        }
+        self.display(opts)
+
     def _extract_engine(self, policy_name: str, config: Dict[str, Any]) -> str:
         """Extract the engine name."""
         # Logic similar to PolicyExecutionAction
