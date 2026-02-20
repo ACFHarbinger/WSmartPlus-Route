@@ -13,7 +13,7 @@ def validate_eval_config(cfg: Config) -> None:
     Validates and sanitizes evaluation configuration values in-place.
 
     Performs the same checks previously done by ``validate_eval_args``
-    on the flattened opts dict, now applied directly to the typed Config.
+    on the flattened args dict, now applied directly to the typed Config.
 
     Args:
         cfg: Root Hydra configuration with ``cfg.eval`` containing evaluation

@@ -10,7 +10,6 @@ import torch
 from torch import nn
 
 from logic.src.constants.routing import DEFAULT_ROLLOUT_BATCH_SIZE
-from logic.src.interfaces import ITraversable
 from logic.src.utils.data.rl_utils import safe_td_copy
 from logic.src.utils.logging.pylogger import get_pylogger
 
@@ -45,18 +44,8 @@ class RolloutBaseline(Baseline):
             **kwargs: Additional keyword arguments.
         """
         super().__init__()
-
-        # Handle old calling convention: RolloutBaseline(model, problem, opts)
-        # where problem is a class and opts is a dict
-        if isinstance(update_every, type) or (hasattr(update_every, "NAME")):
-            # Old style: update_every is actually the problem class
-            # bl_alpha is actually the opts dict
-            opts = bl_alpha if isinstance(bl_alpha, ITraversable) else kwargs.get("opts", {})
-            self.update_every = opts.get("bl_update_every", 1) if isinstance(opts, ITraversable) else 1
-            self.bl_alpha = opts.get("bl_alpha", 0.05) if isinstance(opts, ITraversable) else 0.05
-        else:
-            self.update_every = update_every
-            self.bl_alpha = bl_alpha
+        self.update_every = update_every
+        self.bl_alpha = bl_alpha
 
         self.baseline_policy = None
         if policy is not None:
