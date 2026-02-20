@@ -32,7 +32,7 @@ def validate_data_config(cfg: Config) -> None:
     Validates and sanitizes data generation configuration values in-place.
 
     Performs the same checks previously done by ``validate_gen_data_args``
-    on the flattened opts dict, now applied directly to the typed Config.
+    on the flattened args dict, now applied directly to the typed Config.
 
     Args:
         cfg: Root Hydra configuration with ``cfg.data`` containing data

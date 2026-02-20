@@ -14,7 +14,7 @@ def validate_sim_config(cfg: Config) -> None:
     Validates and sanitizes simulation configuration values in-place.
 
     Performs the same checks previously done by ``validate_test_sim_args``
-    on the flattened opts dict, now applied directly to the typed Config.
+    on the flattened args dict, now applied directly to the typed Config.
 
     Args:
         cfg: Root Hydra configuration with ``cfg.sim`` containing simulation
