@@ -16,6 +16,7 @@ import torch
 
 from logic.src.constants import ROOT_DIR
 from logic.src.data.generators.builders import VRPInstanceBuilder
+from logic.src.pipeline.simulations.repository import FileSystemRepository, set_repository
 from logic.src.utils.data.data_utils import (
     check_extension,
     save_simulation_dataset,
@@ -27,6 +28,9 @@ def generate_datasets(opts: Dict[str, Any]) -> None:
     """
     Generates VRP datasets based on the provided configuration options.
     """
+    # Initialize the filesystem repository for coordinate/depot loading
+    set_repository(FileSystemRepository(ROOT_DIR))
+
     # Set the random seed and execute the program
     random.seed(opts["seed"])
     np.random.seed(opts["seed"])
@@ -161,9 +165,12 @@ def _process_instance_generation(
     )
 
     builder = VRPInstanceBuilder()
+    # For test_simulator datasets, focus_size must match n_samples so depot/locs
+    # dimensions are consistent with waste arrays (both indexed by sample).
+    effective_focus_size = n_samples if opts["dataset_type"] == "test_simulator" else focus_size
     builder.set_dataset_size(n_samples).set_problem_size(size).set_waste_type(waste_type).set_distribution(
         dist or "empty"
-    ).set_area(area).set_focus_graph(graph, focus_size).set_method(vertex_method).set_problem_name(problem)
+    ).set_area(area).set_focus_graph(graph, effective_focus_size).set_method(vertex_method).set_problem_name(problem)
 
     _apply_noise_config(builder, problem, opts)
 
