@@ -38,6 +38,7 @@ class DataConfig:
     mu: Optional[List[float]] = None
     sigma: Any = 0.6
     data_distributions: List[str] = field(default_factory=lambda: ["all"])
+    dataset_size: int = 128_000
     penalty_factor: float = 3.0
     overwrite: bool = False
     seed: int = 42

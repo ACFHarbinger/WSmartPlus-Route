@@ -4,36 +4,52 @@ Validation logic for simulation testing pipeline.
 
 import re
 from multiprocessing import cpu_count
-from typing import Any, Dict
 
+from logic.src.configs import Config
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 
 
-def validate_test_sim_args(args: Dict[str, Any]) -> Dict[str, Any]:
+def validate_sim_config(cfg: Config) -> None:
     """
-    Validates and post-processes arguments for test_sim.
+    Validates and sanitizes simulation configuration values in-place.
+
+    Performs the same checks previously done by ``validate_test_sim_args``
+    on the flattened opts dict, now applied directly to the typed Config.
+
+    Args:
+        cfg: Root Hydra configuration with ``cfg.sim`` containing simulation
+            parameters.
+
+    Raises:
+        AssertionError: If any validation constraint is violated.
     """
-    args = args.copy()
-    assert args.get("days", 0) >= 1, "Must run the simulation for 1 or more days"
-    assert args.get("n_samples", 0) > 0, "Number of samples must be non-negative integer"
+    sim = cfg.sim
+    graph = sim.graph
 
-    args["area"] = re.sub(r"[^a-zA-Z]", "", args.get("area", "").lower())
-    assert args["area"] in MAP_DEPOTS, "Unknown area {}, available areas: {}".format(args["area"], MAP_DEPOTS.keys())
+    # --- Core constraints ---
+    assert sim.days >= 1, "Must run the simulation for 1 or more days"
+    assert sim.n_samples > 0, "Number of samples must be non-negative integer"
 
-    args["waste_type"] = re.sub(r"[^a-zA-Z]", "", args.get("waste_type", "").lower())
-    assert args["waste_type"] in WASTE_TYPES or args["waste_type"] is None, (
-        "Unknown waste type {}, available waste types: {}".format(args["waste_type"], WASTE_TYPES.keys())
+    # --- Sanitize area ---
+    area = re.sub(r"[^a-zA-Z]", "", (graph.area or "").lower())
+    assert area in MAP_DEPOTS, f"Unknown area {area}, available areas: {list(MAP_DEPOTS.keys())}"
+    graph.area = area
+
+    # --- Sanitize waste_type ---
+    waste = re.sub(r"[^a-zA-Z]", "", (graph.waste_type or "").lower())
+    assert waste in WASTE_TYPES or waste == "", (
+        f"Unknown waste type {waste}, available waste types: {list(WASTE_TYPES.keys())}"
     )
+    if waste:
+        graph.waste_type = waste
 
-    args["edge_threshold"] = (
-        float(args["edge_threshold"])
-        if "." in str(args.get("edge_threshold", "0"))
-        else int(args.get("edge_threshold", "0"))
-    )
+    # --- Parse edge_threshold ---
+    et_str = str(graph.edge_threshold or "0")
+    graph.edge_threshold = et_str
 
-    assert args.get("cpu_cores", 0) >= 0, "Number of CPU cores must be non-negative integer"
-    assert args.get("cpu_cores", 0) <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
-    if args.get("cpu_cores") == 0:
-        args["cpu_cores"] = cpu_count()
-
-    return args
+    # --- CPU cores ---
+    cores = getattr(sim, "cpu_cores", 0) or 0
+    assert cores >= 0, "Number of CPU cores must be non-negative integer"
+    assert cores <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
+    if cores == 0:
+        sim.cpu_cores = cpu_count()

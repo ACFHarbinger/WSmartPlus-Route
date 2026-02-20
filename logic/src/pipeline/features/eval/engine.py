@@ -14,6 +14,8 @@ from loguru import logger
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
+from logic.src.configs import Config
+from logic.src.configs.tasks.eval import EvalConfig
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.data_utils import save_dataset
@@ -45,31 +47,62 @@ def get_best(
     return [sequences[i] if i >= 0 else None for i in result], [float(cost[i]) if i >= 0 else math.inf for i in result]
 
 
+def _build_dataset_kwargs(cfg: Config) -> Dict[str, Any]:
+    """Build keyword arguments for make_dataset from Config."""
+    ev = cfg.eval
+    graph = ev.graph
+    return {
+        "num_samples": ev.val_size,
+        "offset": ev.offset,
+        "distribution": ev.data_distribution,
+        "vertex_strat": graph.vertex_method,
+        "size": graph.num_loc,
+        "focus_graph": graph.focus_graph,
+        "focus_size": graph.focus_size,
+        "area": graph.area,
+        "dist_matrix_path": graph.dm_filepath,
+        "number_edges": graph.edge_threshold,
+        "waste_weight": ev.reward.waste_weight if ev.reward else 1.0,
+        "dist_strat": graph.distance_method,
+        "edge_strat": graph.edge_method,
+    }
+
+
+def _build_eval_kwargs(cfg: Config) -> Dict[str, Any]:
+    """Build keyword arguments for evaluate_policy from Config."""
+    ev = cfg.eval
+    result: Dict[str, Any] = {
+        "eval_batch_size": ev.eval_batch_size,
+        "no_progress_bar": ev.no_progress_bar,
+        "compress_mask": ev.compress_mask,
+        "max_calc_batch_size": ev.max_calc_batch_size,
+    }
+    if ev.decoding:
+        result["decoding"] = {
+            "strategy": ev.decoding.strategy,
+            "temperature": ev.decoding.temperature,
+            "beam_width": ev.decoding.beam_width,
+        }
+    return result
+
+
 def eval_dataset_mp(
-    args: Tuple[str, int, float, Dict[str, Any], int, int],
+    args: Tuple[str, int, float, Config, int, int],
 ) -> List[Dict[str, Any]]:
     """Worker function for multiprocessing evaluation."""
-    (dataset_path, beam_width, softmax_temp, opts, i, num_processes) = args
-    model, _ = load_model(opts.get("load_path") or opts["model"])
-    val_size = opts["val_size"] // num_processes
-    dataset = model.problem.make_dataset(
-        filename=dataset_path,
-        num_samples=val_size,
-        offset=opts["offset"] + val_size * i,
-        distribution=opts["data_distribution"],
-        vertex_strat=opts["vertex_method"],
-        size=opts.get("num_loc", 50),  # Default to 50 if graph_size not present
-        focus_graph=opts["focus_graph"],
-        focus_size=opts["focus_size"],
-        area=opts["area"],
-        dist_matrix_path=opts["dm_filepath"],
-        number_edges=opts["edge_threshold"],
-        waste_weight=opts.get("waste_weight", opts.get("w_waste", 1.0)),
-        dist_strat=opts["distance_method"],
-        edge_strat=opts["edge_method"],
-    )
+    (dataset_path, beam_width, softmax_temp, cfg, i, num_processes) = args
+    ev = cfg.eval
+    model_path = ev.policy.load_path if ev.policy else None
+    model, _ = load_model(model_path)
+    val_size = ev.val_size // num_processes
+
+    ds_kwargs = _build_dataset_kwargs(cfg)
+    ds_kwargs["num_samples"] = val_size
+    ds_kwargs["offset"] = ev.offset + val_size * i
+
+    dataset = model.problem.make_dataset(filename=dataset_path, **ds_kwargs)
     device = torch.device("cuda:{}".format(i))
-    return _eval_dataset(model, dataset, beam_width, softmax_temp, opts, device)
+    return _eval_dataset(model, dataset, beam_width, softmax_temp, cfg, device)
 
 
 def _eval_dataset(
@@ -77,28 +110,29 @@ def _eval_dataset(
     dataset: Dataset,
     beam_width: int,
     softmax_temp: float,
-    opts: Dict[str, Any],
+    cfg: Config,
     device: torch.device,
 ) -> List[Dict[str, Any]]:
     """Inner evaluation loop for a single batch/process."""
+    ev = cfg.eval
+    strategy = ev.decoding.strategy if ev.decoding else "greedy"
+
     model.to(device)
     model.eval()
     if hasattr(model, "set_strategy"):
-        model.set_strategy(
-            opts["strategy"],
-            temp=softmax_temp,
-        )
+        model.set_strategy(strategy, temp=softmax_temp)
 
-    dataloader = DataLoader(dataset, batch_size=opts.get("eval_batch_size", 1024), pin_memory=True)
-    results: List[Dict[str, Any]] = []
+    eval_kwargs = _build_eval_kwargs(cfg)
+    eval_batch_size = eval_kwargs.get("eval_batch_size", 1024)
+    dataloader = DataLoader(dataset, batch_size=eval_batch_size, pin_memory=True)
 
-    method = opts.get("strategy", "greedy")
+    method = strategy
     if method == "sample":
         method = "sampling"
 
     # Automatic batch size tuning
-    eval_batch_size = opts.get("eval_batch_size", 1024)
-    if opts.get("auto_batch_size", False):
+    auto_batch = False  # Could be added to EvalConfig in the future
+    if auto_batch:
         eval_batch_size = get_automatic_batch_size(
             model,
             model.problem,
@@ -107,7 +141,6 @@ def _eval_dataset(
             initial_batch_size=eval_batch_size,
             samples=beam_width,
         )
-        opts["eval_batch_size"] = eval_batch_size
         dataloader = DataLoader(dataset, batch_size=eval_batch_size, pin_memory=True)
 
     eval_results = evaluate_policy(
@@ -118,13 +151,14 @@ def _eval_dataset(
         return_results=True,
         samples=beam_width,
         softmax_temperature=softmax_temp,
-        **opts,
+        **eval_kwargs,
     )
 
     costs_best = eval_results["rewards"]
     sequences_best = eval_results["sequences"].cpu().numpy()
     duration_per_batch = eval_results["duration"] / len(dataloader)
 
+    results: List[Dict[str, Any]] = []
     for i, (seq, cost) in enumerate(zip(sequences_best, costs_best)):
         if seq is not None:
             if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):
@@ -177,19 +211,25 @@ def eval_dataset(
     dataset_path: str,
     beam_width: int,
     softmax_temp: float,
-    opts: Dict[str, Any],
+    cfg: Config,
     method: Optional[str] = None,
+    strategy: Optional[str] = None,
 ) -> Tuple[List[float], List[Optional[List[int]]], List[float]]:
     """Evaluates a model on a given dataset."""
-    model, _ = load_model(opts.get("load_path") or opts["model"])
+    ev = cfg.eval
+    model_path = ev.policy.load_path if ev.policy else None
+    model, _ = load_model(model_path)
     use_cuda = torch.cuda.is_available()
 
-    if opts["multiprocessing"]:
-        results = _eval_multiprocessing(dataset_path, beam_width, softmax_temp, opts)
-    else:
-        results = _eval_singleprocess(model, dataset_path, beam_width, softmax_temp, opts, use_cuda)
+    # Resolve strategy
+    resolved_strategy = strategy or method or (ev.decoding.strategy if ev.decoding else "greedy")
 
-    parallelism: int = opts["eval_batch_size"]
+    if ev.multiprocessing:
+        results = _eval_multiprocessing(dataset_path, beam_width, softmax_temp, cfg)
+    else:
+        results = _eval_singleprocess(model, dataset_path, beam_width, softmax_temp, cfg, use_cuda)
+
+    parallelism: int = ev.eval_batch_size
     avg_metrics = {
         "cost": np.mean([r["cost"] for r in results]),
         "std": np.std([r["cost"] for r in results]),
@@ -216,73 +256,58 @@ def eval_dataset(
         "Calculated total duration: {}".format(datetime.timedelta(seconds=int(np.sum(durations) / parallelism)))
     )
 
-    model_name = "_".join(os.path.normpath(os.path.splitext(opts["model"])[0]).split(os.sep)[-2:])
-    out_file = opts["output_filename"] or _get_eval_output_path(
-        model, dataset_path, opts, model_name, beam_width, softmax_temp, len(costs)
+    model_name = "_".join(os.path.normpath(os.path.splitext(model_path or "model")[0]).split(os.sep)[-2:])
+    out_file = ev.output_filename or _get_eval_output_path(
+        model, dataset_path, cfg, model_name, beam_width, softmax_temp, len(costs)
     )
 
-    assert opts["overwrite"] or not os.path.isfile(out_file), (
-        "File already exists! Try running with -f option to overwrite."
-    )
+    assert ev.overwrite or not os.path.isfile(out_file), "File already exists! Try running with -f option to overwrite."
 
     save_dataset((results, parallelism), out_file)
     return costs, tours, durations
 
 
-def _eval_multiprocessing(
-    dataset_path: str, beam_width: int, softmax_temp: float, opts: Dict[str, Any]
-) -> List[Dict[str, Any]]:
+def _eval_multiprocessing(dataset_path: str, beam_width: int, softmax_temp: float, cfg: Config) -> List[Dict[str, Any]]:
     """Helper for multiprocessing evaluation."""
     num_processes = torch.cuda.device_count()
-    assert opts["val_size"] % num_processes == 0, "val_size must be divisible by num_processes"
+    assert cfg.eval.val_size % num_processes == 0, "val_size must be divisible by num_processes"
 
     with mp.Pool(num_processes) as pool:
         return list(
             itertools.chain.from_iterable(
                 pool.map(
                     eval_dataset_mp,
-                    [(dataset_path, beam_width, softmax_temp, opts, i, num_processes) for i in range(num_processes)],
+                    [(dataset_path, beam_width, softmax_temp, cfg, i, num_processes) for i in range(num_processes)],
                 )
             )
         )
 
 
 def _eval_singleprocess(
-    model: nn.Module, dataset_path: str, beam_width: int, softmax_temp: float, opts: Dict[str, Any], use_cuda: bool
+    model: nn.Module, dataset_path: str, beam_width: int, softmax_temp: float, cfg: Config, use_cuda: bool
 ) -> List[Dict[str, Any]]:
     """Helper for single-process evaluation."""
     device = torch.device("cpu" if not use_cuda else "cuda:0")
-    dataset = model.problem.make_dataset(
-        filename=dataset_path,
-        num_samples=opts["val_size"],
-        offset=opts["offset"],
-        distribution=opts["data_distribution"],
-        vertex_strat=opts["vertex_method"],
-        size=opts["graph_size"],
-        focus_graph=opts["focus_graph"],
-        focus_size=opts["focus_size"],
-        area=opts["area"],
-        number_edges=opts["edge_threshold"],
-        dist_matrix_path=opts["dm_filepath"],
-        waste_weight=opts.get("waste_weight", opts.get("w_waste", 1.0)),
-        edge_strat=opts["edge_method"],
-        dist_strat=opts["distance_method"],
-    )
-    return _eval_dataset(model, dataset, beam_width, softmax_temp, opts, device)
+
+    ds_kwargs = _build_dataset_kwargs(cfg)
+    dataset = model.problem.make_dataset(filename=dataset_path, **ds_kwargs)
+    return _eval_dataset(model, dataset, beam_width, softmax_temp, cfg, device)
 
 
 def _get_eval_output_path(
     model: nn.Module,
     dataset_path: str,
-    opts: Dict[str, Any],
+    cfg: Config,
     model_name: str,
     beam_width: int,
     softmax_temp: float,
     num_costs: int,
 ) -> str:
     """Generate evaluation result output path."""
+    ev = cfg.eval
+    strategy = ev.decoding.strategy if ev.decoding else "greedy"
     dataset_basename, ext = os.path.splitext(os.path.split(dataset_path)[-1])
-    results_dir = os.path.join(opts["results_dir"], model.problem.NAME, dataset_basename)
+    results_dir = os.path.join(ev.results_dir, model.problem.NAME, dataset_basename)
     os.makedirs(results_dir, exist_ok=True)
 
     return os.path.join(
@@ -290,11 +315,11 @@ def _get_eval_output_path(
         "{}-{}-{}{}-t{}-{}-{}{}".format(
             dataset_basename,
             model_name,
-            opts["strategy"],
-            beam_width if opts["strategy"] != "greedy" else "",
+            strategy,
+            beam_width if strategy != "greedy" else "",
             softmax_temp,
-            opts["offset"],
-            opts["offset"] + num_costs,
+            ev.offset,
+            ev.offset + num_costs,
             ext,
         ),
     )
