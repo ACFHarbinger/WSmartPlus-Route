@@ -8,6 +8,7 @@ from logic.src.envs.problems import VRPP
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.pipeline.features.eval import eval_dataset
+from logic.src.configs import Config
 
 
 @pytest.fixture
@@ -178,51 +179,26 @@ def test_eval_dataset_integration(temp_eval_setup):
     setup = temp_eval_setup
 
     # Options dict mimicking what argparse would produce
-    opts = {
-        "problem": "vrpp",
-        "w_waste": None,
-        "w_length": None,
-        "w_overflows": None,
-        "model": setup["model_path"],
-        "load_path": setup["model_path"],
-        "val_size": 5,
-        "offset": 0,
-        "data_distribution": "uniform",  # dummy
-        "vertex_method": None,
-        "graph_size": setup["graph_size"],
-        "focus_graph": None,
-        "focus_size": 1,
-        "area": "dummy",
-        "dm_filepath": None,
-        "edge_threshold": None,
-        "waste_type": "dummy",
-        "dist_matrix_path": None,
-        "edge_method": None,
-        "distance_method": None,
-        "multiprocessing": False,
-        "eval_batch_size": 2,
-        "max_calc_batch_size": 2,
-        "strategy": "greedy",
-        "compress_mask": True,
-        "output_filename": None,
-        "results_dir": setup["dir"],
-        "overwrite": True,
-        "no_progress_bar": True,
-        "beam_width": 0,
-        "softmax_temperature": 1.0,
-    }
+    opts = Config()
+    opts.env.name = "vrpp"
+    opts.eval.policy.load_path = setup["model_path"]
+    opts.eval.val_size = 5
+    opts.eval.offset = 0
+    opts.eval.data_distribution = "uniform"
+    opts.env.graph_size = setup["graph_size"]
+    opts.eval.decoding.strategy = "greedy"
+    opts.eval.results_dir = setup["dir"]
+    opts.eval.overwrite = True
+    opts.eval.no_progress_bar = True
+    opts.eval.decoding.beam_width = 0
 
     # device configuration
     device = "cpu"
-    if torch.cuda.is_available():
-        device = "cuda:0"
-    opts["device"] = device
+    opts.device = "cpu"
 
     # Run evaluation
     # Note: eval_dataset handles the loading internally
-    if "softmax_temperature" in opts:
-        del opts["softmax_temperature"]
-    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], beam_width=0, softmax_temp=1.0, opts=opts)
+    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], beam_width=0, softmax_temp=1.0, cfg=opts)
 
     # Assertions
     assert len(costs) == 5, f"Should have results for 5 instances, got {len(costs)}"
@@ -249,49 +225,25 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
     """
     setup = temp_eval_setup
 
-    opts = {
-        "problem": "vrpp",
-        "w_waste": None,
-        "w_length": None,
-        "w_overflows": None,
-        "model": setup["model_path"],
-        "load_path": setup["model_path"],
-        "val_size": 2,  # Test smaller subset
-        "offset": 0,
-        "data_distribution": "uniform",
-        "vertex_method": None,
-        "graph_size": setup["graph_size"],
-        "focus_graph": None,
-        "focus_size": 1,
-        "area": "dummy",
-        "dm_filepath": None,
-        "edge_threshold": None,
-        "waste_type": "dummy",
-        "edge_method": None,
-        "distance_method": None,
-        "multiprocessing": False,
-        "eval_batch_size": 1,
-        "max_calc_batch_size": 1,
-        "strategy": "sample",
-        "compress_mask": True,
-        "output_filename": None,
-        "results_dir": setup["dir"],
-        "overwrite": True,
-        "no_progress_bar": True,
-        "beam_width": 2,  # 2 samples per instance
-        "softmax_temperature": 1.0,
-    }
+    opts = Config()
+    opts.env.name = "vrpp"
+    opts.eval.policy.load_path = setup["model_path"]
+    opts.eval.val_size = 2
+    opts.eval.offset = 0
+    opts.eval.data_distribution = "uniform"
+    opts.env.graph_size = setup["graph_size"]
+    opts.eval.decoding.strategy = "sample"
+    opts.eval.decoding.beam_width = 2
+    opts.eval.results_dir = setup["dir"]
+    opts.eval.overwrite = True
+    opts.eval.no_progress_bar = True
 
     # device configuration
     device = "cpu"
-    if torch.cuda.is_available():
-        device = "cuda:0"
-    opts["device"] = device
+    opts.device = "cpu"
 
     # Run evaluation
-    if "softmax_temperature" in opts:
-        del opts["softmax_temperature"]
-    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], beam_width=2, softmax_temp=1.0, opts=opts)
+    costs, tours, durations = eval_dataset(dataset_path=setup["data_path"], beam_width=2, softmax_temp=1.0, cfg=opts)
 
     assert len(costs) == 2, "Should have results for 2 instances"
     # Tours should include multiple samples per instance potentially,

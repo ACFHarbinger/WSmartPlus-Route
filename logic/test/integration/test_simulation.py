@@ -5,6 +5,7 @@ import torch
 from logic.src.pipeline.simulations.day_context import run_day
 from logic.src.pipeline.simulations.simulator import single_simulation
 from logic.src.pipeline.simulations.states import InitializingState, SimulationContext
+from omegaconf import OmegaConf
 
 
 @pytest.fixture
@@ -56,8 +57,9 @@ def test_simulation_context_init(mock_sim_opts):
     indices = [0, 1, 2]
 
     with patch("logic.src.pipeline.simulations.states.SimulationContext.transition_to") as mock_transition:
+        cfg = OmegaConf.create({"sim": {**mock_sim_opts, "full_policies": mock_sim_opts["policies"], "graph": {"area": "Rio Maior", "num_loc": 20, "size": 20}}})
         context = SimulationContext(
-            opts=mock_sim_opts,
+            cfg=cfg,
             device=device,
             indices=indices,
             sample_id=0,
@@ -67,7 +69,8 @@ def test_simulation_context_init(mock_sim_opts):
         )
 
         # Should initialize and transition to InitializingState
-        assert context.opts == mock_sim_opts
+        expected_sim = {**mock_sim_opts, "full_policies": mock_sim_opts["policies"], "graph": {"area": "Rio Maior", "num_loc": 20, "size": 20}}
+        assert OmegaConf.to_container(context.cfg.sim) == expected_sim
         assert context.policy == "regular_unif"
         mock_transition.assert_called()
         # Verify call args
@@ -106,8 +109,9 @@ def test_single_simulation_wrapper(mock_sim_opts):
         instance = MockContext.return_value
         instance.run.return_value = {"success": True, "regular_unif": {"profit": 100}}
 
+        cfg = OmegaConf.create({"sim": {**mock_sim_opts, "full_policies": ["regular"], "graph": {"area": "Rio Maior", "num_loc": 20, "size": 20}}})
         result = single_simulation(
-            opts=mock_sim_opts,
+            cfg=cfg,
             device=torch.device("cpu"),
             indices=[0],
             sample_id=0,

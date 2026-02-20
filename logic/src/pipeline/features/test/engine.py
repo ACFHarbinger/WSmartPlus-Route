@@ -114,7 +114,7 @@ def _validate_sim_config(cfg: Config) -> None:
 def _resolve_data_size(cfg: Config) -> int:
     """Resolve the available data size for the given area and requested size."""
     sim = cfg.sim
-    load_ds = sim.load_dataset
+    load_ds = cfg.load_dataset
 
     if load_ds is not None and str(load_ds).endswith(".npz"):
         dataset = NumpyDictDataset.load(load_ds)
