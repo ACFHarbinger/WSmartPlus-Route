@@ -12,6 +12,7 @@ from logic.src.utils.logging.log_utils import (
     runs_per_policy,
 )
 from logic.src.utils.logging.log_visualization import log_training
+from omegaconf import OmegaConf
 
 class TestLogUtils:
     """Class for log_utils tests."""
@@ -19,7 +20,7 @@ class TestLogUtils:
     @patch("logic.src.utils.logging.modules.metrics.wandb")
     def test_log_epoch(self, mock_wandb):
         """Test log_epoch with mocked wandb."""
-        opts = {"train_time": False, "wandb_mode": "online"}
+        opts = OmegaConf.create({"rl": {"wandb_mode": "online"}, "train_time": False})
         x_tup = ("epoch", 1)
         loss_keys = ["loss"]
         epoch_loss = {"loss": [torch.tensor([1.0]), torch.tensor([2.0])]}
@@ -30,13 +31,15 @@ class TestLogUtils:
     @patch("logic.src.utils.logging.log_visualization.plt")
     def test_log_training(self, mock_plt, mock_wandb):
         """Test log_training with mocked components."""
-        opts = {
-            "train_time": False,
-            "wandb_mode": "online",
-            "log_dir": "logs",
-            "save_dir": "checkpoints/run1",
-            "checkpoints_dir": "checkpoints",
-        }
+        opts = OmegaConf.create({
+            "train": {
+                "checkpoints_dir": "checkpoints",
+                "save_dir": "checkpoints/run1",
+                "log_dir": "logs",
+                "train_time": False
+            },
+            "rl": {"wandb_mode": "online"}
+        })
         columns = pd.MultiIndex.from_tuples([("loss", "mean"), ("loss", "std"), ("loss", "max"), ("loss", "min")])
         table_df = pd.DataFrame([[1.0, 0.1, 1.2, 0.8]], columns=columns)
         loss_keys = ["loss"]
@@ -93,12 +96,13 @@ class TestLogUtils:
             "baseline_loss": torch.tensor([0.2]),
         }
         tb_logger = MagicMock()
-        opts = {
-            "train_time": False,
-            "no_tensorboard": False,
-            "baseline": "critic",
-            "wandb_mode": "online",
-        }
+        opts = OmegaConf.create({
+            "rl": {"wandb_mode": "online", "no_tensorboard": False},
+            "train": {
+                "train_time": False
+            },
+            "baseline": "critic"
+        })
         log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
         assert mock_wandb.log.called
         assert tb_logger.add_scalar.called

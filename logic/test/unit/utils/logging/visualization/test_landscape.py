@@ -11,6 +11,7 @@ from logic.src.utils.logging.visualization.landscape import (
     rl_loss_fn,
     plot_loss_landscape
 )
+from omegaconf import OmegaConf
 
 @pytest.fixture
 def mock_model():
@@ -67,7 +68,7 @@ def test_rl_loss_fn(mock_model):
 @patch("logic.src.utils.logging.visualization.landscape.plt")
 def test_plot_loss_landscape(mock_plt, mock_random_plane, mock_two_opt, mock_get_batch, mock_model, tmp_path):
     """Test the full landscape plotting pipeline with mocks."""
-    opts = {"device": "cpu", "temporal_horizon": 0}
+    opts = OmegaConf.create({"device": "cpu", "model": {"temporal_horizon": 0}})
     output_dir = str(tmp_path / "plots")
 
     # Setup mocks
@@ -101,7 +102,7 @@ def test_imitation_loss_fn_with_wrapped_model(mock_model):
 
 def test_rl_loss_fn_exception_handling(mock_model, tmp_path, mocker):
     """Test that plot_loss_landscape handles exceptions during computation."""
-    opts = {"device": "cpu"}
+    opts = OmegaConf.create({"device": "cpu", "model": {"temporal_horizon": 0}})
     output_dir = str(tmp_path / "plots_fail")
 
     # Mock random_plane to raise exception

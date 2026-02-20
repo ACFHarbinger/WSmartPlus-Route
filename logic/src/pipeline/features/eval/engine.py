@@ -219,7 +219,9 @@ def eval_dataset(
     ev = cfg.eval
     model_path = ev.policy.load_path if ev.policy else None
     model, _ = load_model(model_path)
-    use_cuda = torch.cuda.is_available()
+    use_cuda = torch.cuda.is_available() and not getattr(ev, "no_cuda", False)
+    if getattr(cfg, "device", None) == "cpu":
+        use_cuda = False
 
     # Resolve strategy
     resolved_strategy = strategy or method or (ev.decoding.strategy if ev.decoding else "greedy")

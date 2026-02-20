@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 from logic.src.configs import Config
+from omegaconf import OmegaConf
 
 # Training imports from the new entry point
 from logic.src.pipeline.features.train import run_training
@@ -55,7 +56,14 @@ class TestIntegrationSimulation:
         sample_idx_ls = [[0] for _ in opts["policies"]]
         lock = MagicMock()
 
-        return sequential_simulations(opts, opts["device"], indices_ls, sample_idx_ls, opts["model_path"], lock)
+        cfg = OmegaConf.create({
+            "device": opts["device"],
+            "sim": {**opts, "full_policies": opts["policies"], "log_file": "test.log", "log_level": "INFO", "config_path": None, "noise_mean": 0.0, "noise_variance": 1.0, "policy_configs": {}, "graph": {**opts, "area": "Rio Maior", "num_loc": 20, "size": 20}},
+            "env": {"name": "wcvrp", "graph_size": 20},
+            "model": {},
+            "train": {"train_time": False}
+        })
+        return sequential_simulations(cfg, opts["device"], indices_ls, sample_idx_ls, opts["model_path"], lock)
 
     @pytest.mark.unit
     def test_sim_sequential_basic(self, sim_opts):
