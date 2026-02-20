@@ -31,30 +31,30 @@ class RunningState(SimState):
 
     def handle(self, ctx: SimulationContext) -> None:
         """Handle the day-by-day simulation loop."""
-        opts = ctx.opts
+        sim = ctx.cfg.sim
         realtime_log_path = os.path.join(
             ctx.results_dir,
-            f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl",
+            f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl",
         )
 
         ctx.tic = time.process_time() + ctx.run_time
 
         try:
             assert ctx.checkpoint is not None
-            with checkpoint_manager(ctx.checkpoint, opts["checkpoint_days"], ctx.get_current_state_tuple) as hook:
+            with checkpoint_manager(ctx.checkpoint, sim.checkpoint_days, ctx.get_current_state_tuple) as hook:
                 hook.set_timer(ctx.tic)
-                iterator = range(ctx.start_day, opts["days"] + 1)
+                iterator = range(ctx.start_day, sim.days + 1)
                 self._run_simulation_days(ctx, iterator, hook, realtime_log_path)
 
-            logger.info(f"Simulation loop complete. Processed {opts['days']} days.")
+            logger.info(f"Simulation loop complete. Processed {sim.days} days.")
             from .finishing import FinishingState
 
             ctx.transition_to(FinishingState())
 
         except CheckpointError as e:
             ctx.result = e.error_result
-            if opts.get("print_output") and ctx.result:
-                final_simulation_summary(ctx.result, ctx.pol_name, opts["n_samples"])
+            if ctx.result:
+                final_simulation_summary(ctx.result, ctx.pol_name, sim.n_samples)
             ctx.transition_to(None)
 
     def _run_simulation_days(self, ctx, iterator, hook, realtime_log_path):
@@ -97,11 +97,12 @@ class RunningState(SimState):
         return current_policy_config
 
     def _create_day_context(self, ctx, day, current_policy_config, realtime_log_path):
+        sim = ctx.cfg.sim
         assert ctx.dist_tup is not None
         (distance_matrix, paths_between_states, dm_tensor, distancesC) = ctx.dist_tup
 
         return SimulationDayContext(
-            graph_size=ctx.opts["size"],
+            graph_size=sim.graph.num_loc,
             full_policy=ctx.pol_name,
             policy=ctx.pol_name,
             policy_name=ctx.pol_name,
@@ -113,10 +114,10 @@ class RunningState(SimState):
             day=day,
             model_env=ctx.model_env,
             model_ls=ctx.model_tup or (None, None),
-            n_vehicles=ctx.opts["n_vehicles"],
-            area=ctx.opts["area"],
+            n_vehicles=sim.n_vehicles,
+            area=sim.graph.area,
             realtime_log_path=realtime_log_path,
-            waste_type=ctx.opts["waste_type"],
+            waste_type=sim.graph.waste_type,
             distpath_tup=ctx.dist_tup,
             distance_matrix=distance_matrix,
             distancesC=distancesC,
@@ -128,11 +129,11 @@ class RunningState(SimState):
             lock=cast(Optional[Lock], ctx.lock),
             hrl_manager=ctx.hrl_manager,
             config=current_policy_config,
-            cost_weight=ctx.opts.get("cost_weight", 1.0),
-            waste_weight=ctx.opts.get("waste_weight", 1.0),
-            overflow_penalty=ctx.opts.get("overflow_penalty", 1.0),
-            engine=ctx.opts.get("engine"),
-            threshold=ctx.opts.get("threshold"),
+            cost_weight=sim.policy_configs.get("cost_weight", 1.0),
+            waste_weight=sim.policy_configs.get("waste_weight", 1.0),
+            overflow_penalty=sim.policy_configs.get("overflow_penalty", 1.0),
+            engine=sim.policy_configs.get("engine"),
+            threshold=sim.policy_configs.get("threshold"),
         )
 
     def _update_ctx_from_day_context(self, ctx, day_context):

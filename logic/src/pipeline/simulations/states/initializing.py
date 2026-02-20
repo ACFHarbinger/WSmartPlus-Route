@@ -41,24 +41,26 @@ class InitializingState(SimState):
 
     def handle(self, ctx: SimulationContext) -> None:
         """Handle initialization of simulation state."""
+        sim = ctx.cfg.sim
+
         self._setup_logging_and_dirs(ctx)
         self._load_all_configurations(ctx)
 
         # Load base data
         data, bins_coordinates, depot = setup_basedata(
-            ctx.opts["size"], ctx.data_dir, ctx.opts["area"], ctx.opts["waste_type"]
+            sim.graph.num_loc, ctx.data_dir, sim.graph.area, sim.graph.waste_type
         )
         self._setup_capacities(ctx)
 
         # Checkpoints
-        ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, ctx.opts["checkpoint_dir"], ctx.pol_name, ctx.sample_id)
+        ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, sim.checkpoint_dir, ctx.pol_name, ctx.sample_id)
         saved_state, last_day = self._load_checkpoint_if_needed(ctx)
 
         # Setup Models
         self._setup_models(ctx)
 
         # Restore or Initialize State
-        if ctx.opts["resume"] and saved_state is not None:
+        if sim.resume and saved_state is not None:
             self._restore_state(ctx, saved_state, last_day)
         else:
             self._initialize_new_state(ctx, data, bins_coordinates, depot)
@@ -69,8 +71,8 @@ class InitializingState(SimState):
         ctx.transition_to(RunningState())
 
     def _setup_logging_and_dirs(self, ctx):
-        opts = ctx.opts
-        setup_system_logger(opts.get("log_file", "logs/simulation.log"), opts.get("log_level", "INFO"))
+        sim = ctx.cfg.sim
+        setup_system_logger(sim.log_file, sim.log_level)
 
         if not os.path.exists(ctx.results_dir):
             os.makedirs(ctx.results_dir)
@@ -80,7 +82,8 @@ class InitializingState(SimState):
 
     def _load_all_configurations(self, ctx):
         ctx.config = {}
-        config_paths = ctx.opts.get("config_path")
+        sim = ctx.cfg.sim
+        config_paths = sim.config_path if sim.config_path else None
 
         if config_paths:
             if isinstance(config_paths, ITraversable):
@@ -91,15 +94,14 @@ class InitializingState(SimState):
                         print(f"[INFO] Loaded configuration for '{key}' from {path}")
                     except (OSError, ValueError) as e:
                         print(f"[Warning] Failed to load config file {path}: {e}")
-            else:
-                try:
-                    ctx.config = load_config(config_paths)
-                    print(f"[INFO] Loaded configuration from {config_paths}")
-                except (OSError, ValueError):
-                    pass
-
-        # No longer handling must_go prefix from policy string.
-        # Everything should be explicitly defined in ctx.opts.
+            elif isinstance(config_paths, dict):
+                for key, path in config_paths.items():
+                    try:
+                        loaded = path if isinstance(path, (dict, ITraversable)) else load_config(path)
+                        ctx.config[key] = loaded
+                        print(f"[INFO] Loaded configuration for '{key}' from {path}")
+                    except (OSError, ValueError) as e:
+                        print(f"[Warning] Failed to load config file {path}: {e}")
 
         self._load_neural_configs(ctx)
 
@@ -108,19 +110,15 @@ class InitializingState(SimState):
         neural_keywords = ["am", "ptr", "transgcn", "neural", "ddam", "ham", "l2d"]
 
         # Priority 1: policy_cfg (new structured format)
-        # Priority 2: ctx.opts (legacy/global format)
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
-        if not model_name:
-            model_name = ctx.opts.get("model.name", "").lower()
-
+        neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
         should_load_neural = any(kw in model_name for kw in neural_keywords) or any(
             model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
         )
 
-        neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
         if should_load_neural and os.path.exists(neural_cfg_path):
             try:
                 neural_cfg = load_config(neural_cfg_path)
@@ -128,12 +126,6 @@ class InitializingState(SimState):
                     if "neural" in neural_cfg:
                         for pol_key, pol_val in neural_cfg["neural"].items():
                             ctx.config[pol_key] = pol_val
-                            if isinstance(pol_val, list):
-                                for item in pol_val:
-                                    if isinstance(item, dict) and "model_path" in item:
-                                        if ctx.opts.get("model_path") is None:
-                                            ctx.opts["model_path"] = {}
-                                        ctx.opts["model_path"][pol_key] = item["model_path"]
                     else:
                         ctx.config.update(neural_cfg)
                 print(f"[INFO] Loaded configuration from {neural_cfg_path}")
@@ -143,12 +135,13 @@ class InitializingState(SimState):
     def _setup_capacities(self, ctx):
         from logic.src.utils.data.data_utils import load_area_and_waste_type_params
 
-        capacities, _, _, _, _ = load_area_and_waste_type_params(ctx.opts["area"], ctx.opts["waste_type"])
+        sim = ctx.cfg.sim
+        capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)
         ctx.vehicle_capacity = capacities
 
     def _load_checkpoint_if_needed(self, ctx):
         saved_state, last_day = (None, 0)
-        if ctx.opts["resume"]:
+        if ctx.cfg.sim.resume:
             saved_state, last_day = ctx.checkpoint.load_state()
             if saved_state is not None and ctx.overall_progress:
                 ctx.overall_progress.update(last_day)
@@ -159,32 +152,31 @@ class InitializingState(SimState):
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
-        if not model_name:
-            model_name = ctx.opts.get("model.name", "").lower()
-
+        sim = ctx.cfg.sim
         should_load_neural = any(kw in model_name for kw in ["am", "ptr", "transgcn", "neural", "ddam"]) or any(
             model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
         )
 
         configs = None
         if should_load_neural and ("am" in model_name or "transgcn" in model_name or model_name.startswith("am")):
-            # Extract decoding parameters
-            opts = ctx.opts
-            decoding_opts = opts.get("decoding", {})
-            temp = decoding_opts.get("temperature", opts.get("decoding.temperature", opts.get("temperature", 1.0)))
-            strat = decoding_opts.get("strategy", opts.get("decoding.strategy", opts.get("strategy", "greedy")))
+            # Extract decoding parameters from policy config
+            decoding = ctx.pol_cfg.get("decoding", {}) if isinstance(ctx.pol_cfg, dict) else {}
+            temp = decoding.get("temperature", 1.0)
+            strat = decoding.get("strategy", "greedy")
+
+            model_path = ctx.pol_cfg.get("model_path") if isinstance(ctx.pol_cfg, dict) else None
 
             ctx.model_env, configs = setup_model(
                 ctx.pol_name,
                 ctx.model_weights_path,
-                opts["model_path"],
+                model_path,
                 ctx.device,
                 ctx.lock,
                 temp,
                 strat,
             )
             ctx.hrl_manager = setup_hrl_manager(
-                opts,
+                ctx.cfg.sim,  # type: ignore[arg-type]
                 ctx.device,
                 configs,
                 policy=ctx.pol_name,
@@ -195,10 +187,10 @@ class InitializingState(SimState):
         elif "vrpp" in model_name:
             ctx.model_env = setup_env(
                 ctx.pol_name,
-                ctx.opts["server_run"],
-                ctx.opts["gplic_file"],
-                ctx.opts["symkey_name"],
-                ctx.opts["env_file"],
+                sim.server_run,
+                sim.gplic_file,
+                sim.symkey_name,
+                sim.env_file,
             )
             ctx.model_tup = (None, None)
             self.configs = None  # type: ignore[assignment]
@@ -223,34 +215,27 @@ class InitializingState(SimState):
         ctx.start_day = last_day + 1
 
     def _initialize_new_state(self, ctx, data, bins_coordinates, depot):
-        opts = ctx.opts
-        # Resolve templates if present
-        for k in ["dm_filepath", "waste_filepath"]:
-            if k in opts and isinstance(opts[k], str) and "{" in opts[k]:
-                opts[k] = opts[k].format(**opts)
+        sim = ctx.cfg.sim
 
         ctx.new_data, ctx.coords = process_data(data, bins_coordinates, depot, ctx.indices)
 
         ctx.dist_tup, adj_matrix = setup_dist_path_tup(
             ctx.coords,
-            opts["size"],
-            opts["distance_method"],
-            opts["dm_filepath"],
-            opts["env_file"],
-            opts["gapik_file"],
-            opts["symkey_name"],
+            sim.graph.num_loc,
+            sim.graph.distance_method,
+            sim.graph.dm_filepath,
+            sim.env_file,
+            sim.gapik_file,
+            sim.symkey_name,
             ctx.device,
-            opts["edge_threshold"],
-            opts["edge_method"],
+            sim.graph.edge_threshold,
+            sim.graph.edge_method,
             ctx.indices,
         )
 
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
-
-        if not model_name:
-            model_name = opts.get("model.name", "").lower()
 
         should_load_neural = any(kw in model_name for kw in ["am", "ptr", "transgcn", "neural", "ddam"]) or any(
             model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
@@ -261,39 +246,39 @@ class InitializingState(SimState):
                 ctx.coords,
                 ctx.dist_tup[2],
                 ctx.device,
-                opts["vertex_method"],
+                sim.graph.vertex_method,
                 ctx.config,
-                opts["edge_threshold"],
-                opts["edge_method"],
-                opts["area"],
-                opts["waste_type"],
+                sim.graph.edge_threshold,
+                sim.graph.edge_method,
+                sim.graph.area,
+                sim.graph.waste_type,
                 adj_matrix,
             )
 
         self._initialize_bins(ctx)
 
-        ctx.cached = [] if opts["cache_regular"] else None
-        if opts["stats_filepath"] is not None:
-            ctx.bins.set_statistics(opts["stats_filepath"])
-        if opts["waste_filepath"] is not None:
+        ctx.cached = [] if sim.cache_regular else None
+        if sim.stats_filepath is not None:
+            ctx.bins.set_statistics(sim.stats_filepath)
+        if sim.waste_filepath is not None:
             ctx.bins.set_sample_waste(ctx.sample_id)
 
         ctx.bins.set_indices(ctx.indices)
         ctx.daily_log = {key: [] for key in DAY_METRICS}
 
     def _initialize_bins(self, ctx):
-        opts = ctx.opts
-        data_dist = opts.get("data_distribution", "gamma1")
+        sim = ctx.cfg.sim
+        data_dist = sim.data_distribution
         if "gamma" in data_dist:
             ctx.bins = Bins(
-                opts["size"],
+                sim.graph.num_loc,
                 ctx.data_dir,
                 data_dist[:-1],
-                area=opts["area"],
-                waste_type=opts["waste_type"],
-                waste_file=opts["waste_filepath"],
-                noise_mean=opts.get("noise_mean", 0.0),
-                noise_variance=opts.get("noise_variance", 0.0),
+                area=sim.graph.area,
+                waste_type=sim.graph.waste_type,
+                waste_file=sim.waste_filepath,
+                noise_mean=sim.noise_mean,
+                noise_variance=sim.noise_variance,
             )
             # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
             try:
@@ -303,12 +288,12 @@ class InitializingState(SimState):
             ctx.bins.setGammaDistribution(option=gamma_option)
         else:
             ctx.bins = Bins(
-                opts["size"],
+                sim.graph.num_loc,
                 ctx.data_dir,
                 data_dist,
-                area=opts["area"],
-                waste_type=opts["waste_type"],
-                waste_file=opts["waste_filepath"],
-                noise_mean=opts.get("noise_mean", 0.0),
-                noise_variance=opts.get("noise_variance", 0.0),
+                area=sim.graph.area,
+                waste_type=sim.graph.waste_type,
+                waste_file=sim.waste_filepath,
+                noise_mean=sim.noise_mean,
+                noise_variance=sim.noise_variance,
             )

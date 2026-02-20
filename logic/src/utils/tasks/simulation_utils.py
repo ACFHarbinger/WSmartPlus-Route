@@ -1,20 +1,31 @@
 import time
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 import logic.src.constants as udef
 
 
-def prepare_parallel_task_args(opts: dict, indices: list, sample_idx_ls: list) -> List[Tuple]:
+def prepare_parallel_task_args(
+    policies: List[str],
+    n_samples: int,
+    indices: List[Any],
+    sample_idx_ls: List[List[int]],
+) -> List[Tuple[Any, ...]]:
     """
     Prepare argument tuples for parallel task execution.
+
+    Args:
+        policies: Expanded policy name list.
+        n_samples: Number of samples per policy.
+        indices: Bin subset indices per sample.
+        sample_idx_ls: Sample index lists per policy.
     """
-    if opts["n_samples"] > 1:
-        return [(indices[sid], sid, pol_id) for pol_id in range(len(opts["policies"])) for sid in sample_idx_ls[pol_id]]
+    if n_samples > 1:
+        return [(indices[sid], sid, pol_id) for pol_id in range(len(policies)) for sid in sample_idx_ls[pol_id]]
     else:
-        return [(indices[0], 0, pol_id) for pol_id in range(len(opts["policies"]))]
+        return [(indices[0], 0, pol_id) for pol_id in range(len(policies))]
 
 
-def print_execution_info(opts: dict, task_count: int, n_cores: int):
+def print_execution_info(task_count: int, n_cores: int) -> None:
     """
     Print information about parallel execution configuration.
     """

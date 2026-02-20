@@ -44,6 +44,9 @@ from logic.src.utils.logging.log_utils import log_to_json, output_stats
 from .checkpoints import CheckpointError
 from .states import SimulationContext
 
+if TYPE_CHECKING:
+    from logic.src.configs import Config
+
 
 def get_pol_name(pol_obj: Union[str, Dict[str, Any]]) -> str:
     """Extract policy name from structured or string config."""
@@ -53,9 +56,6 @@ def get_pol_name(pol_obj: Union[str, Dict[str, Any]]) -> str:
         return "complex_policy"
     return str(pol_obj)
 
-
-if TYPE_CHECKING:
-    pass
 
 # Create global variables/placeholders for parallel workers
 _lock: Optional[Any] = None
@@ -68,7 +68,6 @@ def init_single_sim_worker(
     counter_from_main: Any,
     shared_metrics_from_main: Any = None,
     log_file: Optional[str] = None,
-    load_dataset: Optional[str] = None,
 ) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
@@ -82,7 +81,6 @@ def init_single_sim_worker(
         counter_from_main: Multiprocessing Value for overall progress tracking.
         shared_metrics_from_main: Multiprocessing Manager.dict for real-time stats.
         log_file: Path to the log file for redirection.
-        load_dataset: Path to pre-generated dataset for repository initialization.
     """
     global _lock
     global _counter
@@ -90,26 +88,6 @@ def init_single_sim_worker(
     _lock = lock_from_main
     _counter = counter_from_main
     _shared_metrics = shared_metrics_from_main
-
-    # Initialize repository in the worker process
-    from logic.src.pipeline.simulations.repository import set_repository
-
-    if load_dataset and str(load_dataset).endswith(".npz"):
-        from logic.src.data.datasets import NumpyDictDataset
-        from logic.src.pipeline.simulations.repository import NumpyDictRepository
-
-        dataset = NumpyDictDataset.load(load_dataset)
-        set_repository(NumpyDictRepository(dataset))
-    elif load_dataset and str(load_dataset).endswith(".xlsx"):
-        from logic.src.data.datasets import PandasExcelDataset
-        from logic.src.pipeline.simulations.repository import PandasExcelRepository
-
-        dataset = PandasExcelDataset.load(load_dataset)
-        set_repository(PandasExcelRepository(dataset))
-    else:
-        from logic.src.pipeline.simulations.repository import FileSystemRepository
-
-        set_repository(FileSystemRepository(ROOT_DIR))
 
     # Setup logger redirection in the worker process (silent=True to avoid garbling dashboard)
     if log_file:
@@ -131,9 +109,6 @@ def display_log_metrics(
 ) -> None:
     """
     Pretty-prints aggregated simulation results to the console.
-
-    Formats and displays metrics for multiple policies, including mean values
-    and standard deviations if multiple samples were processed.
 
     Args:
         output_dir: Base directory for results.
@@ -184,7 +159,7 @@ def display_log_metrics(
 
 
 def single_simulation(
-    opts: Dict[str, Any],
+    cfg: Config,
     device: torch.device,
     indices: Any,
     sample_id: int,
@@ -199,13 +174,13 @@ def single_simulation(
     shared locks/counters from globals and delegates to SimulationContext.
 
     Args:
-        opts: Simulation configuration dictionary
-        device: torch.device for neural models
-        indices: Bin subset indices for this sample
-        sample_id: Sample/seed identifier
-        pol_id: Policy index in opts['policies']
-        model_weights_path: Path to pretrained model weights
-        n_cores: Number of CPU cores (for progress bar positioning)
+        cfg: Root configuration object.
+        device: torch.device for neural models.
+        indices: Bin subset indices for this sample.
+        sample_id: Sample/seed identifier.
+        pol_id: Policy index in cfg.sim.full_policies.
+        model_weights_path: Path to pretrained model weights.
+        n_cores: Number of CPU cores (for progress bar positioning).
 
     Returns:
         Result dictionary from SimulationContext.run()
@@ -214,6 +189,9 @@ def single_simulation(
     global _lock
     global _counter
     global _shared_metrics
+
+    sim = cfg.sim
+    policies = sim.full_policies
 
     try:
         sys.stdout.flush()
@@ -224,12 +202,12 @@ def single_simulation(
             "tqdm_pos": os.getpid() % n_cores,
         }
 
-        context = SimulationContext(opts, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
+        context = SimulationContext(cfg, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
         res: Optional[Dict[str, Any]] = context.run()
         # Aggregate execution result
         if res and "success" in res and res["success"]:
             # If successful, extract the policy name to return the correct dictionary key
-            pol_name = get_pol_name(opts["policies"][pol_id])
+            pol_name = get_pol_name(policies[pol_id])
             if pol_name in res:
                 return {pol_name: res[pol_name], "success": True}
 
@@ -248,76 +226,70 @@ def single_simulation(
 
 
 def sequential_simulations(  # noqa: C901
-    opts: Dict[str, Any],
+    cfg: Config,
     device: torch.device,
     indices_ls: List[Any],
     sample_idx_ls: List[List[int]],
     model_weights_path: str,
     lock: Optional[Any],
+    shared_metrics: Optional[Any] = None,
 ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Executes multiple simulation runs sequentially with aggregation.
 
-    Runs all (policy, sample) pairs in sequence, computing mean and standard
-    deviation across samples. Displays overall progress bar and handles
-    checkpoint errors gracefully.
-
     Args:
-        opts: Simulation configuration dictionary
-        device: torch.device for neural models
-        indices_ls: List of bin index arrays (one per sample)
-        sample_idx_ls: List of sample IDs for each policy
-        model_weights_path: Path to pretrained model weights
-        lock: Threading lock for file I/O synchronization
+        cfg: Root configuration object.
+        device: torch.device for neural models.
+        indices_ls: List of bin index arrays (one per sample).
+        sample_idx_ls: List of sample IDs for each policy.
+        model_weights_path: Path to pretrained model weights.
+        lock: Threading lock for file I/O synchronization.
+        shared_metrics: Optional shared dict for real-time metrics.
 
     Returns:
         Tuple containing:
             - log: Dict[policy] -> List[mean_metrics]
             - log_std: Dict[policy] -> List[std_metrics] (None if n_samples=1)
             - failed_log: List of error result dictionaries
-
-    Note:
-        If opts['resume']=True, loads existing logs instead of recomputing.
     """
+    sim = cfg.sim
+    policies = sim.full_policies
+
     log: Dict[str, Any] = {}
     failed_log: List[Dict[str, Any]] = []
-    log_std: Optional[Dict[str, Any]] = None
-    log_full: Dict[str, List[List[float]]] = {}
-
-    # Always initialize accumulation structures to support metrics for N=1 case
-    log_std = {}
-    log_full = {get_pol_name(policy): [] for policy in opts["policies"]}
+    log_std: Optional[Dict[str, Any]] = {}
+    log_full: Dict[str, List[List[float]]] = {get_pol_name(policy): [] for policy in policies}
 
     # Create overall progress bar FIRST with position=1
     overall_progress = tqdm(
-        total=sum(len(sublist) for sublist in sample_idx_ls) * opts["days"],
+        total=sum(len(sublist) for sublist in sample_idx_ls) * sim.days,
         desc="Overall progress",
-        disable=opts["no_progress_bar"],
+        disable=sim.no_progress_bar,
         position=1,
         leave=True,
-    )  # Ensure it stays visible
+    )
 
     results_dir = os.path.join(
         ROOT_DIR,
         "assets",
-        opts["output_dir"],
-        str(opts["days"]) + "_days",
-        str(opts["area"]) + "_" + str(opts["size"]),
+        sim.output_dir,
+        f"{sim.days}_days",
+        f"{sim.graph.area}_{sim.graph.num_loc}",
     )
 
-    for pol_id, policy in enumerate(opts["policies"]):
+    for pol_id, policy in enumerate(policies):
         pol_name = get_pol_name(policy)
         for sample_id in sample_idx_ls[pol_id]:
             try:
                 variables_dict: Dict[str, Any] = {
                     "lock": lock,
                     "overall_progress": overall_progress,
-                    "shared_metrics": opts.get("shared_metrics"),
+                    "shared_metrics": shared_metrics,
                     "tqdm_pos": 1,
                 }
 
                 context = SimulationContext(
-                    opts,
+                    cfg,
                     device,
                     indices_ls[sample_id],
                     sample_id,
@@ -338,23 +310,22 @@ def sequential_simulations(  # noqa: C901
                 # Force print to real stderr to bypass any redirection
                 err_stream = sys.__stderr__ or sys.stderr
                 print(
-                    f"CRITICAL ERROR (BaseException) in sequential_simulations (Sample {sample_id}, Policy {pol_id}): {e}",
+                    f"CRITICAL ERROR (BaseException) in sequential_simulations "
+                    f"(Sample {sample_id}, Policy {pol_id}): {e}",
                     file=err_stream,
                 )
                 traceback.print_exc(file=err_stream)
                 if err_stream:
                     err_stream.flush()
-                # Continue with next sample/policy instead of crashing the whole process
-                pass
             except CheckpointError:
                 # Skip broken checkpoints
                 pass
 
-        if opts["n_samples"] >= 1:
-            if opts["resume"]:
+        if sim.n_samples >= 1:
+            if sim.resume:
                 res_log, res_std = output_stats(
                     results_dir,
-                    opts["n_samples"],
+                    sim.n_samples,
                     [pol_name],
                     SIM_METRICS,
                     lock=lock,
@@ -372,14 +343,14 @@ def sequential_simulations(  # noqa: C901
                     log_std[pol_name] = [0.0] * len(log[pol_name])
 
                 log_to_json(
-                    os.path.join(results_dir, f"log_mean_{opts['n_samples']}N.json"),
+                    os.path.join(results_dir, f"log_mean_{sim.n_samples}N.json"),
                     SIM_METRICS,
                     {pol_name: log[pol_name]},
                     lock=lock,
                 )
                 if log_std is not None:
                     log_to_json(
-                        os.path.join(results_dir, f"log_std_{opts['n_samples']}N.json"),
+                        os.path.join(results_dir, f"log_std_{sim.n_samples}N.json"),
                         SIM_METRICS,
                         {pol_name: log_std[pol_name]},
                         lock=lock,

@@ -13,8 +13,9 @@ from ..envs.graph import GraphConfig
 class SimConfig:
     """Simulation configuration.
 
-    attributes:
+    Attributes:
         policies: List of policy configurations to test on the WSR simulator.
+        full_policies: Expanded policy names after config expansion (populated at runtime).
         data_distribution: Distribution to generate the bins daily waste fill.
         problem: The problem the model was trained to solve.
         days: Number of days to run the simulation for.
@@ -35,18 +36,20 @@ class SimConfig:
         server_run: Simulation will be executed in a remote server.
         env_file: Name of the file that contains the environment variables.
         gplic_file: Name of the file that contains the license to use for Gurobi.
-        hexlic_file: Name of the file that contains the license to use for Gurobi.
+        hexlic_file: Name of the file that contains the license to use for Hexaly.
         symkey_name: Name of the cryptographic key used to access the API keys.
         gapik_file: Name of the file that contains the key to use for the Google API.
         real_time_log: Activate real time results window.
         stats_filepath: Path to the file to read the statistics from.
         waste_filepath: Path to the file to read the waste fill for each day from.
         graph: Graph/instance configuration.
-        reward: Objective/reward configuration.
         data_dir: Directory containing the simulation data.
+        load_dataset: Path to a pre-generated dataset file (.npz, .xlsx).
+        config_path: Policy configuration paths populated by expand_policy_configs.
     """
 
     policies: List[Any] = field(default_factory=list)
+    full_policies: List[str] = field(default_factory=list)
     data_distribution: str = "gamma1"
     problem: str = "vrpp"
     days: int = 31
@@ -78,3 +81,5 @@ class SimConfig:
     stats_filepath: Optional[str] = None
     data_dir: Optional[str] = None
     policy_configs: Dict[str, Any] = field(default_factory=dict)
+    load_dataset: Optional[str] = None
+    config_path: Dict[str, Any] = field(default_factory=dict)
