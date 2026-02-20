@@ -97,7 +97,7 @@ class VRPInstanceBuilder:
         self._focus_size = focus_size
         return self
 
-    def set_method(self, method: str):
+    def set_method(self, method: Optional[str]):
         """Sets the method used for vertex generation/selection."""
         self._method = method
         return self

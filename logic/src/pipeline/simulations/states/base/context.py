@@ -26,6 +26,7 @@ from .base import SimState
 
 if TYPE_CHECKING:
     from logic.src.configs import Config
+
     from ...checkpoints import SimulationCheckpoint
 
 

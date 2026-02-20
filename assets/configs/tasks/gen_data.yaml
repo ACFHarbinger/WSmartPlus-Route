@@ -23,7 +23,7 @@ data:
   problem: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
   data_distributions: ["gamma1"] # Waste generation distributions to use.
   penalty_factor: 3.0
-  overwrite: false
+  overwrite: true
   seed: 42
   n_epochs: 1
   epoch_start: 0

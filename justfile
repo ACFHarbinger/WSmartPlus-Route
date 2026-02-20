@@ -114,7 +114,7 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem size=size distribution=distribution data_type="train" n_samples="128000" n_days="1":
+gen-data problem=problem size=size distribution=distribution data_type="test_simulator" n_samples="10" n_days="31":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"

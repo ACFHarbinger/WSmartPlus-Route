@@ -3,7 +3,7 @@ Graph/instance configuration module.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 
 
 @dataclass
@@ -26,10 +26,10 @@ class GraphConfig:
     area: str = "riomaior"
     num_loc: int = 50
     waste_type: str = "plastic"
-    vertex_method: str = "mmn"
+    vertex_method: Optional[str] = "mmn"
     distance_method: str = "ogd"
     dm_filepath: Optional[str] = None
-    edge_threshold: str = "0"
+    edge_threshold: Union[float, int, str] = "0"
     edge_method: Optional[str] = None
     focus_graph: Optional[str] = None
     focus_size: Optional[int] = None

@@ -54,7 +54,7 @@ def load_focus_coords(
 
     Args:
         graph_size: Size of the graph.
-        method: Method for coordinate processing (e.g., 'naive', 'k-means').
+        method: Method for vertex coordinate processing (e.g., 'mmn', '').
         area: Geographic area name.
         waste_type: Type of waste.
         focus_graph: Path to focus graph file.
@@ -77,9 +77,6 @@ def load_focus_coords(
         idx = json.load(js)
 
     _, coords = process_data(data, coords, depot, idx[0])
-    if method is None:
-        return coords, idx, None, None  # type: ignore
-
     depot, loc = process_coordinates(coords, method)
     if focus_size > 0:
         lat_minmax = (coords["Lat"].min(), coords["Lat"].max())

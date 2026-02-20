@@ -1630,3 +1630,129 @@ python -m memory_profiler main.py train_lightning
 ---
 
 **This architecture document is the blueprint for WSmart+ Route. Keep it updated as the system evolves.**
+
+---
+
+## 16. Hydra Command Execution Flows
+
+The project is driven by a central Hydra configuration model, primarily coordinated through `hydra_dispatch.py`. Depending on the exact CLI mode invoked, workflows resolve specific configurations natively before executing dedicated entry point engines.
+
+### 16.1 Train Command (`train_lightning`, `hpo`, `meta_train`)
+
+The `run_training` and `run_hpo` entry points coordinate Lightning training instances, initializing trainers and handling configurations before distributing epochs to hardware.
+
+```mermaid
+sequenceDiagram
+    participant CLI as CLI (main.py)
+    participant Hydra as Hydra Dispatch
+    participant Engine as Train Engine<br/>(engine.py)
+    participant Factory as Model Factory
+    participant L as PyTorch Lightning
+    participant WST as WSTrainer
+
+    CLI->>Hydra: python main.py train_lightning ...
+    Hydra->>Engine: run_training(cfg)
+    Engine->>Engine: seed_everything(cfg.seed)
+    Engine->>Factory: create_model(cfg)
+    Factory-->>Engine: model (LitModule)
+    Engine->>Engine: instantiate callbacks<br/>(SpeedMonitor, ProgressBar, etc.)
+    Engine->>WST: init WSTrainer(max_epochs, strategy, etc.)
+    Engine->>L: trainer.fit(model)
+    L-->>Engine: Training complete
+    Engine->>Engine: save_weights(cfg.train.final_model_path)
+    Engine-->>Hydra: Return val/reward metric
+```
+
+### 16.2 Evaluate Command (`eval`)
+
+The evaluation pipeline handles deterministic assessment of models over dataset instances and exports solutions/tours directly, typically in single-process chunks or GPU scatter processes.
+
+```mermaid
+sequenceDiagram
+    participant CLI as CLI (main.py)
+    participant Hydra as Hydra Dispatch
+    participant Engine as Eval Engine<br/>(engine.py)
+    participant Problem as Problem (e.g. VRPP)
+    participant Model as Loaded Model
+    participant Eval as evaluate_policy
+
+    CLI->>Hydra: python main.py eval <dataset> ...
+    Hydra->>Engine: run_evaluate_model(cfg)
+    Engine->>Engine: load_model(cfg.eval.policy.load_path)
+    Engine->>Problem: make_dataset(dataset_path, **ds_kwargs)
+    Problem-->>Engine: dataset
+    alt Single Process
+        Engine->>Eval: evaluate_policy(model, dataloader)
+    else Multi-Process
+        Engine->>Engine: mp.Pool.map(eval_dataset_mp)
+        Engine->>Eval: evaluate_policy (per process batch)
+    end
+    Eval-->>Engine: costs, sequences, duration
+    Engine->>Engine: Aggregate Metrics (avg cost, km, kg, overflows)
+    Engine->>Engine: save_dataset(results, out_file)
+    Engine-->>Hydra: return 0.0
+```
+
+### 16.3 Simulator Command (`test_sim`)
+
+The state-driven sequence orchestrates one or more environments over configured `N` days, iterating through fill models and executing heuristic/routing models daily to yield a consolidated JSON result file.
+
+```mermaid
+sequenceDiagram
+    participant CLI as CLI (main.py)
+    participant Hydra as Hydra Dispatch
+    participant Engine as Test Engine<br/>(engine.py)
+    participant Orch as Orchestrator
+    participant Context as SimulationContext
+    participant Sim as Simulator States
+
+    CLI->>Hydra: python main.py test_sim ...
+    Hydra->>Engine: run_wsr_simulator_test(cfg)
+    Engine->>Engine: _validate_sim_config(cfg)
+    Engine->>Engine: _resolve_data_size(cfg) & config reps
+    Engine->>Orch: simulator_testing(...)
+    alt Sequential
+        Orch->>Context: sequential_simulations(...)
+        Context->>Context: run()
+        Context->>Sim: Initializing -> Running -> Finishing
+    else Parallel
+        Orch->>Context: run_parallel_simulation(...)
+        Context->>Sim: Map run_single_simulation across Pool
+    end
+    Sim-->>Orch: DayResults (routes, metrics)
+    Orch->>Orch: Process & Aggregate Final Output
+    Orch-->>Engine: Complete
+```
+
+### 16.4 Data Generation Command (`gen_data`)
+
+The generic VRP generator engine is responsible for initializing coordinates, node attributes, graph topology, and baseline demands depending on whether the structure targets RL training sets or complex periodic sequence simulations.
+
+```mermaid
+sequenceDiagram
+    participant CLI as CLI (main.py)
+    participant Hydra as Hydra Dispatch
+    participant Generator as generators.py
+    participant Builder as VRPInstanceBuilder
+    participant Repo as FileSystemRepository
+
+    CLI->>Hydra: python main.py gen_data ...
+    Hydra->>Generator: generate_datasets(cfg)
+    Generator->>Generator: validate_data_config(cfg)
+    Generator->>Repo: set_repository(ROOT_DIR)
+    Generator->>Generator: Collect problem configs & dists
+    loop For each distribution / instance matrix
+        Generator->>Builder: init VRPInstanceBuilder()
+        Generator->>Builder: set attributes (size, area, noise...)
+        alt dataset_type == test_simulator
+            Generator->>Builder: set_num_days(n_days)
+            Generator->>Builder: build()
+            Generator->>Generator: save_simulation_dataset(.npz)
+        else dataset_type == train (or train_time)
+            Generator->>Builder: set_num_days(...)
+            Generator->>Builder: build_td()
+            Generator->>Generator: save_td_dataset(.td)
+        end
+    end
+    Generator-->>Hydra: Complete
+```
