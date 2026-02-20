@@ -68,6 +68,7 @@ def init_single_sim_worker(
     counter_from_main: Any,
     shared_metrics_from_main: Any = None,
     log_file: Optional[str] = None,
+    load_dataset: Optional[str] = None,
 ) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
@@ -81,6 +82,7 @@ def init_single_sim_worker(
         counter_from_main: Multiprocessing Value for overall progress tracking.
         shared_metrics_from_main: Multiprocessing Manager.dict for real-time stats.
         log_file: Path to the log file for redirection.
+        load_dataset: Path to pre-generated dataset for repository initialization.
     """
     global _lock
     global _counter
@@ -88,6 +90,26 @@ def init_single_sim_worker(
     _lock = lock_from_main
     _counter = counter_from_main
     _shared_metrics = shared_metrics_from_main
+
+    # Initialize repository in the worker process
+    from logic.src.pipeline.simulations.repository import set_repository
+
+    if load_dataset and str(load_dataset).endswith(".npz"):
+        from logic.src.data.datasets import NumpyDictDataset
+        from logic.src.pipeline.simulations.repository import NumpyDictRepository
+
+        dataset = NumpyDictDataset.load(load_dataset)
+        set_repository(NumpyDictRepository(dataset))
+    elif load_dataset and str(load_dataset).endswith(".xlsx"):
+        from logic.src.data.datasets import PandasExcelDataset
+        from logic.src.pipeline.simulations.repository import PandasExcelRepository
+
+        dataset = PandasExcelDataset.load(load_dataset)
+        set_repository(PandasExcelRepository(dataset))
+    else:
+        from logic.src.pipeline.simulations.repository import FileSystemRepository
+
+        set_repository(FileSystemRepository(ROOT_DIR))
 
     # Setup logger redirection in the worker process (silent=True to avoid garbling dashboard)
     if log_file:
