@@ -34,7 +34,7 @@ class RunningState(SimState):
         sim = ctx.cfg.sim
         realtime_log_path = os.path.join(
             ctx.results_dir,
-            f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl",
+            f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl.gz",
         )
 
         ctx.tic = time.process_time() + ctx.run_time
