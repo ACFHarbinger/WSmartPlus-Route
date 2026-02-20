@@ -68,6 +68,7 @@ def init_single_sim_worker(
     counter_from_main: Any,
     shared_metrics_from_main: Any = None,
     log_file: Optional[str] = None,
+    cfg: Optional[Config] = None,
 ) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
@@ -89,11 +90,45 @@ def init_single_sim_worker(
     _counter = counter_from_main
     _shared_metrics = shared_metrics_from_main
 
+    # Initialize simulation repository in the worker process
+    if cfg is not None:
+        _initialize_worker_repository(cfg)
+
     # Setup logger redirection in the worker process (silent=True to avoid garbling dashboard)
     if log_file:
         from logic.src.utils.logging.logger_writer import setup_logger_redirection
 
         setup_logger_redirection(log_file, silent=True)
+
+
+def _initialize_worker_repository(cfg: Config) -> None:
+    """Initialize the singleton repository instance in a worker process."""
+    from logic.src.constants import ROOT_DIR
+    from logic.src.data.datasets import NumpyDictDataset, PandasExcelDataset
+    from logic.src.pipeline.simulations.repository import (
+        FileSystemRepository,
+        NumpyDictRepository,
+        PandasExcelRepository,
+        set_repository,
+    )
+
+    load_ds = cfg.load_dataset
+    if load_ds is not None and str(load_ds).endswith(".npz"):
+        # We need to prepend ROOT_DIR if it's a relative path
+        abs_load_ds = os.path.join(ROOT_DIR, load_ds) if not os.path.isabs(load_ds) else load_ds
+        if os.path.exists(abs_load_ds):
+            dataset = NumpyDictDataset.load(abs_load_ds)
+            set_repository(NumpyDictRepository(dataset))
+            return
+
+    if load_ds is not None and str(load_ds).endswith(".xlsx"):
+        abs_load_ds = os.path.join(ROOT_DIR, load_ds) if not os.path.isabs(load_ds) else load_ds
+        if os.path.exists(abs_load_ds):
+            dataset = PandasExcelDataset.load(abs_load_ds)
+            set_repository(PandasExcelRepository(dataset))
+            return
+
+    set_repository(FileSystemRepository(ROOT_DIR))
 
 
 def display_log_metrics(
@@ -213,15 +248,17 @@ def single_simulation(
 
         return res or {"error": "Unknown error", "policy": "unknown", "sample_id": sample_id, "success": False}
     except BaseException as e:
-        # Force print to real stderr to bypass any redirection
-        err_stream = sys.__stderr__ or sys.stderr
+        # Report to redirected stderr so it's captured in simulation log files
         print(
-            f"CRITICAL ERROR (BaseException) in single_simulation (Sample {sample_id}, Policy {pol_id}): {e}",
-            file=err_stream,
+            f"\n[CRITICAL ERROR] in single_simulation (Sample {sample_id}, Policy {pol_id}): {e}",
+            file=sys.stderr,
         )
-        traceback.print_exc(file=err_stream)
-        if err_stream:
-            err_stream.flush()
+        traceback.print_exc(file=sys.stderr)
+
+        # Also print a pointer to the log file on the REAL stderr so it's visible even during failure
+        if hasattr(sys.stderr, "filename"):
+            print(f"Detailed traceback available in: {sys.stderr.filename}", file=sys.__stderr__ or sys.stderr)
+
         return {"policy": "unknown", "sample_id": sample_id, "error": str(e), "success": False}
 
 
@@ -307,16 +344,16 @@ def sequential_simulations(  # noqa: C901
                     log_full[pol_name].append(lg)
                     log[pol_name] = lg
             except BaseException as e:
-                # Force print to real stderr to bypass any redirection
-                err_stream = sys.__stderr__ or sys.stderr
+                # Report to redirected stderr so it's captured in simulation log files
                 print(
-                    f"CRITICAL ERROR (BaseException) in sequential_simulations "
-                    f"(Sample {sample_id}, Policy {pol_id}): {e}",
-                    file=err_stream,
+                    f"\n[CRITICAL ERROR] in sequential_simulations (Sample {sample_id}, Policy {pol_id}): {e}",
+                    file=sys.stderr,
                 )
-                traceback.print_exc(file=err_stream)
-                if err_stream:
-                    err_stream.flush()
+                traceback.print_exc(file=sys.stderr)
+
+                # Also print a pointer to the log file on the REAL stderr
+                if hasattr(sys.stderr, "filename"):
+                    print(f"Detailed traceback available in: {sys.stderr.filename}", file=sys.__stderr__ or sys.stderr)
             except CheckpointError:
                 # Skip broken checkpoints
                 pass

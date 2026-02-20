@@ -91,19 +91,13 @@ def _validate_sim_config(cfg: Config) -> None:
 
     # Coerce edge_threshold to numeric
     sim.graph.edge_threshold = (
-        str(float(sim.graph.edge_threshold))
-        if "." in str(sim.graph.edge_threshold)
-        else str(int(sim.graph.edge_threshold))
+        float(sim.graph.edge_threshold) if "." in str(sim.graph.edge_threshold) else int(sim.graph.edge_threshold)
     )
 
     assert sim.cpu_cores >= 0, "Number of CPU cores must be >= 0"
     assert sim.cpu_cores <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
     if sim.cpu_cores == 0:
         sim.cpu_cores = cpu_count()
-
-    # Move load_dataset from root config into sim for convenience
-    if cfg.load_dataset and not sim.load_dataset:
-        sim.load_dataset = cfg.load_dataset
 
 
 # ---------------------------------------------------------------------------

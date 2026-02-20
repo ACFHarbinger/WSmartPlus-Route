@@ -29,6 +29,8 @@ defaults:
 task: test_sim
 verbose: true
 seed: 42
+log_dir: "logs/simulations"
+load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
 
 # Simulation Configuration
 sim:
@@ -39,10 +41,9 @@ sim:
   output_dir: "output"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
-  real_time_log: false
+  real_time_log: true
   no_progress_bar: false
   data_distribution: "gamma1"
-  waste_filepath: "daily_waste/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:

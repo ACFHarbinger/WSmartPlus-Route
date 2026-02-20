@@ -7,8 +7,10 @@ import threading
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import pandas as pd
+from omegaconf import OmegaConf
 
 import logic.src.constants as udef
+from logic.src.utils.configs.setup_utils import deep_sanitize
 
 
 def send_daily_output_to_gui(
@@ -57,6 +59,8 @@ def send_daily_output_to_gui(
         shifted_must_go = [i - 1 for i in must_go if i > 0]
         full_payload.update({"must_go": shifted_must_go})
 
+    full_payload = deep_sanitize(full_payload)
+    full_payload = OmegaConf.to_container(OmegaConf.create(full_payload), resolve=True)
     log_msg = f"GUI_DAY_LOG_START:{policy},{sample_idx},{day},{json.dumps(full_payload)}"
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
@@ -90,8 +94,13 @@ def send_final_output_to_gui(
         "log": {k: [list(v) if isinstance(v, (tuple, list)) else v for v in pol_data] for k, pol_data in log.items()},
         "log_std": lgsd,
         "n_samples": n_samples,
-        "policies": policies,
+        "policies": list(policies),
     }
+
+    # Deep sanitize summary_data to handle any remaining ListConfigs/DictConfigs and NumPy types
+    summary_data = deep_sanitize(summary_data)
+    summary_data = OmegaConf.to_container(OmegaConf.create(summary_data), resolve=True)
+
     summary_message = f"GUI_SUMMARY_LOG_START: {json.dumps(summary_data)}"
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:

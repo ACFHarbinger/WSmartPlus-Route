@@ -16,17 +16,7 @@ def format_coordinates(coords: Any, method: str, col_names: Optional[list[str]] 
     Normalizes and formats coordinates based on the specified method.
     Supported methods: 'mmn', 'mun', 'smsd', 'ecp', 'utmp', 'wmp', 'hdp', 'c3d', 's4d'.
     """
-    assert method in [
-        "mmn",
-        "mun",
-        "smsd",
-        "ecp",
-        "utmp",
-        "wmp",
-        "hdp",
-        "c3d",
-        "s4d",
-    ]
+    assert method in ["mmn", "mun", "smsd", "ecp", "utmp", "wmp", "hdp", "c3d", "s4d", None]
 
     if col_names is None:
         col_names = ["Lat", "Lng"]
@@ -53,9 +43,10 @@ def format_coordinates(coords: Any, method: str, col_names: Optional[list[str]] 
         lat, lng, coords = _format_wmp(lat, lng, coords, IS_PANDAS)
     elif method == "hdp":
         lat, lng = _format_hdp(lat, lng, coords, IS_PANDAS)
-    else:
-        assert method == "mmn"
+    elif method == "mmn":
         lat, lng, coords = _format_mmn(lat, lng, coords, IS_PANDAS)
+    elif method is None:
+        pass
 
     if depot is None:
         if IS_PANDAS:

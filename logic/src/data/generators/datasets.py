@@ -111,24 +111,15 @@ def _process_instance_generation(
     graph_cfg: Optional[GraphConfig] = None,
 ) -> None:
     """Configure builder and save datasets for a specific configuration."""
-    if graph_cfg is not None:
-        size = graph_cfg.num_loc
-        graph = graph_cfg.focus_graph
-        area = graph_cfg.area
-        waste_type = graph_cfg.waste_type
-        vertex_method = graph_cfg.vertex_method
-        focus_size = graph_cfg.focus_size if graph_cfg.focus_size is not None else 31
-        n_days = graph_cfg.n_days if graph_cfg.n_days is not None else max(data.n_epochs - data.epoch_start, 1)
-        n_samples = graph_cfg.n_samples if graph_cfg.n_samples is not None else data.dataset_size
-    else:
-        size = 50
-        graph = None
-        area = "riomaior"
-        waste_type = "plastic"
-        vertex_method = "mmn"
-        focus_size = 31
-        n_days = max(data.n_epochs - data.epoch_start, 1)
-        n_samples = data.dataset_size
+    assert graph_cfg is not None, "graph_cfg must be provided"
+    size = graph_cfg.num_loc
+    graph = graph_cfg.focus_graph
+    area = graph_cfg.area
+    waste_type = graph_cfg.waste_type
+    vertex_method = graph_cfg.vertex_method
+    focus_size = graph_cfg.focus_size if graph_cfg.focus_size is not None else 31
+    n_days = graph_cfg.n_days if graph_cfg.n_days is not None else max(data.n_epochs - data.epoch_start, 1)
+    n_samples = graph_cfg.n_samples if graph_cfg.n_samples is not None else data.dataset_size
 
     # dataset_type == "train" implies 0 days in legacy logic
     if data.dataset_type == "train":
@@ -319,7 +310,7 @@ def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfi
     """Verify file existence and save the dataset."""
     ext = ".td" if is_td else ".npz"
     assert data.overwrite or not os.path.isfile(check_extension(filename, ext)), (
-        "File already exists! Try running with -f option to overwrite."
+        f"File {filename} already exists! Try running with -f option to overwrite."
     )
 
     if is_td:

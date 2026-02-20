@@ -90,3 +90,69 @@ def watch(
     old_value[0] = initial
     sys.settrace(tracer)
     print(f"Watching variable: '{var_name}' (Initial: {initial})")
+
+
+def watch_all(
+    callback: Optional[Callable[[str, Any, Any, FrameType], None]] = None,
+    *,
+    frame_depth: int = 1,
+) -> None:
+    """
+    Watch all local variables in the caller's frame. Prints every change with line number.
+
+    Args:
+        callback (callable, optional): Custom callback (var_name, old, new, frame) -> None.
+        frame_depth (int, optional): Stack depth to watch from. Defaults to 1.
+    """
+    caller_frame = sys._getframe(frame_depth)
+    active_callback = callback
+    if active_callback is None:
+
+        def default_callback(var_name: str, old: Any, new: Any, frame: FrameType) -> None:
+            """
+            Default callback for the tracer.
+
+            Args:
+                var_name: Name of the variable.
+                old: Old value.
+                new: New value.
+                frame: Current stack frame.
+            """
+            stack = traceback.extract_stack(frame)[:-1]
+            caller = stack[-1]
+            print(f"DEBUG → {var_name}: {old} → {new}")
+            print(f"        at {caller.filename}:{caller.lineno} in {caller.name}")
+
+        active_callback = default_callback
+
+    old_locals = dict(caller_frame.f_locals)
+
+    def tracer(frame: FrameType, event: str, arg: Any) -> Callable:
+        """
+        Trace function for sys.settrace.
+
+        Args:
+            frame: Stack frame.
+            event: Event type.
+            arg: Argument.
+
+        Returns:
+            The tracer function.
+        """
+        if event != "line":
+            return tracer
+        if frame is not caller_frame:
+            return tracer
+
+        current_locals = frame.f_locals
+        for name, new_value in current_locals.items():
+            if name not in old_locals:
+                active_callback(name, None, new_value, frame)
+                old_locals[name] = new_value
+            elif old_locals[name] is not new_value:
+                active_callback(name, old_locals[name], new_value, frame)
+                old_locals[name] = new_value
+        return tracer
+
+    sys.settrace(tracer)
+    print("Watching all local variables.")

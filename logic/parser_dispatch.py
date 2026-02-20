@@ -129,6 +129,11 @@ def parser_entry_point(args) -> None:
         Exits with code 0 on success, 1 on error.
     """
     comm, opts = args
+    if opts.get("profile"):
+        from logic.src.utils.profiling.profiler import start_global_profiling
+
+        start_global_profiling(log_dir=opts.get("log_dir", "logs"))
+
     inner_comm = None
     exit_code = 0
     try:
