@@ -1,15 +1,13 @@
 """validators.py module.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import validators
+Validation and sanitization for data generation configuration.
 """
 
 import re
-from typing import Any, Dict, Optional
+from typing import List, Optional
 
+from logic.src.configs import Config
+from logic.src.configs.envs.graph import GraphConfig
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 
 
@@ -29,56 +27,50 @@ def _sanitize_waste(waste: Optional[str]) -> str:
     return waste
 
 
-def _get_graph_list(args: Dict[str, Any]) -> tuple[str, list[Dict[str, Any]]]:
-    """Select correct graph list based on dataset_type."""
-    dst_type = args.get("dataset_type", "train")
-    graphs = args.get("graphs", [])
-    return dst_type, graphs
+def validate_data_config(cfg: Config) -> None:
+    """
+    Validates and sanitizes data generation configuration values in-place.
 
+    Performs the same checks previously done by ``validate_gen_data_args``
+    on the flattened opts dict, now applied directly to the typed Config.
 
-def _validate_filename_args(args: Dict[str, Any], dataset_count: int) -> None:
-    """Validate filename constraints."""
-    if "filename" not in args or args["filename"] is None:
-        return
+    Args:
+        cfg: Root Hydra configuration with ``cfg.data`` containing data
+            generation parameters.
 
-    is_single_problem = (isinstance(args.get("problem"), str) and args.get("problem") != "all") or (
-        isinstance(args.get("problem"), list) and len(args["problem"]) == 1
-    )
-
-    assert is_single_problem and dataset_count <= 1, "Can only specify filename when generating a single dataset"
-
-
-def _validate_problem_args(args: Dict[str, Any]) -> None:
-    """Problem-specific validation."""
-    if args.get("problem") in ["all", "swcvrp"]:
-        assert args.get("mu") is not None, "Must specify mu when generating swcvrp datasets"
-        assert args.get("sigma") is not None, "Must specify sigma when generating swcvrp datasets"
-        assert len(args["mu"]) == len(args["sigma"]), "mu and sigma must have same length"
-
-
-def validate_gen_data_args(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Validate and post-process arguments for data generation."""
-    args = args.copy()
-
-    dst_type, graphs = _get_graph_list(args)
+    Raises:
+        AssertionError: If any validation constraint is violated.
+    """
+    data = cfg.data
+    graphs: List[GraphConfig] = list(data.graphs) if data.graphs else []
     dataset_count = len(graphs)
 
-    _validate_filename_args(args, dataset_count)
-    _validate_problem_args(args)
+    # --- Filename constraints ---
+    if data.filename is not None:
+        is_single_problem = isinstance(data.problem, str) and data.problem != "all"
+        assert is_single_problem and dataset_count <= 1, "Can only specify filename when generating a single dataset"
 
-    # Process graphs
+    # --- Problem-specific validation ---
+    if data.problem in ["all", "swcvrp"]:
+        assert data.mu is not None, "Must specify mu when generating swcvrp datasets"
+        assert data.sigma is not None, "Must specify sigma when generating swcvrp datasets"
+        if isinstance(data.mu, list) and isinstance(data.sigma, list):
+            assert len(data.mu) == len(data.sigma), "mu and sigma must have same length"
+
+    # --- Sanitize graph configs ---
     for graph in graphs:
-        graph["area"] = _sanitize_area(graph.get("area"))
-        graph["waste_type"] = _sanitize_waste(graph.get("waste_type"))
+        graph.area = _sanitize_area(graph.area)
+        graph.waste_type = _sanitize_waste(graph.waste_type)
 
-        if graph.get("num_loc") is None:
-            graph["num_loc"] = 50
-        if graph.get("vertex_method") is None:
-            graph["vertex_method"] = "mmn"
-        if graph.get("focus_size") is None:
-            graph["focus_size"] = 31
+        if graph.num_loc is None:
+            graph.num_loc = 50
+        if graph.vertex_method is None:
+            graph.vertex_method = "mmn"
+        if graph.focus_size is None:
+            graph.focus_size = 31
 
-    # Update back into args
-    args["graphs"] = graphs
+    data.graphs = graphs
 
-    return args
+
+# Keep backward-compatible alias
+validate_gen_data_args = validate_data_config
