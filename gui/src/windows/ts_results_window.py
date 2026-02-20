@@ -229,8 +229,8 @@ class SimulationResultsWindow(QWidget):
         if not day_cache:
             return
 
-        routes = day_cache.get("routes", [])
-        if not routes:
+        tour = day_cache.get("tour", [])
+        if not tour:
             return
 
         tour_indices_set = set(day_cache.get("tour_indices") or [])
@@ -240,69 +240,68 @@ class SimulationResultsWindow(QWidget):
 
         collected_set = {i for i, amt in enumerate(collected) if amt > 0}
 
-        # Center on first route point
-        center = [routes[0].get("lat", 0), routes[0].get("lng", 0)]
+        sample_idx = int(sample)
+        if self.dataset is None or sample_idx >= len(self.dataset):
+            return
+
+        sample_data = self.dataset[sample_idx]
+        locs = sample_data["locs"]  # (n_bins, 2) — lat, lng
+        depot = sample_data["depot"]  # (2,) — lat, lng
+
+        # Center on depot
+        center = [float(depot[0]), float(depot[1])]
         m = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
 
         # Depot marker
-        for point in routes:
-            if point.get("type") == "depot" and "lat" in point and "lng" in point:
-                folium.Marker(
-                    location=[point["lat"], point["lng"]],
-                    popup=f"Depot<br>Lat: {point['lat']:.4f}<br>Lng: {point['lng']:.4f}",
-                    icon=folium.Icon(color="blue", icon="home", prefix="fa"),
-                ).add_to(m)
-                break
+        folium.Marker(
+            location=[float(depot[0]), float(depot[1])],
+            popup=f"Depot<br>Lat: {depot[0]:.4f}<br>Lng: {depot[1]:.4f}",
+            icon=folium.Icon(color="blue", icon="home", prefix="fa"),
+        ).add_to(m)
 
-        # All bins from dataset (toured + non-toured)
-        sample_idx = int(sample)
-        if self.dataset is not None and sample_idx < len(self.dataset):
-            sample_data = self.dataset[sample_idx]
-            locs = sample_data["locs"]  # (n_bins, 2) — lat, lng
-            depot = sample_data["depot"]  # (2,) — lat, lng
+        for bin_id in range(len(locs)):
+            lat, lng = float(locs[bin_id, 0]), float(locs[bin_id, 1])
 
-            # If no depot marker was found in routes, add from dataset
-            if not any(p.get("type") == "depot" for p in routes):
-                folium.Marker(
-                    location=[float(depot[0]), float(depot[1])],
-                    popup=f"Depot<br>Lat: {depot[0]:.4f}<br>Lng: {depot[1]:.4f}",
-                    icon=folium.Icon(color="blue", icon="home", prefix="fa"),
-                ).add_to(m)
+            is_toured = bin_id in tour_indices_set
+            is_served = bin_id in collected_set
+            is_must_go = bin_id in must_go_set
 
-            for bin_id in range(len(locs)):
-                lat, lng = float(locs[bin_id, 0]), float(locs[bin_id, 1])
+            fill = bin_states[bin_id] if 0 <= bin_id < len(bin_states) else 50.0
+            color = "#28a745" if is_served else "#fd7e14" if is_must_go else "#dc3545"
+            radius = (5 + (fill / 100.0) * 10) if is_toured else (4 + (fill / 100.0) * 4)
+            opacity = 0.7 if is_toured else 0.35
+            weight = 4 if is_must_go else 2
 
-                is_toured = bin_id in tour_indices_set
-                is_served = bin_id in collected_set
-                is_must_go = bin_id in must_go_set
+            popup = f"Bin {bin_id}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill:.1f}%"
+            if is_must_go:
+                popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
+            if is_served:
+                popup += "<br><b style='color: #28a745;'>Served</b>"
+            if not is_toured:
+                popup += "<br><i>Not in route</i>"
 
-                fill = bin_states[bin_id] if 0 <= bin_id < len(bin_states) else 50.0
-                color = "#28a745" if is_served else "#fd7e14" if is_must_go else "#dc3545"
-                radius = (5 + (fill / 100.0) * 10) if is_toured else (4 + (fill / 100.0) * 4)
-                opacity = 0.7 if is_toured else 0.35
-                weight = 4 if is_must_go else 2
-
-                popup = f"Bin {bin_id}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill:.1f}%"
-                if is_must_go:
-                    popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
-                if is_served:
-                    popup += "<br><b style='color: #28a745;'>Served</b>"
-                if not is_toured:
-                    popup += "<br><i>Not in route</i>"
-
-                folium.CircleMarker(
-                    location=[lat, lng],
-                    radius=radius,
-                    popup=popup,
-                    color=color,
-                    fill=True,
-                    fillColor="#fd7e14" if is_must_go and is_served else color,
-                    fillOpacity=opacity,
-                    weight=weight,
-                ).add_to(m)
+            folium.CircleMarker(
+                location=[lat, lng],
+                radius=radius,
+                popup=popup,
+                color=color,
+                fill=True,
+                fillColor="#fd7e14" if is_must_go and is_served else color,
+                fillOpacity=opacity,
+                weight=weight,
+            ).add_to(m)
 
         # Route polyline
-        route_coords = [(p["lat"], p["lng"]) for p in routes if "lat" in p and "lng" in p]
+        route_coords = []
+        for node_id in tour:
+            node_idx = int(node_id)
+            if node_idx == 0:
+                route_coords.append((float(depot[0]), float(depot[1])))
+            else:
+                bin_idx = node_idx - 1
+                if 0 <= bin_idx < len(locs):
+                    route_coords.append((float(locs[bin_idx, 0]), float(locs[bin_idx, 1])))
+
         if len(route_coords) > 1:
             folium.PolyLine(route_coords, color="#3388ff", weight=3, opacity=0.8).add_to(m)
 
