@@ -34,7 +34,7 @@ class FinishingState(SimState):
         Args:
             ctx (SimulationContext): Description of ctx.
         """
-        opts = ctx.opts
+        sim = ctx.cfg.sim
         assert ctx.bins is not None
 
         ctx.execution_time = time.process_time() - ctx.tic
@@ -54,11 +54,11 @@ class FinishingState(SimState):
 
         daily_log_path = os.path.join(
             ctx.results_dir,
-            f"daily_{opts['data_distribution']}_{opts['n_samples']}N.json",
+            f"daily_{sim.data_distribution}_{sim.n_samples}N.json",
         )
 
-        if opts["n_samples"] > 1:
-            log_path = os.path.join(ctx.results_dir, f"log_full_{opts['n_samples']}N.json")
+        if sim.n_samples > 1:
+            log_path = os.path.join(ctx.results_dir, f"log_full_{sim.n_samples}N.json")
             log_to_json(
                 log_path,
                 SIM_METRICS,
@@ -74,7 +74,7 @@ class FinishingState(SimState):
                 lock=ctx.lock,
             )
         else:
-            log_path = os.path.join(ctx.results_dir, f"log_mean_{opts['n_samples']}N.json")
+            log_path = os.path.join(ctx.results_dir, f"log_mean_{sim.n_samples}N.json")
             log_to_json(log_path, SIM_METRICS, {ctx.pol_name: lg}, lock=ctx.lock)
             assert ctx.daily_log is not None
             log_to_json(
@@ -87,8 +87,8 @@ class FinishingState(SimState):
         save_matrix_to_excel(
             ctx.bins.get_fill_history(),
             ctx.results_dir,
-            opts["seed"],
-            opts["data_distribution"],
+            sim.seed,
+            sim.data_distribution,
             ctx.pol_name,
             ctx.sample_id,
         )
@@ -104,7 +104,6 @@ class FinishingState(SimState):
 
         ctx.result = {ctx.pol_name: lg, "success": True}
 
-        if opts.get("print_output"):
-            final_simulation_summary({ctx.pol_name: lg}, ctx.pol_name, opts["n_samples"])
+        final_simulation_summary({ctx.pol_name: lg}, ctx.pol_name, sim.n_samples)
 
         ctx.transition_to(None)

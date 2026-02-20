@@ -1,8 +1,10 @@
 import multiprocessing as mp
 import os
 from multiprocessing.pool import Pool
+from typing import Any, Dict, List, Optional, Tuple
 
 import logic.src.constants as udef
+from logic.src.configs import Config
 from logic.src.pipeline.features.test.orchestrator.monitor import (
     collect_all_task_results,
     initialize_simulation_display,
@@ -20,64 +22,94 @@ from logic.src.utils.tasks.simulation_utils import (
 
 
 def run_parallel_simulations(
-    opts,
-    device,
-    indices,
-    sample_idx_ls,
-    weights_path,
-    lock,
-    manager,
-    n_cores,
-    task_count,
-    log_file,
-    original_stderr,
-):
+    cfg: Config,
+    device: Any,
+    indices: List[Any],
+    sample_idx_ls: List[List[int]],
+    weights_path: str,
+    lock: Any,
+    manager: Any,
+    n_cores: int,
+    task_count: int,
+    log_file: Optional[str],
+    original_stderr: Any,
+    shared_metrics: Any,
+) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Execute simulations in parallel using a multiprocessing pool.
+
+    Args:
+        cfg: Root configuration with ``cfg.sim`` containing simulation params.
+        device: Torch device.
+        indices: Bin subset indices per sample.
+        sample_idx_ls: Sample index lists per policy.
+        weights_path: Path to model weights.
+        lock: Multiprocessing lock.
+        manager: Multiprocessing Manager.
+        n_cores: Number of cores to use.
+        task_count: Total number of tasks.
+        log_file: Path to log file for worker redirection.
+        original_stderr: Original stderr for shutdown messages.
+        shared_metrics: Multiprocessing Manager.dict for real-time stats.
     """
+    sim = cfg.sim
     udef.update_lock_wait_time(n_cores)
     counter = mp.Value("i", 0)
 
     # Prepare task arguments
-    args = prepare_parallel_task_args(opts, indices, sample_idx_ls)
+    args = prepare_parallel_task_args(sim.full_policies, sim.n_samples, indices, sample_idx_ls)
 
     # Print execution info
-    print_execution_info(opts, task_count, n_cores)
+    print_execution_info(task_count, n_cores)
 
     # Create multiprocessing pool
     mp.set_start_method("spawn", force=True)
     pool = Pool(
         processes=n_cores,
         initializer=init_single_sim_worker,
-        initargs=(lock, counter, opts["shared_metrics"], log_file, opts.get("load_dataset")),
+        initargs=(lock, counter, shared_metrics, log_file),
     )
 
     try:
         log, log_std, failed_log = execute_and_monitor_tasks(
-            pool, opts, device, args, weights_path, n_cores, counter, manager, lock
+            pool, cfg, device, args, weights_path, n_cores, counter, manager, lock, shared_metrics
         )
         return log, log_std, failed_log
 
     except KeyboardInterrupt:
         handle_shutdown(pool, original_stderr)
+        return {}, None, []  # unreachable but satisfies type checker
 
     finally:
         cleanup_multiprocessing_pool(pool)
 
 
-def execute_and_monitor_tasks(pool, opts, device, args, weights_path, n_cores, counter, manager, lock):
+def execute_and_monitor_tasks(
+    pool: Pool,
+    cfg: Config,
+    device: Any,
+    args: List[Tuple[Any, ...]],
+    weights_path: str,
+    n_cores: int,
+    counter: Any,
+    manager: Any,
+    lock: Any,
+    shared_metrics: Any,
+) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Execute parallel tasks and monitor their progress.
     """
-    no_pbar = opts.get("no_progress_bar", False)
-    display = initialize_simulation_display(opts) if not no_pbar else None
+    sim = cfg.sim
+    policies = sim.full_policies
+    no_pbar = sim.no_progress_bar
+    display = initialize_simulation_display(policies, sim.n_samples, sim.days) if not no_pbar else None
 
     log_tmp = manager.dict()
     failed_log = manager.list()
-    for policy in opts["policies"]:
+    for policy in policies:
         log_tmp[policy] = manager.list()
 
-    def _update_result(result):
+    def _update_result(result: Dict[str, Any]) -> None:
         success = result.pop("success")
         if not (isinstance(result, dict) and success):
             error_policy = result.get("policy", "unknown")
@@ -92,23 +124,23 @@ def execute_and_monitor_tasks(pool, opts, device, args, weights_path, n_cores, c
     for arg_tup in args:
         task = pool.apply_async(
             single_simulation,
-            args=(opts, device, *arg_tup, weights_path, n_cores),
+            args=(cfg, device, *arg_tup, weights_path, n_cores),
             callback=_update_result,
         )
         tasks.append(task)
 
-    monitor_tasks_until_complete(tasks, display, opts, counter, log_tmp)
+    monitor_tasks_until_complete(tasks, display, policies, shared_metrics, counter, log_tmp)
 
     if display:
         display.stop()
 
     collect_all_task_results(tasks)
 
-    log, log_std = aggregate_final_results(log_tmp, opts, lock)
+    log, log_std = aggregate_final_results(log_tmp, cfg, lock)
     return log, log_std, failed_log
 
 
-def handle_shutdown(pool, original_stderr):
+def handle_shutdown(pool: Pool, original_stderr: Any) -> None:
     """
     Handle graceful shutdown on keyboard interrupt.
     """
@@ -124,7 +156,7 @@ def handle_shutdown(pool, original_stderr):
     os._exit(1)
 
 
-def cleanup_multiprocessing_pool(pool):
+def cleanup_multiprocessing_pool(pool: Pool) -> None:
     """
     Safely close and join the multiprocessing pool.
     """

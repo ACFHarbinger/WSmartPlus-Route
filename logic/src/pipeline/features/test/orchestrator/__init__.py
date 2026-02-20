@@ -7,10 +7,12 @@ import multiprocessing as mp
 import os
 import signal
 import sys
+from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
 import logic.src.constants as udef
+from logic.src.configs import Config
 from logic.src.pipeline.callbacks import PolicySummaryCallback
 
 # Local imports from modular components
@@ -28,10 +30,16 @@ from logic.src.utils.logging.log_utils import (
 from logic.src.utils.logging.logger_writer import LoggerWriter, setup_logger_redirection
 
 
-def simulator_testing(opts, data_size, device):
+def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
     """
     Orchestrates the parallel execution of multiple simulation runs.
+
+    Args:
+        cfg: Root configuration with ``cfg.sim`` containing simulation params.
+        data_size: Number of available data points for the area.
+        device: Torch device for neural models.
     """
+    sim = cfg.sim
     log_file = setup_logger_redirection()
 
     # Capture original stderr for shutdown messages if redirected
@@ -40,11 +48,11 @@ def simulator_testing(opts, data_size, device):
         original_stderr = original_stderr.terminal
 
     # Display policy summary
-    if not opts.get("no_progress_bar"):
-        PolicySummaryCallback().display(opts)
+    if not sim.no_progress_bar:
+        PolicySummaryCallback().display_from_cfg(cfg)
 
     # Register immediate shutdown handler for CTRL+C
-    def _shutdown_handler(sig, frame):
+    def _shutdown_handler(sig: int, frame: Any) -> None:
         original_stderr.write("\n\n[WARNING] Caught CTRL+C (SIGINT). Forcing immediate shutdown...\n")
         original_stderr.flush()
         try:
@@ -57,41 +65,41 @@ def simulator_testing(opts, data_size, device):
     manager = mp.Manager()
     lock = manager.Lock()
     shared_metrics = manager.dict()
-    opts["shared_metrics"] = shared_metrics
 
-    sample_idx_dict = {pol: list(range(opts["n_samples"])) for pol in opts["policies"]}
-    if opts["resume"]:
+    policies = sim.full_policies
+    sample_idx_dict: Dict[str, List[int]] = {pol: list(range(sim.n_samples)) for pol in policies}
+    if sim.resume:
         to_remove = runs_per_policy(  # type: ignore[call-arg, misc]
             udef.ROOT_DIR,  # type: ignore[arg-type]
-            opts["days"],
-            [opts["size"]],
-            opts["output_dir"],
-            opts["area"],
-            [opts["n_samples"]],
-            opts["policies"],
+            sim.days,
+            [sim.graph.num_loc],
+            sim.output_dir,
+            sim.graph.area,
+            [sim.n_samples],
+            policies,
             lock=lock,
         )[0]
-        for pol in opts["policies"]:
+        for pol in policies:
             if len(to_remove[pol]) > 0:
                 sample_idx_dict[pol] = [x for x in sample_idx_dict[pol] if x not in to_remove[pol]]
 
     sample_idx_ls = [list(val) for val in sample_idx_dict.values()]
     task_count = sum(len(sample_idx) for sample_idx in sample_idx_ls)
 
-    n_cores = opts.get("cpu_cores", 0)
+    n_cores = sim.cpu_cores
     n_cores = min(task_count, n_cores) if n_cores >= 1 else min(task_count, max(1, mp.cpu_count() - 1))
-    if data_size != opts["size"]:
-        indices = load_indices(opts["focus_graph"], opts["n_samples"], opts["size"], data_size, lock)
+    if data_size != sim.graph.num_loc:
+        indices = load_indices(sim.graph.focus_graph, sim.n_samples, sim.graph.num_loc, data_size, lock)
         if len(indices) == 1:
-            indices = [indices[0]] * opts["n_samples"]
+            indices = [indices[0]] * sim.n_samples
     else:
-        indices = [None] * opts["n_samples"]
+        indices: List[Optional[Any]] = [None] * sim.n_samples  # type: ignore[no-redef]
 
     weights_path = os.path.join(udef.ROOT_DIR, "assets", "model_weights")
 
     if n_cores > 1:
         log, log_std, _failed_log = run_parallel_simulations(
-            opts,
+            cfg,
             device,
             indices,
             sample_idx_ls,
@@ -100,30 +108,33 @@ def simulator_testing(opts, data_size, device):
             manager,
             n_cores,
             task_count,
-            log_file,  # loader_file not used directly here anymore? or we pass it
+            log_file,
             original_stderr,
+            shared_metrics,
         )
     else:
-        log, log_std, _failed_log = sequential_simulations(opts, device, indices, sample_idx_ls, weights_path, lock)
+        log, log_std, _failed_log = sequential_simulations(
+            cfg, device, indices, sample_idx_ls, weights_path, lock, shared_metrics
+        )
 
     realtime_log_path = os.path.join(
         udef.ROOT_DIR,
         "assets",
-        opts["output_dir"],
-        str(opts["days"]) + "_days",
-        str(opts["area"]) + "_" + str(opts["size"]),
-        f"log_realtime_{opts['data_distribution']}_{opts['n_samples']}N.jsonl",
+        sim.output_dir,
+        f"{sim.days}_days",
+        f"{sim.graph.area}_{sim.graph.num_loc}",
+        f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl",
     )
-    send_final_output_to_gui(log, log_std, opts["n_samples"], opts["policies"], realtime_log_path)
+    send_final_output_to_gui(log, log_std, sim.n_samples, policies, realtime_log_path)
 
-    if not opts.get("no_progress_bar"):
+    if not sim.no_progress_bar:
         display_log_metrics(
-            opts["output_dir"],
-            opts["size"],
-            opts["n_samples"],
-            opts["days"],
-            opts["area"],
-            opts["policies"],
+            sim.output_dir,
+            sim.graph.num_loc,
+            sim.n_samples,
+            sim.days,
+            sim.graph.area,
+            policies,
             log,
             log_std,
             lock,

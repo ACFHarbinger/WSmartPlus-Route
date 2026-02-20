@@ -3,10 +3,66 @@ import pytest
 import torch
 import numpy as np
 import unittest.mock as mock
-from typing import Any, Dict, List, Optional, Tuple
 
 import logic.src.pipeline.simulations.simulator as simulator
+from logic.src.configs import Config
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.tasks.sim import SimConfig
 from logic.src.pipeline.simulations.checkpoints.manager import CheckpointError
+
+
+def _make_integration_cfg(**overrides):
+    """Build a Config for simulator integration tests."""
+    graph = GraphConfig(
+        area="figueiradafoz",
+        num_loc=50,
+        waste_type="plastic",
+        vertex_method="mmn",
+        distance_method="ogd",
+        dm_filepath="dummy_path",
+        edge_threshold="0.5",
+        edge_method="knn",
+    )
+    sim = SimConfig(
+        policies=[{"am_gamma1": {"model": {"name": "am"}}}],
+        full_policies=["am_gamma1"],
+        data_distribution="unif",
+        problem="vrpp",
+        days=2,
+        seed=42,
+        output_dir="test_out",
+        checkpoint_dir="checkpoints",
+        checkpoint_days=1,
+        n_samples=1,
+        resume=False,
+        n_vehicles=5,
+        waste_filepath=None,
+        graph=graph,
+        noise_mean=0.0,
+        noise_variance=0.0,
+        cache_regular=False,
+        no_cuda=False,
+        no_progress_bar=True,
+        server_run=False,
+        env_file="dummy_env",
+        gplic_file=None,
+        hexlic_file=None,
+        symkey_name="dummy_symkey",
+        gapik_file="dummy_gapik",
+        real_time_log=False,
+        stats_filepath=None,
+        data_dir=None,
+        policy_configs={},
+    )
+    for k, v in overrides.items():
+        if hasattr(sim, k):
+            setattr(sim, k, v)
+        elif hasattr(sim.graph, k):
+            setattr(sim.graph, k, v)
+    cfg = Config()
+    cfg.sim = sim
+    return cfg
+
 
 class TestSimulatorIntegration:
     @pytest.fixture
@@ -25,13 +81,11 @@ class TestSimulatorIntegration:
         deps["setup_basedata"].return_value = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
         deps["params"].return_value = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
 
-        # Mock InitializingState attributes that might be accessed
         def mock_init_new_state(ctx, data, coords, depot):
             ctx.new_data = mock.MagicMock()
             ctx.coords = mock.MagicMock()
             ctx.dist_tup = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
             ctx.bins = mock.MagicMock()
-            # Numerical data to avoid TypeError in statistics.mean
             ctx.bins.collected = np.zeros(10)
             ctx.bins.inoverflow = np.zeros(10)
             ctx.bins.ncollections = np.zeros(10)
@@ -48,7 +102,6 @@ class TestSimulatorIntegration:
 
         deps["init_new_state"].side_effect = mock_init_new_state
 
-        # Configure checkpoint_manager to act as a context manager
         mock_cm = mock.MagicMock()
         mock_cm.__enter__.return_value = mock.MagicMock()
         deps["checkpoint_manager"].return_value = mock_cm
@@ -62,46 +115,13 @@ class TestSimulatorIntegration:
     def mock_torch_device(self):
         return torch.device("cpu")
 
-    def get_standard_opts(self):
-        return {
-            "output_dir": "test_out",
-            "area": "figueiradafoz",
-            "waste_type": "plastic",
-            "size": 50,
-            "resume": False,
-            "n_samples": 1,
-            "policies": [{"am_gamma1": {"model": {"name": "am"}}}],
-            "days": 2,
-            "seed": 42,
-            "data_distribution": "unif",
-            "model.name": "am",
-            "no_progress_bar": True,
-            "checkpoint_dir": "checkpoints",
-            "print_output": False,
-            "distance_method": "ogd",
-            "vertex_method": "mmn",
-            "dm_filepath": "dummy_path",
-            "edge_threshold": 0.5,
-            "edge_method": "knn",
-            "env_file": "dummy_env",
-            "gapik_file": "dummy_gapik",
-            "symkey_name": "dummy_symkey",
-            "stats_filepath": None,
-            "waste_filepath": None,
-            "cache_regular": False,
-            "n_vehicles": 5,
-            "checkpoint_days": 1,
-            "model_path": {"amgat": "assets/model_weights/cwcvrp100_riomaior_plastic/gamma1/amgat"}
-        }
-
     @pytest.mark.integration
     def test_single_simulation_happy_path_am(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
-        wsr_opts = self.get_standard_opts()
+        cfg = _make_integration_cfg()
         simulator._lock, simulator._counter = mock_lock_counter
 
-        # Call single_simulation
         result = simulator.single_simulation(
-            wsr_opts, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
+            cfg, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
         )
         assert "am_gamma1" in result
         assert result["success"] is True
@@ -109,12 +129,9 @@ class TestSimulatorIntegration:
 
     @pytest.mark.integration
     def test_single_simulation_resume(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
-        wsr_opts = self.get_standard_opts()
-        wsr_opts["resume"] = True
-        wsr_opts["checkpoint_days"] = 1
+        cfg = _make_integration_cfg(resume=True)
         simulator._lock, simulator._counter = mock_lock_counter
 
-        # Mock InitializingState._load_checkpoint_if_needed to return a dummy state
         with mock.patch("logic.src.pipeline.simulations.states.initializing.InitializingState._load_checkpoint_if_needed") as mock_load:
             mock_dist_tup = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), mock.MagicMock())
             mock_bins = mock.MagicMock()
@@ -126,37 +143,34 @@ class TestSimulatorIntegration:
             mock_bins.collected_total = 100.0
             mock_bins.profit = 50.0
             mock_bins.ndays = 2
-            mock_load.return_value = ( (mock.MagicMock(), mock.MagicMock(), mock_dist_tup, None, mock_bins, (None, None), [], 0, 0, {}, 0.0), 1)
+            mock_load.return_value = ((mock.MagicMock(), mock.MagicMock(), mock_dist_tup, None, mock_bins, (None, None), [], 0, 0, {}, 0.0), 1)
 
             result = simulator.single_simulation(
-                wsr_opts, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
+                cfg, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
             )
             assert result["success"] is True
 
     @pytest.mark.integration
     def test_single_simulation_checkpoint_error(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
-        wsr_opts = self.get_standard_opts()
-        wsr_opts["checkpoint_days"] = 1
+        cfg = _make_integration_cfg()
         simulator._lock, simulator._counter = mock_lock_counter
 
-        # Make checkpoint_manager raise CheckpointError
         error_res = {"error": "Test failure", "policy": "am_gamma1", "success": False}
         mock_sim_dependencies["checkpoint_manager"].side_effect = CheckpointError(error_res)
 
         result = simulator.single_simulation(
-            wsr_opts, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
+            cfg, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
         )
         assert result["success"] is False
 
     @pytest.mark.integration
     def test_sequential_simulations_multi_sample(self, mock_sim_dependencies, mock_lock_counter, mock_torch_device):
-        wsr_opts = self.get_standard_opts()
-        wsr_opts["n_samples"] = 2
+        cfg = _make_integration_cfg(n_samples=2)
         lock, counter = mock_lock_counter
         simulator._lock, simulator._counter = lock, counter
 
         results, results_std, failed = simulator.sequential_simulations(
-            wsr_opts, mock_torch_device, [None, None], [[0], [1]], "weights", lock
+            cfg, mock_torch_device, [None, None], [[0], [1]], "weights", lock
         )
 
         assert "am_gamma1" in results

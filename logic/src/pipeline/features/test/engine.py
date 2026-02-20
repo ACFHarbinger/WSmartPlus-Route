@@ -2,15 +2,17 @@
 Simulation Test Runner.
 """
 
-import contextlib
 import os
 import random
+import re
+from multiprocessing import cpu_count
 
 import numpy as np
 import torch
-from omegaconf import OmegaConf
 
 import logic.src.constants as udef
+from logic.src.configs import Config
+from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.data.datasets import NumpyDictDataset, PandasExcelDataset
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
@@ -24,91 +26,115 @@ from .config import expand_policy_configs
 from .orchestrator import simulator_testing
 
 
-def run_wsr_simulator_test(opts):
+def run_wsr_simulator_test(cfg: Config) -> None:
     """
     Main entry point for the WSmart+ Route simulator test engine.
 
     This function orchestrates the end-to-end simulation testing workflow:
-    1. Synchronizes Hydra configuration into a standard dictionary.
-    2. Handles backwards compatibility for graph size and metadata.
-    3. Initializes random seeds for reproducibility.
-    4. Validates data availability and resolves data sizes.
-    5. Expands policy configurations for multi-policy testing.
-    6. Ensures output and checkpoint directories exist.
-    7. Dispatches to the orchestrator for parallel or sequential execution.
+    1. Validates simulation configuration.
+    2. Initializes random seeds for reproducibility.
+    3. Resolves data availability and repository initialization.
+    4. Expands policy configurations for multi-policy testing.
+    5. Ensures output and checkpoint directories exist.
+    6. Dispatches to the orchestrator for parallel or sequential execution.
 
     Args:
-        opts (dict | DictConfig): Configuration options containing simulation
-            parameters, policy settings, and environment metadata.
+        cfg: Root Hydra configuration object containing ``cfg.sim`` with
+            simulation parameters, policy settings, and environment metadata.
     """
-    opts = _prepare_opts(opts)
+    _validate_sim_config(cfg)
 
-    random.seed(opts["seed"])
-    np.random.seed(opts["seed"])
-    torch.manual_seed(opts["seed"])
+    sim = cfg.sim
 
-    data_size = _resolve_data_size(opts)
+    random.seed(sim.seed)
+    np.random.seed(sim.seed)
+    torch.manual_seed(sim.seed)
 
-    print(f"Area {opts['area']} ({data_size} available) for {opts['size']} bins")
-    if data_size != opts["size"] and not opts.get("focus_graph"):
-        wtype_suffix = f"_{opts['waste_type']}" if opts.get("waste_type") else ""
-        opts["focus_graph"] = f"graphs_{opts['area']}_{opts['size']}V_{opts['n_samples']}N{wtype_suffix}.json"
+    data_size = _resolve_data_size(cfg)
 
-    expand_policy_configs(opts)
-    _ensure_directories(opts)
+    print(f"Area {sim.graph.area} ({data_size} available) for {sim.graph.num_loc} bins")
+    if data_size != sim.graph.num_loc and not sim.graph.focus_graph:
+        wtype_suffix = f"_{sim.graph.waste_type}" if sim.graph.waste_type else ""
+        sim.graph.focus_graph = f"graphs_{sim.graph.area}_{sim.graph.num_loc}V_{sim.n_samples}N{wtype_suffix}.json"
+
+    expand_policy_configs(cfg)
+    _ensure_directories(cfg)
 
     device = torch.device("cpu" if not torch.cuda.is_available() else f"cuda:{torch.cuda.device_count() - 1}")
     try:
-        simulator_testing(opts, data_size, device)
+        simulator_testing(cfg, data_size, device)
     except Exception as e:
         raise Exception(f"failed to execute WSmart+ Route simulations due to {repr(e)}") from e
 
 
-def _prepare_opts(opts):
-    """Flatten and normalize configuration options."""
-    if not isinstance(opts, dict):
-        with contextlib.suppress(Exception):
-            opts = OmegaConf.to_container(opts, resolve=True)
-
-    if "num_loc" in opts:
-        opts["size"] = opts["num_loc"]
-
-    if "graph" in opts:
-        g = opts["graph"]
-        opts.update(
-            {
-                "size": g["num_loc"],
-                "area": g["area"],
-                "waste_type": g["waste_type"],
-                "dm_filepath": g.get("dm_filepath"),
-                "waste_filepath": g.get("waste_filepath"),
-                "edge_threshold": g.get("edge_threshold"),
-                "edge_method": g.get("edge_method"),
-            }
-        )
-    return opts
+# ---------------------------------------------------------------------------
+# Validation
+# ---------------------------------------------------------------------------
 
 
-def _resolve_data_size(opts):
+def _validate_sim_config(cfg: Config) -> None:
+    """Validate and normalize ``cfg.sim`` fields in place."""
+    sim = cfg.sim
+
+    assert sim.days >= 1, "Must run the simulation for 1 or more days"
+    assert sim.n_samples > 0, "Number of samples must be a positive integer"
+
+    # Normalize area string (strip non-alpha, lowercase)
+    sim.graph.area = re.sub(r"[^a-zA-Z]", "", sim.graph.area.lower())
+    assert sim.graph.area in MAP_DEPOTS, f"Unknown area {sim.graph.area}, available areas: {list(MAP_DEPOTS.keys())}"
+
+    # Normalize waste type
+    sim.graph.waste_type = re.sub(r"[^a-zA-Z]", "", sim.graph.waste_type.lower())
+    assert sim.graph.waste_type in WASTE_TYPES or sim.graph.waste_type is None, (
+        f"Unknown waste type {sim.graph.waste_type}, available: {list(WASTE_TYPES.keys())}"
+    )
+
+    # Coerce edge_threshold to numeric
+    sim.graph.edge_threshold = (
+        str(float(sim.graph.edge_threshold))
+        if "." in str(sim.graph.edge_threshold)
+        else str(int(sim.graph.edge_threshold))
+    )
+
+    assert sim.cpu_cores >= 0, "Number of CPU cores must be >= 0"
+    assert sim.cpu_cores <= cpu_count(), "Number of CPU cores to use cannot exceed system specifications"
+    if sim.cpu_cores == 0:
+        sim.cpu_cores = cpu_count()
+
+    # Move load_dataset from root config into sim for convenience
+    if cfg.load_dataset and not sim.load_dataset:
+        sim.load_dataset = cfg.load_dataset
+
+
+# ---------------------------------------------------------------------------
+# Data resolution
+# ---------------------------------------------------------------------------
+
+
+def _resolve_data_size(cfg: Config) -> int:
     """Resolve the available data size for the given area and requested size."""
-    load_dataset = opts.get("load_dataset", None)
-    if load_dataset is not None and str(load_dataset).endswith(".npz"):
-        dataset = NumpyDictDataset.load(load_dataset)
+    sim = cfg.sim
+    load_ds = sim.load_dataset
+
+    if load_ds is not None and str(load_ds).endswith(".npz"):
+        dataset = NumpyDictDataset.load(load_ds)
         set_repository(NumpyDictRepository(dataset))
-        _override_waste_filepath(opts, load_dataset)
-        return opts["size"]
-    elif load_dataset is not None and str(load_dataset).endswith(".xlsx"):
-        dataset = PandasExcelDataset.load(load_dataset)
+        _override_waste_filepath(cfg, load_ds)
+        return sim.graph.num_loc
+
+    if load_ds is not None and str(load_ds).endswith(".xlsx"):
+        dataset = PandasExcelDataset.load(load_ds)
         set_repository(PandasExcelRepository(dataset))
-        _override_waste_filepath(opts, load_dataset)
-        return opts["size"]
-    else:
-        set_repository(FileSystemRepository(udef.ROOT_DIR))
+        _override_waste_filepath(cfg, load_ds)
+        return sim.graph.num_loc
+
+    set_repository(FileSystemRepository(udef.ROOT_DIR))
+
     try:
-        data_tmp, _ = load_simulator_data(opts.get("data_dir"), opts["size"], opts["area"], opts["waste_type"])
+        data_tmp, _ = load_simulator_data(sim.data_dir, sim.graph.num_loc, sim.graph.area, sim.graph.waste_type)
         return len(data_tmp)
     except Exception:
-        area, size = opts["area"], opts["size"]
+        area, size = sim.graph.area, sim.graph.num_loc
         if area == "mixrmbac":
             return 20 if size <= 20 else 50 if size <= 50 else 225
         if area == "riomaior":
@@ -118,31 +144,40 @@ def _resolve_data_size(opts):
         return size
 
 
-def _override_waste_filepath(opts, load_dataset):
-    """Override waste_filepath to point to load_dataset so Bins loads from the same file.
+def _override_waste_filepath(cfg: Config, load_dataset: str) -> None:
+    """Override ``sim.waste_filepath`` to point to *load_dataset*.
 
-    Bins joins data_dir with waste_filepath, so we compute the relative path
-    from data_dir to the load_dataset file.
+    ``Bins`` joins ``data_dir`` with ``waste_filepath``, so we compute the
+    relative path from the simulator data root to the dataset file.
     """
     data_dir = os.path.join(udef.ROOT_DIR, "data", "wsr_simulator")
     abs_dataset = os.path.join(udef.ROOT_DIR, load_dataset) if not os.path.isabs(load_dataset) else load_dataset
-    opts["waste_filepath"] = os.path.relpath(abs_dataset, data_dir)
+    cfg.sim.waste_filepath = os.path.relpath(abs_dataset, data_dir)
 
 
-def _ensure_directories(opts):
+# ---------------------------------------------------------------------------
+# Directory setup
+# ---------------------------------------------------------------------------
+
+
+def _ensure_directories(cfg: Config) -> None:
     """Ensure all required output and checkpoint directories exist."""
+    sim = cfg.sim
     try:
         parent_dir = os.path.join(
             udef.ROOT_DIR,
             "assets",
-            opts["output_dir"],
-            f"{opts['days']}_days",
-            f"{opts['area']}_{opts['size']}",
+            sim.output_dir,
+            f"{sim.days}_days",
+            f"{sim.graph.area}_{sim.graph.num_loc}",
         )
         os.makedirs(parent_dir, exist_ok=True)
-        os.makedirs(os.path.join(parent_dir, "fill_history", opts["data_distribution"]), exist_ok=True)
-        os.makedirs(os.path.join(udef.ROOT_DIR, opts["checkpoint_dir"]), exist_ok=True)
-        os.makedirs(os.path.join(parent_dir, opts["checkpoint_dir"]), exist_ok=True)
+        os.makedirs(
+            os.path.join(parent_dir, "fill_history", sim.data_distribution),
+            exist_ok=True,
+        )
+        os.makedirs(os.path.join(udef.ROOT_DIR, sim.checkpoint_dir), exist_ok=True)
+        os.makedirs(os.path.join(parent_dir, sim.checkpoint_dir), exist_ok=True)
     except Exception as e:
         raise Exception(
             f"directories to save WSR simulator test output files do not exist and could not be created: {e}"

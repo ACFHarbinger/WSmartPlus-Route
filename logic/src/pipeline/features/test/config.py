@@ -4,27 +4,32 @@ Configuration loader for Test Engine.
 
 import copy
 import os
-from typing import Any, Dict, cast
+from typing import Any, Dict, List, Tuple, cast
 
 import logic.src.constants as udef
+from logic.src.configs import Config
 from logic.src.interfaces import ITraversable
 from logic.src.utils.configs.config_loader import load_config
 
 
-def expand_policy_configs(opts):
+def expand_policy_configs(cfg: Config) -> None:
     """
     Expands policy names into full configuration paths and variants.
-    Modifies opts["policies"] and opts["config_path"] in place.
+
+    Populates ``cfg.sim.full_policies`` with expanded policy names and
+    ``cfg.sim.config_path`` with their loaded configuration dicts.
+
+    Args:
+        cfg: Root configuration object. Reads from ``cfg.sim.policies``
+            and ``cfg.sim.data_distribution``.
     """
-    policies = []
+    sim = cfg.sim
+    policies: List[str] = []
 
-    if "config_path" not in opts or not isinstance(opts["config_path"], (dict, ITraversable)):
-        opts["config_path"] = cast(Dict[str, Any], {})
+    config_path: Dict[str, Any] = dict(sim.config_path) if sim.config_path else {}
+    dist_suffix = f"_{sim.data_distribution}"
 
-    config_path = cast(Dict[str, Any], opts["config_path"])
-    dist_suffix = f"_{opts['data_distribution']}"
-
-    for item in opts["policies"]:
+    for item in sim.policies:
         if isinstance(item, dict) and len(item) == 1:
             pol_name = list(item.keys())[0]
             custom_overrides = item[pol_name]
@@ -64,7 +69,8 @@ def expand_policy_configs(opts):
             policies.append(full_name)
             config_path[full_name] = final_cfg
 
-    opts["policies"] = policies
+    sim.full_policies = policies
+    sim.config_path = config_path
 
 
 def _resolve_policy_cfg_path(pol_name: str) -> str:
@@ -105,7 +111,7 @@ def _resolve_policy_cfg_path(pol_name: str) -> str:
     return ""
 
 
-def _extract_variants(pol_name: str, cfg_path: str):
+def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str, Any]], Any]:
     """Extract policy variants from its configuration."""
     if not cfg_path:
         return [("", "", None)], None
@@ -119,7 +125,7 @@ def _extract_variants(pol_name: str, cfg_path: str):
         mg_list, pp_list, match_idx = _parse_inner_components(inner_cfg)
 
         if mg_list and len(mg_list) > 1:
-            variants = []
+            variants: List[Tuple[str, str, Any]] = []
             for mg_item in mg_list:
                 prefix = f"{_clean_id(mg_item, 'mg_')}_"
                 suffix = f"_{_clean_id(pp_list[0], 'pp_')}" if pp_list else ""
@@ -147,7 +153,7 @@ def _extract_variants(pol_name: str, cfg_path: str):
         return [("", "", None)], None
 
 
-def _find_inner_config(pol_cfg: Any):
+def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
     """Find the list of configurations/variants within a policy config."""
     if hasattr(pol_cfg, "items"):
         for _k, v in pol_cfg.items():
@@ -169,9 +175,13 @@ def _find_inner_config(pol_cfg: Any):
     return [], None
 
 
-def _parse_inner_components(inner_cfg):
+def _parse_inner_components(
+    inner_cfg: Any,
+) -> Tuple[List[Any], List[Any], int]:
     """Extract must-go and post-processing lists from inner config."""
-    mg_list, pp_list, match_idx = [], [], -1
+    mg_list: List[Any] = []
+    pp_list: List[Any] = []
+    match_idx = -1
     for idx, item in enumerate(inner_cfg):
         if isinstance(item, ITraversable):
             if "must_go" in item:
@@ -182,7 +192,7 @@ def _parse_inner_components(inner_cfg):
     return mg_list, pp_list, match_idx
 
 
-def _apply_mg_override(var_cfg: Any, match_idx: int, mg_item: str):
+def _apply_mg_override(var_cfg: Any, match_idx: int, mg_item: str) -> None:
     """Apply a must-go override to a deep-copied config."""
     var_inner, _ = _find_inner_config(var_cfg)
     if var_inner and 0 <= match_idx < len(var_inner):

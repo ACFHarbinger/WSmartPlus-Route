@@ -25,12 +25,17 @@ from logic.src.constants import (
 from .base import SimState
 
 if TYPE_CHECKING:
+    from logic.src.configs import Config
     from ...checkpoints import SimulationCheckpoint
 
 
 class SimulationContext:
     """
     Context object for the Simulation State Machine.
+
+    Stores the simulation configuration and runtime state. All simulation
+    states access configuration via ``self.cfg.sim.*`` (typed) instead of
+    the legacy ``self.opts[...]`` dict pattern.
     """
 
     lock: Optional[threading.Lock]
@@ -54,7 +59,7 @@ class SimulationContext:
 
     def __init__(
         self,
-        opts: Dict[str, Any],
+        cfg: Config,
         device: torch.device,
         indices: List[int],
         sample_id: int,
@@ -65,7 +70,7 @@ class SimulationContext:
         """Initialize Class.
 
         Args:
-            opts (Dict[str, Any]): Description of opts.
+            cfg (Config): Typed Hydra configuration.
             device (torch.device): Description of device.
             indices (List[int]): Description of indices.
             sample_id (int): Description of sample_id.
@@ -73,7 +78,7 @@ class SimulationContext:
             model_weights_path (str): Description of model_weights_path.
             variables_dict (Dict[str, Any]): Description of variables_dict.
         """
-        self.opts = opts
+        self.cfg = cfg
         self.device = device
         self.indices = indices
         self.sample_id = sample_id
@@ -88,21 +93,22 @@ class SimulationContext:
         self.current_state: Optional[SimState] = None
         self.result: Optional[Dict[str, Any]] = None
 
+        sim = cfg.sim
         self.data_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
         self.results_dir = os.path.join(
             ROOT_DIR,
             "assets",
-            opts["output_dir"],
-            str(opts["days"]) + "_days",
-            str(opts["area"]) + "_" + str(opts["size"]),
+            sim.output_dir,
+            str(sim.days) + "_days",
+            str(sim.graph.area) + "_" + str(sim.graph.num_loc),
         )
-        raw_policy = opts["policies"][pol_id]
+        policies = sim.full_policies
+        raw_policy = policies[pol_id]
         if isinstance(raw_policy, dict) and len(raw_policy) == 1:
             self.pol_name = list(raw_policy.keys())[0]
             self.pol_cfg = raw_policy[self.pol_name]
         elif isinstance(raw_policy, dict):
-            # Fallback for complex dicts if they don't follow single-key pattern
-            self.pol_name = opts.get("model.name") or "unknown"
+            self.pol_name = "unknown"
             self.pol_cfg = raw_policy
         else:
             self.pol_name = str(raw_policy)

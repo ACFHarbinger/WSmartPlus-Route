@@ -1,38 +1,47 @@
 import statistics
 from collections import defaultdict
+from typing import Any, Dict, List, Optional, Tuple
 
 import logic.src.constants as udef
+from logic.src.configs import Config
 from logic.src.utils.logging.log_utils import output_stats
 
 
-def aggregate_final_results(log_tmp, opts, lock):
+def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:
     """
     Aggregate results from all finished simulation samples.
-    """
 
-    if opts["n_samples"] > 1:
-        if opts["resume"]:
+    Args:
+        log_tmp: Manager dict of policy -> list of metric lists.
+        cfg: Root configuration.
+        lock: Multiprocessing lock.
+    """
+    sim = cfg.sim
+    policies = sim.full_policies
+
+    if sim.n_samples > 1:
+        if sim.resume:
             return output_stats(  # type: ignore[call-arg, misc]
                 udef.ROOT_DIR,  # type: ignore[arg-type]
-                opts["days"],
-                opts["size"],
-                opts["output_dir"],
-                opts["area"],
-                opts["n_samples"],
-                opts["policies"],
+                sim.days,
+                sim.graph.num_loc,
+                sim.output_dir,
+                sim.graph.area,
+                sim.n_samples,
+                policies,
                 udef.SIM_METRICS,
                 lock=lock,
             )
         else:
-            log = {}
-            log_std = {}
-            log_full = defaultdict(list)
+            log: Dict[str, Any] = {}
+            log_std: Dict[str, Any] = {}
+            log_full: Dict[str, List[List[float]]] = defaultdict(list)
 
             # Extract list from Manager objects
             for key, val in log_tmp.items():
                 log_full[key].extend(val)
 
-            for pol in opts["policies"]:
+            for pol in policies:
                 if log_full[pol]:
                     log[pol] = [statistics.mean(v) for v in zip(*log_full[pol])]
                     log_std[pol] = [statistics.stdev(v) if len(log_full[pol]) > 1 else 0.0 for v in zip(*log_full[pol])]
