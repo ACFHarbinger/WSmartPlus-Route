@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import os
 from abc import ABC
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pytorch_lightning as pl
 import torch
@@ -107,6 +107,10 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         self.persistent_workers = persistent_workers
         self.pin_memory = pin_memory
 
+        # Time-based training parameters
+        self.train_time = kwargs.get("train_time", False)
+        self._epoch_actions: List[torch.Tensor] = []
+
         # Optimizer params
         self.optimizer_name = optimizer
         self.optimizer_kwargs = optimizer_kwargs or {"lr": 1e-4}
@@ -188,7 +192,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
     def on_train_epoch_end(self):
         """Update baseline and regenerate dataset."""
-        from logic.src.pipeline.rl.common.epoch import regenerate_dataset
+        from logic.src.pipeline.rl.common.epoch import apply_time_step, regenerate_dataset
 
         if hasattr(self.baseline, "epoch_callback"):
             # For RolloutBaseline, we pass val_dataset for the T-test
@@ -198,6 +202,24 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
                 val_dataset=self.val_dataset,
                 env=self.env,
             )
+
+        # Apply time-step updates (waste generation, collection reset)
+        if getattr(self, "train_time", False) and self.train_dataset is not None:
+            # Reconstruct dataset reference in case it was wrapped
+            ds_ref = self.train_dataset
+            if hasattr(self.baseline, "unwrap_dataset"):
+                ds_ref = self.baseline.unwrap_dataset(ds_ref)
+
+            apply_time_step(dataset=ds_ref, epoch_actions=self._epoch_actions, day=self.current_epoch, env=self.env)
+            self._epoch_actions.clear()
+
+            # Log current day properties
+            td = ds_ref.data if hasattr(ds_ref, "data") else ds_ref
+            if isinstance(td, dict) or hasattr(td, "get"):
+                key = "demand" if "demand" in td.keys() else "waste"
+                mean_fill = td[key].mean() if key in td.keys() else 0.0
+                self.log("train/current_day", float(self.current_epoch + 1), sync_dist=True)
+                self.log("train/mean_fill", mean_fill, sync_dist=True)
 
         # Regenerate training dataset for next epoch if configured
         if (
