@@ -4,7 +4,7 @@ Separated from log_utils to isolate heavy plotting dependencies (matplotlib).
 """
 
 import os
-from typing import Any, Dict, List
+from typing import Any, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,28 +12,39 @@ import pandas as pd
 import wandb
 
 import logic.src.constants as udef
+from logic.src.configs import Config
 
 
-def log_training(loss_keys: List[str], table_df: pd.DataFrame, opts: Dict[str, Any]) -> None:
+def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Config) -> None:
     """
     Logs comprehensive training history to Parquet, WandB, and generates Plots.
 
     Args:
         loss_keys: List of loss column names.
         table_df: DataFrame containing training stats.
-        opts: Options dictionary.
+        cfg: Root Hydra configuration with training and RL parameters.
     """
-    xname: str = "day" if opts["train_time"] else "epoch"
+    train = cfg.train
+    rl = cfg.rl
+
+    xname: str = "day" if train.train_time else "epoch"
     x_values: List[int] = list(range(table_df.shape[0]))
-    log_dir: str = os.path.join(
-        opts["log_dir"],
-        os.path.relpath(opts["save_dir"], start=opts["checkpoints_dir"]),
+
+    log_dir: str = getattr(rl, "log_dir", "logs")
+    save_dir: str = getattr(rl, "save_dir", "outputs")
+    checkpoints_dir: str = getattr(rl, "checkpoints_dir", "outputs")
+    wandb_mode: str = getattr(rl, "wandb_mode", "disabled")
+    _run_name: str = getattr(rl, "run_name", "run")  # noqa: F841
+
+    output_dir: str = os.path.join(
+        log_dir,
+        os.path.relpath(save_dir, start=checkpoints_dir),
     )
-    os.makedirs(log_dir, exist_ok=True)
-    table_df.to_parquet(os.path.join(log_dir, "table.parquet"), engine="pyarrow")
+    os.makedirs(output_dir, exist_ok=True)
+    table_df.to_parquet(os.path.join(output_dir, "table.parquet"), engine="pyarrow")
     swapped_df: pd.DataFrame = table_df.swaplevel(axis=1)
     swapped_df.columns = ["_".join(col).strip() for col in swapped_df.columns]
-    if opts["wandb_mode"] != "disabled":
+    if wandb_mode != "disabled":
         wandb_table: Any = wandb.Table(dataframe=swapped_df)
         wandb.log({"training_table": wandb_table})
 
@@ -64,10 +75,10 @@ def log_training(loss_keys: List[str], table_df: pd.DataFrame, opts: Dict[str, A
         ax.set_title(f"{label} per {xname}")
         ax.legend()
         ax.grid(True, linestyle="-", alpha=0.9)
-        fig_path: str = os.path.join(log_dir, f"{label}.png")
+        fig_path: str = os.path.join(output_dir, f"{label}.png")
         fig.savefig(fig_path)
         plt.close(fig)
-        if opts["wandb_mode"] != "disabled":
+        if wandb_mode != "disabled":
             wandb.log({label: wandb.Image(fig_path)})
 
 

@@ -4,9 +4,11 @@ Visualization package for WSmart-Route.
 
 import argparse
 import os
+from typing import Any, List, Optional
 
 import torch
 
+from logic.src.configs import Config
 from logic.src.utils.logging.visualization.embeddings import (
     log_weight_distributions,
     plot_weight_trajectories,
@@ -21,27 +23,38 @@ from logic.src.utils.logging.visualization.landscape import (
 )
 
 
-def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
+def visualize_epoch(model: Any, problem: Any, cfg: Config, epoch: int, tb_logger: Any = None) -> None:
     """
     Main entry point for visualization during training.
+
+    Args:
+        model: The neural model.
+        problem: The problem instance.
+        cfg: Root Hydra configuration.
+        epoch: Current epoch number.
+        tb_logger: Optional TensorBoard logger.
     """
-    viz_modes = opts.get("viz_modes", [])
+    rl = cfg.rl
+    model_cfg = cfg.model
+
+    viz_modes: List[str] = getattr(rl, "viz_modes", [])
     if not viz_modes:
         return
 
-    log_dir = opts.get("log_dir", "logs")
+    log_dir: str = getattr(rl, "log_dir", "logs")
+    run_name: str = getattr(rl, "run_name", "run")
+    save_dir: str = getattr(rl, "save_dir", "outputs")
+    graph_size: int = cfg.train.graph.num_loc
+    temporal_horizon: int = model_cfg.temporal_horizon
+
     viz_output_dir = os.path.join(log_dir, "visualizations")
     os.makedirs(viz_output_dir, exist_ok=True)
 
     print(f"\n--- Visualizing Epoch {epoch} ---")
 
-    # Move model to CPU for visualization to avoid device mismatch issues with deepcopies/landscapes
+    # Move model to CPU for visualization to avoid device mismatch issues
     orig_device = next(model.parameters()).device
     model.cpu()
-
-    # Temporarily update opts device
-    viz_opts = opts.copy()
-    viz_opts["device"] = torch.device("cpu")
 
     # Move cost weights to CPU if they exist
     if hasattr(model, "cost_weights"):
@@ -53,22 +66,22 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
             log_weight_distributions(
                 model,
                 epoch,
-                log_dir=os.path.join(log_dir, opts["run_name"]),
+                log_dir=os.path.join(log_dir, run_name),
                 writer=writer,
             )
 
         if "embeddings" in viz_modes:
             x_batch = get_batch(
-                viz_opts["device"],
-                size=opts["graph_size"],
+                torch.device("cpu"),
+                size=graph_size,
                 batch_size=1,
-                temporal_horizon=opts.get("temporal_horizon", 0),
+                temporal_horizon=temporal_horizon,
             )
             writer = tb_logger
             project_node_embeddings(
                 model,
                 x_batch,
-                log_dir=os.path.join(log_dir, opts["run_name"]),
+                log_dir=os.path.join(log_dir, run_name),
                 writer=writer,
                 epoch=epoch,
             )
@@ -78,10 +91,10 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
 
         if "logit_lens" in viz_modes:
             x_batch = get_batch(
-                viz_opts["device"],
-                size=opts["graph_size"],
+                torch.device("cpu"),
+                size=graph_size,
                 batch_size=1,
-                temporal_horizon=opts.get("temporal_horizon", 0),
+                temporal_horizon=temporal_horizon,
             )
             plot_logit_lens(
                 model,
@@ -93,16 +106,16 @@ def visualize_epoch(model, problem, opts, epoch, tb_logger=None):
         if "loss" in viz_modes or "both" in viz_modes:
             plot_loss_landscape(
                 model,
-                viz_opts,
+                cfg,
                 viz_output_dir,
                 epoch=epoch,
-                size=opts["graph_size"],
+                size=graph_size,
                 batch_size=4,
                 resolution=10,
             )
 
         if "trajectory" in viz_modes:
-            checkpoint_dir = opts["save_dir"]
+            checkpoint_dir = save_dir
             plot_weight_trajectories(checkpoint_dir, os.path.join(viz_output_dir, "trajectory.png"))
 
     finally:
@@ -161,13 +174,7 @@ def main():
     model = load_model_instance(args.model_path, device, size=args.size, problem_name=args.problem)
 
     if args.mode == "distributions":
-        if not args.checkpoint_dir:
-            # If no dir, just log current?
-            log_weight_distributions(model, 0, args.log_dir)
-        else:
-            # If checkpoint dir provided, maybe iterate? But main logic above assumes single model.
-            # For standalone, maybe we just do the one.
-            log_weight_distributions(model, 0, args.log_dir)
+        log_weight_distributions(model, 0, args.log_dir)
 
     elif args.mode == "embeddings":
         x_batch = get_batch(device, size=args.size, batch_size=1)
@@ -181,10 +188,12 @@ def main():
         plot_logit_lens(model, x_batch, os.path.join(args.output_dir, "logit_lens.png"))
 
     elif args.mode in {"loss", "both"}:
-        fake_opts = {"device": device}
+        # Standalone mode creates a minimal Config
+        standalone_cfg = Config()
+        standalone_cfg.model.temporal_horizon = 0
         plot_loss_landscape(
             model,
-            fake_opts,
+            standalone_cfg,
             args.output_dir,
             size=args.size,
             batch_size=args.batch_size,

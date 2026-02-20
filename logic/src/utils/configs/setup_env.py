@@ -14,44 +14,6 @@ import logic.src.constants as udef
 from logic.src.utils.security import decrypt_file_data, load_key
 
 
-def setup_cost_weights(opts: Dict[str, Any], def_val: float = 1.0) -> Dict[str, float]:
-    """
-    Sets up the cost weights dictionary based on problem type.
-
-    Args:
-        opts: Options dictionary.
-        def_val: Default weight value. Defaults to 1.0.
-
-    Returns:
-        Dictionary of cost weights (waste, length, overflows, etc.).
-    """
-
-    def _set_val(cost_weight: Optional[float], default_value: float) -> float:
-        """set val.
-
-        Args:
-            cost_weight (Optional[float]): Description of cost_weight.
-            default_value (float): Description of default_value.
-
-        Returns:
-            Any: Description of return value.
-        """
-        return default_value if cost_weight is None else cost_weight
-
-    cw_dict: Dict[str, float] = {}
-    if opts["problem"] in udef.PROBLEMS:  # type: ignore
-        cw_dict["waste"] = opts["w_waste"] = _set_val(opts["w_waste"], def_val)
-        cw_dict["length"] = opts["w_length"] = _set_val(opts["w_length"], def_val)
-        if "overflows" in opts or opts["problem"] in [
-            "wcvrp",
-            "cwcvrp",
-            "sdwcvrp",
-            "scwcvrp",
-        ]:
-            cw_dict["overflows"] = opts["w_overflows"] = _set_val(opts.get("w_overflows"), def_val)
-    return cw_dict
-
-
 def setup_env(
     policy: str,
     server: bool = False,

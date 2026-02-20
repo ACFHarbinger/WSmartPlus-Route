@@ -176,7 +176,7 @@ class InitializingState(SimState):
                 strat,
             )
             ctx.hrl_manager = setup_hrl_manager(
-                ctx.cfg.sim,  # type: ignore[arg-type]
+                ctx.cfg.sim,
                 ctx.device,
                 configs,
                 policy=ctx.pol_name,

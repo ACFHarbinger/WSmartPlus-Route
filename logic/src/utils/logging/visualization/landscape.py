@@ -5,6 +5,7 @@ Functions for computing and plotting loss landscapes.
 """
 
 import os
+from typing import Any
 
 import matplotlib
 import numpy as np
@@ -14,6 +15,7 @@ matplotlib.use("Agg")
 import loss_landscapes
 import matplotlib.pyplot as plt
 
+from logic.src.configs import Config
 from logic.src.models.policies.local_search import vectorized_two_opt
 from logic.src.utils.logging.visualization.helpers import MyModelWrapper, get_batch
 
@@ -66,31 +68,41 @@ def rl_loss_fn(m, x_batch, cost_weights=None):
     return cost.float().mean().item()
 
 
-def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16, resolution=10, span=1.0):
+def plot_loss_landscape(
+    model: Any,
+    cfg: Config,
+    output_dir: str,
+    epoch: int = 0,
+    size: int = 50,
+    batch_size: int = 16,
+    resolution: int = 10,
+    span: float = 1.0,
+) -> None:
     """
     Computes and plots 2D and 3D loss landscapes for both Imitation Loss and RL Cost.
 
     Args:
-        model (nn.Module): The model.
-        opts (dict): Options containing 'device'.
-        output_dir (str): Directory to save plots.
-        epoch (int, optional): Current epoch.
-        size (int, optional): Graph size. Defaults to 50.
-        batch_size (int, optional): Batch size. Defaults to 16.
-        resolution (int, optional): Grid resolution. Defaults to 10.
-        span (float, optional): Range of perturbation. Defaults to 1.0.
+        model: The neural model.
+        cfg: Root Hydra config (uses ``cfg.model.temporal_horizon`` for batch generation).
+        output_dir: Directory to save plots.
+        epoch: Current epoch.
+        size: Graph size.
+        batch_size: Batch size.
+        resolution: Grid resolution.
+        span: Range of perturbation.
     """
     print("Computing Loss Landscape...")
     os.makedirs(output_dir, exist_ok=True)
-    device = opts["device"]
+    device = torch.device("cpu")
+
+    temporal_horizon: int = cfg.model.temporal_horizon
 
     # Generate random batch for landscape
-    # TODO: Use problem.make_dataset if possible for consistency
     x_batch = get_batch(
         device,
         size=size,
         batch_size=batch_size,
-        temporal_horizon=opts.get("temporal_horizon", 0),
+        temporal_horizon=temporal_horizon,
     )
 
     print("Generating expert targets for landscape...")
@@ -108,11 +120,8 @@ def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16
 
     wrapped_model = MyModelWrapper(model)
 
-    # Ensure all tensors are on the same device as the model
-    # loss-landscapes might deepcopy the model, we want to be sure our batch matches
     model_device = next(model.parameters()).device
 
-    # Helper to move dict of tensors to device
     def move_dict_to_device(d, dev):
         """Recursively move dictionary values to the specified device."""
         return {k: v.to(dev) if isinstance(v, torch.Tensor) else v for k, v in d.items()}
@@ -123,12 +132,10 @@ def plot_loss_landscape(model, opts, output_dir, epoch=0, size=50, batch_size=16
     # Imitation
     print(f"Computing Imitation Landscape on {model_device}...")
 
-    # Store original cost weights to pass to metrics
     orig_cost_weights = getattr(model, "cost_weights", None)
 
     def imitation_metric(m):
         """Computes imitation loss for the current model state."""
-        # Visualization is now CPU-only for robustness
         m_dev = torch.device("cpu")
         x_m = move_dict_to_device(x_batch, m_dev)
         pi_m = pi_target.to(m_dev)
