@@ -92,7 +92,10 @@ def render_simulation_visualizer() -> None:
     display_entry = filtered[0]
     tour = display_entry.data.get("tour", [])
     if tour:
-        display_entry.data["tour"] = normalize_tour_points(tour)
+        from .map import reconstruct_tour
+
+        all_bin_coords = display_entry.data.get("all_bin_coords")
+        display_entry.data["tour"] = normalize_tour_points(reconstruct_tour(tour, all_bin_coords))
 
     # 1-3. Main section
     if controls["show_stats"]:

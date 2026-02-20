@@ -46,8 +46,8 @@ class NumpyDictRepository(SimulationRepository):
         return pd.DataFrame(
             {
                 "ID": [0],
-                "Lat": [float(depot[0])],
-                "Lng": [float(depot[1])],
+                "Lat": [float(depot[1])],
+                "Lng": [float(depot[0])],
                 "Stock": [0.0],
                 "Accum_Rate": [0.0],
             }
@@ -66,12 +66,12 @@ class NumpyDictRepository(SimulationRepository):
         n_bins = locs.shape[0]
         assert n_bins == number_of_bins, "Number of bins in dataset does not match number of bins requested."
 
-        ids = np.arange(1, n_bins + 1)
+        ids = self._sample["node_ids"][1:]
         bins_coordinates = pd.DataFrame(
             {
                 "ID": ids,
-                "Lat": locs[:, 0],
-                "Lng": locs[:, 1],
+                "Lat": locs[:, 1],
+                "Lng": locs[:, 0],
             }
         )
         data = pd.DataFrame(

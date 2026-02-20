@@ -3,10 +3,12 @@ from typing import Any, Dict, List, Tuple
 from logic.src.pipeline.ui.services.log_parser import filter_entries
 
 
-def normalize_tour_points(tour: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def normalize_tour_points(tour: List[Any]) -> List[Any]:
     """Normalize tour point keys: map 'lon' -> 'lng' for consistency with map components."""
     for point in tour:
-        if "lon" in point and "lng" not in point:
+        if isinstance(point, int):
+            return tour  # Skip if items are unresolved ID indices
+        if isinstance(point, dict) and "lon" in point and "lng" not in point:
             point["lng"] = point["lon"]
     return tour
 
