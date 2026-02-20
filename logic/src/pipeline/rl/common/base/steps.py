@@ -222,6 +222,11 @@ class StepMixin:
         # Store for meta-learning or logging access
         self.last_out = out
 
+        # Time-based training: accumulate actions for epoch-end update
+        if phase == "train" and getattr(self, "train_time", False) and "actions" in out:
+            # Type ignore is safe as we checked getattr in __init__
+            self._epoch_actions.append(out["actions"].detach().cpu())  # type: ignore[attr-defined]
+
         return out
 
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:

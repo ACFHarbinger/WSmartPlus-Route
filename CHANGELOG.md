@@ -217,7 +217,6 @@ The **Old RL Pipeline** (`logic/src/pipeline/reinforcement_learning/`) features 
   - `HyperNetworkTrainer`: Implemented via `HyperNetworkStrategy` wrapper.
   - Registery now supports: `rnn` (RWA), `bandit` (Contextual), `morl` (Pareto), `tdl` (TD), `hypernet`.
 - **Training Infrastructure**:
-  - `TimeBasedMixin`: Full simulation parity for temporal bin fill updates in `time_training.py`.
   - `Epoch Utilities`: Rich validation metrics (overflows, efficiency, cost) in `epoch.py`.
   - `Post-Processing`: Full `calculate_efficiency` logic and `EfficiencyOptimizer` parity.
 - **HPO Module** (`logic/src/pipeline/rl/hpo/`):

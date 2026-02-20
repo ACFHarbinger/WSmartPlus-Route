@@ -2,96 +2,153 @@ from unittest.mock import MagicMock
 
 import pytest
 import torch
-from logic.src.pipeline.rl.common.time_training import TimeBasedMixin, prepare_time_dataset
+from logic.src.pipeline.rl.common.epoch import apply_time_step, prepare_epoch
 from tensordict import TensorDict
 
 
-class MockTrainer(TimeBasedMixin):
-    pass
-
-
 class TestTimeTraining:
-    @pytest.fixture
-    def trainer(self):
-        t = MockTrainer()
-        t.setup_time_training({"temporal_horizon": 5})
-        return t
-
-    def test_setup_time_training(self):
-        t = MockTrainer()
-        t.setup_time_training({"temporal_horizon": 10})
-        assert t.temporal_horizon == 10
-        assert t.current_day == 0
-        assert t.fill_history == []
-
-    def test_update_dataset_for_day(self, trainer):
-        # Mock dataset and TensorDict
+    def test_apply_time_step_pre_generated(self):
+        # Mock dataset and TensorDict with pre-generated 3D waste
         batch_size = 2
         num_nodes = 3  # + 1 depot = 4 cols
+        num_days = 3
 
-        # Initial Demand:
-        # B0: [0, 10, 10, 10]
-        # B1: [0, 20, 20, 20]
-        demand = torch.tensor([[0.0, 10.0, 10.0, 10.0], [0.0, 20.0, 20.0, 20.0]])
+        # 3D Waste: [bs, num_days, num_nodes+1]
+        waste = torch.zeros(batch_size, num_days, num_nodes + 1)
+        # Day 0: 0, 10, 10, 10
+        waste[:, 0, 1:] = 10.0
+        # Day 1: 0, 5, 5, 5 (next day waste to add)
+        waste[:, 1, 1:] = 5.0
+        # Day 2: 0, 2, 2, 2
+        waste[:, 2, 1:] = 2.0
 
-        # Locs needed for num_nodes calculation logic
-        # shape [B, N+1, 2]
+        # Current demand (copy of Day 0)
+        demand = waste[:, 0, :].clone()
+
         locs = torch.zeros(batch_size, num_nodes + 1, 2)
 
         td = TensorDict(
             {
                 "demand": demand,
+                "waste": waste,
                 "locs": locs,
                 "capacity": torch.tensor([100.0, 100.0]),
-                "generation_rate": torch.tensor([[0.0, 1.0, 1.0, 1.0], [0.0, 2.0, 2.0, 2.0]]),  # Explicit rate
             },
             batch_size=[batch_size],
         )
 
         dataset = MagicMock()
         dataset.data = td
-        trainer.train_dataset = dataset
 
-        # Routes / Actions
-        # B0 visited 1, 2. (Indices)
-        # B1 visited 3.
-        # Actions shape [batch, seq_len]
-        routes = torch.tensor([[1, 2, 0], [3, 0, 0]])
+        # Routes / Actions (visited nodes)
+        # B0: visited 1, 2
+        # B1: visited 3
+        actions = [torch.tensor([[1, 2, 0], [3, 0, 0]])]
 
-        trainer.update_dataset_for_day(routes, day=0)
+        # Apply time step from day 0 to day 1
+        apply_time_step(dataset, actions, day=0, env=MagicMock())
 
-        assert trainer.current_day == 0
-        assert len(trainer.fill_history) == 1
+        new_demand = td["demand"]
+        current_day = td["current_day"]
+
+        # Check day updated
+        assert current_day[0].item() == 1
+        assert current_day[1].item() == 1
 
         # Check logic:
-        # 1. Process Collections:
-        # B0: visited 1, 2. Demand at 1, 2 becomes 0.
-        # Node 3 stays 10.
-        # B1: visited 3. Demand at 3 becomes 0.
-        # Node 1, 2 stay 20.
+        # B0 Node 1: Was 10 -> Reset to 0 -> Add Day 1 Waste (5) -> 5
+        assert new_demand[0, 1] == 5.0
+        # B0 Node 2: Was 10 -> Reset to 0 -> Add Day 1 Waste (5) -> 5
+        assert new_demand[0, 2] == 5.0
+        # B0 Node 3: Was 10 -> Not visited -> Add Day 1 Waste (5) -> 15
+        assert new_demand[0, 3] == 15.0
 
-        # 2. Accumulation (Noise * Rate)
-        # We can't predict exact noise, but min increase is 0 if clamped?
-        # Noise is N(1, 0.1) * Rate.
-        # Rate is 1 (B0), 2 (B1).
-        # New demand > 0.
+        # B1 Node 1: Was 10 -> Not visited -> Add Day 1 Waste (5) -> 15
+        assert new_demand[1, 1] == 15.0
+        # B1 Node 2: Was 10 -> Not visited -> Add Day 1 Waste (5) -> 15
+        assert new_demand[1, 2] == 15.0
+        # B1 Node 3: Was 10 -> Reset 0 -> Add Day 1 Waste (5) -> 5
+        assert new_demand[1, 3] == 5.0
+
+    def test_apply_time_step_on_the_fly_stochastic(self):
+        # Mock dataset and TensorDict for on-the-fly generation (2D waste)
+        batch_size = 2
+        num_nodes = 3  # + 1 depot = 4 cols
+
+        # Current demand:
+        # B0: [0, 10, 10, 10]
+        # B1: [0, 20, 20, 20]
+        demand = torch.tensor([[0.0, 10.0, 10.0, 10.0], [0.0, 20.0, 20.0, 20.0]])
+        locs = torch.zeros(batch_size, num_nodes + 1, 2)
+
+        td = TensorDict(
+            {
+                "demand": demand.clone(),
+                "waste": demand.clone(),  # 2D waste, triggers on-the-fly
+                "locs": locs,
+            },
+            batch_size=[batch_size],
+        )
+
+        dataset = MagicMock()
+        dataset.data = td
+
+        # Mock env and generator
+        class DummyGenerator:
+            def __init__(self):
+                self.noise_variance = 0.1
+                self.noise_mean = 0.0
+                self.capacity = 100.0
+                self.max_fill = 100.0
+                self.called = False
+
+            def _generate_fill_levels(self, batch_size):
+                self.called = True
+                return torch.tensor([[0.0, 5.0, 5.0, 5.0], [0.0, 5.0, 5.0, 5.0]])
+
+        env = MagicMock()
+        gen = DummyGenerator()
+        env.generator = gen
+
+        # Actions
+        # B0 visited 1, 2
+        # B1 visited 3
+        actions = [torch.tensor([[1, 2, 0], [3, 0, 0]])]
+
+        apply_time_step(dataset, actions, day=0, env=env)
 
         new_demand = td["demand"]
 
-        # B0 Node 1: Was 10 -> Reset to 0 -> Add Accumulation (~1.0)
-        # Should be around 1.0
-        assert new_demand[0, 1] > 0.5 and new_demand[0, 1] < 2.0
+        # Ensure generator was called
+        assert env.generator.called
 
-        # B0 Node 3: Was 10 -> Not visited -> Add Accumulation (~1.0). Total ~11.
-        assert new_demand[0, 3] > 10.0
+        # B0 Node 1: Reset to 0 -> Add noisy Day 1 Waste (~5)
+        # Because of variance 0.1, std is ~0.316.
+        # Value should be close to 5 (not exact)
+        assert new_demand[0, 1] > 3.0 and new_demand[0, 1] < 7.0
+        # Node 3 wasn't visited, carryover was 10. New total ~15
+        assert new_demand[0, 3] > 13.0 and new_demand[0, 3] < 17.0
 
-        # B1 Node 3: Was 20 -> Reset 0 -> Add Accum (~2.0)
-        assert new_demand[1, 3] > 1.0
-
-    def test_prepare_time_dataset(self):
+    def test_prepare_epoch_time_metadata(self):
+        # Test that current_day is injected when train_time is True
         td = TensorDict({}, batch_size=[1])
         dataset = MagicMock()
         dataset.data = td
 
-        prepare_time_dataset(dataset, day=5, history=[])
+        model = MagicMock()
+        model.train_time = True
+
+        prepare_epoch(model, MagicMock(), MagicMock(), dataset, epoch=5, phase="train")
         assert td["current_day"].item() == 5
+
+    def test_prepare_epoch_no_time_metadata(self):
+        # Test that current_day is NOT injected when train_time is False
+        td = TensorDict({}, batch_size=[1])
+        dataset = MagicMock()
+        dataset.data = td
+
+        model = MagicMock()
+        model.train_time = False
+
+        prepare_epoch(model, MagicMock(), MagicMock(), dataset, epoch=5, phase="train")
+        assert "current_day" not in td.keys()
