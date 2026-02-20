@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import folium
 import numpy as np
@@ -61,6 +61,20 @@ def load_custom_matrix(controls: Dict[str, Any]) -> Any:
     return dist_matrix
 
 
+def reconstruct_tour(tour: List[Any], all_bin_coords: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+    """Convert a sequence of node integers back into full coordinate dictionaries."""
+    if not tour or isinstance(tour[0], dict):
+        return tour
+
+    if not all_bin_coords:
+        return [{"id": int(ds_id)} for ds_id in tour]
+
+    points_by_ds_id = {
+        int(p.get("dataset_id") if p.get("dataset_id") is not None else p.get("id", -100)): p for p in all_bin_coords
+    }
+    return [points_by_ds_id.get(int(ds_id), {"id": int(ds_id)}) for ds_id in tour]
+
+
 def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     """Render the route map."""
     st.subheader("Route Map")
@@ -115,8 +129,9 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
 
 def render_bin_heatmap(display_entry: Any) -> None:
     """Render bin fill level heatmap."""
-    tour = display_entry.data.get("tour", [])
-    bin_states = display_entry.data.get("bin_state_c", [])
+    data = display_entry.data
+    tour = data.get("tour", [])
+    bin_states = data.get("bin_state_c", [])
 
     if not tour or not bin_states:
         st.info("No bin state or tour data available for heatmap.")

@@ -69,7 +69,7 @@ def process_display_updates(
     for pol, results in log_tmp.items():
         for res in results:
             policy_sample_counts[pol] += 1
-            policy_days_done[pol] += res[8]  # days index
+            policy_days_done[pol] += display.total_days  # full simulation days
             for i, k in enumerate(SIM_METRICS):
                 policy_sample_metrics[pol][k].append(res[i])
 

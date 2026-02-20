@@ -63,7 +63,7 @@ class PandasExcelRepository(SimulationRepository):
         n_bins = locs.shape[0]
         assert n_bins == number_of_bins, "Number of bins in dataset does not match number of bins requested."
 
-        ids = np.arange(1, n_bins + 1)
+        ids = self._sample["node_ids"]
         bins_coordinates = pd.DataFrame(
             {
                 "ID": ids,
