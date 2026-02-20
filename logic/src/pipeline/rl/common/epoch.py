@@ -1,14 +1,19 @@
 """
 Epoch-level utilities for RL training.
-Includes expanded dataset handling and validation metric computation.
+Includes expanded dataset handling, validation metric computation,
+and time-based training (train_time) logic.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import torch
 from tensordict import TensorDict
 from torch import nn
 from torch.utils.data import Dataset
+
+from logic.src.utils.logging.pylogger import get_pylogger
+
+logger = get_pylogger(__name__)
 
 
 def prepare_epoch(
@@ -21,8 +26,16 @@ def prepare_epoch(
 ) -> Dataset:
     """
     Prepare dataset for a new epoch.
-    Handles baseline wrapping for RolloutBaseline.
+    Handles baseline wrapping and temporal metadata injection.
     """
+    # 1. Inject temporal metadata (current_day) for time-based training
+    if hasattr(dataset, "data") and isinstance(dataset.data, TensorDict):
+        td: TensorDict = dataset.data
+        # If we are in training or if the dataset already has a current_day key (continuity)
+        if "current_day" in td.keys() or getattr(model, "train_time", False):
+            td.set("current_day", torch.full(td.batch_size, epoch, device=td.device))
+
+    # 2. Handle baseline wrapping
     if phase == "train" and hasattr(baseline, "wrap_dataset"):
         # Unwrap dataset first to avoid nested BaselineDataset
         if hasattr(baseline, "unwrap_dataset"):
@@ -92,3 +105,126 @@ def _add_overflow_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDic
     if hasattr(env, "get_num_overflows") and "actions" in out:
         overflows = env.get_num_overflows(batch, out["actions"])
         metrics["val/overflows"] = overflows.float().mean().item()
+
+
+def _build_visited_mask(
+    epoch_actions: List[torch.Tensor], batch_size: int, num_nodes: int, device: torch.device
+) -> torch.Tensor:
+    """Build a boolean mask of visited nodes from accumulated epoch actions."""
+    visited_mask = torch.zeros((batch_size, num_nodes + 1), dtype=torch.bool, device=device)
+    if not epoch_actions:
+        return visited_mask
+
+    try:
+        all_actions = torch.cat(epoch_actions, dim=0).to(device)
+        # Handle padding if actions list was larger than dataset size
+        # (e.g. from rollout baseline wrap_dataset)
+        if all_actions.shape[0] > batch_size:
+            all_actions = all_actions[:batch_size]
+
+        visited_mask.scatter_(1, all_actions.long(), True)
+    except (RuntimeError, ValueError) as e:
+        logger.warning(f"Could not build visited mask: {e}")
+
+    # Depot (0) doesn't have waste, ignore it
+    visited_mask[:, 0] = False
+    return visited_mask
+
+
+def _get_next_day_waste(
+    td: TensorDict, current_fill: torch.Tensor, day: int, env: Any, batch_size: int, device: torch.device
+) -> torch.Tensor:
+    """Determine the next day's waste from pre-generated data or on-the-fly generation."""
+    next_day_waste = torch.zeros_like(current_fill)
+
+    if "waste" in td.keys() and td["waste"].dim() == 3:
+        # Pre-generated 3D dataset: [bs, num_days, num_loc]
+        total_days = td["waste"].shape[1]
+        next_day_idx = min(day + 1, total_days - 1)
+        next_day_waste = td["waste"][:, next_day_idx, :]
+    elif hasattr(env, "generator"):
+        # On-the-fly dataset (2D waste)
+        gen = env.generator
+        try:
+            # Generate raw fill levels for the next step (following builder logic)
+            if hasattr(gen, "to"):
+                gen = gen.to("cpu")
+            fresh_fill = gen._generate_fill_levels([batch_size]).to(device)
+
+            # Apply stochastic noise if it's SCWCVRP
+            noise_variance = getattr(gen, "noise_variance", 0.0)
+            noise_mean = getattr(gen, "noise_mean", 0.0)
+
+            if noise_variance > 0:
+                noise = torch.normal(mean=noise_mean, std=noise_variance**0.5, size=fresh_fill.size(), device=device)
+
+                noisy_waste = (fresh_fill + noise).clamp(min=0.0, max=float(getattr(gen, "capacity", 1.0)))
+                next_day_waste = noisy_waste
+            else:
+                next_day_waste = fresh_fill
+        except Exception as e:
+            logger.warning(f"Failed to generate fresh waste on the fly: {e}")
+
+    return next_day_waste
+
+
+def apply_time_step(dataset: Dataset, epoch_actions: List[torch.Tensor], day: int, env: Any) -> Dataset:
+    """
+    Applies the time-step progression to the training dataset for an epoch.
+    - Marks visited nodes (collected bins) to have 0 waste.
+    - Adds the next day's waste to the uncollected bins' carryover.
+
+    Args:
+        dataset: The Dataset (typically TensorDictDataset) to update.
+        epoch_actions: List of action tensors taken during the epoch.
+        day: Current day index (zero-based).
+        env: The environment, used for generation rate or fresh generation.
+
+    Returns:
+        The mutated dataset.
+    """
+    if not hasattr(dataset, "data"):
+        return dataset
+
+    td: TensorDict = dataset.data
+    if td is None or not isinstance(td, TensorDict):
+        return dataset
+
+    batch_size = td.batch_size[0]
+    num_nodes = td["locs"].shape[1] - 1  # Exclude depot
+    device = td.device
+
+    key = "demand" if "demand" in list(td.keys()) else "waste"
+    if key not in td.keys():
+        return dataset
+
+    current_fill = td[key]
+
+    # 1. Reset visited bins to 0
+    visited_mask = _build_visited_mask(epoch_actions, batch_size, num_nodes, device)
+
+    if current_fill.shape == visited_mask.shape:
+        current_fill[visited_mask] = 0.0
+    elif current_fill.shape[1] == num_nodes:
+        # If fill doesn't include depot
+        current_fill[visited_mask[:, 1:]] = 0.0
+
+    # 2. Get next day waste
+    next_day_waste = _get_next_day_waste(td, current_fill, day, env, batch_size, device)
+
+    # 3. Update fill
+    new_fill = current_fill + next_day_waste
+
+    # 4. Clamp non-negative
+    new_fill = torch.clamp(new_fill, min=0.0)
+
+    td[key] = new_fill
+    if "waste" in td.keys() and key != "waste" and td["waste"].dim() == 2:
+        td["waste"] = new_fill
+
+    # Always ensure current_day is set
+    td.set("current_day", torch.full(td.batch_size, day + 1, device=device))
+
+    logger.info(f"Time Training: Updated dataset for Day {day + 1}. Mean fill: {new_fill.mean():.3f}")
+
+    return dataset
