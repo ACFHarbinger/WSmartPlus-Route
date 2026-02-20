@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import torch
+from omegaconf import OmegaConf
 from logic.src.utils.logging.plot_utils import (
     plot_linechart,
     plot_tsp,
@@ -239,20 +240,17 @@ class TestVisualizeEpochCoverage:
         model.parameters.side_effect = lambda: iter([p_mock])
 
         problem = MagicMock()
-        opts = {
-            "viz_modes": [
-                "trajectory",
-                "distributions",
-                "embeddings",
-                "heatmaps",
-                "logit_lens",
-                "loss",
-            ],
+        opts = OmegaConf.create({
+            "rl": {
+                "viz_modes": ["trajectory", "distributions", "embeddings", "heatmaps", "logit_lens", "loss"]
+            },
             "log_dir": "logs",
             "run_name": "test_run",
             "graph_size": 20,
             "save_dir": "checkpoints",
-        }
+            "model": {"name": "am", "temporal_horizon": 0},
+            "train": {"graph": {"num_loc": 20}}
+        })
 
         # mock plot_logit_lens as it is also called
         with patch("logic.src.utils.logging.visualization.plot_logit_lens") as mock_lens:
@@ -271,7 +269,11 @@ class TestVisualizeEpochCoverage:
     def test_visualize_epoch_no_modes(self):
         """Test visualize_epoch with no modes."""
         model = MagicMock()
-        opts = {"viz_modes": []}
+        opts = OmegaConf.create({
+            "rl": {"viz_modes": []},
+            "model": {"name": "am", "temporal_horizon": 0},
+            "train": {"graph": {}}
+        })
         visualize_epoch(model, None, opts, 1)  # Should return immediately
 
     @patch(

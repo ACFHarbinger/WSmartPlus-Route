@@ -81,5 +81,4 @@ class SimConfig:
     stats_filepath: Optional[str] = None
     data_dir: Optional[str] = None
     policy_configs: Dict[str, Any] = field(default_factory=dict)
-    load_dataset: Optional[str] = None
     config_path: Dict[str, Any] = field(default_factory=dict)
