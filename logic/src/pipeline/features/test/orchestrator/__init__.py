@@ -49,7 +49,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
 
     # Display policy summary
     if not sim.no_progress_bar:
-        PolicySummaryCallback().display_from_cfg(cfg)
+        PolicySummaryCallback().display(cfg)
 
     # Register immediate shutdown handler for CTRL+C
     def _shutdown_handler(sig: int, frame: Any) -> None:

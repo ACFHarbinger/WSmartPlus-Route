@@ -16,8 +16,71 @@ if TYPE_CHECKING:
     from logic.src.models import MustGoManager
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _get_cfg_attr(sim_cfg: Any, name: str, default: Any = None) -> Any:
+    """Retrieve a value from *sim_cfg* (``SimConfig`` or plain ``dict``)."""
+    if isinstance(sim_cfg, dict):
+        return sim_cfg.get(name, default)
+    return getattr(sim_cfg, name, default)
+
+
+def _resolve_hrl_path(
+    model_paths: Dict[str, str],
+    policy: str,
+) -> Optional[str]:
+    """Match *policy* to a checkpoint path in *model_paths*."""
+    if policy in model_paths:
+        return model_paths[policy]
+    base_policy: str = policy.split("_gamma")[0].split("_emp")[0]
+    if base_policy in model_paths:
+        return model_paths[base_policy]
+    for key in model_paths:
+        if policy.startswith(key):
+            return model_paths[key]
+    return None
+
+
+def _resolve_checkpoint_file(hrl_path: str, base_path: Optional[str]) -> Optional[str]:
+    """Return a concrete ``.pt`` file path, or ``None`` if nothing is found."""
+    if base_path is not None and not os.path.exists(hrl_path):
+        hrl_path = os.path.join(base_path, hrl_path)
+
+    if os.path.isfile(hrl_path):
+        return hrl_path
+    if os.path.isdir(hrl_path):
+        pt_files: List[str] = [f for f in os.listdir(hrl_path) if f.endswith(".pt") and "epoch" in f]
+        if not pt_files:
+            return None
+        epoch: int = max(int(os.path.splitext(f)[0].split("-")[1]) for f in pt_files)
+        return os.path.join(hrl_path, f"epoch-{epoch}.pt")
+    return None
+
+
+def _resolve_param(
+    configs: Dict[str, Any],
+    sim_cfg: Any,
+    name: str,
+    default: Any,
+) -> Any:
+    """Look up *name* from *configs* first, then *sim_cfg*, then *default*."""
+    val = configs.get(name)
+    if val is not None:
+        return val
+    sim_val = _get_cfg_attr(sim_cfg, name)
+    return sim_val if sim_val is not None else default
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+
 def setup_hrl_manager(
-    opts: Dict[str, Any],
+    sim_cfg: Any,
     device: torch.device,
     configs: Optional[Dict[str, Any]] = None,
     policy: Optional[str] = None,
@@ -28,9 +91,10 @@ def setup_hrl_manager(
     Initializes and loads the Manager model for Hierarchical RL.
 
     Args:
-        opts: Options dictionary.
+        sim_cfg: Simulation config object (``SimConfig`` or dict) providing
+            ``model_path`` and HRL hyper-parameters as attributes or keys.
         device: Torch device.
-        configs: Configuration dictionary.
+        configs: Configuration dictionary from the loaded neural checkpoint.
         policy: Policy name.
         base_path: Base path for models.
         worker_model: Worker model instance for shared encoder.
@@ -43,58 +107,40 @@ def setup_hrl_manager(
     if configs is None:
         configs = {}
 
-    hrl_path: Optional[str] = None
-    if opts.get("model_path") is not None and policy is not None:
-        model_paths: Dict[str, str] = opts["model_path"]
-        if policy in model_paths:
-            hrl_path = model_paths[policy]
-        else:
-            base_policy: str = policy.split("_gamma")[0].split("_emp")[0]
-            if base_policy in model_paths:
-                hrl_path = model_paths[base_policy]
-            else:
-                for key in model_paths:
-                    if policy.startswith(key):
-                        hrl_path = model_paths[key]
-                        break
-
     if configs.get("mrl_method") != "hrl":
         return None
 
+    # --- Resolve checkpoint path ---
+    model_paths: Optional[Dict[str, str]] = _get_cfg_attr(sim_cfg, "model_path")
+    hrl_path: Optional[str] = (
+        _resolve_hrl_path(model_paths, policy) if model_paths is not None and policy is not None else None
+    )
     if hrl_path is None:
         return None
 
-    if base_path is not None and not os.path.exists(hrl_path):
-        hrl_path = os.path.join(base_path, hrl_path)
-
-    if os.path.isfile(hrl_path):
-        pass
-    elif os.path.isdir(hrl_path):
-        pt_files: List[str] = [f for f in os.listdir(hrl_path) if f.endswith(".pt") and "epoch" in f]
-        if not pt_files:
-            return None
-        epoch: int = max(int(os.path.splitext(f)[0].split("-")[1]) for f in pt_files)
-        hrl_path = os.path.join(hrl_path, f"epoch-{epoch}.pt")
-    else:
+    hrl_path = _resolve_checkpoint_file(hrl_path, base_path)
+    if hrl_path is None:
         return None
 
-    mrl_history: int = configs.get("mrl_history", opts.get("mrl_history", 10))
-    gat_hidden: int = configs.get("gat_hidden", opts.get("gat_hidden", 128))
-    lstm_hidden: int = configs.get("lstm_hidden", opts.get("lstm_hidden", 64))
-    global_input_dim: int = configs.get("global_input_dim", opts.get("global_input_dim", 3))
+    # --- Resolve HRL hyper-parameters ---
+    mrl_history: int = _resolve_param(configs, sim_cfg, "mrl_history", 10)
+    gat_hidden: int = _resolve_param(configs, sim_cfg, "gat_hidden", 128)
+    lstm_hidden: int = _resolve_param(configs, sim_cfg, "lstm_hidden", 64)
+    global_input_dim: int = _resolve_param(configs, sim_cfg, "global_input_dim", 3)
+    shared_encoder_flag: bool = _get_cfg_attr(sim_cfg, "shared_encoder", True)
 
+    # --- Load state dict ---
     load_data: Any = torch_load_cpu(hrl_path)
     state_dict: Dict[str, torch.Tensor] = (
         load_data["manager"] if isinstance(load_data, dict) and "manager" in load_data else load_data
     )
 
     if "gate_head.0.weight" in state_dict:
-        weight_shape: torch.Size = state_dict["gate_head.0.weight"].shape
-        in_dim: int = weight_shape[1]
-        detected_dim: int = in_dim - gat_hidden
+        detected_dim: int = state_dict["gate_head.0.weight"].shape[1] - gat_hidden
         if detected_dim > 0 and detected_dim != global_input_dim:
             global_input_dim = detected_dim
 
+    # --- Build manager ---
     manager: MustGoManager = MustGoManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
@@ -104,7 +150,7 @@ def setup_hrl_manager(
         global_input_dim=global_input_dim,
         shared_encoder=(
             worker_model.embedder
-            if (worker_model is not None and opts.get("shared_encoder", True) and hasattr(worker_model, "embedder"))
+            if (worker_model is not None and shared_encoder_flag and hasattr(worker_model, "embedder"))
             else None  # type: ignore
         ),
     ).to(device)

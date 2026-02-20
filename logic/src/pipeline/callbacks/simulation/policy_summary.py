@@ -4,13 +4,13 @@ Policy Summary Callback.
 Display a summary of the policies that will be run in the simulation.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from logic.src.configs import MustGoConfig
+from logic.src.configs import Config, MustGoConfig
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
 
@@ -20,12 +20,13 @@ class PolicySummaryCallback:
     Callback to print a detailed summary of the policies.
     """
 
-    def display(self, opts: Dict[str, Any]) -> None:
+    def display(self, cfg: Config) -> None:
         """
         Display the policy summary table.
 
         Args:
-            opts: The options dictionary containing 'policies' and 'config_path'.
+            cfg: Root Config with ``cfg.sim.full_policies`` and
+                ``cfg.sim.config_path``.
         """
         console = Console()
         table = Table(
@@ -43,18 +44,12 @@ class PolicySummaryCallback:
         table.add_column("Selection Strategy", style="yellow")
         table.add_column("Post-Processing", style="blue")
 
-        policies = opts.get("policies", [])
-        config_paths = opts.get("config_path", {})
+        policies: List[str] = cfg.sim.full_policies or []
+        config_paths: Dict[str, Any] = dict(cfg.sim.config_path) if cfg.sim.config_path else {}
 
         for idx, policy_name in enumerate(policies):
             # Resolve config
             config = config_paths.get(policy_name, {})
-            # If config is a path (str), we might need to load it, but orchestrator
-            # seems to pass pre-loaded configs or paths. config.py expands them.
-            # However, expand_policy_configs in config.py puts the actual config dict
-            # or the path into opts["config_path"].
-            # If it's a path, we'd strictly need to load it, but for summary we might start simple.
-            # Actually, let's try to load it if it is a path to be robust.
             if isinstance(config, str):
                 from logic.src.utils.configs.config_loader import load_config
 
@@ -73,21 +68,8 @@ class PolicySummaryCallback:
         console.print(table)
         console.print("\n")
 
-    def display_from_cfg(self, cfg: Any) -> None:
-        """Display the policy summary using a typed Config object.
-
-        Args:
-            cfg: Root Config with ``cfg.sim.full_policies`` and ``cfg.sim.config_path``.
-        """
-        opts: Dict[str, Any] = {
-            "policies": cfg.sim.full_policies,
-            "config_path": dict(cfg.sim.config_path) if cfg.sim.config_path else {},
-        }
-        self.display(opts)
-
     def _extract_engine(self, policy_name: str, config: Dict[str, Any]) -> str:
         """Extract the engine name."""
-        # Logic similar to PolicyExecutionAction
         raw_cfg = config
         solver_key = None
         known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bcp", "sans", "neural"]
@@ -119,7 +101,6 @@ class PolicySummaryCallback:
 
     def _extract_selection(self, config: Dict[str, Any]) -> str:
         """Extract selection strategy details."""
-        # Logic similar to MustGoSelectionAction
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
         config_must_go = flat_cfg.get("must_go")
@@ -141,7 +122,7 @@ class PolicySummaryCallback:
             if isinstance(item, MustGoConfig):
                 name = item.strategy  # type: ignore[assignment]
                 if item.strategy == "lookahead":
-                    pass  # No specific params essential for summary usually
+                    pass
                 elif item.strategy == "regular":
                     params = f"(freq={item.frequency})"
                 elif item.strategy == "revenue":
@@ -149,11 +130,9 @@ class PolicySummaryCallback:
             elif isinstance(item, ITraversable):
                 if "strategy" in item:
                     name = item.get("strategy")
-                    # Try to get threshold or relevant param
                     if "threshold" in item:
                         params = f"(t={item['threshold']})"
                 else:
-                    # Fallback if no strategy key, use keys as names (old behavior)
                     keys = list(item.keys())
                     if keys:
                         name = keys[0]
