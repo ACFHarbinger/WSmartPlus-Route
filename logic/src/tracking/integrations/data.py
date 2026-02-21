@@ -1,189 +1,279 @@
-"""Data file and dataset mutation tracking for WSTracker.
+"""Runtime data mutation tracking for WSTracker.
 
-:class:`DataTracker` wraps an active :class:`~logic.src.tracking.core.run.Run`
-and provides a higher-level API for recording the full lifecycle of dataset
-files: generation, loading, in-memory mutation, and on-disk changes.
+:class:`RuntimeDataTracker` attaches to a training run and records statistical
+snapshots of tensor datasets each time they are loaded into memory, regenerated,
+or mutated.  It captures the distribution of each tensor field (mean, std, min,
+max, shape) and logs those as run params so drift across epochs is visible in
+the experiment database.
+
+This module is concerned exclusively with **in-memory variable state** — it
+watches the Python objects that hold the data, not files on disk.  For
+filesystem-level change detection (SHA-256 hashing, file events) see
+:mod:`logic.src.tracking.integrations.filesystem`.
+
+Typical usage
+-------------
+::
+
+    from logic.src.tracking.integrations.data import RuntimeDataTracker
+    import logic.src.tracking as wst
+
+    tracker = RuntimeDataTracker(wst.get_active_run())
+
+    # Baseline snapshot right after data is loaded into memory
+    tracker.on_load(dataset.data)
+
+    # After each epoch regeneration, snapshot the new distribution
+    new_dataset = regenerate_dataset(env, size)
+    tracker.on_regenerate(new_dataset.data, epoch=1)
+
+    # Inspect drift between the last two snapshots
+    drift = tracker.field_drift("waste", stat="mean")
 """
 
 from __future__ import annotations
 
-import os
-from typing import Any, Dict, List, Optional
+import contextlib
+import itertools
+from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
-from logic.src.tracking.core.run import Run
-from logic.src.tracking.validation.hashing import hash_file
+import torch
 
 
-class DataTracker:
-    """Tracks data file changes and dataset mutations within a single run.
+class RuntimeDataTracker:
+    """Tracks in-memory dataset mutations during a training or simulation run.
 
-    Maintains a hash registry for registered files and can detect on-disk
-    modifications by comparing the current SHA-256 against the stored value.
+    Records per-field tensor statistics (mean, std, min, max, shape) as run
+    params on every snapshot, making distribution shift across epochs visible
+    in the tracking database.
+
+    All param keys are namespaced as ``data/{tag}/{field}/{stat}`` so multiple
+    datasets can be tracked in the same run without key collisions.
 
     Args:
-        run: The active tracking run to associate events with.
+        run: The active tracking run.  If ``None``, all methods are no-ops so
+            the class can be used unconditionally without guard clauses.
+        max_fields: Maximum number of tensor fields to snapshot per call.
+            Protects against very wide batches flooding the param table.
     """
 
-    def __init__(self, run: Run) -> None:
+    def __init__(self, run: Any, max_fields: int = 32) -> None:
         self._run = run
-        self._watched: Dict[str, Optional[str]] = {}  # path -> last hash
+        self._max_fields = max_fields
+        self._history: List[Tuple[str, Dict[str, Any]]] = []
 
     # ------------------------------------------------------------------
-    # Event methods
+    # Primary API
     # ------------------------------------------------------------------
 
-    def track_load(
+    def snapshot(
         self,
-        file_path: str,
+        data: Any,
+        tag: str,
+        step: Optional[int] = None,
+    ) -> None:
+        """Capture tensor statistics from *data* and log them to the run.
+
+        *data* can be a :class:`torch.Tensor`, a plain ``dict`` mapping field
+        names to tensors, or any object with a ``data`` attribute that is one
+        of the above (e.g. a ``TensorDictDataset``).
+
+        Args:
+            data: The in-memory dataset payload to inspect.
+            tag: Namespace prefix for param keys (e.g. ``"train/epoch_3"``).
+            step: Optional integer step to also log per-field mean as a metric
+                for trending purposes.
+        """
+        if self._run is None:
+            return
+        fields = self._extract_fields(data)
+        stats = self._compute_stats(fields)
+        self._log_stats(stats, tag, step)
+        self._history.append((tag, stats))
+
+    def on_load(
+        self,
+        data: Any,
         num_samples: Optional[int] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """Record a data file **load** event and register the file for monitoring.
+        """Snapshot statistics of a dataset variable right after it is loaded.
+
+        Call this immediately after the data object is constructed/loaded so
+        the initial distribution is captured as the baseline.
 
         Args:
-            file_path: Path to the loaded dataset file.
-            num_samples: Number of samples in the loaded dataset.
-            metadata: Extra context (e.g. problem type, graph size).
+            data: The in-memory dataset variable (tensor, dict, or TensorDict).
+            num_samples: Explicit sample count; inferred from *data* if omitted.
+            metadata: Extra context logged as a mutation record (e.g. problem,
+                graph_size).
         """
-        self._run.log_dataset_event(
-            "load",
-            file_path=file_path,
-            num_samples=num_samples,
-            metadata=metadata,
-        )
-        if os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    def track_generate(
-        self,
-        file_path: Optional[str],
-        num_samples: int,
-        problem: str,
-        graph_size: int,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Record a data **generation** event.
-
-        Args:
-            file_path: Output path of the generated file (may be ``None`` for
-                in-memory generation).
-            num_samples: Number of generated samples.
-            problem: Problem type string (e.g. ``'vrpp'``).
-            graph_size: Number of nodes.
-            metadata: Extra context dict.
-        """
-        meta: Dict[str, Any] = {"problem": problem, "graph_size": graph_size}
+        if self._run is None:
+            return
+        n = num_samples or self._infer_size(data)
+        meta: Dict[str, Any] = {"event": "load", "num_samples": n}
         if metadata:
             meta.update(metadata)
-        self._run.log_dataset_event(
-            "generate",
-            file_path=file_path,
-            num_samples=num_samples,
-            metadata=meta,
-        )
-        if file_path and os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
+        self._run.log_dataset_event("load", num_samples=n, metadata=meta)
+        self.snapshot(data, tag="load")
 
-    def track_mutation(
+    def on_regenerate(
         self,
+        data: Any,
+        epoch: int,
+        num_samples: Optional[int] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Record that the training dataset variable was replaced for a new epoch.
+
+        Logs a mutation event and snapshots the new variable's distribution so
+        any shift from the previous epoch is visible in the params table.
+
+        Args:
+            data: The freshly generated in-memory dataset.
+            epoch: Current training epoch (used in the snapshot tag and step).
+            num_samples: Explicit sample count; inferred from *data* if omitted.
+            metadata: Extra context forwarded to the mutation record.
+        """
+        if self._run is None:
+            return
+        n = num_samples or self._infer_size(data)
+        meta: Dict[str, Any] = {"event": "regenerate", "epoch": epoch, "num_samples": n}
+        if metadata:
+            meta.update(metadata)
+        self._run.log_dataset_event("mutate", num_samples=n, metadata=meta)
+        self.snapshot(data, tag=f"train/epoch_{epoch}", step=epoch)
+
+    def on_augment(
+        self,
+        data: Any,
         description: str,
-        num_samples: Optional[int] = None,
+        step: Optional[int] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """Record an **in-memory mutation** event (e.g. epoch dataset regeneration).
+        """Record an in-memory augmentation or transform applied to the dataset variable.
 
         Args:
-            description: Human-readable description of the mutation.
-            num_samples: Size of the mutated dataset.
-            metadata: Extra context dict.
+            data: The dataset after the transform has been applied.
+            description: Short human-readable label for the transform.
+            step: Optional step value for metric logging.
+            metadata: Extra context forwarded to the mutation record.
         """
-        meta: Dict[str, Any] = {"description": description}
+        if self._run is None:
+            return
+        meta: Dict[str, Any] = {"event": "augment", "description": description}
         if metadata:
             meta.update(metadata)
-        self._run.log_dataset_event(
-            "mutate",
-            num_samples=num_samples,
-            metadata=meta,
-        )
+        self._run.log_dataset_event("mutate", metadata=meta)
+        self.snapshot(data, tag=f"augment/{description}", step=step)
 
-    def track_save(
+    # ------------------------------------------------------------------
+    # Delta / drift helpers
+    # ------------------------------------------------------------------
+
+    def field_drift(
         self,
-        file_path: str,
-        num_samples: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Record a dataset **save** event and update the hash registry.
+        field: str,
+        stat: str = "mean",
+        window: int = 2,
+    ) -> Optional[float]:
+        """Return the absolute change in *stat* for *field* over the last *window* snapshots.
+
+        Useful for detecting distribution shift between dataset regenerations.
 
         Args:
-            file_path: Path to the written file.
-            num_samples: Number of samples written.
-            metadata: Extra context dict.
-        """
-        self._run.log_dataset_event(
-            "save",
-            file_path=file_path,
-            num_samples=num_samples,
-            metadata=metadata,
-        )
-        if os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    # ------------------------------------------------------------------
-    # Change detection
-    # ------------------------------------------------------------------
-
-    def watch(self, file_path: str) -> None:
-        """Register *file_path* for future change detection without logging."""
-        if os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    def check_changes(self, paths: Optional[List[str]] = None) -> List[str]:
-        """Scan watched files (or *paths*) for on-disk hash changes.
-
-        Any file whose hash differs from the registered value is logged as a
-        ``hash_change`` event, and the registry is updated.
-
-        Args:
-            paths: Specific paths to check.  If ``None``, all watched files
-                are checked.
+            field: Tensor field name (e.g. ``"waste"``).
+            stat: One of ``"mean"``, ``"std"``, ``"min"``, ``"max"``.
+            window: Number of recent snapshots to compare (default 2 = last vs. previous).
 
         Returns:
-            List of file paths that changed.
+            Absolute delta, or ``None`` if there are not enough snapshots or
+            the field does not exist.
         """
-        check = paths if paths is not None else list(self._watched.keys())
-        changed: List[str] = []
-        for fpath in check:
-            if not os.path.exists(fpath):
-                continue
-            current = hash_file(fpath)
-            prev = self._watched.get(fpath)
-            if prev is not None and current != prev:
-                self._run.log_dataset_event(
-                    "hash_change",
-                    file_path=fpath,
-                    file_hash=current,
-                    prev_hash=prev,
-                    size_bytes=os.path.getsize(fpath),
-                    metadata={"detected_by": "DataTracker.check_changes"},
-                )
-                changed.append(fpath)
-            if current is not None:
-                self._watched[fpath] = current
-        return changed
+        relevant = [s for _, s in self._history if field in s and stat in s[field]]
+        if len(relevant) < window:
+            return None
+        prev = relevant[-window][field][stat]
+        curr = relevant[-1][field][stat]
+        with contextlib.suppress(TypeError, ValueError):
+            return abs(float(curr) - float(prev))
+        return None
 
-    def scan_directory(self, directory: str) -> None:
-        """Register all files in *directory* for future change detection.
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
 
-        Files already in the registry are updated; new files are added.
+    def _extract_fields(self, data: Any) -> Dict[str, torch.Tensor]:
+        """Unwrap *data* into a flat ``{field: tensor}`` mapping."""
+        if hasattr(data, "data"):
+            data = data.data
 
-        Args:
-            directory: Path to a directory to scan recursively.
-        """
-        if not os.path.isdir(directory):
-            return
-        for root, _, files in os.walk(directory):
-            for fname in files:
-                fpath = os.path.join(root, fname)
-                h = hash_file(fpath)
-                if h is not None:
-                    self._watched[fpath] = h
+        if isinstance(data, torch.Tensor):
+            return {"data": data}
+
+        if isinstance(data, dict):
+            return {k: v for k, v in list(data.items())[: self._max_fields] if isinstance(v, torch.Tensor)}
+
+        # TensorDict-like (tensordict library or similar mapping)
+        if hasattr(data, "keys") and callable(data.keys):
+            result: Dict[str, torch.Tensor] = {}
+            for k in itertools.islice(cast(Iterable[Any], data.keys()), self._max_fields):
+                with contextlib.suppress(Exception):
+                    v = data[k]
+                    if isinstance(v, torch.Tensor):
+                        result[k] = v
+            return result
+
+        return {}
+
+    @staticmethod
+    def _compute_stats(fields: Dict[str, torch.Tensor]) -> Dict[str, Dict[str, Any]]:
+        """Compute per-field descriptive statistics."""
+        stats: Dict[str, Dict[str, Any]] = {}
+        for name, tensor in fields.items():
+            t = tensor.float().detach()
+            shape: List[int] = [int(d) for d in t.shape]
+            try:
+                entry: Dict[str, Any] = {
+                    "shape": shape,
+                    "numel": t.numel(),
+                    "mean": round(t.mean().item(), 6),
+                    "std": round(t.std().item(), 6) if t.numel() > 1 else 0.0,
+                    "min": round(t.min().item(), 6),
+                    "max": round(t.max().item(), 6),
+                }
+            except Exception:
+                entry = {"shape": shape, "numel": t.numel()}
+            stats[name] = entry
+        return stats
+
+    def _log_stats(
+        self,
+        stats: Dict[str, Dict[str, Any]],
+        tag: str,
+        step: Optional[int],
+    ) -> None:
+        """Flatten stats into run params (and optionally metrics)."""
+        params: Dict[str, Any] = {}
+        for field, entry in stats.items():
+            for stat_name, val in entry.items():
+                params[f"data/{tag}/{field}/{stat_name}"] = val
+
+        if params:
+            self._run.log_params(params)
+
+        if step is not None:
+            for field, entry in stats.items():
+                if "mean" in entry:
+                    with contextlib.suppress(Exception):
+                        self._run.log_metric(f"data/{field}/mean", float(entry["mean"]), step=step)
+
+    @staticmethod
+    def _infer_size(data: Any) -> Optional[int]:
+        """Best-effort sample count inference from a variable."""
+        with contextlib.suppress(Exception):
+            return int(len(data))
+        if hasattr(data, "data") and hasattr(data.data, "shape"):
+            with contextlib.suppress(Exception):
+                return int(data.data.shape[0])
+        return None
