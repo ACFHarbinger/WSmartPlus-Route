@@ -87,7 +87,7 @@ def run_wsr_simulator_test(cfg: Config) -> None:
     try:
         data_dir = os.path.join(udef.ROOT_DIR, "data", "wsr_simulator")
         if os.path.isdir(data_dir):
-            wst.DataTracker(run).scan_directory(data_dir)
+            wst.FilesystemTracker(run).scan_directory(data_dir)
     except Exception:
         pass
 
