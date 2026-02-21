@@ -4,7 +4,8 @@ Action for simulation logging.
 
 from typing import Any, Dict
 
-from logic.src.utils.logging.log_utils import send_daily_output_to_gui
+from logic.src.tracking.integrations.simulation import get_sim_tracker
+from logic.src.tracking.logging.log_utils import send_daily_output_to_gui
 
 from ..day_context import get_daily_results
 from .base import SimulationAction
@@ -55,3 +56,18 @@ class LogAction(SimulationAction):
             context["lock"],
             must_go=context.get("must_go"),
         )
+
+        # Forward day-level metrics to the centralised tracker (no-op if no run active)
+        sim_tracker = get_sim_tracker(context["policy_name"], context["sample_id"])
+        if sim_tracker is not None:
+            sim_tracker.log_day(
+                day,
+                {
+                    "cost": cost,
+                    "profit": profit,
+                    "ncol": ncol,
+                    "kg": total_collected,
+                    "overflows": new_overflows,
+                    "kg_lost": sum_lost,
+                },
+            )

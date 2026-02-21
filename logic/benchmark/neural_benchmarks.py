@@ -12,7 +12,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.models.policies.am import AttentionModelPolicy
-from logic.src.utils.logging.structured_logging import log_benchmark_metric
+from logic.src.tracking.logging.structured_logging import log_benchmark_metric
 
 
 def benchmark_neural_model(

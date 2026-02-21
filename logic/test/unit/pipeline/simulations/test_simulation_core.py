@@ -46,7 +46,7 @@ class TestSimulation:
         cfg.sim.full_policies = ["pol1"]
         cfg.sim.policies = ["pol1"]
         mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path))
-        mocker.patch("logic.src.utils.logging.log_utils.log_to_json")
+        mocker.patch("logic.src.tracking.logging.log_utils.log_to_json")
 
         mocker.patch("logic.src.pipeline.simulations.states.base.context.SimulationContext.run",
                      return_value={"pol1": [1.0, 2.0], "success": True})

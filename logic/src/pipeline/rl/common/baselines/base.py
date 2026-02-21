@@ -12,7 +12,7 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.interfaces import ITensorDictLike
-from logic.src.utils.logging.pylogger import get_pylogger
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
 

@@ -51,7 +51,7 @@ class TestPipelineFeaturesTest:
     @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
     @patch("logic.src.pipeline.features.test.orchestrator.parallel_runner.Pool")
     @patch("logic.src.pipeline.features.test.orchestrator.results_handler.output_stats")
-    @patch("logic.src.utils.logging.log_utils.send_final_output_to_gui")
+    @patch("logic.src.tracking.logging.log_utils.send_final_output_to_gui")
     @patch("logic.src.pipeline.simulations.simulator.display_log_metrics")
     def test_simulator_testing_parallel(
         self,
