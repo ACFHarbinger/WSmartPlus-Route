@@ -16,7 +16,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from logic.src.constants import DAY_METRICS, SIM_METRICS
-from logic.src.utils.logging.log_utils import final_simulation_summary, log_to_json
+from logic.src.tracking.integrations.simulation import get_sim_tracker
+from logic.src.tracking.logging.log_utils import final_simulation_summary, log_to_json
 
 from ..processor import save_matrix_to_excel
 from .base import SimState
@@ -105,5 +106,10 @@ class FinishingState(SimState):
         ctx.result = {ctx.pol_name: lg, "success": True}
 
         final_simulation_summary({ctx.pol_name: lg}, ctx.pol_name, sim.n_samples)
+
+        # Forward final aggregated metrics to the centralised tracker (no-op if no run active)
+        sim_tracker = get_sim_tracker(ctx.pol_name, ctx.sample_id)
+        if sim_tracker is not None:
+            sim_tracker.log_final(SIM_METRICS, lg)
 
         ctx.transition_to(None)

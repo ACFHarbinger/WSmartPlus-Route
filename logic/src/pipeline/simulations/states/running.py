@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 from loguru import logger
 
-from logic.src.utils.logging.log_utils import final_simulation_summary
+from logic.src.tracking.logging.log_utils import final_simulation_summary
 
 from ..checkpoints import CheckpointError, checkpoint_manager
 from ..day_context import SimulationDayContext, run_day

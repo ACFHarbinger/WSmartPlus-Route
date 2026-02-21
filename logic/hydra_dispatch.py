@@ -43,7 +43,7 @@ def _pretty_print_hydra_config(cfg: DictConfig, filter_keys: Any = None) -> None
 def hydra_entry_point(cfg: Config) -> float:
     """Unified Hydra entry point for all configuration-driven commands."""
     if cfg.profile:
-        from logic.src.utils.profiling import start_global_profiling, stop_global_profiling
+        from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
 
         start_global_profiling(log_dir=cfg.log_dir)
 

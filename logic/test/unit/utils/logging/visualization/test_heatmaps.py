@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from unittest.mock import MagicMock, patch
 
-from logic.src.utils.logging.visualization.heatmaps import (
+from logic.src.tracking.logging.visualization.heatmaps import (
     plot_attention_heatmaps,
     plot_logit_lens
 )
@@ -44,8 +44,8 @@ def mock_model():
 
     return model
 
-@patch("logic.src.utils.logging.visualization.heatmaps.plt")
-@patch("logic.src.utils.logging.visualization.heatmaps.sns")
+@patch("logic.src.tracking.logging.visualization.heatmaps.plt")
+@patch("logic.src.tracking.logging.visualization.heatmaps.sns")
 def test_plot_attention_heatmaps(mock_sns, mock_plt, mock_model, tmp_path):
     """Test attention weight heatmap plotting."""
     output_dir = str(tmp_path / "heatmaps")
@@ -55,8 +55,8 @@ def test_plot_attention_heatmaps(mock_sns, mock_plt, mock_model, tmp_path):
     assert mock_sns.heatmap.called
     assert mock_plt.savefig.called
 
-@patch("logic.src.utils.logging.visualization.heatmaps.plt")
-@patch("logic.src.utils.logging.visualization.heatmaps.sns")
+@patch("logic.src.tracking.logging.visualization.heatmaps.plt")
+@patch("logic.src.tracking.logging.visualization.heatmaps.sns")
 def test_plot_logit_lens(mock_sns, mock_plt, mock_model, tmp_path):
     """Test logit lens probability distribution plotting."""
     output_file = str(tmp_path / "logit_lens.png")

@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import logic.src.constants as udef
 from logic.src.configs import Config
-from logic.src.utils.logging.log_utils import output_stats
+from logic.src.tracking.logging.log_utils import output_stats
 
 
 def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:

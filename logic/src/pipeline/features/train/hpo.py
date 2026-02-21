@@ -12,7 +12,7 @@ from logic.src.configs import Config
 from logic.src.pipeline.features.train.model_factory import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 from logic.src.pipeline.rl.hpo.base import apply_params, normalise_search_space
-from logic.src.utils.logging.pylogger import get_pylogger
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
 

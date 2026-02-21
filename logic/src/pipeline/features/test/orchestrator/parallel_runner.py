@@ -34,6 +34,8 @@ def run_parallel_simulations(
     log_file: Optional[str],
     original_stderr: Any,
     shared_metrics: Any,
+    tracking_uri: Optional[str] = None,
+    tracking_run_id: Optional[str] = None,
 ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Execute simulations in parallel using a multiprocessing pool.
@@ -51,6 +53,8 @@ def run_parallel_simulations(
         log_file: Path to log file for worker redirection.
         original_stderr: Original stderr for shutdown messages.
         shared_metrics: Multiprocessing Manager.dict for real-time stats.
+        tracking_uri: Directory of the WSTracker database (passed to workers).
+        tracking_run_id: Parent run UUID that workers should attach to.
     """
     sim = cfg.sim
     udef.update_lock_wait_time(n_cores)
@@ -67,7 +71,7 @@ def run_parallel_simulations(
     pool = Pool(
         processes=n_cores,
         initializer=init_single_sim_worker,
-        initargs=(lock, counter, shared_metrics, log_file, cfg),
+        initargs=(lock, counter, shared_metrics, log_file, cfg, tracking_uri, tracking_run_id),
     )
 
     try:

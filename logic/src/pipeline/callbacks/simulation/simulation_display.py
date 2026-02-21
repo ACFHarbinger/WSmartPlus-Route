@@ -71,7 +71,7 @@ class SimulationDisplayCallback:
         # Rich Components
         # If sys.stdout is redirected by LoggerWriter, we use the original terminal
         # to ensure the dashboard is visible and not logged.
-        from logic.src.utils.logging.logger_writer import LoggerWriter
+        from logic.src.tracking.logging.logger_writer import LoggerWriter
 
         main_console_out = sys.stdout
         if isinstance(main_console_out, LoggerWriter):

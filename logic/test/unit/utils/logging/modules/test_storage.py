@@ -9,7 +9,7 @@ import pytest
 import numpy as np
 from unittest.mock import MagicMock, patch
 
-from logic.src.utils.logging.modules.storage import (
+from logic.src.tracking.logging.modules.storage import (
     _convert_numpy,
     _sort_log,
     sort_log,
@@ -126,7 +126,7 @@ def test_update_log(tmp_path):
     assert loaded[0]["p1"]["c"] == 1
     assert loaded[0]["p2"]["v"] == 10
 
-@patch("logic.src.utils.logging.modules.storage.logger")
+@patch("logic.src.tracking.logging.modules.storage.logger")
 def test_setup_system_logger(mock_logger):
     """Test system logger configuration."""
     setup_system_logger("test.log")
