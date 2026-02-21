@@ -58,6 +58,12 @@ class RunningState(SimState):
             ctx.transition_to(None)
 
     def _run_simulation_days(self, ctx, iterator, hook, realtime_log_path):
+        from logic.src.tracking.integrations.data_lineage import DataLineageCallback
+
+        log_freq = int(getattr(ctx.cfg.sim, "tracking_log_freq", 1))
+        lineage = DataLineageCallback(ctx.pol_name, ctx.sample_id, log_freq=log_freq)
+        lineage.on_simulation_start(ctx)
+
         for day in iterator:
             hook.before_day(day)
 
@@ -69,6 +75,7 @@ class RunningState(SimState):
 
             self._update_ctx_from_day_context(ctx, day_context)
             self._update_metrics(ctx, day, day_context.output_dict, day_context.daily_log)
+            lineage.on_step_end(day_context, day)
 
             hook.after_day(ctx.execution_time)
             if ctx.overall_progress:

@@ -1,0 +1,71 @@
+# @package _global_
+# =============================================================================
+# Tracking Backend Configuration
+# =============================================================================
+# Controls WSTracker (SQLite) and the optional MLflow secondary sink.
+# Include in any task config via Hydra defaults or CLI override:
+#
+#   python main.py train_lightning +tracking=tracking
+#
+# Or override individual keys at the CLI:
+#
+#   python main.py train_lightning \
+#       tracking.mlflow_enabled=true \
+#       tracking.mlflow_tracking_uri=http://localhost:5000
+# =============================================================================
+
+tracking:
+  # ---------------------------------------------------------------------------
+  # WSTracker (native SQLite backend — always active)
+  # ---------------------------------------------------------------------------
+  # Directory that holds tracking.db and the artifacts/ subtree.
+  # Relative paths are resolved from the project ROOT_DIR.
+  wst_tracking_uri: "assets/tracking"
+
+  # ---------------------------------------------------------------------------
+  # MLflow secondary sink (opt-in)
+  # ---------------------------------------------------------------------------
+  # When true, every WSTracker Run also dual-writes to MLflow.
+  mlflow_enabled: false
+
+  # MLflow tracking server URI.  Supported formats:
+  #   - Local directory:   "mlruns"
+  #   - Remote HTTP:       "http://mlflow.mycompany.com:5000"
+  #   - Databricks:        "databricks"
+  mlflow_tracking_uri: "mlruns"
+
+  # MLflow experiment that will be created or reused.
+  mlflow_experiment_name: "wsmart-route"
+
+  # Human-readable run name shown in the MLflow UI.
+  # null → uses the first 8 chars of the WSTracker run UUID.
+  mlflow_run_name: null
+
+  # ---------------------------------------------------------------------------
+  # Ray Tune integration
+  # ---------------------------------------------------------------------------
+  # Root directory for Ray Tune trial logs and checkpoints.
+  ray_tune_storage_path: "ray_results"
+
+  # When true, each Ray Tune trial also logs to MLflow via
+  # MLflowLoggerCallback.  mlflow_enabled must also be true.
+  ray_tune_mlflow_enabled: false
+
+  # ---------------------------------------------------------------------------
+  # ZenML integration (opt-in)
+  # ---------------------------------------------------------------------------
+  # When true, training / simulation / HPO run as versioned ZenML pipelines.
+  # Requires: uv add "zenml[mlflow]" && zenml init
+  zenml_enabled: false
+
+  # ZenML metadata store URL.  Empty string = default local store (~/.zenml).
+  # Supported formats:
+  #   - "" (empty):                       default local store
+  #   - "sqlite:///path/to/store.db":     SQLite store
+  #   - "mysql://user:password@host/db":  MySQL store
+  zenml_store_url: ""
+
+  # Name of the ZenML stack to activate for pipeline runs.
+  # The stack must include an mlflow_tracker experiment tracker component
+  # configured to point at the same mlflow_tracking_uri as above.
+  zenml_stack_name: "wsmart-route-stack"

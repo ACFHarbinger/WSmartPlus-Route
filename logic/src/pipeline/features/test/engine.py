@@ -2,10 +2,12 @@
 Simulation Test Runner.
 """
 
+import contextlib
 import os
 import random
 import re
 from multiprocessing import cpu_count
+from typing import Any, List, Optional
 
 import numpy as np
 import torch
@@ -22,12 +24,15 @@ from logic.src.pipeline.simulations.repository import (
     load_simulator_data,
     set_repository,
 )
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 from .config import expand_policy_configs
 from .orchestrator import simulator_testing
 
+logger = get_pylogger(__name__)
 
-def run_wsr_simulator_test(cfg: Config) -> None:
+
+def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
     """
     Main entry point for the WSmart+ Route simulator test engine.
 
@@ -42,7 +47,18 @@ def run_wsr_simulator_test(cfg: Config) -> None:
     Args:
         cfg: Root Hydra configuration object containing ``cfg.sim`` with
             simulation parameters, policy settings, and environment metadata.
+        sinks: Optional list of tracking sinks (e.g. :class:`ZenMLBridge`)
+            to attach to the WSTracker run. When ``None`` (the default),
+            :class:`MLflowBridge` is auto-attached if
+            ``cfg.tracking.mlflow_enabled`` is ``True``.
     """
+    # ----- ZenML dispatch (opt-in) -----
+    tracking = getattr(cfg, "tracking", None)
+    zenml_enabled = bool(getattr(tracking, "zenml_enabled", False))
+    if zenml_enabled and sinks is None:
+        _run_sim_via_zenml(cfg)
+        return
+
     _validate_sim_config(cfg)
 
     sim = cfg.sim
@@ -82,6 +98,23 @@ def run_wsr_simulator_test(cfg: Config) -> None:
     # initargs by the orchestrator, which reads them from the active tracker.
     run = tracker.start_run(experiment_name, run_type="simulation", tags=run_tags)
     run.__enter__()
+
+    # ----- Attach secondary sinks -----
+    if sinks is not None:
+        for sink in sinks:
+            run.add_sink(sink)
+    else:
+        # Auto-attach MLflowBridge when running outside ZenML
+        mlflow_enabled = bool(getattr(tracking, "mlflow_enabled", False))
+        if mlflow_enabled:
+            with contextlib.suppress(Exception):
+                wst.MLflowBridge.attach(
+                    run,
+                    mlflow_tracking_uri=str(getattr(tracking, "mlflow_tracking_uri", "mlruns")),
+                    experiment_name=str(getattr(tracking, "mlflow_experiment_name", "wsmart-route")),
+                    run_name=run.run_id[:8],
+                    tags=run_tags,
+                )
 
     # Log simulation data directory baseline hashes for change detection
     try:
@@ -208,3 +241,34 @@ def _ensure_directories(cfg: Config) -> None:
         raise Exception(
             f"directories to save WSR simulator test output files do not exist and could not be created: {e}"
         ) from e
+
+
+# ---------------------------------------------------------------------------
+# ZenML dispatch
+# ---------------------------------------------------------------------------
+
+
+def _run_sim_via_zenml(cfg: Config) -> None:
+    """Dispatch simulation testing to the ZenML simulation pipeline.
+
+    Called when ``cfg.tracking.zenml_enabled`` is ``True`` and no external
+    sinks were injected (i.e. the call originates from the CLI).
+    """
+    tracking = getattr(cfg, "tracking", None)
+    mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))
+    stack_name = str(getattr(tracking, "zenml_stack_name", "wsmart-route-stack"))
+
+    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
+
+    if not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
+        logger.warning("ZenML stack configuration failed — falling back to direct simulation.")
+        run_wsr_simulator_test(cfg, sinks=[])
+        return
+
+    try:
+        from logic.src.pipeline.features.test.zenml_sim_pipeline import simulation_pipeline
+
+        simulation_pipeline(cfg)
+    except Exception as exc:
+        logger.warning(f"ZenML simulation pipeline failed — falling back to direct simulation: {exc}")
+        run_wsr_simulator_test(cfg, sinks=[])
