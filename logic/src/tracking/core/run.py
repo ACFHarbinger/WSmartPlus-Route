@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import threading
 from typing import Any, Dict, List, Optional, Tuple
@@ -94,9 +95,37 @@ class Run:
         self._file_hashes: Dict[str, str] = {}
         self._closed = False
 
+        # Optional secondary logging sinks (e.g. MLflowBridge).
+        # Each sink must expose log_metric(key, value, step),
+        # log_params(params), log_artifact(path), and finish(status).
+        self._sinks: List[Any] = []
+
     # ------------------------------------------------------------------
     # Tags
     # ------------------------------------------------------------------
+
+    def add_sink(self, sink: Any) -> "Run":
+        """Attach a secondary logging sink to this run.
+
+        The sink receives forwarded calls for every metric, param, and
+        artifact logged hereafter.  It must implement:
+
+        * ``log_metric(key: str, value: float, step: int)``
+        * ``log_params(params: dict)``
+        * ``log_artifact(path: str)``
+        * ``finish(status: str)``
+
+        Errors raised by the sink are silently suppressed so a broken
+        secondary backend never disrupts the primary WSTracker writes.
+
+        Args:
+            sink: Any object implementing the sink protocol above.
+
+        Returns:
+            ``self`` for method chaining.
+        """
+        self._sinks.append(sink)
+        return self
 
     def set_tag(self, key: str, value: str) -> "Run":
         """Attach a metadata tag to this run."""
@@ -123,7 +152,11 @@ class Run:
     def log_params(self, params: Dict[str, Any]) -> "Run":
         """Record multiple configuration parameters, flattening nested dicts."""
         if not self._closed:
-            self._store.log_params(self.run_id, _flatten_dict(params))
+            flat = _flatten_dict(params)
+            self._store.log_params(self.run_id, flat)
+            for sink in self._sinks:
+                with contextlib.suppress(Exception):
+                    sink.log_params(flat)
         return self
 
     # ------------------------------------------------------------------
@@ -141,6 +174,9 @@ class Run:
             self._metric_buffer.append((key, fval, step))
             if len(self._metric_buffer) >= self._buffer_size:
                 self._flush_metrics_locked()
+        for sink in self._sinks:
+            with contextlib.suppress(Exception):
+                sink.log_metric(key, fval, step)
         return self
 
     def log_metrics(self, metrics: Dict[str, Any], step: int = 0) -> "Run":
@@ -199,6 +235,9 @@ class Run:
             size_bytes=os.path.getsize(path),
             metadata=metadata,
         )
+        for sink in self._sinks:
+            with contextlib.suppress(Exception):
+                sink.log_artifact(path)
         return self
 
     def log_artifacts_dir(
@@ -303,6 +342,9 @@ class Run:
             self.flush()
             self._store.finish_run(self.run_id, status=status, error=error)
             self._closed = True
+            for sink in self._sinks:
+                with contextlib.suppress(Exception):
+                    sink.finish(status)
             if get_active_run() is self:
                 set_active_run(None)
 

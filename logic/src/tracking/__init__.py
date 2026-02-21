@@ -77,7 +77,9 @@ from .core.tracker import Tracker, get_tracker
 from .integrations.data import RuntimeDataTracker
 from .integrations.filesystem import FilesystemTracker
 from .integrations.lightning import TrackingCallback
+from .integrations.mlflow_bridge import MLflowBridge
 from .integrations.simulation import SimulationRunTracker, get_sim_tracker
+from .integrations.zenml_bridge import ZenMLBridge
 
 __all__ = [
     # Factory / accessors
@@ -94,6 +96,8 @@ __all__ = [
     "get_sim_tracker",
     "RuntimeDataTracker",
     "FilesystemTracker",
+    "MLflowBridge",
+    "ZenMLBridge",
     # Submodules
     "hooks",
     "logging",

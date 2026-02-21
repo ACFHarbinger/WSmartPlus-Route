@@ -4,6 +4,7 @@ Training engine for WSmart-Route.
 
 import contextlib
 import os
+from typing import Any, List, Optional
 
 import hydra
 import torch
@@ -16,6 +17,9 @@ from logic.src.interfaces import ITraversable
 from logic.src.pipeline.callbacks import SpeedMonitor
 from logic.src.pipeline.features.train.model_factory.builder import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
+from logic.src.tracking.logging.pylogger import get_pylogger
+
+logger = get_pylogger(__name__)
 
 
 def _build_experiment_name(cfg: Config) -> str:
@@ -29,8 +33,55 @@ def _build_experiment_name(cfg: Config) -> str:
     return "-".join(p for p in parts if p)
 
 
-def run_training(cfg: Config) -> float:
-    """Run single model training."""
+def _build_callbacks(cfg: Config) -> list:
+    """Instantiate training callbacks from Hydra config.
+
+    Handles ``ITraversable`` configs (direct ``_target_`` dicts and nested
+    name-to-config dicts), links ``CleanProgressBar`` ↔ ``TerminalChartCallback``
+    when both are present, and always includes a :class:`SpeedMonitor`.
+    """
+    callbacks: list = [SpeedMonitor(epoch_time=True)]
+    if cfg.train.callbacks:
+        for cb_cfg in cfg.train.callbacks:
+            if isinstance(cb_cfg, ITraversable):
+                if "_target_" in cb_cfg:
+                    callbacks.append(hydra.utils.instantiate(cb_cfg))
+                else:
+                    for _, actual_cfg in cb_cfg.items():
+                        if isinstance(actual_cfg, ITraversable) and "_target_" in actual_cfg:
+                            callbacks.append(hydra.utils.instantiate(actual_cfg))
+            else:
+                with contextlib.suppress(Exception):
+                    callbacks.append(hydra.utils.instantiate(cb_cfg))
+
+    progress_bar = next((c for c in callbacks if c.__class__.__name__ == "CleanProgressBar"), None)
+    terminal_chart = next((c for c in callbacks if c.__class__.__name__ == "TerminalChartCallback"), None)
+    if progress_bar is not None and terminal_chart is not None:
+        progress_bar.set_chart_callback(terminal_chart)  # type: ignore[attr-defined]
+
+    return callbacks
+
+
+def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
+    """Run single model training.
+
+    Args:
+        cfg: Root Hydra configuration object.
+        sinks: Optional list of tracking sinks (e.g. :class:`ZenMLBridge`)
+            to attach to the WSTracker run. When ``None`` (the default),
+            :class:`MLflowBridge` is auto-attached if
+            ``cfg.tracking.mlflow_enabled`` is ``True``.
+
+    Returns:
+        Validation reward from the best epoch.
+    """
+    # ----- ZenML dispatch (opt-in) -----
+    tracking = getattr(cfg, "tracking", None)
+    zenml_enabled = bool(getattr(tracking, "zenml_enabled", False))
+    if zenml_enabled and sinks is None:
+        # First invocation from CLI / main — delegate to ZenML pipeline
+        return _run_training_via_zenml(cfg)
+
     seed_everything(cfg.seed)
 
     # Enable Tensor Core acceleration for Ampere+ GPUs
@@ -39,34 +90,7 @@ def run_training(cfg: Config) -> float:
 
     model = create_model(cfg)
 
-    # Setup callbacks
-    callbacks = [SpeedMonitor(epoch_time=True)]
-    if cfg.train.callbacks:
-        for cb_cfg in cfg.train.callbacks:
-            # Use ITraversable protocol for config-like objects
-            if isinstance(cb_cfg, ITraversable):
-                # Handle direct target dicts: {_target_: ...}
-                if "_target_" in cb_cfg:
-                    callbacks.append(hydra.utils.instantiate(cb_cfg))
-                # Handle named dicts: {name: {_target_: ...}}
-                else:
-                    for _, actual_cfg in cb_cfg.items():
-                        if isinstance(actual_cfg, ITraversable) and "_target_" in actual_cfg:
-                            callbacks.append(hydra.utils.instantiate(actual_cfg))
-            else:
-                # Fallback for other types (e.g. if it's already an object or unhandled type)
-                with contextlib.suppress(Exception):
-                    callbacks.append(hydra.utils.instantiate(cb_cfg))
-
-    # Link Progress Bar and Chart if both exist
-    # This is necessary because they are instantiated separately by Hydra
-    progress_bar = next((c for c in callbacks if c.__class__.__name__ == "CleanProgressBar"), None)
-    terminal_chart = next((c for c in callbacks if c.__class__.__name__ == "TerminalChartCallback"), None)
-
-    if progress_bar is not None and terminal_chart is not None:
-        # We know these are the correct types based on the class name check above
-        # avoiding circular imports for type checking here
-        progress_bar.set_chart_callback(terminal_chart)  # type: ignore[attr-defined]
+    callbacks = _build_callbacks(cfg)
 
     trainer = WSTrainer(
         max_epochs=cfg.train.n_epochs,
@@ -98,6 +122,23 @@ def run_training(cfg: Config) -> float:
     }
     run = tracker.start_run(experiment_name, run_type="training", tags=run_tags)
     run.__enter__()
+
+    # ----- Attach secondary sinks -----
+    if sinks is not None:
+        for sink in sinks:
+            run.add_sink(sink)
+    else:
+        # Auto-attach MLflowBridge when running outside ZenML
+        mlflow_enabled = bool(getattr(tracking, "mlflow_enabled", False))
+        if mlflow_enabled:
+            with contextlib.suppress(Exception):
+                wst.MLflowBridge.attach(
+                    run,
+                    mlflow_tracking_uri=str(getattr(tracking, "mlflow_tracking_uri", "mlruns")),
+                    experiment_name=str(getattr(tracking, "mlflow_experiment_name", "wsmart-route")),
+                    run_name=run.run_id[:8],
+                    tags=run_tags,
+                )
 
     try:
         # Log training configuration as params
@@ -145,3 +186,39 @@ def _log_training_params(run: wst.Run, cfg: Config) -> None:
     sections["seed"] = cfg.seed
     sections["experiment_name"] = getattr(cfg, "experiment_name", "")
     run.log_params(sections)
+
+
+# ---------------------------------------------------------------------------
+# ZenML dispatch
+# ---------------------------------------------------------------------------
+
+
+def _run_training_via_zenml(cfg: Config) -> float:
+    """Dispatch training to the ZenML training pipeline.
+
+    Called when ``cfg.tracking.zenml_enabled`` is ``True`` and no external
+    sinks were injected (i.e. the call originates from the CLI, not from
+    inside a ZenML step).
+
+    Returns:
+        Best validation reward returned by the ZenML pipeline.
+    """
+    tracking = getattr(cfg, "tracking", None)
+    mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))
+    stack_name = str(getattr(tracking, "zenml_stack_name", "wsmart-route-stack"))
+
+    # Ensure the ZenML stack is configured before launching the pipeline
+    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
+
+    if not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
+        logger.warning("ZenML stack configuration failed — falling back to direct training.")
+        return run_training(cfg, sinks=[])
+
+    try:
+        from logic.src.pipeline.features.train.zenml_train_pipeline import training_pipeline
+
+        result = training_pipeline(cfg)
+        return result if isinstance(result, float) else 0.0
+    except Exception as exc:
+        logger.warning(f"ZenML training pipeline failed — falling back to direct training: {exc}")
+        return run_training(cfg, sinks=[])

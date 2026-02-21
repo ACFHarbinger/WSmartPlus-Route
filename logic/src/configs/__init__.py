@@ -10,6 +10,7 @@ from .models import DecoderConfig, DecodingConfig, EncoderConfig, ModelConfig, O
 from .policies.other import MustGoConfig, PostProcessingConfig
 from .rl import RLConfig
 from .tasks import DataConfig, EvalConfig, HPOConfig, MetaRLConfig, SimConfig, TrainConfig
+from .tracking import TrackingConfig
 
 
 @dataclass
@@ -27,6 +28,7 @@ class Config:
         eval: Evaluation configuration.
         sim: Simulation configuration.
         data: Data generation configuration.
+        tracking: Tracking backend configuration (WSTracker + optional MLflow).
         must_go: Must-go selection strategy configuration.
         post_processing: Route refinement configuration.
         load_dataset: Optional path to a dataset file to load.
@@ -56,6 +58,7 @@ class Config:
     eval: EvalConfig = field(default_factory=EvalConfig)
     sim: SimConfig = field(default_factory=SimConfig)
     data: DataConfig = field(default_factory=DataConfig)
+    tracking: TrackingConfig = field(default_factory=TrackingConfig)
     must_go: MustGoConfig = field(default_factory=MustGoConfig)
     post_processing: PostProcessingConfig = field(default_factory=PostProcessingConfig)
     load_dataset: Optional[str] = None
@@ -87,6 +90,7 @@ __all__ = [
     "EvalConfig",
     "SimConfig",
     "DataConfig",
+    "TrackingConfig",
     "MustGoConfig",
     "PostProcessingConfig",
     "Config",

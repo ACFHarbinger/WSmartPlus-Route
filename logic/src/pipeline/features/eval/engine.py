@@ -2,6 +2,7 @@
 Evaluation engine for WSmart-Route.
 """
 
+import contextlib
 import datetime
 import itertools
 import math
@@ -213,8 +214,22 @@ def eval_dataset(
     cfg: Config,
     method: Optional[str] = None,
     strategy: Optional[str] = None,
+    run: Optional[Any] = None,
 ) -> Tuple[List[float], List[Optional[List[int]]], List[float]]:
-    """Evaluates a model on a given dataset."""
+    """Evaluates a model on a given dataset.
+
+    Args:
+        dataset_path: Path to the evaluation dataset.
+        beam_width: Beam width for beam-search decoding.
+        softmax_temp: Softmax temperature for sampling.
+        cfg: Root Hydra configuration.
+        method: Decoding method override.
+        strategy: Decoding strategy override.
+        run: Optional WSTracker :class:`Run` for metric/artifact logging.
+
+    Returns:
+        Tuple of (costs, tours, durations).
+    """
     ev = cfg.eval
     model_path = ev.policy.load_path if ev.policy else None
     model, _ = load_model(model_path)
@@ -265,6 +280,21 @@ def eval_dataset(
     assert ev.overwrite or not os.path.isfile(out_file), "File already exists! Try running with -f option to overwrite."
 
     save_dataset((results, parallelism), out_file)
+
+    # Log evaluation metrics and artifact to WSTracker run
+    if run is not None:
+        ds_name = os.path.splitext(os.path.basename(dataset_path))[0]
+        prefix = f"eval/{ds_name}/bw{beam_width}"
+        with contextlib.suppress(Exception):
+            run.log_metric(f"{prefix}/avg_cost", float(avg_metrics["cost"]))  # type: ignore[arg-type]
+            run.log_metric(f"{prefix}/std_cost", float(avg_metrics["std"]))  # type: ignore[arg-type]
+            run.log_metric(f"{prefix}/avg_km", float(avg_metrics["km"]))  # type: ignore[arg-type]
+            run.log_metric(f"{prefix}/avg_kg", float(avg_metrics["kg"]))  # type: ignore[arg-type]
+            run.log_metric(f"{prefix}/avg_overflows", float(avg_metrics["overflows"]))  # type: ignore[arg-type]
+            run.log_metric(f"{prefix}/avg_duration", float(np.mean(durations)))  # type: ignore[arg-type]
+        with contextlib.suppress(Exception):
+            run.log_artifact(out_file, artifact_type="eval_results")
+
     return costs, tours, durations
 
 
