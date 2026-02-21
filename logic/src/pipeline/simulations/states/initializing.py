@@ -16,11 +16,11 @@ from loguru import logger
 
 from logic.src.constants import DAY_METRICS, ROOT_DIR
 from logic.src.interfaces import ITraversable
+from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.configs.setup_env import setup_env
 from logic.src.utils.configs.setup_manager import setup_hrl_manager
 from logic.src.utils.configs.setup_worker import setup_model
-from logic.src.utils.logging.log_utils import setup_system_logger
 
 from ..bins import Bins
 from ..checkpoints import SimulationCheckpoint
@@ -75,7 +75,7 @@ class InitializingState(SimState):
         setup_system_logger(sim.log_file, sim.log_level)
 
         # Redirect stderr to the simulation log file for the main process
-        from logic.src.utils.logging.logger_writer import setup_logger_redirection
+        from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 
         setup_logger_redirection(
             log_file=sim.log_file,

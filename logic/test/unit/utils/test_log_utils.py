@@ -3,7 +3,7 @@ import json
 from unittest.mock import MagicMock, patch
 import pandas as pd
 import torch
-from logic.src.utils.logging.log_utils import (
+from logic.src.tracking.logging.log_utils import (
     log_epoch,
     log_to_json,
     log_to_json2,
@@ -11,13 +11,13 @@ from logic.src.utils.logging.log_utils import (
     output_stats,
     runs_per_policy,
 )
-from logic.src.utils.logging.log_visualization import log_training
+from logic.src.tracking.logging.log_visualization import log_training
 from omegaconf import OmegaConf
 
 class TestLogUtils:
     """Class for log_utils tests."""
 
-    @patch("logic.src.utils.logging.modules.metrics.wandb")
+    @patch("logic.src.tracking.logging.modules.metrics.wandb")
     def test_log_epoch(self, mock_wandb):
         """Test log_epoch with mocked wandb."""
         opts = OmegaConf.create({"rl": {"wandb_mode": "online"}, "train_time": False})
@@ -27,8 +27,8 @@ class TestLogUtils:
         log_epoch(x_tup, loss_keys, epoch_loss, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.utils.logging.log_visualization.wandb")
-    @patch("logic.src.utils.logging.log_visualization.plt")
+    @patch("logic.src.tracking.logging.log_visualization.wandb")
+    @patch("logic.src.tracking.logging.log_visualization.plt")
     def test_log_training(self, mock_plt, mock_wandb):
         """Test log_training with mocked components."""
         opts = OmegaConf.create({
@@ -48,8 +48,8 @@ class TestLogUtils:
             log_training(loss_keys, table_df, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.utils.logging.modules.storage.os.path.isfile")
-    @patch("logic.src.utils.logging.modules.storage.read_json")
+    @patch("logic.src.tracking.logging.modules.storage.os.path.isfile")
+    @patch("logic.src.tracking.logging.modules.storage.read_json")
     @patch("builtins.open", new_callable=MagicMock)
     @patch("json.dump")
     def test_log_to_json(self, mock_dump, mock_open, mock_read, mock_isfile):
@@ -58,14 +58,14 @@ class TestLogUtils:
         mock_read.return_value = {"runs": []}
         mock_open.return_value.__enter__.return_value = MagicMock()
         with (
-            patch("logic.src.utils.logging.modules.storage._sort_log"),
+            patch("logic.src.tracking.logging.modules.storage._sort_log"),
         ):
             res = log_to_json("path.json", ["val"], {"key": [1]}, sort_log_flag=True)
             assert res is not None
             assert mock_dump.called
 
-    @patch("logic.src.utils.logging.modules.storage.os.path.isfile")
-    @patch("logic.src.utils.logging.modules.storage.read_json")
+    @patch("logic.src.tracking.logging.modules.storage.os.path.isfile")
+    @patch("logic.src.tracking.logging.modules.storage.read_json")
     @patch("builtins.open", new_callable=MagicMock)
     @patch("json.dump")
     def test_log_to_json2(self, mock_dump, mock_open, mock_read, mock_isfile):
@@ -78,7 +78,7 @@ class TestLogUtils:
             assert res is not None
             assert mock_dump.called
 
-    @patch("logic.src.utils.logging.modules.metrics.wandb")
+    @patch("logic.src.tracking.logging.modules.metrics.wandb")
     def test_log_values(self, mock_wandb):
         """Test log_values function."""
         cost = torch.tensor([10.0])
@@ -107,8 +107,8 @@ class TestLogUtils:
         assert mock_wandb.log.called
         assert tb_logger.add_scalar.called
 
-    @patch("logic.src.utils.logging.modules.analysis.os.path.isfile")
-    @patch("logic.src.utils.logging.modules.analysis.read_json")
+    @patch("logic.src.tracking.logging.modules.analysis.os.path.isfile")
+    @patch("logic.src.tracking.logging.modules.analysis.read_json")
     @patch("builtins.open", new_callable=MagicMock)
     @patch("json.dump")
     def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_isfile):
@@ -129,7 +129,7 @@ class TestLogUtils:
         assert isinstance(std, dict)
         assert mock_dump.called
 
-    @patch("logic.src.utils.logging.modules.analysis.read_json")
+    @patch("logic.src.tracking.logging.modules.analysis.read_json")
     def test_runs_per_policy(self, mock_read):
         """Test runs_per_policy function."""
         mock_read.return_value = [{"policy1": "res"}, {}]

@@ -130,7 +130,7 @@ def parser_entry_point(args) -> None:
     """
     comm, opts = args
     if opts.get("profile"):
-        from logic.src.utils.profiling.profiler import start_global_profiling
+        from logic.src.tracking.profiling.profiler import start_global_profiling
 
         start_global_profiling(log_dir=opts.get("log_dir", "logs"))
 

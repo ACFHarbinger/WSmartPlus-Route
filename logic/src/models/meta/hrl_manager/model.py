@@ -17,7 +17,7 @@ from logic.src.constants.models import (
 from logic.src.constants.routing import DEFAULT_EVAL_BATCH_SIZE
 from logic.src.constants.waste import CRITICAL_FILL_THRESHOLD
 from logic.src.models.subnets.factories import AttentionComponentFactory, NeuralComponentFactory
-from logic.src.utils.logging.pylogger import get_pylogger
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 from .critic_head import CriticHead
 from .gate_head import GateHead

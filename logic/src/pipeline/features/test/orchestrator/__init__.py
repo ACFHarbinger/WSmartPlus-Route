@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 from loguru import logger
 
 import logic.src.constants as udef
+import logic.src.tracking as wst
 from logic.src.configs import Config
 from logic.src.pipeline.callbacks import PolicySummaryCallback
 
@@ -22,12 +23,12 @@ from logic.src.pipeline.simulations.simulator import (
     display_log_metrics,
     sequential_simulations,
 )
-from logic.src.utils.logging.log_utils import (
+from logic.src.tracking.logging.log_utils import (
     output_stats,
     runs_per_policy,
     send_final_output_to_gui,
 )
-from logic.src.utils.logging.logger_writer import LoggerWriter, setup_logger_redirection
+from logic.src.tracking.logging.logger_writer import LoggerWriter, setup_logger_redirection
 
 
 def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
@@ -97,6 +98,14 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
 
     weights_path = os.path.join(udef.ROOT_DIR, "assets", "model_weights")
 
+    # Extract active tracking context so parallel workers can attach to the
+    # parent run.  Sequential workers run in the same process and already
+    # inherit get_active_run() directly.
+    _active_run = wst.get_active_run()
+    _tracker = wst.get_tracker()
+    tracking_uri: Optional[str] = _tracker.tracking_uri if _tracker is not None else None
+    tracking_run_id: Optional[str] = _active_run.run_id if _active_run is not None else None
+
     if n_cores > 1:
         log, log_std, _failed_log = run_parallel_simulations(
             cfg,
@@ -111,6 +120,8 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
             log_file,
             original_stderr,
             shared_metrics,
+            tracking_uri=tracking_uri,
+            tracking_run_id=tracking_run_id,
         )
     else:
         log, log_std, _failed_log = sequential_simulations(

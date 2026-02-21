@@ -39,7 +39,7 @@ from tqdm import tqdm
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
 from logic.src.interfaces import ITraversable
-from logic.src.utils.logging.log_utils import log_to_json, output_stats
+from logic.src.tracking.logging.log_utils import log_to_json, output_stats
 
 from .checkpoints import CheckpointError
 from .states import SimulationContext
@@ -69,6 +69,8 @@ def init_single_sim_worker(
     shared_metrics_from_main: Any = None,
     log_file: Optional[str] = None,
     cfg: Optional[Config] = None,
+    tracking_uri: Optional[str] = None,
+    tracking_run_id: Optional[str] = None,
 ) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
@@ -82,6 +84,9 @@ def init_single_sim_worker(
         counter_from_main: Multiprocessing Value for overall progress tracking.
         shared_metrics_from_main: Multiprocessing Manager.dict for real-time stats.
         log_file: Path to the log file for redirection.
+        cfg: Root configuration (used to initialize the repository).
+        tracking_uri: WSTracker database directory from the parent process.
+        tracking_run_id: UUID of the parent run to attach to.
     """
     global _lock
     global _counter
@@ -94,9 +99,15 @@ def init_single_sim_worker(
     if cfg is not None:
         _initialize_worker_repository(cfg)
 
+    # Attach to the parent tracking run so get_active_run() works in this process
+    if tracking_uri and tracking_run_id:
+        import logic.src.tracking as wst
+
+        wst.init_worker(tracking_uri=tracking_uri, run_id=tracking_run_id)
+
     # Setup logger redirection in the worker process (silent=True to avoid garbling dashboard)
     if log_file:
-        from logic.src.utils.logging.logger_writer import setup_logger_redirection
+        from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 
         setup_logger_redirection(log_file, silent=True)
 

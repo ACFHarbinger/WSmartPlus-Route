@@ -20,6 +20,7 @@ from logic.src.pipeline.callbacks import (
     ModelSummaryCallback,
     TrainingDisplayCallback,
 )
+from logic.src.tracking.integrations.lightning import TrackingCallback
 
 
 class WSTrainer(pl.Trainer):
@@ -184,6 +185,10 @@ class WSTrainer(pl.Trainer):
         # Add custom model summary callback
         if ModelSummaryCallback not in callback_types:
             callbacks.append(ModelSummaryCallback())
+
+        # Add tracking callback (no-op when no active run is registered)
+        if TrackingCallback not in callback_types:
+            callbacks.append(TrackingCallback())
 
         return callbacks
 

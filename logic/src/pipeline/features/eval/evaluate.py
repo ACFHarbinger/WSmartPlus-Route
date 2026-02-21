@@ -13,7 +13,7 @@ from logic.src.pipeline.features.eval.evaluators import (
     MultiStartEval,
     SamplingEval,
 )
-from logic.src.utils.logging.pylogger import get_pylogger
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 log = get_pylogger(__name__)
 

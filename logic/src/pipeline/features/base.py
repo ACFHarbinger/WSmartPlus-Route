@@ -8,7 +8,7 @@ from omegaconf import DictConfig, ListConfig, OmegaConf
 
 from logic.src.configs import Config
 from logic.src.interfaces import ITraversable
-from logic.src.utils.logging.pylogger import get_pylogger
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
 

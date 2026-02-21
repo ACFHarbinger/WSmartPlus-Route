@@ -11,6 +11,7 @@ import numpy as np
 import torch
 
 import logic.src.constants as udef
+import logic.src.tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 from logic.src.data.datasets import NumpyDictDataset, PandasExcelDataset
@@ -61,9 +62,40 @@ def run_wsr_simulator_test(cfg: Config) -> None:
     _ensure_directories(cfg)
 
     device = torch.device("cpu" if not torch.cuda.is_available() else f"cuda:{torch.cuda.device_count() - 1}")
+
+    # --- Centralised experiment tracking ---
+    experiment_name = f"sim-{sim.graph.area}-{sim.graph.num_loc}bins-{sim.days}days"
+    tracker = wst.init(experiment_name=experiment_name)
+    policy_names = [str(p) if not isinstance(p, dict) else list(p.keys())[0] for p in sim.full_policies]
+    run_tags = {
+        "area": sim.graph.area,
+        "num_loc": str(sim.graph.num_loc),
+        "days": str(sim.days),
+        "n_samples": str(sim.n_samples),
+        "policies": ",".join(policy_names),
+        "seed": str(sim.seed),
+        "distribution": str(sim.data_distribution),
+    }
+    # The run is entered as a context manager so get_active_run() is set for
+    # all code executing in this process (including sequential simulation workers).
+    # For parallel (spawned) workers the URI + run_id are threaded through
+    # initargs by the orchestrator, which reads them from the active tracker.
+    run = tracker.start_run(experiment_name, run_type="simulation", tags=run_tags)
+    run.__enter__()
+
+    # Log simulation data directory baseline hashes for change detection
+    try:
+        data_dir = os.path.join(udef.ROOT_DIR, "data", "wsr_simulator")
+        if os.path.isdir(data_dir):
+            wst.DataTracker(run).scan_directory(data_dir)
+    except Exception:
+        pass
+
     try:
         simulator_testing(cfg, data_size, device)
+        run.__exit__(None, None, None)
     except Exception as e:
+        run.__exit__(type(e), e, e.__traceback__)
         raise Exception(f"failed to execute WSmart+ Route simulations due to {repr(e)}") from e
 
 
