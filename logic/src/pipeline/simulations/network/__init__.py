@@ -2,6 +2,7 @@
 Distance Calculation and Network Sparsification.
 """
 
+import contextlib
 import os
 from typing import Any, Union
 
@@ -73,7 +74,25 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
         if os.path.isfile(matrix_path):
             # Use FileStrategy for loading
             strategy = FileStrategy()
-            return strategy.calculate(coords, **kwargs)
+            result = strategy.calculate(coords, **kwargs)
+            with contextlib.suppress(Exception):
+                from logic.src.tracking.core.run import get_active_run
+
+                run = get_active_run()
+                if run is not None:
+                    run.log_params(
+                        {
+                            "data.dist_method": method,
+                            "data.dist_matrix_source": "file",
+                            "data.dist_matrix_n_nodes": int(result.shape[0]),
+                        }
+                    )
+                    run.log_dataset_event(
+                        "load",
+                        file_path=str(matrix_path),
+                        metadata={"event": "dist_matrix_load", "method": method},
+                    )
+            return result
         else:
             # Prepare for saving
             os.makedirs(os.path.dirname(matrix_path), exist_ok=True)
@@ -94,6 +113,31 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
         with open(matrix_path, mode="a", newline="") as matrix_f:  # type: ignore[arg-type]
             for row in distance_matrix:
                 matrix_f.write(",".join(map(str, row)) + "\n")
+
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            n_nodes = int(distance_matrix.shape[0])
+            off_diag = distance_matrix[~np.eye(n_nodes, dtype=bool)]
+            positive = off_diag[off_diag > 0]
+            run.log_params(
+                {
+                    "data.dist_method": method,
+                    "data.dist_matrix_source": "computed",
+                    "data.dist_matrix_n_nodes": n_nodes,
+                    "data.dist_matrix_min_km": float(positive.min()) if len(positive) > 0 else 0.0,
+                    "data.dist_matrix_max_km": float(distance_matrix.max()),
+                    "data.dist_matrix_mean_km": float(positive.mean()) if len(positive) > 0 else 0.0,
+                }
+            )
+            if matrix_path:
+                run.log_dataset_event(
+                    "generate",
+                    file_path=str(matrix_path),
+                    metadata={"event": "dist_matrix_compute", "method": method},
+                )
 
     return distance_matrix
 

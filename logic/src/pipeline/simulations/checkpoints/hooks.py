@@ -2,6 +2,7 @@
 Checkpoint hooks for simulation lifecycle.
 """
 
+import contextlib
 import time
 import traceback
 from typing import Any, Callable, Dict, Optional
@@ -113,6 +114,22 @@ class CheckpointHook:
             except Exception as save_error:
                 logger.error(f"Failed to save emergency checkpoint: {save_error}")
 
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params(
+                    {
+                        "sim.crashed": True,
+                        "sim.crash_day": int(day),
+                        "sim.crash_policy": str(policy),
+                        "sim.crash_error_type": type(error).__name__,
+                        "sim.crash_execution_time": float(execution_time),
+                    }
+                )
+                run.log_metric("sim/crash_day", float(day))
+
         return {
             "policy": policy,
             "sample_id": sample_id,
@@ -135,3 +152,15 @@ class CheckpointHook:
         if self.state_getter:
             state_snapshot = self.state_getter()
             self.checkpoint.save_state(state_snapshot, self.day, end_simulation=True)
+
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params(
+                    {
+                        "sim.completed": True,
+                        "sim.completion_day": int(self.day),
+                    }
+                )

@@ -2,6 +2,7 @@
 Repository Pattern for Simulation data access.
 """
 
+import contextlib
 from typing import Union
 
 from .base import SimulationRepository
@@ -22,6 +23,12 @@ def set_repository(repo: Union[FileSystemRepository, NumpyDictRepository, Pandas
     """
     global _REPOSITORY
     _REPOSITORY = repo
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params({"sim.repository_type": type(repo).__name__})
 
 
 def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
@@ -29,7 +36,27 @@ def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
     Convenience wrapper to load indices from the singleton repository.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
-    return _REPOSITORY.get_indices(filename, n_samples, n_nodes, data_size, lock)
+    indices = _REPOSITORY.get_indices(filename, n_samples, n_nodes, data_size, lock)
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params(
+                {
+                    "data.indices_file": str(filename),
+                    "data.n_samples": n_samples,
+                    "data.n_nodes": n_nodes,
+                    "data.data_size": data_size,
+                }
+            )
+            run.log_dataset_event(
+                "load",
+                file_path=str(filename),
+                num_samples=n_samples,
+                metadata={"n_nodes": n_nodes, "data_size": data_size},
+            )
+    return indices
 
 
 def load_depot(data_dir, area="Rio Maior"):
@@ -37,7 +64,27 @@ def load_depot(data_dir, area="Rio Maior"):
     Convenience wrapper to load depot coords from the singleton repository.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
-    return _REPOSITORY.get_depot(area, data_dir=data_dir)
+    depot_df = _REPOSITORY.get_depot(area, data_dir=data_dir)
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            lat = float(depot_df["Lat"].iloc[0])
+            lng = float(depot_df["Lng"].iloc[0])
+            run.log_params(
+                {
+                    "data.depot_area": str(area),
+                    "data.depot_lat": lat,
+                    "data.depot_lng": lng,
+                }
+            )
+            run.log_dataset_event(
+                "load",
+                num_samples=1,
+                metadata={"event": "depot_load", "area": str(area)},
+            )
+    return depot_df
 
 
 def load_simulator_data(data_dir, number_of_bins, area="Rio Maior", waste_type=None, lock=None):
@@ -45,7 +92,41 @@ def load_simulator_data(data_dir, number_of_bins, area="Rio Maior", waste_type=N
     Convenience wrapper to load simulator data from the singleton repository.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
-    return _REPOSITORY.get_simulator_data(number_of_bins, area, waste_type, lock, data_dir=data_dir)
+    data, bins_coordinates = _REPOSITORY.get_simulator_data(number_of_bins, area, waste_type, lock, data_dir=data_dir)
+    with contextlib.suppress(Exception):
+        import torch
+
+        from logic.src.tracking.core.run import get_active_run
+        from logic.src.tracking.integrations.data import RuntimeDataTracker
+
+        run = get_active_run()
+        if run is not None:
+            n_bins = len(data)
+            run.log_params(
+                {
+                    "data.area": str(area),
+                    "data.n_bins_requested": number_of_bins,
+                    "data.n_bins_loaded": n_bins,
+                    "data.waste_type": str(waste_type) if waste_type else "all",
+                }
+            )
+            run.log_dataset_event(
+                "load",
+                num_samples=n_bins,
+                metadata={
+                    "event": "simulator_data_load",
+                    "area": str(area),
+                    "waste_type": str(waste_type) if waste_type else "all",
+                },
+            )
+            stock_tensor = torch.as_tensor(data["Stock"].values, dtype=torch.float32)
+            rate_tensor = torch.as_tensor(data["Accum_Rate"].values, dtype=torch.float32)
+            RuntimeDataTracker(run).on_load(
+                {"stock": stock_tensor, "accum_rate": rate_tensor},
+                num_samples=n_bins,
+                metadata={"area": str(area), "waste_type": str(waste_type) if waste_type else "all"},
+            )
+    return data, bins_coordinates
 
 
 def load_area_and_waste_type_params(area, waste_type):
@@ -53,7 +134,19 @@ def load_area_and_waste_type_params(area, waste_type):
     Convenience wrapper to load area params.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
-    return _REPOSITORY.get_area_params(area, waste_type)
+    params = _REPOSITORY.get_area_params(area, waste_type)
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params(
+                {
+                    "data.area_params_area": str(area),
+                    "data.area_params_waste_type": str(waste_type) if waste_type else "all",
+                }
+            )
+    return params
 
 
 __all__ = [

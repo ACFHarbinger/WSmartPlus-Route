@@ -2,6 +2,7 @@
 File-based implementation of SimulationRepository.
 """
 
+import contextlib
 import json
 import os
 
@@ -45,6 +46,7 @@ class FileSystemRepository(SimulationRepository):
         """
         Implementation of get_indices that persists generated indices to JSON.
         """
+        _indices_source = "file"
         graphs_file_path = os.path.join(self.default_data_dir, "bins_selection", filename)
         if os.path.isfile(graphs_file_path):
             if lock is not None:
@@ -58,6 +60,7 @@ class FileSystemRepository(SimulationRepository):
                 if len(indices) == 1 and n_samples > 1:
                     indices *= n_samples
         else:
+            _indices_source = "generated"
             df = pd.Series(range(data_size))
             indices = []
             for _ in range(n_samples):
@@ -79,6 +82,15 @@ class FileSystemRepository(SimulationRepository):
             finally:
                 if lock is not None:
                     lock.release()
+
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params({"data.indices_source": _indices_source})
+                run.log_metric("data/n_index_groups", float(len(indices)))
+
         return indices
 
     def get_depot(self, area, data_dir=None):
@@ -158,7 +170,20 @@ class FileSystemRepository(SimulationRepository):
             coords_tmp = pd.read_csv(os.path.join(d_dir, "coordinates", f"old_out_info[{src_area}].csv"))
             coords_tmp = coords_tmp.rename(columns={"Latitude": "Lat", "Longitude": "Lng"})
             if wtype:
+                _n_before = len(coords_tmp)
                 coords_tmp = coords_tmp[coords_tmp["Tipo de Residuos"] == wtype]
+                with contextlib.suppress(Exception):
+                    from logic.src.tracking.core.run import get_active_run
+
+                    run = get_active_run()
+                    if run is not None:
+                        run.log_params(
+                            {
+                                "data.waste_filter": str(wtype),
+                                "data.bins_before_waste_filter": _n_before,
+                                "data.bins_after_waste_filter": len(coords_tmp),
+                            }
+                        )
 
         bins_coordinates = coords_tmp[["ID", "Lat", "Lng"]]
         data = self._preprocess_county_data(data)
@@ -170,7 +195,20 @@ class FileSystemRepository(SimulationRepository):
         coords_tmp = pd.read_csv(os.path.join(d_dir, "coordinates", "out_info[figdafoz].csv"))
         coords_tmp = coords_tmp.rename(columns={"Latitude": "Lat", "Longitude": "Lng"})
         if wtype:
+            _n_before = len(coords_tmp)
             coords_tmp = coords_tmp[coords_tmp["Tipo de Residuos"] == wtype]
+            with contextlib.suppress(Exception):
+                from logic.src.tracking.core.run import get_active_run
+
+                run = get_active_run()
+                if run is not None:
+                    run.log_params(
+                        {
+                            "data.waste_filter": str(wtype),
+                            "data.bins_before_waste_filter": _n_before,
+                            "data.bins_after_waste_filter": len(coords_tmp),
+                        }
+                    )
         bins_coordinates = coords_tmp[["ID", "Lat", "Lng"]]
         data = self._preprocess_county_data(data)
         return data, bins_coordinates
@@ -251,9 +289,32 @@ class FileSystemRepository(SimulationRepository):
         new_data = pd.DataFrame({"ID": data.columns})
         new_data["Stock"] = new_data["ID"].map(stock)
         new_data["Accum_Rate"] = new_data["ID"].map(accum_rate)
+
+        # Capture raw distribution stats before min-max normalisation
+        _raw_stock_min = float(new_data["Stock"].min())
+        _raw_stock_max = float(new_data["Stock"].max())
+        _raw_rate_min = float(new_data["Accum_Rate"].min())
+        _raw_rate_max = float(new_data["Accum_Rate"].max())
+
         new_data[["Stock", "Accum_Rate"]] = (
             new_data[["Stock", "Accum_Rate"]] - new_data[["Stock", "Accum_Rate"]].min()
         ) / (new_data[["Stock", "Accum_Rate"]].max() - new_data[["Stock", "Accum_Rate"]].min())
+
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params(
+                    {
+                        "data.raw_stock_min": _raw_stock_min,
+                        "data.raw_stock_max": _raw_stock_max,
+                        "data.raw_accum_rate_min": _raw_rate_min,
+                        "data.raw_accum_rate_max": _raw_rate_max,
+                        "data.n_bins_preprocessed": len(new_data),
+                    }
+                )
+
         return new_data
 
     def get_area_params(self, area, waste_type):

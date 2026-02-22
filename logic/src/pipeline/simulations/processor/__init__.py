@@ -2,6 +2,8 @@
 Data Processing and Transformation Pipeline for Simulation Setup.
 """
 
+import contextlib
+
 import numpy as np
 import pandas as pd
 import torch
@@ -115,7 +117,14 @@ def process_data(data, bins_coordinates, depot, indices=None):
     Returns:
         Any: Description of return value.
     """
-    return _mapper.process_raw_data(data, bins_coordinates, depot, indices)
+    result = _mapper.process_raw_data(data, bins_coordinates, depot, indices)
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params({"data.n_bins_after_index_filter": len(result[0])})
+    return result
 
 
 def process_coordinates(coords, method, col_names=None):
@@ -163,7 +172,7 @@ def process_model_data(
     Returns:
         Any: Description of return value.
     """
-    return _mapper.process_model_input(
+    result = _mapper.process_model_input(
         coordinates,
         dist_matrix,
         device,
@@ -175,6 +184,21 @@ def process_model_data(
         waste_type,
         adj_matrix,
     )
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params(
+                {
+                    "data.problem_size": int(len(dist_matrix) - 1),
+                    "data.coord_method": str(method),
+                    "data.has_edge_filter": bool(0 < edge_threshold < 1),
+                    "data.edge_threshold": float(edge_threshold),
+                    "data.edge_method": str(edge_method),
+                }
+            )
+    return result
 
 
 def create_dataframe_from_matrix(matrix):
@@ -284,4 +308,22 @@ def setup_dist_path_tup(
     paths = get_paths_between_states(size + 1, shortest_paths)
     dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0).to(device)
     distC = np.round(dist_matrix_edges * 10).astype("int32")
+
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            n_nonzero = int(np.count_nonzero(dist_matrix_edges))
+            n_total = int(dist_matrix_edges.size)
+            run.log_params(
+                {
+                    "data.edge_threshold": float(edge_thresh),
+                    "data.edge_method": str(edge_method),
+                    "data.n_nodes": int(size + 1),
+                }
+            )
+            run.log_metric("data/n_edges", float(n_nonzero))
+            run.log_metric("data/edge_density", float(n_nonzero) / float(n_total) if n_total > 0 else 0.0)
+
     return (dist_matrix_edges, paths, dm_tensor, distC), adj_matrix
