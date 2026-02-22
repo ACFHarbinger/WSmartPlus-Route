@@ -292,8 +292,20 @@ def eval_dataset(
             run.log_metric(f"{prefix}/avg_kg", float(avg_metrics["kg"]))  # type: ignore[arg-type]
             run.log_metric(f"{prefix}/avg_overflows", float(avg_metrics["overflows"]))  # type: ignore[arg-type]
             run.log_metric(f"{prefix}/avg_duration", float(np.mean(durations)))  # type: ignore[arg-type]
+            run.log_metric(f"{prefix}/n_samples", float(len(costs)))  # type: ignore[arg-type]
         with contextlib.suppress(Exception):
             run.log_artifact(out_file, artifact_type="eval_results")
+        with contextlib.suppress(Exception):
+            run.log_dataset_event(  # type: ignore[union-attr]
+                "load",
+                file_path=dataset_path,
+                num_samples=len(costs),
+                metadata={
+                    "event": "eval_dataset",
+                    "beam_width": beam_width,
+                    "strategy": strategy or method or "",
+                },
+            )
 
     return costs, tours, durations
 

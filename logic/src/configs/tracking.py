@@ -54,6 +54,12 @@ class TrackingConfig:
         log_level: Logging level (e.g., ``'INFO'``, ``'DEBUG'``).
         real_time_log: If ``True``, enable real-time logging (e.g., dashboard).
         log_file: Path to the log file.
+        instrument_ppo: Enabling detailed PPO diagnostics (clip_fraction, approx_kl, ratio, entropy).
+        instrument_meta: Enabling Meta-RL tracking (meta rewards, feedbacks, optimizer loss).
+        instrument_hpo: Enabling HPO trial-level logging (configs, metrics, runtime).
+        instrument_rl_core: Enabling RL core diagnostics (policy_loss, log_likelihood, entropy).
+        log_gradients: Enabling gradient norm logging.
+        log_weights: Enabling model weight distribution logging.
     """
 
     wst_tracking_uri: str = "test_tracking" if os.environ.get("TEST_MODE") == "true" else "assets/tracking"
@@ -78,3 +84,11 @@ class TrackingConfig:
     log_level: str = "INFO"
     real_time_log: bool = False
     log_file: Optional[str] = None
+
+    # --- Instrumentation & Diagnostics ---
+    instrument_ppo: bool = True
+    instrument_meta: bool = True
+    instrument_hpo: bool = True
+    instrument_rl_core: bool = True
+    log_gradients: bool = False
+    log_weights: bool = False

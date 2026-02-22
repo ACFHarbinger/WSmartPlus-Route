@@ -7,6 +7,7 @@ Example:
     >>> import builder
 """
 
+import contextlib
 from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, cast
 
@@ -64,6 +65,38 @@ def create_model(cfg: Config) -> pl.LightningModule:
             history_length=cfg.meta_rl.meta_history_length,
             hidden_size=cfg.meta_rl.meta_hidden_dim,
         )
+
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            params: Dict[str, Any] = {
+                "model.name": str(cfg.model.name),
+                "model.algo": str(algo_name),
+                "env.name": str(cfg.env.name),
+                "env.num_loc": int(cfg.env.num_loc),
+            }
+            if hasattr(cfg.model, "encoder"):
+                enc = cfg.model.encoder
+                params.update(
+                    {
+                        "model.embed_dim": int(enc.embed_dim),
+                        "model.n_encode_layers": int(enc.n_layers),
+                        "model.n_heads": int(enc.n_heads),
+                        "model.normalization": str(enc.normalization.norm_type)
+                        if hasattr(enc, "normalization")
+                        else "",
+                    }
+                )
+            if hasattr(cfg.model, "decoder"):
+                dec = cfg.model.decoder
+                params["model.decoder_type"] = str(dec.type)
+                params["model.n_decode_layers"] = int(dec.n_layers)
+            if getattr(cfg.meta_rl, "use_meta", False):
+                params["model.use_meta"] = True
+                params["model.meta_lr"] = float(cfg.meta_rl.meta_lr)
+            run.log_params(params)
 
     return model
 

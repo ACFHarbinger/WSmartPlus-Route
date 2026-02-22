@@ -158,6 +158,15 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         self.optimizer.step()
 
         self.meta_step += 1
+
+        # Log to WSTracker
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_metric("meta/optimizer_loss", loss.item(), step=self.meta_step)
+            run.log_metric("meta/optimizer_step", self.meta_step, step=self.meta_step)
+
         return loss.item()
 
     def recommend_weights(self):

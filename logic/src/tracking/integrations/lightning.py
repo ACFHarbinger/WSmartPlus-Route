@@ -105,6 +105,32 @@ class TrackingCallback(Callback):
         run.set_tag("final_epoch", str(trainer.current_epoch))
         run.flush()
 
+    def on_before_optimizer_step(
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        optimizer: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """Log gradient L2 norm and current learning rate."""
+        run = get_active_run()
+        if run is None:
+            return
+        step = trainer.global_step
+
+        # Gradient L2 norm
+        total_norm_sq = 0.0
+        for p in pl_module.parameters():
+            if p.grad is not None:
+                total_norm_sq += p.grad.data.norm(2).item() ** 2
+        run.log_metric("train/grad_norm", total_norm_sq**0.5, step=step)
+
+        # Learning rate (first param group)
+        for i, pg in enumerate(optimizer.param_groups):
+            key = "train/lr" if i == 0 else f"train/lr_group{i}"
+            run.log_metric(key, pg["lr"], step=step)
+
     # ------------------------------------------------------------------
     # Checkpoint events (fires after each ModelCheckpoint save)
     # ------------------------------------------------------------------

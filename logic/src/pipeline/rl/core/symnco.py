@@ -125,9 +125,13 @@ class SymNCO(POMO):
         # Log metrics
         self.log(f"{phase}/reward", out["reward"].mean(), prog_bar=True, sync_dist=True)
         if phase == "train":
+            self.log("train/loss", loss, sync_dist=True)
             self.log("train/loss_ps", loss_ps, sync_dist=True)
             self.log("train/loss_ss", loss_ss, sync_dist=True)
+            self.log("train/log_likelihood", ll.mean(), sync_dist=True)
             if "proj_embeddings" in out:
                 self.log("train/loss_inv", loss_inv, sync_dist=True)
+            if "entropy" in out:
+                self.log("train/entropy", out["entropy"].mean(), sync_dist=True)
 
         return out

@@ -222,6 +222,22 @@ class StepMixin:
         # Store for meta-learning or logging access
         self.last_out = out
 
+        # Log policy output diagnostics
+        if "log_likelihood" in out:
+            self.log(  # type: ignore
+                f"{phase}/log_likelihood",
+                out["log_likelihood"].mean(),
+                sync_dist=True,
+                batch_size=batch_size,
+            )
+        if "entropy" in out:
+            self.log(  # type: ignore
+                f"{phase}/entropy",
+                out["entropy"].mean(),
+                sync_dist=True,
+                batch_size=batch_size,
+            )
+
         # Time-based training: accumulate actions for epoch-end update
         if phase == "train" and getattr(self, "train_time", False) and "actions" in out:
             # Type ignore is safe as we checked getattr in __init__

@@ -60,6 +60,17 @@ class OptunaHPO(BaseHPO):
             n_jobs=1,
         )
 
+        # Log to WSTracker
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params({f"hpo/best/{k}": v for k, v in study.best_params.items()})
+            run.log_metric("hpo/best_value", study.best_value)
+            run.log_metric("hpo/n_trials", len(study.trials))
+            run.set_tag("hpo_backend", "optuna")
+            run.set_tag("hpo_method", self.cfg.hpo.method)
+
         return study.best_value
 
     def _get_sampler(self) -> optuna.samplers.BaseSampler:
