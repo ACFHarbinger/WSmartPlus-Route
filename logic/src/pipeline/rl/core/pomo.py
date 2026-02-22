@@ -134,6 +134,14 @@ class POMO(REINFORCE):
             # Update metrics with the best start reward for logging
             best_reward, _ = reward.max(dim=-1)  # [batch, 1]
             out["reward"] = best_reward.squeeze(-1)  # [batch]
+
+            # Log training diagnostics
+            self.log(f"{phase}/loss", loss, sync_dist=True)
+            self.log(f"{phase}/advantage", advantage.mean(), sync_dist=True)
+            self.log(f"{phase}/baseline", baseline_val.mean(), sync_dist=True)
+            self.log(f"{phase}/log_likelihood", log_likelihood.mean(), sync_dist=True)
+            if "entropy" in out:
+                self.log(f"{phase}/entropy", out["entropy"].mean(), sync_dist=True)
         else:
             # During val/test, we take the best across starts and augments
             # reward is [batch, n_aug, n_start]

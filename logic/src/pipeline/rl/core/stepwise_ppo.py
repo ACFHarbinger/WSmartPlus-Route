@@ -175,6 +175,15 @@ class StepwisePPO(RL4COLitModule):
         # Logging
         self.log("train/avg_reward", data["reward"].mean())
         self.log("train/loss", loss)
+        self.log("train/actor_loss", actor_loss)
+        self.log("train/critic_loss", critic_loss)
+        self.log("train/advantage", data["advantage"].mean())
+        # StepwisePPO diagnostics (from last mini-batch)
+        with torch.no_grad():
+            clip_fraction = ((ratio - 1.0).abs() > self.eps_clip).float().mean()
+            approx_kl = (sub_td["log_p"] - new_log_p).mean()
+        self.log("train/clip_fraction", clip_fraction)
+        self.log("train/approx_kl", approx_kl)
         return loss
 
     def _process_experiences(self, experiences: list) -> TensorDict:

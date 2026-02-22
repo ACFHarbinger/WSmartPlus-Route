@@ -1,3 +1,4 @@
+import contextlib
 import statistics
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
@@ -5,6 +6,25 @@ from typing import Any, Dict, List, Optional, Tuple
 import logic.src.constants as udef
 from logic.src.configs import Config
 from logic.src.tracking.logging.log_utils import output_stats
+
+
+def _log_sim_metrics(log: Dict[str, Any], log_std: Optional[Dict[str, Any]] = None) -> None:
+    """Forward aggregated per-policy metrics to the active WSTracker run."""
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is None:
+            return
+        for pol_name_k, metrics in log.items():
+            if isinstance(metrics, (list, tuple)):
+                for metric_name, val in zip(udef.SIM_METRICS, metrics):
+                    run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
+        if log_std is not None:
+            for pol_name_k, std_metrics in log_std.items():
+                if isinstance(std_metrics, (list, tuple)):
+                    for metric_name, val in zip(udef.SIM_METRICS, std_metrics):
+                        run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
 
 def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:
@@ -48,7 +68,10 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
                 else:
                     log[pol] = [0.0] * len(udef.SIM_METRICS)
                     log_std[pol] = [0.0] * len(udef.SIM_METRICS)
+
+            _log_sim_metrics(log, log_std)
             return log, log_std
     else:
         log = {pol: res[0] for pol, res in log_tmp.items() if res}
+        _log_sim_metrics(log)
         return log, None

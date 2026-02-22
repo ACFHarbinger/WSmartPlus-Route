@@ -141,6 +141,9 @@ class GDPO(REINFORCE):
         # Logging
         self.log("train/gdpo_loss", loss, sync_dist=True)
         self.log("train/gdpo_advantage_mean", aggregated_advantage.mean(), sync_dist=True)
+        self.log("train/log_likelihood", log_likelihood.mean(), sync_dist=True)
+        if self.entropy_weight > 0 and "entropy" in out:
+            self.log("train/entropy", out["entropy"].mean(), sync_dist=True)
         for i, key in enumerate(self.objective_keys):
             self.log(f"train/gdpo_{key}_raw_mean", raw_rewards[:, i].mean(), sync_dist=True)
             self.log(
