@@ -24,6 +24,14 @@ _DISPLAY_METRICS = [
     "time",
 ]
 
+# Whitelist of directories to include in the summary.
+# If empty, all directories under assets/output/ are included.
+# Example: ["31_days/riomaior_104", "30_days/riomaior_104"]
+SELECTED_DIRS: List[str] = [
+    "31_days/riomaior_104",
+    "30_days/riomaior_104",
+]
+
 
 def _parse_policy_name(raw_name: str) -> Tuple[str, str]:
     """Split a raw policy key into (base_name, distribution)."""
@@ -56,6 +64,12 @@ def discover_and_aggregate() -> pd.DataFrame:
         return pd.DataFrame()
 
     for root, _, files in os.walk(output_root):
+        rel_path = os.path.relpath(root, output_root)
+
+        # Skip if not in whitelist (if whitelist is provided)
+        if SELECTED_DIRS and not any(rel_path.startswith(d) for d in SELECTED_DIRS):
+            continue
+
         mean_file = next((f for f in files if "log_mean" in f.lower() and f.endswith(".json")), None)
         if not mean_file:
             continue
