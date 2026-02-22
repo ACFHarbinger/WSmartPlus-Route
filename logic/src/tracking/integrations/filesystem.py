@@ -35,21 +35,21 @@ class FilesystemTracker:
     def track_load(
         self,
         file_path: str,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record a data file **load** event and register the file for monitoring.
 
         Args:
             file_path: Path to the loaded dataset file.
-            num_samples: Number of samples in the loaded dataset.
+            shape: Shape of the loaded dataset.
             metadata: Extra context (e.g. problem type, graph size).
         """
         self._run.log_dataset_event(
             "load",
             file_path=file_path,
-            num_samples=num_samples,
-            metadata=metadata,
+            shape=shape,
+            metadata={**(metadata or {})},
         )
         if os.path.exists(file_path):
             self._watched[file_path] = hash_file(file_path)
@@ -57,7 +57,7 @@ class FilesystemTracker:
     def track_generate(
         self,
         file_path: Optional[str],
-        num_samples: int,
+        shape: tuple,
         problem: str,
         graph_size: int,
         metadata: Optional[Dict[str, Any]] = None,
@@ -67,18 +67,21 @@ class FilesystemTracker:
         Args:
             file_path: Output path of the generated file (may be ``None`` for
                 in-memory generation).
-            num_samples: Number of generated samples.
+            shape: Shape of the generated dataset.
             problem: Problem type string (e.g. ``'vrpp'``).
             graph_size: Number of nodes.
             metadata: Extra context dict.
         """
-        meta: Dict[str, Any] = {"problem": problem, "graph_size": graph_size}
+        meta: Dict[str, Any] = {
+            "problem": problem,
+            "graph_size": graph_size,
+        }
         if metadata:
             meta.update(metadata)
         self._run.log_dataset_event(
             "generate",
             file_path=file_path,
-            num_samples=num_samples,
+            shape=shape,
             metadata=meta,
         )
         if file_path and os.path.exists(file_path):
@@ -87,43 +90,45 @@ class FilesystemTracker:
     def track_mutation(
         self,
         description: str,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record an **in-memory mutation** event (e.g. epoch dataset regeneration).
 
         Args:
             description: Human-readable description of the mutation.
-            num_samples: Size of the mutated dataset.
+            shape: Shape of the mutated dataset.
             metadata: Extra context dict.
         """
-        meta: Dict[str, Any] = {"description": description}
+        meta: Dict[str, Any] = {
+            "description": description,
+        }
         if metadata:
             meta.update(metadata)
         self._run.log_dataset_event(
             "mutate",
-            num_samples=num_samples,
+            shape=shape,
             metadata=meta,
         )
 
     def track_save(
         self,
         file_path: str,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record a dataset **save** event and update the hash registry.
 
         Args:
             file_path: Path to the written file.
-            num_samples: Number of samples written.
+            shape: Shape of the written data.
             metadata: Extra context dict.
         """
         self._run.log_dataset_event(
             "save",
             file_path=file_path,
-            num_samples=num_samples,
-            metadata=metadata,
+            shape=shape,
+            metadata={**(metadata or {})},
         )
         if os.path.exists(file_path):
             self._watched[file_path] = hash_file(file_path)
@@ -161,10 +166,12 @@ class FilesystemTracker:
                 self._run.log_dataset_event(
                     "hash_change",
                     file_path=fpath,
-                    file_hash=current,
-                    prev_hash=prev,
-                    size_bytes=os.path.getsize(fpath),
-                    metadata={"detected_by": "FilesystemTracker.check_changes"},
+                    metadata={
+                        "detected_by": "FilesystemTracker.check_changes",
+                        "file_hash": current,
+                        "prev_hash": prev,
+                        "size_bytes": os.path.getsize(fpath),
+                    },
                 )
                 changed.append(fpath)
             if current is not None:

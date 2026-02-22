@@ -304,6 +304,9 @@ def eval_dataset(
                     "event": "eval_dataset",
                     "beam_width": beam_width,
                     "strategy": strategy or method or "",
+                    "variable_name": "dataset_path",
+                    "source_file": "features/eval/engine.py",
+                    "source_line": 299,
                 },
             )
 

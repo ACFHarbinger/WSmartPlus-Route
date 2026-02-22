@@ -26,7 +26,7 @@ seed := "42"
 marker := "fast"
 strategy := "greedy"
 distribution := "emp"
-n_cores := "0"
+n_cores := "20"
 policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
 
 # --- Setup & Environment ---
@@ -90,7 +90,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
+test-sim policies="hgs" days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -259,6 +259,7 @@ clean:
     rm -rf dist/
     rm -rf temp/
     rm -rf wandb/
+    rm -rf mlruns/
     rm -rf outputs/
     rm -rf checkpoints/
     rm -rf *.egg-info
@@ -294,6 +295,17 @@ db-export run_id="" experiment="" output="" latest="":
         {{ if experiment != "" { "--experiment " + experiment } else { "" } }} \
         {{ if output != "" { "--output " + output } else { "" } }} \
         {{ if latest != "" { "--latest" } else { "" } }}
+
+# Show comprehensive database statistics  (override: just db-stats experiment=AM-VRPP-50)
+db-stats experiment="":
+    uv run python -m logic.src.tracking.database.commands stats \
+        {{ if experiment != "" { "--experiment " + experiment } else { "" } }}
+
+# Show per-metric statistics  (override: just db-metrics key=train/cost experiment=AM-VRPP-50)
+db-metrics key="" experiment="":
+    uv run python -m logic.src.tracking.database.commands metrics \
+        {{ if key != "" { "--key " + key } else { "" } }} \
+        {{ if experiment != "" { "--experiment " + experiment } else { "" } }}
 
 # Generic run command
 run *args:

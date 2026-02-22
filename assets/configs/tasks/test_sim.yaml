@@ -35,6 +35,7 @@ load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}
 sim:
   cpu_cores: 0
   days: 31
+  no_cuda: true
   n_samples: 10
   problem: "vrpp"
   output_dir: "output"

@@ -148,7 +148,15 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
         # Track validation dataset if available
         val_ds = cfg.train.val_dataset
         if val_ds and os.path.exists(str(val_ds)):
-            run.log_dataset_event("load", file_path=str(val_ds))
+            run.log_dataset_event(
+                "load",
+                file_path=str(val_ds),
+                metadata={
+                    "variable_name": "val_ds",
+                    "source_file": "features/train/engine.py",
+                    "source_line": 151,
+                },
+            )
             run.watch_file(str(val_ds))
 
         trainer.fit(model)
