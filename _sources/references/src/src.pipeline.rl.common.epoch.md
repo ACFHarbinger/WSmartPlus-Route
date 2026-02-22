@@ -43,9 +43,43 @@
   - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_overflow_metrics
     :summary:
     ```
+* - {py:obj}`_build_visited_mask <src.pipeline.rl.common.epoch._build_visited_mask>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._build_visited_mask
+    :summary:
+    ```
+* - {py:obj}`_get_next_day_waste <src.pipeline.rl.common.epoch._get_next_day_waste>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch._get_next_day_waste
+    :summary:
+    ```
+* - {py:obj}`apply_time_step <src.pipeline.rl.common.epoch.apply_time_step>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch.apply_time_step
+    :summary:
+    ```
+````
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.pipeline.rl.common.epoch.logger>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.epoch.logger
+    :summary:
+    ```
 ````
 
 ### API
+
+````{py:data} logger
+:canonical: src.pipeline.rl.common.epoch.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch.logger
+```
+
+````
 
 ````{py:function} prepare_epoch(model: torch.nn.Module, env: typing.Any, baseline: typing.Any, dataset: torch.utils.data.Dataset, epoch: int, phase: str = 'train') -> torch.utils.data.Dataset
 :canonical: src.pipeline.rl.common.epoch.prepare_epoch
@@ -93,5 +127,26 @@
 :canonical: src.pipeline.rl.common.epoch._add_overflow_metrics
 
 ```{autodoc2-docstring} src.pipeline.rl.common.epoch._add_overflow_metrics
+```
+````
+
+````{py:function} _build_visited_mask(epoch_actions: typing.List[torch.Tensor], batch_size: int, num_nodes: int, device: torch.device) -> torch.Tensor
+:canonical: src.pipeline.rl.common.epoch._build_visited_mask
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch._build_visited_mask
+```
+````
+
+````{py:function} _get_next_day_waste(td: tensordict.TensorDict, current_fill: torch.Tensor, day: int, env: typing.Any, batch_size: int, device: torch.device) -> torch.Tensor
+:canonical: src.pipeline.rl.common.epoch._get_next_day_waste
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch._get_next_day_waste
+```
+````
+
+````{py:function} apply_time_step(dataset: torch.utils.data.Dataset, epoch_actions: typing.List[torch.Tensor], day: int, env: typing.Any) -> torch.utils.data.Dataset
+:canonical: src.pipeline.rl.common.epoch.apply_time_step
+
+```{autodoc2-docstring} src.pipeline.rl.common.epoch.apply_time_step
 ```
 ````

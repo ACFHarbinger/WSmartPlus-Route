@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} expand_policy_configs(opts)
+````{py:function} expand_policy_configs(cfg: logic.src.configs.Config) -> None
 :canonical: src.pipeline.features.test.config.expand_policy_configs
 
 ```{autodoc2-docstring} src.pipeline.features.test.config.expand_policy_configs
@@ -61,28 +61,28 @@
 ```
 ````
 
-````{py:function} _extract_variants(pol_name: str, cfg_path: str)
+````{py:function} _extract_variants(pol_name: str, cfg_path: str) -> typing.Tuple[typing.List[typing.Tuple[str, str, typing.Any]], typing.Any]
 :canonical: src.pipeline.features.test.config._extract_variants
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._extract_variants
 ```
 ````
 
-````{py:function} _find_inner_config(pol_cfg: typing.Any)
+````{py:function} _find_inner_config(pol_cfg: typing.Any) -> typing.Tuple[typing.Any, typing.Any]
 :canonical: src.pipeline.features.test.config._find_inner_config
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._find_inner_config
 ```
 ````
 
-````{py:function} _parse_inner_components(inner_cfg)
+````{py:function} _parse_inner_components(inner_cfg: typing.Any) -> typing.Tuple[typing.List[typing.Any], typing.List[typing.Any], int]
 :canonical: src.pipeline.features.test.config._parse_inner_components
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._parse_inner_components
 ```
 ````
 
-````{py:function} _apply_mg_override(var_cfg: typing.Any, match_idx: int, mg_item: str)
+````{py:function} _apply_mg_override(var_cfg: typing.Any, match_idx: int, mg_item: str) -> None
 :canonical: src.pipeline.features.test.config._apply_mg_override
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._apply_mg_override

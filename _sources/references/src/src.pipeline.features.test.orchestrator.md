@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.features.test.orchestrator.parallel_runner
-src.pipeline.features.test.orchestrator.monitor
 src.pipeline.features.test.orchestrator.results_handler
+src.pipeline.features.test.orchestrator.monitor
+src.pipeline.features.test.orchestrator.parallel_runner
 ```
 
 ## Package Contents
@@ -34,7 +34,7 @@ src.pipeline.features.test.orchestrator.results_handler
 
 ### API
 
-````{py:function} simulator_testing(opts, data_size, device)
+````{py:function} simulator_testing(cfg: logic.src.configs.Config, data_size: int, device: typing.Any) -> None
 :canonical: src.pipeline.features.test.orchestrator.simulator_testing
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.simulator_testing

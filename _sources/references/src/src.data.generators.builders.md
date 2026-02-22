@@ -83,7 +83,7 @@
 
 ````
 
-````{py:method} set_method(method: str)
+````{py:method} set_method(method: typing.Optional[str])
 :canonical: src.data.generators.builders.VRPInstanceBuilder.set_method
 
 ```{autodoc2-docstring} src.data.generators.builders.VRPInstanceBuilder.set_method

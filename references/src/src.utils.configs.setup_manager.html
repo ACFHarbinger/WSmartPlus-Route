@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils.configs.setup_manager';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.utils.configs.setup_training" href="src.utils.configs.setup_training.html" />
+    <link rel="next" title="src.utils.configs.setup_worker" href="src.utils.configs.setup_worker.html" />
     <link rel="prev" title="src.utils.configs.setup_env" href="src.utils.configs.setup_env.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -173,126 +173,141 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.vehicle_routing_problem_with_profits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vehicle_routing_problem_with_profits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tsp</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.hooks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.logging</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.vehicle_routing_problem_with_profits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vehicle_routing_problem_with_profits</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tsp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns</span></code></a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.ui</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.sdwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.sdwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
@@ -451,6 +466,10 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._get_cfg_attr"><code class="docutils literal notranslate"><span class="pre">_get_cfg_attr()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._resolve_hrl_path"><code class="docutils literal notranslate"><span class="pre">_resolve_hrl_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._resolve_checkpoint_file"><code class="docutils literal notranslate"><span class="pre">_resolve_checkpoint_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._resolve_param"><code class="docutils literal notranslate"><span class="pre">_resolve_param()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager.setup_hrl_manager"><code class="docutils literal notranslate"><span class="pre">setup_hrl_manager()</span></code></a></li>
 </ul>
 </li>
@@ -476,6 +495,18 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.configs.setup_manager._get_cfg_attr" title="src.utils.configs.setup_manager._get_cfg_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_cfg_attr</span></code></a></p></td>
+<td><p>Retrieve a value from <em>sim_cfg</em> (<code class="docutils literal notranslate"><span class="pre">SimConfig</span></code> or plain <code class="docutils literal notranslate"><span class="pre">dict</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.configs.setup_manager._resolve_hrl_path" title="src.utils.configs.setup_manager._resolve_hrl_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_hrl_path</span></code></a></p></td>
+<td><p>Match <em>policy</em> to a checkpoint path in <em>model_paths</em>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.configs.setup_manager._resolve_checkpoint_file" title="src.utils.configs.setup_manager._resolve_checkpoint_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_checkpoint_file</span></code></a></p></td>
+<td><p>Return a concrete <code class="docutils literal notranslate"><span class="pre">.pt</span></code> file path, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if nothing is found.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.configs.setup_manager._resolve_param" title="src.utils.configs.setup_manager._resolve_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_param</span></code></a></p></td>
+<td><p>Look up <em>name</em> from <em>configs</em> first, then <em>sim_cfg</em>, then <em>default</em>.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.configs.setup_manager.setup_hrl_manager" title="src.utils.configs.setup_manager.setup_hrl_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_hrl_manager</span></code></a></p></td>
 <td><p>Initializes and loads the Manager model for Hierarchical RL.</p></td>
 </tr>
@@ -486,13 +517,38 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
+<dt class="sig sig-object py" id="src.utils.configs.setup_manager._get_cfg_attr">
+<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_get_cfg_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._get_cfg_attr" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve a value from <em>sim_cfg</em> (<code class="docutils literal notranslate"><span class="pre">SimConfig</span></code> or plain <code class="docutils literal notranslate"><span class="pre">dict</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.configs.setup_manager._resolve_hrl_path">
+<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_resolve_hrl_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._resolve_hrl_path" title="Link to this definition">#</a></dt>
+<dd><p>Match <em>policy</em> to a checkpoint path in <em>model_paths</em>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.configs.setup_manager._resolve_checkpoint_file">
+<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_resolve_checkpoint_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hrl_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._resolve_checkpoint_file" title="Link to this definition">#</a></dt>
+<dd><p>Return a concrete <code class="docutils literal notranslate"><span class="pre">.pt</span></code> file path, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if nothing is found.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.configs.setup_manager._resolve_param">
+<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_resolve_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._resolve_param" title="Link to this definition">#</a></dt>
+<dd><p>Look up <em>name</em> from <em>configs</em> first, then <em>sim_cfg</em>, then <em>default</em>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.utils.configs.setup_manager.setup_hrl_manager">
-<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">setup_hrl_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worker_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.MustGoManager</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager.setup_hrl_manager" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">setup_hrl_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worker_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.MustGoManager</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager.setup_hrl_manager" title="Link to this definition">#</a></dt>
 <dd><p>Initializes and loads the Manager model for Hierarchical RL.</p>
 <p>Args:
-opts: Options dictionary.
+sim_cfg: Simulation config object (<code class="docutils literal notranslate"><span class="pre">SimConfig</span></code> or dict) providing
+<code class="docutils literal notranslate"><span class="pre">model_path</span></code> and HRL hyper-parameters as attributes or keys.
 device: Torch device.
-configs: Configuration dictionary.
+configs: Configuration dictionary from the loaded neural checkpoint.
 policy: Policy name.
 base_path: Base path for models.
 worker_model: Worker model instance for shared encoder.</p>
@@ -525,11 +581,11 @@ The initialized manager model, or None if not applicable.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.utils.configs.setup_training.html"
+       href="src.utils.configs.setup_worker.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs.setup_training</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs.setup_worker</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -552,6 +608,10 @@ The initialized manager model, or None if not applicable.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._get_cfg_attr"><code class="docutils literal notranslate"><span class="pre">_get_cfg_attr()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._resolve_hrl_path"><code class="docutils literal notranslate"><span class="pre">_resolve_hrl_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._resolve_checkpoint_file"><code class="docutils literal notranslate"><span class="pre">_resolve_checkpoint_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager._resolve_param"><code class="docutils literal notranslate"><span class="pre">_resolve_param()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_manager.setup_hrl_manager"><code class="docutils literal notranslate"><span class="pre">setup_hrl_manager()</span></code></a></li>
 </ul>
 </li>

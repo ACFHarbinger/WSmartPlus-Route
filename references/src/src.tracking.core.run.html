@@ -1,0 +1,937 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.tracking.core.run &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.tracking.core.run';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.tracking.profiling" href="src.tracking.profiling.html" />
+    <link rel="prev" title="src.tracking.core.tracker" href="src.tracking.core.tracker.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.vehicle_routing_problem_with_profits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vehicle_routing_problem_with_profits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tsp</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.sdwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.sdwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.tracking.core.run.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.tracking.core.run</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._active_run"><code class="docutils literal notranslate"><span class="pre">_active_run</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._registry_lock"><code class="docutils literal notranslate"><span class="pre">_registry_lock</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.get_active_run"><code class="docutils literal notranslate"><span class="pre">get_active_run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.set_active_run"><code class="docutils literal notranslate"><span class="pre">set_active_run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._flatten_dict"><code class="docutils literal notranslate"><span class="pre">_flatten_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._safe_float"><code class="docutils literal notranslate"><span class="pre">_safe_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.add_sink"><code class="docutils literal notranslate"><span class="pre">Run.add_sink()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.set_tag"><code class="docutils literal notranslate"><span class="pre">Run.set_tag()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.set_tags"><code class="docutils literal notranslate"><span class="pre">Run.set_tags()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_param"><code class="docutils literal notranslate"><span class="pre">Run.log_param()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_params"><code class="docutils literal notranslate"><span class="pre">Run.log_params()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_metric"><code class="docutils literal notranslate"><span class="pre">Run.log_metric()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_metrics"><code class="docutils literal notranslate"><span class="pre">Run.log_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.flush"><code class="docutils literal notranslate"><span class="pre">Run.flush()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run._flush_metrics_locked"><code class="docutils literal notranslate"><span class="pre">Run._flush_metrics_locked()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_artifact"><code class="docutils literal notranslate"><span class="pre">Run.log_artifact()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_artifacts_dir"><code class="docutils literal notranslate"><span class="pre">Run.log_artifacts_dir()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_dataset_event"><code class="docutils literal notranslate"><span class="pre">Run.log_dataset_event()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.watch_file"><code class="docutils literal notranslate"><span class="pre">Run.watch_file()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.check_file_changed"><code class="docutils literal notranslate"><span class="pre">Run.check_file_changed()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.finish"><code class="docutils literal notranslate"><span class="pre">Run.finish()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.__enter__"><code class="docutils literal notranslate"><span class="pre">Run.__enter__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.__exit__"><code class="docutils literal notranslate"><span class="pre">Run.__exit__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_params"><code class="docutils literal notranslate"><span class="pre">Run.get_params()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_tags"><code class="docutils literal notranslate"><span class="pre">Run.get_tags()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_latest_metrics"><code class="docutils literal notranslate"><span class="pre">Run.get_latest_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_metric_history"><code class="docutils literal notranslate"><span class="pre">Run.get_metric_history()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_artifacts"><code class="docutils literal notranslate"><span class="pre">Run.get_artifacts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_dataset_events"><code class="docutils literal notranslate"><span class="pre">Run.get_dataset_events()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.__repr__"><code class="docutils literal notranslate"><span class="pre">Run.__repr__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.core.run">
+<span id="src-tracking-core-run"></span><h1><a class="reference internal" href="#module-src.tracking.core.run" title="src.tracking.core.run"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core.run</span></code></a><a class="headerlink" href="#module-src.tracking.core.run" title="Link to this heading">#</a></h1>
+<p>Run lifecycle management for the WSTracker.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Run</span></code></a></p></td>
+<td><p>A single tracked experiment run.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.run.get_active_run" title="src.tracking.core.run.get_active_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_active_run</span></code></a></p></td>
+<td><p>Return the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.core.run.set_active_run" title="src.tracking.core.run.set_active_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_active_run</span></code></a></p></td>
+<td><p>Set the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.run._flatten_dict" title="src.tracking.core.run._flatten_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_dict</span></code></a></p></td>
+<td><p>Recursively flatten a nested dict using dot-separated keys.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.core.run._safe_float" title="src.tracking.core.run._safe_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_safe_float</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.run._active_run" title="src.tracking.core.run._active_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_active_run</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.core.run._registry_lock" title="src.tracking.core.run._registry_lock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_registry_lock</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.core.run._active_run">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">_active_run</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.core.run._active_run" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.core.run._registry_lock">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">_registry_lock</span></span><a class="headerlink" href="#src.tracking.core.run._registry_lock" title="Link to this definition">#</a></dt>
+<dd><p>‘Lock(…)’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.core.run.get_active_run">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">get_active_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">Run</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.get_active_run" title="Link to this definition">#</a></dt>
+<dd><p>Return the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.core.run.set_active_run">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">set_active_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">Run</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.run.set_active_run" title="Link to this definition">#</a></dt>
+<dd><p>Set the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.core.run._flatten_dict">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">_flatten_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run._flatten_dict" title="Link to this definition">#</a></dt>
+<dd><p>Recursively flatten a nested dict using dot-separated keys.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.core.run._safe_float">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">_safe_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run._safe_float" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.tracking.core.store.html#src.tracking.core.store.TrackingStore" title="src.tracking.core.store.TrackingStore"><span class="pre">src.tracking.core.store.TrackingStore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.core.run.Run" title="Link to this definition">#</a></dt>
+<dd><p>A single tracked experiment run.</p>
+<p>Provides methods to log metrics, parameters, tags, artifacts, and
+dataset lifecycle events.  All metric writes are buffered in memory
+and flushed to SQLite in batches for efficiency.</p>
+<p>This class is <strong>thread-safe</strong>: multiple threads in the same process
+may call :meth:<code class="docutils literal notranslate"><span class="pre">log_metric</span></code> / :meth:<code class="docutils literal notranslate"><span class="pre">log_metrics</span></code> concurrently.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+store: Backend storage instance.
+artifact_dir: Root directory for artifact files.
+buffer_size: Number of metric entries to buffer before a flush.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.add_sink">
+<span class="sig-name descname"><span class="pre">add_sink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sink</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.add_sink" title="Link to this definition">#</a></dt>
+<dd><p>Attach a secondary logging sink to this run.</p>
+<p>The sink receives forwarded calls for every metric, param, and
+artifact logged hereafter.  It must implement:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">log_metric(key:</span> <span class="pre">str,</span> <span class="pre">value:</span> <span class="pre">float,</span> <span class="pre">step:</span> <span class="pre">int)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_params(params:</span> <span class="pre">dict)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_artifact(path:</span> <span class="pre">str)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finish(status:</span> <span class="pre">str)</span></code></p></li>
+</ul>
+<p>Errors raised by the sink are silently suppressed so a broken
+secondary backend never disrupts the primary WSTracker writes.</p>
+<p>Args:
+sink: Any object implementing the sink protocol above.</p>
+<p>Returns:
+<code class="docutils literal notranslate"><span class="pre">self</span></code> for method chaining.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.set_tag">
+<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.set_tag" title="Link to this definition">#</a></dt>
+<dd><p>Attach a metadata tag to this run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.set_tags">
+<span class="sig-name descname"><span class="pre">set_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.set_tags" title="Link to this definition">#</a></dt>
+<dd><p>Attach multiple metadata tags to this run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_param">
+<span class="sig-name descname"><span class="pre">log_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_param" title="Link to this definition">#</a></dt>
+<dd><p>Record a single configuration parameter (set-once semantics).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_params">
+<span class="sig-name descname"><span class="pre">log_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_params" title="Link to this definition">#</a></dt>
+<dd><p>Record multiple configuration parameters, flattening nested dicts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_metric">
+<span class="sig-name descname"><span class="pre">log_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_metric" title="Link to this definition">#</a></dt>
+<dd><p>Log a single scalar metric value at the given step.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_metrics">
+<span class="sig-name descname"><span class="pre">log_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_metrics" title="Link to this definition">#</a></dt>
+<dd><p>Log a dict of scalar metric values at the given step.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.flush">
+<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.flush" title="Link to this definition">#</a></dt>
+<dd><p>Force-flush any buffered metrics to the store.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run._flush_metrics_locked">
+<span class="sig-name descname"><span class="pre">_flush_metrics_locked</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run._flush_metrics_locked" title="Link to this definition">#</a></dt>
+<dd><p>Flush buffer — caller must hold <code class="docutils literal notranslate"><span class="pre">_buffer_lock</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_artifact">
+<span class="sig-name descname"><span class="pre">log_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_artifact" title="Link to this definition">#</a></dt>
+<dd><p>Register a file as an artifact of this run.</p>
+<p>Args:
+path: Path to the file.
+name: Human-readable name (defaults to basename of <em>path</em>).
+artifact_type: Semantic type, e.g. <code class="docutils literal notranslate"><span class="pre">'model'</span></code>, <code class="docutils literal notranslate"><span class="pre">'checkpoint'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'config'</span></code>, <code class="docutils literal notranslate"><span class="pre">'result'</span></code>.
+metadata: Arbitrary extra metadata dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_artifacts_dir">
+<span class="sig-name descname"><span class="pre">log_artifacts_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'file'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_artifacts_dir" title="Link to this definition">#</a></dt>
+<dd><p>Register every file in <em>dir_path</em> as an artifact.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.log_dataset_event">
+<span class="sig-name descname"><span class="pre">log_dataset_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_dataset_event" title="Link to this definition">#</a></dt>
+<dd><p>Record a data-lifecycle event.</p>
+<p>Args:
+event_type: One of <code class="docutils literal notranslate"><span class="pre">'load'</span></code>, <code class="docutils literal notranslate"><span class="pre">'generate'</span></code>, <code class="docutils literal notranslate"><span class="pre">'mutate'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'save'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hash_change'</span></code>, <code class="docutils literal notranslate"><span class="pre">'schema_change'</span></code>.
+file_path: Path to the data file (optional).
+num_samples: Number of samples in the dataset (optional).
+metadata: Arbitrary extra context dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.watch_file">
+<span class="sig-name descname"><span class="pre">watch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.watch_file" title="Link to this definition">#</a></dt>
+<dd><p>Register the current hash of <em>file_path</em> for future change detection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.check_file_changed">
+<span class="sig-name descname"><span class="pre">check_file_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.check_file_changed" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> and record an event if <em>file_path</em> has changed.</p>
+<p>The internal hash map is updated on every call regardless of the result,
+so the next call uses the latest version as the baseline.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.finish">
+<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'completed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.finish" title="Link to this definition">#</a></dt>
+<dd><p>Flush buffers and mark this run as finished in the store.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.__enter__">
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.__enter__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.__exit__">
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_tb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.__exit__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_params" title="Link to this definition">#</a></dt>
+<dd><p>Return all logged parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.get_tags">
+<span class="sig-name descname"><span class="pre">get_tags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_tags" title="Link to this definition">#</a></dt>
+<dd><p>Return all logged tags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.get_latest_metrics">
+<span class="sig-name descname"><span class="pre">get_latest_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_latest_metrics" title="Link to this definition">#</a></dt>
+<dd><p>Return the latest value for every logged metric key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.get_metric_history">
+<span class="sig-name descname"><span class="pre">get_metric_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_metric_history" title="Link to this definition">#</a></dt>
+<dd><p>Return the full step-indexed history for a metric <em>key</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.get_artifacts">
+<span class="sig-name descname"><span class="pre">get_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_artifacts" title="Link to this definition">#</a></dt>
+<dd><p>Return registered artifacts, optionally filtered by <em>artifact_type</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.get_dataset_events">
+<span class="sig-name descname"><span class="pre">get_dataset_events</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_dataset_events" title="Link to this definition">#</a></dt>
+<dd><p>Return all dataset lifecycle events in chronological order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.core.run.Run.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.__repr__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.tracking.core.tracker.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core.tracker</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.tracking.profiling.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._active_run"><code class="docutils literal notranslate"><span class="pre">_active_run</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._registry_lock"><code class="docutils literal notranslate"><span class="pre">_registry_lock</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.get_active_run"><code class="docutils literal notranslate"><span class="pre">get_active_run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.set_active_run"><code class="docutils literal notranslate"><span class="pre">set_active_run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._flatten_dict"><code class="docutils literal notranslate"><span class="pre">_flatten_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run._safe_float"><code class="docutils literal notranslate"><span class="pre">_safe_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.add_sink"><code class="docutils literal notranslate"><span class="pre">Run.add_sink()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.set_tag"><code class="docutils literal notranslate"><span class="pre">Run.set_tag()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.set_tags"><code class="docutils literal notranslate"><span class="pre">Run.set_tags()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_param"><code class="docutils literal notranslate"><span class="pre">Run.log_param()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_params"><code class="docutils literal notranslate"><span class="pre">Run.log_params()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_metric"><code class="docutils literal notranslate"><span class="pre">Run.log_metric()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_metrics"><code class="docutils literal notranslate"><span class="pre">Run.log_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.flush"><code class="docutils literal notranslate"><span class="pre">Run.flush()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run._flush_metrics_locked"><code class="docutils literal notranslate"><span class="pre">Run._flush_metrics_locked()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_artifact"><code class="docutils literal notranslate"><span class="pre">Run.log_artifact()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_artifacts_dir"><code class="docutils literal notranslate"><span class="pre">Run.log_artifacts_dir()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.log_dataset_event"><code class="docutils literal notranslate"><span class="pre">Run.log_dataset_event()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.watch_file"><code class="docutils literal notranslate"><span class="pre">Run.watch_file()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.check_file_changed"><code class="docutils literal notranslate"><span class="pre">Run.check_file_changed()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.finish"><code class="docutils literal notranslate"><span class="pre">Run.finish()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.__enter__"><code class="docutils literal notranslate"><span class="pre">Run.__enter__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.__exit__"><code class="docutils literal notranslate"><span class="pre">Run.__exit__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_params"><code class="docutils literal notranslate"><span class="pre">Run.get_params()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_tags"><code class="docutils literal notranslate"><span class="pre">Run.get_tags()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_latest_metrics"><code class="docutils literal notranslate"><span class="pre">Run.get_latest_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_metric_history"><code class="docutils literal notranslate"><span class="pre">Run.get_metric_history()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_artifacts"><code class="docutils literal notranslate"><span class="pre">Run.get_artifacts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.get_dataset_events"><code class="docutils literal notranslate"><span class="pre">Run.get_dataset_events()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.core.run.Run.__repr__"><code class="docutils literal notranslate"><span class="pre">Run.__repr__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -29,7 +29,7 @@
 ```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback
 ```
 
-````{py:method} display(opts: typing.Dict[str, typing.Any]) -> None
+````{py:method} display(cfg: logic.src.configs.Config) -> None
 :canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback.display
 
 ```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback.display

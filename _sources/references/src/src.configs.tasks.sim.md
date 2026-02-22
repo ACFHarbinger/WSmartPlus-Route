@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} full_policies
+:canonical: src.configs.tasks.sim.SimConfig.full_policies
+:type: typing.List[str]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.full_policies
+```
+
+````
+
 ````{py:attribute} data_distribution
 :canonical: src.configs.tasks.sim.SimConfig.data_distribution
 :type: str
@@ -366,6 +377,17 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.policy_configs
+```
+
+````
+
+````{py:attribute} config_path
+:canonical: src.configs.tasks.sim.SimConfig.config_path
+:type: typing.Dict[str, typing.Any]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.config_path
 ```
 
 ````

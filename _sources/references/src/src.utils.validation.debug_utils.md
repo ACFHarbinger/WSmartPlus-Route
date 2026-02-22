@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.utils.validation.debug_utils.watch
     :summary:
     ```
+* - {py:obj}`watch_all <src.utils.validation.debug_utils.watch_all>`
+  - ```{autodoc2-docstring} src.utils.validation.debug_utils.watch_all
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +31,12 @@
 :canonical: src.utils.validation.debug_utils.watch
 
 ```{autodoc2-docstring} src.utils.validation.debug_utils.watch
+```
+````
+
+````{py:function} watch_all(callback: typing.Optional[typing.Callable[[str, typing.Any, typing.Any, types.FrameType], None]] = None, *, frame_depth: int = 1) -> None
+:canonical: src.utils.validation.debug_utils.watch_all
+
+```{autodoc2-docstring} src.utils.validation.debug_utils.watch_all
 ```
 ````

@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.data.distributions
 src.data.generators
 src.data.datasets
-src.data.distributions
 ```

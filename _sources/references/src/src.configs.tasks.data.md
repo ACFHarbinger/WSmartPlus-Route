@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} dataset_size
+:canonical: src.configs.tasks.data.DataConfig.dataset_size
+:type: int
+:value: >
+   128000
+
+```{autodoc2-docstring} src.configs.tasks.data.DataConfig.dataset_size
+```
+
+````
+
 ````{py:attribute} penalty_factor
 :canonical: src.configs.tasks.data.DataConfig.penalty_factor
 :type: float

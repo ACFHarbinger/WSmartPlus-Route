@@ -35,28 +35,28 @@
 
 ### API
 
-````{py:function} run_parallel_simulations(opts, device, indices, sample_idx_ls, weights_path, lock, manager, n_cores, task_count, log_file, original_stderr)
+````{py:function} run_parallel_simulations(cfg: logic.src.configs.Config, device: typing.Any, indices: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], weights_path: str, lock: typing.Any, manager: typing.Any, n_cores: int, task_count: int, log_file: typing.Optional[str], original_stderr: typing.Any, shared_metrics: typing.Any, tracking_uri: typing.Optional[str] = None, tracking_run_id: typing.Optional[str] = None) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.features.test.orchestrator.parallel_runner.run_parallel_simulations
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.parallel_runner.run_parallel_simulations
 ```
 ````
 
-````{py:function} execute_and_monitor_tasks(pool, opts, device, args, weights_path, n_cores, counter, manager, lock)
+````{py:function} execute_and_monitor_tasks(pool: multiprocessing.pool.Pool, cfg: logic.src.configs.Config, device: typing.Any, args: typing.List[typing.Tuple[typing.Any, ...]], weights_path: str, n_cores: int, counter: typing.Any, manager: typing.Any, lock: typing.Any, shared_metrics: typing.Any) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.features.test.orchestrator.parallel_runner.execute_and_monitor_tasks
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.parallel_runner.execute_and_monitor_tasks
 ```
 ````
 
-````{py:function} handle_shutdown(pool, original_stderr)
+````{py:function} handle_shutdown(pool: multiprocessing.pool.Pool, original_stderr: typing.Any) -> None
 :canonical: src.pipeline.features.test.orchestrator.parallel_runner.handle_shutdown
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.parallel_runner.handle_shutdown
 ```
 ````
 
-````{py:function} cleanup_multiprocessing_pool(pool)
+````{py:function} cleanup_multiprocessing_pool(pool: multiprocessing.pool.Pool) -> None
 :canonical: src.pipeline.features.test.orchestrator.parallel_runner.cleanup_multiprocessing_pool
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.parallel_runner.cleanup_multiprocessing_pool

@@ -23,18 +23,18 @@
   - ```{autodoc2-docstring} src.data.generators.validators._sanitize_waste
     :summary:
     ```
-* - {py:obj}`_get_graph_list <src.data.generators.validators._get_graph_list>`
-  - ```{autodoc2-docstring} src.data.generators.validators._get_graph_list
+* - {py:obj}`validate_data_config <src.data.generators.validators.validate_data_config>`
+  - ```{autodoc2-docstring} src.data.generators.validators.validate_data_config
     :summary:
     ```
-* - {py:obj}`_validate_filename_args <src.data.generators.validators._validate_filename_args>`
-  - ```{autodoc2-docstring} src.data.generators.validators._validate_filename_args
-    :summary:
-    ```
-* - {py:obj}`_validate_problem_args <src.data.generators.validators._validate_problem_args>`
-  - ```{autodoc2-docstring} src.data.generators.validators._validate_problem_args
-    :summary:
-    ```
+````
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
 * - {py:obj}`validate_gen_data_args <src.data.generators.validators.validate_gen_data_args>`
   - ```{autodoc2-docstring} src.data.generators.validators.validate_gen_data_args
     :summary:
@@ -57,30 +57,19 @@
 ```
 ````
 
-````{py:function} _get_graph_list(args: typing.Dict[str, typing.Any]) -> tuple[str, list[typing.Dict[str, typing.Any]]]
-:canonical: src.data.generators.validators._get_graph_list
+````{py:function} validate_data_config(cfg: logic.src.configs.Config) -> None
+:canonical: src.data.generators.validators.validate_data_config
 
-```{autodoc2-docstring} src.data.generators.validators._get_graph_list
+```{autodoc2-docstring} src.data.generators.validators.validate_data_config
 ```
 ````
 
-````{py:function} _validate_filename_args(args: typing.Dict[str, typing.Any], dataset_count: int) -> None
-:canonical: src.data.generators.validators._validate_filename_args
-
-```{autodoc2-docstring} src.data.generators.validators._validate_filename_args
-```
-````
-
-````{py:function} _validate_problem_args(args: typing.Dict[str, typing.Any]) -> None
-:canonical: src.data.generators.validators._validate_problem_args
-
-```{autodoc2-docstring} src.data.generators.validators._validate_problem_args
-```
-````
-
-````{py:function} validate_gen_data_args(args: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
+````{py:data} validate_gen_data_args
 :canonical: src.data.generators.validators.validate_gen_data_args
+:value: >
+   None
 
 ```{autodoc2-docstring} src.data.generators.validators.validate_gen_data_args
 ```
+
 ````

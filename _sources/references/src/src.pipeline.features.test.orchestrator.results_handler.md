@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} aggregate_final_results(log_tmp, opts, lock)
+````{py:function} aggregate_final_results(log_tmp: typing.Any, cfg: logic.src.configs.Config, lock: typing.Any) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.features.test.orchestrator.results_handler.aggregate_final_results
 
 ```{autodoc2-docstring} src.pipeline.features.test.orchestrator.results_handler.aggregate_final_results

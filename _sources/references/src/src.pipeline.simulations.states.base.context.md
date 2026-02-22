@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SimulationContext(opts: typing.Dict[str, typing.Any], device: torch.device, indices: typing.List[int], sample_id: int, pol_id: int, model_weights_path: str, variables_dict: typing.Dict[str, typing.Any])
+`````{py:class} SimulationContext(cfg: logic.src.configs.Config, device: torch.device, indices: typing.List[int], sample_id: int, pol_id: int, model_weights_path: str, variables_dict: typing.Dict[str, typing.Any])
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext

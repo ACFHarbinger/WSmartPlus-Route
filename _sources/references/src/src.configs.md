@@ -13,11 +13,20 @@
 :titlesonly:
 :maxdepth: 3
 
-src.configs.rl
 src.configs.policies
-src.configs.tasks
-src.configs.envs
 src.configs.models
+src.configs.tasks
+src.configs.rl
+src.configs.envs
+```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.configs.tracking
 ```
 
 ## Package Contents
@@ -160,6 +169,17 @@ src.configs.models
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.Config.data
+```
+
+````
+
+````{py:attribute} tracking
+:canonical: src.configs.Config.tracking
+:type: src.configs.tracking.TrackingConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.tracking
 ```
 
 ````
@@ -325,6 +345,17 @@ src.configs.models
    0
 
 ```{autodoc2-docstring} src.configs.Config.start
+```
+
+````
+
+````{py:attribute} profile
+:canonical: src.configs.Config.profile
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.Config.profile
 ```
 
 ````

@@ -15,6 +15,6 @@
 
 src.pipeline.callbacks.pytorch.training_display
 src.pipeline.callbacks.pytorch.model_summary
-src.pipeline.callbacks.pytorch.speed_monitor
 src.pipeline.callbacks.pytorch.reptile
+src.pipeline.callbacks.pytorch.speed_monitor
 ```

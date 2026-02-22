@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.simulator.init_single_sim_worker
     :summary:
     ```
+* - {py:obj}`_initialize_worker_repository <src.pipeline.simulations.simulator._initialize_worker_repository>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.simulator._initialize_worker_repository
+    :summary:
+    ```
 * - {py:obj}`display_log_metrics <src.pipeline.simulations.simulator.display_log_metrics>`
   - ```{autodoc2-docstring} src.pipeline.simulations.simulator.display_log_metrics
     :summary:
@@ -99,10 +103,17 @@
 
 ````
 
-````{py:function} init_single_sim_worker(lock_from_main: typing.Any, counter_from_main: typing.Any, shared_metrics_from_main: typing.Any = None, log_file: typing.Optional[str] = None) -> None
+````{py:function} init_single_sim_worker(lock_from_main: typing.Any, counter_from_main: typing.Any, shared_metrics_from_main: typing.Any = None, log_file: typing.Optional[str] = None, cfg: typing.Optional[logic.src.configs.Config] = None, tracking_uri: typing.Optional[str] = None, tracking_run_id: typing.Optional[str] = None) -> None
 :canonical: src.pipeline.simulations.simulator.init_single_sim_worker
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.init_single_sim_worker
+```
+````
+
+````{py:function} _initialize_worker_repository(cfg: logic.src.configs.Config) -> None
+:canonical: src.pipeline.simulations.simulator._initialize_worker_repository
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator._initialize_worker_repository
 ```
 ````
 
@@ -113,14 +124,14 @@
 ```
 ````
 
-````{py:function} single_simulation(opts: typing.Dict[str, typing.Any], device: torch.device, indices: typing.Any, sample_id: int, pol_id: int, model_weights_path: str, n_cores: int) -> typing.Dict[str, typing.Any]
+````{py:function} single_simulation(cfg: logic.src.configs.Config, device: torch.device, indices: typing.Any, sample_id: int, pol_id: int, model_weights_path: str, n_cores: int) -> typing.Dict[str, typing.Any]
 :canonical: src.pipeline.simulations.simulator.single_simulation
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.single_simulation
 ```
 ````
 
-````{py:function} sequential_simulations(opts: typing.Dict[str, typing.Any], device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any]) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
+````{py:function} sequential_simulations(cfg: logic.src.configs.Config, device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any], shared_metrics: typing.Optional[typing.Any] = None) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.simulations.simulator.sequential_simulations
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.sequential_simulations

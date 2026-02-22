@@ -51,56 +51,56 @@
 
 ### API
 
-````{py:function} generate_datasets(opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} generate_datasets(cfg: logic.src.configs.Config) -> None
 :canonical: src.data.generators.datasets.generate_datasets
 
 ```{autodoc2-docstring} src.data.generators.datasets.generate_datasets
 ```
 ````
 
-````{py:function} _generate_problem_data(problem: str, distributions: typing.Any, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_problem_data(problem: str, distributions: typing.Any, data: logic.src.configs.tasks.data.DataConfig) -> None
 :canonical: src.data.generators.datasets._generate_problem_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_problem_data
 ```
 ````
 
-````{py:function} _process_instance_generation(problem: str, dist: typing.Any, datadir: str, opts: typing.Dict[str, typing.Any], size: typing.Optional[int] = None, graph: typing.Any = None, graph_cfg: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:function} _process_instance_generation(problem: str, dist: typing.Any, datadir: str, data: logic.src.configs.tasks.data.DataConfig, graph_cfg: typing.Optional[logic.src.configs.envs.graph.GraphConfig] = None) -> None
 :canonical: src.data.generators.datasets._process_instance_generation
 
 ```{autodoc2-docstring} src.data.generators.datasets._process_instance_generation
 ```
 ````
 
-````{py:function} _apply_noise_config(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _apply_noise_config(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, data: logic.src.configs.tasks.data.DataConfig) -> None
 :canonical: src.data.generators.datasets._apply_noise_config
 
 ```{autodoc2-docstring} src.data.generators.datasets._apply_noise_config
 ```
 ````
 
-````{py:function} _generate_test_simulator_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, n_days: int, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_test_simulator_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, n_days: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig, area: str, waste_type: str, n_samples: int) -> None
 :canonical: src.data.generators.datasets._generate_test_simulator_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_test_simulator_data
 ```
 ````
 
-````{py:function} _generate_train_time_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_train_time_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> None
 :canonical: src.data.generators.datasets._generate_train_time_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_time_data
 ```
 ````
 
-````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, opts: typing.Dict[str, typing.Any]) -> None
+````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> None
 :canonical: src.data.generators.datasets._generate_train_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_data
 ```
 ````
 
-````{py:function} _verify_and_save(builder: logic.src.data.generators.builders.VRPInstanceBuilder, filename: str, opts: typing.Dict[str, typing.Any], is_td: bool = False) -> None
+````{py:function} _verify_and_save(builder: logic.src.data.generators.builders.VRPInstanceBuilder, filename: str, data: logic.src.configs.tasks.data.DataConfig, is_td: bool = False) -> None
 :canonical: src.data.generators.datasets._verify_and_save
 
 ```{autodoc2-docstring} src.data.generators.datasets._verify_and_save

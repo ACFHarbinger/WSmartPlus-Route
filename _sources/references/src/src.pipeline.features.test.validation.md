@@ -15,17 +15,17 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`validate_test_sim_args <src.pipeline.features.test.validation.validate_test_sim_args>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.validation.validate_test_sim_args
+* - {py:obj}`validate_sim_config <src.pipeline.features.test.validation.validate_sim_config>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.validation.validate_sim_config
     :summary:
     ```
 ````
 
 ### API
 
-````{py:function} validate_test_sim_args(args: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
-:canonical: src.pipeline.features.test.validation.validate_test_sim_args
+````{py:function} validate_sim_config(cfg: logic.src.configs.Config) -> None
+:canonical: src.pipeline.features.test.validation.validate_sim_config
 
-```{autodoc2-docstring} src.pipeline.features.test.validation.validate_test_sim_args
+```{autodoc2-docstring} src.pipeline.features.test.validation.validate_sim_config
 ```
 ````

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.temporal_attention_model.policy
 src.models.core.temporal_attention_model.model
+src.models.core.temporal_attention_model.policy
 ```
 
 ## Package Contents

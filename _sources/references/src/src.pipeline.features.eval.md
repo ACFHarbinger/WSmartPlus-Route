@@ -22,10 +22,11 @@ src.pipeline.features.eval.evaluators
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.features.eval.engine
-src.pipeline.features.eval.validation
+src.pipeline.features.eval.zenml_eval_pipeline
 src.pipeline.features.eval.evaluate
 src.pipeline.features.eval.eval_base
+src.pipeline.features.eval.validation
+src.pipeline.features.eval.engine
 ```
 
 ## Package Contents
@@ -40,6 +41,10 @@ src.pipeline.features.eval.eval_base
   - ```{autodoc2-docstring} src.pipeline.features.eval.run_evaluate_model
     :summary:
     ```
+* - {py:obj}`_run_eval_via_zenml <src.pipeline.features.eval._run_eval_via_zenml>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval._run_eval_via_zenml
+    :summary:
+    ```
 ````
 
 ### Data
@@ -48,6 +53,10 @@ src.pipeline.features.eval.eval_base
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`logger <src.pipeline.features.eval.logger>`
+  - ```{autodoc2-docstring} src.pipeline.features.eval.logger
+    :summary:
+    ```
 * - {py:obj}`__all__ <src.pipeline.features.eval.__all__>`
   - ```{autodoc2-docstring} src.pipeline.features.eval.__all__
     :summary:
@@ -56,10 +65,27 @@ src.pipeline.features.eval.eval_base
 
 ### API
 
-````{py:function} run_evaluate_model(opts: typing.Dict[str, typing.Any]) -> None
+````{py:data} logger
+:canonical: src.pipeline.features.eval.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.features.eval.logger
+```
+
+````
+
+````{py:function} run_evaluate_model(cfg: logic.src.configs.Config, sinks: typing.Optional[typing.List[typing.Any]] = None) -> None
 :canonical: src.pipeline.features.eval.run_evaluate_model
 
 ```{autodoc2-docstring} src.pipeline.features.eval.run_evaluate_model
+```
+````
+
+````{py:function} _run_eval_via_zenml(cfg: logic.src.configs.Config) -> None
+:canonical: src.pipeline.features.eval._run_eval_via_zenml
+
+```{autodoc2-docstring} src.pipeline.features.eval._run_eval_via_zenml
 ```
 ````
 

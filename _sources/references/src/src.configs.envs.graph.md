@@ -64,7 +64,7 @@
 
 ````{py:attribute} vertex_method
 :canonical: src.configs.envs.graph.GraphConfig.vertex_method
-:type: str
+:type: typing.Optional[str]
 :value: >
    'mmn'
 
@@ -97,7 +97,7 @@
 
 ````{py:attribute} edge_threshold
 :canonical: src.configs.envs.graph.GraphConfig.edge_threshold
-:type: str
+:type: typing.Union[float, int, str]
 :value: >
    '0'
 
