@@ -14,6 +14,11 @@ class TestFileSystemRepository:
     def repo(self, tmp_path):
         return FileSystemRepository(str(tmp_path))
 
+    @pytest.fixture(autouse=True)
+    def setup_repo(self, repo):
+        from logic.src.pipeline.simulations.repository import set_repository
+        set_repository(repo)
+
     def test_wrappers(self):
         # Test that wrappers call the imported function
         with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_method:

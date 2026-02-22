@@ -27,7 +27,6 @@ def _make_sim_cfg(**overrides):
         n_samples=1,
         resume=False,
         cpu_cores=1,
-        no_progress_bar=True,
         graph=graph,
     )
     for k, v in overrides.items():
@@ -57,7 +56,7 @@ def test_simulator_testing_single_core():
 
 def test_simulator_testing_multi_core():
     """Verify multi-core simulation testing flow with process pool mocking."""
-    cfg = _make_sim_cfg(cpu_cores=2, n_samples=2, no_progress_bar=True)
+    cfg = _make_sim_cfg(cpu_cores=2, n_samples=2)
     device = torch.device("cpu")
 
     with patch("multiprocessing.Manager") as mock_manager, patch(

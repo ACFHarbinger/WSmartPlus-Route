@@ -312,7 +312,7 @@ def sequential_simulations(  # noqa: C901
     overall_progress = tqdm(
         total=sum(len(sublist) for sublist in sample_idx_ls) * sim.days,
         desc="Overall progress",
-        disable=sim.no_progress_bar,
+        disable=cfg.tracking.no_progress_bar,
         position=1,
         leave=True,
     )

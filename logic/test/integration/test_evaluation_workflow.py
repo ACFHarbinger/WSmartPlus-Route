@@ -189,7 +189,6 @@ def test_eval_dataset_integration(temp_eval_setup):
     opts.eval.decoding.strategy = "greedy"
     opts.eval.results_dir = setup["dir"]
     opts.eval.overwrite = True
-    opts.eval.no_progress_bar = True
     opts.eval.decoding.beam_width = 0
 
     # device configuration
@@ -236,7 +235,6 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
     opts.eval.decoding.beam_width = 2
     opts.eval.results_dir = setup["dir"]
     opts.eval.overwrite = True
-    opts.eval.no_progress_bar = True
 
     # device configuration
     device = "cpu"

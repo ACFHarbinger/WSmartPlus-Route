@@ -45,7 +45,6 @@ def hpo_opts():
         "epoch_start": 0,
         "n_epochs": 1,
         "eval_batch_size": 2,
-        "no_progress_bar": True,
         "hop_range": [0.1, 1.0],
         "hop_epochs": 1,
         "eta": 3,

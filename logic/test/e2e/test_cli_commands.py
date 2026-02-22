@@ -90,7 +90,7 @@ def test_cli_train_lightning_smoke():
                 "model.encoder.hidden_dim=64",
                 "model.encoder.n_layers=1",
                 "model.encoder.n_heads=2",
-                "wandb_mode=offline",
+                "tracking.wandb_mode=offline",
                 "hpo.n_trials=0",  # Explicitly disable HPO
             ],
             capture_output=True,
@@ -206,7 +206,7 @@ def test_cli_train_lightning_ppo_smoke():
                 "model.encoder.hidden_dim=64",
                 "model.encoder.n_layers=1",
                 "model.encoder.n_heads=2",
-                "wandb_mode=offline",
+                "tracking.wandb_mode=offline",
                 "hpo.n_trials=0",  # Explicitly disable HPO
             ],
             capture_output=True,

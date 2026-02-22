@@ -1,6 +1,8 @@
 import pytest
 import pandas as pd
 import numpy as np
+
+from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.simulations.repository import (
     load_area_and_waste_type_params,
     load_depot,
@@ -10,6 +12,11 @@ from logic.src.pipeline.simulations.repository import (
 
 class TestLoader:
     """Class for data loading tests."""
+
+    @pytest.fixture(autouse=True)
+    def setup_repo(self):
+        from logic.src.pipeline.simulations.repository import set_repository, FileSystemRepository
+        set_repository(FileSystemRepository(ROOT_DIR))
 
     @pytest.mark.unit
     def test_load_params(self, mock_load_dependencies):
@@ -29,7 +36,7 @@ class TestLoader:
             "Lat": [39.0],
             "Lng": [-8.0]
         })
-        load_depot(data_dir="assets/data/wsr_simulator", area="Rio Maior")
+        load_depot(data_dir="data/wsr_simulator", area="Rio Maior")
         assert mock_read_csv.called
 
     @pytest.mark.unit
@@ -62,5 +69,5 @@ class TestLoader:
             })
         ]
 
-        load_simulator_data("assets/data/wsr_simulator", 5, area="riomaior", waste_type="paper")
+        load_simulator_data("data/wsr_simulator", 5, area="riomaior", waste_type="paper")
         assert mock_read_csv.call_count >= 1

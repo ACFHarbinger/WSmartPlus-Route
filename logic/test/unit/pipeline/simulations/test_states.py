@@ -47,19 +47,15 @@ def _make_test_cfg(**overrides):
         noise_variance=0.0,
         cache_regular=False,
         no_cuda=False,
-        no_progress_bar=True,
         server_run=False,
         env_file="vars.env",
         gplic_file=None,
         hexlic_file=None,
         symkey_name=None,
         gapik_file=None,
-        real_time_log=False,
         stats_filepath=None,
         data_dir=None,
         policy_configs={},
-        log_file="sim.log",
-        log_level="INFO",
     )
     # Apply any overrides
     for k, v in overrides.items():
