@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import math
 import os
 import threading
 from typing import Any, Dict, List, Optional, Tuple
@@ -49,7 +50,10 @@ def _flatten_dict(d: Dict[str, Any], prefix: str = "", sep: str = ".") -> Dict[s
 
 def _safe_float(v: Any) -> Optional[float]:
     try:
-        return float(v)
+        fval = float(v)
+        if math.isnan(fval) or math.isinf(fval):
+            return None
+        return fval
     except (TypeError, ValueError):
         return None
 

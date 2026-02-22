@@ -194,5 +194,6 @@ def test_wrapper_functions(mocker):
     load_depot("dir", "area")
     mock_repo.get_depot.assert_called()
 
+    mock_repo.get_simulator_data.return_value = (mocker.Mock(), mocker.Mock())
     load_simulator_data("dir", 5)
     mock_repo.get_simulator_data.assert_called()
