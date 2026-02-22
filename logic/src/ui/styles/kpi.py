@@ -7,7 +7,7 @@ Provides functions to create styled KPI card HTML with optional deltas and spark
 
 from typing import Dict, Optional, Tuple, Union
 
-from logic.src.pipeline.ui.styles.colors import KPI_COLORS, KPI_FALLBACK_COLORS
+from logic.src.ui.styles.colors import KPI_COLORS, KPI_FALLBACK_COLORS
 
 # Type alias for KPI values with optional delta
 KPIValue = Union[float, int, str]

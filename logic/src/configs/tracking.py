@@ -1,5 +1,6 @@
 """Tracking configuration dataclass for WSmart-Route."""
 
+import os
 from dataclasses import dataclass
 from typing import Optional
 
@@ -44,9 +45,9 @@ class TrackingConfig:
             tracker component pointing at ``mlflow_tracking_uri``.
     """
 
-    wst_tracking_uri: str = "assets/tracking"
+    wst_tracking_uri: str = "assets/test_tracking" if os.environ.get("TEST_MODE") == "true" else "assets/tracking"
     mlflow_enabled: bool = False
-    mlflow_tracking_uri: str = "mlruns"
+    mlflow_tracking_uri: str = "assets/test_mlruns" if os.environ.get("TEST_MODE") == "true" else "mlruns"
     mlflow_experiment_name: str = "wsmart-route"
     mlflow_run_name: Optional[str] = None
     ray_tune_storage_path: str = "ray_results"

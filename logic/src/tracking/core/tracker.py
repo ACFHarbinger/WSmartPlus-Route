@@ -45,6 +45,9 @@ class Tracker:
         self.tracking_uri = tracking_uri
         self.buffer_size = buffer_size
 
+        # Ensure base directory exists so SQLite can create the tracking.db file
+        os.makedirs(tracking_uri, exist_ok=True)
+
         db_path = os.path.join(tracking_uri, "tracking.db")
         self._store = TrackingStore(db_path)
 

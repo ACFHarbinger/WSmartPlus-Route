@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import torch
 
-from logic.src.utils.functions import add_attention_hooks
+from logic.src.tracking.hooks import add_attention_hooks
 
 
 class BatchMixin:

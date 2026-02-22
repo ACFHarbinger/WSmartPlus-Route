@@ -12,7 +12,7 @@ Typical usage
 -------------
 ::
 
-    from logic.src.pipeline.ui.services.tracking_service import (
+    from logic.src.ui.services.tracking_service import (
         load_tracking_runs,
         load_run_metrics,
         load_run_params,
@@ -30,10 +30,11 @@ from __future__ import annotations
 import contextlib
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import streamlit as st
+from mlflow.entities import Run
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -215,7 +216,7 @@ def load_run_artifacts(
 def load_mlflow_runs(
     tracking_uri: str = "mlruns",
     experiment_name: Optional[str] = None,
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, List[Run]]:
     """Return a DataFrame of MLflow runs.
 
     Args:

@@ -9,7 +9,7 @@ import torch
 from logic.src.policies.tsp import (
     get_route_cost,
 )
-from logic.src.utils.functions import add_attention_hooks
+from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
 
 
 class SimulationMixin:

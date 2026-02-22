@@ -50,7 +50,7 @@ from logic.src.tracking.hooks.activation_hooks import (
 )
 
 # Attention hooks
-from logic.src.tracking.hooks.attention import add_attention_hooks
+from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
 
 # Gradient hooks
 from logic.src.tracking.hooks.gradient_hooks import (

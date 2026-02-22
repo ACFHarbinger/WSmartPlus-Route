@@ -459,6 +459,7 @@ mcp.json
 **/results/
 **/daily_*/
 **/fill_history/
+mlruns/
 outputs/
 checkpoints/
 assets/output/**/*.jsonl

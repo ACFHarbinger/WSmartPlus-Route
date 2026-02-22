@@ -213,7 +213,7 @@ def render_training_monitor() -> None:
         x_axis=controls["x_axis"],
         smoothing=controls["smoothing"],
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 6. Learning Rate Schedule
     _render_lr_schedule(runs_data)

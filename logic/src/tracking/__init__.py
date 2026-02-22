@@ -142,10 +142,12 @@ def init(
     if tracking_uri is None:
         try:
             import os
+            from pathlib import Path
 
             from logic.src.constants import ROOT_DIR
 
-            tracking_uri = os.path.join(ROOT_DIR, _DEFAULT_TRACKING_URI)
+            base_uri = "assets/test_tracking" if os.environ.get("TEST_MODE") == "true" else _DEFAULT_TRACKING_URI
+            tracking_uri = str(Path(ROOT_DIR).joinpath(base_uri).resolve())
         except ImportError:
             tracking_uri = _DEFAULT_TRACKING_URI
 
