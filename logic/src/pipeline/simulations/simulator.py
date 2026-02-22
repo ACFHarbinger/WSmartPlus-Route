@@ -116,10 +116,11 @@ def init_single_sim_worker(
 def _initialize_worker_repository(cfg: Config) -> None:
     """Initialize the singleton repository instance in a worker process."""
     from logic.src.constants import ROOT_DIR
-    from logic.src.data.datasets import NumpyDictDataset, PandasExcelDataset
+    from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
     from logic.src.pipeline.simulations.repository import (
         FileSystemRepository,
         NumpyDictRepository,
+        PandasCsvRepository,
         PandasExcelRepository,
         set_repository,
     )
@@ -138,6 +139,13 @@ def _initialize_worker_repository(cfg: Config) -> None:
         if os.path.exists(abs_load_ds):
             dataset = PandasExcelDataset.load(abs_load_ds)
             set_repository(PandasExcelRepository(dataset))
+            return
+
+    if load_ds is not None and str(load_ds).endswith(".csv"):
+        abs_load_ds = os.path.join(ROOT_DIR, load_ds) if not os.path.isabs(load_ds) else load_ds
+        if os.path.exists(abs_load_ds):
+            dataset = PandasCsvDataset.load(abs_load_ds)
+            set_repository(PandasCsvRepository(dataset))
             return
 
     set_repository(FileSystemRepository(ROOT_DIR))

@@ -13,6 +13,7 @@ from .pytorch.generator_dataset import GeneratorDataset
 from .pytorch.td_dataset import TensorDictDataset
 from .simulation.np_pkl_dataset import NumpyPickleDataset
 from .simulation.npz_dataset import NumpyDictDataset
+from .simulation.pd_csv_dataset import PandasCsvDataset
 from .simulation.pd_xlsx_dataset import PandasExcelDataset
 from .simulation.sim_dataset import SimulationDataset
 
@@ -31,4 +32,5 @@ __all__ = [
     "NumpyDictDataset",
     "NumpyPickleDataset",
     "PandasExcelDataset",
+    "PandasCsvDataset",
 ]

@@ -3,6 +3,9 @@ Abstract interface for simulation data access.
 """
 
 from abc import ABC, abstractmethod
+from typing import Any, List, Optional, Tuple
+
+import pandas as pd
 
 
 class SimulationRepository(ABC):
@@ -15,14 +18,16 @@ class SimulationRepository(ABC):
     """
 
     @abstractmethod
-    def get_indices(self, filename, n_samples, n_nodes, data_size, lock=None):
+    def get_indices(
+        self, filename: Any, n_samples: int, n_nodes: int, data_size: int, lock: Optional[Any] = None
+    ) -> List[List[int]]:
         """
         Loads or generates a list of bin indices for simulation samples.
         """
         pass
 
     @abstractmethod
-    def get_depot(self, area, data_dir=None):
+    def get_depot(self, area: Any, data_dir: Optional[str] = None) -> pd.DataFrame:
         """
         Retrieves the depot coordinates for a given area.
         """
@@ -31,19 +36,19 @@ class SimulationRepository(ABC):
     @abstractmethod
     def get_simulator_data(
         self,
-        number_of_bins,
-        area="Rio Maior",
-        waste_type=None,
-        lock=None,
-        data_dir=None,
-    ):
+        number_of_bins: int,
+        area: str = "Rio Maior",
+        waste_type: Optional[str] = None,
+        lock: Optional[Any] = None,
+        data_dir: Optional[str] = None,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Loads waste statistics and coordinate data for the simulator.
         """
         pass
 
     @abstractmethod
-    def get_area_params(self, area, waste_type):
+    def get_area_params(self, area: Any, waste_type: Any) -> Tuple[float, float, float, float, float]:
         """
         Retrieves area and waste-type specific simulation parameters.
         """
