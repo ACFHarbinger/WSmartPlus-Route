@@ -7,7 +7,7 @@ import os
 import random
 import re
 from multiprocessing import cpu_count
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import torch
@@ -98,6 +98,9 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
     # initargs by the orchestrator, which reads them from the active tracker.
     run = tracker.start_run(experiment_name, run_type="simulation", tags=run_tags)
     run.__enter__()
+
+    # Log full simulation config and per-policy settings
+    _log_sim_params(run, cfg)
 
     # ----- Attach secondary sinks -----
     if sinks is not None:
@@ -241,6 +244,59 @@ def _ensure_directories(cfg: Config) -> None:
         raise Exception(
             f"directories to save WSR simulator test output files do not exist and could not be created: {e}"
         ) from e
+
+
+# ---------------------------------------------------------------------------
+# Parameter logging
+# ---------------------------------------------------------------------------
+
+
+def _log_sim_params(run: wst.Run, cfg: Config) -> None:
+    """Log simulation configuration and per-policy settings as run parameters.
+
+    Captures the full ``cfg.sim`` scalar fields and each policy's config dict
+    so that every run is fully reproducible from the tracking DB alone.
+
+    Args:
+        run: Active WSTracker run to receive the parameters.
+        cfg: Root Hydra config object.
+    """
+    sim = cfg.sim
+
+    params: Dict[str, Any] = {
+        "sim.days": sim.days,
+        "sim.n_samples": sim.n_samples,
+        "sim.seed": sim.seed,
+        "sim.data_distribution": str(sim.data_distribution),
+        "sim.area": sim.graph.area,
+        "sim.num_loc": sim.graph.num_loc,
+        "sim.waste_type": sim.graph.waste_type,
+        "sim.cpu_cores": sim.cpu_cores,
+        "sim.checkpoint_dir": str(getattr(sim, "checkpoint_dir", "")),
+        "sim.output_dir": str(getattr(sim, "output_dir", "")),
+    }
+
+    # Per-policy configuration
+    for pol in getattr(sim, "full_policies", []):
+        if isinstance(pol, dict):
+            for name, pol_cfg in pol.items():
+                with contextlib.suppress(Exception):
+                    if hasattr(pol_cfg, "items"):
+                        for k, v in pol_cfg.items():
+                            params[f"policy.{name}.{k}"] = v
+                    else:
+                        params[f"policy.{name}"] = str(pol_cfg)
+        else:
+            params[f"policy.{pol}"] = True
+
+    # External dataset path (if provided)
+    load_ds = getattr(cfg, "load_dataset", None)
+    if load_ds:
+        params["load_dataset"] = str(load_ds)
+        with contextlib.suppress(Exception):
+            run.log_dataset_event("load", file_path=str(load_ds))
+
+    run.log_params(params)
 
 
 # ---------------------------------------------------------------------------

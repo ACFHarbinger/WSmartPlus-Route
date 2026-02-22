@@ -117,6 +117,20 @@ class DataLineageCallback:
             dlog: Dict[str, Any] = getattr(day_context, "daily_log", None) or {}
             self._sim_tracker.log_day(day, dlog)
 
+            # Tour length (list → count of stops, not loggable as float directly)
+            tour = dlog.get("tour")
+            if tour is not None:
+                with contextlib.suppress(Exception):
+                    self._sim_tracker._run.log_metric(
+                        f"{self._sim_tracker._prefix}/tour_len", float(len(tour)), step=day
+                    )
+
+            # Cumulative bins scalars not present in dlog (km, profit, kg totals).
+            # Logging the cumulative series lets consumers derive per-day deltas.
+            bins = getattr(day_context, "bins", None)
+            if bins is not None:
+                _log_cumulative_bins(self._sim_tracker, bins, day)
+
         # --- 2. Throttled fill-distribution snapshot ---------------------
         if self._step_count % self._log_freq != 0:
             return
@@ -132,6 +146,53 @@ class DataLineageCallback:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+
+def _log_cumulative_bins(sim_tracker: "SimulationRunTracker", bins: Any, day: int) -> None:
+    """Log cumulative bins scalar state as time-series metrics.
+
+    These values are not present in ``daily_log`` because they are accumulated
+    on the bins object rather than recorded per-day.  Logging the cumulative
+    series at each step lets consumers derive per-day deltas by differencing.
+
+    Scalars logged (all namespaced under ``{policy}/s{sample}/cumul/``):
+
+    * ``km``        — total distance travelled so far (``bins.travel``)
+    * ``kg``        — total waste collected (``bins.collected`` sum)
+    * ``kg_lost``   — total waste lost to overflow (``bins.lost`` sum)
+    * ``overflows`` — total overflow events (``bins.inoverflow`` sum)
+    * ``profit``    — cumulative net profit (``bins.profit``)
+    """
+    prefix = f"{sim_tracker._prefix}/cumul"
+    scalars: Dict[str, float] = {}
+
+    with contextlib.suppress(Exception):
+        travel = getattr(bins, "travel", None)
+        if travel is not None:
+            scalars[f"{prefix}/km"] = float(travel)
+
+    with contextlib.suppress(Exception):
+        import numpy as np
+
+        collected = getattr(bins, "collected", None)
+        if collected is not None:
+            scalars[f"{prefix}/kg"] = float(np.sum(collected))
+
+        lost = getattr(bins, "lost", None)
+        if lost is not None:
+            scalars[f"{prefix}/kg_lost"] = float(np.sum(lost))
+
+        inoverflow = getattr(bins, "inoverflow", None)
+        if inoverflow is not None:
+            scalars[f"{prefix}/overflows"] = float(np.sum(inoverflow))
+
+    with contextlib.suppress(Exception):
+        profit = getattr(bins, "profit", None)
+        if profit is not None:
+            scalars[f"{prefix}/profit"] = float(profit)
+
+    if scalars:
+        sim_tracker._run.log_metrics(scalars, step=day)
 
 
 def _bins_to_tensor_dict(bins: Any) -> Dict[str, torch.Tensor]:

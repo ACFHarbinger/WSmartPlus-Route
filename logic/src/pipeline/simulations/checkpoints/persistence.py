@@ -2,6 +2,7 @@
 Checkpoint file persistence management.
 """
 
+import contextlib
 import os
 import pickle
 from datetime import datetime
@@ -77,6 +78,24 @@ class SimulationCheckpoint:
         with open(checkpoint_file, "wb") as f:
             pickle.dump(checkpoint_data, f)
 
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_metric("checkpoint/day_saved", float(day))
+                run.log_dataset_event(
+                    "save",
+                    file_path=checkpoint_file,
+                    metadata={
+                        "event": "checkpoint_save",
+                        "policy": self.policy,
+                        "sample_id": self.sample_id,
+                        "day": day,
+                        "end_simulation": end_simulation,
+                    },
+                )
+
     def load_state(self, day: Optional[int] = None) -> Tuple[Optional[Any], int]:
         """Load state.
 
@@ -103,7 +122,26 @@ class SimulationCheckpoint:
                         checkpoint_data.get("policy") == self.policy
                         and checkpoint_data.get("sample_id") == self.sample_id
                     ):
-                        return checkpoint_data["state"], checkpoint_data.get("day", 0)
+                        resumed_day = checkpoint_data.get("day", 0)
+                        with contextlib.suppress(Exception):
+                            from logic.src.tracking.core.run import get_active_run
+
+                            run = get_active_run()
+                            if run is not None:
+                                run.log_params(
+                                    {
+                                        "checkpoint.resumed": True,
+                                        "checkpoint.resume_day": int(resumed_day),
+                                        "checkpoint.resume_policy": self.policy,
+                                        "checkpoint.resume_sample_id": self.sample_id,
+                                    }
+                                )
+                                run.log_dataset_event(
+                                    "load",
+                                    file_path=checkpoint_file,
+                                    metadata={"event": "checkpoint_resume", "day": int(resumed_day)},
+                                )
+                        return checkpoint_data["state"], resumed_day
                     else:
                         logger.warning(f"Checkpoint mismatch: expected {self.policy}_{self.sample_id}")
                 except Exception as e:

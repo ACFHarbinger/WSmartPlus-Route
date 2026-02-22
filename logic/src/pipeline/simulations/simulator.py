@@ -28,6 +28,7 @@ Functions:
 
 from __future__ import annotations
 
+import contextlib
 import os
 import statistics
 import sys
@@ -403,6 +404,22 @@ def sequential_simulations(  # noqa: C901
                         {pol_name: log_std[pol_name]},
                         lock=lock,
                     )
+
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_metric("sim/n_failed_runs", float(len(failed_log)))
+            for pol_name_k, metrics in log.items():
+                if isinstance(metrics, (list, tuple)):
+                    for metric_name, val in zip(SIM_METRICS, metrics):
+                        run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
+                if log_std is not None and pol_name_k in log_std:
+                    std_metrics = log_std[pol_name_k]
+                    if isinstance(std_metrics, (list, tuple)):
+                        for metric_name, val in zip(SIM_METRICS, std_metrics):
+                            run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
     # Close overall progress bar
     overall_progress.close()

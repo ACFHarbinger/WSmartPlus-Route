@@ -2,6 +2,7 @@
 Bin State Management and Waste Accumulation Simulation.
 """
 
+import contextlib
 import math
 import os
 from typing import List, Optional, Tuple, Union
@@ -131,6 +132,24 @@ class Bins:
         self.waste_fills: Optional[np.ndarray] = None
         self.noisy_waste_fills: Optional[np.ndarray] = None
 
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params(
+                    {
+                        "sim.n_bins": n,
+                        "sim.distribution": sample_dist,
+                        "sim.area": str(area) if area is not None else "",
+                        "sim.waste_type": str(waste_type) if waste_type is not None else "all",
+                        "sim.noise_mean": noise_mean,
+                        "sim.noise_variance": noise_variance,
+                        "sim.is_stochastic": self.waste_dataset is None,
+                        "sim.has_waste_file": waste_file is not None,
+                    }
+                )
+
     def __get_stdev(self):
         """Computes current standard deviation."""
         if self.day_count > 1:
@@ -146,6 +165,26 @@ class Bins:
         self.day_count = np.maximum(data.at[0, "Count"].astype(np.int64), 0)
         self.square_diff = (self.std**2) * (self.day_count - 1)
         self.start_with_fill = True
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params(
+                    {
+                        "sim.stats_file": str(stats_file),
+                        "sim.stats_n_bins": len(data),
+                        "sim.stats_mean_fill": float(self.means.mean()),
+                        "sim.stats_mean_std": float(self.std.mean()),
+                        "sim.stats_day_count": int(self.day_count),
+                    }
+                )
+                run.log_dataset_event(
+                    "load",
+                    file_path=str(os.path.join(self.data_dir, stats_file)),
+                    num_samples=len(data),
+                    metadata={"event": "fill_stats_load"},
+                )
 
     def is_stochastic(self) -> bool:
         """Checks if using stochastic filling."""
@@ -185,6 +224,25 @@ class Bins:
             self.real_c = self.waste_fills[0].copy()
             self.c = self.noisy_waste_fills[0].copy()
             self.level_history.append(self.c.copy())
+
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                n_days = int(self.waste_fills.shape[0]) if hasattr(self.waste_fills, "shape") else 0
+                run.log_params(
+                    {
+                        "sim.waste_sample_id": int(sample_id),
+                        "sim.waste_n_days": n_days,
+                        "sim.waste_n_bins": int(self.waste_fills.shape[1]) if n_days > 0 else self.n,
+                    }
+                )
+                run.log_dataset_event(
+                    "load",
+                    num_samples=n_days,
+                    metadata={"event": "waste_sample_load", "sample_id": int(sample_id)},
+                )
 
     def collect(self, idsfull: List[int], cost: float = 0) -> Tuple[np.ndarray, float, int, float]:
         """Processes waste collection from bins in the tour."""
@@ -325,6 +383,18 @@ class Bins:
             k = __set_param([5, 2])
             th = __set_param([10])
         self.__setDistribution(k, th)
+        with contextlib.suppress(Exception):
+            from logic.src.tracking.core.run import get_active_run
+
+            run = get_active_run()
+            if run is not None:
+                run.log_params(
+                    {
+                        "sim.gamma_option": int(option),
+                        "sim.gamma_k_mean": float(np.mean(self.dist_param1)),
+                        "sim.gamma_theta_mean": float(np.mean(self.dist_param2)),
+                    }
+                )
 
     def setCollectionLvlandFreq(self, cf=0.9):
         """Sets visit frequency and level thresholds."""
