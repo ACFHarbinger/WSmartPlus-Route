@@ -9,7 +9,7 @@ import streamlit as st
 from streamlit_folium import st_folium
 
 from logic.src.constants import ROOT_DIR
-from logic.src.pipeline.ui.components.maps import create_bin_heatmap, create_simulation_map
+from logic.src.ui.components.maps import create_bin_heatmap, create_simulation_map
 
 
 def load_custom_matrix(controls: Dict[str, Any]) -> Any:

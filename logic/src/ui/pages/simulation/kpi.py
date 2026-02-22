@@ -3,13 +3,13 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import streamlit as st
 
-from logic.src.pipeline.ui.components.charts import create_sparkline_svg
-from logic.src.pipeline.ui.services.data_loader import (
+from logic.src.ui.components.charts import create_sparkline_svg
+from logic.src.ui.services.data_loader import (
     compute_cumulative_stats,
     compute_day_deltas,
     get_metric_history,
 )
-from logic.src.pipeline.ui.styles.kpi import create_kpi_row, create_kpi_row_with_deltas
+from logic.src.ui.styles.kpi import create_kpi_row, create_kpi_row_with_deltas
 
 # Mapping from data keys to display labels for KPI deltas
 _PRIMARY_KPI_MAP = {
