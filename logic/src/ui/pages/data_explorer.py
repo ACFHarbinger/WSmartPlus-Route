@@ -313,7 +313,7 @@ def _render_raw_data_tab(
         st.caption(f"Showing first {row_limit} of {len(df)} rows")
 
     col_format = {c: f"{{:.{precision}f}}" for c in display_df.select_dtypes(include=["number"]).columns}
-    st.dataframe(display_df.style.format(col_format, na_rep="—"), use_container_width=True, height=400)
+    st.dataframe(display_df.style.format(col_format, na_rep="—"), width="stretch", height=400)
 
     csv = df.to_csv(index=False)
     st.download_button("Download as CSV", csv, file_name=f"{selected_table}.csv", mime="text/csv")
@@ -343,7 +343,7 @@ def _render_statistics_tab(df: pd.DataFrame) -> None:
             "Unique": [_safe_nunique(df[c]) for c in df.columns],
         }
     )
-    st.dataframe(col_info, use_container_width=True, hide_index=True)
+    st.dataframe(col_info, width="stretch", hide_index=True)
 
     # --- Descriptive statistics ---
     numeric_df = df.select_dtypes(include=["number"])
@@ -351,7 +351,7 @@ def _render_statistics_tab(df: pd.DataFrame) -> None:
         st.subheader("Descriptive Statistics")
         desc = numeric_df.describe().T
         desc = desc.set_index(pd.Index([str(c) for c in desc.index]))
-        st.dataframe(desc.style.format("{:.4f}"), use_container_width=True)
+        st.dataframe(desc.style.format("{:.4f}"), width="stretch")
     else:
         st.info("No numeric columns for descriptive statistics.")
 
@@ -367,7 +367,7 @@ def _render_correlation_tab(df: pd.DataFrame) -> None:
     # --- Correlation matrix heatmap ---
     st.subheader("Correlation Matrix")
     fig = create_correlation_matrix_chart(df, title="Pairwise Pearson Correlation")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # --- Pair scatter ---
     st.subheader("Column Pair Detail")
@@ -392,7 +392,7 @@ def _render_correlation_tab(df: pd.DataFrame) -> None:
             opacity=0.7,
         )
         fig_pair.update_layout(height=400, **PLOTLY_LAYOUT_DEFAULTS)
-        st.plotly_chart(fig_pair, use_container_width=True)
+        st.plotly_chart(fig_pair, width="stretch")
 
         # Correlation coefficient
         corr_val = df[col_a_key].corr(df[col_b_key])

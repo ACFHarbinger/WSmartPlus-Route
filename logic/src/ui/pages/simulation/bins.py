@@ -153,7 +153,7 @@ def render_collection_details(display_entry: Any) -> None:
             y_label="Amount",
             colors=["#43a047", "#e8eaed"],
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     else:
         st.info("No bins were collected on this day.")
 

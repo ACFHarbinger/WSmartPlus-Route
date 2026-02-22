@@ -5,7 +5,7 @@ Styling package for the dashboard.
 Re-exports all public names from submodules for convenient access.
 """
 
-from logic.src.pipeline.ui.styles.colors import (
+from logic.src.ui.styles.colors import (
     CHART_COLORS,
     KPI_COLORS,
     KPI_FALLBACK_COLORS,
@@ -13,8 +13,8 @@ from logic.src.pipeline.ui.styles.colors import (
     STATUS_COLORS,
     get_page_config,
 )
-from logic.src.pipeline.ui.styles.css import CUSTOM_CSS
-from logic.src.pipeline.ui.styles.kpi import (
+from logic.src.ui.styles.css import CUSTOM_CSS
+from logic.src.ui.styles.kpi import (
     KPIDelta,
     KPIValue,
     create_kpi_html,

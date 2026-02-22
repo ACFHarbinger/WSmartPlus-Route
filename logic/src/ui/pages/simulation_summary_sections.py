@@ -101,7 +101,7 @@ def _render_summary_table(summary_df: pd.DataFrame, dist_filter: str) -> None:
         display_rows.append(display)
 
     display_df = pd.DataFrame(display_rows)
-    st.dataframe(display_df, use_container_width=True, hide_index=True)
+    st.dataframe(display_df, width="stretch", hide_index=True)
 
     csv = display_df.to_csv(index=False)
     st.download_button("Download as CSV", csv, file_name="policy_summary.csv", mime="text/csv")
@@ -155,7 +155,7 @@ def _render_metric_bar_chart(summary_df: pd.DataFrame, dist_filter: str) -> None
         xaxis_tickangle=-45,
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_pareto(summary_df: pd.DataFrame, dist_filter: str) -> None:
@@ -217,14 +217,14 @@ def _render_pareto(summary_df: pd.DataFrame, dist_filter: str) -> None:
             font=dict(size=10),
         )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # Show Pareto-optimal policies
     if pareto_indices:
         pareto_df = df.iloc[pareto_indices][["Policy", "Distribution", x_col, y_col]].reset_index(drop=True)
         pareto_df.columns = pd.Index(["Policy", "Distribution", x_metric, y_metric])
         st.markdown("**Pareto-optimal policies:**")
-        st.dataframe(pareto_df, use_container_width=True, hide_index=True)
+        st.dataframe(pareto_df, width="stretch", hide_index=True)
 
 
 def _render_distribution_comparison(summary_df: pd.DataFrame) -> None:
@@ -305,7 +305,7 @@ def _render_distribution_comparison(summary_df: pd.DataFrame) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # Pivot table: rows=policies, columns=distributions
     st.markdown("**Summary Table**")
@@ -326,7 +326,7 @@ def _render_distribution_comparison(summary_df: pd.DataFrame) -> None:
         pivot_rows.append(row)
 
     pivot_df = pd.DataFrame(pivot_rows)
-    st.dataframe(pivot_df, use_container_width=True, hide_index=True)
+    st.dataframe(pivot_df, width="stretch", hide_index=True)
 
 
 def _render_daily_timeseries(daily_df: pd.DataFrame, dist_filter: str) -> None:
@@ -394,4 +394,4 @@ def _render_daily_timeseries(daily_df: pd.DataFrame, dist_filter: str) -> None:
         hovermode="x unified",
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")

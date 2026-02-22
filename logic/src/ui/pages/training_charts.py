@@ -60,7 +60,7 @@ def _render_lr_schedule(runs_data: Dict[str, pd.DataFrame]) -> None:
         hovermode="x unified",
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_training_kpis(runs_data: Dict[str, pd.DataFrame]) -> None:
@@ -155,7 +155,7 @@ def _render_epoch_timing(runs_data: Dict[str, pd.DataFrame]) -> None:
         hovermode="x unified",
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_run_comparison(

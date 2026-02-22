@@ -2,10 +2,10 @@
 """
 MLOps Control Tower Dashboard - Root Entry Point.
 
-This is a convenience wrapper for logic/src/pipeline/ui/app.py.
+This is a convenience wrapper for logic/src/ui/app.py.
 """
 
-from logic.src.pipeline.ui.app import main
+from logic.src.ui.app import main
 
 if __name__ == "__main__":
     main()

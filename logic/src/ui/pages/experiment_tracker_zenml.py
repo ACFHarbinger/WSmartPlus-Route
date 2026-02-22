@@ -45,7 +45,7 @@ def _render_zenml_pipelines() -> None:
 
     st.dataframe(
         df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=min(400, 60 + len(df) * 35),
     )
@@ -77,7 +77,7 @@ def _render_zenml_pipelines() -> None:
 
     st.dataframe(
         step_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -108,4 +108,4 @@ def _render_zenml_pipelines() -> None:
             yaxis_title="Status",
             **PLOTLY_LAYOUT_DEFAULTS,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")

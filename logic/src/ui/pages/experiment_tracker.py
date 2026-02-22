@@ -90,7 +90,7 @@ def _render_run_table(
 
     st.dataframe(
         df.drop(columns=["Full ID"]),
-        use_container_width=True,
+        width="stretch",
         height=min(400, 60 + len(df) * 35),
         hide_index=True,
     )
@@ -130,7 +130,7 @@ def _render_run_detail(run_id: str) -> None:
             if key_params:
                 st.dataframe(
                     pd.DataFrame({"param": key_params.keys(), "value": [str(v) for v in key_params.values()]}),
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True,
                     height=min(300, 35 + len(key_params) * 35),
                 )
@@ -183,7 +183,7 @@ def _render_metric_explorer(run_id: str) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     summary: Dict[str, Any] = {}
     for key in selected_keys:
@@ -277,12 +277,12 @@ def _render_run_comparison(runs: List[Dict[str, Any]]) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     if comparison_table:
         st.dataframe(
             pd.DataFrame(comparison_table),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -306,7 +306,7 @@ def _render_artifacts(run_id: str) -> None:
 
     st.dataframe(
         pd.DataFrame(rows),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=min(300, 60 + len(rows) * 35),
     )

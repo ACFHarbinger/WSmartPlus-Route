@@ -148,7 +148,7 @@ def _render_comparison_charts(filtered_df: pd.DataFrame) -> None:
             title=f"{selected_metric.replace('_', ' ').capitalize()} Comparison",
             x_axis=group_by,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 
 def _render_latency_throughput(filtered_df: pd.DataFrame) -> None:
@@ -156,7 +156,7 @@ def _render_latency_throughput(filtered_df: pd.DataFrame) -> None:
     st.subheader("Inference Efficiency")
     if "latency" in filtered_df.columns and "throughput" in filtered_df.columns:
         fig = create_latency_throughput_scatter(pd.DataFrame(filtered_df))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     else:
         st.info("Latency and throughput data only available for neural benchmarks.")
 

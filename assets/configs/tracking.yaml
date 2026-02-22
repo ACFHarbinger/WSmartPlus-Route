@@ -26,13 +26,13 @@ tracking:
   # MLflow secondary sink (opt-in)
   # ---------------------------------------------------------------------------
   # When true, every WSTracker Run also dual-writes to MLflow.
-  mlflow_enabled: false
+  mlflow_enabled: true
 
   # MLflow tracking server URI.  Supported formats:
   #   - Local directory:   "mlruns"
   #   - Remote HTTP:       "http://mlflow.mycompany.com:5000"
   #   - Databricks:        "databricks"
-  mlflow_tracking_uri: "mlruns"
+  mlflow_tracking_uri: "assets/logs/mlruns"
 
   # MLflow experiment that will be created or reused.
   mlflow_experiment_name: "wsmart-route"
@@ -49,14 +49,14 @@ tracking:
 
   # When true, each Ray Tune trial also logs to MLflow via
   # MLflowLoggerCallback.  mlflow_enabled must also be true.
-  ray_tune_mlflow_enabled: false
+  ray_tune_mlflow_enabled: true
 
   # ---------------------------------------------------------------------------
   # ZenML integration (opt-in)
   # ---------------------------------------------------------------------------
   # When true, training / simulation / HPO run as versioned ZenML pipelines.
   # Requires: uv add "zenml[mlflow]" && zenml init
-  zenml_enabled: false
+  zenml_enabled: true
 
   # ZenML metadata store URL.  Empty string = default local store (~/.zenml).
   # Supported formats:

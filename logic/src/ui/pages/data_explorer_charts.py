@@ -171,7 +171,7 @@ def _render_line_bar_chart(
         x_key = _resolve_column(columns, x_col)
         if x_key is not None:
             fig = create_multi_y_line_chart(df, x_key, y_cols, title=f"Multi-Series: {', '.join(y_cols)}")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         else:
             st.error(f"Column not found: {x_col}")
         return
@@ -235,7 +235,7 @@ def _render_line_bar_chart(
             **PLOTLY_LAYOUT_DEFAULTS,
         )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_scatter_chart(
@@ -277,7 +277,7 @@ def _render_scatter_chart(
         color_by=color_series,
         title=f"Scatter: {y_col} vs {x_col}",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_area_chart(
@@ -301,7 +301,7 @@ def _render_area_chart(
         y_label=y_col,
         title=f"Area: {y_col} vs {x_col}",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_selected_chart(
@@ -315,9 +315,9 @@ def _render_selected_chart(
     columns = df.columns.tolist()
 
     if chart_type == "Heatmap":
-        st.plotly_chart(create_heatmap_chart(df, title="Heatmap"), use_container_width=True)
+        st.plotly_chart(create_heatmap_chart(df, title="Heatmap"), width="stretch")
     elif chart_type == "Correlation Matrix":
-        st.plotly_chart(create_correlation_matrix_chart(df), use_container_width=True)
+        st.plotly_chart(create_correlation_matrix_chart(df), width="stretch")
     elif chart_type == "Histogram":
         y_col = local_vars.get("y_col", "")
         col_key = _resolve_column(columns, y_col)
@@ -325,7 +325,7 @@ def _render_selected_chart(
             nbins = extra_opts.get("nbins", 30)
             st.plotly_chart(
                 create_histogram_chart(df[col_key], nbins=nbins, title=f"Histogram: {y_col}"),
-                use_container_width=True,
+                width="stretch",
             )
         else:
             st.warning("Select a valid column.")
@@ -335,7 +335,7 @@ def _render_selected_chart(
             resolved = [str(c) for c in columns if str(c) in y_cols]
             st.plotly_chart(
                 create_box_plot_chart(df, resolved, title="Box Plot: Distribution Comparison"),
-                use_container_width=True,
+                width="stretch",
             )
         else:
             st.warning("Select at least one column.")
