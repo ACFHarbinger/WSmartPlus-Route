@@ -17,14 +17,18 @@ from typing import List
 
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 from logic.src.policies.other.must_go.base.selection_context import SelectionContext
+from logic.src.policies.other.must_go.base.selection_registry import (
+    MustGoSelectionRegistry,
+)
 
 
+@MustGoSelectionRegistry.register("regular")
 class RegularSelection(IMustGoSelectionStrategy):
     """
     Periodic collection strategy.
 
     Logic: Collect all bins if today is a scheduled collection day.
-    Scheduled if (current_day % frequency) == 1.
+    Scheduled if (current_day % frequency) == 0.
     """
 
     def select_bins(self, context: SelectionContext) -> List[int]:
@@ -37,12 +41,18 @@ class RegularSelection(IMustGoSelectionStrategy):
         Returns:
             List[int]: List of all bin IDs if collection day, else empty.
         """
-        # threshold is used as frequency 'lvl'
-        if context.threshold <= 0:
-            return (context.bin_ids + 1).tolist()
+        current_day = getattr(context, "current_day", 0)
+        threshold = getattr(context, "threshold", 1)  # Using threshold as frequency
+        if current_day % threshold != 0:
+            return []
 
-        is_collect = (context.current_day % int(context.threshold)) == 0
-        if is_collect:
-            # Return all bins (1-based IDs)
-            return (context.bin_ids + 1).tolist()
-        return []
+        # Find bins where current fill >= min_fill
+        eligible_bins = []
+        if hasattr(context, "current_fill") and context.current_fill is not None and len(context.current_fill) > 0:
+            min_fill = getattr(self, "min_fill", 0)
+            for i, fill in enumerate(context.current_fill):
+                if fill >= min_fill:
+                    eligible_bins.append(i + 1)  # 1-based indexing for routing
+        else:
+            eligible_bins = (context.bin_ids + 1).tolist() if hasattr(context, "bin_ids") else []
+        return eligible_bins

@@ -20,8 +20,10 @@ from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
 from .base.selection_context import SelectionContext
 from .base.selection_factory import MustGoSelectionFactory
+from .base.selection_registry import MustGoSelectionRegistry
 
 
+@MustGoSelectionRegistry.register("combined")
 class CombinedSelection(IMustGoSelectionStrategy):
     """
     Combines multiple selection strategies with logical OR or AND.

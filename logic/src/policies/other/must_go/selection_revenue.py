@@ -21,8 +21,10 @@ from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
 from .base.selection_context import SelectionContext
+from .base.selection_registry import MustGoSelectionRegistry
 
 
+@MustGoSelectionRegistry.register("revenue")
 class RevenueThresholdSelection(IMustGoSelectionStrategy):
     """
     Revenue-based selection strategy.

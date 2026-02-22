@@ -35,6 +35,10 @@ cvrp:
       # Execution backend: Google OR-Tools VRP solver
       # Options: "ortools" (OR-Tools GLS), "pyvrp" (PyVRP HGS)
 
+    - n_vehicles: 0
+      # Use unlimited/dynamic number of vehicles by default
+      # so that must_go strategies don't fail due to 1-vehicle capacity limit.
+
     # ---------------------------------------------------------------------
     # Performance Tuning
     # ---------------------------------------------------------------------
