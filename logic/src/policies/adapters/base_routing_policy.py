@@ -208,15 +208,6 @@ class BaseRoutingPolicy(IPolicyAdapter):
         }
         # Merge all policy config params into values for solver consumption
         values.update(policy_config)
-
-        # Ensure critical weights for VRPP/lookahead are present
-        if "Omega" not in values:
-            values["Omega"] = 0.1
-        if "delta" not in values:
-            values["delta"] = 0.0
-        if "psi" not in values:
-            values["psi"] = 1.0
-
         return capacity, revenue_scaled, cost_unit, values
 
     def _create_subset_problem(

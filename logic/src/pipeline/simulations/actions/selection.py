@@ -23,10 +23,25 @@ class MustGoSelectionAction(SimulationAction):
 
     def execute(self, context: Dict[str, Any]) -> None:
         """
-        Identifies bins that MUST be collected on the current day.
+        Execute must-go selection strategies and update context['must_go'].
         """
+        # Early exit if neural network explicitly predicts selection
+        model_name = ""
+        pol_cfg = context.get("config", {})
+        if isinstance(pol_cfg, dict) and "model" in pol_cfg:
+            model_name = pol_cfg["model"].get("name", "").lower()
+        if "ptr" in model_name or "trans" in model_name:
+            return
+
         # 1. Gather all strategies to run
         strategies = self._gather_strategies(context)
+        if not strategies:
+            # Check if there is a 'cached' tour and no strategies
+            if context.get("cached"):
+                context["must_go"] = []
+            # If no strategies and not cached, then no must-go bins
+            context["must_go"] = []
+            return
 
         # 2. Execute all strategies and union results
         bins = context["bins"]
@@ -124,10 +139,14 @@ class MustGoSelectionAction(SimulationAction):
         if isinstance(config_must_go, MustGoConfig):
             strategies.append({"config": config_must_go})
         elif config_must_go:
-            if not isinstance(config_must_go, list):
-                config_must_go = [config_must_go]
+            if isinstance(config_must_go, (list, tuple)) or (
+                not isinstance(config_must_go, (str, dict)) and hasattr(config_must_go, "__iter__")
+            ):
+                items_to_parse = config_must_go
+            else:
+                items_to_parse = [config_must_go]
 
-            for item in config_must_go:
+            for item in items_to_parse:
                 strategies.extend(self._parse_strategy_item(item))
         return strategies
 
