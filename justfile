@@ -263,8 +263,37 @@ clean:
     rm -rf checkpoints/
     rm -rf *.egg-info
     rm -rf logs/
-    rm -rf outputs/
     rm -rf model_weights/
+
+# --- Tracking Database ---
+
+# Print an overview of experiments, runs, and record counts
+db-inspect:
+    uv run python -m logic.src.tracking.database.commands inspect
+
+# Delete all tracking data while preserving the schema
+db-clean:
+    uv run python -m logic.src.tracking.database.commands clean
+
+# Integrity check, WAL checkpoint, and VACUUM
+db-compact:
+    uv run python -m logic.src.tracking.database.commands compact
+
+# Remove stale runs  (override: just db-prune older_than=7 status=failed experiment=AM-VRPP-50)
+db-prune older_than="30" status="failed" experiment="" dry_run="":
+    uv run python -m logic.src.tracking.database.commands prune \
+        --older-than {{ older_than }} \
+        --status {{ status }} \
+        {{ if experiment != "" { "--experiment " + experiment } else { "" } }} \
+        {{ if dry_run != "" { "--dry-run" } else { "" } }}
+
+# Export a run to JSON  (override: just db-export run_id=a1b2c3d4 output=run.json)
+db-export run_id="" experiment="" output="" latest="":
+    uv run python -m logic.src.tracking.database.commands export \
+        {{ if run_id != "" { "--run-id " + run_id } else { "" } }} \
+        {{ if experiment != "" { "--experiment " + experiment } else { "" } }} \
+        {{ if output != "" { "--output " + output } else { "" } }} \
+        {{ if latest != "" { "--latest" } else { "" } }}
 
 # Generic run command
 run *args:
