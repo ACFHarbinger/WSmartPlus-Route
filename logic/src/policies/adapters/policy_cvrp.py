@@ -88,8 +88,12 @@ class CVRPPolicy(BaseRoutingPolicy):
 
         # Get engine and time_limit from typed config or values dict
         cfg = self._config
-        engine = cfg.engine if cfg is not None else values.get("engine", "pyvrp")
-        time_limit = cfg.time_limit if cfg is not None else values.get("time_limit", 2.0)
+        engine = getattr(cfg, "engine", None) if cfg is not None else values.get("engine", "pyvrp")
+        if engine is None:
+            engine = values.get("engine", "pyvrp")
+        time_limit = getattr(cfg, "time_limit", None) if cfg is not None else values.get("time_limit", 2.0)
+        if time_limit is None:
+            time_limit = values.get("time_limit", 2.0)
 
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:

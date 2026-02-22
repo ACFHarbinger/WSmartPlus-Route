@@ -84,6 +84,7 @@ class RunningState(SimState):
     def _get_current_policy_config(self, ctx):
         """Standardizes policy config resolution from structured context."""
         current_policy_config = {}  # type: ignore[var-annotated]
+        from collections.abc import Mapping
 
         # 1. START WITH GLOBAL CONFIGS (must_go, post_processing)
         if ctx.config:
@@ -95,11 +96,12 @@ class RunningState(SimState):
         # This can come from ctx.pol_cfg (structured) or ctx.config[ctx.pol_name] (auto-expanded test-sim)
         if ctx.config and ctx.pol_name in ctx.config:
             pol_data = ctx.config[ctx.pol_name]
-            if isinstance(pol_data, dict):
-                current_policy_config.update(pol_data)
+            if isinstance(pol_data, (dict, Mapping)):
+                # Ensure it's deeply converted or updated properly
+                current_policy_config.update(dict(pol_data))
 
         if ctx.pol_cfg:
-            current_policy_config.update(ctx.pol_cfg)
+            current_policy_config.update(dict(ctx.pol_cfg))
 
         return current_policy_config
 

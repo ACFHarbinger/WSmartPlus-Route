@@ -110,8 +110,10 @@ class PolicySummaryCallback:
         items = []
         if isinstance(config_must_go, MustGoConfig):
             items = [config_must_go]
-        elif isinstance(config_must_go, list):
-            items = config_must_go
+        elif isinstance(config_must_go, (list, tuple)) or (
+            not isinstance(config_must_go, (str, dict)) and hasattr(config_must_go, "__iter__")
+        ):
+            items = list(config_must_go)
         elif config_must_go:
             items = [config_must_go]
 
