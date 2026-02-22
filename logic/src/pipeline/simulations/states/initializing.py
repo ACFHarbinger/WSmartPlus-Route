@@ -10,6 +10,7 @@ Example:
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -75,7 +76,7 @@ class InitializingState(SimState):
         if log_file is None:
             from datetime import datetime
 
-            log_file = ctx.cfg.tracking.log_dir / f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
+            log_file = Path(ctx.cfg.tracking.log_dir) / f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
 
         setup_system_logger(log_file, ctx.cfg.tracking.log_level)
 

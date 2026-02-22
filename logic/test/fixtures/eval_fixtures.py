@@ -29,7 +29,6 @@ def eval_opts():
         "strategy": "sample",
         "eval_batch_size": 2,
         "max_calc_batch_size": 10,
-        "no_progress_bar": True,
         "results_dir": "res",
         "overwrite": True,
         "output_filename": "out.pkl",

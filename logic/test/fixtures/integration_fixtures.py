@@ -63,7 +63,6 @@ def sim_opts(tmp_path, setup_sim_data):
         "area": "riomaior",
         "policies": ["regular_emp"],  # Format: policy_distribution (must be emp or gamma)
         "output_dir": str(tmp_path / "results"),
-        "no_progress_bar": True,
         "resume": False,
         "parallel": False,
         "cpu_cores": 1,
