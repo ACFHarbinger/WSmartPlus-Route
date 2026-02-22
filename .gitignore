@@ -461,6 +461,7 @@ mcp.json
 **/fill_history/
 mlruns/
 outputs/
+test_logs/
 checkpoints/
 assets/output/**/*.jsonl
 

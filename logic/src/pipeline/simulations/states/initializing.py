@@ -71,14 +71,19 @@ class InitializingState(SimState):
         ctx.transition_to(RunningState())
 
     def _setup_logging_and_dirs(self, ctx):
-        sim = ctx.cfg.sim
-        setup_system_logger(sim.log_file, sim.log_level)
+        log_file = ctx.cfg.tracking.log_file
+        if log_file is None:
+            from datetime import datetime
+
+            log_file = ctx.cfg.tracking.log_dir / f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
+
+        setup_system_logger(log_file, ctx.cfg.tracking.log_level)
 
         # Redirect stderr to the simulation log file for the main process
         from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 
         setup_logger_redirection(
-            log_file=sim.log_file,
+            log_file=log_file,
             silent=True,
             redirect_stdout=False,  # Keep stdout for terminal progress/output
             redirect_stderr=True,

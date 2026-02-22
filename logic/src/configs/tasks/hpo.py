@@ -53,7 +53,6 @@ class HPOConfig:
     n_pop: int = 20
     n_gen: int = 10
     cpu_cores: int = 1
-    verbose: int = 2
     train_best: bool = True
     local_mode: bool = False
     num_samples: int = 20

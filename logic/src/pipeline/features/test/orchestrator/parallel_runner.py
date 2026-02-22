@@ -105,7 +105,7 @@ def execute_and_monitor_tasks(
     """
     sim = cfg.sim
     policies = sim.full_policies
-    no_pbar = sim.no_progress_bar
+    no_pbar = cfg.tracking.no_progress_bar
     display = initialize_simulation_display(policies, sim.n_samples, sim.days) if not no_pbar else None
 
     log_tmp = manager.dict()
