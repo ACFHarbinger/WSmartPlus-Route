@@ -74,7 +74,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
         if os.path.isfile(matrix_path):
             # Use FileStrategy for loading
             strategy = FileStrategy()
-            result = strategy.calculate(coords, **kwargs)
+            distance_matrix = strategy.calculate(coords, **kwargs)
             with contextlib.suppress(Exception):
                 from logic.src.tracking.core.run import get_active_run
 
@@ -84,15 +84,22 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
                         {
                             "data.dist_method": method,
                             "data.dist_matrix_source": "file",
-                            "data.dist_matrix_n_nodes": int(result.shape[0]),
+                            "data.dist_matrix_n_nodes": int(distance_matrix.shape[0]),
                         }
                     )
                     run.log_dataset_event(
                         "load",
                         file_path=str(matrix_path),
-                        metadata={"event": "dist_matrix_load", "method": method},
+                        shape=distance_matrix.shape,
+                        metadata={
+                            "event": "dist_matrix_load",
+                            "method": method,
+                            "variable_name": "distance_matrix",
+                            "source_file": "network/__init__.py",
+                            "source_line": 90,
+                        },
                     )
-            return result
+            return distance_matrix
         else:
             # Prepare for saving
             os.makedirs(os.path.dirname(matrix_path), exist_ok=True)
@@ -136,7 +143,14 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
                 run.log_dataset_event(
                     "generate",
                     file_path=str(matrix_path),
-                    metadata={"event": "dist_matrix_compute", "method": method},
+                    shape=distance_matrix.shape,
+                    metadata={
+                        "event": "dist_matrix_compute",
+                        "method": method,
+                        "variable_name": "distance_matrix",
+                        "source_file": "network/__init__.py",
+                        "source_line": 136,
+                    },
                 )
 
     return distance_matrix

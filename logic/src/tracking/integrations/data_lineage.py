@@ -94,11 +94,14 @@ class DataLineageCallback:
             if fill_dict:
                 self._data_tracker.on_load(
                     fill_dict,
-                    num_samples=next(iter(fill_dict.values())).shape[0],
+                    shape=next(iter(fill_dict.values())).shape,
                     metadata={
                         "event": "simulation_start",
                         "policy": self._policy_name,
                         "sample_id": self._sample_id,
+                        "variable_name": "bins_fill_distribution",
+                        "source_file": "integrations/data_lineage.py",
+                        "source_line": 95,
                     },
                 )
 

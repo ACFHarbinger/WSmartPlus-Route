@@ -182,8 +182,13 @@ class Bins:
                 run.log_dataset_event(
                     "load",
                     file_path=str(os.path.join(self.data_dir, stats_file)),
-                    num_samples=len(data),
-                    metadata={"event": "fill_stats_load"},
+                    shape=data.shape,
+                    metadata={
+                        "event": "fill_stats_load",
+                        "variable_name": "self.means/self.std",
+                        "source_file": "bins/base.py",
+                        "source_line": 182,
+                    },
                 )
 
     def is_stochastic(self) -> bool:
@@ -240,8 +245,14 @@ class Bins:
                 )
                 run.log_dataset_event(
                     "load",
-                    num_samples=n_days,
-                    metadata={"event": "waste_sample_load", "sample_id": int(sample_id)},
+                    shape=self.waste_fills.shape if hasattr(self.waste_fills, "shape") else (n_days,),
+                    metadata={
+                        "event": "waste_sample_load",
+                        "sample_id": int(sample_id),
+                        "variable_name": "self.waste_fills",
+                        "source_file": "bins/base.py",
+                        "source_line": 241,
+                    },
                 )
 
     def collect(self, idsfull: List[int], cost: float = 0) -> Tuple[np.ndarray, float, int, float]:

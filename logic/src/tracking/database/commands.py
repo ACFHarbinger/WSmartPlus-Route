@@ -1,12 +1,14 @@
 """Database management commands for the WSmart-Route tracking store.
 
-All SQL is loaded from the sql/ subdirectory via _sql_loader.
+All SQL is loaded from the sql/ subdirectory via sql_loader.
 
 Usage::
 
     python -m logic.src.tracking.database.commands inspect
     python -m logic.src.tracking.database.commands compact
     python -m logic.src.tracking.database.commands clean
+    python -m logic.src.tracking.database.commands stats [--experiment NAME]
+    python -m logic.src.tracking.database.commands metrics [--key KEY] [--experiment NAME]
     python -m logic.src.tracking.database.commands prune [--older-than N] [--status S] [--experiment E] [--dry-run]
     python -m logic.src.tracking.database.commands export [--run-id UUID] [--experiment E] [--latest] [-o FILE]
 """
@@ -19,16 +21,9 @@ import sys
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List
 
+from logic.src.tracking.database.cmd_stats import metrics_summary, stats_database
+from logic.src.tracking.database.shared import DB_PATH, _conn
 from logic.src.tracking.database.sql_loader import load_sections, load_sql
-
-DB_PATH = "assets/tracking/tracking.db"
-
-
-def _conn(timeout: float = 5.0) -> sqlite3.Connection:
-    c = sqlite3.connect(DB_PATH, timeout=timeout)
-    c.row_factory = sqlite3.Row
-    return c
-
 
 # ---------------------------------------------------------------------------
 # inspect
@@ -283,6 +278,13 @@ def main() -> None:
     sub.add_parser("clean", help="Delete all data, preserve schema.")
     sub.add_parser("compact", help="Integrity check, WAL checkpoint, VACUUM.")
 
+    p_stats = sub.add_parser("stats", help="Show comprehensive database statistics.")
+    p_stats.add_argument("--experiment", default="", metavar="NAME", help="Limit statistics to one experiment.")
+
+    p_metrics = sub.add_parser("metrics", help="Show per-metric statistics.")
+    p_metrics.add_argument("--key", default="", metavar="KEY", help="Drill into a specific metric key.")
+    p_metrics.add_argument("--experiment", default="", metavar="NAME", help="Limit to one experiment.")
+
     p_prune = sub.add_parser("prune", help="Remove stale runs.")
     p_prune.add_argument("--older-than", type=int, default=30, metavar="DAYS")
     p_prune.add_argument("--status", default="failed", choices=["failed", "running", "completed", "all"])
@@ -307,6 +309,10 @@ def main() -> None:
         prune_database(args.older_than, args.status, args.experiment, args.dry_run)
     elif args.command == "export":
         export_run(args.run_id, args.experiment, args.latest, args.output)
+    elif args.command == "stats":
+        stats_database(args.experiment)
+    elif args.command == "metrics":
+        metrics_summary(args.key, args.experiment)
 
 
 if __name__ == "__main__":

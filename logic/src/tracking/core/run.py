@@ -266,7 +266,7 @@ class Run:
         self,
         event_type: str,
         file_path: Optional[str] = None,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> "Run":
         """Record a data-lifecycle event.
@@ -275,7 +275,7 @@ class Run:
             event_type: One of ``'load'``, ``'generate'``, ``'mutate'``,
                 ``'save'``, ``'hash_change'``, ``'schema_change'``.
             file_path: Path to the data file (optional).
-            num_samples: Number of samples in the dataset (optional).
+            shape: Shape of the data item (optional).
             metadata: Arbitrary extra context dict.
         """
         if self._closed:
@@ -298,7 +298,7 @@ class Run:
             file_hash=file_hash,
             prev_hash=prev_hash,
             size_bytes=size_bytes,
-            num_samples=num_samples,
+            shape=shape,
             metadata=metadata,
         )
         return self

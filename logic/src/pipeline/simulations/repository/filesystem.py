@@ -132,9 +132,26 @@ class FileSystemRepository(SimulationRepository):
             data = data[data["ID"].isin(bins_coordinates["ID"])]
             bins_coordinates = bins_coordinates[bins_coordinates["ID"].isin(data["ID"])]
 
-            return data.sort_values(by="ID").reset_index(drop=True), bins_coordinates.sort_values(by="ID").reset_index(
-                drop=True
-            )
+            data = data.sort_values(by="ID").reset_index(drop=True)
+            bins_coordinates = bins_coordinates.sort_values(by="ID").reset_index(drop=True)
+
+            with contextlib.suppress(Exception):
+                from logic.src.tracking.core.run import get_active_run
+
+                run = get_active_run()
+                if run is not None:
+                    run.log_dataset_event(
+                        "mutate",
+                        metadata={
+                            "event": "filter_mismatched_bins",
+                            "variable_name": "base_data",
+                            "n_bins": len(data),
+                            "source_file": "repository/filesystem.py",
+                            "source_line": 132,
+                        },
+                    )
+
+            return data, bins_coordinates
 
         finally:
             if lock is not None:
@@ -313,6 +330,16 @@ class FileSystemRepository(SimulationRepository):
                         "data.raw_accum_rate_max": _raw_rate_max,
                         "data.n_bins_preprocessed": len(new_data),
                     }
+                )
+                run.log_dataset_event(
+                    "mutate",
+                    metadata={
+                        "event": "min_max_normalisation",
+                        "variable_name": "base_data",
+                        "n_bins_preprocessed": len(new_data),
+                        "source_file": "repository/filesystem.py",
+                        "source_line": 299,
+                    },
                 )
 
         return new_data

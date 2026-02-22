@@ -53,8 +53,14 @@ def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
             run.log_dataset_event(
                 "load",
                 file_path=str(filename),
-                num_samples=n_samples,
-                metadata={"n_nodes": n_nodes, "data_size": data_size},
+                shape=(n_samples,),
+                metadata={
+                    "n_nodes": n_nodes,
+                    "data_size": data_size,
+                    "variable_name": "indices",
+                    "source_file": "repository/__init__.py",
+                    "source_line": 53,
+                },
             )
     return indices
 
@@ -81,8 +87,14 @@ def load_depot(data_dir, area="Rio Maior"):
             )
             run.log_dataset_event(
                 "load",
-                num_samples=1,
-                metadata={"event": "depot_load", "area": str(area)},
+                shape=depot_df.shape,
+                metadata={
+                    "event": "depot_load",
+                    "area": str(area),
+                    "variable_name": "depot_df",
+                    "source_file": "repository/__init__.py",
+                    "source_line": 82,
+                },
             )
     return depot_df
 
@@ -112,19 +124,23 @@ def load_simulator_data(data_dir, number_of_bins, area="Rio Maior", waste_type=N
             )
             run.log_dataset_event(
                 "load",
-                num_samples=n_bins,
+                shape=data.shape,
                 metadata={
                     "event": "simulator_data_load",
                     "area": str(area),
                     "waste_type": str(waste_type) if waste_type else "all",
+                    "variable_name": "data",
+                    "source_file": "repository/__init__.py",
+                    "source_line": 113,
                 },
             )
             stock_tensor = torch.as_tensor(data["Stock"].values, dtype=torch.float32)
             rate_tensor = torch.as_tensor(data["Accum_Rate"].values, dtype=torch.float32)
             RuntimeDataTracker(run).on_load(
                 {"stock": stock_tensor, "accum_rate": rate_tensor},
-                num_samples=n_bins,
+                shape=stock_tensor.shape,
                 metadata={"area": str(area), "waste_type": str(waste_type) if waste_type else "all"},
+                log_event=False,
             )
     return data, bins_coordinates
 

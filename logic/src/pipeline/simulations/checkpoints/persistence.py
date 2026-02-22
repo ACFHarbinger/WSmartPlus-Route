@@ -93,6 +93,9 @@ class SimulationCheckpoint:
                         "sample_id": self.sample_id,
                         "day": day,
                         "end_simulation": end_simulation,
+                        "variable_name": "checkpoint_data",
+                        "source_file": "checkpoints/persistence.py",
+                        "source_line": 87,
                     },
                 )
 
@@ -139,7 +142,13 @@ class SimulationCheckpoint:
                                 run.log_dataset_event(
                                     "load",
                                     file_path=checkpoint_file,
-                                    metadata={"event": "checkpoint_resume", "day": int(resumed_day)},
+                                    metadata={
+                                        "event": "checkpoint_resume",
+                                        "day": int(resumed_day),
+                                        "variable_name": "checkpoint_data",
+                                        "source_file": "checkpoints/persistence.py",
+                                        "source_line": 139,
+                                    },
                                 )
                         return checkpoint_data["state"], resumed_day
                     else:

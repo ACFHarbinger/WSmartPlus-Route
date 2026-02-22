@@ -34,7 +34,7 @@ log_throughput: false
 log_embeddings: false
 log_loss_landscape: false
 log_attention_heatmaps: false
-log_profiling_report: false
+log_profiling_report: true
 nan_guard: false
 viz_every_n_epochs: 0
 profiler_buffer_size: 200

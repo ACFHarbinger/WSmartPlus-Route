@@ -94,8 +94,9 @@ class RuntimeDataTracker:
     def on_load(
         self,
         data: Any,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        log_event: bool = True,
     ) -> None:
         """Snapshot statistics of a dataset variable right after it is loaded.
 
@@ -104,25 +105,33 @@ class RuntimeDataTracker:
 
         Args:
             data: The in-memory dataset variable (tensor, dict, or TensorDict).
-            num_samples: Explicit sample count; inferred from *data* if omitted.
+            shape: Explicit shape; inferred from *data* if omitted.
             metadata: Extra context logged as a mutation record (e.g. problem,
                 graph_size).
+            log_event: When ``False``, skip the internal ``log_dataset_event``
+                call.  Use this when the caller already logs its own event to
+                avoid duplicates.
         """
         if self._run is None:
             return
-        n = num_samples or self._infer_size(data)
-        meta: Dict[str, Any] = {"event": "load", "num_samples": n}
-        if metadata:
-            meta.update(metadata)
-        self._run.log_dataset_event("load", num_samples=n, metadata=meta)
+        n = shape or self._infer_shape(data)
+        if log_event:
+            meta: Dict[str, Any] = {
+                "event": "load",
+                "shape": n,
+            }
+            if metadata:
+                meta.update(metadata)
+            self._run.log_dataset_event("load", shape=n, metadata=meta)
         self.snapshot(data, tag="load")
 
     def on_regenerate(
         self,
         data: Any,
         epoch: int,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        log_event: bool = True,
     ) -> None:
         """Record that the training dataset variable was replaced for a new epoch.
 
@@ -132,16 +141,23 @@ class RuntimeDataTracker:
         Args:
             data: The freshly generated in-memory dataset.
             epoch: Current training epoch (used in the snapshot tag and step).
-            num_samples: Explicit sample count; inferred from *data* if omitted.
+            shape: Explicit shape; inferred from *data* if omitted.
             metadata: Extra context forwarded to the mutation record.
+            log_event: When ``False``, skip the internal ``log_dataset_event``
+                call to avoid duplicates.
         """
         if self._run is None:
             return
-        n = num_samples or self._infer_size(data)
-        meta: Dict[str, Any] = {"event": "regenerate", "epoch": epoch, "num_samples": n}
-        if metadata:
-            meta.update(metadata)
-        self._run.log_dataset_event("mutate", num_samples=n, metadata=meta)
+        n = shape or self._infer_shape(data)
+        if log_event:
+            meta: Dict[str, Any] = {
+                "event": "regenerate",
+                "epoch": epoch,
+                "shape": n,
+            }
+            if metadata:
+                meta.update(metadata)
+            self._run.log_dataset_event("mutate", shape=n, metadata=meta)
         self.snapshot(data, tag=f"train/epoch_{epoch}", step=epoch)
 
     def on_augment(
@@ -150,6 +166,7 @@ class RuntimeDataTracker:
         description: str,
         step: Optional[int] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        log_event: bool = True,
     ) -> None:
         """Record an in-memory augmentation or transform applied to the dataset variable.
 
@@ -158,13 +175,19 @@ class RuntimeDataTracker:
             description: Short human-readable label for the transform.
             step: Optional step value for metric logging.
             metadata: Extra context forwarded to the mutation record.
+            log_event: When ``False``, skip the internal ``log_dataset_event``
+                call to avoid duplicates.
         """
         if self._run is None:
             return
-        meta: Dict[str, Any] = {"event": "augment", "description": description}
-        if metadata:
-            meta.update(metadata)
-        self._run.log_dataset_event("mutate", metadata=meta)
+        if log_event:
+            meta: Dict[str, Any] = {
+                "event": "augment",
+                "description": description,
+            }
+            if metadata:
+                meta.update(metadata)
+            self._run.log_dataset_event("mutate", metadata=meta)
         self.snapshot(data, tag=f"augment/{description}", step=step)
 
     # ------------------------------------------------------------------
@@ -269,11 +292,14 @@ class RuntimeDataTracker:
                         self._run.log_metric(f"data/{field}/mean", float(entry["mean"]), step=step)
 
     @staticmethod
-    def _infer_size(data: Any) -> Optional[int]:
-        """Best-effort sample count inference from a variable."""
-        with contextlib.suppress(Exception):
-            return int(len(data))
+    def _infer_shape(data: Any) -> Optional[tuple]:
+        """Best-effort shape inference from a variable."""
+        if hasattr(data, "shape"):
+            with contextlib.suppress(Exception):
+                return tuple(data.shape)
         if hasattr(data, "data") and hasattr(data.data, "shape"):
             with contextlib.suppress(Exception):
-                return int(data.data.shape[0])
+                return tuple(data.data.shape)
+        with contextlib.suppress(Exception):
+            return (int(len(data)),)
         return None
