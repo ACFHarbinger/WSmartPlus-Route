@@ -45,7 +45,6 @@ def mock_sim_opts(tmp_path):
         "garbage_filepath": None,
         "stats_filepath": None,
         "waste_filepath": None,
-        "no_progress_bar": True,
         "data_distribution": "unif",  # Explicitly set
     }
 

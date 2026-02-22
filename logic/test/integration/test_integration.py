@@ -58,7 +58,8 @@ class TestIntegrationSimulation:
 
         cfg = OmegaConf.create({
             "device": opts["device"],
-            "sim": {**opts, "full_policies": opts["policies"], "log_file": "test.log", "log_level": "INFO", "config_path": None, "noise_mean": 0.0, "noise_variance": 1.0, "policy_configs": {}, "graph": {**opts, "area": "Rio Maior", "num_loc": 20, "size": 20}},
+            "sim": {**opts, "full_policies": opts["policies"], "config_path": None, "noise_mean": 0.0, "noise_variance": 1.0, "policy_configs": {}, "graph": {**opts, "area": "Rio Maior", "num_loc": 20, "size": 20}},
+            "tracking": {"no_progress_bar": True, "log_file": None, "log_dir": "logs", "log_level": "INFO"},
             "env": {"name": "wcvrp", "graph_size": 20},
             "model": {},
             "train": {"train_time": False}
