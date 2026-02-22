@@ -9,6 +9,7 @@ Example:
 
 import os
 import random
+import time
 from typing import Any, Optional
 
 import numpy as np
@@ -20,11 +21,14 @@ from logic.src.configs.tasks.data import DataConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.data.generators.builders import VRPInstanceBuilder
 from logic.src.pipeline.simulations.repository import FileSystemRepository, set_repository
+from logic.src.tracking.logging.pylogger import get_pylogger
 from logic.src.utils.data.data_utils import (
     check_extension,
     save_simulation_dataset,
     save_td_dataset,
 )
+
+logger = get_pylogger(__name__)
 
 
 def generate_datasets(cfg: Config) -> None:
@@ -36,6 +40,9 @@ def generate_datasets(cfg: Config) -> None:
             generation parameters.
     """
     from logic.src.data.generators.validators import validate_data_config
+    from logic.src.tracking.core.run import get_active_run
+
+    t0 = time.perf_counter()
 
     # Validate and sanitize config values
     validate_data_config(cfg)
@@ -44,6 +51,21 @@ def generate_datasets(cfg: Config) -> None:
     set_repository(FileSystemRepository(ROOT_DIR))
 
     data = cfg.data
+
+    # --- Log config params to WSTracker ---
+    run = get_active_run()
+    if run is not None:
+        run.log_params(
+            {
+                "gen/problem": data.problem,
+                "gen/dataset_type": data.dataset_type or "train",
+                "gen/dataset_size": data.dataset_size,
+                "gen/seed": data.seed,
+                "gen/n_epochs": data.n_epochs,
+                "gen/overwrite": data.overwrite,
+            }
+        )
+        run.set_tag("task", "gen_data")
 
     # Set the random seed and execute the program
     random.seed(data.seed)
@@ -69,12 +91,24 @@ def generate_datasets(cfg: Config) -> None:
             )
         }
 
+    files_generated = 0
     for problem, distributions in problems.items():
-        _generate_problem_data(problem, distributions, data)
+        files_generated += _generate_problem_data(problem, distributions, data)
+
+    # --- Log summary metrics ---
+    elapsed = time.perf_counter() - t0
+    if run is not None:
+        run.log_metric("gen/total_elapsed_s", round(elapsed, 3), step=0)
+        run.log_metric("gen/num_files_generated", files_generated, step=0)
+    logger.info(f"Data generation complete: {files_generated} files in {elapsed:.1f}s")
 
 
-def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -> None:
-    """Helper to generate data for a specific problem and its distributions."""
+def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -> int:
+    """Helper to generate data for a specific problem and its distributions.
+
+    Returns:
+        Number of files generated.
+    """
     datadir = (
         os.path.join(ROOT_DIR, "data", data.data_dir, problem)
         if data.dataset_type in ["train_time", "train"]
@@ -86,12 +120,13 @@ def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -
         raise Exception("directories to save generated data files do not exist and could not be created") from e
 
     graphs = list(data.graphs) if data.graphs else []
+    file_count = 0
 
     try:
         for dist in distributions or [None]:
             if graphs:
                 for graph_cfg in graphs:
-                    _process_instance_generation(problem, dist, datadir, data, graph_cfg=graph_cfg)
+                    file_count += _process_instance_generation(problem, dist, datadir, data, graph_cfg=graph_cfg)
             else:
                 print("[WARNING] No graphs provided for instance generation. Skipping.")
     except Exception as e:
@@ -102,6 +137,8 @@ def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -
             )
         ) from e
 
+    return file_count
+
 
 def _process_instance_generation(
     problem: str,
@@ -109,8 +146,14 @@ def _process_instance_generation(
     datadir: str,
     data: DataConfig,
     graph_cfg: Optional[GraphConfig] = None,
-) -> None:
-    """Configure builder and save datasets for a specific configuration."""
+) -> int:
+    """Configure builder and save datasets for a specific configuration.
+
+    Returns:
+        Number of files generated.
+    """
+    from logic.src.tracking.core.run import get_active_run
+
     assert graph_cfg is not None, "graph_cfg must be provided"
     size = graph_cfg.num_loc
     graph = graph_cfg.focus_graph
@@ -137,17 +180,32 @@ def _process_instance_generation(
     assert area is not None, "area must be provided"
 
     name = data.name or "dataset"
-    print(
-        "Generating '{}{}' ({}) dataset for the {} with {} locations{}{}".format(
+    config_label = f"{problem}_{dist or 'none'}_{size}"
+    logger.info(
+        "Generating '{}{}' ({}) dataset for {} with {} locations [dist={}]".format(
             name,
             n_days if n_days > 0 else "",
             data.dataset_type or "train",
             problem.upper(),
             size,
-            " and using '{}' as the instance distribution".format(dist),
-            ":" if n_days == 0 else "...",
+            dist,
         )
     )
+
+    # --- Log per-config params ---
+    run = get_active_run()
+    if run is not None:
+        run.log_params(
+            {
+                f"gen/config/{config_label}/area": area,
+                f"gen/config/{config_label}/waste_type": waste_type,
+                f"gen/config/{config_label}/n_days": n_days,
+                f"gen/config/{config_label}/n_samples": n_samples,
+                f"gen/config/{config_label}/dataset_type": data.dataset_type or "train",
+            }
+        )
+
+    t0 = time.perf_counter()
 
     builder = VRPInstanceBuilder()
     effective_focus_size = n_samples if data.dataset_type == "test_simulator" else focus_size
@@ -157,12 +215,21 @@ def _process_instance_generation(
 
     _apply_noise_config(builder, problem, data)
 
+    file_count = 0
     if data.dataset_type == "test_simulator":
-        _generate_test_simulator_data(builder, n_days, datadir, dist, size, data, area, waste_type, n_samples)
+        file_count = _generate_test_simulator_data(
+            builder, n_days, datadir, dist, size, data, area, waste_type, n_samples
+        )
     elif data.dataset_type == "train_time":
-        _generate_train_time_data(builder, problem, n_days, datadir, dist, size, data)
+        file_count = _generate_train_time_data(builder, problem, n_days, datadir, dist, size, data)
     else:
-        _generate_train_data(builder, problem, datadir, dist, size, data)
+        file_count = _generate_train_data(builder, problem, datadir, dist, size, data)
+
+    elapsed = time.perf_counter() - t0
+    if run is not None:
+        run.log_metric(f"gen/{config_label}/elapsed_s", round(elapsed, 3), step=0)
+    logger.debug(f"Config {config_label} generated {file_count} file(s) in {elapsed:.2f}s")
+    return file_count
 
 
 def _apply_noise_config(builder: VRPInstanceBuilder, problem: str, data: DataConfig) -> None:
@@ -193,8 +260,12 @@ def _generate_test_simulator_data(
     area: str,
     waste_type: str,
     n_samples: int,
-) -> None:
-    """Generate and save test simulator data."""
+) -> int:
+    """Generate and save test simulator data.
+
+    Returns:
+        Number of files generated.
+    """
     name = data.name or "dataset"
     builder.set_num_days(n_days)
     if data.filename is None:
@@ -214,12 +285,17 @@ def _generate_test_simulator_data(
         filename = check_extension(data.filename, ".npz")
 
     _verify_and_save(builder, filename, data, is_td=False)
+    return 1
 
 
 def _generate_train_time_data(
     builder: VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: Any, size: int, data: DataConfig
-) -> None:
-    """Generate and save train time data."""
+) -> int:
+    """Generate and save train time data.
+
+    Returns:
+        Number of files generated.
+    """
     name = data.name or "dataset"
     builder.set_num_days(data.n_epochs)
     if data.filename is None:
@@ -258,12 +334,17 @@ def _generate_train_time_data(
         filename = check_extension(data.filename, ".td")
 
     _verify_and_save(builder, filename, data, is_td=True)
+    return 1
 
 
 def _generate_train_data(
     builder: VRPInstanceBuilder, problem: str, datadir: str, dist: Any, size: int, data: DataConfig
-) -> None:
-    """Generate and save standard training data."""
+) -> int:
+    """Generate and save standard training data.
+
+    Returns:
+        Number of files generated.
+    """
     name = data.name or "dataset"
     builder.set_num_days(1)
     for epoch in range(data.epoch_start, data.n_epochs):
@@ -304,10 +385,16 @@ def _generate_train_data(
             filename = check_extension(data.filename, ".td")
 
         _verify_and_save(builder, filename, data, is_td=True)
+    return max(data.n_epochs - data.epoch_start, 0)
 
 
 def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfig, is_td: bool = False) -> None:
     """Verify file existence and save the dataset."""
+    import contextlib
+
+    from logic.src.tracking.core.run import get_active_run
+    from logic.src.tracking.integrations.data import RuntimeDataTracker
+
     ext = ".td" if is_td else ".npz"
     assert data.overwrite or not os.path.isfile(check_extension(filename, ext)), (
         f"File {filename} already exists! Try running with -f option to overwrite."
@@ -319,3 +406,23 @@ def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfi
     else:
         dataset = builder.build()
         save_simulation_dataset(dataset, filename)
+
+    # --- WSTracker: log artifact and dataset statistics ---
+    run = get_active_run()
+    if run is not None:
+        saved_path = check_extension(filename, ext)
+
+        # Log file as artifact
+        with contextlib.suppress(Exception):
+            file_size = os.path.getsize(saved_path) if os.path.exists(saved_path) else 0
+            run.log_artifact(
+                saved_path,
+                artifact_type="dataset",
+                metadata={"format": ext.lstrip("."), "file_size_bytes": file_size},
+            )
+            run.log_metric("gen/file_size_bytes", file_size, step=0)
+
+        # Snapshot tensor statistics via RuntimeDataTracker
+        with contextlib.suppress(Exception):
+            tracker = RuntimeDataTracker(run)
+            tracker.on_load(dataset, metadata={"filename": os.path.basename(saved_path)})

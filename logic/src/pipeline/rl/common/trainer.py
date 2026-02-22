@@ -5,7 +5,10 @@ Custom PyTorch Lightning Trainer for WSmart-Route.
 from __future__ import annotations
 
 import os
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
+
+if TYPE_CHECKING:
+    from logic.src.configs.tracking import TrackingConfig
 
 import pytorch_lightning as pl
 from loguru import logger
@@ -54,6 +57,7 @@ class WSTrainer(pl.Trainer):
         disable_jit_profiling: bool = True,
         auto_ddp: bool = True,
         reload_dataloaders_every_n_epochs: int = 1,
+        tracking_cfg: Optional["TrackingConfig"] = None,
         **kwargs,
     ):
         """
@@ -106,6 +110,9 @@ class WSTrainer(pl.Trainer):
         # Build logger
         if logger is None:
             logger = self._create_default_logger(project_name, experiment_name, logs_dir)
+
+        # Store tracking config for callback creation
+        self._tracking_cfg = tracking_cfg
 
         # Build callbacks
         callbacks = callbacks or []
@@ -188,7 +195,7 @@ class WSTrainer(pl.Trainer):
 
         # Add tracking callback (no-op when no active run is registered)
         if TrackingCallback not in callback_types:
-            callbacks.append(TrackingCallback())
+            callbacks.append(TrackingCallback(tracking_cfg=getattr(self, "_tracking_cfg", None)))
 
         return callbacks
 

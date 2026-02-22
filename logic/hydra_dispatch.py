@@ -73,11 +73,21 @@ def _run_task(cfg: Config) -> float:
         return 0.0
 
     if task == "gen_data":
+        import logic.src.tracking as wst
         from logic.src.data.generators import generate_datasets
 
         if cfg.tracking.verbose:
             _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["data"])  # type: ignore[arg-type]
-        generate_datasets(cfg)
+
+        experiment_name = cfg.experiment_name or f"gen_data_{cfg.data.problem}"
+        wst.init(experiment_name=experiment_name)
+        try:
+            generate_datasets(cfg)
+        finally:
+            run = wst.get_active_run()
+            if run is not None:
+                run.set_tag("status", "completed")
+                run.flush()
         return 0.0
 
     raise ValueError(f"Unknown task: {task}")
