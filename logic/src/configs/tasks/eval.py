@@ -27,7 +27,6 @@ class EvalConfig:
         seed: Random seed to use.
         data_distribution: Data distribution of the dataset.
         no_cuda: Disable CUDA.
-        no_progress_bar: Disable progress bar.
         compress_mask: Compress mask into long.
         max_calc_batch_size: Size for subbatches.
         results_dir: Name of evaluation results directory.
@@ -48,7 +47,6 @@ class EvalConfig:
     seed: int = 42
     data_distribution: Optional[str] = None
     no_cuda: bool = False
-    no_progress_bar: bool = False
     compress_mask: bool = False
     max_calc_batch_size: int = 12_800
     results_dir: str = "results"

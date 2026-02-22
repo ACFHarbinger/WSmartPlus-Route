@@ -8,12 +8,14 @@
 # Searches over model/training hyperparameters to find optimal configurations.
 # =============================================================================
 
+defaults:
+  - _self_
+  - override /tracking: hpo
+
 # =============================================================================
 # General Configuration
 # =============================================================================
-verbose: true # Enable detailed logging
 seed: 42 # Random seed for reproducibility
-start: 0 # Starting trial index
 
 # =============================================================================
 # Environment Override (Smaller for Faster HPO)

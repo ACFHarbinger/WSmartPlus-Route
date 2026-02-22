@@ -66,15 +66,9 @@ class Config:
     device: str = "cuda"
     experiment_name: Optional[str] = None
     task: str = "train"
-    wandb_mode: str = "offline"
-    no_tensorboard: bool = False
-    no_progress_bar: bool = False
     output_dir: str = "assets/model_weights"
-    log_dir: str = "logs"
     run_name: Optional[str] = None
-    verbose: bool = True
     start: int = 0
-    profile: bool = False  # Enable function-level execution time profiling
     p: Dict[str, Any] = field(default_factory=dict)
     callbacks: Dict[str, Any] = field(default_factory=dict)
 

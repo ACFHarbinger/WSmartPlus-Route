@@ -11,6 +11,16 @@
 #   - GPU-accelerated inference
 # =============================================================================
 
+defaults:
+  - _self_
+  - override /tracking: eval
+
+# =============================================================================
+# General Configuration
+# =============================================================================
+seed: 42 # Random seed for reproducible data generation
+start: 0 # Starting epoch/index (usually 0)
+
 # =============================================================================
 # Environment
 # =============================================================================
@@ -69,6 +79,5 @@ eval:
   # =============================================================================
   overwrite: false # Overwrite existing results if true
   no_cuda: false # Force CPU-only evaluation (slower)
-  no_progress_bar: false # Disable progress bar output
   compress_mask: false # Compress action masks for memory efficiency
   multiprocessing: false # Enable multiprocessing for CPU parallelization

@@ -49,13 +49,11 @@ class TrainConfig:
     lr_post_processing: float = 0.001
     efficiency_weight: float = 0.8
     overflow_weight: float = 0.2
-    log_step: int = 50
     # Process control
     epoch_start: int = 0
     eval_only: bool = False
     checkpoint_encoder: bool = False
     resume: Optional[str] = None
-    logs_dir: Optional[str] = None
     model_weights_path: Optional[str] = None
     final_model_path: Optional[str] = None
     eval_batch_size: int = 256

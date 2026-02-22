@@ -8,10 +8,13 @@
 # Generates training, validation, and test datasets for VRP problems.
 # =============================================================================
 
+defaults:
+  - _self_
+  - override /tracking: gen_data
+
 # =============================================================================
 # General Configuration
 # =============================================================================
-verbose: true # Enable detailed logging
 seed: 42 # Random seed for reproducible data generation
 start: 0 # Starting epoch/index (usually 0)
 

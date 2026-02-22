@@ -17,32 +17,27 @@
 # =============================================================================
 
 defaults:
-  - _self_ # This file's base settings
-  - tasks: train # Default task config (tasks/train.yaml)
-  - envs: cwcvrp # Default environment (Capacitated Waste Collection VRP)
-  - models: am # Default model (Attention Model)
-
-  # - data: train_data  # Optional data config (currently unused)
+  - _self_
+  - tracking: train
+  - tasks: train
+  - envs: cwcvrp
+  - models: am
 
 # =============================================================================
 # Global Settings
 # =============================================================================
 
-seed: 42 # Random seed for reproducibility. Overridden by CLI or task configs.
-verbose: true # Enable detailed logging output. Set false for production runs.
-task: "train" # Active task type. Valid: train, evaluation, test_sim, gen_data, hpo, meta_train.
-start: 0 # Starting epoch/iteration. Useful for resuming interrupted training.
-device: "cuda" # Compute device. Options: "cuda", "cpu", "cuda:0", "cuda:1", etc.
-load_dataset: null # Path to pre-generated dataset (.td for training, .npz for simulation). Overridden by task configs.
-profile: false # Enable function-level execution time profiling (CSV written to log_dir/)
+seed: 42
+task: "train"
+start: 0
+device: "cuda"
+load_dataset: null
 
 # =============================================================================
 # Training Defaults (Overridden by tasks/train.yaml)
 # =============================================================================
 train:
-  logs_dir: "logs" # Directory for training logs and checkpoints
-  model_weights_path: "model_weights" # Subdirectory for saved model weights
-  log_step: 10 # Log metrics every N steps
+  model_weights_path: "model_weights"
   callbacks:
     - display:
         _target_: logic.src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback
@@ -53,6 +48,4 @@ train:
 # =============================================================================
 # Output Paths
 # =============================================================================
-log_dir: "logs" # Root directory for all logging output
-output_dir: "assets/model_weights" # Directory for final trained models
-wandb_mode: "disabled" # Weights & Biases integration. Options: "online", "offline", "disabled"
+output_dir: "assets/model_weights"
