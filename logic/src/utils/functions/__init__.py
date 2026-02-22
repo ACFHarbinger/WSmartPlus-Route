@@ -3,7 +3,6 @@ Mathematical and environment-related helper functions sub-package.
 """
 
 # Re-exports from relocated packages for backward compatibility
-from ..hooks.attention import add_attention_hooks
 from ..model.checkpoint_utils import load_data
 from ..model.loader import load_args, load_model, torch_load_cpu
 from ..model.problem_factory import load_problem
@@ -22,7 +21,6 @@ __all__ = [
     "load_args",
     "load_model",
     "parse_softmax_temperature",
-    "add_attention_hooks",
     "run_all_in_pool",
     "get_path_until_string",
     "compute_in_batches",

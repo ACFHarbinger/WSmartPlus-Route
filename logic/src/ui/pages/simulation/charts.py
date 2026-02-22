@@ -39,7 +39,7 @@ def render_policy_comparison(entries: List[Any], selected_day: int) -> None:
         return
 
     fig = create_radar_chart(policy_metrics, radar_metrics)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def render_summary_statistics(entries: List[Any], controls: Dict[str, Any]) -> None:
@@ -85,7 +85,7 @@ def render_metric_charts(entries: List[Any], controls: Dict[str, Any]) -> None:
 
             if selected_metrics:
                 fig = create_simulation_metrics_chart(df=df, metrics=selected_metrics, show_std=True)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
         csv = df.to_csv(index=False)
         st.download_button(
@@ -159,7 +159,7 @@ def render_tracking_run_metrics(
     pivot = combined.pivot_table(index="step", columns="metric", values="value", aggfunc="last")
     pivot.columns.name = None
 
-    st.line_chart(pivot, use_container_width=True)
+    st.line_chart(pivot, width="stretch")
 
     csv_out = combined.to_csv(index=False)
     st.download_button(

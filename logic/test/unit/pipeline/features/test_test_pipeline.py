@@ -103,11 +103,12 @@ class TestPipelineFeaturesTest:
 
             assert pool_instance.apply_async.called
 
+    @patch("logic.src.pipeline.features.test.engine.wst.init")
     @patch("logic.src.pipeline.features.test.engine.load_simulator_data")
     @patch("logic.src.pipeline.features.test.engine.simulator_testing")
     @patch("logic.src.pipeline.features.test.engine.os.makedirs")
     @patch("logic.src.pipeline.features.test.engine.expand_policy_configs")
-    def test_run_wsr_simulator_test(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, cfg):
+    def test_run_wsr_simulator_test(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, mock_wst_init, cfg):
         mock_load_data.return_value = ([1] * 10, None)
 
         run_sim_test_func(cfg)
@@ -115,11 +116,12 @@ class TestPipelineFeaturesTest:
         assert mock_sim_test.called
         assert mock_makedirs.called
 
+    @patch("logic.src.pipeline.features.test.engine.wst.init")
     @patch("logic.src.pipeline.features.test.engine.load_simulator_data", side_effect=Exception("Fail"))
     @patch("logic.src.pipeline.features.test.engine.simulator_testing")
     @patch("logic.src.pipeline.features.test.engine.os.makedirs")
     @patch("logic.src.pipeline.features.test.engine.expand_policy_configs")
-    def test_run_wsr_simulator_test_fallback(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, cfg):
+    def test_run_wsr_simulator_test_fallback(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, mock_wst_init, cfg):
         cfg.sim.graph.area = "mixrmbac"
         cfg.sim.graph.num_loc = 20
 

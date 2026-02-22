@@ -48,7 +48,7 @@ def _render_mlflow_explorer(tracking_uri: str, experiment_name: str) -> None:
 
     st.dataframe(
         mlflow_df[display_cols] if display_cols else mlflow_df.head(20),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=min(400, 60 + len(mlflow_df) * 35),
     )
@@ -112,7 +112,7 @@ def _render_mlflow_explorer(tracking_uri: str, experiment_name: str) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         **PLOTLY_LAYOUT_DEFAULTS,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # Params table
     run_row = mlflow_df[mlflow_df["run_id"] == selected_mlflow_run]
