@@ -335,6 +335,39 @@ class BaseRoutingPolicy(IPolicyAdapter):
         """
         pass
 
+    def _log_solver_params(self, values: Dict[str, Any], context: Dict[str, Any]) -> None:
+        """Log the resolved solver parameters to the active tracking run.
+
+        Captures the full merged ``values`` dict (area defaults + YAML config +
+        runtime overrides) as run params, namespaced under the policy name.
+        Only logs once per adapter instance to avoid per-day duplication.
+
+        Args:
+            values: Merged solver configuration dict from ``_load_area_params``.
+            context: Simulation day context kwargs.
+        """
+        if getattr(self, "_params_logged", False):
+            return
+        self._params_logged = True
+
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is None:
+            return
+
+        policy_name = context.get("policy_name", self._get_config_key())
+        sample_id = context.get("sample_id", 0)
+        prefix = f"policy_params/{policy_name}/s{sample_id}"
+
+        params: Dict[str, Any] = {}
+        for k, v in values.items():
+            if isinstance(v, (int, float, str, bool, type(None))):
+                params[f"{prefix}/{k}"] = v
+
+        if params:
+            run.log_params(params)
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the routing policy using template method pattern.
@@ -361,6 +394,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
 
         # 3. Load parameters
         capacity, revenue, cost_unit, values = self._load_area_params(area, waste_type, config)
+        self._log_solver_params(values, kwargs)
         # 4. Create subset problem
         # use_all_bins=True (VRPP mode) allows the solver to CONSIDER all bins,
         # but only forcefully visit the must_go list (mandatory_nodes).

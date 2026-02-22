@@ -9,6 +9,7 @@ Example:
 
 from __future__ import annotations
 
+import contextlib
 import os
 import time
 from typing import TYPE_CHECKING
@@ -16,6 +17,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from logic.src.constants import DAY_METRICS, SIM_METRICS
+from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.integrations.simulation import get_sim_tracker
 from logic.src.tracking.logging.log_utils import final_simulation_summary, log_to_json
 
@@ -94,6 +96,9 @@ class FinishingState(SimState):
             ctx.sample_id,
         )
 
+        # Register all output files as tracking artifacts
+        _log_result_artifacts(ctx, sim, log_path, daily_log_path)
+
         if ctx.checkpoint:
             ctx.checkpoint.clear()
 
@@ -113,3 +118,45 @@ class FinishingState(SimState):
             sim_tracker.log_final(SIM_METRICS, lg)
 
         ctx.transition_to(None)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _log_result_artifacts(ctx: Any, sim: Any, log_path: str, daily_log_path: str) -> None:
+    """Register simulation output files with the active tracking run.
+
+    Silently no-ops if no run is active or if any file doesn't exist yet.
+
+    Registered artifact types:
+
+    * ``result`` — primary JSON summary (per-sample full log or mean log)
+    * ``result`` — per-day JSON log for this ``(policy, sample)`` pair
+    * ``result`` — Excel fill-history matrix with metadata tag ``fill_history``
+    """
+    with contextlib.suppress(Exception):
+        run = get_active_run()
+        if run is None:
+            return
+
+        metadata = {"policy": ctx.pol_name, "sample_id": ctx.sample_id}
+
+        for path in (log_path, daily_log_path):
+            if os.path.exists(path):
+                run.log_artifact(path, artifact_type="result", metadata=metadata)
+
+        # Excel fill-history: {results_dir}/fill_history/{dist}/{policy}{seed}_sample{id}.xlsx
+        excel_path = os.path.join(
+            ctx.results_dir,
+            "fill_history",
+            sim.data_distribution,
+            f"{ctx.pol_name}{sim.seed}_sample{ctx.sample_id}.xlsx",
+        )
+        if os.path.exists(excel_path):
+            run.log_artifact(
+                excel_path,
+                artifact_type="result",
+                metadata={**metadata, "type": "fill_history"},
+            )
