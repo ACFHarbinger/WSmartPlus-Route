@@ -96,6 +96,29 @@ class FinishingState(SimState):
             ctx.sample_id,
         )
 
+        # Log the fill-history export as a "save" dataset event
+        with contextlib.suppress(Exception):
+            run = get_active_run()
+            if run is not None:
+                excel_path = os.path.join(
+                    ctx.results_dir,
+                    "fill_history",
+                    sim.data_distribution,
+                    f"{ctx.pol_name}{sim.seed}_sample{ctx.sample_id}.xlsx",
+                )
+                run.log_dataset_event(
+                    "save",
+                    file_path=excel_path,
+                    metadata={
+                        "event": "fill_history_export",
+                        "variable_name": "fill_history",
+                        "policy": ctx.pol_name,
+                        "sample_id": ctx.sample_id,
+                        "source_file": "states/finishing.py",
+                        "source_line": 90,
+                    },
+                )
+
         # Register all output files as tracking artifacts
         _log_result_artifacts(ctx, sim, log_path, daily_log_path)
 

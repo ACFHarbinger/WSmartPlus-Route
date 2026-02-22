@@ -294,7 +294,15 @@ def _log_sim_params(run: wst.Run, cfg: Config) -> None:
     if load_ds:
         params["load_dataset"] = str(load_ds)
         with contextlib.suppress(Exception):
-            run.log_dataset_event("load", file_path=str(load_ds))
+            run.log_dataset_event(
+                "load",
+                file_path=str(load_ds),
+                metadata={
+                    "variable_name": "load_dataset",
+                    "source_file": "features/test/engine.py",
+                    "source_line": 297,
+                },
+            )
 
     run.log_params(params)
 

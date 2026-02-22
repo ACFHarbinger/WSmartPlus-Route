@@ -114,6 +114,7 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
         border-radius: 8px; border: 1px solid #ccc;
         font-size: 13px; line-height: 1.8;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        color: black;
     ">
         <b style="font-size: 14px;">Map Legend</b><br>
         <span style="color: #007bff;">&#9679;</span> Depot<br>

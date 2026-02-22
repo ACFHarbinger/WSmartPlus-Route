@@ -425,4 +425,12 @@ def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfi
         # Snapshot tensor statistics via RuntimeDataTracker
         with contextlib.suppress(Exception):
             tracker = RuntimeDataTracker(run)
-            tracker.on_load(dataset, metadata={"filename": os.path.basename(saved_path)})
+            tracker.on_load(
+                dataset,
+                metadata={
+                    "filename": os.path.basename(saved_path),
+                    "variable_name": "dataset",
+                    "source_file": "generators/datasets.py",
+                    "source_line": 428,
+                },
+            )

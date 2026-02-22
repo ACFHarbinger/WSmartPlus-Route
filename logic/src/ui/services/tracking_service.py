@@ -207,6 +207,28 @@ def load_run_artifacts(
     return []
 
 
+@st.cache_data(ttl=30)
+def load_run_dataset_events(
+    run_id: str,
+    tracking_uri: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Return the dataset lifecycle events for *run_id*.
+
+    Args:
+        run_id: UUID of the run.
+        tracking_uri: Path to the tracking directory.
+
+    Returns:
+        List of event dicts (event_type, file_path, timestamp, etc.).
+    """
+    store = _open_store(tracking_uri)
+    if store is None:
+        return []
+    with contextlib.suppress(Exception):
+        return store.get_dataset_events(run_id)
+    return []
+
+
 # ---------------------------------------------------------------------------
 # MLflow queries (optional — requires ``mlflow`` package)
 # ---------------------------------------------------------------------------

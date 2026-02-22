@@ -16,6 +16,8 @@ Functions:
 from __future__ import annotations
 
 import atexit
+import contextlib
+import datetime
 import logging
 import os
 import sys
@@ -39,8 +41,8 @@ _LIB_DIRS = (
     "lib/python",
     "<frozen",
     "<built-in",
-    # Filter the profiler itself to prevent self-instrumentation noise.
-    "tracking/profiling/profiler.py",
+    # Filter the tracking directory to prevent self-instrumentation noise.
+    "logic/src/tracking/",
 )
 
 
@@ -72,6 +74,10 @@ class ExecutionProfiler:
         self.buffer_size = buffer_size
         self.active = False
         self._lock = threading.Lock()
+
+        # Wall-clock start/stop for calculating coverage.
+        self._wall_start: Optional[float] = None
+        self._wall_stop: Optional[float] = None
 
         # Thread-local call stacks and start times.
         self._local = threading.local()
@@ -154,8 +160,8 @@ class ExecutionProfiler:
         self._local.call_stack = stack[:match_index]
 
         duration = time.perf_counter() - start_time
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         rel_filename = os.path.relpath(filename, _ROOT_DIR)
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         entry = f"{timestamp},{rel_filename},{class_name},{func_name},{duration:.6f}\n"
 
         with self._lock:
@@ -187,6 +193,8 @@ class ExecutionProfiler:
         """Activate the profiler and install the global hook."""
         if not self.active:
             self.active = True
+            self._wall_start = time.perf_counter()
+            self._wall_stop = None
             sys.setprofile(self.profile_hook)
             threading.setprofile(self.profile_hook)
             logger.info(f"Global execution profiling started. Logging to {self.log_file}")
@@ -195,10 +203,19 @@ class ExecutionProfiler:
         """Deactivate the profiler, flush the write buffer, and remove hooks."""
         if self.active:
             self.active = False
+            self._wall_stop = time.perf_counter()
             sys.setprofile(None)
             threading.setprofile(None)
             self.flush()
             logger.info("Global execution profiling stopped.")
+
+    @property
+    def wall_elapsed(self) -> Optional[float]:
+        """Wall-clock seconds the profiler was active, or ``None``."""
+        if self._wall_start is None:
+            return None
+        end = self._wall_stop if self._wall_stop is not None else time.perf_counter()
+        return end - self._wall_start
 
     # ------------------------------------------------------------------
     # Report
@@ -213,7 +230,7 @@ class ExecutionProfiler:
         self.flush()
         from .report import ProfilingReport
 
-        return ProfilingReport(self.log_file)
+        return ProfilingReport(self.log_file, wall_elapsed=self.wall_elapsed)
 
 
 # ---------------------------------------------------------------------------
@@ -242,23 +259,34 @@ def start_global_profiling(log_dir: str = "logs", buffer_size: int = _BUFFER_SIZ
         atexit.register(stop_global_profiling)
 
 
-def stop_global_profiling(log_artifact: bool = True) -> None:
+def stop_global_profiling(log_artifact: bool = True, print_report: bool = True) -> None:
     """Stop the singleton profiler and optionally register the CSV as an artifact.
 
     Args:
         log_artifact: When ``True`` (default), register the CSV file as a
             ``"profiling"`` artifact on the active WSTracker run (if any).
+        print_report: When ``True`` (default), print a summary report to
+            the terminal showing aggregate statistics.
     """
     global _profiler_instance
     if _profiler_instance is not None:
+        wall_elapsed = _profiler_instance.wall_elapsed
         log_file = _profiler_instance.log_file
         _profiler_instance.stop()
-        if log_artifact:
-            try:
-                from logic.src.tracking.core.run import get_active_run
 
-                run = get_active_run()
-                if run is not None and os.path.exists(log_file):
-                    run.log_artifact(log_file, name="execution_profile", artifact_type="profiling")
+        report = None
+        if print_report or log_artifact:
+            try:
+                from .report import ProfilingReport
+
+                report = ProfilingReport(log_file, wall_elapsed=wall_elapsed)
             except Exception:
                 pass
+
+        if print_report and report is not None:
+            with contextlib.suppress(Exception):
+                print("\n" + str(report))
+
+        if log_artifact:
+            # Reverted: No longer logging profiling CSV as an artifact to avoid Excel row limit issues.
+            pass

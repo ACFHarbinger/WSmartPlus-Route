@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import datetime, timezone
 from typing import Any, Dict, Generator, List, Optional, Tuple
 
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS dataset_events (
     file_hash   TEXT,
     prev_hash   TEXT,
     size_bytes  INTEGER,
-    num_samples INTEGER,
+    shape       TEXT,
     metadata    TEXT    DEFAULT '{}',
     timestamp   TEXT    NOT NULL,
     FOREIGN KEY (run_id) REFERENCES runs(id)
@@ -152,6 +152,8 @@ class TrackingStore:
     def _apply_schema(self) -> None:
         with self._conn() as conn:
             conn.executescript(_SCHEMA_SQL)
+            with suppress(sqlite3.OperationalError):
+                conn.execute("ALTER TABLE dataset_events ADD COLUMN shape TEXT;")
 
     @staticmethod
     def _now() -> str:
@@ -342,6 +344,15 @@ class TrackingStore:
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         with self._conn() as conn:
+            # Check if artifact already exists to avoid duplicates
+            existing = conn.execute(
+                "SELECT id FROM artifacts WHERE run_id = ? AND path = ?",
+                (run_id, path),
+            ).fetchone()
+
+            if existing:
+                return
+
             conn.execute(
                 """INSERT INTO artifacts
                    (run_id, name, path, artifact_type, file_hash, size_bytes, created_at, metadata)
@@ -384,14 +395,14 @@ class TrackingStore:
         file_hash: Optional[str] = None,
         prev_hash: Optional[str] = None,
         size_bytes: Optional[int] = None,
-        num_samples: Optional[int] = None,
+        shape: Optional[tuple] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         with self._conn() as conn:
             conn.execute(
                 """INSERT INTO dataset_events
                    (run_id, event_type, file_path, file_hash, prev_hash,
-                    size_bytes, num_samples, metadata, timestamp)
+                    size_bytes, shape, metadata, timestamp)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     run_id,
@@ -400,7 +411,7 @@ class TrackingStore:
                     file_hash,
                     prev_hash,
                     size_bytes,
-                    num_samples,
+                    str(tuple(shape)) if shape is not None else None,
                     json.dumps(metadata or {}),
                     self._now(),
                 ),

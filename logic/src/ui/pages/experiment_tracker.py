@@ -22,6 +22,7 @@ from logic.src.ui.pages.experiment_tracker_zenml import _render_zenml_pipelines
 from logic.src.ui.services.tracking_service import (
     list_metric_keys,
     load_run_artifacts,
+    load_run_dataset_events,
     load_run_metrics,
     load_run_params,
     load_run_tags,
@@ -304,12 +305,133 @@ def _render_artifacts(run_id: str) -> None:
             }
         )
 
+    df_artifacts = pd.DataFrame(rows)
     st.dataframe(
-        pd.DataFrame(rows),
+        df_artifacts,
         width="stretch",
         hide_index=True,
         height=min(300, 60 + len(rows) * 35),
     )
+
+
+_EVENT_TYPE_ICONS = {
+    "load": "📥",
+    "generate": "🔧",
+    "mutate": "🔀",
+    "save": "💾",
+    "hash_change": "#️⃣",
+    "schema_change": "📋",
+    "augment": "🔄",
+    "regenerate": "♻️",
+}
+
+
+def _render_dataset_events(run_id: str) -> None:
+    """Display dataset lifecycle events for a WSTracker run."""
+    events = load_run_dataset_events(run_id)
+    if not events:
+        st.caption("No dataset events recorded for this run.")
+        return
+
+    rows = []
+    for e in events:
+        etype = e.get("event_type", "—")
+        icon = _EVENT_TYPE_ICONS.get(etype, "❓")
+        meta = e.get("metadata") or {}
+        if isinstance(meta, str):
+            import json as _json
+
+            try:
+                meta = _json.loads(meta)
+            except (ValueError, TypeError):
+                meta = {}
+
+        # Source location
+        src_file = meta.get("source_file", "")
+        src_line = meta.get("source_line", "")
+        source = f"{src_file}:{src_line}" if src_file else "—"
+
+        rows.append(
+            {
+                "Event": f"{icon} {etype}",
+                "Variable": meta.get("variable_name", "—"),
+                "File": e.get("file_path", "—"),
+                "Source": source,
+                "Shape": e.get("shape", "—"),
+                "Size": _fmt_size(e.get("size_bytes")),
+                "Timestamp": e.get("timestamp", "—"),
+            }
+        )
+
+    df_events = pd.DataFrame(rows)
+    total_events = len(df_events)
+
+    # --- Dataset Event Statistics ---
+    st.markdown(f"##### Event Summary ({total_events:,} total)")
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.caption("Event Types")
+        type_counts = df_events["Event"].value_counts().reset_index()
+        type_counts.columns = ["Event", "Count"]  # type: ignore[assignment]
+        st.dataframe(type_counts, use_container_width=True, hide_index=True)
+
+    with c2:
+        st.caption("Top Variables")
+        vars_df = df_events[df_events["Variable"] != "—"]
+        if not vars_df.empty:
+            var_counts = vars_df["Variable"].value_counts().head(5).reset_index()
+            var_counts.columns = ["Variable", "Count"]  # type: ignore[assignment]
+            st.dataframe(var_counts, use_container_width=True, hide_index=True)
+        else:
+            st.info("No named variables logged")
+
+    with c3:
+        st.caption("Top Source Files")
+        # Extract just the filename from the Source string "path/file.py:123" if available
+        # or fallback to "File" column if "Source" isn't present.
+        valid_sources = df_events[df_events["Source"] != "—"]
+        if not valid_sources.empty:
+            src_counts = (
+                valid_sources["Source"]
+                .apply(lambda s: "/".join(s.split(":")[0].split("/")[-2:]))
+                .value_counts()
+                .head(5)
+                .reset_index()
+            )
+            src_counts.columns = ["Source", "Count"]  # type: ignore[assignment]
+            st.dataframe(src_counts, use_container_width=True, hide_index=True)
+        else:
+            st.info("No source locations logged")
+
+    st.markdown("##### Detailed Event Timeline")
+    if total_events > 5000:
+        st.warning(f"Showing first 5,000 of {total_events:,} events to maintain performance.")
+        df_display = df_events.head(5000)
+    else:
+        df_display = df_events
+
+    st.dataframe(
+        df_display,
+        width="stretch",
+        hide_index=True,
+        height=min(400, 60 + len(df_display) * 35),
+    )
+
+
+def _fmt_size(size_bytes: Any) -> str:
+    """Format byte count into a human-readable string."""
+    if size_bytes is None:
+        return "—"
+    try:
+        b = int(size_bytes)
+    except (TypeError, ValueError):
+        return "—"
+    for unit in ("B", "KB", "MB", "GB"):
+        if abs(b) < 1024:
+            return f"{b:.0f} {unit}" if unit == "B" else f"{b:.1f} {unit}"
+        b /= 1024.0
+    return f"{b:.1f} TB"
 
 
 # MLflow and ZenML sections in experiment_tracker_mlflow.py and experiment_tracker_zenml.py
@@ -407,7 +529,12 @@ def render_experiment_tracker() -> None:
                 st.subheader("📦 Artifacts")
                 _render_artifacts(selected_run_id)
 
-            # 5. Run Comparison (always available)
+                # 5. Dataset Events
+                st.markdown("---")
+                st.subheader("📂 Dataset Events")
+                _render_dataset_events(selected_run_id)
+
+            # 6. Run Comparison (always available)
             st.markdown("---")
             st.subheader("🔀 Run Comparison")
             _render_run_comparison(all_runs)

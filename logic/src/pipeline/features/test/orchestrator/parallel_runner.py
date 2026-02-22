@@ -67,7 +67,8 @@ def run_parallel_simulations(
     print_execution_info(task_count, n_cores)
 
     # Create multiprocessing pool
-    mp.set_start_method("spawn", force=True)
+    start_method = "fork" if getattr(sim, "no_cuda", False) else "spawn"
+    mp.set_start_method(start_method, force=True)
     pool = Pool(
         processes=n_cores,
         initializer=init_single_sim_worker,

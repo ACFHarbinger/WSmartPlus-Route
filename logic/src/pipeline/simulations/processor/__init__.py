@@ -35,6 +35,35 @@ __all__ = [
 _mapper = SimulationDataMapper()
 
 
+def _log_processor_event(event_name, variable_name="data", event_type="mutate", shape=None, **kwargs):
+    import sys
+
+    try:
+        source_line = sys._getframe(1).f_lineno
+    except Exception:
+        source_line = 0
+
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            metadata = {
+                "event": event_name,
+                "variable_name": variable_name,
+                "source_file": "processor/__init__.py",
+                "source_line": source_line,
+            }
+            metadata.update(kwargs)
+            safe_meta = {}
+            for k, v in metadata.items():
+                if isinstance(v, (int, float, str, bool, type(None))):
+                    safe_meta[k] = v
+                else:
+                    safe_meta[k] = str(v)
+            run.log_dataset_event(event_type, shape=shape, metadata=safe_meta)
+
+
 def sort_dataframe(df, metric_tosort, ascending_order=True):
     """Sort dataframe.
 
@@ -46,7 +75,9 @@ def sort_dataframe(df, metric_tosort, ascending_order=True):
     Returns:
         Any: Description of return value.
     """
-    return _mapper.sort_dataframe(df, metric_tosort, ascending_order)
+    result = _mapper.sort_dataframe(df, metric_tosort, ascending_order)
+    _log_processor_event("sort_dataframe", variable_name="dataframe", metric=metric_tosort, ascending=ascending_order)
+    return result
 
 
 def get_df_types(df, prec="32"):
@@ -59,7 +90,9 @@ def get_df_types(df, prec="32"):
     Returns:
         Any: Description of return value.
     """
-    return _mapper.get_df_types(df, prec)
+    result = _mapper.get_df_types(df, prec)
+    _log_processor_event("get_df_types", variable_name="df_types", prec=prec)
+    return result
 
 
 def setup_df(depot, df, col_names, index_name="#bin"):
@@ -74,7 +107,9 @@ def setup_df(depot, df, col_names, index_name="#bin"):
     Returns:
         Any: Description of return value.
     """
-    return _mapper.setup_df(depot, df, col_names, index_name)
+    result = _mapper.setup_df(depot, df, col_names, index_name)
+    _log_processor_event("setup_df", variable_name="dataframe", col_names=col_names, index_name=index_name)
+    return result
 
 
 def sample_df(df, n_elems, depot=None, output_path=None):
@@ -89,7 +124,9 @@ def sample_df(df, n_elems, depot=None, output_path=None):
     Returns:
         Any: Description of return value.
     """
-    return _mapper.sample_df(df, n_elems, depot, output_path)
+    result = _mapper.sample_df(df, n_elems, depot, output_path)
+    _log_processor_event("sample_df", variable_name="dataframe", n_elems=n_elems, output_path=output_path)
+    return result
 
 
 def process_indices(df, indices):
@@ -102,7 +139,11 @@ def process_indices(df, indices):
     Returns:
         Any: Description of return value.
     """
-    return _mapper.process_indices(df, indices)
+    result = _mapper.process_indices(df, indices)
+    _log_processor_event(
+        "process_indices", variable_name="indices", n_indices=len(indices) if indices is not None else 0
+    )
+    return result
 
 
 def process_data(data, bins_coordinates, depot, indices=None):
@@ -124,6 +165,8 @@ def process_data(data, bins_coordinates, depot, indices=None):
         run = get_active_run()
         if run is not None:
             run.log_params({"data.n_bins_after_index_filter": len(result[0])})
+
+    _log_processor_event("process_data", variable_name="data", n_bins=len(result[0]))
     return result
 
 
@@ -140,7 +183,9 @@ def process_coordinates(coords, method, col_names=None):
     """
     if col_names is None:
         col_names = ["Lat", "Lng"]
-    return format_coordinates(coords, method, col_names)
+    result = format_coordinates(coords, method, col_names)
+    _log_processor_event("process_coordinates", variable_name="coordinates", method=method, col_names=col_names)
+    return result
 
 
 def process_model_data(
@@ -198,6 +243,8 @@ def process_model_data(
                     "data.edge_method": str(edge_method),
                 }
             )
+
+    _log_processor_event("process_model_data", variable_name="model_input", problem_size=int(len(dist_matrix) - 1))
     return result
 
 
@@ -212,7 +259,9 @@ def create_dataframe_from_matrix(matrix):
     """
     enchimentos = [row[-1] for row in matrix]
     ids_rota = np.arange(len(matrix))
-    return pd.DataFrame({"#bin": ids_rota, "Stock": enchimentos, "Accum_Rate": np.zeros(len(ids_rota))})
+    result = pd.DataFrame({"#bin": ids_rota, "Stock": enchimentos, "Accum_Rate": np.zeros(len(ids_rota))})
+    _log_processor_event("create_dataframe_from_matrix", variable_name="dataframe", num_rows=len(matrix))
+    return result
 
 
 def convert_to_dict(bins_coordinates):
@@ -227,6 +276,7 @@ def convert_to_dict(bins_coordinates):
     coordinates_dict = {}
     for _, row in bins_coordinates.iterrows():
         coordinates_dict[row["ID"]] = {"lat": np.float64(row["Lat"]), "lng": np.float64(row["Lng"])}
+    _log_processor_event("convert_to_dict", variable_name="coordinates_dict", num_bins=len(bins_coordinates))
     return coordinates_dict
 
 
@@ -244,7 +294,17 @@ def save_matrix_to_excel(matrix, results_dir, seed, data_dist, policy, sample_id
     Returns:
         Any: Description of return value.
     """
-    return _mapper.save_results(matrix, results_dir, seed, data_dist, policy, sample_id)
+    result = _mapper.save_results(matrix, results_dir, seed, data_dist, policy, sample_id)
+    _log_processor_event(
+        "save_matrix_to_excel",
+        variable_name="excel_file",
+        event_type="save",
+        seed=seed,
+        data_dist=data_dist,
+        policy=policy,
+        sample_id=sample_id,
+    )
+    return result
 
 
 def setup_basedata(n_bins, data_dir, area, waste_type):
@@ -261,6 +321,7 @@ def setup_basedata(n_bins, data_dir, area, waste_type):
     """
     depot = load_depot(data_dir, area)
     data, bins_coordinates = load_simulator_data(data_dir, n_bins, area, waste_type)
+    _log_processor_event("setup_basedata", variable_name="base_data", n_bins=n_bins, area=area, waste_type=waste_type)
     return data, bins_coordinates, depot
 
 
@@ -304,6 +365,7 @@ def setup_dist_path_tup(
         symkey_name=symkey_name,
         focus_idx=focus_idx,
     )
+    print(dist_matrix.shape)
     dist_matrix_edges, shortest_paths, adj_matrix = apply_edges(dist_matrix, edge_thresh, edge_method)
     paths = get_paths_between_states(size + 1, shortest_paths)
     dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0).to(device)
@@ -326,4 +388,11 @@ def setup_dist_path_tup(
             run.log_metric("data/n_edges", float(n_nonzero))
             run.log_metric("data/edge_density", float(n_nonzero) / float(n_total) if n_total > 0 else 0.0)
 
+    _log_processor_event(
+        "setup_dist_path_tup",
+        variable_name="distance_matrix",
+        size=size,
+        dist_method=dist_method,
+        edge_thresh=edge_thresh,
+    )
     return (dist_matrix_edges, paths, dm_tensor, distC), adj_matrix
