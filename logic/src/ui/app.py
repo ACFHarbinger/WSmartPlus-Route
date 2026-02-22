@@ -13,20 +13,21 @@ import time
 
 import streamlit as st
 
-from logic.src.pipeline.ui.components.sidebar import (
+from logic.src.ui.components.sidebar import (
     render_about_section,
     render_auto_refresh_toggle,
     render_mode_selector,
 )
-from logic.src.pipeline.ui.pages import (
+from logic.src.ui.pages import (
     render_benchmark_analysis,
     render_data_explorer,
+    render_experiment_tracker,
     render_simulation_summary,
     render_simulation_visualizer,
     render_training_monitor,
 )
-from logic.src.pipeline.ui.styles.colors import get_page_config
-from logic.src.pipeline.ui.styles.css import CUSTOM_CSS
+from logic.src.ui.styles.colors import get_page_config
+from logic.src.ui.styles.css import CUSTOM_CSS
 
 
 def main() -> None:
@@ -55,6 +56,9 @@ def main() -> None:
     elif mode == "data_explorer":
         with st.spinner("Loading Data Explorer..."):
             render_data_explorer()
+    elif mode == "experiment_tracker":
+        with st.spinner("Loading Experiment Tracker..."):
+            render_experiment_tracker()
     else:
         with st.spinner("Loading Benchmark Analysis..."):
             render_benchmark_analysis()

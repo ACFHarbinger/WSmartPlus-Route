@@ -7,15 +7,15 @@ from typing import Any, Dict, List
 import pandas as pd
 import streamlit as st
 
-from logic.src.pipeline.ui.components.benchmark_charts import (
+from logic.src.ui.components.benchmark_charts import (
     create_benchmark_comparison_chart,
     create_latency_throughput_scatter,
 )
-from logic.src.pipeline.ui.services.benchmark_loader import (
+from logic.src.ui.services.benchmark_loader import (
     get_unique_benchmarks,
     load_benchmark_data,
 )
-from logic.src.pipeline.ui.styles.kpi import create_kpi_row
+from logic.src.ui.styles.kpi import create_kpi_row
 
 # ---------------------------------------------------------------------------
 # Section renderers
