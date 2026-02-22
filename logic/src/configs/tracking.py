@@ -54,12 +54,20 @@ class TrackingConfig:
         log_level: Logging level (e.g., ``'INFO'``, ``'DEBUG'``).
         real_time_log: If ``True``, enable real-time logging (e.g., dashboard).
         log_file: Path to the log file.
-        instrument_ppo: Enabling detailed PPO diagnostics (clip_fraction, approx_kl, ratio, entropy).
-        instrument_meta: Enabling Meta-RL tracking (meta rewards, feedbacks, optimizer loss).
-        instrument_hpo: Enabling HPO trial-level logging (configs, metrics, runtime).
-        instrument_rl_core: Enabling RL core diagnostics (policy_loss, log_likelihood, entropy).
-        log_gradients: Enabling gradient norm logging.
+        log_gradients: Enabling per-layer gradient monitoring hooks.
         log_weights: Enabling model weight distribution logging.
+        log_activations: Capture activation statistics (mean, std, sparsity) per epoch.
+        log_attention: Capture attention weights per epoch.
+        log_memory: Track GPU/CPU memory snapshots per epoch.
+        log_throughput: Track training step throughput (samples/sec).
+        log_embeddings: Project node embeddings to TensorBoard at end of training.
+        log_loss_landscape: Plot loss landscape periodically.
+        log_attention_heatmaps: Plot attention weight heatmaps periodically.
+        log_profiling_report: Generate and log execution profiling report at train end.
+        nan_guard: Enable gradient NaN/Inf detection hooks (raises on detection).
+        viz_every_n_epochs: Frequency for expensive visualizations (embeddings,
+            loss landscape, attention heatmaps).  ``0`` means only at train end.
+        profiler_buffer_size: Buffer size for the execution profiler CSV writer.
     """
 
     wst_tracking_uri: str = "test_tracking" if os.environ.get("TEST_MODE") == "true" else "assets/tracking"
@@ -86,9 +94,16 @@ class TrackingConfig:
     log_file: Optional[str] = None
 
     # --- Instrumentation & Diagnostics ---
-    instrument_ppo: bool = True
-    instrument_meta: bool = True
-    instrument_hpo: bool = True
-    instrument_rl_core: bool = True
     log_gradients: bool = False
     log_weights: bool = False
+    log_activations: bool = False
+    log_attention: bool = False
+    log_memory: bool = False
+    log_throughput: bool = False
+    log_embeddings: bool = False
+    log_loss_landscape: bool = False
+    log_attention_heatmaps: bool = False
+    log_profiling_report: bool = False
+    nan_guard: bool = False
+    viz_every_n_epochs: int = 0
+    profiler_buffer_size: int = 200

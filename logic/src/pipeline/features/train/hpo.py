@@ -80,6 +80,7 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
         logger=False,
         callbacks=[pruning_callback],
         log_every_n_steps=cfg.tracking.log_step,
+        tracking_cfg=cfg.tracking,
     )
 
     # 5. Train
@@ -119,6 +120,7 @@ def _ray_tune_objective(trial_cfg: Config) -> float:
         enable_progress_bar=False,
         logger=False,
         log_every_n_steps=trial_cfg.tracking.log_step,
+        tracking_cfg=trial_cfg.tracking,
     )
     try:
         trainer.fit(model)
@@ -187,6 +189,7 @@ def run_hpo(cfg: Config) -> float:
                     enable_progress_bar=False,
                     logger=False,
                     log_every_n_steps=temp_cfg.tracking.log_step,
+                    tracking_cfg=temp_cfg.tracking,
                 )
                 trainer.fit(model)
                 reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
