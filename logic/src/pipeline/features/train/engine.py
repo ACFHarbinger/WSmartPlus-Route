@@ -108,6 +108,7 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
         logs_dir=cfg.tracking.log_dir,
         reload_dataloaders_every_n_epochs=cfg.train.reload_dataloaders_every_n_epochs,
         enable_progress_bar=False,
+        tracking_cfg=cfg.tracking,
     )
 
     # --- Centralised experiment tracking ---

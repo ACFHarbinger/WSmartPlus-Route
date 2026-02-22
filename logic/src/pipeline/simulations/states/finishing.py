@@ -12,7 +12,7 @@ from __future__ import annotations
 import contextlib
 import os
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
