@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Tuple
 
-from logic.src.pipeline.ui.services.log_parser import filter_entries
+from logic.src.ui.services.log_parser import filter_entries
 
 
 def normalize_tour_points(tour: List[Any]) -> List[Any]:

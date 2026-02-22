@@ -2,12 +2,12 @@ from typing import Any, List
 
 import streamlit as st
 
-from logic.src.pipeline.ui.components.sidebar import render_simulation_controls
-from logic.src.pipeline.ui.services.data_loader import (
+from logic.src.ui.components.sidebar import render_simulation_controls
+from logic.src.ui.services.data_loader import (
     discover_simulation_logs,
     load_simulation_log_fresh,
 )
-from logic.src.pipeline.ui.services.log_parser import (
+from logic.src.ui.services.log_parser import (
     get_day_range,
     get_unique_policies,
     get_unique_samples,

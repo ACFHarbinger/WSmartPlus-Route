@@ -28,9 +28,10 @@ def render_mode_selector() -> str:
             "Simulation Summary",
             "Benchmark Analysis",
             "Data Explorer",
+            "Experiment Tracker",
         ],
         index=1,  # Default to Simulation
-        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, and data exploration",
+        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, data exploration, and experiment tracking",
     )
 
     mode_map = {
@@ -39,6 +40,7 @@ def render_mode_selector() -> str:
         "Simulation Summary": "simulation_summary",
         "Benchmark Analysis": "benchmark",
         "Data Explorer": "data_explorer",
+        "Experiment Tracker": "experiment_tracker",
     }
     return mode_map.get(mode, "simulation")
 
@@ -325,8 +327,8 @@ def render_simulation_controls(
 
 def render_about_section() -> None:
     """Render an about section at the bottom of the sidebar."""
-    from logic.src.pipeline.ui import __version__
-    from logic.src.pipeline.ui.services.data_loader import (
+    from logic.src.ui import __version__
+    from logic.src.ui.services.data_loader import (
         discover_simulation_logs,
         discover_training_runs,
     )

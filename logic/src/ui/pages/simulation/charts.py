@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from logic.src.pipeline.ui.components.charts import (
+from logic.src.ui.components.charts import (
     create_radar_chart,
     create_simulation_metrics_chart,
 )
-from logic.src.pipeline.ui.services.data_loader import compute_daily_stats, compute_summary_statistics
-from logic.src.pipeline.ui.services.log_parser import filter_entries, get_unique_policies
+from logic.src.ui.services.data_loader import compute_daily_stats, compute_summary_statistics
+from logic.src.ui.services.log_parser import filter_entries, get_unique_policies
 
 
 def render_policy_comparison(entries: List[Any], selected_day: int) -> None:
@@ -112,7 +112,7 @@ def render_tracking_run_metrics(
         tracking_uri: Path to the tracking directory (defaults to
             ``assets/tracking`` relative to the project root).
     """
-    from logic.src.pipeline.ui.services.tracking_service import (
+    from logic.src.ui.services.tracking_service import (
         list_metric_keys,
         load_run_metrics,
         load_run_params,

@@ -3,8 +3,8 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
-from logic.src.pipeline.ui.components.charts import create_stacked_bar_chart
-from logic.src.pipeline.ui.pages.simulation.map import render_bin_heatmap
+from logic.src.ui.components.charts import create_stacked_bar_chart
+from logic.src.ui.pages.simulation.map import render_bin_heatmap
 
 
 def style_bin_table(df: pd.DataFrame) -> Any:
