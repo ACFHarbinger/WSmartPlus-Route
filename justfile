@@ -15,13 +15,13 @@ problem := "wcvrp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "100"
+size := "104"
 area := "riomaior"
 epochs := "100"
 batch_size := "64"
 temporal_horizon := "0"
-days := "31"
-samples := "10"
+days := "30"
+samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
@@ -90,7 +90,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies="hgs" days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
+test-sim policies="vrpp" days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"

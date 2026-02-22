@@ -102,10 +102,9 @@ class PolicyExecutionAction(SimulationAction):
                     solver_key = "neural" if engine in ["am", "ptr", "ddam"] else engine
                     break
 
-        # If no nodes to collect, return early (unless neural/VRPP which handle empty)
+        # If no nodes to collect, skip policy and return to depot
         must_go = context.get("must_go", [])
-        neural_engines = ["neural", "am", "ddam", "ptr"]
-        if not must_go and not any(k in str(solver_key).lower() for k in neural_engines + ["vrpp"]):
+        if not must_go:
             context["tour"] = [0, 0]
             context["cost"] = 0.0
             context["extra_output"] = None
