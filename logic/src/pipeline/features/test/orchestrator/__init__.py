@@ -49,7 +49,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         original_stderr = original_stderr.terminal
 
     # Display policy summary
-    if not sim.no_progress_bar:
+    if not cfg.tracking.no_progress_bar:
         PolicySummaryCallback().display(cfg)
 
     # Register immediate shutdown handler for CTRL+C
@@ -138,7 +138,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
     )
     send_final_output_to_gui(log, log_std, sim.n_samples, policies, realtime_log_path)
 
-    if not sim.no_progress_bar:
+    if not cfg.tracking.no_progress_bar:
         display_log_metrics(
             sim.output_dir,
             sim.graph.num_loc,

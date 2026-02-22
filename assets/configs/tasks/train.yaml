@@ -16,11 +16,11 @@ defaults:
   - /models/policies/hgs_alns@rl.imitation.policy_config
   - /models/policies/hgs_alns@rl.adaptive_imitation.policy_config
   - _self_
+  - override /tracking: train
 
 # =============================================================================
 # General Configuration
 # =============================================================================
-verbose: true # Enable detailed logging output
 seed: 42 # Random seed for reproducibility
 start: 0 # Starting epoch (for resuming training)
 load_dataset: "data/datasets/${env.name}/${env.name}${env.num_loc}_${env.data_distribution}_time${train.n_epochs}_seed${train.seed}.td"
@@ -48,8 +48,6 @@ train:
   batch_size: 128 # Training batch size. Reduce if OOM errors occur.
   eval_batch_size: 128 # Validation batch size (can be larger than train)
 
-  log_step: 10 # Log metrics every N batches
-  logs_dir: "logs/output" # Directory for training logs
   model_weights_path: "model_weights" # Directory for checkpoints
   final_model_path: "assets/model_weights/${env.name}${env.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.data_distribution}/${model.name}${model.encoder.type}${env.temporal_horizon}/epoch-${train.n_epochs}.pt"
 
@@ -168,8 +166,3 @@ must_go:
   critical_threshold: 0.9 # Fill level considered critical for manager
   manager_weights: null # Path to pre-trained manager checkpoint (optional)
   device: "cuda" # Device for manager inference
-
-# =============================================================================
-# Global flags
-# =============================================================================
-wandb_mode: "disabled" # Weights & Biases logging. Options: online, offline, disabled

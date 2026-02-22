@@ -43,11 +43,22 @@ class TrackingConfig:
         zenml_stack_name: Name of the ZenML stack to activate for pipeline
             runs.  The stack must include an ``mlflow_tracker`` experiment
             tracker component pointing at ``mlflow_tracking_uri``.
+        wandb_mode: Weights & Biases mode (``'online'``, ``'offline'``,
+            ``'disabled'``).
+        no_tensorboard: If ``True``, disable TensorBoard logging.
+        no_progress_bar: If ``True``, disable the progress bar.
+        log_dir: Directory to save logs.
+        verbose: If ``True``, enable verbose logging.
+        profile: If ``True``, enable function-level execution time profiling.
+        log_step: Frequency of metric logging (e.g., every N steps).
+        log_level: Logging level (e.g., ``'INFO'``, ``'DEBUG'``).
+        real_time_log: If ``True``, enable real-time logging (e.g., dashboard).
+        log_file: Path to the log file.
     """
 
-    wst_tracking_uri: str = "assets/test_tracking" if os.environ.get("TEST_MODE") == "true" else "assets/tracking"
+    wst_tracking_uri: str = "test_tracking" if os.environ.get("TEST_MODE") == "true" else "assets/tracking"
     mlflow_enabled: bool = False
-    mlflow_tracking_uri: str = "assets/test_mlruns" if os.environ.get("TEST_MODE") == "true" else "mlruns"
+    mlflow_tracking_uri: str = "test_mlruns" if os.environ.get("TEST_MODE") == "true" else "mlruns"
     mlflow_experiment_name: str = "wsmart-route"
     mlflow_run_name: Optional[str] = None
     ray_tune_storage_path: str = "ray_results"
@@ -55,3 +66,15 @@ class TrackingConfig:
     zenml_enabled: bool = False
     zenml_store_url: str = ""
     zenml_stack_name: str = "wsmart-route-stack"
+
+    # --- Logging & CLI Control (Migrated from root Config) ---
+    wandb_mode: str = "offline"
+    no_tensorboard: bool = False
+    no_progress_bar: bool = False
+    log_dir: str = "logs"
+    verbose: bool = True
+    profile: bool = False
+    log_step: int = 10
+    log_level: str = "INFO"
+    real_time_log: bool = False
+    log_file: Optional[str] = None

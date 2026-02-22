@@ -100,12 +100,12 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
         devices=cfg.train.devices,
         strategy=cfg.train.strategy,
         gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
-        logger=CSVLogger(cfg.train.logs_dir or "logs", name=""),
+        logger=CSVLogger(cfg.tracking.log_dir or "logs", name=""),
         callbacks=callbacks,  # type: ignore[arg-type]
         precision=cfg.train.precision,
-        log_every_n_steps=cfg.train.log_step,
+        log_every_n_steps=cfg.tracking.log_step,
         model_weights_path=cfg.train.model_weights_path,
-        logs_dir=cfg.train.logs_dir,
+        logs_dir=cfg.tracking.log_dir,
         reload_dataloaders_every_n_epochs=cfg.train.reload_dataloaders_every_n_epochs,
         enable_progress_bar=False,
     )

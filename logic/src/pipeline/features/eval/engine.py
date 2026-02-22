@@ -73,7 +73,7 @@ def _build_eval_kwargs(cfg: Config) -> Dict[str, Any]:
     ev = cfg.eval
     result: Dict[str, Any] = {
         "eval_batch_size": ev.eval_batch_size,
-        "no_progress_bar": ev.no_progress_bar,
+        "no_progress_bar": cfg.tracking.no_progress_bar,
         "compress_mask": ev.compress_mask,
         "max_calc_batch_size": ev.max_calc_batch_size,
     }

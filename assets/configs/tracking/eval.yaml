@@ -1,0 +1,25 @@
+# =============================================================================
+# @package tracking
+# =============================================================================
+# Tracking Configuration Override: Eval
+# =============================================================================
+wst_tracking_uri: "assets/tracking"
+mlflow_enabled: false
+mlflow_tracking_uri: "assets/logs/mlruns"
+mlflow_experiment_name: "wsmart-route"
+mlflow_run_name: null
+ray_tune_storage_path: "ray_results"
+ray_tune_mlflow_enabled: false
+zenml_enabled: false
+zenml_store_url: ""
+zenml_stack_name: "wsmart-route-stack"
+wandb_mode: "disabled"
+no_tensorboard: false
+no_progress_bar: false
+log_dir: "logs"
+verbose: true
+profile: false
+log_step: 10
+log_level: "INFO"
+real_time_log: false
+log_file: null

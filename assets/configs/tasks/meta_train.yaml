@@ -11,62 +11,69 @@
 #   - Adaptive cost weight learning
 # =============================================================================
 
+defaults:
+  - _self_
+  - override /tracking: meta_train
+
 # =============================================================================
 # General Configuration
 # =============================================================================
-verbose: true  # Enable detailed logging
-seed: 42  # Random seed for reproducibility
-start: 0  # Starting epoch
+seed: 42 # Random seed for reproducibility
+start: 0 # Starting epoch
 
 # =============================================================================
 # Environment
 # =============================================================================
 env:
-  name: "cwcvrp"  # Problem type for meta-training
-  distance_method: "gmaps"  # Distance calculation method
+  name: "cwcvrp" # Problem type for meta-training
+  distance_method: "gmaps" # Distance calculation method
 
 # =============================================================================
 # Meta-RL Settings
 # =============================================================================
 meta_rl:
-  use_meta: true  # Enable meta-learning features (must be true for mrl_train)
+  use_meta: true # Enable meta-learning features (must be true for mrl_train)
 
   # Meta-Learning Strategy
-  meta_strategy: "hrl"  # Meta-learning method. Options:
-                        # - "hrl": Hierarchical RL (Manager-Worker)
-                        # - "weight_learning": Adaptive cost weight optimization
-                        # - "hypernet": Hypernetwork-based meta-learning
-                        # - "maml": Model-Agnostic Meta-Learning
+  meta_strategy:
+    "hrl" # Meta-learning method. Options:
+    # - "hrl": Hierarchical RL (Manager-Worker)
+    # - "weight_learning": Adaptive cost weight optimization
+    # - "hypernet": Hypernetwork-based meta-learning
+    # - "maml": Model-Agnostic Meta-Learning
 
   # Meta-Optimizer Configuration
-  meta_lr: 0.000005  # Meta-learning rate (for manager/weight optimizer).
-                     # Much lower than base LR. Range: 1e-6 to 1e-4.
+  meta_lr:
+    0.000005 # Meta-learning rate (for manager/weight optimizer).
+    # Much lower than base LR. Range: 1e-6 to 1e-4.
 
-  meta_hidden_dim: 128  # Hidden dimension for meta-network (manager/hypernet)
+  meta_hidden_dim: 128 # Hidden dimension for meta-network (manager/hypernet)
 
-  meta_history_length: 10  # Temporal history length for meta-features.
-                           # Number of past timesteps to condition on.
+  meta_history_length:
+    10 # Temporal history length for meta-features.
+    # Number of past timesteps to condition on.
 
   # Meta-RL Training Configuration
-  mrl_batch_size: 256  # Batch size for meta-training (can differ from base training)
-  mrl_step: 10  # Meta-update frequency (update meta-network every N steps)
+  mrl_batch_size: 256 # Batch size for meta-training (can differ from base training)
+  mrl_step: 10 # Meta-update frequency (update meta-network every N steps)
 
   # =============================================================================
   # Hierarchical RL (HRL) Specific Parameters
   # =============================================================================
   # Used when meta_strategy="hrl"
 
-  hrl_epochs: 2  # Training epochs for manager network per meta-update
+  hrl_epochs: 2 # Training epochs for manager network per meta-update
 
-  hrl_clip_eps: 0.2  # PPO clipping epsilon for manager updates
+  hrl_clip_eps: 0.2 # PPO clipping epsilon for manager updates
 
-  hrl_threshold: 0.9  # Fill level threshold for must-go bin detection.
-                      # Manager predicts which bins exceed this threshold.
+  hrl_threshold:
+    0.9 # Fill level threshold for must-go bin detection.
+    # Manager predicts which bins exceed this threshold.
 
   # PID Controller for Adaptive Weighting
-  hrl_pid_target: 0.0003  # Target overflow rate for PID controller
+  hrl_pid_target: 0.0003 # Target overflow rate for PID controller
 
   # Adaptive Cost Weights (Manager learns to balance these)
-  hrl_lambda_waste: 300.0  # Initial weight for waste collection reward
-  hrl_lambda_cost: 0.5  # Initial weight for distance cost
-  hrl_lambda_overflow_initial: 2000.0  # Initial weight for overflow penalty
+  hrl_lambda_waste: 300.0 # Initial weight for waste collection reward
+  hrl_lambda_cost: 0.5 # Initial weight for distance cost
+  hrl_lambda_overflow_initial: 2000.0 # Initial weight for overflow penalty
