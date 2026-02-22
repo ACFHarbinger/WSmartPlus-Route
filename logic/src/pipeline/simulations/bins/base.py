@@ -15,6 +15,7 @@ from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.data.datasets import (
     NumpyDictDataset,
     NumpyPickleDataset,
+    PandasCsvDataset,
     PandasExcelDataset,
     SimulationDataset,
 )
@@ -126,6 +127,8 @@ class Bins:
                 self.waste_dataset = NumpyPickleDataset.load(path)
             elif waste_file.endswith(".xlsx"):
                 self.waste_dataset = PandasExcelDataset.load(path)
+            elif waste_file.endswith(".csv"):
+                self.waste_dataset = PandasCsvDataset.load(path)
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
 
@@ -160,6 +163,9 @@ class Bins:
     def set_statistics(self, stats_file: str) -> None:
         """Loads pre-computed fill statistics."""
         data = pandas.read_csv(os.path.join(self.data_dir, stats_file))
+        if "ID" in data.columns:
+            data = data[data["ID"] != 0].reset_index(drop=True)
+
         self.means = np.maximum(data["Mean"].values.astype(np.float64), 0)
         self.std = np.maximum(data["StD"].values.astype(np.float64), 0)
         self.day_count = np.maximum(data.at[0, "Count"].astype(np.int64), 0)

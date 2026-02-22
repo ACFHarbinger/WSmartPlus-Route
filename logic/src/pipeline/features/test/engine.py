@@ -16,10 +16,11 @@ import logic.src.constants as udef
 import logic.src.tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
-from logic.src.data.datasets import NumpyDictDataset, PandasExcelDataset
+from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
     NumpyDictRepository,
+    PandasCsvRepository,
     PandasExcelRepository,
     load_simulator_data,
     set_repository,
@@ -187,6 +188,12 @@ def _resolve_data_size(cfg: Config) -> int:
     if load_ds is not None and str(load_ds).endswith(".xlsx"):
         dataset = PandasExcelDataset.load(load_ds)
         set_repository(PandasExcelRepository(dataset))
+        _override_waste_filepath(cfg, load_ds)
+        return sim.graph.num_loc
+
+    if load_ds is not None and str(load_ds).endswith(".csv"):
+        dataset = PandasCsvDataset.load(load_ds)
+        set_repository(PandasCsvRepository(dataset))
         _override_waste_filepath(cfg, load_ds)
         return sim.graph.num_loc
 

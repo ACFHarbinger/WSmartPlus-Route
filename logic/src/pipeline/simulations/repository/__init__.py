@@ -6,6 +6,7 @@ import contextlib
 from typing import Union
 
 from .base import SimulationRepository
+from .csv import PandasCsvRepository
 from .filesystem import FileSystemRepository
 from .npz import NumpyDictRepository
 from .xlsx import PandasExcelRepository
@@ -14,7 +15,9 @@ from .xlsx import PandasExcelRepository
 _REPOSITORY = None
 
 
-def set_repository(repo: Union[FileSystemRepository, NumpyDictRepository, PandasExcelRepository]) -> None:
+def set_repository(
+    repo: Union[FileSystemRepository, NumpyDictRepository, PandasExcelRepository, PandasCsvRepository],
+) -> None:
     """
     Replace the singleton repository instance.
 
@@ -170,6 +173,7 @@ __all__ = [
     "FileSystemRepository",
     "NumpyDictRepository",
     "PandasExcelRepository",
+    "PandasCsvRepository",
     "set_repository",
     "load_indices",
     "load_depot",
