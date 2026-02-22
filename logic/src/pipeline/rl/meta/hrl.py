@@ -177,10 +177,6 @@ class HRLModule(pl.LightningModule):
         credit_weight = credit_weight / (credit_weight.mean() + 1e-8)
 
         for _ in range(int(self.ppo_epochs)):
-            # Full batch processing or mini-batching?
-            # manager_train.py used mini-batches. We'll use full batch if small enough, or simple batching.
-            # Here we just use the full collected batch (since batch_size of Lightning is usually GPU-sized)
-
             # Forward pass for current policy
             must_go_logits, gate_logits, values = self.manager(old_states_static, old_states_dynamic, old_states_global)
             values = values.squeeze(-1)
@@ -209,7 +205,6 @@ class HRLModule(pl.LightningModule):
 
             # Aux Loss (if target must_go available - supervised signal)
             if self.lambda_mask_aux > 0 and old_target_must_go is not None:
-                # Logits difference: P(must_go=1) - P(must_go=0)
                 logits_diff = must_go_logits[:, :, 1] - must_go_logits[:, :, 0]
                 pos_weight = torch.tensor([50.0], device=self.device)
                 loss_must_go_aux = F.binary_cross_entropy_with_logits(
@@ -227,7 +222,16 @@ class HRLModule(pl.LightningModule):
         # Clear memory after update
         self.manager.clear_memory()
 
+        # Log detailed HRL metrics (from last PPO epoch)
         self.log("train/manager_loss", mean_loss / self.ppo_epochs)
+        self.log("train/manager_actor_loss", actor_loss)
+        self.log("train/manager_value_loss", value_loss)
+        self.log("train/manager_entropy", entropy)
+        self.log("train/manager_advantage", advantages.mean())
+        self.log("train/manager_credit_weight", credit_weight.mean())
+        with torch.no_grad():
+            clip_fraction = ((ratio - 1.0).abs() > self.clip_eps).float().mean()
+        self.log("train/manager_clip_fraction", clip_fraction)
 
     def configure_optimizers(self):
         """

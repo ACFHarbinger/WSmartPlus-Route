@@ -162,9 +162,23 @@ class RayTuneHPO(BaseHPO):
         with contextlib.suppress(Exception):
             best = results.get_best_result(metric="val_reward", mode="max")
 
+        best_val = 0.0
         if best is not None and best.metrics:
-            return float(best.metrics.get("val_reward", 0.0))
-        return 0.0
+            best_val = float(best.metrics.get("val_reward", 0.0))
+
+        # Log to WSTracker
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_metric("hpo/best_val_reward", best_val)
+            run.log_metric("hpo/num_samples", self.cfg.hpo.num_samples)
+            run.set_tag("hpo_backend", "ray_tune")
+            run.set_tag("hpo_scheduler", self._scheduler_name)
+            if best is not None and best.config:
+                run.log_params({f"hpo/best/{k}": v for k, v in best.config.items()})
+
+        return best_val
 
     # ------------------------------------------------------------------
     # Search space conversion

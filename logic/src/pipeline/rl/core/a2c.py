@@ -159,10 +159,13 @@ class A2C(RL4COLitModule):
         total_loss = actor_loss + self.value_loss_coef * critic_loss - self.entropy_coef * entropy
 
         # Logging
+        self.log("train/total_loss", total_loss, prog_bar=True)
         self.log("train/actor_loss", actor_loss, prog_bar=False)
         self.log("train/critic_loss", critic_loss, prog_bar=False)
         self.log("train/entropy", entropy, prog_bar=False)
         self.log("train/advantage_mean", advantage.mean(), prog_bar=False)
+        self.log("train/log_likelihood", log_likelihood.mean(), prog_bar=False)
+        self.log("train/value", value.mean(), prog_bar=False)
 
         return total_loss
 

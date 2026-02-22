@@ -178,5 +178,13 @@ class ImitationLearning(RL4COLitModule):
 
         # Log metrics
         self.log("train/loss", loss, prog_bar=True)
+        self.log("train/log_likelihood", log_likelihood.mean())
+        if hasattr(expert_out, "get") or isinstance(expert_out, dict):
+            er = expert_out.get("reward", None)
+            if er is not None:
+                self.log("train/expert_reward", er.mean())
+            ec = expert_out.get("cost", None)
+            if ec is not None:
+                self.log("train/expert_cost", ec.mean())
 
         return loss

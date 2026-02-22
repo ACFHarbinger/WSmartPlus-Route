@@ -74,9 +74,14 @@ class TimeOptimizedREINFORCE(REINFORCE):
         # Policy gradient loss
         loss = -(advantage.detach() * log_likelihood).mean()
 
+        # Log loss components
+        self.log("train/policy_loss", loss, sync_dist=True)
+        self.log("train/log_likelihood", log_likelihood.mean(), sync_dist=True)
+
         # Entropy bonus
         if self.entropy_weight > 0 and "entropy" in out:
             loss = loss - self.entropy_weight * out["entropy"].mean()
+            self.log("train/entropy", out["entropy"].mean(), sync_dist=True)
 
         # Logging
         self.log("train/advantage", advantage.mean(), sync_dist=True)

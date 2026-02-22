@@ -220,6 +220,16 @@ class PPO(RL4COLitModule):
         self.log("train/critic_loss", critic_loss)
         self.log("train/advantage", advantage.mean())
 
+        # PPO diagnostics (from last mini-batch)
+        with torch.no_grad():
+            clip_fraction = ((ratio - 1.0).abs() > self.eps_clip).float().mean()
+            approx_kl = (sub_td["logprobs"] - new_log_p).mean()
+        self.log("train/clip_fraction", clip_fraction)
+        self.log("train/approx_kl", approx_kl)
+        self.log("train/ratio", ratio.mean())
+        if self.entropy_weight > 0 and "entropy" in new_out:
+            self.log("train/entropy", new_out["entropy"].mean())
+
         return loss
 
     def calculate_advantages(self, rewards, values):

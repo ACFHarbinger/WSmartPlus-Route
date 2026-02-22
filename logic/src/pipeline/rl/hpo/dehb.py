@@ -93,5 +93,16 @@ class DifferentialEvolutionHyperband(BaseHPO):
         self.runtime = elapsed
         self.history = self._dehb.history
 
+        # Log to WSTracker
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is not None:
+            run.log_params({f"hpo/best/{k}": v for k, v in best_config.items()})
+            run.log_metric("hpo/best_score", float(-best_score) if best_score is not None else 0.0)
+            run.log_metric("hpo/runtime_s", elapsed)
+            run.log_metric("hpo/n_evals", fevals)
+            run.set_tag("hpo_backend", "dehb")
+
         # DEHB minimises fitness; we negate to return a maximisation value
         return float(-best_score) if best_score is not None else 0.0
