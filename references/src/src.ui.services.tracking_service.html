@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -475,6 +478,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.list_metric_keys"><code class="docutils literal notranslate"><span class="pre">list_metric_keys()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_run_tags"><code class="docutils literal notranslate"><span class="pre">load_run_tags()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_run_artifacts"><code class="docutils literal notranslate"><span class="pre">load_run_artifacts()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_run_dataset_events"><code class="docutils literal notranslate"><span class="pre">load_run_dataset_events()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_mlflow_runs"><code class="docutils literal notranslate"><span class="pre">load_mlflow_runs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_mlflow_metric_history"><code class="docutils literal notranslate"><span class="pre">load_mlflow_metric_history()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.list_mlflow_metric_keys"><code class="docutils literal notranslate"><span class="pre">list_mlflow_metric_keys()</span></code></a></li>
@@ -551,19 +555,22 @@ project root is used.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_artifacts" title="src.ui.services.tracking_service.load_run_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_artifacts</span></code></a></p></td>
 <td><p>Return the logged artifacts for <em>run_id</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_mlflow_runs" title="src.ui.services.tracking_service.load_mlflow_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mlflow_runs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_dataset_events" title="src.ui.services.tracking_service.load_run_dataset_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_dataset_events</span></code></a></p></td>
+<td><p>Return the dataset lifecycle events for <em>run_id</em>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_mlflow_runs" title="src.ui.services.tracking_service.load_mlflow_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mlflow_runs</span></code></a></p></td>
 <td><p>Return a DataFrame of MLflow runs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_mlflow_metric_history" title="src.ui.services.tracking_service.load_mlflow_metric_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mlflow_metric_history</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_mlflow_metric_history" title="src.ui.services.tracking_service.load_mlflow_metric_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mlflow_metric_history</span></code></a></p></td>
 <td><p>Return the step-indexed history of <em>metric_key</em> from MLflow.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.list_mlflow_metric_keys" title="src.ui.services.tracking_service.list_mlflow_metric_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_mlflow_metric_keys</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.list_mlflow_metric_keys" title="src.ui.services.tracking_service.list_mlflow_metric_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_mlflow_metric_keys</span></code></a></p></td>
 <td><p>Return metric keys logged for an MLflow run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_zenml_pipeline_runs" title="src.ui.services.tracking_service.load_zenml_pipeline_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenml_pipeline_runs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_zenml_pipeline_runs" title="src.ui.services.tracking_service.load_zenml_pipeline_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenml_pipeline_runs</span></code></a></p></td>
 <td><p>Return recent ZenML pipeline runs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_zenml_run_steps" title="src.ui.services.tracking_service.load_zenml_run_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenml_run_steps</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_zenml_run_steps" title="src.ui.services.tracking_service.load_zenml_run_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenml_run_steps</span></code></a></p></td>
 <td><p>Return the steps of a ZenML pipeline run.</p></td>
 </tr>
 </tbody>
@@ -653,6 +660,17 @@ run_id: UUID of the run.
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
 List of artifact dicts (path, artifact_type, timestamp, etc.).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.ui.services.tracking_service.load_run_dataset_events">
+<span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_run_dataset_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_run_dataset_events" title="Link to this definition">#</a></dt>
+<dd><p>Return the dataset lifecycle events for <em>run_id</em>.</p>
+<p>Args:
+run_id: UUID of the run.
+tracking_uri: Path to the tracking directory.</p>
+<p>Returns:
+List of event dicts (event_type, file_path, timestamp, etc.).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -768,6 +786,7 @@ List of step dicts (name, status, duration, etc.).</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.list_metric_keys"><code class="docutils literal notranslate"><span class="pre">list_metric_keys()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_run_tags"><code class="docutils literal notranslate"><span class="pre">load_run_tags()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_run_artifacts"><code class="docutils literal notranslate"><span class="pre">load_run_artifacts()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_run_dataset_events"><code class="docutils literal notranslate"><span class="pre">load_run_dataset_events()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_mlflow_runs"><code class="docutils literal notranslate"><span class="pre">load_mlflow_runs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.load_mlflow_metric_history"><code class="docutils literal notranslate"><span class="pre">load_mlflow_metric_history()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.tracking_service.list_mlflow_metric_keys"><code class="docutils literal notranslate"><span class="pre">list_mlflow_metric_keys()</span></code></a></li>

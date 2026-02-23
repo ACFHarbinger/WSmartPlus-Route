@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -474,6 +477,9 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_metric_explorer"><code class="docutils literal notranslate"><span class="pre">_render_metric_explorer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_comparison"><code class="docutils literal notranslate"><span class="pre">_render_run_comparison()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_artifacts"><code class="docutils literal notranslate"><span class="pre">_render_artifacts()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS"><code class="docutils literal notranslate"><span class="pre">_EVENT_TYPE_ICONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_dataset_events"><code class="docutils literal notranslate"><span class="pre">_render_dataset_events()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._fmt_size"><code class="docutils literal notranslate"><span class="pre">_fmt_size()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar"><code class="docutils literal notranslate"><span class="pre">_render_tracker_sidebar()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker.render_experiment_tracker"><code class="docutils literal notranslate"><span class="pre">render_experiment_tracker()</span></code></a></li>
 </ul>
@@ -523,6 +529,12 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_artifacts" title="src.ui.pages.experiment_tracker._render_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_artifacts</span></code></a></p></td>
 <td><p>Display logged artifacts for a WSTracker run.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_dataset_events" title="src.ui.pages.experiment_tracker._render_dataset_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_dataset_events</span></code></a></p></td>
+<td><p>Display dataset lifecycle events for a WSTracker run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._fmt_size" title="src.ui.pages.experiment_tracker._fmt_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fmt_size</span></code></a></p></td>
+<td><p>Format byte count into a human-readable string.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar" title="src.ui.pages.experiment_tracker._render_tracker_sidebar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tracker_sidebar</span></code></a></p></td>
 <td><p>Render sidebar controls for the experiment tracker.</p></td>
 </tr>
@@ -541,6 +553,9 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._STATUS_ICONS" title="src.ui.pages.experiment_tracker._STATUS_ICONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STATUS_ICONS</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS" title="src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_EVENT_TYPE_ICONS</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -589,6 +604,24 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_artifacts">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_artifacts" title="Link to this definition">#</a></dt>
 <dd><p>Display logged artifacts for a WSTracker run.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS">
+<span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_EVENT_TYPE_ICONS</span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_dataset_events">
+<span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_dataset_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_dataset_events" title="Link to this definition">#</a></dt>
+<dd><p>Display dataset lifecycle events for a WSTracker run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._fmt_size">
+<span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_fmt_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._fmt_size" title="Link to this definition">#</a></dt>
+<dd><p>Format byte count into a human-readable string.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -663,6 +696,9 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_metric_explorer"><code class="docutils literal notranslate"><span class="pre">_render_metric_explorer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_comparison"><code class="docutils literal notranslate"><span class="pre">_render_run_comparison()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_artifacts"><code class="docutils literal notranslate"><span class="pre">_render_artifacts()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS"><code class="docutils literal notranslate"><span class="pre">_EVENT_TYPE_ICONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_dataset_events"><code class="docutils literal notranslate"><span class="pre">_render_dataset_events()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._fmt_size"><code class="docutils literal notranslate"><span class="pre">_fmt_size()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar"><code class="docutils literal notranslate"><span class="pre">_render_tracker_sidebar()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker.render_experiment_tracker"><code class="docutils literal notranslate"><span class="pre">render_experiment_tracker()</span></code></a></li>
 </ul>

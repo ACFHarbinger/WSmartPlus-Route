@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -488,15 +491,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.device"><code class="docutils literal notranslate"><span class="pre">Config.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.experiment_name"><code class="docutils literal notranslate"><span class="pre">Config.experiment_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.task"><code class="docutils literal notranslate"><span class="pre">Config.task</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.wandb_mode"><code class="docutils literal notranslate"><span class="pre">Config.wandb_mode</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.no_tensorboard"><code class="docutils literal notranslate"><span class="pre">Config.no_tensorboard</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">Config.no_progress_bar</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.output_dir"><code class="docutils literal notranslate"><span class="pre">Config.output_dir</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.log_dir"><code class="docutils literal notranslate"><span class="pre">Config.log_dir</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.run_name"><code class="docutils literal notranslate"><span class="pre">Config.run_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.verbose"><code class="docutils literal notranslate"><span class="pre">Config.verbose</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.start"><code class="docutils literal notranslate"><span class="pre">Config.start</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.profile"><code class="docutils literal notranslate"><span class="pre">Config.profile</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.p"><code class="docutils literal notranslate"><span class="pre">Config.p</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.callbacks"><code class="docutils literal notranslate"><span class="pre">Config.callbacks</span></code></a></li>
 </ul>
@@ -775,33 +772,9 @@ callbacks: Dictionary of callback configurations.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.wandb_mode">
-<span class="sig-name descname"><span class="pre">wandb_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.Config.wandb_mode" title="Link to this definition">#</a></dt>
-<dd><p>‘offline’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.no_tensorboard">
-<span class="sig-name descname"><span class="pre">no_tensorboard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.Config.no_tensorboard" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.no_progress_bar">
-<span class="sig-name descname"><span class="pre">no_progress_bar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.Config.no_progress_bar" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.Config.output_dir">
 <span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.Config.output_dir" title="Link to this definition">#</a></dt>
 <dd><p>‘assets/model_weights’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.log_dir">
-<span class="sig-name descname"><span class="pre">log_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.Config.log_dir" title="Link to this definition">#</a></dt>
-<dd><p>‘logs’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -811,21 +784,9 @@ callbacks: Dictionary of callback configurations.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.verbose">
-<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.Config.verbose" title="Link to this definition">#</a></dt>
-<dd><p>True</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.Config.start">
 <span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.Config.start" title="Link to this definition">#</a></dt>
 <dd><p>0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.profile">
-<span class="sig-name descname"><span class="pre">profile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.Config.profile" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -922,15 +883,9 @@ callbacks: Dictionary of callback configurations.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.device"><code class="docutils literal notranslate"><span class="pre">Config.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.experiment_name"><code class="docutils literal notranslate"><span class="pre">Config.experiment_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.task"><code class="docutils literal notranslate"><span class="pre">Config.task</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.wandb_mode"><code class="docutils literal notranslate"><span class="pre">Config.wandb_mode</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.no_tensorboard"><code class="docutils literal notranslate"><span class="pre">Config.no_tensorboard</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">Config.no_progress_bar</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.output_dir"><code class="docutils literal notranslate"><span class="pre">Config.output_dir</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.log_dir"><code class="docutils literal notranslate"><span class="pre">Config.log_dir</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.run_name"><code class="docutils literal notranslate"><span class="pre">Config.run_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.verbose"><code class="docutils literal notranslate"><span class="pre">Config.verbose</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.start"><code class="docutils literal notranslate"><span class="pre">Config.start</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.profile"><code class="docutils literal notranslate"><span class="pre">Config.profile</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.p"><code class="docutils literal notranslate"><span class="pre">Config.p</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.callbacks"><code class="docutils literal notranslate"><span class="pre">Config.callbacks</span></code></a></li>
 </ul>

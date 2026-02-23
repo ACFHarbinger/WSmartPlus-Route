@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -477,6 +480,29 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.zenml_enabled"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.zenml_enabled</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.zenml_store_url"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.zenml_store_url</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.zenml_stack_name"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.zenml_stack_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.wandb_mode"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.wandb_mode</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.no_tensorboard"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.no_tensorboard</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.no_progress_bar</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_dir"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_dir</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.verbose"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.verbose</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.profile"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.profile</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_step"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_level"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_level</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.real_time_log"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.real_time_log</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_file"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_file</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_gradients"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_gradients</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_weights"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_weights</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_activations"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_activations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_attention"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_attention</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_memory"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_memory</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_throughput"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_throughput</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_embeddings"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_embeddings</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_loss_landscape"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_loss_landscape</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_attention_heatmaps"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_attention_heatmaps</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_profiling_report"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_profiling_report</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.nan_guard"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.nan_guard</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.viz_every_n_epochs"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.viz_every_n_epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.profiler_buffer_size"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.profiler_buffer_size</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -548,7 +574,32 @@ default local store (<code class="docutils literal notranslate"><span class="pre
 <code class="docutils literal notranslate"><span class="pre">mysql://user:password&#64;host/database</span></code>.
 zenml_stack_name: Name of the ZenML stack to activate for pipeline
 runs.  The stack must include an <code class="docutils literal notranslate"><span class="pre">mlflow_tracker</span></code> experiment
-tracker component pointing at <code class="docutils literal notranslate"><span class="pre">mlflow_tracking_uri</span></code>.</p>
+tracker component pointing at <code class="docutils literal notranslate"><span class="pre">mlflow_tracking_uri</span></code>.
+wandb_mode: Weights &amp; Biases mode (<code class="docutils literal notranslate"><span class="pre">'online'</span></code>, <code class="docutils literal notranslate"><span class="pre">'offline'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'disabled'</span></code>).
+no_tensorboard: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, disable TensorBoard logging.
+no_progress_bar: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, disable the progress bar.
+log_dir: Directory to save logs.
+verbose: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable verbose logging.
+profile: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable function-level execution time profiling.
+log_step: Frequency of metric logging (e.g., every N steps).
+log_level: Logging level (e.g., <code class="docutils literal notranslate"><span class="pre">'INFO'</span></code>, <code class="docutils literal notranslate"><span class="pre">'DEBUG'</span></code>).
+real_time_log: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable real-time logging (e.g., dashboard).
+log_file: Path to the log file.
+log_gradients: Enabling per-layer gradient monitoring hooks.
+log_weights: Enabling model weight distribution logging.
+log_activations: Capture activation statistics (mean, std, sparsity) per epoch.
+log_attention: Capture attention weights per epoch.
+log_memory: Track GPU/CPU memory snapshots per epoch.
+log_throughput: Track training step throughput (samples/sec).
+log_embeddings: Project node embeddings to TensorBoard at end of training.
+log_loss_landscape: Plot loss landscape periodically.
+log_attention_heatmaps: Plot attention weight heatmaps periodically.
+log_profiling_report: Generate and log execution profiling report at train end.
+nan_guard: Enable gradient NaN/Inf detection hooks (raises on detection).
+viz_every_n_epochs: Frequency for expensive visualizations (embeddings,
+loss landscape, attention heatmaps).  <code class="docutils literal notranslate"><span class="pre">0</span></code> means only at train end.
+profiler_buffer_size: Buffer size for the execution profiler CSV writer.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.wst_tracking_uri">
 <span class="sig-name descname"><span class="pre">wst_tracking_uri</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.wst_tracking_uri" title="Link to this definition">#</a></dt>
@@ -606,6 +657,144 @@ tracker component pointing at <code class="docutils literal notranslate"><span c
 <dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.zenml_stack_name">
 <span class="sig-name descname"><span class="pre">zenml_stack_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.zenml_stack_name" title="Link to this definition">#</a></dt>
 <dd><p>‘wsmart-route-stack’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.wandb_mode">
+<span class="sig-name descname"><span class="pre">wandb_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.wandb_mode" title="Link to this definition">#</a></dt>
+<dd><p>‘offline’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.no_tensorboard">
+<span class="sig-name descname"><span class="pre">no_tensorboard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.no_tensorboard" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.no_progress_bar">
+<span class="sig-name descname"><span class="pre">no_progress_bar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.no_progress_bar" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_dir">
+<span class="sig-name descname"><span class="pre">log_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_dir" title="Link to this definition">#</a></dt>
+<dd><p>‘logs’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.verbose" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.profile">
+<span class="sig-name descname"><span class="pre">profile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.profile" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_step">
+<span class="sig-name descname"><span class="pre">log_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_step" title="Link to this definition">#</a></dt>
+<dd><p>10</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_level">
+<span class="sig-name descname"><span class="pre">log_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_level" title="Link to this definition">#</a></dt>
+<dd><p>‘INFO’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.real_time_log">
+<span class="sig-name descname"><span class="pre">real_time_log</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.real_time_log" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_file">
+<span class="sig-name descname"><span class="pre">log_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_file" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_gradients">
+<span class="sig-name descname"><span class="pre">log_gradients</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_gradients" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_weights">
+<span class="sig-name descname"><span class="pre">log_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_weights" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_activations">
+<span class="sig-name descname"><span class="pre">log_activations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_activations" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_attention">
+<span class="sig-name descname"><span class="pre">log_attention</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_attention" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_memory">
+<span class="sig-name descname"><span class="pre">log_memory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_memory" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_throughput">
+<span class="sig-name descname"><span class="pre">log_throughput</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_throughput" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_embeddings">
+<span class="sig-name descname"><span class="pre">log_embeddings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_embeddings" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_loss_landscape">
+<span class="sig-name descname"><span class="pre">log_loss_landscape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_loss_landscape" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_attention_heatmaps">
+<span class="sig-name descname"><span class="pre">log_attention_heatmaps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_attention_heatmaps" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.log_profiling_report">
+<span class="sig-name descname"><span class="pre">log_profiling_report</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.log_profiling_report" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.nan_guard">
+<span class="sig-name descname"><span class="pre">nan_guard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.nan_guard" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.viz_every_n_epochs">
+<span class="sig-name descname"><span class="pre">viz_every_n_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.viz_every_n_epochs" title="Link to this definition">#</a></dt>
+<dd><p>0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tracking.TrackingConfig.profiler_buffer_size">
+<span class="sig-name descname"><span class="pre">profiler_buffer_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tracking.TrackingConfig.profiler_buffer_size" title="Link to this definition">#</a></dt>
+<dd><p>200</p>
 </dd></dl>
 
 </dd></dl>
@@ -673,6 +862,29 @@ tracker component pointing at <code class="docutils literal notranslate"><span c
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.zenml_enabled"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.zenml_enabled</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.zenml_store_url"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.zenml_store_url</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.zenml_stack_name"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.zenml_stack_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.wandb_mode"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.wandb_mode</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.no_tensorboard"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.no_tensorboard</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.no_progress_bar</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_dir"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_dir</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.verbose"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.verbose</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.profile"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.profile</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_step"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_step</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_level"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_level</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.real_time_log"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.real_time_log</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_file"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_file</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_gradients"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_gradients</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_weights"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_weights</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_activations"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_activations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_attention"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_attention</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_memory"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_memory</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_throughput"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_throughput</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_embeddings"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_embeddings</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_loss_landscape"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_loss_landscape</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_attention_heatmaps"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_attention_heatmaps</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.log_profiling_report"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.log_profiling_report</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.nan_guard"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.nan_guard</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.viz_every_n_epochs"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.viz_every_n_epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tracking.TrackingConfig.profiler_buffer_size"><code class="docutils literal notranslate"><span class="pre">TrackingConfig.profiler_buffer_size</span></code></a></li>
 </ul>
 </li>
 </ul>

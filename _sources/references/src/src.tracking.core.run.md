@@ -212,7 +212,7 @@
 
 ````
 
-````{py:method} log_dataset_event(event_type: str, file_path: typing.Optional[str] = None, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> src.tracking.core.run.Run
+````{py:method} log_dataset_event(event_type: str, file_path: typing.Optional[str] = None, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> src.tracking.core.run.Run
 :canonical: src.tracking.core.run.Run.log_dataset_event
 
 ```{autodoc2-docstring} src.tracking.core.run.Run.log_dataset_event

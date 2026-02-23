@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -486,11 +489,73 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.profiling">
 <span id="src-tracking-profiling"></span><h1><a class="reference internal" href="#module-src.tracking.profiling" title="src.tracking.profiling"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a><a class="headerlink" href="#module-src.tracking.profiling" title="Link to this heading">#</a></h1>
 <p>Profiling utilities package.</p>
+<p>Provides lightweight, WSTracker-integrated tools for measuring execution time,
+memory usage, and throughput at multiple granularities:</p>
+<ul class="simple">
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code> / :func:<code class="docutils literal notranslate"><span class="pre">start_global_profiling</span></code> /
+:func:<code class="docutils literal notranslate"><span class="pre">stop_global_profiling</span></code> — <code class="docutils literal notranslate"><span class="pre">sys.setprofile</span></code> hook that records every
+project function call to a buffered CSV.</p></li>
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">BlockTimer</span></code> / :func:<code class="docutils literal notranslate"><span class="pre">profile_block</span></code> — context-manager timer for
+named code sections.</p></li>
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">MultiStepTimer</span></code> — multi-phase timer that tracks sequential stages.</p></li>
+<li><p>:func:<code class="docutils literal notranslate"><span class="pre">profile_function</span></code> — decorator that times every call to a function.</p></li>
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code> — point-in-time GPU/CPU memory snapshot.</p></li>
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">MemoryTracker</span></code> — background-thread memory monitor.</p></li>
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">ThroughputTracker</span></code> — sliding-window items-per-second meter.</p></li>
+<li><p>:class:<code class="docutils literal notranslate"><span class="pre">ProfilingReport</span></code> — reads and analyses an :class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code>
+CSV to produce top-function and per-module breakdowns.</p></li>
+</ul>
+<p>All classes auto-forward results to the active WSTracker run via
+<code class="docutils literal notranslate"><span class="pre">contextlib.suppress</span></code>-guarded calls — they are safe no-ops when no run is
+active or optional dependencies are missing.</p>
+<p>Example usage::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.tracking.profiling import (
+    profile_block,
+    profile_function,
+    MemorySnapshot,
+    MemoryTracker,
+    ThroughputTracker,
+    start_global_profiling,
+    stop_global_profiling,
+)
+
+# Time a single block
+with profile_block(&quot;data_loading&quot;, step=epoch):
+    dataset = load_data()
+
+# Decorate a function
+@profile_function(prefix=&quot;sim&quot;)
+def run_policy(obs):
+    return policy(obs)
+
+# Track memory during training
+with MemoryTracker(interval_sec=0.5, tag=&quot;train&quot;) as mem:
+    train_one_epoch()
+mem.log_summary_to_run(step=epoch)
+
+# Measure throughput
+tracker = ThroughputTracker(window=50, unit=&quot;samples&quot;)
+tracker.start()
+for batch in dataloader:
+    with tracker.step(len(batch)):
+        loss = model(batch)
+tracker.log_to_run(step=epoch, prefix=&quot;train&quot;)
+
+# Full execution profiling
+start_global_profiling()
+run_experiment()
+stop_global_profiling()   # auto-logs CSV as artifact
+</pre></div>
+</div>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.profiling.profiler.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.profiler</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.tracking.profiling.throughput.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.throughput</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.tracking.profiling.timer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.timer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.tracking.profiling.memory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.memory</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.tracking.profiling.report.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.report</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -512,7 +577,7 @@ document.write(`
 <dl class="py data">
 <dt class="sig sig-object py" id="src.tracking.profiling.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.profiling.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.tracking.profiling.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘ExecutionProfiler’, ‘start_global_profiling’, ‘stop_global_profiling’]</p>
+<dd><p>[‘ExecutionProfiler’, ‘start_global_profiling’, ‘stop_global_profiling’, ‘BlockTimer’, ‘MultiStepTim…</p>
 </dd></dl>
 
 </section>

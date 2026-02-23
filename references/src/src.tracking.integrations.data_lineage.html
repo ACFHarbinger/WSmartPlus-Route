@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -473,6 +476,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.data_lineage.DataLineageCallback.on_step_end"><code class="docutils literal notranslate"><span class="pre">DataLineageCallback.on_step_end()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.data_lineage._log_cumulative_bins"><code class="docutils literal notranslate"><span class="pre">_log_cumulative_bins()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.data_lineage._bins_to_tensor_dict"><code class="docutils literal notranslate"><span class="pre">_bins_to_tensor_dict()</span></code></a></li>
 </ul>
 </li>
@@ -534,7 +538,10 @@ experiment database.</p></li>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.integrations.data_lineage._bins_to_tensor_dict" title="src.tracking.integrations.data_lineage._bins_to_tensor_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bins_to_tensor_dict</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.integrations.data_lineage._log_cumulative_bins" title="src.tracking.integrations.data_lineage._log_cumulative_bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_cumulative_bins</span></code></a></p></td>
+<td><p>Log cumulative bins scalar state as time-series metrics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.integrations.data_lineage._bins_to_tensor_dict" title="src.tracking.integrations.data_lineage._bins_to_tensor_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bins_to_tensor_dict</span></code></a></p></td>
 <td><p>Convert key :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.simulations.bins.base.Bins</span></code>
 numpy arrays to a <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">tensor}</span></code> dict for <code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code>.</p></td>
 </tr>
@@ -585,6 +592,23 @@ day_context: :class:<code class="docutils literal notranslate"><span class="pre"
 day: Current simulation day index (used as metric step).</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.integrations.data_lineage._log_cumulative_bins">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.data_lineage.</span></span><span class="sig-name descname"><span class="pre">_log_cumulative_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.integrations.simulation.SimulationRunTracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data_lineage._log_cumulative_bins" title="Link to this definition">#</a></dt>
+<dd><p>Log cumulative bins scalar state as time-series metrics.</p>
+<p>These values are not present in <code class="docutils literal notranslate"><span class="pre">daily_log</span></code> because they are accumulated
+on the bins object rather than recorded per-day.  Logging the cumulative
+series at each step lets consumers derive per-day deltas by differencing.</p>
+<p>Scalars logged (all namespaced under <code class="docutils literal notranslate"><span class="pre">{policy}/s{sample}/cumul/</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">km</span></code>        — total distance travelled so far (<code class="docutils literal notranslate"><span class="pre">bins.travel</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kg</span></code>        — total waste collected (<code class="docutils literal notranslate"><span class="pre">bins.collected</span></code> sum)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kg_lost</span></code>   — total waste lost to overflow (<code class="docutils literal notranslate"><span class="pre">bins.lost</span></code> sum)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">overflows</span></code> — total overflow events (<code class="docutils literal notranslate"><span class="pre">bins.inoverflow</span></code> sum)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">profit</span></code>    — cumulative net profit (<code class="docutils literal notranslate"><span class="pre">bins.profit</span></code>)</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
@@ -660,6 +684,7 @@ numpy arrays to a <code class="docutils literal notranslate"><span class="pre">{
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.data_lineage.DataLineageCallback.on_step_end"><code class="docutils literal notranslate"><span class="pre">DataLineageCallback.on_step_end()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.data_lineage._log_cumulative_bins"><code class="docutils literal notranslate"><span class="pre">_log_cumulative_bins()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.data_lineage._bins_to_tensor_dict"><code class="docutils literal notranslate"><span class="pre">_bins_to_tensor_dict()</span></code></a></li>
 </ul>
 </li>

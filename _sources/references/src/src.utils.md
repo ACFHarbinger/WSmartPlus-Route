@@ -23,6 +23,7 @@ src.utils.ops
 src.utils.docs
 src.utils.security
 src.utils.data
+src.utils.output
 src.utils.functions
 src.utils.validation
 src.utils.configs

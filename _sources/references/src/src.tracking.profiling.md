@@ -14,6 +14,10 @@
 :maxdepth: 1
 
 src.tracking.profiling.profiler
+src.tracking.profiling.throughput
+src.tracking.profiling.timer
+src.tracking.profiling.memory
+src.tracking.profiling.report
 ```
 
 ## Package Contents
@@ -35,7 +39,7 @@ src.tracking.profiling.profiler
 ````{py:data} __all__
 :canonical: src.tracking.profiling.__all__
 :value: >
-   ['ExecutionProfiler', 'start_global_profiling', 'stop_global_profiling']
+   ['ExecutionProfiler', 'start_global_profiling', 'stop_global_profiling', 'BlockTimer', 'MultiStepTim...
 
 ```{autodoc2-docstring} src.tracking.profiling.__all__
 ```

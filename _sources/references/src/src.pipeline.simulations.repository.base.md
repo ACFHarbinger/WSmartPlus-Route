@@ -31,7 +31,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.pipeline.simulations.repository.base.SimulationRepository
 ```
 
-````{py:method} get_indices(filename, n_samples, n_nodes, data_size, lock=None)
+````{py:method} get_indices(filename: typing.Any, n_samples: int, n_nodes: int, data_size: int, lock: typing.Optional[typing.Any] = None) -> typing.List[typing.List[int]]
 :canonical: src.pipeline.simulations.repository.base.SimulationRepository.get_indices
 :abstractmethod:
 
@@ -40,7 +40,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} get_depot(area, data_dir=None)
+````{py:method} get_depot(area: typing.Any, data_dir: typing.Optional[str] = None) -> pandas.DataFrame
 :canonical: src.pipeline.simulations.repository.base.SimulationRepository.get_depot
 :abstractmethod:
 
@@ -49,7 +49,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} get_simulator_data(number_of_bins, area='Rio Maior', waste_type=None, lock=None, data_dir=None)
+````{py:method} get_simulator_data(number_of_bins: int, area: str = 'Rio Maior', waste_type: typing.Optional[str] = None, lock: typing.Optional[typing.Any] = None, data_dir: typing.Optional[str] = None) -> typing.Tuple[pandas.DataFrame, pandas.DataFrame]
 :canonical: src.pipeline.simulations.repository.base.SimulationRepository.get_simulator_data
 :abstractmethod:
 
@@ -58,7 +58,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} get_area_params(area, waste_type)
+````{py:method} get_area_params(area: typing.Any, waste_type: typing.Any) -> typing.Tuple[float, float, float, float, float]
 :canonical: src.pipeline.simulations.repository.base.SimulationRepository.get_area_params
 :abstractmethod:
 

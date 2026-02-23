@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.__init__
 ```
 
-````{py:method} track_load(file_path: str, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} track_load(file_path: str, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
 :canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_load
 
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_load
@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} track_generate(file_path: typing.Optional[str], num_samples: int, problem: str, graph_size: int, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} track_generate(file_path: typing.Optional[str], shape: tuple, problem: str, graph_size: int, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
 :canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_generate
 
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_generate
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} track_mutation(description: str, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} track_mutation(description: str, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
 :canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_mutation
 
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_mutation
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} track_save(file_path: str, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} track_save(file_path: str, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
 :canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_save
 
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_save

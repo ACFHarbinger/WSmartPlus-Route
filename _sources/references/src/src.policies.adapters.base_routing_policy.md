@@ -140,6 +140,14 @@ Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
 
 ````
 
+````{py:method} _log_solver_params(values: typing.Dict[str, typing.Any], context: typing.Dict[str, typing.Any]) -> None
+:canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy._log_solver_params
+
+```{autodoc2-docstring} src.policies.adapters.base_routing_policy.BaseRoutingPolicy._log_solver_params
+```
+
+````
+
 ````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
 :canonical: src.policies.adapters.base_routing_policy.BaseRoutingPolicy.execute
 

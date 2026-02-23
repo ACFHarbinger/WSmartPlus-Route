@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -479,6 +482,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._map_tour_to_global"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._map_tour_to_global()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._compute_cost"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._compute_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._run_solver()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._log_solver_params"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._log_solver_params()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy.execute"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy.execute()</span></code></a></li>
 </ul>
 </li>
@@ -685,6 +689,18 @@ Tuple of (routes, profit, solver_cost)</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy._log_solver_params">
+<span class="sig-name descname"><span class="pre">_log_solver_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._log_solver_params" title="Link to this definition">#</a></dt>
+<dd><p>Log the resolved solver parameters to the active tracking run.</p>
+<p>Captures the full merged <code class="docutils literal notranslate"><span class="pre">values</span></code> dict (area defaults + YAML config +
+runtime overrides) as run params, namespaced under the policy name.
+Only logs once per adapter instance to avoid per-day duplication.</p>
+<p>Args:
+values: Merged solver configuration dict from <code class="docutils literal notranslate"><span class="pre">_load_area_params</span></code>.
+context: Simulation day context kwargs.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adapters.base_routing_policy.BaseRoutingPolicy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy.execute" title="Link to this definition">#</a></dt>
 <dd><p>Execute the routing policy using template method pattern.</p>
@@ -761,6 +777,7 @@ Tuple of (tour, cost, extra_output)</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._map_tour_to_global"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._map_tour_to_global()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._compute_cost"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._compute_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._run_solver()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._log_solver_params"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy._log_solver_params()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adapters.base_routing_policy.BaseRoutingPolicy.execute"><code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy.execute()</span></code></a></li>
 </ul>
 </li>

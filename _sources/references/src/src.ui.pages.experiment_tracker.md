@@ -35,6 +35,14 @@
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_artifacts
     :summary:
     ```
+* - {py:obj}`_render_dataset_events <src.ui.pages.experiment_tracker._render_dataset_events>`
+  - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_dataset_events
+    :summary:
+    ```
+* - {py:obj}`_fmt_size <src.ui.pages.experiment_tracker._fmt_size>`
+  - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._fmt_size
+    :summary:
+    ```
 * - {py:obj}`_render_tracker_sidebar <src.ui.pages.experiment_tracker._render_tracker_sidebar>`
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_tracker_sidebar
     :summary:
@@ -57,6 +65,10 @@
     ```
 * - {py:obj}`_STATUS_ICONS <src.ui.pages.experiment_tracker._STATUS_ICONS>`
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._STATUS_ICONS
+    :summary:
+    ```
+* - {py:obj}`_EVENT_TYPE_ICONS <src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS>`
+  - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS
     :summary:
     ```
 ````
@@ -115,6 +127,30 @@
 :canonical: src.ui.pages.experiment_tracker._render_artifacts
 
 ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_artifacts
+```
+````
+
+````{py:data} _EVENT_TYPE_ICONS
+:canonical: src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS
+:value: >
+   None
+
+```{autodoc2-docstring} src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS
+```
+
+````
+
+````{py:function} _render_dataset_events(run_id: str) -> None
+:canonical: src.ui.pages.experiment_tracker._render_dataset_events
+
+```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_dataset_events
+```
+````
+
+````{py:function} _fmt_size(size_bytes: typing.Any) -> str
+:canonical: src.ui.pages.experiment_tracker._fmt_size
+
+```{autodoc2-docstring} src.ui.pages.experiment_tracker._fmt_size
 ```
 ````
 

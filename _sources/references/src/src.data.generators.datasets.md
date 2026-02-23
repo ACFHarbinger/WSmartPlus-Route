@@ -49,7 +49,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.data.generators.datasets.logger>`
+  - ```{autodoc2-docstring} src.data.generators.datasets.logger
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} logger
+:canonical: src.data.generators.datasets.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.data.generators.datasets.logger
+```
+
+````
 
 ````{py:function} generate_datasets(cfg: logic.src.configs.Config) -> None
 :canonical: src.data.generators.datasets.generate_datasets
@@ -58,14 +80,14 @@
 ```
 ````
 
-````{py:function} _generate_problem_data(problem: str, distributions: typing.Any, data: logic.src.configs.tasks.data.DataConfig) -> None
+````{py:function} _generate_problem_data(problem: str, distributions: typing.Any, data: logic.src.configs.tasks.data.DataConfig) -> int
 :canonical: src.data.generators.datasets._generate_problem_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_problem_data
 ```
 ````
 
-````{py:function} _process_instance_generation(problem: str, dist: typing.Any, datadir: str, data: logic.src.configs.tasks.data.DataConfig, graph_cfg: typing.Optional[logic.src.configs.envs.graph.GraphConfig] = None) -> None
+````{py:function} _process_instance_generation(problem: str, dist: typing.Any, datadir: str, data: logic.src.configs.tasks.data.DataConfig, graph_cfg: typing.Optional[logic.src.configs.envs.graph.GraphConfig] = None) -> int
 :canonical: src.data.generators.datasets._process_instance_generation
 
 ```{autodoc2-docstring} src.data.generators.datasets._process_instance_generation
@@ -79,21 +101,21 @@
 ```
 ````
 
-````{py:function} _generate_test_simulator_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, n_days: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig, area: str, waste_type: str, n_samples: int) -> None
+````{py:function} _generate_test_simulator_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, n_days: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig, area: str, waste_type: str, n_samples: int) -> int
 :canonical: src.data.generators.datasets._generate_test_simulator_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_test_simulator_data
 ```
 ````
 
-````{py:function} _generate_train_time_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> None
+````{py:function} _generate_train_time_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> int
 :canonical: src.data.generators.datasets._generate_train_time_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_time_data
 ```
 ````
 
-````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> None
+````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> int
 :canonical: src.data.generators.datasets._generate_train_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_data

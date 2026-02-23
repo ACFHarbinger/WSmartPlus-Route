@@ -21,25 +21,31 @@
     ```
 ````
 
-### Functions
+### Data
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`_extract_metrics <src.tracking.integrations.lightning._extract_metrics>`
-  - ```{autodoc2-docstring} src.tracking.integrations.lightning._extract_metrics
-    :summary:
-    ```
-* - {py:obj}`_log_checkpoint_artifact <src.tracking.integrations.lightning._log_checkpoint_artifact>`
-  - ```{autodoc2-docstring} src.tracking.integrations.lightning._log_checkpoint_artifact
+* - {py:obj}`logger <src.tracking.integrations.lightning.logger>`
+  - ```{autodoc2-docstring} src.tracking.integrations.lightning.logger
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} TrackingCallback
+````{py:data} logger
+:canonical: src.tracking.integrations.lightning.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.tracking.integrations.lightning.logger
+```
+
+````
+
+`````{py:class} TrackingCallback(tracking_cfg: typing.Optional[logic.src.configs.tracking.TrackingConfig] = None)
 :canonical: src.tracking.integrations.lightning.TrackingCallback
 
 Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
@@ -47,8 +53,22 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 ```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback
 ```
 
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.__init__
+```
+
 ````{py:method} on_fit_start(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_fit_start
+
+````
+
+````{py:method} on_train_batch_end(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule, outputs: typing.Any, batch: typing.Any, batch_idx: int) -> None
+:canonical: src.tracking.integrations.lightning.TrackingCallback.on_train_batch_end
+
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_train_batch_end
+```
 
 ````
 
@@ -67,6 +87,14 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 
 ````
 
+````{py:method} on_before_optimizer_step(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule, optimizer: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None
+:canonical: src.tracking.integrations.lightning.TrackingCallback.on_before_optimizer_step
+
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_before_optimizer_step
+```
+
+````
+
 ````{py:method} on_save_checkpoint(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule, checkpoint: typing.Dict[str, typing.Any]) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_save_checkpoint
 
@@ -81,17 +109,3 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 ````
 
 `````
-
-````{py:function} _extract_metrics(callback_metrics: typing.Dict[str, typing.Any], prefix: str) -> typing.Dict[str, float]
-:canonical: src.tracking.integrations.lightning._extract_metrics
-
-```{autodoc2-docstring} src.tracking.integrations.lightning._extract_metrics
-```
-````
-
-````{py:function} _log_checkpoint_artifact(run: typing.Any, cb: pytorch_lightning.callbacks.ModelCheckpoint, epoch: int) -> None
-:canonical: src.tracking.integrations.lightning._log_checkpoint_artifact
-
-```{autodoc2-docstring} src.tracking.integrations.lightning._log_checkpoint_artifact
-```
-````

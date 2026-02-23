@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.tracking';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.tracking.hooks" href="src.tracking.hooks.html" />
+    <link rel="next" title="src.tracking.helpers" href="src.tracking.helpers.html" />
     <link rel="prev" title="src.data.datasets.simulation.npz_dataset" href="src.data.datasets.simulation.npz_dataset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -574,6 +577,10 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.helpers.lightning_helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers.lightning_helpers</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.hooks.weight_hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks.weight_hooks</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.hooks.gradient_hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks.gradient_hooks</span></code></a></li>
@@ -590,6 +597,10 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.profiling.profiler.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.profiler</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.profiling.throughput.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.throughput</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.profiling.timer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.timer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.profiling.memory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.memory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.profiling.report.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.report</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a><ul>
@@ -600,6 +611,13 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.integrations.filesystem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.filesystem</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.integrations.data_lineage.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.data_lineage</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.integrations.mlflow_bridge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.mlflow_bridge</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.database.commands.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.commands</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.database.sql_loader.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.sql_loader</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.database.cmd_stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.cmd_stats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.tracking.database.shared.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.shared</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a><ul>
@@ -631,7 +649,6 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.logging.log_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.log_utils</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.logging.json_formatter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.json_formatter</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.logging.logger_writer.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.logger_writer</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.tracking.logging.excel_summary.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.excel_summary</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.logging.pylogger.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.pylogger</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.tracking.logging.structured_logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.structured_logging</span></code></a></li>
 </ul>
@@ -746,11 +763,11 @@ run), or <code class="docutils literal notranslate"><span class="pre">None</span
       </div>
     </a>
     <a class="right-next"
-       href="src.tracking.hooks.html"
+       href="src.tracking.helpers.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

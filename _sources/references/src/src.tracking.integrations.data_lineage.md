@@ -27,6 +27,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_log_cumulative_bins <src.tracking.integrations.data_lineage._log_cumulative_bins>`
+  - ```{autodoc2-docstring} src.tracking.integrations.data_lineage._log_cumulative_bins
+    :summary:
+    ```
 * - {py:obj}`_bins_to_tensor_dict <src.tracking.integrations.data_lineage._bins_to_tensor_dict>`
   - ```{autodoc2-docstring} src.tracking.integrations.data_lineage._bins_to_tensor_dict
     :summary:
@@ -64,6 +68,13 @@
 ````
 
 `````
+
+````{py:function} _log_cumulative_bins(sim_tracker: logic.src.tracking.integrations.simulation.SimulationRunTracker, bins: typing.Any, day: int) -> None
+:canonical: src.tracking.integrations.data_lineage._log_cumulative_bins
+
+```{autodoc2-docstring} src.tracking.integrations.data_lineage._log_cumulative_bins
+```
+````
 
 ````{py:function} _bins_to_tensor_dict(bins: typing.Any) -> typing.Dict[str, torch.Tensor]
 :canonical: src.tracking.integrations.data_lineage._bins_to_tensor_dict

@@ -51,6 +51,10 @@
   - ```{autodoc2-docstring} src.tracking.profiling.profiler._ROOT_DIR
     :summary:
     ```
+* - {py:obj}`_BUFFER_SIZE <src.tracking.profiling.profiler._BUFFER_SIZE>`
+  - ```{autodoc2-docstring} src.tracking.profiling.profiler._BUFFER_SIZE
+    :summary:
+    ```
 * - {py:obj}`_LIB_DIRS <src.tracking.profiling.profiler._LIB_DIRS>`
   - ```{autodoc2-docstring} src.tracking.profiling.profiler._LIB_DIRS
     :summary:
@@ -83,17 +87,27 @@
 
 ````
 
+````{py:data} _BUFFER_SIZE
+:canonical: src.tracking.profiling.profiler._BUFFER_SIZE
+:value: >
+   200
+
+```{autodoc2-docstring} src.tracking.profiling.profiler._BUFFER_SIZE
+```
+
+````
+
 ````{py:data} _LIB_DIRS
 :canonical: src.tracking.profiling.profiler._LIB_DIRS
 :value: >
-   ('site-packages', 'dist-packages', 'lib/python', '<frozen', '<built-in', 'logic/src/utils/logging/pr...
+   ('site-packages', 'dist-packages', 'lib/python', '<frozen', '<built-in', 'logic/src/tracking/')
 
 ```{autodoc2-docstring} src.tracking.profiling.profiler._LIB_DIRS
 ```
 
 ````
 
-`````{py:class} ExecutionProfiler(log_dir: str = 'logs')
+`````{py:class} ExecutionProfiler(log_dir: str = 'logs', buffer_size: int = _BUFFER_SIZE)
 :canonical: src.tracking.profiling.profiler.ExecutionProfiler
 
 ```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler
@@ -129,6 +143,30 @@
 
 ````
 
+````{py:method} _handle_return(frame: typing.Any) -> None
+:canonical: src.tracking.profiling.profiler.ExecutionProfiler._handle_return
+
+```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler._handle_return
+```
+
+````
+
+````{py:method} _flush_locked() -> None
+:canonical: src.tracking.profiling.profiler.ExecutionProfiler._flush_locked
+
+```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler._flush_locked
+```
+
+````
+
+````{py:method} flush() -> None
+:canonical: src.tracking.profiling.profiler.ExecutionProfiler.flush
+
+```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler.flush
+```
+
+````
+
 ````{py:method} start() -> None
 :canonical: src.tracking.profiling.profiler.ExecutionProfiler.start
 
@@ -141,6 +179,23 @@
 :canonical: src.tracking.profiling.profiler.ExecutionProfiler.stop
 
 ```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler.stop
+```
+
+````
+
+````{py:property} wall_elapsed
+:canonical: src.tracking.profiling.profiler.ExecutionProfiler.wall_elapsed
+:type: typing.Optional[float]
+
+```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler.wall_elapsed
+```
+
+````
+
+````{py:method} get_report() -> typing.Any
+:canonical: src.tracking.profiling.profiler.ExecutionProfiler.get_report
+
+```{autodoc2-docstring} src.tracking.profiling.profiler.ExecutionProfiler.get_report
 ```
 
 ````
@@ -158,14 +213,14 @@
 
 ````
 
-````{py:function} start_global_profiling(log_dir: str = 'logs') -> None
+````{py:function} start_global_profiling(log_dir: str = 'logs', buffer_size: int = _BUFFER_SIZE) -> None
 :canonical: src.tracking.profiling.profiler.start_global_profiling
 
 ```{autodoc2-docstring} src.tracking.profiling.profiler.start_global_profiling
 ```
 ````
 
-````{py:function} stop_global_profiling(log_artifact: bool = True) -> None
+````{py:function} stop_global_profiling(log_artifact: bool = True, print_report: bool = True) -> None
 :canonical: src.tracking.profiling.profiler.stop_global_profiling
 
 ```{autodoc2-docstring} src.tracking.profiling.profiler.stop_global_profiling

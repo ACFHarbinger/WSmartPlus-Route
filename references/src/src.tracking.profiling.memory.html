@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.tracking.logging.excel_summary &#8212; WSmart-Route  documentation</title>
+    <title>src.tracking.profiling.memory &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.tracking.logging.excel_summary';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.tracking.profiling.memory';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.tracking.logging.pylogger" href="src.tracking.logging.pylogger.html" />
-    <link rel="prev" title="src.tracking.logging.logger_writer" href="src.tracking.logging.logger_writer.html" />
+    <link rel="next" title="src.tracking.profiling.report" href="src.tracking.profiling.report.html" />
+    <link rel="prev" title="src.tracking.profiling.timer" href="src.tracking.profiling.timer.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,11 +256,13 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
 </details></li>
@@ -369,7 +372,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.tracking.logging.excel_summary.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.tracking.profiling.memory.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -453,7 +456,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.tracking.logging.excel_summary</h1>
+    <h1>src.tracking.profiling.memory</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -464,15 +467,28 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._DIST_PATTERN"><code class="docutils literal notranslate"><span class="pre">_DIST_PATTERN</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._DISPLAY_METRICS"><code class="docutils literal notranslate"><span class="pre">_DISPLAY_METRICS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._parse_policy_name"><code class="docutils literal notranslate"><span class="pre">_parse_policy_name()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._load_json"><code class="docutils literal notranslate"><span class="pre">_load_json()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary.discover_and_aggregate"><code class="docutils literal notranslate"><span class="pre">discover_and_aggregate()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.capture"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.capture()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.delta"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.delta()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.log_to_run"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.log_to_run()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.__repr__"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.__repr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker"><code class="docutils literal notranslate"><span class="pre">MemoryTracker</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.peak_gpu_mb"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.peak_gpu_mb</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.peak_cpu_mb"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.peak_cpu_mb</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.n_samples"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.n_samples</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.start"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.start()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.stop"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.stop()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker._monitor"><code class="docutils literal notranslate"><span class="pre">MemoryTracker._monitor()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.log_summary_to_run"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.log_summary_to_run()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.__enter__"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.__enter__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.__exit__"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.__exit__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.__repr__"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.__repr__()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -488,40 +504,26 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.excel_summary">
-<span id="src-tracking-logging-excel-summary"></span><h1><a class="reference internal" href="#module-src.tracking.logging.excel_summary" title="src.tracking.logging.excel_summary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.excel_summary</span></code></a><a class="headerlink" href="#module-src.tracking.logging.excel_summary" title="Link to this heading">#</a></h1>
-<p>Utility to aggregate simulation results JSONs into a single Excel log.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.profiling.memory">
+<span id="src-tracking-profiling-memory"></span><h1><a class="reference internal" href="#module-src.tracking.profiling.memory" title="src.tracking.profiling.memory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.memory</span></code></a><a class="headerlink" href="#module-src.tracking.profiling.memory" title="Link to this heading">#</a></h1>
+<p>GPU and CPU memory profiling utilities.</p>
+<p>Provides point-in-time snapshots and continuous background monitoring of
+device memory, with automatic forwarding to the active WSTracker run.</p>
+<p>Classes:
+MemorySnapshot: Immutable record of GPU/CPU memory at one instant.
+MemoryTracker:  Background-thread monitor that records samples at a
+configurable interval.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.excel_summary._parse_policy_name" title="src.tracking.logging.excel_summary._parse_policy_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_policy_name</span></code></a></p></td>
-<td><p>Split a raw policy key into (base_name, distribution).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.profiling.memory.MemorySnapshot" title="src.tracking.profiling.memory.MemorySnapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemorySnapshot</span></code></a></p></td>
+<td><p>Immutable record of GPU and CPU memory at a single point in time.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.excel_summary._load_json" title="src.tracking.logging.excel_summary._load_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_json</span></code></a></p></td>
-<td><p>Load and parse a JSON file.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.excel_summary.discover_and_aggregate" title="src.tracking.logging.excel_summary.discover_and_aggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_and_aggregate</span></code></a></p></td>
-<td><p>Find all log directories and aggregate results into a DataFrame.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.excel_summary.main" title="src.tracking.logging.excel_summary.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td><p>Main execution entry point.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.excel_summary._DIST_PATTERN" title="src.tracking.logging.excel_summary._DIST_PATTERN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DIST_PATTERN</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.excel_summary._DISPLAY_METRICS" title="src.tracking.logging.excel_summary._DISPLAY_METRICS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DISPLAY_METRICS</span></code></a></p></td>
-<td></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryTracker</span></code></a></p></td>
+<td><p>Continuously monitors memory usage in a daemon background thread.</p></td>
 </tr>
 </tbody>
 </table>
@@ -529,40 +531,145 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py data">
-<dt class="sig sig-object py" id="src.tracking.logging.excel_summary._DIST_PATTERN">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.excel_summary.</span></span><span class="sig-name descname"><span class="pre">_DIST_PATTERN</span></span><a class="headerlink" href="#src.tracking.logging.excel_summary._DIST_PATTERN" title="Link to this definition">#</a></dt>
-<dd><p>‘compile(…)’</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.profiling.memory.</span></span><span class="sig-name descname"><span class="pre">MemorySnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_allocated_mb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_reserved_mb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_peak_mb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_rss_mb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot" title="Link to this definition">#</a></dt>
+<dd><p>Immutable record of GPU and CPU memory at a single point in time.</p>
+<p>All values are in megabytes (MiB).</p>
+<p>Attributes:
+tag: Human-readable label for this snapshot.
+gpu_allocated_mb: Bytes currently allocated by PyTorch tensors on the
+selected CUDA device, converted to MiB.
+gpu_reserved_mb: Bytes reserved (cached) by the CUDA allocator, MiB.
+gpu_peak_mb: Peak <code class="docutils literal notranslate"><span class="pre">gpu_allocated_mb</span></code> since the last
+<code class="docutils literal notranslate"><span class="pre">torch.cuda.reset_peak_memory_stats()</span></code> call, MiB.
+cpu_rss_mb: Resident Set Size of this process (requires <em>psutil</em>),
+MiB.  Zero when <em>psutil</em> is not installed.
+timestamp: <code class="docutils literal notranslate"><span class="pre">time.time()</span></code> at capture.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.capture">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemorySnapshot" title="src.tracking.profiling.memory.MemorySnapshot"><span class="pre">src.tracking.profiling.memory.MemorySnapshot</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.capture" title="Link to this definition">#</a></dt>
+<dd><p>Capture the current memory state and return a :class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code>.</p>
+<p>Args:
+tag: Label used both as the snapshot identifier and as the metric
+namespace when logging (<code class="docutils literal notranslate"><span class="pre">memory/{tag}/...</span></code>).
+device: CUDA device to query.  When <code class="docutils literal notranslate"><span class="pre">None</span></code>, the current default
+device is used.  CPU-only environments are handled gracefully.
+step: Metric step forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metrics</span></code>.
+log_metric: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), call :meth:<code class="docutils literal notranslate"><span class="pre">log_to_run</span></code>
+immediately after capturing.</p>
+<p>Returns:
+A :class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code> populated with current readings.</p>
 </dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="src.tracking.logging.excel_summary._DISPLAY_METRICS">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.excel_summary.</span></span><span class="sig-name descname"><span class="pre">_DISPLAY_METRICS</span></span><a class="headerlink" href="#src.tracking.logging.excel_summary._DISPLAY_METRICS" title="Link to this definition">#</a></dt>
-<dd><p>[‘profit’, ‘cost’, ‘kg’, ‘km’, ‘kg/km’, ‘overflows’, ‘ncol’, ‘kg_lost’, ‘days’, ‘time’]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.delta">
+<span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.tracking.profiling.memory.MemorySnapshot" title="src.tracking.profiling.memory.MemorySnapshot"><span class="pre">src.tracking.profiling.memory.MemorySnapshot</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.delta" title="Link to this definition">#</a></dt>
+<dd><p>Compute memory differences relative to <em>baseline</em>.</p>
+<p>Returns:
+Dict with keys <code class="docutils literal notranslate"><span class="pre">gpu_allocated_delta_mb</span></code>,
+<code class="docutils literal notranslate"><span class="pre">gpu_reserved_delta_mb</span></code>, <code class="docutils literal notranslate"><span class="pre">gpu_peak_delta_mb</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cpu_rss_delta_mb</span></code>.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.tracking.logging.excel_summary._parse_policy_name">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.excel_summary.</span></span><span class="sig-name descname"><span class="pre">_parse_policy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.excel_summary._parse_policy_name" title="Link to this definition">#</a></dt>
-<dd><p>Split a raw policy key into (base_name, distribution).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.log_to_run">
+<span class="sig-name descname"><span class="pre">log_to_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.log_to_run" title="Link to this definition">#</a></dt>
+<dd><p>Log all memory fields to the active WSTracker run.</p>
+<p>Metrics are stored under the namespace <code class="docutils literal notranslate"><span class="pre">memory/{tag}/</span></code>.
+This is a silent no-op when no run is active or any error occurs.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.tracking.logging.excel_summary._load_json">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.excel_summary.</span></span><span class="sig-name descname"><span class="pre">_load_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.excel_summary._load_json" title="Link to this definition">#</a></dt>
-<dd><p>Load and parse a JSON file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.__repr__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.tracking.logging.excel_summary.discover_and_aggregate">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.excel_summary.</span></span><span class="sig-name descname"><span class="pre">discover_and_aggregate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.tracking.logging.excel_summary.discover_and_aggregate" title="Link to this definition">#</a></dt>
-<dd><p>Find all log directories and aggregate results into a DataFrame.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.profiling.memory.</span></span><span class="sig-name descname"><span class="pre">MemoryTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'background'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_per_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker" title="Link to this definition">#</a></dt>
+<dd><p>Continuously monitors memory usage in a daemon background thread.</p>
+<p>Samples are collected at <em>interval_sec</em> intervals.  Use as a context
+manager or call :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> / :meth:<code class="docutils literal notranslate"><span class="pre">stop</span></code> manually.  Call
+:meth:<code class="docutils literal notranslate"><span class="pre">log_summary_to_run</span></code> once after stopping to forward the peak values
+to the active WSTracker run.</p>
+<p>Usage::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>tracker = MemoryTracker(interval_sec=0.5, tag=&quot;training&quot;)
+with tracker:
+    train_one_epoch()
+print(tracker.peak_gpu_mb)
+tracker.log_summary_to_run(step=epoch)
+</pre></div>
+</div>
+<p>Args:
+interval_sec: Sampling interval in seconds.
+tag: Metric namespace label; forwarded to each
+:class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code>.
+device: CUDA device to query (<code class="docutils literal notranslate"><span class="pre">None</span></code> = default device).
+log_per_sample: When <code class="docutils literal notranslate"><span class="pre">True</span></code>, each snapshot is also logged to the
+active run as a time-series metric.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> to
+avoid metric spam; use :meth:<code class="docutils literal notranslate"><span class="pre">log_summary_to_run</span></code> instead.</p>
+<p class="rubric">Initialization</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.peak_gpu_mb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_gpu_mb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.peak_gpu_mb" title="Link to this definition">#</a></dt>
+<dd><p>Peak GPU-allocated memory observed across all samples (MiB).</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.tracking.logging.excel_summary.main">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.excel_summary.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.excel_summary.main" title="Link to this definition">#</a></dt>
-<dd><p>Main execution entry point.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.peak_cpu_mb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_cpu_mb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.peak_cpu_mb" title="Link to this definition">#</a></dt>
+<dd><p>Peak CPU RSS observed across all samples (MiB).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.n_samples">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.n_samples" title="Link to this definition">#</a></dt>
+<dd><p>Number of snapshots collected since the last :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><span class="pre">src.tracking.profiling.memory.MemoryTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.start" title="Link to this definition">#</a></dt>
+<dd><p>Start the background monitoring thread.  Returns <em>self</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><span class="pre">src.tracking.profiling.memory.MemoryTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.stop" title="Link to this definition">#</a></dt>
+<dd><p>Signal the monitoring thread to stop and wait for it to exit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker._monitor">
+<span class="sig-name descname"><span class="pre">_monitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker._monitor" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.log_summary_to_run">
+<span class="sig-name descname"><span class="pre">log_summary_to_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.log_summary_to_run" title="Link to this definition">#</a></dt>
+<dd><p>Log peak GPU and CPU memory and sample count to the active run.</p>
+<p>Metrics are stored under <code class="docutils literal notranslate"><span class="pre">memory/{tag}/</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.__enter__">
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><span class="pre">src.tracking.profiling.memory.MemoryTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__enter__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.__exit__">
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__exit__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__repr__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -581,20 +688,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.tracking.logging.logger_writer.html"
+       href="src.tracking.profiling.timer.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.logger_writer</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.timer</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.tracking.logging.pylogger.html"
+       href="src.tracking.profiling.report.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.pylogger</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling.report</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -615,15 +722,28 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._DIST_PATTERN"><code class="docutils literal notranslate"><span class="pre">_DIST_PATTERN</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._DISPLAY_METRICS"><code class="docutils literal notranslate"><span class="pre">_DISPLAY_METRICS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._parse_policy_name"><code class="docutils literal notranslate"><span class="pre">_parse_policy_name()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary._load_json"><code class="docutils literal notranslate"><span class="pre">_load_json()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary.discover_and_aggregate"><code class="docutils literal notranslate"><span class="pre">discover_and_aggregate()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.excel_summary.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.capture"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.capture()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.delta"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.delta()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.log_to_run"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.log_to_run()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemorySnapshot.__repr__"><code class="docutils literal notranslate"><span class="pre">MemorySnapshot.__repr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker"><code class="docutils literal notranslate"><span class="pre">MemoryTracker</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.peak_gpu_mb"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.peak_gpu_mb</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.peak_cpu_mb"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.peak_cpu_mb</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.n_samples"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.n_samples</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.start"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.start()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.stop"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.stop()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker._monitor"><code class="docutils literal notranslate"><span class="pre">MemoryTracker._monitor()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.log_summary_to_run"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.log_summary_to_run()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.__enter__"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.__enter__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.__exit__"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.__exit__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.profiling.memory.MemoryTracker.__repr__"><code class="docutils literal notranslate"><span class="pre">MemoryTracker.__repr__()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

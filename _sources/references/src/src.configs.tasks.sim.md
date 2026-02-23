@@ -128,28 +128,6 @@
 
 ````
 
-````{py:attribute} log_level
-:canonical: src.configs.tasks.sim.SimConfig.log_level
-:type: str
-:value: >
-   'INFO'
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.log_level
-```
-
-````
-
-````{py:attribute} log_file
-:canonical: src.configs.tasks.sim.SimConfig.log_file
-:type: str
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.log_file
-```
-
-````
-
 ````{py:attribute} n_samples
 :canonical: src.configs.tasks.sim.SimConfig.n_samples
 :type: int
@@ -260,17 +238,6 @@
 
 ````
 
-````{py:attribute} no_progress_bar
-:canonical: src.configs.tasks.sim.SimConfig.no_progress_bar
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.no_progress_bar
-```
-
-````
-
 ````{py:attribute} server_run
 :canonical: src.configs.tasks.sim.SimConfig.server_run
 :type: bool
@@ -333,17 +300,6 @@
    None
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.gapik_file
-```
-
-````
-
-````{py:attribute} real_time_log
-:canonical: src.configs.tasks.sim.SimConfig.real_time_log
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.real_time_log
 ```
 
 ````

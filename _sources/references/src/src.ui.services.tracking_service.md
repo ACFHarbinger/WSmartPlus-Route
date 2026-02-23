@@ -47,6 +47,10 @@
   - ```{autodoc2-docstring} src.ui.services.tracking_service.load_run_artifacts
     :summary:
     ```
+* - {py:obj}`load_run_dataset_events <src.ui.services.tracking_service.load_run_dataset_events>`
+  - ```{autodoc2-docstring} src.ui.services.tracking_service.load_run_dataset_events
+    :summary:
+    ```
 * - {py:obj}`load_mlflow_runs <src.ui.services.tracking_service.load_mlflow_runs>`
   - ```{autodoc2-docstring} src.ui.services.tracking_service.load_mlflow_runs
     :summary:
@@ -124,6 +128,13 @@
 :canonical: src.ui.services.tracking_service.load_run_artifacts
 
 ```{autodoc2-docstring} src.ui.services.tracking_service.load_run_artifacts
+```
+````
+
+````{py:function} load_run_dataset_events(run_id: str, tracking_uri: typing.Optional[str] = None) -> typing.List[typing.Dict[str, typing.Any]]
+:canonical: src.ui.services.tracking_service.load_run_dataset_events
+
+```{autodoc2-docstring} src.ui.services.tracking_service.load_run_dataset_events
 ```
 ````
 

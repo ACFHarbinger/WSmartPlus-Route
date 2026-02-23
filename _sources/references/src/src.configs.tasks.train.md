@@ -238,17 +238,6 @@
 
 ````
 
-````{py:attribute} log_step
-:canonical: src.configs.tasks.train.TrainConfig.log_step
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.log_step
-```
-
-````
-
 ````{py:attribute} epoch_start
 :canonical: src.configs.tasks.train.TrainConfig.epoch_start
 :type: int
@@ -289,17 +278,6 @@
    None
 
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.resume
-```
-
-````
-
-````{py:attribute} logs_dir
-:canonical: src.configs.tasks.train.TrainConfig.logs_dir
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.logs_dir
 ```
 
 ````

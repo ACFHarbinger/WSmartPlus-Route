@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -478,7 +481,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.seed"><code class="docutils literal notranslate"><span class="pre">EvalConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">EvalConfig.data_distribution</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.no_cuda"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_cuda</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_progress_bar</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.compress_mask"><code class="docutils literal notranslate"><span class="pre">EvalConfig.compress_mask</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.max_calc_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.max_calc_batch_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.results_dir"><code class="docutils literal notranslate"><span class="pre">EvalConfig.results_dir</span></code></a></li>
@@ -537,7 +539,6 @@ model: Model configuration.
 seed: Random seed to use.
 data_distribution: Data distribution of the dataset.
 no_cuda: Disable CUDA.
-no_progress_bar: Disable progress bar.
 compress_mask: Compress mask into long.
 max_calc_batch_size: Size for subbatches.
 results_dir: Name of evaluation results directory.
@@ -608,12 +609,6 @@ problem: Problem to evaluate.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.eval.EvalConfig.no_cuda">
 <span class="sig-name descname"><span class="pre">no_cuda</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tasks.eval.EvalConfig.no_cuda" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.eval.EvalConfig.no_progress_bar">
-<span class="sig-name descname"><span class="pre">no_progress_bar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tasks.eval.EvalConfig.no_progress_bar" title="Link to this definition">#</a></dt>
 <dd><p>False</p>
 </dd></dl>
 
@@ -725,7 +720,6 @@ problem: Problem to evaluate.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.seed"><code class="docutils literal notranslate"><span class="pre">EvalConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">EvalConfig.data_distribution</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.no_cuda"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_cuda</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.no_progress_bar"><code class="docutils literal notranslate"><span class="pre">EvalConfig.no_progress_bar</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.compress_mask"><code class="docutils literal notranslate"><span class="pre">EvalConfig.compress_mask</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.max_calc_batch_size"><code class="docutils literal notranslate"><span class="pre">EvalConfig.max_calc_batch_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.eval.EvalConfig.results_dir"><code class="docutils literal notranslate"><span class="pre">EvalConfig.results_dir</span></code></a></li>

@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
@@ -255,10 +256,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
 </ul>
@@ -470,6 +473,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor._mapper"><code class="docutils literal notranslate"><span class="pre">_mapper</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor._log_processor_event"><code class="docutils literal notranslate"><span class="pre">_log_processor_event()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.sort_dataframe"><code class="docutils literal notranslate"><span class="pre">sort_dataframe()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.get_df_types"><code class="docutils literal notranslate"><span class="pre">get_df_types()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.setup_df"><code class="docutils literal notranslate"><span class="pre">setup_df()</span></code></a></li>
@@ -516,43 +520,46 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.sort_dataframe" title="src.pipeline.simulations.processor.sort_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_dataframe</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor._log_processor_event" title="src.pipeline.simulations.processor._log_processor_event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_processor_event</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.sort_dataframe" title="src.pipeline.simulations.processor.sort_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_dataframe</span></code></a></p></td>
 <td><p>Sort dataframe.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.get_df_types" title="src.pipeline.simulations.processor.get_df_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_df_types</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.get_df_types" title="src.pipeline.simulations.processor.get_df_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_df_types</span></code></a></p></td>
 <td><p>Get df types.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_df" title="src.pipeline.simulations.processor.setup_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_df</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_df" title="src.pipeline.simulations.processor.setup_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_df</span></code></a></p></td>
 <td><p>Setup df.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.sample_df" title="src.pipeline.simulations.processor.sample_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_df</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.sample_df" title="src.pipeline.simulations.processor.sample_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_df</span></code></a></p></td>
 <td><p>Sample df.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_indices" title="src.pipeline.simulations.processor.process_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_indices</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_indices" title="src.pipeline.simulations.processor.process_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_indices</span></code></a></p></td>
 <td><p>Process indices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_data" title="src.pipeline.simulations.processor.process_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_data" title="src.pipeline.simulations.processor.process_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_data</span></code></a></p></td>
 <td><p>Process data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_coordinates" title="src.pipeline.simulations.processor.process_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_coordinates</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_coordinates" title="src.pipeline.simulations.processor.process_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_coordinates</span></code></a></p></td>
 <td><p>Process coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_model_data" title="src.pipeline.simulations.processor.process_model_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_model_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.process_model_data" title="src.pipeline.simulations.processor.process_model_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_model_data</span></code></a></p></td>
 <td><p>Process model data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.create_dataframe_from_matrix" title="src.pipeline.simulations.processor.create_dataframe_from_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_dataframe_from_matrix</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.create_dataframe_from_matrix" title="src.pipeline.simulations.processor.create_dataframe_from_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_dataframe_from_matrix</span></code></a></p></td>
 <td><p>Create dataframe from matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.convert_to_dict" title="src.pipeline.simulations.processor.convert_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_dict</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.convert_to_dict" title="src.pipeline.simulations.processor.convert_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_dict</span></code></a></p></td>
 <td><p>Convert to dict.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.save_matrix_to_excel" title="src.pipeline.simulations.processor.save_matrix_to_excel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_matrix_to_excel</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.save_matrix_to_excel" title="src.pipeline.simulations.processor.save_matrix_to_excel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_matrix_to_excel</span></code></a></p></td>
 <td><p>Save matrix to excel.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_basedata" title="src.pipeline.simulations.processor.setup_basedata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basedata</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_basedata" title="src.pipeline.simulations.processor.setup_basedata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basedata</span></code></a></p></td>
 <td><p>Setup basedata.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_dist_path_tup" title="src.pipeline.simulations.processor.setup_dist_path_tup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_dist_path_tup</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.processor.setup_dist_path_tup" title="src.pipeline.simulations.processor.setup_dist_path_tup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_dist_path_tup</span></code></a></p></td>
 <td><p>Setup dist path tup.</p></td>
 </tr>
 </tbody>
@@ -586,6 +593,11 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">_mapper</span></span><a class="headerlink" href="#src.pipeline.simulations.processor._mapper" title="Link to this definition">#</a></dt>
 <dd><p>‘SimulationDataMapper(…)’</p>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.processor._log_processor_event">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.processor.</span></span><span class="sig-name descname"><span class="pre">_log_processor_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mutate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.processor._log_processor_event" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.processor.sort_dataframe">
@@ -815,6 +827,7 @@ Any: Description of return value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor._mapper"><code class="docutils literal notranslate"><span class="pre">_mapper</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor._log_processor_event"><code class="docutils literal notranslate"><span class="pre">_log_processor_event()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.sort_dataframe"><code class="docutils literal notranslate"><span class="pre">sort_dataframe()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.get_df_types"><code class="docutils literal notranslate"><span class="pre">get_df_types()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.processor.setup_df"><code class="docutils literal notranslate"><span class="pre">setup_df()</span></code></a></li>

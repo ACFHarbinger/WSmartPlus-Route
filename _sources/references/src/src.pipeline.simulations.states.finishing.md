@@ -21,6 +21,18 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_log_result_artifacts <src.pipeline.simulations.states.finishing._log_result_artifacts>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.states.finishing._log_result_artifacts
+    :summary:
+    ```
+````
+
 ### API
 
 `````{py:class} FinishingState
@@ -40,3 +52,10 @@ Bases: {py:obj}`src.pipeline.simulations.states.base.SimState`
 ````
 
 `````
+
+````{py:function} _log_result_artifacts(ctx: typing.Any, sim: typing.Any, log_path: str, daily_log_path: str) -> None
+:canonical: src.pipeline.simulations.states.finishing._log_result_artifacts
+
+```{autodoc2-docstring} src.pipeline.simulations.states.finishing._log_result_artifacts
+```
+````

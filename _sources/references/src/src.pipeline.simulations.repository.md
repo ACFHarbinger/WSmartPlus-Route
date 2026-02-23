@@ -16,6 +16,7 @@
 src.pipeline.simulations.repository.filesystem
 src.pipeline.simulations.repository.npz
 src.pipeline.simulations.repository.xlsx
+src.pipeline.simulations.repository.csv
 src.pipeline.simulations.repository.base
 ```
 
@@ -77,7 +78,7 @@ src.pipeline.simulations.repository.base
 
 ````
 
-````{py:function} set_repository(repo: typing.Union[src.pipeline.simulations.repository.filesystem.FileSystemRepository, src.pipeline.simulations.repository.npz.NumpyDictRepository, src.pipeline.simulations.repository.xlsx.PandasExcelRepository]) -> None
+````{py:function} set_repository(repo: typing.Union[src.pipeline.simulations.repository.filesystem.FileSystemRepository, src.pipeline.simulations.repository.npz.NumpyDictRepository, src.pipeline.simulations.repository.xlsx.PandasExcelRepository, src.pipeline.simulations.repository.csv.PandasCsvRepository]) -> None
 :canonical: src.pipeline.simulations.repository.set_repository
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository
@@ -115,7 +116,7 @@ src.pipeline.simulations.repository.base
 ````{py:data} __all__
 :canonical: src.pipeline.simulations.repository.__all__
 :value: >
-   ['SimulationRepository', 'FileSystemRepository', 'NumpyDictRepository', 'PandasExcelRepository', 'se...
+   ['SimulationRepository', 'FileSystemRepository', 'NumpyDictRepository', 'PandasExcelRepository', 'Pa...
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.__all__
 ```

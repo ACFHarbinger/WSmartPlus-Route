@@ -261,39 +261,6 @@ src.configs.tracking
 
 ````
 
-````{py:attribute} wandb_mode
-:canonical: src.configs.Config.wandb_mode
-:type: str
-:value: >
-   'offline'
-
-```{autodoc2-docstring} src.configs.Config.wandb_mode
-```
-
-````
-
-````{py:attribute} no_tensorboard
-:canonical: src.configs.Config.no_tensorboard
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.Config.no_tensorboard
-```
-
-````
-
-````{py:attribute} no_progress_bar
-:canonical: src.configs.Config.no_progress_bar
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.Config.no_progress_bar
-```
-
-````
-
 ````{py:attribute} output_dir
 :canonical: src.configs.Config.output_dir
 :type: str
@@ -301,17 +268,6 @@ src.configs.tracking
    'assets/model_weights'
 
 ```{autodoc2-docstring} src.configs.Config.output_dir
-```
-
-````
-
-````{py:attribute} log_dir
-:canonical: src.configs.Config.log_dir
-:type: str
-:value: >
-   'logs'
-
-```{autodoc2-docstring} src.configs.Config.log_dir
 ```
 
 ````
@@ -327,17 +283,6 @@ src.configs.tracking
 
 ````
 
-````{py:attribute} verbose
-:canonical: src.configs.Config.verbose
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.configs.Config.verbose
-```
-
-````
-
 ````{py:attribute} start
 :canonical: src.configs.Config.start
 :type: int
@@ -345,17 +290,6 @@ src.configs.tracking
    0
 
 ```{autodoc2-docstring} src.configs.Config.start
-```
-
-````
-
-````{py:attribute} profile
-:canonical: src.configs.Config.profile
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.Config.profile
 ```
 
 ````

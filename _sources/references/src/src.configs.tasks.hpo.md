@@ -271,17 +271,6 @@
 
 ````
 
-````{py:attribute} verbose
-:canonical: src.configs.tasks.hpo.HPOConfig.verbose
-:type: int
-:value: >
-   2
-
-```{autodoc2-docstring} src.configs.tasks.hpo.HPOConfig.verbose
-```
-
-````
-
 ````{py:attribute} train_best
 :canonical: src.configs.tasks.hpo.HPOConfig.train_best
 :type: bool

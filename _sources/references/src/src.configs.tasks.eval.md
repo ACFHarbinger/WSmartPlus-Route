@@ -150,17 +150,6 @@
 
 ````
 
-````{py:attribute} no_progress_bar
-:canonical: src.configs.tasks.eval.EvalConfig.no_progress_bar
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.tasks.eval.EvalConfig.no_progress_bar
-```
-
-````
-
 ````{py:attribute} compress_mask
 :canonical: src.configs.tasks.eval.EvalConfig.compress_mask
 :type: bool

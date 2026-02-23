@@ -244,7 +244,7 @@
 
 ````
 
-````{py:method} log_dataset_event(run_id: str, event_type: str, file_path: typing.Optional[str] = None, file_hash: typing.Optional[str] = None, prev_hash: typing.Optional[str] = None, size_bytes: typing.Optional[int] = None, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} log_dataset_event(run_id: str, event_type: str, file_path: typing.Optional[str] = None, file_hash: typing.Optional[str] = None, prev_hash: typing.Optional[str] = None, size_bytes: typing.Optional[int] = None, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
 :canonical: src.tracking.core.store.TrackingStore.log_dataset_event
 
 ```{autodoc2-docstring} src.tracking.core.store.TrackingStore.log_dataset_event

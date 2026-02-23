@@ -35,6 +35,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.engine._ensure_directories
     :summary:
     ```
+* - {py:obj}`_log_sim_params <src.pipeline.features.test.engine._log_sim_params>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.engine._log_sim_params
+    :summary:
+    ```
 * - {py:obj}`_run_sim_via_zenml <src.pipeline.features.test.engine._run_sim_via_zenml>`
   - ```{autodoc2-docstring} src.pipeline.features.test.engine._run_sim_via_zenml
     :summary:
@@ -97,6 +101,13 @@
 :canonical: src.pipeline.features.test.engine._ensure_directories
 
 ```{autodoc2-docstring} src.pipeline.features.test.engine._ensure_directories
+```
+````
+
+````{py:function} _log_sim_params(run: logic.src.tracking.Run, cfg: logic.src.configs.Config) -> None
+:canonical: src.pipeline.features.test.engine._log_sim_params
+
+```{autodoc2-docstring} src.pipeline.features.test.engine._log_sim_params
 ```
 ````
 

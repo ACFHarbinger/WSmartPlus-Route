@@ -25,6 +25,10 @@ src.pipeline.simulations.processor.mapper
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_log_processor_event <src.pipeline.simulations.processor._log_processor_event>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.processor._log_processor_event
+    :summary:
+    ```
 * - {py:obj}`sort_dataframe <src.pipeline.simulations.processor.sort_dataframe>`
   - ```{autodoc2-docstring} src.pipeline.simulations.processor.sort_dataframe
     :summary:
@@ -115,6 +119,13 @@ src.pipeline.simulations.processor.mapper
 ```{autodoc2-docstring} src.pipeline.simulations.processor._mapper
 ```
 
+````
+
+````{py:function} _log_processor_event(event_name, variable_name='data', event_type='mutate', shape=None, **kwargs)
+:canonical: src.pipeline.simulations.processor._log_processor_event
+
+```{autodoc2-docstring} src.pipeline.simulations.processor._log_processor_event
+```
 ````
 
 ````{py:function} sort_dataframe(df, metric_tosort, ascending_order=True)

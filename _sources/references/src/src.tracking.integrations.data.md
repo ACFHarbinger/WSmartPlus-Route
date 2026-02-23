@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} on_load(data: typing.Any, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} on_load(data: typing.Any, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None, log_event: bool = True) -> None
 :canonical: src.tracking.integrations.data.RuntimeDataTracker.on_load
 
 ```{autodoc2-docstring} src.tracking.integrations.data.RuntimeDataTracker.on_load
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} on_regenerate(data: typing.Any, epoch: int, num_samples: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} on_regenerate(data: typing.Any, epoch: int, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None, log_event: bool = True) -> None
 :canonical: src.tracking.integrations.data.RuntimeDataTracker.on_regenerate
 
 ```{autodoc2-docstring} src.tracking.integrations.data.RuntimeDataTracker.on_regenerate
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} on_augment(data: typing.Any, description: str, step: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
+````{py:method} on_augment(data: typing.Any, description: str, step: typing.Optional[int] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None, log_event: bool = True) -> None
 :canonical: src.tracking.integrations.data.RuntimeDataTracker.on_augment
 
 ```{autodoc2-docstring} src.tracking.integrations.data.RuntimeDataTracker.on_augment
@@ -100,11 +100,11 @@
 
 ````
 
-````{py:method} _infer_size(data: typing.Any) -> typing.Optional[int]
-:canonical: src.tracking.integrations.data.RuntimeDataTracker._infer_size
+````{py:method} _infer_shape(data: typing.Any) -> typing.Optional[tuple]
+:canonical: src.tracking.integrations.data.RuntimeDataTracker._infer_shape
 :staticmethod:
 
-```{autodoc2-docstring} src.tracking.integrations.data.RuntimeDataTracker._infer_size
+```{autodoc2-docstring} src.tracking.integrations.data.RuntimeDataTracker._infer_shape
 ```
 
 ````
