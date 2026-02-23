@@ -83,6 +83,9 @@ class SimulationMixin:
             attention_weights = torch.stack(hook_data["weights"])
 
         route_list = route if isinstance(route, list) else route.cpu().tolist()
+        n_visited = sum(1 for n in route_list if n != 0)
+        if hasattr(self, "_viz_record"):
+            self._viz_record(cost=float(cost), n_visited=n_visited, route_len=len(route_list))
         return (route_list, cost, {"attention_weights": attention_weights, "graph_masks": hook_data["masks"]})
 
     def _validate_must_go(self, must_go):

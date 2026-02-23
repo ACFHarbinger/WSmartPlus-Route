@@ -9,6 +9,8 @@ import networkx as nx
 import numpy as np
 from vrpy import VehicleRoutingProblem
 
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
 
 def run_bcp_vrpy(
     dist_matrix: np.ndarray,
@@ -18,6 +20,7 @@ def run_bcp_vrpy(
     C: float,
     values: Dict[str, Any],
     mandatory_nodes: Optional[List[int]] = None,
+    recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
     Solve CVRP using VRPy (Column Generation / Branch-and-Price).
@@ -86,6 +89,10 @@ def run_bcp_vrpy(
             clean_route = [node for node in path if node not in {SOURCE, SINK}]
             if clean_route:
                 routes.append(clean_route)
+        if recorder is not None:
+            recorder.record(engine="vrpy", n_routes=len(routes), cost=float(prob.best_value), solved=1)
         return routes, float(prob.best_value)
     else:
+        if recorder is not None:
+            recorder.record(engine="vrpy", n_routes=0, cost=0.0, solved=0)
         return [], 0.0

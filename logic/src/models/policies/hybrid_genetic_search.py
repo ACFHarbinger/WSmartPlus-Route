@@ -21,9 +21,10 @@ from logic.src.models.policies.local_search import (
     vectorized_two_opt_star,
 )
 from logic.src.models.policies.shared import vectorized_linear_split
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class VectorizedHGS:
+class VectorizedHGS(PolicyVizMixin):
     """
     Main class for the Vectorized Hybrid Genetic Search (HGS) algorithm.
     Orchestrates the evolution process, including initialization, selection, crossover,
@@ -159,6 +160,7 @@ class VectorizedHGS:
             else:
                 no_improv += 1
 
+            restarted = False
             if no_improv > 50:
                 # Restart Mechanism:
                 # Keep the elite individuals and replace the rest with new random solutions.
@@ -200,6 +202,16 @@ class VectorizedHGS:
                 pop.costs = torch.cat([elite_cost, new_costs], dim=1)
                 pop.compute_biased_fitness()
                 no_improv = 0
+                restarted = True
+
+            self._viz_record(
+                generation=_gen,
+                best_cost=float(pop.costs.min().item()),
+                mean_cost=float(pop.costs.mean().item()),
+                worst_cost=float(pop.costs.max().item()),
+                no_improv=no_improv,
+                restarted=restarted,
+            )
 
         best_cost_pop, best_idx = torch.min(pop.costs, dim=1)
         best_giant = pop.population[torch.arange(B), best_idx]

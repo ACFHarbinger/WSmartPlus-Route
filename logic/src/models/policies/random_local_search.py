@@ -21,9 +21,10 @@ from logic.src.models.policies.local_search import (
     vectorized_two_opt_star,
 )
 from logic.src.models.policies.shared import vectorized_linear_split
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class RandomLocalSearchPolicy(ImprovementPolicy):
+class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
     """
     Random Local Search expert policy.
 
@@ -130,13 +131,15 @@ class RandomLocalSearchPolicy(ImprovementPolicy):
         # Pre-sample operators for all iterations
         op_indices = torch.multinomial(self.probs, self.n_iterations, replacement=True).tolist()
 
-        for op_idx in op_indices:
+        for _rls_iter, op_idx in enumerate(op_indices):
             op_name = self.ops[op_idx]
             op_func = self.op_map[op_name]
 
             # Apply operator
             # We set max_iterations=1 to ensure we respect our n_iterations and stochasticity
             current_routes = op_func(current_routes, dist_matrix, max_iterations=1)
+
+            self._viz_record(iteration=_rls_iter, op_name=op_name)
 
         # 4. Final Evaluation and Output
         # Re-split to ensure nodes that might have been "lost" (though LS operators should maintain them)

@@ -21,6 +21,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
 from ..hybrid_genetic_search.evolution import (
@@ -34,7 +36,7 @@ from ..local_search.local_search_hgs import HGSLocalSearch
 from .params import AHVPLParams
 
 
-class AHVPLSolver:
+class AHVPLSolver(PolicyVizMixin):
     """
     Augmented Hybrid Volleyball Premier League solver for VRP variants.
 
@@ -152,6 +154,15 @@ class AHVPLSolver:
 
             # 6. Pheromone Update — ACO global guidance
             self._update_pheromones(best_routes, best_cost)
+
+            self._viz_record(
+                iteration=_iteration,
+                best_profit=best_profit,
+                best_cost=best_cost,
+                iter_best_profit=iter_best.profit_score,
+                population_size=len(population),
+                n_children=len(children),
+            )
 
             # 7. VPL Substitution — replace worst teams with fresh ACO solutions
             update_biased_fitness(population, self.params.hgs_params.elite_size)

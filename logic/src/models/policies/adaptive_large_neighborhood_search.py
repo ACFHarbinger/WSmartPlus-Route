@@ -24,9 +24,10 @@ from logic.src.models.policies.operators import (
     vectorized_worst_removal,
 )
 from logic.src.models.policies.shared.linear import vectorized_linear_split
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class VectorizedALNS:
+class VectorizedALNS(PolicyVizMixin):
     """
     Vectorized Adaptive Large Neighborhood Search Solver.
     """
@@ -184,6 +185,17 @@ class VectorizedALNS:
             avg_score = scores.mean().item()
             self.d_weights[d_idx] = 0.9 * self.d_weights[d_idx] + 0.1 * avg_score
             self.r_weights[r_idx] = 0.9 * self.r_weights[r_idx] + 0.1 * avg_score
+
+            self._viz_record(
+                iteration=i,
+                d_idx=d_idx,
+                r_idx=r_idx,
+                best_cost=float(best_costs.min().item()),
+                current_cost=float(current_costs.mean().item()),
+                temperature=float(T.mean().item()),
+                n_improved=int(improved.sum().item()),
+                n_accepted=int(accept.sum().item()),
+            )
 
             T *= cooling_rate
 

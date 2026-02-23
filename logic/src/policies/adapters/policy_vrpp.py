@@ -64,6 +64,7 @@ class VRPPPolicy(BaseRoutingPolicy):
 
         # 2. Load parameters and merge with config
         _, _, _, values = self._load_area_params(area, waste_type, config)
+        self._log_solver_params(values, kwargs)
 
         # 3. Handle bins input (WSmart+ simulator passes bins object or amounts)
         amounts = bins

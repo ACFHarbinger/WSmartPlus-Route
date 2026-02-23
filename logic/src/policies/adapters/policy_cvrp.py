@@ -85,6 +85,7 @@ class CVRPPolicy(BaseRoutingPolicy):
 
         # Load capacity
         capacity, _, _, values = self._load_area_params(area, waste_type, config)
+        self._log_solver_params(values, kwargs)
 
         # Get engine and time_limit from typed config or values dict
         cfg = self._config
