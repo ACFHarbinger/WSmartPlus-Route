@@ -80,6 +80,7 @@ from .integrations.lightning import TrackingCallback
 from .integrations.mlflow_bridge import MLflowBridge
 from .integrations.simulation import SimulationRunTracker, get_sim_tracker
 from .integrations.zenml_bridge import ZenMLBridge
+from .viz_mixin import PolicyStateRecorder, PolicyVizMixin
 
 __all__ = [
     # Factory / accessors
@@ -102,6 +103,9 @@ __all__ = [
     "hooks",
     "logging",
     "profiling",
+    # Policy telemetry
+    "PolicyVizMixin",
+    "PolicyStateRecorder",
 ]
 
 # ---------------------------------------------------------------------------

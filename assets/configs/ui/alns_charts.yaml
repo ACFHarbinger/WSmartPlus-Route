@@ -1,0 +1,39 @@
+# =============================================================================
+# ALNS Operator Weight Charts Configuration
+# =============================================================================
+# Controls the alns_charts Streamlit component rendered from
+# logic.src.ui.components.alns_charts.render_alns_operator_charts
+#
+# Usage:
+#   from logic.src.ui.components.alns_charts import render_alns_operator_charts
+#   render_alns_operator_charts(solver.weight_history, **cfg.ui.alns_charts)
+# =============================================================================
+
+# Display names for operators (must match the operator count in the solver).
+destroy_op_names:
+  - "Random Removal"
+  - "Worst Removal"
+  - "Cluster Removal"
+
+repair_op_names:
+  - "Greedy Insertion"
+  - "Regret-k Insertion"
+
+# Chart appearance
+chart_type: "line"    # "line" for multi-line | "area" for stacked area.
+smooth_window: 1      # Exponential moving average window (1 = no smoothing).
+height: 400           # Chart height in pixels.
+
+# Colour palette (hex strings, one per operator).
+color_palette:
+  - "#e41a1c"
+  - "#377eb8"
+  - "#4daf4a"
+  - "#984ea3"
+  - "#ff7f00"
+
+# Section heading.
+title: "ALNS Operator Weight Dynamics"
+
+# TrackedVectorizedALNS snapshot frequency.
+log_freq: 25   # Record weights every N ALNS iterations.

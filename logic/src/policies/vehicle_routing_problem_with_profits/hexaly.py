@@ -6,11 +6,13 @@ from __future__ import annotations
 
 import io
 import sys
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Optional, cast
 
 import hexaly.optimizer as hx
 import numpy as np
 from numpy.typing import NDArray
+
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
 def _run_hexaly_optimizer(  # noqa: C901
@@ -24,6 +26,7 @@ def _run_hexaly_optimizer(  # noqa: C901
     number_vehicles: int = 1,
     time_limit: int = 60,
     max_iter_no_improv: int = 10,
+    recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
     Solve the Vehicle Routing Problem with Profits using Hexaly Optimizer (Local Search).
@@ -139,6 +142,7 @@ def _run_hexaly_optimizer(  # noqa: C901
 
         best_obj_val = [None]
         no_improv_iter = [0]
+        tick_count = [0]
 
         def callback(opt, type):
             """Callback for early stopping based on convergence detection."""
@@ -146,6 +150,7 @@ def _run_hexaly_optimizer(  # noqa: C901
                 return
             if type == hx.HxCallbackType.TIME_TICKED:
                 val = opt.solution.get_value(obj)
+                tick_count[0] += 1
                 if best_obj_val[0] is None:
                     best_obj_val[0] = val
                     no_improv_iter[0] = 0
@@ -158,6 +163,12 @@ def _run_hexaly_optimizer(  # noqa: C901
                         no_improv_iter[0] += 1
                     if no_improv_iter[0] >= max_iter_no_improv:
                         opt.stop()
+                if recorder is not None:
+                    recorder.record(
+                        tick=tick_count[0],
+                        best_obj=float(best_obj_val[0]) if best_obj_val[0] is not None else 0.0,
+                        no_improv_count=no_improv_iter[0],
+                    )
 
         optimizer.add_callback(hx.HxCallbackType.TIME_TICKED, callback)
         old_stdout = sys.stdout

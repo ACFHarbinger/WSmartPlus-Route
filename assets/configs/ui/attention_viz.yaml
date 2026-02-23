@@ -1,0 +1,29 @@
+# =============================================================================
+# Attention Visualisation Component Configuration
+# =============================================================================
+# Controls the attention_viz Streamlit component rendered from
+# logic.src.ui.components.attention_viz.render_attention_viz
+#
+# Usage in a dashboard page:
+#   from logic.src.ui.components.attention_viz import render_attention_viz
+#   render_attention_viz(hook_data, node_coords=coords, **cfg.ui.attention_viz)
+# =============================================================================
+
+# Initial decoding step displayed on load (0 = first step).
+decoding_step: 0
+
+# Initial attention head index to display.
+head_idx: 0
+
+# Geographical overlay settings (used only when node_coords contain lat/lon).
+map_zoom: 12
+map_center: null   # [lat, lon] — auto-computed from node_coords when null.
+
+# Plot rendering
+height: 500            # Chart height in pixels.
+min_edge_alpha: 0.05   # Hide edges with opacity below this threshold.
+top_k_edges: 20        # Maximum attention edges rendered per plot.
+color_scale: "Reds"    # Plotly colour scale name.
+
+# Section heading displayed above the visualisation.
+title: "Attention Map"

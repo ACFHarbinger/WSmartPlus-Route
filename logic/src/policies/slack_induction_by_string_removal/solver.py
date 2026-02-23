@@ -22,12 +22,14 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ..operators.destroy_operators import string_removal
 from ..operators.repair_operators import greedy_insertion_with_blinks
 from .params import SISRParams
 
 
-class SISRSolver:
+class SISRSolver(PolicyVizMixin):
     """
     Solver implementing the SISR metaheuristic.
     """
@@ -116,6 +118,14 @@ class SISRSolver:
 
             # Cooling
             T *= self.params.cooling_rate
+
+            self._viz_record(
+                iteration=_it,
+                best_cost=best_cost,
+                current_cost=current_cost,
+                temperature=T,
+                accepted=int(accept),
+            )
 
         collected_revenue = sum(self.demands.get(node, 0) * self.R for route in best_routes for node in route)
         profit = collected_revenue - (best_cost * self.C)

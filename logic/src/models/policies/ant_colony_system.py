@@ -16,9 +16,10 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class VectorizedACOPolicy(AutoregressivePolicy):
+class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
     """
     Vectorized Ant Colony Optimization (ACO) Policy.
 
@@ -104,7 +105,7 @@ class VectorizedACOPolicy(AutoregressivePolicy):
         best_costs = torch.full((batch_size,), float("inf"), device=device)
 
         # 2. Main ACO Loop
-        for _ in range(self.n_iterations):
+        for _aco_iter in range(self.n_iterations):
             # Construct solutions for all ants: [B, n_ants, N]
             iter_ant_tours, _ = self._construct_solutions(dist_matrix, tau, eta, env)
 
@@ -123,6 +124,14 @@ class VectorizedACOPolicy(AutoregressivePolicy):
 
             # Update Pheromones
             tau = self._update_pheromones(tau, iter_ant_tours, costs)
+
+            self._viz_record(
+                iteration=_aco_iter,
+                global_best_cost=float(best_costs.min().item()),
+                iter_best_cost=float(min_costs.min().item()),
+                tau_mean=float(tau.mean().item()),
+                tau_max=float(tau.max().item()),
+            )
 
         # Return result
         return {

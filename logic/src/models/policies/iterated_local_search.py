@@ -16,6 +16,7 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.interfaces import ITraversable
 from logic.src.models.common.improvement.policy import ImprovementPolicy
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .local_search import (
     vectorized_relocate,
@@ -28,7 +29,7 @@ from .local_search import (
 from .shared.linear import vectorized_linear_split
 
 
-class IteratedLocalSearchPolicy(ImprovementPolicy):
+class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
     """
     Iterated Local Search (ILS) expert policy.
 
@@ -255,7 +256,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy):
         best_costs = self._compute_costs(best_routes, dist_matrix)
 
         # 5. ILS loop
-        for _ in range(self.n_restarts):
+        for _restart_idx in range(self.n_restarts):
             # Sample perturbation mode
             if p_probs_dict:
                 p_mode = py_random.choices(p_modes_sorted, weights=p_weights)[0]
@@ -280,6 +281,14 @@ class IteratedLocalSearchPolicy(ImprovementPolicy):
             improved = refined_costs < best_costs - 1e-6
             best_routes[improved] = refined[improved]
             best_costs[improved] = refined_costs[improved]
+
+            self._viz_record(
+                restart=_restart_idx,
+                perturb_mode=p_mode,
+                n_improved=int(improved.sum().item()),
+                best_cost=float(best_costs.min().item()),
+                candidate_cost=float(refined_costs.min().item()),
+            )
 
             # Always move to refined for exploration
             current_routes = refined

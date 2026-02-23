@@ -29,6 +29,7 @@ def render_mode_selector() -> str:
             "Benchmark Analysis",
             "Data Explorer",
             "Experiment Tracker",
+            "Hyperparameter Optimization Tracker",
         ],
         index=1,  # Default to Simulation
         help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, data exploration, and experiment tracking",
@@ -41,6 +42,7 @@ def render_mode_selector() -> str:
         "Benchmark Analysis": "benchmark",
         "Data Explorer": "data_explorer",
         "Experiment Tracker": "experiment_tracker",
+        "Hyperparameter Optimization Tracker": "hpo_tracker",
     }
     return mode_map.get(mode, "simulation")
 

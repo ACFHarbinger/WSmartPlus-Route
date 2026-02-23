@@ -20,12 +20,14 @@ Example:
     >>> routes = find_routes(dist_matrix, demands, capacity, num_vehicles)
 """
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pyvrp
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
+
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
 def find_routes(
@@ -37,6 +39,7 @@ def find_routes(
     coords=None,
     depot=0,
     time_limit=2.0,
+    recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
     Solve multi-vehicle VRP using PyVRP.
@@ -122,6 +125,10 @@ def find_routes(
         # End route with depot
         tour_flat.append(0)
 
+    if recorder is not None:
+        n_routes = tour_flat.count(0) - 1
+        recorder.record(solver="pyvrp", n_routes=max(0, n_routes), n_nodes=len(to_collect))
+
     return tour_flat
 
 
@@ -134,6 +141,7 @@ def find_routes_ortools(
     coords=None,
     depot=0,
     time_limit=2,
+    recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
     Solve multi-vehicle VRP using Google OR-Tools.
@@ -234,6 +242,10 @@ def find_routes_ortools(
 
         if tour_flat[-1] != 0:
             tour_flat.append(0)
+
+    if recorder is not None:
+        n_routes = tour_flat.count(0) - 1
+        recorder.record(solver="ortools", n_routes=max(0, n_routes), n_nodes=len(to_collect))
 
     return tour_flat
 

@@ -6,13 +6,15 @@ to use the `alns` package as a solver backend for the routing problem.
 """
 
 import copy
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from alns import ALNS
 from alns.accept import SimulatedAnnealing
 from alns.select import RouletteWheel
 from alns.stop import MaxRuntime
+
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
 class ALNSState:
@@ -240,7 +242,7 @@ def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomSt
     return new_state
 
 
-def run_alns_package(dist_matrix, demands, capacity, R, C, values):
+def run_alns_package(dist_matrix, demands, capacity, R, C, values, recorder: Optional[PolicyStateRecorder] = None):
     """
     Execute the ALNS algorithm using the external `alns` package.
 
@@ -271,8 +273,15 @@ def run_alns_package(dist_matrix, demands, capacity, R, C, values):
     accept = SimulatedAnnealing(start_temperature=1000, end_temperature=1, step=1 - 1e-3)
     stop = MaxRuntime(time_limit)
 
-    result = alns.iterate(init_state, select, accept, stop)
+    result = alns.iterate(init_state, select, accept, stop, collect_stats=True)
     best_state = result.best_state
+
+    if recorder is not None:
+        try:
+            for step, obj in enumerate(result.statistics.objectives):
+                recorder.record(iteration=step, best_profit=-obj)
+        except Exception:  # noqa: BLE001
+            pass
 
     total_dist_cost = 0
     for route in best_state.routes:

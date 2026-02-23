@@ -13,7 +13,7 @@ Example:
     >>> route, cost, _ = policy.execute(model_env=env, model_ls=ls, ...)
 """
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
@@ -36,7 +36,7 @@ class NeuralPolicy(IPolicy):
 
     def __init__(self, config: Optional[Any] = None):
         """Initialize NeuralPolicy."""
-        pass
+        self._params_logged = False
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
@@ -84,7 +84,33 @@ class NeuralPolicy(IPolicy):
             cost_weights=cost_weights,
             must_go=must_go_mask,
         )
+
+        # Log parameters
+        self._log_params(kwargs, cost_weights)
+
         return tour, cost, output_dict
+
+    def _log_params(self, context: Dict[str, Any], cost_weights: Dict[str, float]) -> None:
+        """Log neural policy parameters to the active tracking run."""
+        if self._params_logged:
+            return
+        self._params_logged = True
+
+        from logic.src.tracking.core.run import get_active_run
+
+        run = get_active_run()
+        if run is None:
+            return
+
+        policy_name = context.get("policy_name", "neural")
+        sample_id = context.get("sample_id", 0)
+        prefix = f"policy_params/{policy_name}/s{sample_id}"
+
+        params: Dict[str, Any] = {f"{prefix}/{k}": v for k, v in cost_weights.items()}
+        params[f"{prefix}/selector_name"] = context.get("selector_name")
+        params[f"{prefix}/selector_threshold"] = context.get("selector_threshold", 0.7)
+
+        run.log_params(params)
 
     def _get_must_go_mask(
         self,

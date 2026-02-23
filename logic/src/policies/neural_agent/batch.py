@@ -162,6 +162,14 @@ class BatchMixin:
         if hook_data["masks"]:
             graph_masks = torch.stack(hook_data["masks"])
 
+        if hasattr(self, "_viz_record"):
+            self._viz_record(
+                mean_cost=float(ucost.mean().item()),
+                mean_kg=float(ret_dict["kg"].mean().item()),
+                mean_km=float(ret_dict["km"].mean().item()),
+                batch_size=int(ucost.size(0)),
+            )
+
         return (
             ucost,
             ret_dict,

@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import gurobipy as gp
 from gurobipy import GRB
 
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
 
 def _setup_model(values: Dict[str, Any], env: Optional[gp.Env]) -> gp.Model:
     """Initialize Gurobi model with parameters."""
@@ -134,6 +136,7 @@ def run_bcp_gurobi(
     values: Dict[str, Any],
     mandatory_nodes: Optional[List[int]] = None,
     env: Optional[gp.Env] = None,
+    recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
     Solve Prize-Collecting CVRP using Gurobi MIP solver.
@@ -164,5 +167,15 @@ def run_bcp_gurobi(
     _add_constraints(model, x, y, u, nodes, customers, demands, capacity)
 
     model.optimize()
+
+    if recorder is not None:
+        solved = int(model.SolCount > 0)
+        recorder.record(
+            engine="gurobi",
+            solved=solved,
+            obj_val=model.ObjVal if solved else 0.0,
+            mip_gap=model.MIPGap if solved else 1.0,
+            obj_bound=model.ObjBound if solved else 0.0,
+        )
 
     return _extract_solution(model, x, nodes)

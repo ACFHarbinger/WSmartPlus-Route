@@ -85,6 +85,7 @@ class HGSALNSSolver(HGSSolver):
 
         start_time = time.time()
         it = 0
+        best_profit_so_far = max(ind.profit_score for ind in population)
         while time.time() - start_time < self.params.time_limit:
             it += 1
             # 2. Selection & Crossover
@@ -123,6 +124,17 @@ class HGSALNSSolver(HGSSolver):
                 evaluate(child, self.split_manager)
 
             population.append(child)
+
+            if child.profit_score > best_profit_so_far:
+                best_profit_so_far = child.profit_score
+
+            self._viz_record(
+                iteration=it,
+                best_profit=best_profit_so_far,
+                child_profit=child.profit_score,
+                child_cost=child.cost,
+                population_size=len(population),
+            )
 
             # 4. Survivor Selection
             if len(population) > self.params.population_size * 2:

@@ -2,13 +2,35 @@
 Base module for vectorized selection strategies.
 """
 
+import functools
 from abc import ABC, abstractmethod
 
 from torch import Tensor
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-class VectorizedSelector(ABC):
+
+class VectorizedSelector(PolicyVizMixin, ABC):
     """Abstract base class for vectorized bin selection strategies."""
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        """Auto-wrap ``select`` in every concrete subclass to record telemetry."""
+        super().__init_subclass__(**kwargs)
+        if "select" in cls.__dict__:
+            original = cls.__dict__["select"]
+
+            @functools.wraps(original)
+            def _instrumented(self, fill_levels: Tensor, **kw) -> Tensor:
+                mask = original(self, fill_levels, **kw)
+                day = kw.get("current_day")
+                self._viz_record(
+                    n_selected=int(mask[:, 1:].sum().item()),
+                    mean_fill=float(fill_levels[:, 1:].mean().item()),
+                    day=int(day.max().item()) if day is not None else -1,
+                )
+                return mask
+
+            cls.select = _instrumented  # type: ignore[method-assign]
 
     @abstractmethod
     def select(
