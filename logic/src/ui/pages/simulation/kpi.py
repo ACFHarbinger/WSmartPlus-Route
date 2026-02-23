@@ -8,6 +8,7 @@ from logic.src.ui.services.data_loader import (
     compute_cumulative_stats,
     compute_day_deltas,
     get_metric_history,
+    load_policy_params,
 )
 from logic.src.ui.styles.kpi import create_kpi_row, create_kpi_row_with_deltas
 
@@ -138,3 +139,10 @@ def render_policy_info(display_entry: Any) -> None:
                     details["Temperature"] = float(part[4:])
 
         st.json(details)
+
+        # 3. SHOW STRUCTURED PARAMETERS FROM DATABASE
+        policy_params = load_policy_params(display_entry.policy, display_entry.sample_id)
+        if policy_params:
+            st.markdown("---")
+            st.markdown("##### Structured Parameters (WSTracker)")
+            st.json(policy_params)

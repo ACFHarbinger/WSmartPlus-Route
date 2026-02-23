@@ -113,6 +113,7 @@ class SANSPolicy(BaseRoutingPolicy):
 
         # Load area parameters
         Q, R, C, values = self._load_area_params(area, waste_type, config)
+        self._log_solver_params(values, kwargs)
 
         B = values.get("B", 0)
         V = values.get("V", 0)
@@ -200,6 +201,7 @@ class SANSPolicy(BaseRoutingPolicy):
 
         # Load area parameters
         Q, R, C, area_values = self._load_area_params(area, waste_type, config)
+        self._log_solver_params(area_values, kwargs)
         V = lac_config.get("V", DEFAULT_V_VALUE)
 
         values = {

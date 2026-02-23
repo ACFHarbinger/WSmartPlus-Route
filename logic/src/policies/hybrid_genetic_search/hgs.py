@@ -16,6 +16,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ..local_search.local_search_hgs import HGSLocalSearch
 from .evolution import evaluate, ordered_crossover, update_biased_fitness
 from .individual import Individual
@@ -24,7 +26,7 @@ from .pyvrp_wrapper import solve_pyvrp
 from .split import LinearSplit
 
 
-class HGSSolver:
+class HGSSolver(PolicyVizMixin):
     """
     Implements Hybrid Genetic Search for VRPP.
     """
@@ -86,6 +88,7 @@ class HGSSolver:
 
         start_time = time.time()
         it = 0
+        best_profit_so_far = max(ind.profit_score for ind in population)
         while time.time() - start_time < self.params.time_limit:
             it += 1
             # 2. Selection & Crossover
@@ -100,11 +103,22 @@ class HGSSolver:
             evaluate(child, self.split_manager)
             population.append(child)
 
+            if child.profit_score > best_profit_so_far:
+                best_profit_so_far = child.profit_score
+
             # 4. Survivor Selection
             if len(population) > self.params.population_size * 2:
                 update_biased_fitness(population, self.params.elite_size)
                 population.sort(key=lambda x: x.fitness)
                 population = population[: self.params.population_size]
+
+            self._viz_record(
+                iteration=it,
+                best_profit=best_profit_so_far,
+                child_profit=child.profit_score,
+                child_cost=child.cost,
+                population_size=len(population),
+            )
 
         update_biased_fitness(population, self.params.elite_size)
         best_ind = min(population, key=lambda x: -x.profit_score)

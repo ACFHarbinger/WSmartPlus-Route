@@ -5,6 +5,8 @@ Data loading and caching services for the dashboard.
 Provides cached access to training logs and simulation outputs.
 """
 
+import json
+import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -135,6 +137,67 @@ def load_multiple_training_runs(version_names: List[str]) -> Dict[str, pd.DataFr
 # -----------------------------------------------------------------------------
 # Simulation Logs
 # -----------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=60)
+def load_policy_params(policy_name: str, sample_id: int) -> Dict[str, Any]:
+    """Retrieve structured policy configuration from the tracking database.
+
+    Args:
+        policy_name: Name of the routing policy.
+        sample_id: Index of the simulation instance.
+
+    Returns:
+        Dict of parameters matching the prefix 'policy_params/{policy_name}/s{sample_id}/'.
+    """
+    db_path = get_project_root() / "assets" / "tracking" / "tracking.db"
+    if not db_path.exists():
+        return {}
+
+    prefix = f"policy_params/{policy_name}/s{sample_id}/"
+    params: Dict[str, Any] = {}
+
+    try:
+        # We use raw sqlite3 here to avoid adding a heavy dependency on TrackingStore if not needed,
+        # but following the prefix-matching logic for policy_params.
+        conn = sqlite3.connect(str(db_path), timeout=5.0)
+        conn.row_factory = sqlite3.Row
+
+        # Get params from the latest run that has these keys
+        query = """
+            SELECT key, value
+            FROM params
+            WHERE key LIKE ?
+            ORDER BY id DESC
+        """
+        rows = conn.execute(query, (f"{prefix}%",)).fetchall()
+
+        for row in rows:
+            key = row["key"]
+            val_raw = row["value"]
+
+            # Clean key
+            p_key = key[len(prefix) :]
+
+            # If we already have this key from a newer run (due to ORDER BY id DESC), skip
+            if p_key in params:
+                continue
+
+            # Try to parse JSON if it looks like a stringified list/dict
+            try:
+                if isinstance(val_raw, str) and (val_raw.startswith("{") or val_raw.startswith("[")):
+                    params[p_key] = json.loads(val_raw)
+                else:
+                    params[p_key] = val_raw
+            except Exception:
+                params[p_key] = val_raw
+
+        conn.close()
+    except Exception as e:
+        st.warning(f"Failed to load params from database: {e}")
+        return {}
+
+    return params
 
 
 @st.cache_data(ttl=60)

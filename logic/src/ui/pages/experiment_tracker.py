@@ -110,33 +110,78 @@ def _render_run_table(
 
 def _render_run_detail(run_id: str) -> None:
     """Display params and tags for a single WSTracker run."""
-    col1, col2 = st.columns(2)
+    st.subheader("🏷️ Tags")
+    tags = load_run_tags(run_id)
+    if tags:
+        st.markdown(create_kpi_row(tags), unsafe_allow_html=True)
+    else:
+        st.caption("No tags recorded.")
 
-    with col1:
-        st.subheader("🏷️ Tags")
-        tags = load_run_tags(run_id)
-        if tags:
-            st.markdown(create_kpi_row(tags), unsafe_allow_html=True)
-        else:
-            st.caption("No tags recorded.")
+    st.markdown("---")
+    st.subheader("⚙️ Parameters")
+    params = load_run_params(run_id)
 
-    with col2:
-        st.subheader("⚙️ Parameters")
-        params = load_run_params(run_id)
-        if params:
-            with st.expander("View all parameters", expanded=False):
-                st.json(params)
+    if not params:
+        st.caption("No parameters recorded.")
+        return
 
-            key_params = {k: v for k, v in list(params.items())[:12]}
-            if key_params:
-                st.dataframe(
-                    pd.DataFrame({"param": key_params.keys(), "value": [str(v) for v in key_params.values()]}),
-                    width="stretch",
-                    hide_index=True,
-                    height=min(300, 35 + len(key_params) * 35),
-                )
-        else:
-            st.caption("No parameters recorded.")
+    # Categorize parameters
+    policy_params = {k: v for k, v in params.items() if k.startswith("policy_params/")}
+    global_params = {k: v for k, v in params.items() if not k.startswith("policy_params/")}
+
+    if policy_params:
+        tab_global, tab_policy = st.tabs(["🌐 Global Params", "🔧 Policy Params"])
+
+        with tab_global:
+            _render_params_table(global_params)
+
+        with tab_policy:
+            # Group policy params hierarchically: policy -> sample -> {key: val}
+            # Format: 'policy_params/{policy_name}/s{sample_id}/{key}'
+            grouped: Dict[str, Dict[str, Dict[str, Any]]] = {}
+            for k, v in policy_params.items():
+                parts = k.split("/")
+                if len(parts) >= 4:
+                    p_name = parts[1]
+                    s_id = parts[2]
+                    key = "/".join(parts[3:])
+
+                    if p_name not in grouped:
+                        grouped[p_name] = {}
+                    if s_id not in grouped[p_name]:
+                        grouped[p_name][s_id] = {}
+                    grouped[p_name][s_id][key] = v
+                else:
+                    # Fallback for unexpected formats
+                    if "Other" not in grouped:
+                        grouped["Other"] = {"s0": {}}
+                    grouped["Other"]["s0"][k] = v
+
+            for p_name, samples in sorted(grouped.items()):
+                st.markdown(f"#### 🏷️ Policy: `{p_name}`")
+                for s_id, p_dict in sorted(samples.items()):
+                    with st.expander(f"Sample `{s_id}`", expanded=True):
+                        _render_params_table(p_dict)
+    else:
+        _render_params_table(global_params)
+
+
+def _render_params_table(params: Dict[str, Any]) -> None:
+    """Helper to render a clean parameters table."""
+    if not params:
+        st.caption("No parameters in this category.")
+        return
+
+    df_params = pd.DataFrame(
+        {"Parameter": list(params.keys()), "Value": [str(v) for v in params.values()]}
+    ).sort_values("Parameter")
+
+    st.dataframe(
+        df_params,
+        width="stretch",
+        hide_index=True,
+        height=min(600, 35 + len(df_params) * 35),
+    )
 
 
 def _render_metric_explorer(run_id: str) -> None:

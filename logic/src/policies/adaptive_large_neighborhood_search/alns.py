@@ -17,6 +17,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ..operators.destroy_operators import cluster_removal, random_removal, worst_removal
 from ..operators.repair_operators import greedy_insertion, regret_2_insertion
 from .alns_package import run_alns_package
@@ -24,7 +26,7 @@ from .ortools_wrapper import run_alns_ortools
 from .params import ALNSParams
 
 
-class ALNSSolver:
+class ALNSSolver(PolicyVizMixin):
     """
     Custom implementation of Adaptive Large Neighborhood Search for CVRP.
     """
@@ -176,6 +178,17 @@ class ALNSSolver:
 
             self._update_weights(d_idx, r_idx, score)
             T *= self.params.cooling_rate
+
+            self._viz_record(
+                iteration=_it,
+                d_idx=d_idx,
+                r_idx=r_idx,
+                best_profit=best_profit,
+                current_profit=current_profit,
+                temperature=T,
+                accepted=int(accept),
+                score=score,
+            )
 
         return best_routes, best_profit, best_cost
 

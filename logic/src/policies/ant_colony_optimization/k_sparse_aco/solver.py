@@ -19,13 +19,15 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ...local_search.local_search_aco import ACOLocalSearch
 from .construction import SolutionConstructor
 from .params import ACOParams
 from .pheromones import SparsePheromoneTau
 
 
-class KSparseACOSolver:
+class KSparseACOSolver(PolicyVizMixin):
     """
     K-Sparse Ant Colony System solver for CVRP/VRPP.
 
@@ -183,6 +185,15 @@ class KSparseACOSolver:
 
             # Global pheromone update
             self._global_pheromone_update(best_routes, best_cost)
+
+            _tau_vals = [v for nbrs in self.pheromone._pheromone.values() for v in nbrs.values()]
+            self._viz_record(
+                iteration=_iteration,
+                best_cost=best_cost,
+                iter_best_cost=iteration_best_cost,
+                tau_mean=float(sum(_tau_vals) / len(_tau_vals)) if _tau_vals else self.pheromone.tau_0,
+                tau_max=float(max(_tau_vals)) if _tau_vals else self.pheromone.tau_0,
+            )
 
         # Calculate profit
         collected_revenue = sum(self.demands.get(node, 0) * self.R for route in best_routes for node in route)

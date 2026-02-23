@@ -11,6 +11,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from scipy.sparse.csgraph import minimum_spanning_tree
 
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
 
 def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
     """
@@ -300,6 +302,7 @@ def solve_lkh(
     max_iterations: int = 100,
     waste: Optional[np.ndarray] = None,
     capacity: Optional[float] = None,
+    recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[int], float]:
     """
     Solve TSP/VRP using refined Lin-Kernighan heuristics.
@@ -331,7 +334,7 @@ def solve_lkh(
     best_tour, best_pen, best_cost = curr_tour[:], curr_pen, curr_cost
 
     # 3. Main Loop (Iterated Local Search using Kicks)
-    for _ in range(max_iterations):
+    for _restart in range(max_iterations):
         # Local Search Loop (2-opt / 3-opt until local optimal)
         while True:
             # delegated to helper
@@ -350,6 +353,9 @@ def solve_lkh(
         # Update Global Best
         if is_better(curr_pen, curr_cost, best_pen, best_cost):
             best_tour, best_pen, best_cost = curr_tour[:], curr_pen, curr_cost
+
+        if recorder is not None:
+            recorder.record(restart=_restart, best_cost=best_cost, curr_cost=curr_cost, best_penalty=best_pen)
 
         # Perturbation (Kick)
         curr_tour = double_bridge_kick(best_tour)

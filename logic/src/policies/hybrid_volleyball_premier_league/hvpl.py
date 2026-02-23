@@ -12,12 +12,14 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
 from .params import HVPLParams
 
 
-class HVPLSolver:
+class HVPLSolver(PolicyVizMixin):
     """
     Hybrid Volleyball Premier League solver for VRP variants.
     """
@@ -91,6 +93,14 @@ class HVPLSolver:
             # 5. Pheromone Update: Global guidance
             # Deposit pheromones on the best team's edges
             self._update_pheromones(best_routes, best_cost)
+
+            self._viz_record(
+                iteration=_iteration,
+                best_profit=best_profit,
+                best_cost=best_cost,
+                iter_best_profit=iter_best_profit,
+                population_size=len(population),
+            )
 
             # 6. Substitution Phase: Replace weakest teams
             # Sort by profit (higher is better)

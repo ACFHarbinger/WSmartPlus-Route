@@ -22,6 +22,8 @@ from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
 from ..operators import (
     move_2opt_intra,
     move_2opt_star,
@@ -32,7 +34,7 @@ from ..operators import (
 )
 
 
-class LocalSearch(ABC):
+class LocalSearch(PolicyVizMixin, ABC):
     """
     Abstract base class for Local Search algorithms.
     Provides common infrastructure for neighbor lists and move operators.
@@ -121,6 +123,12 @@ class LocalSearch(ABC):
                 if self._process_node(u):
                     improved = True
                     break
+
+            self._viz_record(
+                iteration=it,
+                n_routes=len(self.routes),
+                improved=int(improved),
+            )
 
     def _calc_load_fresh(self, r: List[int]) -> float:
         return sum(self.waste.get(x, 0) for x in r)

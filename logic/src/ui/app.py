@@ -22,6 +22,7 @@ from logic.src.ui.pages import (
     render_benchmark_analysis,
     render_data_explorer,
     render_experiment_tracker,
+    render_hpo_tracker,
     render_simulation_summary,
     render_simulation_visualizer,
     render_training_monitor,
@@ -59,6 +60,9 @@ def main() -> None:
     elif mode == "experiment_tracker":
         with st.spinner("Loading Experiment Tracker..."):
             render_experiment_tracker()
+    elif mode == "hpo_tracker":
+        with st.spinner("Loading HPO Tracker..."):
+            render_hpo_tracker()
     else:
         with st.spinner("Loading Benchmark Analysis..."):
             render_benchmark_analysis()

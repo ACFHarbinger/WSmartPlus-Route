@@ -6,6 +6,9 @@ import copy
 import math
 import random
 import time
+from typing import Optional
+
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from ..common.routes import uncross_arcs_in_sans_routes
 from .sans_operators import apply_operator
@@ -109,6 +112,7 @@ def improved_simulated_annealing(  # noqa: C901
     volume=2.5,
     density_val=20,
     max_vehicles=None,
+    recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
     Refine routing solutions using a multi-neighborhood Simulated Annealing algorithm.
@@ -292,6 +296,14 @@ def improved_simulated_annealing(  # noqa: C901
         T = T * alpha
         if verbose:
             print(f"Temperature cooled to {T:.4f}")
+
+        if recorder is not None:
+            recorder.record(
+                temperature=T,
+                best_profit=best_profit,
+                current_profit=current_profit,
+                no_improvement_count=no_improvement_count,
+            )
 
         if no_improvement_count > 500:
             if verbose:
