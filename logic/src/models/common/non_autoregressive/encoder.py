@@ -39,7 +39,7 @@ class NonAutoregressiveEncoder(nn.Module, ABC):
         Compute heatmap logits for the problem instance.
 
         Args:
-            td: TensorDict containing problem instance (locs, demands, etc.)
+            td: TensorDict containing problem instance (locs, wastes, etc.)
 
         Returns:
             Heatmap tensor of shape [batch, num_nodes, num_nodes] for edge-based,

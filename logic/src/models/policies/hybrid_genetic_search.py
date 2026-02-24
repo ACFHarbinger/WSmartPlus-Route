@@ -32,7 +32,7 @@ class VectorizedHGS(PolicyVizMixin):
 
     Args:
         dist_matrix (torch.Tensor): Distance matrix.
-        demands (torch.Tensor): Demands tensor.
+        wastes (torch.Tensor): Wastes tensor.
         vehicle_capacity (float/torch.Tensor): Vehicle capacity.
         time_limit (float): Time limit for the search in seconds.
         device: Torch device.
@@ -41,7 +41,7 @@ class VectorizedHGS(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: torch.Tensor,
-        demands: torch.Tensor,
+        wastes: torch.Tensor,
         vehicle_capacity: Any,
         time_limit: float = 1.0,
         device: str = "cuda",
@@ -50,7 +50,7 @@ class VectorizedHGS(PolicyVizMixin):
         Initialize the HGS solver.
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.vehicle_capacity = vehicle_capacity
         self.time_limit = time_limit
         self.device = torch.device(device)
@@ -87,7 +87,7 @@ class VectorizedHGS(PolicyVizMixin):
         _, costs = vectorized_linear_split(
             initial_solutions,
             self.dist_matrix,
-            self.demands,
+            self.wastes,
             self.vehicle_capacity,
             max_vehicles=max_vehicles,
         )
@@ -122,7 +122,7 @@ class VectorizedHGS(PolicyVizMixin):
             routes_list, split_costs = vectorized_linear_split(
                 offspring_giant,
                 self.dist_matrix,
-                self.demands,
+                self.wastes,
                 self.vehicle_capacity,
                 max_vehicles=max_vehicles,
             )
@@ -183,7 +183,7 @@ class VectorizedHGS(PolicyVizMixin):
                 flat_pop = new_pop.view(b_sz * n_rst, n_nds)
 
                 flat_dist = self.dist_matrix.repeat_interleave(n_rst, dim=0)
-                flat_demands = self.demands.repeat_interleave(n_rst, dim=0)
+                flat_wastes = self.wastes.repeat_interleave(n_rst, dim=0)
                 flat_cap = self.vehicle_capacity
                 if isinstance(flat_cap, torch.Tensor) and flat_cap.dim() > 0:
                     flat_cap = flat_cap.repeat_interleave(n_rst, dim=0)
@@ -191,7 +191,7 @@ class VectorizedHGS(PolicyVizMixin):
                 _, new_costs_flat = vectorized_linear_split(
                     flat_pop,
                     flat_dist,
-                    flat_demands,
+                    flat_wastes,
                     flat_cap,
                     max_vehicles=max_vehicles,
                 )
@@ -218,7 +218,7 @@ class VectorizedHGS(PolicyVizMixin):
         best_routes, best_final_costs = vectorized_linear_split(
             best_giant,
             self.dist_matrix,
-            self.demands,
+            self.wastes,
             self.vehicle_capacity,
             max_vehicles=max_vehicles,
         )

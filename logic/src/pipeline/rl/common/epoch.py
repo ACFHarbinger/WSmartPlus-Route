@@ -194,7 +194,7 @@ def apply_time_step(dataset: Dataset, epoch_actions: List[torch.Tensor], day: in
     num_nodes = td["locs"].shape[1] - 1  # Exclude depot
     device = td.device
 
-    key = "demand" if "demand" in list(td.keys()) else "waste"
+    key = "waste" if "waste" in list(td.keys()) else "fill_level"
     if key not in td.keys():
         return dataset
 

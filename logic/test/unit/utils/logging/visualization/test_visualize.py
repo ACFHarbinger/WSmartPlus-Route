@@ -156,7 +156,7 @@ class TestPlotUtils(unittest.TestCase):
         data = {
             "depot": torch.tensor([0.5, 0.5]),
             "loc": torch.rand(5, 2),
-            "demand": torch.tensor([0.1, 0.1, 0.1, 0.1, 0.1]),
+            "waste": torch.tensor([0.1, 0.1, 0.1, 0.1, 0.1]),
         }
         route = torch.tensor([0, 1, 2, 0, 3, 4, 5, 0])
         ax = MagicMock()

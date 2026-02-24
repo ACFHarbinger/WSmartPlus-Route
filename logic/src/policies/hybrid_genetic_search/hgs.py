@@ -34,7 +34,7 @@ class HGSSolver(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -46,7 +46,7 @@ class HGSSolver(PolicyVizMixin):
 
         Args:
             dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands.
+            wastes: Dictionary of node wastes.
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -54,7 +54,7 @@ class HGSSolver(PolicyVizMixin):
             mandatory_nodes: List of local node indices that MUST be visited.
         """
         self.d = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.Q = capacity
         self.R = R
         self.C = C
@@ -64,8 +64,8 @@ class HGSSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
-        self.split_manager = LinearSplit(dist_matrix, demands, capacity, R, C, params.max_vehicles, mandatory_nodes)
-        self.ls = HGSLocalSearch(dist_matrix, demands, capacity, R, C, params)
+        self.split_manager = LinearSplit(dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes)
+        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -135,13 +135,13 @@ class HGSSolver(PolicyVizMixin):
         return tournament(), tournament()
 
 
-def run_hgs(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, *args):
+def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
     """
     Main HGS entry point with dispatching logic.
 
     Args:
         dist_matrix: Distance matrix.
-        demands: Bin demands.
+        wastes: Bin wastes.
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -154,13 +154,13 @@ def run_hgs(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, 
     """
     engine = values.get("engine") or values.get("variant")
     if engine == "pyvrp":
-        return solve_pyvrp(dist_matrix, demands, capacity, R, C, values)
+        return solve_pyvrp(dist_matrix, wastes, capacity, R, C, values)
 
     if len(dist_matrix) <= 1:
         return [], 0.0, 0.0
 
     if len(dist_matrix) == 2:
-        d = demands.get(1, 0)
+        d = wastes.get(1, 0)
         if d <= capacity:
             # Calculate simple profit/cost
             cost = dist_matrix[0][1] + dist_matrix[1][0]
@@ -177,5 +177,5 @@ def run_hgs(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, 
         n_generations=values.get("n_generations", 100),
         max_vehicles=values.get("max_vehicles", 0),
     )
-    solver = HGSSolver(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
+    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

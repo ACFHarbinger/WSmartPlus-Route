@@ -68,7 +68,7 @@ class VectorizedALNS(AutoregressivePolicy):
         else:
             dist_matrix = locs
 
-        # Extract waste (demands)
+        # Extract waste
         waste_at_nodes = td.get("waste", torch.zeros(batch_size, num_nodes - 1, device=device))
         # Prepend 0 for depot
         waste = torch.cat([torch.zeros(batch_size, 1, device=device), waste_at_nodes], dim=1)
@@ -83,7 +83,7 @@ class VectorizedALNS(AutoregressivePolicy):
 
         solver = VectorizedALNSEngine(
             dist_matrix=dist_matrix,
-            demands=waste,
+            wastes=waste,
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
             device=device,

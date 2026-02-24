@@ -108,7 +108,7 @@ The model is built on an **Encoder-Decoder** framework, where the "Context" of t
 
 ##### 1. The Encoder (Graph Reasoning)
 
-The Encoder transforms the raw node features (e.g., $x, y$ coordinates and demand $q_i$) into high-dimensional latent vectors $h_i$.
+The Encoder transforms the raw node features (e.g., $x, y$ coordinates and waste $q_i$) into high-dimensional latent vectors $h_i$.
 
 - **Input Projection**: Nodes are projected to $d_{model}$ (e.g., 128) using a shared linear layer.
 - **Self-Attention Layers**: $L$ layers of Multi-Head Self-Attention allow nodes to "communicate" with each other. A node learns about its neighbors, the depot, and the global distribution of the graph.
@@ -126,7 +126,7 @@ The Decoder is **Autoregressive**, meaning it produces one node at a time ($a_t$
   4.  The Agent's Dynamic State (e.g., remaining vehicle capacity).
 - **Masking Core**: To ensure a valid tour, a binary mask $M_t$ is applied. $M_{tj} = -\infty$ if:
   - Node $j$ has already been visited.
-  - Node $j$ is not the depot and its demand $q_j$ exceeds the vehicle's remaining capacity $Q_{rem}$.
+  - Node $j$ is not the depot and its waste $q_j$ exceeds the vehicle's remaining capacity $Q_{rem}$.
 - **Attention (Logits)**: The query $q_t$ attends to all node embeddings $H$.
   $$ u\_{tj} = C \cdot \tanh \left( \frac{(q_t W^Q) (h_j W^K)^T}{\sqrt{d_k}} \right) $$
 - **Action Selection**: The probability distribution is $p_t = \text{Softmax}(u_t + M_t)$.
@@ -367,7 +367,7 @@ Higher memory usage than AM due to the storage of history tensors.
 
 ##### 1. Training Setup
 
-Training TAM requires a **Rolling Dataset**. Use the `SDWCVRPEnv` (Stochastic Dynamic Waste Collection) which simulates fill levels over multiple days.
+Training TAM requires a **Rolling Dataset**. Use the `SCWCVRPEnv` (Stochastic Capacitated Waste Collection) which simulates fill levels over multiple days.
 
 ##### 2. Multi-Day Evaluation
 
@@ -1040,7 +1040,7 @@ The core innovation of DACT is its representation of a VRP instance as two inter
 
 ##### 1. The Spatial Aspect (The Graph)
 
-- **Input**: Node coordinates and demands.
+- **Input**: Node coordinates and wastes.
 - **Physical Meaning**: The intrinsic difficulty of the graph. Where are the clusters? How far is the depot?
 - **Invariant**: This aspect does not change as the tour is modified.
 - **Encoding**: Standard Graph Attention (Self-Attention).
@@ -1800,7 +1800,7 @@ A population of $K$ ants is released onto the graph.
 
 To predict edge probabilities, we must reason about pairs. Our encoder updates edges $e_{ij}$ explicitly:
 $$ e*{ij}^{l+1} = e*{ij}^l + \text{MLP}([h_i^l, h_j^l, e_{ij}^l]) $$
-This allows the network to capture constraints like "I can't go to node $i$ then $j$ because their combined demand exceeds $Q$," which node-only encoders miss.
+This allows the network to capture constraints like "I can't go to node $i$ then $j$ because their combined waste exceeds $Q$," which node-only encoders miss.
 
 ---
 
@@ -1964,7 +1964,7 @@ This loss is differentiable and allows the GNN to learn the "edge flows" that sa
 
 ##### 1. Superior Solution Diversity
 
-Standard RL policies (AM) often collapse to a single "best-guess" solution. If that guess is wrong, the model fails. GFACS samples a _diverse ensemble_ of good solutions. In complex problems like SDWCVRP, this diversity is key to robustness.
+Standard RL policies (AM) often collapse to a single "best-guess" solution. If that guess is wrong, the model fails. GFACS samples a _diverse ensemble_ of good solutions. In complex problems like SCWCVRP, this diversity is key to robustness.
 
 ##### 2. Off-Policy Training
 
@@ -2211,7 +2211,7 @@ The **Topology State**.
 
 The **Instance State**.
 
-- Specialized embeddings for problem variants like **Stochastic Demand** or **Time-Window VRP**.
+- Specialized embeddings for problem variants like **Stochastic Waste** or **Time-Window VRP**.
 
 ---
 
@@ -5337,7 +5337,7 @@ from logic.src.models.policies.hgs import VectorizedHGS
 solver = VectorizedHGS(time_limit=5.0)
 
 ## 2. Resovle a batch of 64 problems
-## td contains coords, demands, capacities
+## td contains locs, depot, wastes, capacities
 out = solver(td)
 
 print(f"Best solution cost: {out['reward'].max()}")

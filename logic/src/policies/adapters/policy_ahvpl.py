@@ -46,7 +46,7 @@ class AHVPLPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -102,7 +102,7 @@ class AHVPLPolicy(BaseRoutingPolicy):
 
         solver = AHVPLSolver(
             sub_dist_matrix,
-            sub_demands,
+            sub_wastes,
             capacity,
             revenue,
             cost_unit,

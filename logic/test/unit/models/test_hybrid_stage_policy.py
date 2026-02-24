@@ -15,7 +15,7 @@ def dummy_td():
     return TensorDict(
         {
             "locs": locs,
-            "demand": torch.rand(batch_size, num_nodes),
+            "waste": torch.rand(batch_size, num_nodes),
             "depot": torch.rand(batch_size, 2),
             "vehicle_capacity": torch.ones(batch_size),
             "done": torch.zeros(batch_size, dtype=torch.bool),
@@ -61,18 +61,6 @@ def test_hybrid_two_stage_policy_forward(dummy_td):
     )
 
     env = MockEnv()
-
-    # We need to mock the solvers to avoid running full HGS/ALNS/ACO which might be slow or fail on dummy data
-    # Mock HGS/ALNS solve methods
-    # We can patch them, or just rely on them handling small random data gracefully?
-    # VectorizedHGS and ALNS are pure python/torch so they should run if data is correct shape.
-    # But init_router is random.
-
-    # Let's mock the solvers to simple Identity or Random return
-    # But since we import them inside the class or top level...
-    # We'll just run it. The data is small (10 nodes).
-    # ensure "demand" and "vehicle_capacity" match what solvers expect.
-
     output = policy(dummy_td, env, strategy="greedy")
 
     assert "actions" in output

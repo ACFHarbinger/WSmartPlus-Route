@@ -156,7 +156,7 @@ The abstract base class for all generators. It standardizes the interface for cr
 Produces a batch of problem instances.
 
 1. Calls internal helpers like `_generate_locations()` and `_generate_depot()`.
-2. Samples problem-specific attributes (demands, profits).
+2. Samples problem-specific attributes (waste, profits).
 3. Returns a `TensorDict` ready for the environment's `reset()`.
 
 ---
@@ -174,7 +174,7 @@ Generates instances for the **Vehicle Routing Problem with Profits**.
 - **Method**:
   ```python
   td = generator.generate(batch_size=128)
-  # keys: locs, depot, demand, capacity, time_windows (opt)
+  # keys: locs, depot, waste, capacity, time_windows (opt)
   ```
 
 ### 2. `WCVRPGenerator` (`generators/wcvrp.py`)
@@ -196,7 +196,7 @@ Generates instances for the **Traveling Salesperson Problem**.
 
 #### Features
 
-- **Simplicity**: Only generates `locs`. No demands or capacities.
+- **Simplicity**: Only generates `locs`. No waste or capacities.
 - **Output**: `TensorDict(locs=(B, N, 2))` (start node is index 0).
 
 ### 4. `SCWCVRPGenerator` (`generators/scwcvrp.py`)
@@ -262,7 +262,7 @@ The flagship environment. The agent must select a subset of nodes to visit to ma
 The `TensorDict` includes:
 
 - **`locs`**: `(B, N, 2)` - Coordinates of all nodes (Index 0 is Depot).
-- **`demand`**: `(B, N)` - Profit/Prize at each node. (Aliased as `demand` for compatibility, but represents positive value).
+- **`waste`**: `(B, N)` - Waste at each node.
 - **`visited`**: `(B, N)` - Binary mask of visited nodes.
 - **`current_node`**: `(B, 1)` - Current location of the agent.
 - **`tour_length`**: `(B)` - Accumulated distance traveled.
@@ -271,7 +271,7 @@ The `TensorDict` includes:
 
 1. **Move**: Updates `current_node` -> `action`.
 2. **Visit**: Sets `visited[action] = 1`.
-3. **Collect**: Adds `demand[action]` to `collected_profit`.
+3. **Collect**: Adds `waste[action]` to `collected_profit`.
 4. **Distance**: Adds Euclidean distance from previous node to `tour_length`.
 
 ### Validity Mask (`_get_action_mask`)
@@ -295,7 +295,7 @@ $$ R = \sum\_{i \in Tour} P_i - \beta \times \text{Length}(Tour) $$
 **File**: [`wcvrp.py`](wcvrp.py)
 **Class**: `WCVRPEnv`
 
-A specialized VRP where "demand" is waste volume.
+A specialized waste collection VRP where bin waste overflows are part of the cost function.
 
 ### Key Features
 
@@ -315,28 +315,20 @@ $$ Reward = \text{Collection} \times W*{waste} - \text{Cost} \times W*{dist} - \
 
 ---
 
-### 4.3 Stochastic Environments (SWCVRP / SDWCVRP)
+### 4.3 Stochastic Environments (SWCVRP / SCWCVRP)
 
-**Files**: [`swcvrp.py`](swcvrp.py), [`sdwcvrp.py`](sdwcvrp.py)
-**Classes**: `SCWCVRPEnv`, `SDWCVRPEnv`
+**Files**: [`swcvrp.py`](swcvrp.py), [`scwcvrp.py`](scwcvrp.py)
+**Classes**: `SCWCVRPEnv`
 
 These environments introduce uncertainty.
 
-### `SCWCVRPEnv` (Stochastic WCVRP)
+### `SCWCVRPEnv` (Stochastic Capacitated WCVRP)
 
-The agent deals with probabilistic demands.
+The agent deals with probabilistic waste values.
 
 - **State**: Includes `expected_waste` and `real_waste`. The agent sees `expected`, but transitions use `real`.
 - **Failure**: If the agent attempts to service a node and the truck overflows (`real_waste > capacity`), a "failure" occurs.
 - **Recourse**: A mandatory recourse action (typically return to depot) is triggered, incurring penalty.
-
-### `SDWCVRPEnv` (Stochastic Dynamic)
-
-Adds a temporal dimension (Days).
-
-- **Simulation**: Bins fill up stochastically over multiple simulated days.
-- **Goal**: Plan a tour for _today_ that optimizes long-term efficiency ($T$-day horizon).
-- **Transitions**: At the end of an episode (day), the environment simulates "night-time" waste accumulation before the next reset.
 
 ---
 
@@ -367,7 +359,7 @@ An environment designed for `Improvement` policies using k-opt local search move
 
 Subclasses that mix constraints.
 
-- **CVRPP**: Profit maximization, but you also have a capacity limit (can't pick up infinite prize).
+- **CVRPP**: Profit maximization, but you also have a capacity limit (can't pick up infinite waste).
 - **CWCVRP**: Capacitated Waste Collection (redundant naming sometimes, but ensures specific constraints like "No Return to Depot" vs "Multi-Trip" are handled).
 
 ---
@@ -447,11 +439,11 @@ $$ Cost = \alpha \times \text{Overflows} + \beta \times \text{Tour Length} - \ga
 
 Inherits `VRPP` logic but enforces a capacity constraint.
 
-- **Use Case**: When vehicle capacity limits the total prize collection.
+- **Use Case**: When vehicle capacity limits the total waste collection.
 
 ---
 
-### 4. `SDWCVRP` (`tasks/sdwcvrp.py`)
+### 4. `SCWCVRP` (`tasks/scwcvrp.py`)
 
 **Stochastic Dynamic WCVRP**
 

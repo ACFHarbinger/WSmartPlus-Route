@@ -48,7 +48,7 @@ This document provides a high-level overview of the codebase. For deep dives int
 | **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)**         | -                       | Comprehensive guide to Hydra configuration, CLI syntax, multi-run sweeps, and best practices |
 | **[Constants Module](docs/CONSTANTS_MODULE.md)**               | `logic/src/utils/`      | System-wide constants, problem definitions, enum types, and magic numbers                    |
 | **[Data Module](docs/DATA_MODULE.md)**                         | `logic/src/data/`       | Dataset generation, loading utilities, data augmentation, and transforms                     |
-| **[Environments Module](docs/ENVS_MODULE.md)**                 | `logic/src/envs/`       | Problem environments (VRPP, WCVRP, SDWCVRP), state management, and physics                   |
+| **[Environments Module](docs/ENVS_MODULE.md)**                 | `logic/src/envs/`       | Problem environments (VRPP, WCVRP, SCWCVRP), state management, and physics                   |
 | **[Interfaces Module](docs/INTERFACES_MODULE.md)**             | `logic/src/interfaces/` | Abstract base classes, protocols, type definitions, and contracts                            |
 | **[Models Module](docs/MODELS_MODULE.md)**                     | `logic/src/models/`     | Neural architectures (264KB doc): encoders, decoders, attention mechanisms, graph layers     |
 | **[Pipeline Module](docs/PIPELINE_MODULE.md)**                 | `logic/src/pipeline/`   | Training pipeline, evaluation, simulation orchestration, RL algorithms, and HPO              |
@@ -66,7 +66,7 @@ These module docs complement sections 10-11 below with implementation-level API 
 
 - **Vehicle Routing Problem with Profits (VRPP)**: Select profitable subset of nodes to visit
 - **Capacitated Waste Collection VRP (CWC VRP)**: Dynamic waste collection with capacity constraints
-- **Stochastic Demand WCVRP (SDWCVRP)**: Waste generation with uncertainty modeling
+- **Stochastic Capacitated WCVRP (SCWCVRP)**: Waste generation with uncertainty modeling
 
 ### 1.1 Mission Statement
 
@@ -684,7 +684,7 @@ This section maintains a registry of intelligent agents, orchestration component
 | **CVRPP**   | `envs/vrpp.py`   | Capacitated VRPP with vehicle capacity constraints.                               |
 | **WCVRP**   | `envs/wcvrp.py`  | Waste Collection VRP. Bin levels accumulate over time.                            |
 | **CWCVRP**  | `envs/wcvrp.py`  | Capacitated WCVRP. Standard WSmart+ environment.                                  |
-| **SDWCVRP** | `envs/wcvrp.py`  | Stochastic Demand WCVRP. Uncertain waste generation.                              |
+| **SCWCVRP** | `envs/wcvrp.py`  | Stochastic Capacitated WCVRP. Uncertain waste generation.                         |
 | **SCWCVRP** | `envs/swcvrp.py` | Selective Capacitated WCVRP. Collect only when profitable.                        |
 
 **Base Class**: `RL4COEnvBase` in `envs/base.py`
@@ -860,8 +860,6 @@ Documents the "Active" components handling User Intent → System Action transla
 ```python
 {
     'loc': torch.Tensor,        # (batch, n_nodes, 2) - coordinates
-    'demand': torch.Tensor,     # (batch, n_nodes) - demand/fill level
-    'prize': torch.Tensor,      # (batch, n_nodes) - reward for visiting
     'depot': torch.Tensor,      # (batch, 2) - depot coordinates
     'capacity': float,          # Vehicle capacity
     'max_length': float,        # Maximum route length

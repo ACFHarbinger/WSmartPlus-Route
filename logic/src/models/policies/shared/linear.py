@@ -8,7 +8,7 @@ from .limited import vectorized_split_limited
 from .reconstruction import reconstruct_routes
 
 
-def vectorized_linear_split(giant_tours, dist_matrix, demands, vehicle_capacity, max_len=None, max_vehicles=None):
+def vectorized_linear_split(giant_tours, dist_matrix, wastes, vehicle_capacity, max_len=None, max_vehicles=None):
     """
     Vectorized Linear Split Algorithm for Batch of Giant Tours.
     Computes the optimal segmentation of giant tours into routes subject to capacity constraints.
@@ -16,7 +16,7 @@ def vectorized_linear_split(giant_tours, dist_matrix, demands, vehicle_capacity,
     Args:
         giant_tours: (B, N) tensor of node indices (permutation of 1..N or subset).
         dist_matrix: (B, N_all, N_all) tensor of distances.
-        demands: (B, N_all) tensor of demands.
+        wastes: (B, N_all) tensor of wastes.
         vehicle_capacity: float, scalar or (B,) tensor.
         max_len: int, maximum route length to consider for efficiency (default: N).
 
@@ -36,15 +36,15 @@ def vectorized_linear_split(giant_tours, dist_matrix, demands, vehicle_capacity,
     elif dist_matrix.dim() == 3 and dist_matrix.size(0) == 1 and B > 1:
         dist_matrix = dist_matrix.expand(B, -1, -1)
 
-    if demands.dim() == 1:
-        demands = demands.unsqueeze(0).expand(B, -1)
+    if wastes.dim() == 1:
+        wastes = wastes.unsqueeze(0).expand(B, -1)
 
     if isinstance(vehicle_capacity, torch.Tensor) and vehicle_capacity.dim() == 1:
         vehicle_capacity = vehicle_capacity.unsqueeze(1)
 
     # Precompute accumulations
-    tour_demands = torch.gather(demands, 1, giant_tours)
-    cum_load = torch.cumsum(tour_demands, dim=1)
+    tour_wastes = torch.gather(wastes, 1, giant_tours)
+    cum_load = torch.cumsum(tour_wastes, dim=1)
 
     from_nodes = giant_tours[:, :-1]
     to_nodes = giant_tours[:, 1:]

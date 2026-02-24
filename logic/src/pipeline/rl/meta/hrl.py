@@ -87,8 +87,8 @@ class HRLModule(pl.LightningModule):
         static = td["locs"]
         if "waste_history" in td.keys():
             dynamic = td["waste_history"]
-        elif "demand_history" in td.keys():
-            dynamic = td["demand_history"]
+        elif "fill_history" in td.keys():
+            dynamic = td["fill_history"]
         else:
             dynamic = td["waste"].unsqueeze(-1).expand(-1, -1, 10)
 

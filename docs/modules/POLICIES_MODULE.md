@@ -50,7 +50,7 @@ The `policies` module provides a comprehensive technical ecosystem of routing op
 | **CVRP**    | Capacitated Vehicle Routing Problem | HGS, OR-Tools, Gurobi         |
 | **VRPP**    | VRP with Profits                    | Gurobi, Hexaly                |
 | **WCVRP**   | Waste Collection VRP                | ALNS, HGS, SANS, SISR, Neural |
-| **SDWCVRP** | Stochastic Demand WCVRP             | Neural, Adaptive Heuristics   |
+| **SCWCVRP** | Stochastic Capacitated WCVRP        | Neural, Adaptive Heuristics   |
 
 ### Policy Categories
 
@@ -359,7 +359,7 @@ class MyPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -434,7 +434,7 @@ params = ALNSParams(
 # Run ALNS
 routes, cost = run_alns(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     params=params
 )
@@ -499,7 +499,7 @@ from logic.src.policies import run_hgs
 # Run HGS
 routes, cost = run_hgs(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     time_limit=60.0,
     population_size=50,
@@ -556,7 +556,7 @@ from logic.src.policies import run_k_sparse_aco
 
 routes, cost = run_k_sparse_aco(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     n_ants=20,
     alpha=1.0,        # Pheromone importance
@@ -576,7 +576,7 @@ from logic.src.policies import run_hyper_heuristic_aco
 
 routes, cost = run_hyper_heuristic_aco(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     n_ants=20,
     operator_pool=["2opt", "relocate", "swap", "or_opt"]
@@ -620,7 +620,7 @@ from logic.src.policies import run_sisr
 
 routes, cost = run_sisr(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     string_removal_max_len=10,
     max_removal_pct=0.2,
@@ -655,7 +655,7 @@ from logic.src.policies import run_bcp
 # Dispatcher selects best available engine
 routes, cost = run_bcp(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     engine="auto"  # Auto-select: Gurobi > OR-Tools > VRPy
 )
@@ -663,7 +663,7 @@ routes, cost = run_bcp(
 # Force specific engine
 routes, cost = run_bcp(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     engine="gurobi",  # or "ortools", "vrpy"
     time_limit=300.0,
@@ -708,8 +708,7 @@ from logic.src.policies import run_vrpp_optimizer
 # Gurobi VRPP
 routes, cost, selected_nodes = run_vrpp_optimizer(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
-    prizes=prizes_dict,  # Profit per node
+    wastes=wastes_dict,  # Profit per node
     capacity=200.0,
     max_length=100.0,
     engine="gurobi",
@@ -721,8 +720,7 @@ routes, cost, selected_nodes = run_vrpp_optimizer(
 # Hexaly VRPP (high-performance local search)
 routes, cost, selected_nodes = run_vrpp_optimizer(
     distance_matrix=dist_matrix,
-    demands=demands_dict,
-    prizes=prizes_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     engine="hexaly",
     time_limit=60.0
@@ -763,14 +761,14 @@ agent = NeuralAgent(
 # Solve single instance
 tour, cost = agent.solve(
     coordinates=coords,
-    demands=demands,
+    wastes=wastes,
     capacity=200.0
 )
 
 # Solve batch
 tours, costs = agent.solve_batch(
     batch_coords=batch_coords,
-    batch_demands=batch_demands,
+    batch_wastes=batch_wastes,
     capacity=200.0
 )
 ```
@@ -991,7 +989,7 @@ removed_nodes, modified_routes = cluster_removal(
 
 **File**: `shaw.py`
 
-Remove similar nodes (by distance, demand, time).
+Remove similar nodes (by distance, waste, time).
 
 ```python
 from logic.src.policies.operators import shaw_removal
@@ -1000,9 +998,9 @@ from logic.src.policies.operators import shaw_removal
 removed_nodes, modified_routes = shaw_removal(
     routes=[[0, 1, 2, 3, 4, 5, 0]],
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     num_remove=4,
-    relatedness_weights=(0.5, 0.3, 0.2)  # distance, demand, time
+    relatedness_weights=(0.5, 0.3, 0.2)  # distance, waste, time
 )
 ```
 
@@ -1042,7 +1040,7 @@ new_routes = greedy_insertion(
     routes=[[0, 1, 0], [0, 3, 0]],
     unrouted_nodes=[2, 4, 5],
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0
 )
 ```
@@ -1061,7 +1059,7 @@ new_routes = regret_k_insertion(
     routes=[[0, 1, 0]],
     unrouted_nodes=[2, 3, 4],
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     k=2  # Regret-2
 )
@@ -1081,7 +1079,7 @@ new_routes = greedy_insertion_with_blinks(
     routes=[[0, 1, 0]],
     unrouted_nodes=[2, 3, 4],
     distance_matrix=dist_matrix,
-    demands=demands_dict,
+    wastes=wastes_dict,
     capacity=200.0,
     blink_probability=0.01
 )
@@ -1666,7 +1664,7 @@ class MyCustomPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix,
-        sub_demands,
+        sub_wastes,
         capacity,
         revenue,
         cost_unit,
@@ -1675,7 +1673,7 @@ class MyCustomPolicy(BaseRoutingPolicy):
     ):
         """Implement custom solver logic."""
         # 1. Initialize solution
-        routes = self._initialize_routes(sub_dist_matrix, sub_demands, capacity)
+        routes = self._initialize_routes(sub_dist_matrix, sub_wastes, capacity)
 
         # 2. Improve with local search
         for iteration in range(values.get("max_iterations", 100)):
@@ -1686,7 +1684,7 @@ class MyCustomPolicy(BaseRoutingPolicy):
 
         return routes, cost
 
-    def _initialize_routes(self, dist_matrix, demands, capacity):
+    def _initialize_routes(self, dist_matrix, wastes, capacity):
         """Create initial solution."""
         # Custom initialization logic
         return [[1, 2], [3, 4]]
@@ -1720,7 +1718,7 @@ from logic.src.policies.operators import (
     regret_k_insertion
 )
 
-def custom_alns_iteration(routes, dist_matrix, demands, capacity):
+def custom_alns_iteration(routes, dist_matrix, wastes, capacity):
     """Custom ALNS iteration with specific operators."""
     # Destroy phase: alternate between random and worst removal
     if iteration % 2 == 0:
@@ -1730,16 +1728,16 @@ def custom_alns_iteration(routes, dist_matrix, demands, capacity):
 
     # Repair phase: alternate between greedy and regret
     if len(removed) < 3:
-        routes = greedy_insertion(routes, removed, dist_matrix, demands, capacity)
+        routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
     else:
-        routes = regret_k_insertion(routes, removed, dist_matrix, demands, capacity, k=2)
+        routes = regret_k_insertion(routes, removed, dist_matrix, wastes, capacity, k=2)
 
     return routes
 
 # Use in optimization loop
 routes = initial_routes
 for iteration in range(100):
-    new_routes = custom_alns_iteration(routes, dist_matrix, demands, capacity)
+    new_routes = custom_alns_iteration(routes, dist_matrix, wastes, capacity)
     if compute_cost(new_routes) < compute_cost(routes):
         routes = new_routes
 ```
@@ -1852,13 +1850,13 @@ def solve(routes, dist_matrix):
 
 ```python
 # ❌ BAD: Insert without capacity check
-def insert_node(route, node, demand):
+def insert_node(route, node, waste):
     route.insert(1, node)
 
 # ✅ GOOD: Check capacity
-def insert_node(route, node, demand, capacity, demands):
-    current_load = sum(demands[n] for n in route if n != 0)
-    if current_load + demand <= capacity:
+def insert_node(route, node, waste, capacity, wastes):
+    current_load = sum(wastes[n] for n in route if n != 0)
+    if current_load + waste <= capacity:
         route.insert(1, node)
         return True
     return False
@@ -1875,13 +1873,13 @@ from logic.src.policies import NeuralAgent
 agent = NeuralAgent(model)
 tours, costs = agent.solve_batch(
     batch_coords=batch_coords,
-    batch_demands=batch_demands
+    batch_wastes=batch_wastes
 )
 
 # ❌ BAD: Loop over instances
 tours, costs = [], []
-for coords, demands in zip(batch_coords, batch_demands):
-    tour, cost = agent.solve(coords, demands)
+for coords, wastes in zip(batch_coords, batch_wastes):
+    tour, cost = agent.solve(coords, wastes)
     tours.append(tour)
     costs.append(cost)
 ```

@@ -50,9 +50,9 @@ ENC_DEC_MODELS: List[str] = ["ddam"]  # Deep Decoder Attention Model has deep tr
 # Feature vector dimensions for problem representations.
 # These define the size of node/depot embeddings before model processing.
 
-# Total node feature dimension: [x, y, demand/prize]
+# Total node feature dimension: [x, y, waste]
 # Used in: embedding layers to size input projections
-NODE_DIM: int = 3  # Coordinate (2D: x, y) + Node attribute (1D: demand or prize value)
+NODE_DIM: int = 3  # Coordinate (2D: x, y) + Node attribute (1D: waste value)
 
 # Static coordinate dimension for depot and customer locations
 # Used in: distance matrix computation, spatial encoders

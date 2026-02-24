@@ -110,7 +110,7 @@ MAX_WASTE: float = 1.0  # 100% capacity (bins can exceed this, triggering overfl
 
 # Maximum route length constraints by problem size
 # Maps number of customer locations → max route length (hops, excluding depot returns)
-# Prevents unbounded route lengths in prize-collecting and selective problems.
+# Prevents unbounded route lengths in waste-collecting and selective problems.
 # Used in: VRPP, CVRPP environments to enforce route length limits
 # Rationale: Larger instances need proportionally longer routes (√n heuristic)
 MAX_LENGTHS: Dict[int, int] = {
@@ -123,7 +123,7 @@ MAX_LENGTHS: Dict[int, int] = {
 }
 
 # Default vehicle capacity (kilograms)
-# Used in: Capacitated VRP variants (CVRP, CWCVRP, SDWCVRP, SCWCVRP)
+# Used in: Capacitated VRP variants (CVRP, CWCVRP, SCWCVRP)
 # Route terminates when cumulative collected waste ≥ VEHICLE_CAPACITY
 # Typical real-world values: 80-120 kg for small trucks, 200-300 kg for large trucks
 VEHICLE_CAPACITY: float = 200.0  # kg (default for synthetic instances)
@@ -137,6 +137,5 @@ PROBLEMS: List[str] = [
     "cvrpp",  # Capacitated VRPP (add vehicle capacity constraint)
     "wcvrp",  # Waste Collection VRP (dynamic bin fill levels, no capacity)
     "cwcvrp",  # Capacitated Waste Collection VRP (bins + capacity, standard WSmart+ problem)
-    "sdwcvrp",  # Stochastic Demand WCVRP (uncertain waste generation rates)
     "scwcvrp",  # Selective Capacitated WCVRP (choose subset of bins, profit-driven)
 ]

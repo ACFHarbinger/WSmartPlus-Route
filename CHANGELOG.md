@@ -145,7 +145,7 @@ Successfully migrated the Capacitated Waste Collection VRP (CWCVRP) pipeline to 
 ### Added
 
 - **GDPO Algorithm**: Implemented `GDPO` (Gradient-Decomposed Policy Optimization) in `pipeline/rl/core/gdpo.py` and consolidated it into `train_lightning.py`.
-- **Decomposed Rewards**: Updated `VRPPEnv` and `WCVRPEnv` to calculate and store decomposed reward components (`reward_prize`, `reward_cost`, `reward_collection`) for advanced gradient analysis.
+- **Decomposed Rewards**: Updated `VRPPEnv` and `WCVRPEnv` to calculate and store decomposed reward components (`reward_overflows`, `reward_cost`, `reward_collection`) for advanced gradient analysis.
 - **Baseline Improvements**: Enabled `bl_warmup_epochs` configuration and refactored `Baseline` classes to inherit from `torch.nn.Module` for automatic device management.
 - **Parity Report**: Added `CWCVRP_LIGHTNING_MIGRATION_REPORT.md` documenting the successful parity verification between Legacy and Lightning pipelines.
 
@@ -171,7 +171,7 @@ Introduction of Group reward-Decoupled Normalization Policy Optimization (GDPO) 
 ### Added
 
 - **GDPO Algorithm**: Implementation of `GDPO` in `logic/src/pipeline/rl/core/gdpo.py`, featuring decoupled Z-score normalization and weighted aggregation.
-- **Decomposed Rewards**: `VRPPEnv` and `WCVRPEnv` now expose individual reward components (`reward_prize`, `reward_cost`, `reward_overflow`) in `TensorDict`.
+- **Decomposed Rewards**: `VRPPEnv` and `WCVRPEnv` now expose individual reward components (`reward_waste`, `reward_cost`, `reward_overflow`) in `TensorDict`.
 - **Config**: Added fields to `RLConfig` for GDPO objectives, weights, and conditional keys.
 - **Integration**: Added `gdpo` support to `train_lightning.py`.
 

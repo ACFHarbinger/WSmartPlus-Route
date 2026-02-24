@@ -328,7 +328,7 @@ class TestALNSAux:
         """Fixture providing sample ALNS problem data."""
         return {
             "dist_matrix": np.array([[0, 10, 10, 10], [10, 0, 5, 5], [10, 5, 0, 5], [10, 5, 5, 0]]),
-            "demands": {1: 10, 2: 10, 3: 10},
+            "wastes": {1: 10, 2: 10, 3: 10},
             "values": {1: 100, 2: 100, 3: 100},
             "capacity": 20.0,
             "R": 1.0,
@@ -355,7 +355,7 @@ class TestALNSAux:
             solution,
             removed,
             sample_data["dist_matrix"],
-            sample_data["demands"],
+            sample_data["wastes"],
             sample_data["capacity"],
         )
         assert isinstance(res, list)
@@ -368,7 +368,7 @@ class TestALNSAux:
             solution,
             removed,
             sample_data["dist_matrix"],
-            sample_data["demands"],
+            sample_data["wastes"],
             sample_data["capacity"],
         )
         assert isinstance(res, list)
@@ -387,7 +387,7 @@ class TestHGSAux:
         """Fixture providing sample HGS problem data."""
         return {
             "dist_matrix": np.array([[0, 10, 10, 10], [10, 0, 5, 5], [10, 5, 0, 5], [10, 5, 5, 0]]),
-            "demands": {1: 10, 2: 10, 3: 10},
+            "wastes": {1: 10, 2: 10, 3: 10},
             "capacity": 20.0,
             "R": 1.0,
             "C": 0.5,
@@ -397,7 +397,7 @@ class TestHGSAux:
         """Test split algorithm for giant tour decomposition."""
         split = split_module.LinearSplit(
             sample_data["dist_matrix"],
-            sample_data["demands"],
+            sample_data["wastes"],
             sample_data["capacity"],
             sample_data["R"],
             sample_data["C"],
@@ -438,7 +438,7 @@ class TestHGSAux:
 
         ls = ConcreteLocalSearch(
             sample_data["dist_matrix"],
-            sample_data["demands"],
+            sample_data["wastes"],
             sample_data["capacity"],
             sample_data["R"],
             sample_data["C"],

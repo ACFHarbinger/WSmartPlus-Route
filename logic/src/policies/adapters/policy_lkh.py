@@ -43,7 +43,7 @@ class LKHPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -57,25 +57,25 @@ class LKHPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        # Convert sub_demands dict to array for solve_lkh
+        # Convert sub_wastes dict to array for solve_lkh
         n_nodes = len(sub_dist_matrix)
-        demands_arr = np.zeros(n_nodes)
-        for i, d in sub_demands.items():
-            demands_arr[i] = d
+        wastes_arr = np.zeros(n_nodes)
+        for i, d in sub_wastes.items():
+            wastes_arr[i] = d
 
         # solve_lkh returns a single tour (closed, [0, ..., 0])
         tour, _ = solve_lkh(
             sub_dist_matrix,
-            waste=demands_arr,
+            waste=wastes_arr,
             capacity=capacity,
             max_iterations=values.get("max_iterations", 100),
         )
 
-        # demands_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
-        demands_arr_bins = np.array([sub_demands[i] for i in range(1, n_nodes)])
+        # wastes_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
+        wastes_arr_bins = np.array([sub_wastes[i] for i in range(1, n_nodes)])
 
         # Split into multiple routes if capacity is violated
-        full_tour = get_multi_tour(tour, demands_arr_bins, capacity, sub_dist_matrix)
+        full_tour = get_multi_tour(tour, wastes_arr_bins, capacity, sub_dist_matrix)
 
         # Convert flat tour [0, 1, 2, 0, 3, 0] to List[List[int]]
         real_routes: List[List[int]] = []

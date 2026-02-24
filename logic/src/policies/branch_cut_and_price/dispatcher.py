@@ -13,7 +13,7 @@ from .vrpy_engine import run_bcp_vrpy
 
 def run_bcp(
     dist_matrix,
-    demands,
+    wastes,
     capacity,
     R,
     C,
@@ -26,13 +26,13 @@ def run_bcp(
     Main dispatcher for Branch-Cut-and-Price solvers.
 
     Selects and runs the appropriate BCP solver based on configuration.
-    Supports Prize-Collecting CVRP with optional must-go nodes.
+    Supports Waste-Collecting CVRP with optional must-go nodes.
 
     Args:
         dist_matrix (np.ndarray): Distance matrix (N x N) with depot at index 0
-        demands (dict): Node demands {node_id: demand_value}
+        wastes (dict): Node wastes {node_id: waste_value}
         capacity (float): Vehicle capacity constraint
-        R (float): Revenue per unit demand
+        R (float): Revenue per unit waste
         C (float): Cost per unit distance
         values (dict): Configuration with 'bcp_engine' in ['ortools', 'vrpy', 'gurobi'].
             Default: 'ortools'. Also supports 'time_limit' (default: 30 seconds)
@@ -48,9 +48,9 @@ def run_bcp(
     engine = values.get("bcp_engine", "ortools")
 
     if engine == "vrpy":
-        return run_bcp_vrpy(dist_matrix, demands, capacity, R, C, values, recorder=recorder)
+        return run_bcp_vrpy(dist_matrix, wastes, capacity, R, C, values, recorder=recorder)
     elif engine == "gurobi":
-        return run_bcp_gurobi(dist_matrix, demands, capacity, R, C, values, must_go_indices, env, recorder=recorder)
+        return run_bcp_gurobi(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, recorder=recorder)
     else:
         # Default to OR-Tools
-        return run_bcp_ortools(dist_matrix, demands, capacity, R, C, values, must_go_indices, recorder=recorder)
+        return run_bcp_ortools(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)

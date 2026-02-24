@@ -216,7 +216,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             # Log current day properties
             td = ds_ref.data if hasattr(ds_ref, "data") else ds_ref
             if isinstance(td, dict) or hasattr(td, "get"):
-                key = "demand" if "demand" in td.keys() else "waste"
+                key = "waste" if "waste" in td.keys() else "fill_level"
                 mean_fill = td[key].mean() if key in td.keys() else 0.0
                 self.log("train/current_day", float(self.current_epoch + 1), sync_dist=True)
                 self.log("train/mean_fill", mean_fill, sync_dist=True)

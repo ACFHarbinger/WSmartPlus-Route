@@ -24,7 +24,7 @@ def perturb(ctx: Any, k: int = 3) -> bool:
     even if they don't improve the objective, provided they are feasible.
 
     Args:
-        ctx: Context object with routes, node_map, demands, capacity, etc.
+        ctx: Context object with routes, node_map, wastes, capacity, etc.
         k: Number of swaps to perform (default: 3).
 
     Returns:
@@ -59,8 +59,8 @@ def perturb(ctx: Any, k: int = 3) -> bool:
                 performed = True
         else:
             # Inter-route swap
-            dem_u = ctx.demands.get(u, 0)
-            dem_v = ctx.demands.get(v, 0)
+            dem_u = ctx.wastes.get(u, 0)
+            dem_v = ctx.wastes.get(v, 0)
             if (
                 ctx._get_load_cached(r_u) - dem_u + dem_v <= ctx.Q
                 and ctx._get_load_cached(r_v) - dem_v + dem_u <= ctx.Q

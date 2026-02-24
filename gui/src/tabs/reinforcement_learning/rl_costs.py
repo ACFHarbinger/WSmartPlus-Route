@@ -68,14 +68,6 @@ class RLCostsTab(BaseReinforcementLearningTab):
         self.widgets["w_penalty"].setValue(0)
         layout.addRow(QLabel("Penalty Weight:"), self.widgets["w_penalty"])
 
-        # Prize weight
-        self.widgets["w_prize"] = QDoubleSpinBox()
-        self.widgets["w_prize"].setRange(-10, 10)
-        self.widgets["w_prize"].setSingleStep(0.1)
-        self.widgets["w_prize"].setSpecialValueText("Not set")
-        self.widgets["w_prize"].setValue(0)
-        layout.addRow(QLabel("Prize Weight:"), self.widgets["w_prize"])
-
         self.setLayout(layout)
 
     def get_params(self):

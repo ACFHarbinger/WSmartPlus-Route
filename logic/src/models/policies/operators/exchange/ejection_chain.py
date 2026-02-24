@@ -15,7 +15,7 @@ def vectorized_ejection_chain(
     tours: torch.Tensor,
     distance_matrix: torch.Tensor,
     capacities: Optional[torch.Tensor] = None,
-    demands: Optional[torch.Tensor] = None,
+    wastes: Optional[torch.Tensor] = None,
     max_depth: int = 5,
     target_route_reduction: Optional[int] = None,
 ) -> torch.Tensor:
@@ -49,7 +49,7 @@ def vectorized_ejection_chain(
             Note: Tours should use depot (0) as route separator
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
         capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-        demands: Node demands [B, N+1] or [N+1] (required for ejection chain)
+        wastes: Node wastes [B, N+1] or [N+1] (required for ejection chain)
         max_depth: Maximum recursion depth for ejection chain (default: 5)
             Higher values find more solutions but slower
         target_route_reduction: Number of routes to try eliminating (default: None = all)
@@ -59,7 +59,7 @@ def vectorized_ejection_chain(
 
     Note:
         - Tours must have multiple routes (depot separators) to be effective
-        - Requires demands tensor for capacity checking
+        - Requires wastes tensor for capacity checking
         - This is a fleet minimization operator, not a cost minimization operator
         - Complexity: O(N² × max_depth) per route elimination attempt
         - Success rate depends on load distribution across routes
@@ -75,9 +75,9 @@ def vectorized_ejection_chain(
     Example:
         >>> tours = torch.tensor([[0, 1, 2, 0, 3, 4, 0]])  # Two routes
         >>> dist = torch.rand(5, 5)
-        >>> demands = torch.tensor([0, 1, 1, 1, 1])
+        >>> wastes = torch.tensor([0, 1, 1, 1, 1])
         >>> capacities = torch.tensor([3.0])
-        >>> improved = vectorized_ejection_chain(tours, dist, capacities, demands)
+        >>> improved = vectorized_ejection_chain(tours, dist, capacities, wastes)
         # May consolidate into single route: [0, 1, 2, 3, 4, 0]
     """
     device = distance_matrix.device
@@ -97,14 +97,14 @@ def vectorized_ejection_chain(
     if distance_matrix.size(0) == 1 and B > 1:
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
-    # Demands are required for ejection chain
-    if demands is None:
-        # Cannot perform ejection chain without demand information
+    # wastes are required for ejection chain
+    if wastes is None:
+        # Cannot perform ejection chain without waste information
         return tours if is_batch else tours.squeeze(0)
 
-    # Handle demands
-    if demands.dim() == 1:
-        demands = demands.unsqueeze(0).expand(B, -1)
+    # Handle wastes
+    if wastes.dim() == 1:
+        wastes = wastes.unsqueeze(0).expand(B, -1)
 
     # Handle capacities
     if capacities is None:
@@ -116,11 +116,11 @@ def vectorized_ejection_chain(
     for b in range(B):
         tour = tours[b]
         dist = distance_matrix[b]
-        demand = demands[b]
+        waste = wastes[b]
         capacity = capacities[b]
 
         # Extract routes and calculate loads
-        routes = _get_routes_with_loads(tour, demand, N)
+        routes = _get_routes_with_loads(tour, waste, N)
         if len(routes) < 2:
             continue
 
@@ -139,7 +139,7 @@ def vectorized_ejection_chain(
                 tour=tour,
                 route_data=routes[idx],
                 dist=dist,
-                demand=demand,
+                waste=waste,
                 capacity=capacity,
                 max_depth=max_depth,
                 depot_positions=torch.where(tour == 0)[0].tolist(),
@@ -148,7 +148,7 @@ def vectorized_ejection_chain(
             if success:
                 tour = modified_tour
                 routes_eliminated += 1
-                routes = _get_routes_with_loads(tour, demand, N)
+                routes = _get_routes_with_loads(tour, waste, N)
 
         tours[b] = tour
 
@@ -161,7 +161,7 @@ def _try_insert_with_ejection_chain(
     source_start: int,
     source_end: int,
     dist: torch.Tensor,
-    demand: torch.Tensor,
+    waste: torch.Tensor,
     capacity: torch.Tensor,
     max_depth: int,
     ejection_log: List[Tuple[int, int]],
@@ -176,7 +176,7 @@ def _try_insert_with_ejection_chain(
         source_start: Start position of source route
         source_end: End position of source route
         dist: Distance matrix for this instance
-        demand: Demand tensor for this instance
+        waste: waste tensor for this instance
         capacity: Capacity for this instance
         max_depth: Maximum ejection depth
         ejection_log: Log of ejections for rollback
@@ -189,7 +189,7 @@ def _try_insert_with_ejection_chain(
         return False
 
     device = tour.device
-    node_demand = demand[node].item()
+    node_waste = waste[node].item()
 
     # Try direct insertion into each route
     for i in range(len(depot_positions) - 1):
@@ -205,9 +205,9 @@ def _try_insert_with_ejection_chain(
         route_nodes = route_nodes[route_nodes > 0]
 
         # Check capacity
-        route_load = sum(demand[n].item() for n in route_nodes)
+        route_load = sum(waste[n].item() for n in route_nodes)
 
-        if route_load + node_demand <= capacity.item():
+        if route_load + node_waste <= capacity.item():
             # Find best insertion position
             best_pos = _find_best_insertion_in_route(tour, node, route_start, route_end, dist)
 
@@ -228,7 +228,7 @@ def _try_insert_with_ejection_chain(
     return False
 
 
-def _get_routes_with_loads(tour, demand, N) -> List[Tuple[int, int, List[int], float]]:
+def _get_routes_with_loads(tour, waste, N) -> List[Tuple[int, int, List[int], float]]:
     """Identifies routes and calculates their respective loads."""
     depot_positions = torch.where(tour == 0)[0].tolist()
     routes = []
@@ -238,12 +238,12 @@ def _get_routes_with_loads(tour, demand, N) -> List[Tuple[int, int, List[int], f
         if end > start:
             nodes = [n for n in tour[start:end].tolist() if 0 < n < N]
             if nodes:
-                load = sum(demand[n].item() for n in nodes)
+                load = sum(waste[n].item() for n in nodes)
                 routes.append((start, end, nodes, load))
     return routes
 
 
-def _attempt_route_elimination(tour, route_data, dist, demand, capacity, max_depth, depot_positions):
+def _attempt_route_elimination(tour, route_data, dist, waste, capacity, max_depth, depot_positions):
     """Attempts to eliminate a single route by ejecting its nodes."""
     start, end, nodes, _ = route_data
     ejection_log = []  # type: ignore[var-annotated]
@@ -252,7 +252,7 @@ def _attempt_route_elimination(tour, route_data, dist, demand, capacity, max_dep
 
     for node in nodes:
         if not _try_insert_with_ejection_chain(
-            modified_tour, node, start, end, dist, demand, capacity, max_depth, ejection_log, depot_positions
+            modified_tour, node, start, end, dist, waste, capacity, max_depth, ejection_log, depot_positions
         ):
             success = False
             break

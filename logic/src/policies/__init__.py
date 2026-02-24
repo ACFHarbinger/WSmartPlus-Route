@@ -15,7 +15,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies import find_routes
-    >>> routes = find_routes(distance_matrix, demands, capacity)
+    >>> routes = find_routes(distance_matrix, wastes, capacity)
 """
 
 from .adapters.policy_vrpp import run_vrpp_optimizer

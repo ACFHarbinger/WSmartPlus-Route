@@ -218,7 +218,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         use_all_bins: bool = True,
     ) -> Tuple[np.ndarray, Dict[int, float], List[int], List[int]]:
         """
-        Create a subset distance matrix and demands dict for the solver.
+        Create a subset distance matrix and wastes dict for the solver.
 
         Args:
             must_go: List of 1-based global bin IDs to visit.
@@ -227,9 +227,9 @@ class BaseRoutingPolicy(IPolicyAdapter):
             use_all_bins: If True, include all bins in the problem (VRPP mode).
 
         Returns:
-            Tuple of (sub_dist_matrix, sub_demands, subset_indices, mandatory_nodes)
+            Tuple of (sub_dist_matrix, sub_wastes, subset_indices, mandatory_nodes)
                 - sub_dist_matrix: Distance matrix for subset.
-                - sub_demands: {local_idx: fill} for local nodes 1..M.
+                - sub_wastes: {local_idx: fill} for local nodes 1..M.
                 - subset_indices: Mapping from local to global indices.
                 - mandatory_nodes: List of local indices that MUST be visited.
         """
@@ -250,15 +250,15 @@ class BaseRoutingPolicy(IPolicyAdapter):
         dist_matrix_np = np.array(distance_matrix)
         sub_dist_matrix = dist_matrix_np[np.ix_(subset_indices, subset_indices)]
 
-        # Build local demands: local index i (1-based) -> fill level
-        sub_demands = {}
+        # Build local wastes: local index i (1-based) -> fill level
+        sub_wastes = {}
         for i in range(1, len(subset_indices)):
             global_idx = subset_indices[i]
             # global_idx is 1-based, bins.c is 0-indexed
             fill = bins.c[global_idx - 1]
-            sub_demands[i] = float(fill)
+            sub_wastes[i] = float(fill)
 
-        return sub_dist_matrix, sub_demands, subset_indices, mandatory_nodes
+        return sub_dist_matrix, sub_wastes, subset_indices, mandatory_nodes
 
     def _map_tour_to_global(self, routes: List[List[int]], subset_indices: List[int]) -> List[int]:
         """
@@ -300,7 +300,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -313,7 +313,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
 
         Args:
             sub_dist_matrix: Subset distance matrix.
-            sub_demands: Local demands dict.
+            sub_wastes: Local wastes dict.
             capacity: Vehicle capacity.
             revenue: Revenue per unit.
             cost_unit: Cost per distance unit.
@@ -389,7 +389,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         # 4. Create subset problem
         # use_all_bins=True (VRPP mode) allows the solver to CONSIDER all bins,
         # but only forcefully visit the must_go list (mandatory_nodes).
-        sub_dist_matrix, sub_demands, subset_indices, mandatory_nodes = self._create_subset_problem(
+        sub_dist_matrix, sub_wastes, subset_indices, mandatory_nodes = self._create_subset_problem(
             must_go,
             distance_matrix,
             bins,
@@ -399,7 +399,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         # 5. Run solver (subclass-specific)
         routes, profit, _ = self._run_solver(
             sub_dist_matrix,
-            sub_demands,
+            sub_wastes,
             capacity,
             revenue,
             cost_unit,

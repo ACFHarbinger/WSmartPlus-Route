@@ -23,7 +23,7 @@ def regret_2_insertion(
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
@@ -40,7 +40,7 @@ def regret_2_insertion(
         routes: Partial routes.
         removed_nodes: Nodes to be re-inserted.
         dist_matrix: Distance matrix.
-        demands: Demand look-up.
+        wastes: waste look-up.
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
@@ -52,7 +52,7 @@ def regret_2_insertion(
         routes,
         removed_nodes,
         dist_matrix,
-        demands,
+        wastes,
         capacity,
         k=2,
         R=R,
@@ -65,7 +65,7 @@ def regret_k_insertion(  # noqa: C901
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     k: int = 2,
     R: Optional[float] = None,
@@ -83,7 +83,7 @@ def regret_k_insertion(  # noqa: C901
         routes: Partial routes.
         removed_nodes: Nodes to be re-inserted.
         dist_matrix: Distance matrix.
-        demands: Demand look-up.
+        wastes: waste look-up.
         capacity: Vehicle capacity.
         k: Regret degree (2, 3, etc.).
         R: Revenue multiplier (Optional).
@@ -96,7 +96,7 @@ def regret_k_insertion(  # noqa: C901
     # Calculate current loads
     loads = []
     for route in routes:
-        loads.append(sum(demands.get(node, 0) for node in route))
+        loads.append(sum(wastes.get(node, 0) for node in route))
 
     unassigned = list(removed_nodes)
     while unassigned:
@@ -104,11 +104,11 @@ def regret_k_insertion(  # noqa: C901
         unprofitable_nodes = []
 
         for node in unassigned:
-            demand = demands.get(node, 0)
+            waste = wastes.get(node, 0)
             node_options = []
 
             for r_idx, route in enumerate(routes):
-                if loads[r_idx] + demand > capacity:
+                if loads[r_idx] + waste > capacity:
                     continue
 
                 for pos in range(len(route) + 1):
@@ -127,7 +127,7 @@ def regret_k_insertion(  # noqa: C901
             # VRPP Logic
             best_cost = node_options[0][0]
             if R is not None:
-                revenue = demand * R
+                revenue = waste * R
                 if best_cost * cost_unit > revenue and node not in mandatory_nodes_set:
                     unprofitable_nodes.append(node)
                     continue
@@ -157,7 +157,7 @@ def regret_k_insertion(  # noqa: C901
             if mandatory_remaining:
                 node = mandatory_remaining[0]
                 routes.append([node])
-                loads.append(demands.get(node, 0))
+                loads.append(wastes.get(node, 0))
                 unassigned.remove(node)
                 continue
             else:
@@ -173,13 +173,13 @@ def regret_k_insertion(  # noqa: C901
             continue
 
         # Apply insertion
-        demand = demands.get(best_node, 0)
+        waste = wastes.get(best_node, 0)
         if r_idx == len(routes):
             routes.append([best_node])
-            loads.append(demand)
+            loads.append(waste)
         else:
             routes[r_idx].insert(pos, best_node)
-            loads[r_idx] += demand
+            loads[r_idx] += waste
 
         unassigned.remove(best_node)
 

@@ -29,7 +29,7 @@ class DynamicEmbedding(nn.Module):
         super().__init__()
         self.embed_dim = embed_dim
 
-        # Projection for dynamic node features (e.g., visited mask, remaining demand)
+        # Projection for dynamic node features (e.g., visited mask, remaining waste)
         # We project to 3 * embed_dim to update gl_k, gl_v, logit_k
         self.project_dynamic = nn.Linear(dynamic_node_dim, 3 * embed_dim, bias=False)
 

@@ -72,7 +72,7 @@ alns:
     # Destroy operators used (automatically selected):
     #   - Random Removal: Remove k random nodes
     #   - Worst Removal: Remove nodes with highest cost contribution
-    #   - Shaw Removal: Remove similar nodes (geographic/demand proximity)
+    #   - Shaw Removal: Remove similar nodes (geographic/waste proximity)
     #   - String Removal: Remove consecutive route segments
     #
     # Repair operators used (automatically selected):

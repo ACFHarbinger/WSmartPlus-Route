@@ -27,7 +27,7 @@ class HVPLSolver(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -35,7 +35,7 @@ class HVPLSolver(PolicyVizMixin):
         mandatory_nodes: Optional[List[int]] = None,
     ):
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -44,12 +44,12 @@ class HVPLSolver(PolicyVizMixin):
 
         # Initialize ACO components for constructor and pheromones
         # We reuse KSparseACOSolver initialization logic
-        self.aco_internal = KSparseACOSolver(dist_matrix, demands, capacity, R, C, params.aco_params, mandatory_nodes)
+        self.aco_internal = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes)
         self.pheromone = self.aco_internal.pheromone
         self.constructor = self.aco_internal.constructor
 
         # Initialize ALNS solver for the "Coaching" phase
-        self.coaching_solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params.alns_params, mandatory_nodes)
+        self.coaching_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -63,7 +63,7 @@ class HVPLSolver(PolicyVizMixin):
             routes = self.constructor.construct()
             cost = self._calculate_cost(routes)
             # Profit calculation
-            rev = sum(self.demands.get(n, 0) * self.R for r in routes for n in r)
+            rev = sum(self.wastes.get(n, 0) * self.R for r in routes for n in r)
             profit = rev - cost * self.C
             population.append((routes, profit, cost))
 
@@ -111,7 +111,7 @@ class HVPLSolver(PolicyVizMixin):
                 # Replace with a new solution generated with updated pheromones
                 s_routes = self.constructor.construct()
                 s_cost = self._calculate_cost(s_routes)
-                s_rev = sum(self.demands.get(n, 0) * self.R for r in s_routes for n in r)
+                s_rev = sum(self.wastes.get(n, 0) * self.R for r in s_routes for n in r)
                 s_profit = s_rev - s_cost * self.C
                 population[i] = (s_routes, s_profit, s_cost)
 

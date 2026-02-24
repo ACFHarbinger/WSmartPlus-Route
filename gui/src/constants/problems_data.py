@@ -3,7 +3,7 @@ Problem types and data distribution constants for the GUI.
 """
 
 # Problems and Data
-PROBLEM_TYPES = ["VRPP", "CVRPP", "WCVRP", "CWCVRP", "SDWCVRP", "SCWCVRP"]
+PROBLEM_TYPES = ["VRPP", "CVRPP", "WCVRP", "CWCVRP", "SCWCVRP"]
 
 DATA_DIST_PROBLEMS = ["VRPP", "WCVRP"]
 

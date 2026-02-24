@@ -12,7 +12,7 @@
 #   4. Higher confidence_factor → more conservative (fewer overflows)
 #
 # USE CASES:
-#   - Stochastic demand problems (SDWCVRP)
+#   - Stochastic waste problems (SCWCVRP)
 #   - Risk-sensitive routing (prioritize service level over cost)
 #   - VRPP with service level constraints
 #

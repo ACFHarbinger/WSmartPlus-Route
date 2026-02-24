@@ -49,7 +49,7 @@ For detailed technical documentation of individual subsystems, see the [docs/](d
 | **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** | -                       | Comprehensive guide to Hydra configuration, CLI overrides, and best practices |
 | **[Constants Module](docs/CONSTANTS_MODULE.md)**       | `logic/src/utils/`      | System-wide constants, problem definitions, and enum types                    |
 | **[Data Module](docs/DATA_MODULE.md)**                 | `logic/src/data/`       | Dataset generation, loading utilities, and data augmentation                  |
-| **[Environments Module](docs/ENVS_MODULE.md)**         | `logic/src/envs/`       | Problem environments (VRPP, WCVRP, SDWCVRP) and state management              |
+| **[Environments Module](docs/ENVS_MODULE.md)**         | `logic/src/envs/`       | Problem environments (VRPP, WCVRP, SCWCVRP) and state management              |
 | **[Interfaces Module](docs/INTERFACES_MODULE.md)**     | `logic/src/interfaces/` | Abstract base classes, protocols, and type definitions                        |
 | **[Models Module](docs/MODELS_MODULE.md)**             | `logic/src/models/`     | Neural architectures, encoders, decoders, and network components (264KB doc)  |
 | **[Pipeline Module](docs/PIPELINE_MODULE.md)**         | `logic/src/pipeline/`   | Training, evaluation, simulation orchestration, and RL algorithms             |
@@ -645,7 +645,7 @@ class UIMediator:
 ### 5.3 Neural Model Forward Pass
 
 ```
-Input: {loc, demand, prize, depot}
+Input: {loc, waste, depot}
               │
               ▼
     ┌─────────────────┐
@@ -697,8 +697,7 @@ class RoutingModel(nn.Module):
         Args:
             input: Problem instance batch
                 - 'loc': (batch, nodes, 2) coordinates
-                - 'demand': (batch, nodes) demands
-                - 'prize': (batch, nodes) rewards
+                - 'waste': (batch, nodes) rewards
                 - 'depot': (batch, 2) depot location
 
         Returns:
@@ -727,8 +726,7 @@ class Policy(ABC):
     def solve(
         self,
         distances: np.ndarray,
-        demands: np.ndarray,
-        prizes: np.ndarray,
+        wastes: np.ndarray,
         capacity: float,
         depot: int = 0
     ) -> Tuple[List[List[int]], float, float]:
@@ -737,7 +735,7 @@ class Policy(ABC):
 
         Returns:
             routes: List of routes (each route is list of node indices)
-            total_profit: Sum of collected prizes
+            total_profit: Sum of collected wastes
             total_cost: Sum of distances traveled
         """
 
@@ -761,8 +759,7 @@ class Simulator:
         # Policy decision
         routes, profit, cost = policy.solve(
             distances=self.network.distance_matrix,
-            demands=self.bins.get_demands(),
-            prizes=self.bins.get_prizes(),
+            wastes=self.bins.get_wastes(),
             capacity=self.vehicle_capacity,
             depot=self.depot_index
         )
@@ -1008,7 +1005,7 @@ class GurobiVRPPOptimizer:
         self.time_limit = time_limit
         self.mip_gap = mip_gap
 
-    def solve(self, distances, demands, prizes, capacity, depot=0):
+    def solve(self, distances, wastes, capacity, depot=0):
         import gurobipy as gp
 
         n = len(distances)
@@ -1020,7 +1017,7 @@ class GurobiVRPPOptimizer:
 
         # Objective: Maximize profit - cost
         model.setObjective(
-            gp.quicksum(prizes[i] * y[i] for i in range(n)) -
+            gp.quicksum(wastes[i] * y[i] for i in range(n)) -
             gp.quicksum(distances[i][j] * x[i,j] for i,j in range(n)),
             gp.GRB.MAXIMIZE
         )
@@ -1726,7 +1723,7 @@ sequenceDiagram
 
 ### 16.4 Data Generation Command (`gen_data`)
 
-The generic VRP generator engine is responsible for initializing coordinates, node attributes, graph topology, and baseline demands depending on whether the structure targets RL training sets or complex periodic sequence simulations.
+The generic VRP generator engine is responsible for initializing coordinates, node attributes, graph topology, and baseline wastes depending on whether the structure targets RL training sets or complex periodic sequence simulations.
 
 ```mermaid
 sequenceDiagram

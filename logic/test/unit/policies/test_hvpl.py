@@ -11,7 +11,7 @@ def test_hvpl_solver():
         [20.0, 10.0, 0.0, 10.0],
         [10.0, 20.0, 10.0, 0.0]
     ])
-    demands = {1: 10.0, 2: 10.0, 3: 10.0}
+    waste = {1: 10.0, 2: 10.0, 3: 10.0}
     capacity = 50.0
     R = 10.0
     C = 1.0
@@ -27,7 +27,7 @@ def test_hvpl_solver():
     params.alns_params.max_iterations = 5
     params.aco_params.n_ants = 2
 
-    solver = HVPLSolver(dist_matrix, demands, capacity, R, C, params)
+    solver = HVPLSolver(dist_matrix, waste, capacity, R, C, params)
 
     routes, profit, cost = solver.solve()
 

@@ -39,7 +39,7 @@ class SISRPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -77,6 +77,6 @@ class SISRPolicy(BaseRoutingPolicy):
                 destroy_ratio=values.get("destroy_ratio", 0.2),
             )
 
-        solver = SISRSolver(sub_dist_matrix, sub_demands, capacity, revenue, cost_unit, params)
+        solver = SISRSolver(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params)
         routes, profit, cost = solver.solve()
         return routes, profit, cost

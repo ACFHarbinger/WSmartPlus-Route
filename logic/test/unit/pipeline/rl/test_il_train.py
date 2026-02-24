@@ -39,7 +39,7 @@ class TestHGS:
 
     @pytest.fixture
     def sample_data(self, device):
-        """Fixture for sample data (distance matrix and demands)."""
+        """Fixture for sample data (distance matrix and wastes)."""
         # 5 nodes + depot (0)
         pts = torch.tensor(
             [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0], [3.0, 0.0], [4.0, 0.0], [5.0, 0.0]],
@@ -47,8 +47,8 @@ class TestHGS:
         )
         diff = pts.unsqueeze(1) - pts.unsqueeze(0)
         dist = torch.sqrt((diff**2).sum(dim=2))
-        demands = torch.tensor([0.0, 1.0, 1.0, 1.0, 1.0, 1.0], device=device)
-        return dist, demands
+        wastes = torch.tensor([0.0, 1.0, 1.0, 1.0, 1.0, 1.0], device=device)
+        return dist, wastes
 
     @pytest.mark.unit
     def test_broken_pairs_distance(self, device):
@@ -184,8 +184,8 @@ class TestHGS:
     @pytest.mark.unit
     def test_vectorized_linear_split(self, device, sample_data):
         """Test vectorized linear split for route construction."""
-        dist, demands = sample_data
-        # 5 nodes + depot. Demands = 1 each.
+        dist, wastes = sample_data
+        # 5 nodes + depot. wastes = 1 each.
         # Capacity = 2.
         # Expected split:
         # Route 1: 1-2 (Load 2)
@@ -197,11 +197,11 @@ class TestHGS:
         tours = torch.tensor([[1, 2, 3, 4, 5]], device=device)
         B = 1
         dist_b = dist.unsqueeze(0)
-        demands_b = demands.unsqueeze(0)
+        wastes_b = wastes.unsqueeze(0)
 
         capacity = 2.0
 
-        routes, costs = vectorized_linear_split(tours, dist_b, demands_b, capacity)
+        routes, costs = vectorized_linear_split(tours, dist_b, wastes_b, capacity)
 
         # Check output structure
         assert len(routes) == B
@@ -227,7 +227,7 @@ class TestHGS:
             # r is [0, n1, n2, ..., 0]
             assert r[0] == 0 and r[-1] == 0
             nodes = r[1:-1]
-            load = demands[nodes].sum()
+            load = wastes[nodes].sum()
             assert load <= capacity + 1e-5
 
         # Check total nodes cover
@@ -240,12 +240,12 @@ class TestHGS:
     @pytest.mark.unit
     def test_time_limit(self, device, sample_data):
         """Test time limit enforcement."""
-        dist, demands = sample_data
+        dist, wastes = sample_data
         B = 2
         dist_b = dist.unsqueeze(0).expand(B, -1, -1)
-        demands_b = demands.unsqueeze(0).expand(B, -1)
+        wastes_b = wastes.unsqueeze(0).expand(B, -1)
 
-        hgs = VectorizedHGS(dist_b, demands_b, vehicle_capacity=10.0, time_limit=10.0, device=device)
+        hgs = VectorizedHGS(dist_b, wastes_b, vehicle_capacity=10.0, time_limit=10.0, device=device)
         init_sol = torch.stack([torch.randperm(5, device=device) + 1 for _ in range(B)])
 
         start_t = time.time()
@@ -257,12 +257,12 @@ class TestHGS:
     @pytest.mark.unit
     def test_max_vehicles_constraint(self, device, sample_data):
         """Test maximum vehicles constraint."""
-        dist, demands = sample_data
+        dist, wastes = sample_data
         dist_b = dist.unsqueeze(0)
-        demands_b = demands.unsqueeze(0)
+        wastes_b = wastes.unsqueeze(0)
         tours = torch.tensor([[1, 2, 3, 4, 5]], device=device)
 
-        hgs = VectorizedHGS(dist_b, demands_b, vehicle_capacity=3.0, device=device)
+        hgs = VectorizedHGS(dist_b, wastes_b, vehicle_capacity=3.0, device=device)
         routes, costs = hgs.solve(tours, n_generations=1, population_size=5, max_vehicles=2)
         assert costs[0] < float("inf")
 
@@ -272,11 +272,11 @@ class TestHGS:
     @pytest.mark.unit
     def test_stagnation_restart_runs(self, mocker, device, sample_data):
         """Test restart mechanism on stagnation."""
-        dist, demands = sample_data
+        dist, wastes = sample_data
         B = 1
         dist_b = dist.unsqueeze(0)
-        demands_b = demands.unsqueeze(0)
-        hgs = VectorizedHGS(dist_b, demands_b, vehicle_capacity=10.0, device=device)
+        wastes_b = wastes.unsqueeze(0)
+        hgs = VectorizedHGS(dist_b, wastes_b, vehicle_capacity=10.0, device=device)
         init_sol = torch.stack([torch.randperm(5, device=device) + 1 for _ in range(B)])
 
         # Run enough gens to trigger restart (50 is threshold)

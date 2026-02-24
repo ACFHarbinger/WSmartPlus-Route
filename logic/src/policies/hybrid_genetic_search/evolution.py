@@ -95,10 +95,10 @@ def evaluate(ind: Individual, split_manager: LinearSplit):
         if not r:
             continue
         d = split_manager.dist_matrix[0, r[0]]
-        rev += split_manager.demands[r[0]] * split_manager.R
+        rev += split_manager.wastes[r[0]] * split_manager.R
         for i in range(len(r) - 1):
             d += split_manager.dist_matrix[r[i], r[i + 1]]
-            rev += split_manager.demands[r[i + 1]] * split_manager.R
+            rev += split_manager.wastes[r[i + 1]] * split_manager.R
         d += split_manager.dist_matrix[r[-1], 0]
         cost += d * split_manager.C
 
