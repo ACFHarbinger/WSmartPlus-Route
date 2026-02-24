@@ -34,7 +34,7 @@ class ALNSSolver(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -46,7 +46,7 @@ class ALNSSolver(PolicyVizMixin):
 
         Args:
             dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands.
+            wastes: Dictionary of node wastes.
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -54,7 +54,7 @@ class ALNSSolver(PolicyVizMixin):
             mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -72,10 +72,10 @@ class ALNSSolver(PolicyVizMixin):
         ]
         self.repair_ops = [
             lambda r, n: greedy_insertion(
-                r, n, self.dist_matrix, self.demands, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
+                r, n, self.dist_matrix, self.wastes, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
             ),
             lambda r, n: regret_2_insertion(
-                r, n, self.dist_matrix, self.demands, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
+                r, n, self.dist_matrix, self.wastes, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
             ),
         ]
 
@@ -89,7 +89,7 @@ class ALNSSolver(PolicyVizMixin):
 
         # Calculate initial metrics
         best_cost = self.calculate_cost(best_routes)
-        best_rev = sum(self.demands.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
+        best_rev = sum(self.wastes.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
         best_profit = best_rev - best_cost
 
         return current_routes, best_routes, best_profit, best_cost
@@ -159,7 +159,7 @@ class ALNSSolver(PolicyVizMixin):
 
             # Calculate new metrics
             new_cost = self.calculate_cost(new_routes)
-            new_rev = sum(self.demands.get(node_idx, 0) * self.R for route in new_routes for node_idx in route)
+            new_rev = sum(self.wastes.get(node_idx, 0) * self.R for route in new_routes for node_idx in route)
             new_profit = new_rev - new_cost
 
             accept = self._accept_solution(current_profit, new_profit, T)
@@ -248,8 +248,8 @@ class ALNSSolver(PolicyVizMixin):
         mandatory_set = set(self.mandatory_nodes) if self.mandatory_nodes else set()
 
         for node in nodes:
-            demand = self.demands.get(node, 0)
-            revenue = demand * self.R
+            waste = self.wastes.get(node, 0)
+            revenue = waste * self.R
             is_mandatory = node in mandatory_set
 
             # Basic VRPP check for initial solution: is node potentially profitable?
@@ -257,26 +257,26 @@ class ALNSSolver(PolicyVizMixin):
             if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
                 continue
 
-            if load + demand <= self.capacity:
+            if load + waste <= self.capacity:
                 curr_route.append(node)
-                load += demand
+                load += waste
             else:
                 if curr_route:
                     routes.append(curr_route)
                 curr_route = [node]
-                load = demand
+                load = waste
         if curr_route:
             routes.append(curr_route)
         return routes
 
 
-def run_alns(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, *args):
+def run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
     """
     Main ALNS entry point with dispatching to different algorithm variants.
 
     Args:
         dist_matrix: Distance matrix.
-        demands: Bin demands.
+        wastes: Bin wastes.
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -290,9 +290,9 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None,
     variant = values.get("variant") or values.get("engine") or "custom"
 
     if variant == "package":
-        return run_alns_package(dist_matrix, demands, capacity, R, C, values)
+        return run_alns_package(dist_matrix, wastes, capacity, R, C, values)
     elif variant == "ortools":
-        return run_alns_ortools(dist_matrix, demands, capacity, R, C, values)
+        return run_alns_ortools(dist_matrix, wastes, capacity, R, C, values)
 
     # Default: Custom internal ALNS solver
     params = ALNSParams(
@@ -304,5 +304,5 @@ def run_alns(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None,
         min_removal=values.get("min_removal", 1),
         max_removal_pct=values.get("max_removal_pct", 0.3),
     )
-    solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
+    solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

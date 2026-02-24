@@ -78,14 +78,14 @@ impl Split {
 
             for j in (i + 1)..=n {
                 let node_idx = tour[j - 1];
-                load += self.params.demands[node_idx];
+                load += self.params.wastes[node_idx];
 
                 // Soft constraint: Break only if load is way too high (optimization)
                 if load > self.params.vehicle_capacity * 2.0 {
                     break;
                 }
 
-                revenue += self.params.demands[node_idx] * self.params.r_coeff;
+                revenue += self.params.wastes[node_idx] * self.params.r_coeff;
 
                 if j == i + 1 {
                     dist = self.params.dist_matrix[0][node_idx];
@@ -139,14 +139,14 @@ impl Split {
 
                 for j in (i + 1)..=n {
                     let node_idx = tour[j - 1];
-                    load += self.params.demands[node_idx];
+                    load += self.params.wastes[node_idx];
 
                     // Soft constraint: Break only if load is way too high (optimization)
                     if load > self.params.vehicle_capacity * 10.0 {
                         break;
                     }
 
-                    revenue += self.params.demands[node_idx] * self.params.r_coeff;
+                    revenue += self.params.wastes[node_idx] * self.params.r_coeff;
 
                     if j == i + 1 {
                         dist = self.params.dist_matrix[0][node_idx];

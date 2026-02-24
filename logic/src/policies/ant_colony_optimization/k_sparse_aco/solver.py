@@ -10,7 +10,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
-    >>> solver = KSparseACOSolver(dist_matrix, demands, ...)
+    >>> solver = KSparseACOSolver(dist_matrix, wastes, ...)
     >>> result = solver.solve()
 """
 
@@ -38,7 +38,7 @@ class KSparseACOSolver(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -50,7 +50,7 @@ class KSparseACOSolver(PolicyVizMixin):
 
         Args:
             dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands {node_idx: demand}.
+            wastes: Dictionary of node wastes {node_idx: waste}.
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -58,7 +58,7 @@ class KSparseACOSolver(PolicyVizMixin):
             mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -90,7 +90,7 @@ class KSparseACOSolver(PolicyVizMixin):
         )
 
         # Initialize Local Search
-        self.ls = ACOLocalSearch(dist_matrix, demands, capacity, R, C, params)
+        self.ls = ACOLocalSearch(dist_matrix, wastes, capacity, R, C, params)
 
         # Build candidate lists (k-nearest neighbors for each node)
         self.candidate_lists = self._build_candidate_lists()
@@ -98,7 +98,7 @@ class KSparseACOSolver(PolicyVizMixin):
         # Initialize Constructor
         self.constructor = SolutionConstructor(
             dist_matrix,
-            demands,
+            wastes,
             capacity,
             self.pheromone,
             self.eta,
@@ -196,7 +196,7 @@ class KSparseACOSolver(PolicyVizMixin):
             )
 
         # Calculate profit
-        collected_revenue = sum(self.demands.get(node, 0) * self.R for route in best_routes for node in route)
+        collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in best_routes for node in route)
         profit = collected_revenue - best_cost * self.C
 
         return best_routes, profit, best_cost

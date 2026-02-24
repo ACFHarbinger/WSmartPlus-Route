@@ -28,7 +28,7 @@ class IBinContainer(Protocol):
 
     Attributes:
         fill_levels: Current fill levels (batch, n_bins)
-        demands: Demand/capacity usage (batch, n_bins)
+        wastes: Waste usage (batch, n_bins)
 
     Example:
         >>> def check_overflow(bins: IBinContainer, threshold: float) -> torch.Tensor:
@@ -45,11 +45,11 @@ class IBinContainer(Protocol):
         ...
 
     @property
-    def demands(self) -> torch.Tensor:
-        """Demand or capacity usage for all bins.
+    def wastes(self) -> torch.Tensor:
+        """Waste usage for all bins.
 
         Returns:
-            Tensor of shape (batch, n_bins) with demand values
+            Tensor of shape (batch, n_bins) with waste values
         """
         ...
 
@@ -68,7 +68,7 @@ class IBinContainer(Protocol):
         that uses bins.get("fill_levels").
 
         Args:
-            key: Attribute name (e.g., "fill_levels", "demands")
+            key: Attribute name (e.g., "fill_levels", "wastes")
             default: Value to return if key not found
 
         Returns:

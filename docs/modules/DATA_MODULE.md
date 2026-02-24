@@ -66,9 +66,9 @@ def build(self, batch_size: int) -> TensorDict
 This is the terminal method of the builder. It performs the following sequence:
 
 1. **Coordinate Generation**: Samples `(x, y)` locations based on the selected `area` and spatial logic.
-2. **Waste Generation**: Calculates initial node demands/profits using the specified waste distribution.
+2. **Waste Generation**: Calculates initial node waste/profits using the specified waste distribution.
 3. **Internal Normalization**: Ensures all coordinates and costs are scaled to the standard range (usually `0.0` to `1.0`).
-4. **TensorDict Preparation**: Aggregates all tensors into a single `TensorDict` with keys: `locs`, `depot`, `demand`, `capacity`, and problem-specific metadata.
+4. **TensorDict Preparation**: Aggregates all tensors into a single `TensorDict` with keys: `locs`, `depot`, `waste`, `capacity`, and problem-specific metadata.
 
 ---
 
@@ -188,7 +188,7 @@ These classes generate `(x, y)` coordinate tensors of shape `(batch, num_loc, 2)
 
 ### Statistical Physics (Bin Attributes)
 
-These classes define the demands, profits, and fill-rates.
+These classes define the profits, and waste fill-rates.
 
 #### `Gamma` (`statistical.py`)
 

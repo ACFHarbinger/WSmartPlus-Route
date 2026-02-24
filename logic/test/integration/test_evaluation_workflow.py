@@ -83,36 +83,14 @@ def temp_eval_setup(tmp_path):
     torch.save(save_dict, checkpoint_path)
 
     # 3. Generate and save synthetic dataset
-    # VRPP dataset structure: list of tuples/objects depending on problem
-    # VRPP Env usually expects specific data format.
-    # Let's generate data using the problem instance if possible, or manually.
-    # VRPP typically requires: locs, demand, depot, etc.
-    # We can use the make_dataset method from the problem class if available,
-    # but that might require external files.
-    # Let's replicate a simple VRPP data structure.
-    # Based on eval.py -> model.problem.make_dataset
-    # Usually it returns a list of items.
-
-    # Create simple random data
     dataset_size = 5
     graph_size = 10
     dataset = []
     for _ in range(dataset_size):
-        # depot: (2), loc: (N, 2), demand: (N), capacity: 1.0 (normalized)
-        # VRPP might have prizes.
+        # depot: (2), loc: (N, 2), waste: (N), capacity: 1.0 (normalized)
         depot = np.random.rand(2).astype(np.float32)
         loc = np.random.rand(graph_size, 2).astype(np.float32)
-        # Random demand/prize depending on VRPP specifics
-        # For VRPP: typically prize is separate? Or maybe it's just indices.
-        # Let's check VRPPEnv or similar if we can.
-        # Assuming standard list of objects or dicts.
         instance = {"depot": depot, "locs": loc, "waste": np.random.rand(graph_size).astype(np.float32), "capacity": 1.0}
-        # In many implementations, it's just a tuple of tensors/arrays
-        # But load_dataset uses pickle.
-        # Let's trust make_dataset usually handles raw data or filenames.
-        # But eval_dataset loads pickle directly via make_dataset if it's a file.
-        # logic/src/utils/data_utils.py load_dataset just unpickles.
-        # So we just save a list of dicts.
         dataset.append(instance)
 
     data_path = tmp_path / "test_data.pkl"

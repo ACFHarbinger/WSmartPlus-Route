@@ -12,7 +12,7 @@ def vectorized_greedy_insertion(
     tours: Tensor,
     removed_nodes: Tensor,
     dist_matrix: Tensor,
-    demands: Optional[Tensor] = None,
+    wastes: Optional[Tensor] = None,
     capacity: Optional[float] = None,
 ) -> Tensor:
     """
@@ -23,7 +23,7 @@ def vectorized_greedy_insertion(
         tours: (B, N_curr)
         removed_nodes: (B, N_rem)
         dist_matrix: (B, N_all, N_all)
-        demands: (N_all) or (B, N_all)
+        wastes: (N_all) or (B, N_all)
         capacity: float
 
     Returns:

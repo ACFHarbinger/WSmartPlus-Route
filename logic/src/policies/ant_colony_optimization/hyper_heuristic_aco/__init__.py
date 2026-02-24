@@ -13,7 +13,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco import run_hyper_heuristic_aco
-    >>> result = run_hyper_heuristic_aco(dist_matrix, demands, ...)
+    >>> result = run_hyper_heuristic_aco(dist_matrix, wastes, ...)
 """
 
 from .hyper_aco import HyperHeuristicACO

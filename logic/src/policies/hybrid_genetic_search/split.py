@@ -19,7 +19,7 @@ class LinearSplit:
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -31,7 +31,7 @@ class LinearSplit:
 
         Args:
             dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands.
+            wastes: Dictionary of node wastes.
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -39,7 +39,7 @@ class LinearSplit:
             mandatory_nodes: List of local node indices that MUST be visited.
         """
         self.dist_matrix = np.array(dist_matrix)
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -66,7 +66,7 @@ class LinearSplit:
         cum_dist = [0.0] * (n + 1)
 
         dmat = self.dist_matrix
-        demands = self.demands
+        wastes = self.wastes
         R_val = self.R
 
         load_curr = 0.0
@@ -79,7 +79,7 @@ class LinearSplit:
 
         for i in range(1, n + 1):
             node = giant_tour[i - 1]
-            dem = demands.get(node, 0)
+            dem = wastes.get(node, 0)
 
             load_curr += dem
             rev_curr += dem * R_val
@@ -112,7 +112,7 @@ class LinearSplit:
         current_load = 0.0
 
         for node in giant_tour:
-            dem = self.demands.get(node, 0)
+            dem = self.wastes.get(node, 0)
             if current_load + dem <= self.capacity:
                 current_route.append(node)
                 current_load += dem
@@ -125,7 +125,7 @@ class LinearSplit:
         if current_route:
             routes.append(current_route)
 
-        rev = sum(self.demands.get(n, 0) for r in routes for n in r) * self.R
+        rev = sum(self.wastes.get(n, 0) for r in routes for n in r) * self.R
         cost = 0
         for r in routes:
             d = self.dist_matrix[0, r[0]]
@@ -324,7 +324,7 @@ class LinearSplit:
 def split_algorithm(
     giant_tour: List[int],
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: float,
     C: float,
@@ -337,7 +337,7 @@ def split_algorithm(
     Args:
         giant_tour: Giant tour to be split.
         dist_matrix: Distance matrix.
-        demands: Dictionary of node demands.
+        wastes: Dictionary of node wastes.
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -347,5 +347,5 @@ def split_algorithm(
     Returns:
         Tuple[List[List[int]], float]: Decoded routes and total profit.
     """
-    s = LinearSplit(dist_matrix, demands, capacity, R, C, values.get("max_vehicles", 0), mandatory_nodes)
+    s = LinearSplit(dist_matrix, wastes, capacity, R, C, values.get("max_vehicles", 0), mandatory_nodes)
     return s.split(giant_tour)

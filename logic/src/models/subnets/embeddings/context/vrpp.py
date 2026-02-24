@@ -44,8 +44,8 @@ class VRPPContextEmbedder(ContextEmbedder):
         Returns:
             Any: Description of return value.
         """
-        # Initial node embedding: locs + waste (demand) + prize
-        # Waste and prize are usually [batch_size, num_nodes]
+        # Initial node embedding: locs + waste
+        # Waste is usually [batch_size, num_nodes]
         # locs is [batch_size, num_nodes, 2]
 
         locs = nodes.get("locs") if "locs" in nodes.keys() else nodes.get("loc")

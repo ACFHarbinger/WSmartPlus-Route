@@ -32,7 +32,7 @@ class SolutionConstructor:
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         pheromone: SparsePheromoneTau,
         eta: np.ndarray,
@@ -49,7 +49,7 @@ class SolutionConstructor:
 
         Args:
             dist_matrix: Distance matrix between nodes.
-            demands: Dictionary of node demands.
+            wastes: Dictionary of node wastes.
             capacity: Vehicle capacity.
             pheromone: Sparse pheromone matrix.
             eta: Heuristic information matrix (inverse of distances).
@@ -62,7 +62,7 @@ class SolutionConstructor:
             mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.pheromone = pheromone
         self.eta = eta
@@ -94,7 +94,7 @@ class SolutionConstructor:
                 # Here we check if any remaining node is profitable.
                 has_profitable = False
                 for j in unvisited:
-                    revenue = self.demands.get(j, 0) * self.R
+                    revenue = self.wastes.get(j, 0) * self.R
                     # Heuristic check: is revenue > cost to depot and back?
                     if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
                         has_profitable = True
@@ -110,12 +110,12 @@ class SolutionConstructor:
                 # Find feasible next nodes
                 feasible = []
                 for j in unvisited:
-                    if load + self.demands.get(j, 0) <= self.capacity:
+                    if load + self.wastes.get(j, 0) <= self.capacity:
                         # VRPP Logic: Only consider j if mandatory or potentially profitable
                         if j in mandatory_unvisited:
                             feasible.append(j)
                         else:
-                            revenue = self.demands.get(j, 0) * self.R
+                            revenue = self.wastes.get(j, 0) * self.R
                             # Skip if immediately unprofitable compared to staying at depot
                             # (Very conservative check)
                             if (
@@ -135,7 +135,7 @@ class SolutionConstructor:
                 self._local_pheromone_update(current, next_node)
 
                 route.append(next_node)
-                load += self.demands.get(next_node, 0)
+                load += self.wastes.get(next_node, 0)
                 unvisited.remove(next_node)
                 if next_node in mandatory_unvisited:
                     mandatory_unvisited.remove(next_node)

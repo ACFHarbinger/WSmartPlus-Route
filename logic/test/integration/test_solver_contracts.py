@@ -71,14 +71,14 @@ class TestMultiVehicleContract:
     @pytest.mark.integration
     def test_pyvrp_contract(self, base_vrpp_data):
         data = base_vrpp_data
-        # find_routes expects demands for clients (1..N)
+        # find_routes expects wastes for clients (1..N)
         # our bins array has 5 elements for bins 1..5
-        demands = data["bins"]  # already 5 elements
+        wastes = data["bins"]  # already 5 elements
         to_collect = [1, 2, 3, 4, 5]
 
         tour = find_routes(
             dist_mat=np.array(data["dist_matrix"]),
-            demands=demands,
+            wastes=wastes,
             max_caps=100,
             to_collect=to_collect,
             n_vehicles=0,  # Unlimited
@@ -92,12 +92,12 @@ class TestMultiVehicleContract:
     @pytest.mark.integration
     def test_ortools_contract(self, base_vrpp_data):
         data = base_vrpp_data
-        demands = data["bins"]
+        wastes = data["bins"]
         to_collect = [1, 2, 3, 4, 5]
 
         tour = find_routes_ortools(
             dist_mat=np.array(data["dist_matrix"]),
-            demands=demands,
+            wastes=wastes,
             max_caps=100,
             to_collect=to_collect,
             n_vehicles=0,  # Unlimited
@@ -115,16 +115,16 @@ class TestHGSSolverContract:
     @pytest.mark.parametrize("engine", ["custom", "pyvrp"])
     def test_hgs_contract(self, base_vrpp_data, engine):
         data = base_vrpp_data
-        # hgs expects demands as dict
-        demands_dict = {i: data["bins"][i - 1] for i in range(1, 6)}
+        # hgs expects wastes as dict
+        wastes_dict = {i: data["bins"][i - 1] for i in range(1, 6)}
 
-        # run_hgs(dist_matrix, demands, capacity, R, C, values, *args)
+        # run_hgs(dist_matrix, wastes, capacity, R, C, values, *args)
         values = data["values"]
         values["engine"] = engine
         values["time_limit"] = 2
 
         routes, profit, cost = run_hgs(
-            np.array(data["dist_matrix"]), demands_dict, values["Q"], values["R"], values["C"], values
+            np.array(data["dist_matrix"]), wastes_dict, values["Q"], values["R"], values["C"], values
         )
 
         assert isinstance(routes, list)

@@ -78,7 +78,7 @@ class VectorizedHGS(AutoregressivePolicy):
         # 3. Solver Execution
         solver = VectorizedHGSEngine(
             dist_matrix=dist_matrix,
-            demands=waste,
+            wastes=waste,
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
             device=str(device),

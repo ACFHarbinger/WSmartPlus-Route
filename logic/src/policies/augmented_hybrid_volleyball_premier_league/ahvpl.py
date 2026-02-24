@@ -47,7 +47,7 @@ class AHVPLSolver(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -55,7 +55,7 @@ class AHVPLSolver(PolicyVizMixin):
         mandatory_nodes: Optional[List[int]] = None,
     ):
         self.dist_matrix = np.array(dist_matrix)
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -66,17 +66,17 @@ class AHVPLSolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
 
         # ACO: construction + pheromone guidance
-        self.aco_solver = KSparseACOSolver(dist_matrix, demands, capacity, R, C, params.aco_params, mandatory_nodes)
+        self.aco_solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes)
         self.pheromone = self.aco_solver.pheromone
         self.constructor = self.aco_solver.constructor
 
         # ALNS: deep local search (coaching)
-        self.alns_solver = ALNSSolver(dist_matrix, demands, capacity, R, C, params.alns_params, mandatory_nodes)
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes)
 
         # HGS: LinearSplit for giant tour decoding
         self.split_manager = LinearSplit(
             dist_matrix,
-            demands,
+            wastes,
             capacity,
             R,
             C,
@@ -85,7 +85,7 @@ class AHVPLSolver(PolicyVizMixin):
         )
 
         # HGS: Local search for mutation
-        self.local_search = HGSLocalSearch(dist_matrix, demands, capacity, R, C, params.hgs_params)
+        self.local_search = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params.hgs_params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """

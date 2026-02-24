@@ -69,7 +69,7 @@ def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     data = {
         "depot": torch.tensor([0.5, 0.5]),
         "loc": torch.tensor([[0.1, 0.1], [0.2, 0.2]]),
-        "demand": torch.tensor([0.1, 0.2])
+        "waste": torch.tensor([0.1, 0.2])
     }
     # Route: 0 -> 1 -> 2 -> 0 represented as [0, 1, 2, 0]
     route = torch.tensor([0, 1, 2, 0])

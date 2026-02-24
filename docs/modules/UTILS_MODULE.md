@@ -624,7 +624,7 @@ visit_mask = create_visit_mask(visited, num_nodes)
 # Mask nodes exceeding capacity
 capacity_mask = create_capacity_mask(
     current_capacity,
-    node_demands,
+    node_wastes,
     vehicle_capacity
 )
 
@@ -666,7 +666,7 @@ distance = compute_path_distance(coordinates)
 # Validate path feasibility
 is_valid = validate_path_constraints(
     path,
-    demands,
+    wastes,
     capacity
 )
 ```

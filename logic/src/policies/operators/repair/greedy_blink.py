@@ -10,7 +10,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.operators.repair.greedy_blink import greedy_insertion_with_blinks
-    >>> routes = greedy_insertion_with_blinks(routes, removed, dist_matrix, demands, capacity, blink_rate=0.1)
+    >>> routes = greedy_insertion_with_blinks(routes, removed, dist_matrix, wastes, capacity, blink_rate=0.1)
 """
 
 import random
@@ -23,7 +23,7 @@ def greedy_insertion_with_blinks(
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     blink_rate: float = 0.1,
 ) -> List[List[int]]:
@@ -38,7 +38,7 @@ def greedy_insertion_with_blinks(
         routes: Partial routes.
         removed_nodes: Nodes to reinsert.
         dist_matrix: Distance matrix.
-        demands: Demands.
+        wastes: wastes.
         capacity: Capacity.
         blink_rate: Probability of skipping a check.
 
@@ -47,20 +47,20 @@ def greedy_insertion_with_blinks(
     """
     loads = []
     for route in routes:
-        loads.append(sum(demands.get(n, 0) for n in route))
+        loads.append(sum(wastes.get(n, 0) for n in route))
 
     # Reinsert in random order
     random.shuffle(removed_nodes)
 
     for node in removed_nodes:
-        demand = demands.get(node, 0)
+        waste = wastes.get(node, 0)
         best_cost = float("inf")
         best_r_idx = -1
         best_pos = -1
 
         # Check existing routes
         for r_idx, route in enumerate(routes):
-            if loads[r_idx] + demand > capacity:
+            if loads[r_idx] + waste > capacity:
                 continue
 
             for pos in range(len(route) + 1):
@@ -88,9 +88,9 @@ def greedy_insertion_with_blinks(
         # Apply
         if best_r_idx == len(routes):
             routes.append([node])
-            loads.append(demand)
+            loads.append(waste)
         else:
             routes[best_r_idx].insert(best_pos, node)
-            loads[best_r_idx] += demand
+            loads[best_r_idx] += waste
 
     return routes

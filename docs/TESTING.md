@@ -371,9 +371,9 @@ class TestAttentionModel:
         """Create sample input batch."""
         batch_size, graph_size = 10, 20
         return {
-            "coords": torch.rand(batch_size, graph_size, 2),
-            "demand": torch.rand(batch_size, graph_size),
-            "prize": torch.rand(batch_size, graph_size),
+            "loc": torch.rand(batch_size, graph_size, 2),
+            "waste": torch.rand(batch_size, graph_size),
+            "depot": torch.rand(batch_size, 2),
         }
 
     def test_forward_pass(self, model, sample_input):
@@ -390,8 +390,8 @@ class TestAttentionModel:
     def test_output_shape(self, model, sample_input):
         """Test output tensor has correct shape."""
         output = model(sample_input)
-        batch_size = sample_input["coords"].shape[0]
-        graph_size = sample_input["coords"].shape[1]
+        batch_size = sample_input["loc"].shape[0]
+        graph_size = sample_input["loc"].shape[1]
 
         assert output.shape[0] == batch_size
 
@@ -399,9 +399,9 @@ class TestAttentionModel:
     def test_variable_batch_size(self, model, batch_size):
         """Test model handles different batch sizes."""
         input_data = {
-            "coords": torch.rand(batch_size, 20, 2),
-            "demand": torch.rand(batch_size, 20),
-            "prize": torch.rand(batch_size, 20),
+            "loc": torch.rand(batch_size, 20, 2),
+            "waste": torch.rand(batch_size, 20),
+            "depot": torch.rand(batch_size, 2),
         }
         output = model(input_data)
         assert output.shape[0] == batch_size
@@ -441,7 +441,7 @@ class TestAttentionModel:
 
    def test_output_has_correct_shape(self, model, sample_input):
        output = model(sample_input)
-       assert output.shape[0] == sample_input["coords"].shape[0]
+       assert output.shape[0] == sample_input["loc"].shape[0]
    ```
 
 2. **Use parametrize for variations**
@@ -650,13 +650,12 @@ WSmart-Route/
 def sample_vrpp_instance():
     """Create a minimal VRPP instance for testing."""
     return {
-        "coords": torch.tensor([
+        "loc": torch.tensor([
             [0.5, 0.5],  # depot
             [0.2, 0.3],
             [0.8, 0.7],
         ]),
-        "demand": torch.tensor([0.0, 0.3, 0.5]),
-        "prize": torch.tensor([0.0, 10.0, 15.0]),
+        "waste": torch.tensor([0.0, 0.3, 0.5]),
         "depot": torch.tensor([0]),
     }
 ```

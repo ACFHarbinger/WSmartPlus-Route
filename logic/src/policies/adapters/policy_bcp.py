@@ -42,7 +42,7 @@ class BCPPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -54,7 +54,7 @@ class BCPPolicy(BaseRoutingPolicy):
         Run BCP solver.
 
         All nodes in mandatory_nodes are treated as must-go for the solver.
-        In VRPP mode, additional nodes from sub_demands might be collected if profitable.
+        In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
 
         Returns:
             Tuple of (routes, profit, solver_cost)
@@ -64,7 +64,7 @@ class BCPPolicy(BaseRoutingPolicy):
 
         routes, solver_cost = run_bcp(
             sub_dist_matrix,
-            sub_demands,
+            sub_wastes,
             capacity,
             revenue,
             cost_unit,
@@ -75,7 +75,7 @@ class BCPPolicy(BaseRoutingPolicy):
 
         # Compute profit: collected revenue - distance cost
         visited = {n for route in routes for n in route}
-        collected_revenue = sum(sub_demands.get(n, 0) * revenue for n in visited)
+        collected_revenue = sum(sub_wastes.get(n, 0) * revenue for n in visited)
         dist_cost = 0.0
         for route in routes:
             path = [0] + route + [0]

@@ -9,7 +9,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco.runner import run_hyper_heuristic_aco
-    >>> result = run_hyper_heuristic_aco(dist_matrix, demands, capacity, ...)
+    >>> result = run_hyper_heuristic_aco(dist_matrix, wastes, capacity, ...)
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -22,7 +22,7 @@ from .params import HyperACOParams
 
 def run_hyper_heuristic_aco(
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: float,
     C: float,
@@ -35,7 +35,7 @@ def run_hyper_heuristic_aco(
 
     Args:
         dist_matrix: Distance matrix.
-        demands: Node demands dictionary.
+        wastes: Node wastes dictionary.
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -70,16 +70,16 @@ def run_hyper_heuristic_aco(
         initial_routes = values["initial_routes"]
     else:
         # Build a simple greedy construction if none provided
-        initial_routes = _build_greedy_solution(list(demands.keys()), dist_matrix, demands, capacity)
+        initial_routes = _build_greedy_solution(list(wastes.keys()), dist_matrix, wastes, capacity)
 
-    solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params, initial_routes, mandatory_nodes)
+    solver = HyperHeuristicACO(dist_matrix, wastes, capacity, R, C, params, initial_routes, mandatory_nodes)
     return solver.solve()
 
 
 def _build_greedy_solution(
     nodes: List[int],
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
 ) -> List[List[int]]:
     """Build a basic feasible solution using a greedy constructive heuristic."""
@@ -97,7 +97,7 @@ def _build_greedy_solution(
             best_next = None
             best_dist = float("inf")
             for node in unvisited:
-                if load + demands.get(node, 0) <= capacity:
+                if load + wastes.get(node, 0) <= capacity:
                     d = dist_matrix[current][node]
                     if d < best_dist:
                         best_dist = d
@@ -107,7 +107,7 @@ def _build_greedy_solution(
                 break
 
             route.append(best_next)
-            load += demands.get(best_next, 0)
+            load += wastes.get(best_next, 0)
             unvisited.remove(best_next)
             current = best_next
 

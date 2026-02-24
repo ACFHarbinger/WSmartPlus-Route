@@ -110,7 +110,7 @@ impl Individual {
      * 1. Initializes linked lists from routes
      * 2. For each route:
      *    - Calculates distance: `depot → r[0] → ... → r[n] → depot`
-     *    - Calculates load: `Σ demands`
+     *    - Calculates load: `Σ wastes`
      *    - Tracks capacity violations
      * 3. Computes profit: `revenue - transport_cost`
      *
@@ -118,7 +118,7 @@ impl Individual {
      *
      * ```
      * Route: [1, 3, 5]
-     * Demands: [10, 20, 15]
+     * Wastes: [10, 20, 15]
      * Capacity: 50
      *
      * load = 45 ≤ 50  ✓ Feasible
@@ -175,7 +175,7 @@ impl Individual {
             }
 
             let mut r_dist = params.dist_matrix[0][route[0]];
-            let mut r_load = params.demands[route[0]];
+            let mut r_load = params.wastes[route[0]];
             revenue += r_load * params.r_coeff;
 
             self.predecessors[route[0]] = 0; // Start of route
@@ -184,8 +184,8 @@ impl Individual {
                 let u = route[k];
                 let v = route[k + 1];
                 r_dist += params.dist_matrix[u][v];
-                r_load += params.demands[v];
-                revenue += params.demands[v] * params.r_coeff;
+                r_load += params.wastes[v];
+                revenue += params.wastes[v] * params.r_coeff;
 
                 self.successors[u] = v;
                 self.predecessors[v] = u;

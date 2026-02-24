@@ -146,14 +146,14 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
 
             sub_td = td[mask]
             dist_matrix = self._get_dist_matrix(sub_td)
-            demands = sub_td.get("demand", None)
+            wastes = sub_td.get("waste", None)
 
             if algo_name == "hgs":
-                solver = VectorizedHGS(dist_matrix, demands, vehicle_capacity=1.0, device=device)
+                solver = VectorizedHGS(dist_matrix, wastes, vehicle_capacity=1.0, device=device)
                 rand_sol = self._get_random_tours(sub_td)
                 sub_tours, _ = solver.solve(rand_sol, n_generations=5, population_size=10)
             elif algo_name == "alns":
-                solver = VectorizedALNS(dist_matrix, demands, vehicle_capacity=1.0, device=device)  # type: ignore[assignment]
+                solver = VectorizedALNS(dist_matrix, wastes, vehicle_capacity=1.0, device=device)  # type: ignore[assignment]
                 rand_sol = self._get_random_tours(sub_td)
                 sub_tours, _ = solver.solve(rand_sol, n_iterations=10)  # type: ignore[call-arg]
             elif algo_name == "aco":

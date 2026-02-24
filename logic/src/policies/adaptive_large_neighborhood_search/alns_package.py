@@ -30,7 +30,7 @@ class ALNSState:
         routes: List[List[int]],
         unassigned: List[int],
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -43,7 +43,7 @@ class ALNSState:
             routes: List of routes, where each route is a list of node indices.
             unassigned: List of node indices not yet assigned to any route.
             dist_matrix: NxN distance matrix.
-            demands: Dictionary mapping node indices to their demand/weight.
+            wastes: Dictionary mapping node indices to their waste/weight.
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -52,7 +52,7 @@ class ALNSState:
         self.routes = routes
         self.unassigned = unassigned
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -70,7 +70,7 @@ class ALNSState:
             copy.deepcopy(self.routes),
             copy.deepcopy(self.unassigned),
             self.dist_matrix,
-            self.demands,
+            self.wastes,
             self.capacity,
             self.R,
             self.C,
@@ -103,12 +103,12 @@ class ALNSState:
             dist += self.dist_matrix[0][route[0]]
             for i in range(len(route) - 1):
                 dist += self.dist_matrix[route[i]][route[i + 1]]
-                load += self.demands[route[i]]
+                load += self.wastes[route[i]]
             dist += self.dist_matrix[route[-1]][0]
-            load += self.demands[route[-1]]
+            load += self.wastes[route[-1]]
 
             cost = dist * self.C
-            revenue = sum(self.demands[node] * self.R for node in route)
+            revenue = sum(self.wastes[node] * self.R for node in route)
             total_profit += revenue - cost
 
         return total_profit
@@ -217,8 +217,8 @@ def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomSt
         best_pos = None
         candidate_routes = new_state.routes + [[]]
         for r_idx, route in enumerate(candidate_routes):
-            current_load = sum(state.demands[n] for n in route)
-            if current_load + state.demands[node] > state.capacity:
+            current_load = sum(state.wastes[n] for n in route)
+            if current_load + state.wastes[node] > state.capacity:
                 continue
             for i in range(len(route) + 1):
                 prev_node = 0 if i == 0 else route[i - 1]
@@ -228,7 +228,7 @@ def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomSt
                     + state.dist_matrix[node][next_node]
                     - state.dist_matrix[prev_node][next_node]
                 )
-                delta_leverage = (delta_dist * state.C) - (state.demands[node] * state.R)
+                delta_leverage = (delta_dist * state.C) - (state.wastes[node] * state.R)
                 if delta_leverage < best_cost:
                     best_cost = delta_leverage
                     best_pos = (r_idx, i)
@@ -242,13 +242,13 @@ def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomSt
     return new_state
 
 
-def run_alns_package(dist_matrix, demands, capacity, R, C, values, recorder: Optional[PolicyStateRecorder] = None):
+def run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: Optional[PolicyStateRecorder] = None):
     """
     Execute the ALNS algorithm using the external `alns` package.
 
     Args:
         dist_matrix: NxN distance matrix.
-        demands: Dictionary of node demands.
+        wastes: Dictionary of node wastes.
         capacity: Maximum vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -261,7 +261,7 @@ def run_alns_package(dist_matrix, demands, capacity, R, C, values, recorder: Opt
     nodes = list(range(1, n_nodes + 1))
 
     initial_routes = [[i] for i in nodes]
-    init_state = ALNSState(initial_routes, [], dist_matrix, demands, capacity, R, C, values)
+    init_state = ALNSState(initial_routes, [], dist_matrix, wastes, capacity, R, C, values)
 
     alns = ALNS(np.random.RandomState(42))
     alns.add_destroy_operator(alns_pkg_random_removal)

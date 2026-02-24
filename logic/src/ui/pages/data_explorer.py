@@ -9,6 +9,7 @@ simulation-output analysis features (distribution filtering, Pareto front).
 Ported & enhanced from ``gui/src/tabs/analysis/``.
 """
 
+import io
 import json
 import re
 from collections import abc, defaultdict
@@ -25,12 +26,160 @@ from logic.src.ui.components.charts import (
 )
 from logic.src.ui.pages.data_explorer_charts import (
     _numeric_columns,
+    _render_td_overview_tab,
     _render_visualization_tab,
     _resolve_column,
 )
 
 # Internal column prefixes used by simulation JSON pivoting
 _META_COLUMNS = ("__Policy_Names__", "__Distributions__", "__File_IDs__")
+
+# Maximum number of node columns in a per-key DataFrame before switching to
+# long (flattened) format.
+_MAX_WIDE_COLS = 200
+
+
+# ---------------------------------------------------------------------------
+# TensorDict (.td) loading
+# ---------------------------------------------------------------------------
+
+
+def _td_tensor_to_df(key: str, arr: "np.ndarray") -> Optional[pd.DataFrame]:  # noqa: F821
+    """Convert a single TensorDict tensor array to a display DataFrame."""
+    shape = arr.shape
+
+    if arr.ndim == 1:
+        return pd.DataFrame({key: arr})
+
+    if arr.ndim == 2 and shape[-1] == 2:
+        # (batch, 2) — depot / single-point coords
+        return pd.DataFrame(arr, columns=["x", "y"])
+
+    if arr.ndim == 2:
+        n = shape[1]
+        if n <= _MAX_WIDE_COLS:
+            return pd.DataFrame(arr, columns=[f"node_{i}" for i in range(n)])
+        # Too many columns — long format
+        n_batch = shape[0]
+        return pd.DataFrame(
+            {
+                "sample_id": np.repeat(np.arange(n_batch), n),
+                "node_id": np.tile(np.arange(n), n_batch),
+                key: arr.reshape(-1),
+            }
+        )
+
+    if arr.ndim == 3 and shape[-1] == 2:
+        # (batch, n_nodes, 2) → flat coordinate table with metadata columns
+        n_batch, n_nodes, _ = shape
+        return pd.DataFrame(
+            {
+                "x": arr[:, :, 0].reshape(-1),
+                "y": arr[:, :, 1].reshape(-1),
+                "sample_id": np.repeat(np.arange(n_batch), n_nodes),
+                "node_id": np.tile(np.arange(n_nodes), n_batch),
+            }
+        )
+
+    if arr.ndim == 3:
+        return pd.DataFrame(arr.reshape(arr.shape[0], -1))
+
+    return None
+
+
+def _collect_td_metadata(
+    td: Any,
+    keys: List[str],
+) -> Tuple[List[str], List[str], List[str], List[Dict[str, Any]]]:
+    """Scan TensorDict keys and return (coord_keys, depot_keys, scalar_keys, summary_rows)."""
+    coord_keys: List[str] = []
+    depot_keys: List[str] = []
+    scalar_keys: List[str] = []
+    summary_rows: List[Dict[str, Any]] = []
+
+    for key in keys:
+        try:
+            tensor = td[key]
+            shape = tuple(tensor.shape)
+            arr = tensor.float().numpy()
+            summary_rows.append(
+                {
+                    "Key": key,
+                    "Shape": str(shape),
+                    "Dtype": str(tensor.dtype),
+                    "Min": float(arr.min()),
+                    "Max": float(arr.max()),
+                    "Mean": float(arr.mean()),
+                    "Std": float(arr.std()),
+                }
+            )
+            if len(shape) == 3 and shape[-1] == 2:
+                coord_keys.append(key)
+            elif len(shape) == 2 and shape[-1] == 2:
+                depot_keys.append(key)
+            elif len(shape) in (1, 2):
+                scalar_keys.append(key)
+        except Exception:
+            continue
+
+    return coord_keys, depot_keys, scalar_keys, summary_rows
+
+
+def _load_td_file(uploaded_file: Any, cache_key: str) -> Dict[str, pd.DataFrame]:
+    """Load a TensorDict (.td) file into named DataFrames.
+
+    Produces:
+    - A ``Structure`` summary table (key, shape, dtype, min/max/mean/std).
+    - One DataFrame per tensor key, reshaped for tabular display.
+    - Session-state metadata (``{cache_key}_is_td``, ``{cache_key}_td_meta``)
+      consumed by the TD Overview tab.
+    """
+    tables: Dict[str, pd.DataFrame] = {}
+    name = uploaded_file.name
+
+    try:
+        import torch
+
+        buf = io.BytesIO(uploaded_file.getvalue())
+        td = torch.load(buf, map_location="cpu", weights_only=False)
+    except Exception as exc:
+        st.error(f"Failed to load TensorDict file: {exc}")
+        return tables
+
+    if not hasattr(td, "keys"):
+        st.error("File does not contain a valid TensorDict.")
+        return tables
+
+    batch_size: Optional[int] = td.batch_size[0] if len(td.batch_size) > 0 else None
+    keys: List[str] = list(td.keys())
+
+    coord_keys, depot_keys, scalar_keys, summary_rows = _collect_td_metadata(td, keys)
+
+    if summary_rows:
+        tables[f"Structure ({len(summary_rows)} keys)"] = pd.DataFrame(summary_rows)
+
+    st.session_state[f"{cache_key}_is_td"] = True
+    st.session_state[f"{cache_key}_td_meta"] = {
+        "filename": name,
+        "batch_size": batch_size,
+        "keys": keys,
+        "coord_keys": coord_keys,
+        "depot_keys": depot_keys,
+        "scalar_keys": scalar_keys,
+        "summary_rows": summary_rows,
+    }
+
+    for key in keys:
+        try:
+            arr = td[key].float().numpy()
+            df = _td_tensor_to_df(key, arr)
+            if df is not None:
+                label = f"{key} {tuple(arr.shape)}"
+                tables[f"{label} ({df.shape[0]}x{df.shape[1]})"] = df
+        except Exception:
+            continue
+
+    return tables
 
 
 # ---------------------------------------------------------------------------
@@ -231,7 +380,7 @@ def _load_npz_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
     return tables
 
 
-def _load_uploaded_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
+def _load_uploaded_file(uploaded_file: Any, cache_key: str = "") -> Dict[str, pd.DataFrame]:
     """Parse an uploaded file into named DataFrames."""
     name = uploaded_file.name
     tables: Dict[str, pd.DataFrame] = {}
@@ -253,6 +402,9 @@ def _load_uploaded_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
     elif name.endswith(".npz"):
         return _load_npz_file(uploaded_file)
 
+    elif name.endswith(".td"):
+        return _load_td_file(uploaded_file, cache_key)
+
     elif name.endswith(".pkl"):
         raw_data = pd.read_pickle(uploaded_file)
         dfs = _process_raw_to_dfs(raw_data)
@@ -270,6 +422,105 @@ def _load_uploaded_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
             tables[key] = df
 
     return tables
+
+
+def _load_td_from_path(path: str, cache_key: str) -> Dict[str, pd.DataFrame]:
+    """Load a .td file from a local filesystem path with minimal memory footprint.
+
+    Unlike the upload variant (which pre-converts every tensor to a DataFrame),
+    this function:
+
+    1. Loads the TensorDict directly via ``torch.load(path)`` — no intermediate
+       bytes buffer.
+    2. Extracts only the structure metadata (shapes, dtypes, per-tensor stats).
+    3. Immediately frees the TensorDict from RAM (``del td``).
+    4. Stores the file path in ``td_meta["filepath"]`` so individual tensors can
+       be loaded on demand when the user selects them.
+
+    The result is that session state only holds a small structure-summary
+    DataFrame, keeping dashboard interactions fast regardless of file size.
+    """
+    import gc
+    import os
+
+    if not os.path.isfile(path):
+        st.error(f"File not found: `{path}`")
+        return {}
+
+    try:
+        import torch
+
+        td = torch.load(path, map_location="cpu", weights_only=False)
+    except Exception as exc:
+        st.error(f"Failed to load TensorDict file: {exc}")
+        return {}
+
+    if not hasattr(td, "keys"):
+        st.error("File does not contain a valid TensorDict.")
+        return {}
+
+    batch_size: Optional[int] = td.batch_size[0] if len(td.batch_size) > 0 else None
+    keys: List[str] = list(td.keys())
+    coord_keys, depot_keys, scalar_keys, summary_rows = _collect_td_metadata(td, keys)
+
+    # Free the full TensorDict — tensors are loaded lazily via filepath
+    del td
+    gc.collect()
+
+    tables: Dict[str, pd.DataFrame] = {}
+    if summary_rows:
+        tables[f"Structure ({len(summary_rows)} keys)"] = pd.DataFrame(summary_rows)
+
+    st.session_state[f"{cache_key}_is_td"] = True
+    st.session_state[f"{cache_key}_td_meta"] = {
+        "filename": os.path.basename(path),
+        "filepath": path,  # Retained for lazy per-tensor loading
+        "batch_size": batch_size,
+        "keys": keys,
+        "coord_keys": coord_keys,
+        "depot_keys": depot_keys,
+        "scalar_keys": scalar_keys,
+        "summary_rows": summary_rows,
+    }
+
+    return tables
+
+
+def _lazy_load_td_tensor(
+    td_meta: Dict[str, Any],
+    key: str,
+    cache_key: str,
+) -> Optional[pd.DataFrame]:
+    """Return a DataFrame for one tensor key, loading from disk if not yet cached.
+
+    Results are stored in ``st.session_state`` under
+    ``"{cache_key}_tensor_{key}"`` so subsequent accesses within the same
+    session are instantaneous.
+    """
+    tensor_state_key = f"{cache_key}_tensor_{key}"
+    if tensor_state_key in st.session_state:
+        return st.session_state[tensor_state_key]
+
+    filepath: Optional[str] = td_meta.get("filepath")
+    if not filepath:
+        return None
+
+    import gc
+
+    try:
+        import torch
+
+        td = torch.load(filepath, map_location="cpu", weights_only=False)
+        arr = td[key].float().numpy()
+        del td
+        gc.collect()
+        df = _td_tensor_to_df(key, arr)
+    except Exception:
+        return None
+
+    if df is not None:
+        st.session_state[tensor_state_key] = df
+    return df
 
 
 # Column helpers moved to data_explorer_charts.py
@@ -446,6 +697,24 @@ def _render_sidebar_controls(df: pd.DataFrame) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Main page helpers
+# ---------------------------------------------------------------------------
+
+
+def _resolve_selected_df(
+    tables: Dict[str, pd.DataFrame],
+    td_meta: Dict[str, Any],
+    selected_table: str,
+    cache_key: str,
+) -> Optional[pd.DataFrame]:
+    """Return the DataFrame for *selected_table*, lazy-loading when needed."""
+    if selected_table in tables:
+        return tables[selected_table]
+    with st.spinner(f"Loading tensor '{selected_table}'…"):
+        return _lazy_load_td_tensor(td_meta, selected_table, cache_key)
+
+
+# ---------------------------------------------------------------------------
 # Main page
 # ---------------------------------------------------------------------------
 
@@ -454,29 +723,58 @@ def render_data_explorer() -> None:
     """Render the Data Explorer page."""
     st.title("Data Explorer")
     st.markdown(
-        "Upload and analyse CSV, XLSX, NPZ, PKL, JSON, or JSONL data files "
-        "with interactive charts, statistics, and correlation analysis."
+        "Upload and analyse CSV, XLSX, NPZ, PKL, JSON, JSONL, or TensorDict (.td) "
+        "data files with interactive charts, statistics, and correlation analysis."
     )
 
-    uploaded_file = st.file_uploader(
-        "Upload a data file",
-        type=["csv", "xlsx", "npz", "pkl", "json", "jsonl"],
+    # --- Input mode ---
+    input_mode = st.radio(
+        "Source",
+        options=["Upload file", "Load .td from local path"],
+        horizontal=True,
         help=(
-            "Supports CSV, Excel, NumPy (.npz), Pickle, JSON, and JSONL files. "
-            "NPZ simulation datasets display each named array as a table. "
-            "JSON simulation results are pivoted with distribution metadata."
+            "Use 'Load from local path' for large .td datasets that exceed "
+            "the upload size limit (the file must be accessible on the machine "
+            "running the dashboard)."
         ),
     )
 
-    if uploaded_file is None:
-        st.info("Upload a file to get started.")
+    uploaded_file = None
+    local_td_path = ""
+
+    if input_mode == "Upload file":
+        uploaded_file = st.file_uploader(
+            "Upload a data file",
+            type=["csv", "xlsx", "npz", "pkl", "json", "jsonl", "td"],
+            help=(
+                "Supports CSV, Excel, NumPy (.npz), Pickle, JSON, JSONL, and "
+                "TensorDict (.td) files. TensorDict datasets show a dedicated "
+                "TD Overview tab with coordinate maps and distribution analysis. "
+                "For .td files larger than 2 GB use the 'Load from local path' option."
+            ),
+        )
+    else:
+        local_td_path = st.text_input(
+            "Path to .td file",
+            placeholder="data/datasets/vrpp/vrpp50_gamma1_train100_seed42.td",
+            help="Absolute or relative path to a .td file on the local machine.",
+        )
+
+    if uploaded_file is None and not local_td_path:
+        st.info("Upload a file or enter a .td path to get started.")
         return
 
     # Load and cache in session state
-    cache_key = f"data_explorer_{uploaded_file.name}_{uploaded_file.size}"
-    if cache_key not in st.session_state:
-        with st.spinner("Loading file..."):
-            st.session_state[cache_key] = _load_uploaded_file(uploaded_file)
+    if uploaded_file is not None:
+        cache_key = f"data_explorer_{uploaded_file.name}_{uploaded_file.size}"
+        if cache_key not in st.session_state:
+            with st.spinner("Loading file..."):
+                st.session_state[cache_key] = _load_uploaded_file(uploaded_file, cache_key)
+    else:
+        cache_key = f"data_explorer_path_{local_td_path}"
+        if cache_key not in st.session_state:
+            with st.spinner(f"Loading {local_td_path} …"):
+                st.session_state[cache_key] = _load_td_from_path(local_td_path, cache_key)
 
     tables: Dict[str, pd.DataFrame] = st.session_state[cache_key]
 
@@ -484,11 +782,28 @@ def render_data_explorer() -> None:
         st.error("Could not extract any tables from this file.")
         return
 
-    # Table selector
-    table_names = list(tables.keys())
-    selected_table = st.selectbox("Select Table / Slice", options=table_names, index=0)
+    # Detect TensorDict origin and retrieve metadata early (needed for selector)
+    is_td = st.session_state.get(f"{cache_key}_is_td", False)
+    td_meta: Dict[str, Any] = st.session_state.get(f"{cache_key}_td_meta", {})
 
-    df = tables[selected_table]
+    # Build table selector options.
+    # For path-based TD files, tensors are lazy-loaded so they are not yet in
+    # `tables`; expose their key names directly in the dropdown.
+    is_lazy_td = is_td and bool(td_meta.get("filepath"))
+    extra_tensor_keys: List[str] = [k for k in td_meta.get("keys", []) if k not in tables] if is_lazy_td else []
+    all_table_options: List[str] = list(tables.keys()) + extra_tensor_keys
+
+    selected_table = st.selectbox(
+        "Select Table / Tensor Key" if is_lazy_td else "Select Table / Slice",
+        options=all_table_options,
+        index=0,
+    )
+
+    # Resolve the DataFrame, lazy-loading if a raw tensor key was selected
+    df = _resolve_selected_df(tables, td_meta, selected_table, cache_key)
+    if df is None:
+        st.error(f"Could not load tensor '{selected_table}'.")
+        return
 
     # Sidebar controls
     sidebar_opts = _render_sidebar_controls(df)
@@ -496,6 +811,9 @@ def render_data_explorer() -> None:
 
     # Section Selection (Persistent Tabs)
     tab_labels = ["Raw Data", "Statistics", "Correlation", "Visualization"]
+    if is_td:
+        tab_labels = ["TD Overview"] + tab_labels
+
     selected_tab = st.segmented_control(
         "Data Explorer View",
         options=tab_labels,
@@ -505,7 +823,15 @@ def render_data_explorer() -> None:
     )
     st.write("")
 
-    if selected_tab == "Raw Data":
+    # For path-based TD files build a callable that lazy-loads individual tensors
+    lazy_loader = None
+    if is_lazy_td:
+        lazy_loader = lambda k: _lazy_load_td_tensor(td_meta, k, cache_key)  # noqa: E731
+
+    if selected_tab == "TD Overview":
+        _render_td_overview_tab(td_meta, tables, lazy_loader=lazy_loader)
+
+    elif selected_tab == "Raw Data":
         _render_raw_data_tab(
             df,
             selected_table,

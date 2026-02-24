@@ -59,12 +59,12 @@ python main.py train_lightning model=am env.name=vrpp env.num_loc=20 train.n_epo
 
 ### Troubleshooting Quick Fixes
 
-| Issue | Quick Fix |
-|-------|-----------|
-| `uv: command not found` | Restart terminal or run `source ~/.bashrc` |
-| `CUDA not available` | CPU-only mode works fine for testing! |
-| Import errors | Run `uv sync --all-extras` to ensure all deps installed |
-| Permission errors | Don't use `sudo` - uv manages everything in userspace |
+| Issue                   | Quick Fix                                               |
+| ----------------------- | ------------------------------------------------------- |
+| `uv: command not found` | Restart terminal or run `source ~/.bashrc`              |
+| `CUDA not available`    | CPU-only mode works fine for testing!                   |
+| Import errors           | Run `uv sync --all-extras` to ensure all deps installed |
+| Permission errors       | Don't use `sudo` - uv manages everything in userspace   |
 
 **For detailed setup, continue reading below. For immediate help, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).**
 
@@ -848,7 +848,7 @@ python -m ipykernel install --user --name=wsmart-route
    from .adapters import Policy
 
    class MyPolicy(Policy):
-       def solve(self, distances, demands, prizes, capacity, depot=0):
+       def solve(self, distances, wastes, capacity, depot=0):
            # Implementation
            return routes, profit, cost
    ```

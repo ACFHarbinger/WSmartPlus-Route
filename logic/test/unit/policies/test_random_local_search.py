@@ -16,18 +16,18 @@ def test_random_local_search_policy_basic():
     td = TensorDict(
         {
             "locs": torch.rand(batch_size, num_nodes, 2, device=device),
-            "demand": torch.rand(batch_size, num_nodes, device=device) * 0.2,
+            "waste": torch.rand(batch_size, num_nodes, device=device) * 0.2,
             "capacity": torch.ones(batch_size, device=device),
         },
         batch_size=[batch_size],
     )
-    td["demand"][:, 0] = 0.0  # Depot
+    td["waste"][:, 0] = 0.0  # Depot
 
     policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=10).to(device)
 
     # Mock environment
     class MockEnv:
-        prize_weight = 1.0
+        waste_weight = 1.0
         cost_weight = 1.0
 
     out = policy(td, env=MockEnv())
@@ -51,7 +51,7 @@ def test_random_local_search_policy_custom_probs():
     td = TensorDict(
         {
             "locs": torch.rand(batch_size, num_nodes, 2, device=device),
-            "demand": torch.zeros(batch_size, num_nodes, device=device),
+            "waste": torch.zeros(batch_size, num_nodes, device=device),
             "capacity": torch.ones(batch_size, device=device),
         },
         batch_size=[batch_size],
@@ -75,7 +75,7 @@ def test_random_local_search_policy_custom_probs():
 
     # Mock environment
     class MockEnv:
-        prize_weight = 1.0
+        waste_weight = 1.0
         cost_weight = 1.0
 
     out = policy(td, env=MockEnv())

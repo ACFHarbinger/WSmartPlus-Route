@@ -23,7 +23,7 @@ def vectorized_lkh(
     tours: torch.Tensor,
     distance_matrix: torch.Tensor,
     capacities: Optional[torch.Tensor] = None,
-    demands: Optional[torch.Tensor] = None,
+    wastes: Optional[torch.Tensor] = None,
     max_iterations: int = 100,
     max_candidates: int = 5,
     use_3opt: bool = True,
@@ -42,7 +42,7 @@ def vectorized_lkh(
         tours: Batch of tours [B, N]
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1]
         capacities: Vehicle capacities [B] or scalar
-        demands: Node demands [B, N+1] or [N+1]
+        wastes: Node wastes [B, N+1] or [N+1]
         max_iterations: Number of ILS iterations
         max_candidates: Number of candidate edges per node (default: 5)
         use_3opt: Whether to use 3-opt extensions
@@ -70,12 +70,12 @@ def vectorized_lkh(
     if distance_matrix.size(0) == 1 and B > 1:
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
-    has_capacity = demands is not None and capacities is not None
+    has_capacity = wastes is not None and capacities is not None
     if has_capacity:
-        assert demands is not None
+        assert wastes is not None
         assert capacities is not None
-        if demands.dim() == 1:
-            demands = demands.unsqueeze(0).expand(B, -1)
+        if wastes.dim() == 1:
+            wastes = wastes.unsqueeze(0).expand(B, -1)
         if capacities.dim() == 0:
             capacities = capacities.unsqueeze(0).expand(B)
         elif capacities.dim() == 1 and capacities.size(0) != B:
@@ -90,10 +90,10 @@ def vectorized_lkh(
             alpha = _compute_alpha_measures(dist, device)
             candidates = _get_candidate_sets(alpha, max_candidates)
 
-            inst_demand = demands[b] if has_capacity else None  # type: ignore[index]
+            inst_waste = wastes[b] if has_capacity else None  # type: ignore[index]
             inst_cap = capacities[b] if has_capacity else None  # type: ignore[index]
 
-            tours[b] = _run_local_search(tour, dist, inst_demand, inst_cap, candidates, use_3opt)
+            tours[b] = _run_local_search(tour, dist, inst_waste, inst_cap, candidates, use_3opt)
 
         if (iteration + 1) % perturbation_interval == 0 and iteration < max_iterations - 1:
             for b in range(B):
@@ -105,7 +105,7 @@ def vectorized_lkh(
 def _run_local_search(
     tour: torch.Tensor,
     dist: torch.Tensor,
-    demand: Optional[torch.Tensor],
+    waste: Optional[torch.Tensor],
     capacity: Optional[torch.Tensor],
     candidates: List[List[int]],
     use_3opt: bool,
@@ -114,12 +114,12 @@ def _run_local_search(
     local_improved = True
     while local_improved:
         local_improved = False
-        curr_p, curr_c = _compute_score(tour, dist, demand, capacity)
+        curr_p, curr_c = _compute_score(tour, dist, waste, capacity)
         nodes_count = len(tour) - 1
 
         for i in range(nodes_count):
             improved, tour, curr_p, curr_c = _try_moves_for_node(
-                tour, i, nodes_count, dist, demand, capacity, candidates, use_3opt, curr_p, curr_c
+                tour, i, nodes_count, dist, waste, capacity, candidates, use_3opt, curr_p, curr_c
             )
             if improved:
                 local_improved = True
@@ -127,7 +127,7 @@ def _run_local_search(
     return tour
 
 
-def _try_moves_for_node(tour, i, nodes_count, dist, demand, capacity, candidates, use_3opt, curr_p, curr_c):
+def _try_moves_for_node(tour, i, nodes_count, dist, waste, capacity, candidates, use_3opt, curr_p, curr_c):
     """Tries 2-opt and optionally 3-opt moves starting from position i."""
     t1, t2 = tour[i].item(), tour[i + 1].item()
     for t3 in candidates[t2]:
@@ -144,7 +144,7 @@ def _try_moves_for_node(tour, i, nodes_count, dist, demand, capacity, candidates
         # 1. Try 2-opt
         if (dist[t1, t2] + dist[t3, t4]) - (dist[t1, t3] + dist[t2, t4]) > IMPROVEMENT_EPSILON:
             new_tour = _apply_2opt(tour, i, j)
-            new_p, new_c = _compute_score(new_tour, dist, demand, capacity)
+            new_p, new_c = _compute_score(new_tour, dist, waste, capacity)
             if _is_better(new_p, new_c, curr_p, curr_c):
                 return True, new_tour, new_p, new_c
 
@@ -156,7 +156,7 @@ def _try_moves_for_node(tour, i, nodes_count, dist, demand, capacity, candidates
                     dist[t1, t3] + dist[t2, t5] + dist[t4, t6]
                 ) > IMPROVEMENT_EPSILON:
                     new_tour = _apply_3opt(tour, i, j, k)
-                    new_p, new_c = _compute_score(new_tour, dist, demand, capacity)
+                    new_p, new_c = _compute_score(new_tour, dist, waste, capacity)
                     if _is_better(new_p, new_c, curr_p, curr_c):
                         return True, new_tour, new_p, new_c
     return False, tour, curr_p, curr_c
@@ -189,7 +189,7 @@ def _get_candidate_sets(alpha_measures: torch.Tensor, max_candidates: int) -> Li
 def _compute_score(
     tour: torch.Tensor,
     distance_matrix: torch.Tensor,
-    demands: Optional[torch.Tensor],
+    wastes: Optional[torch.Tensor],
     capacity: Optional[torch.Tensor],
 ) -> Tuple[float, float]:
     """Compute (penalty, cost) for lexicographic comparison."""
@@ -199,14 +199,14 @@ def _compute_score(
         cost += distance_matrix[tour[i], tour[i + 1]].item()
 
     penalty = 0.0
-    if demands is not None and capacity is not None:
+    if wastes is not None and capacity is not None:
         current_load = 0.0
         for node in tour:
             node_idx = node.item()
             if node_idx == 0:
                 current_load = 0.0
-            elif node_idx < len(demands):
-                current_load += demands[node_idx].item()
+            elif node_idx < len(wastes):
+                current_load += wastes[node_idx].item()
                 if current_load > capacity.item() + 1e-6:
                     penalty += current_load - capacity.item()
     return penalty, cost

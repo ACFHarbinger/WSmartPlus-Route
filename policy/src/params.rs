@@ -16,11 +16,11 @@ use std::time::Instant;
  * # Fields
  *
  * * `dist_matrix` - Symmetric distance matrix (N+1 × N+1, depot at index 0)
- * * `demands` - Node demands (depot = 0)
+ * * `wastes` - Node wastes (depot = 0)
  * * `coords` - Node coordinates for geometric optimization
  * * `polar_angles` - Precomputed polar angles (0-65535) relative to depot
  * * `vehicle_capacity` - Maximum load capacity per vehicle
- * * `r_coeff` - Revenue coefficient (profit per unit of demand served)
+ * * `r_coeff` - Revenue coefficient (profit per unit of waste served)
  * * `c_coeff` - Cost coefficient (cost per unit of distance)
  * * `n_clients` - Number of customers (excludes depot)
  * * `max_vehicles` - Fleet size limit (0 = unlimited)
@@ -31,11 +31,11 @@ use std::time::Instant;
 pub struct Params {
     pub ap: AlgorithmParameters,
     pub dist_matrix: Vec<Vec<f64>>,
-    pub demands: Vec<f64>,       // 0-based, index 0 is depot
+    pub wastes: Vec<f64>,        // 0-based, index 0 is depot
     pub coords: Vec<(f64, f64)>, // Coordinates for geometric optimization
     pub polar_angles: Vec<i32>,  // 0-65535 angle for geometric optimization
     pub vehicle_capacity: f64,
-    pub r_coeff: f64,                         // Revenue per unit of demand
+    pub r_coeff: f64,                         // Revenue per unit of waste
     pub c_coeff: f64,                         // Cost per unit of distance
     pub n_clients: usize,                     // Excludes depot
     pub max_vehicles: usize,                  // Limited Fleet size (0 = unlimited)
@@ -50,7 +50,7 @@ impl Params {
      * # Arguments
      *
      * * `dist_matrix` - Distance matrix (must be symmetric)
-     * * `demands` - Node demands
+     * * `wastes` - Node wastes
      * * `coords` - Node coordinates (may be empty)
      * * `vehicle_capacity` - Vehicle capacity
      * * `r` - Revenue coefficient
@@ -77,7 +77,7 @@ impl Params {
      */
     pub fn new(
         dist_matrix: Vec<Vec<f64>>,
-        demands: Vec<f64>,
+        wastes: Vec<f64>,
         coords: Vec<(f64, f64)>, // New: Coordinates
         vehicle_capacity: f64,
         r: f64,
@@ -123,7 +123,7 @@ impl Params {
         let params = Self {
             ap,
             dist_matrix,
-            demands,
+            wastes,
             coords,
             polar_angles,
             vehicle_capacity,

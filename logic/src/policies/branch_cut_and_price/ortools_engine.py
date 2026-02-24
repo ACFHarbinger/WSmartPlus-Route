@@ -12,7 +12,7 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 def run_bcp_ortools(
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: float,
     C: float,
@@ -21,7 +21,7 @@ def run_bcp_ortools(
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
-    Solve Prize-Collecting CVRP using Google OR-Tools.
+    Solve Waste-Collecting CVRP using Google OR-Tools.
     """
     num_nodes = len(dist_matrix)
     num_vehicles = values.get("num_vehicles", num_nodes)
@@ -33,8 +33,8 @@ def run_bcp_ortools(
 
     # 2. Add Constraints and Penalties
     _add_distance_constraints(routing, manager, dist_matrix)
-    _add_capacity_constraints(routing, manager, demands, capacity, num_vehicles)
-    _add_prize_collecting_penalties(routing, manager, demands, mandatory_nodes, R, num_nodes)
+    _add_capacity_constraints(routing, manager, wastes, capacity, num_vehicles)
+    _add_waste_collecting_penalties(routing, manager, wastes, mandatory_nodes, R, num_nodes)
 
     # 3. Solve
     search_parameters = _get_search_parameters(values)
@@ -72,37 +72,37 @@ def _add_distance_constraints(
 def _add_capacity_constraints(
     routing: pywrapcp.RoutingModel,
     manager: pywrapcp.RoutingIndexManager,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     num_vehicles: int,
 ) -> None:
     """Add Capacity Constraints."""
 
-    def demand_callback(from_index):
+    def waste_callback(from_index):
         from_node = manager.IndexToNode(from_index)
         if from_node == 0:
             return 0
-        return int(demands.get(from_node, 0))
+        return int(wastes.get(from_node, 0))
 
-    demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
-    routing.AddDimensionWithVehicleCapacity(demand_callback_index, 0, [int(capacity)] * num_vehicles, True, "Capacity")
+    waste_callback_index = routing.RegisterUnaryTransitCallback(waste_callback)
+    routing.AddDimensionWithVehicleCapacity(waste_callback_index, 0, [int(capacity)] * num_vehicles, True, "Capacity")
 
 
-def _add_prize_collecting_penalties(
+def _add_waste_collecting_penalties(
     routing: pywrapcp.RoutingModel,
     manager: pywrapcp.RoutingIndexManager,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     mandatory_nodes: Optional[List[int]],
     R: float,
     num_nodes: int,
 ) -> None:
-    """Add Penalties (Prize Collecting)."""
+    """Add Penalties (Waste Collecting)."""
     SCALE = 1000
     MUST_GO_PENALTY = 1_000_000_000
     m_set = set(mandatory_nodes) if mandatory_nodes else set()
 
     for i in range(1, num_nodes):
-        d = demands.get(i, 0)
+        d = wastes.get(i, 0)
         revenue = d * R
         penalty = MUST_GO_PENALTY if i in m_set else int(revenue * SCALE)
         routing.AddDisjunction([manager.NodeToIndex(i)], penalty)

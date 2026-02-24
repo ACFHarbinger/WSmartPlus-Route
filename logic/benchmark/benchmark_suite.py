@@ -38,7 +38,6 @@ def benchmark_neural_latency(device="cpu"):
                 "locs": torch.rand(bs, n_nodes, 2, device=device),
                 "depot": torch.rand(bs, 2, device=device),
                 "waste": torch.rand(bs, n_nodes, device=device),
-                "prize": torch.rand(bs, n_nodes, device=device),
                 "capacity": torch.ones(bs, device=device),
                 "max_waste": torch.ones(bs, device=device),
             },
@@ -99,7 +98,7 @@ def benchmark_ls_throughput(device="cpu"):
     td = TensorDict(
         {
             "locs": torch.rand(bs, n_nodes, 2, device=device),
-            "demand": torch.rand(bs, n_nodes, device=device),
+            "waste": torch.rand(bs, n_nodes, device=device),
             "capacity": torch.ones(bs, device=device),
         },
         batch_size=[bs],
@@ -108,7 +107,7 @@ def benchmark_ls_throughput(device="cpu"):
     policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=100).to(device)
 
     class MockEnv:
-        prize_weight = 1.0
+        waste_weight = 1.0
         cost_weight = 1.0
 
     # Warmup

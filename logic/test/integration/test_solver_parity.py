@@ -30,8 +30,8 @@ class TestSolverParity:
                 optimizer="gurobi",
                 time_limit=5
             )
-            # Calculate objective: Prize - Cost
-            # Prize = sum(bins[i-1] * R) for i in visited (excluding 0)
+            # Calculate objective: Waste - Cost
+            # Waste = sum(bins[i-1] * R) for i in visited (excluding 0)
             # Cost = route cost * C
             # But run_vrpp_optimizer returns (Route, Profit, Cost).
             # Profit returned is usually the net objective? Or just revenue?
@@ -66,10 +66,10 @@ class TestSolverParity:
         # Our instance has large capacity, so it SHOULD visit ALL nodes if we tell it to.
         try:
             to_collect = [1, 2, 3, 4, 5]
-            demands = data["bins"]
+            wastes = data["bins"]
             tour_o = find_routes_ortools(
                 dist_mat=np.array(data["dist_matrix"]),
-                demands=demands,
+                wastes=wastes,
                 max_caps=1000,
                 to_collect=to_collect,
                 n_vehicles=1
@@ -86,10 +86,10 @@ class TestSolverParity:
 
         # 4. HGS (run_hgs) - VRPP solver
         try:
-            demands_dict = {i: data["bins"][i-1] for i in range(1, 6)}
+            wastes_dict = {i: data["bins"][i-1] for i in range(1, 6)}
             routes_hgs, profit_hgs, cost_hgs = run_hgs(
                 np.array(data["dist_matrix"]),
-                demands_dict,
+                wastes_dict,
                 1000,
                 data["values"]["R"],
                 data["values"]["C"],

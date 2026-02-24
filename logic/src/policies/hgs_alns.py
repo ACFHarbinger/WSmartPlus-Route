@@ -33,7 +33,7 @@ class HGSALNSSolver(HGSSolver):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -46,7 +46,7 @@ class HGSALNSSolver(HGSSolver):
 
         Args:
             dist_matrix: NxN distance matrix.
-            demands: Dictionary of node demands.
+            wastes: Dictionary of node wastes.
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -54,7 +54,7 @@ class HGSALNSSolver(HGSSolver):
             alns_education_iterations: Number of ALNS iterations used during education.
             mandatory_nodes: Optional list of mandatory node indices.
         """
-        super().__init__(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
+        super().__init__(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
         self.alns_iter = alns_education_iterations
 
         # Initialize ALNS solver with limited iterations for intensive education
@@ -62,7 +62,7 @@ class HGSALNSSolver(HGSSolver):
             max_iterations=self.alns_iter,
             time_limit=max(1, params.time_limit // 10),  # Heuristic limit
         )
-        self.alns_solver = ALNSSolver(dist_matrix, demands, capacity, R, C, alns_params)
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, alns_params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """

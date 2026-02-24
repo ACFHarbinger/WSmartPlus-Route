@@ -41,7 +41,7 @@ class HyperOperatorContext:
         self,
         routes: List[List[int]],
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -53,7 +53,7 @@ class HyperOperatorContext:
         Args:
             routes: Current routes.
             dist_matrix: Distance matrix.
-            demands: Node demands.
+            wastes: Node wastes.
             capacity: Vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -61,7 +61,7 @@ class HyperOperatorContext:
         """
         self.routes = routes
         self.d = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.Q = capacity
         self.R = R
         self.C = C
@@ -78,7 +78,7 @@ class HyperOperatorContext:
         self.route_loads = []
 
         for ri, route in enumerate(self.routes):
-            load = sum(self.demands.get(n, 0) for n in route)
+            load = sum(self.wastes.get(n, 0) for n in route)
             self.route_loads.append(load)
             for pi, node in enumerate(route):
                 self.node_map[node] = (ri, pi)
@@ -97,7 +97,7 @@ class HyperOperatorContext:
             self.neighbors[i] = cands
 
     def _calc_load_fresh(self, r: List[int]) -> float:
-        return sum(self.demands.get(x, 0) for x in r)
+        return sum(self.wastes.get(x, 0) for x in r)
 
     def _get_load_cached(self, ri: int) -> float:
         return self.route_loads[ri]

@@ -9,14 +9,14 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.slack_induction_by_string_removal.sisr import run_sisr
-    >>> result = run_sisr(dist_matrix, demands, ...)
+    >>> result = run_sisr(dist_matrix, wastes, ...)
 """
 
 from .params import SISRParams
 from .solver import SISRSolver
 
 
-def run_sisr(dist_matrix, demands, capacity, R, C, values, **kwargs):
+def run_sisr(dist_matrix, wastes, capacity, R, C, values, **kwargs):
     """
     Convenience entry point for SISR.
     """
@@ -30,5 +30,5 @@ def run_sisr(dist_matrix, demands, capacity, R, C, values, **kwargs):
         blink_rate=values.get("blink_rate", 0.01),
         destroy_ratio=values.get("destroy_ratio", 0.2),
     )
-    solver = SISRSolver(dist_matrix, demands, capacity, R, C, params)
+    solver = SISRSolver(dist_matrix, wastes, capacity, R, C, params)
     return solver.solve()

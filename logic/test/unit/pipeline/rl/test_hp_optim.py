@@ -10,7 +10,7 @@ from logic.src.pipeline.rl.hpo.optuna_hpo import OptunaHPO
 
 def get_config_space(opts):
     """Mock config space for testing."""
-    return {"w_lost": (0.0, 1.0), "w_prize": (0.0, 1.0), "w_length": (0.0, 1.0), "w_overflows": (0.0, 1.0)}
+    return {"w_lost": (0.0, 1.0), "w_waste": (0.0, 1.0), "w_length": (0.0, 1.0), "w_overflows": (0.0, 1.0)}
 
 
 class TestOptunaHPO:
@@ -73,7 +73,7 @@ class TestDEHB:
         """Test configuration space definition."""
         cs = get_config_space({})
         assert "w_lost" in cs
-        assert "w_prize" in cs
+        assert "w_waste" in cs
         assert "w_length" in cs
         assert "w_overflows" in cs
 
@@ -84,7 +84,7 @@ class TestDEHB:
         cfg = Config()
         search_space = {
             "w_lost": {"type": "float", "low": 0.0, "high": 1.0},
-            "w_prize": {"type": "float", "low": 0.0, "high": 1.0},
+            "w_waste": {"type": "float", "low": 0.0, "high": 1.0},
             "w_length": {"type": "float", "low": 0.0, "high": 1.0},
             "w_overflows": {"type": "float", "low": 0.0, "high": 1.0},
         }

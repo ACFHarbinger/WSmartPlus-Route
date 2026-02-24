@@ -13,7 +13,6 @@ from .base import BaseProblem
 from .cvrpp import CVRPP
 from .cwcvrp import CWCVRP
 from .scwcvrp import SCWCVRP
-from .sdwcvrp import SDWCVRP
 from .vrpp import VRPP
 from .wcvrp import WCVRP
 
@@ -27,6 +26,5 @@ __all__ = [
     "CVRPP",
     "WCVRP",
     "CWCVRP",
-    "SDWCVRP",
     "SCWCVRP",
 ]

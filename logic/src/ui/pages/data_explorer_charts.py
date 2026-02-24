@@ -4,8 +4,9 @@ Chart rendering functions for the Data Explorer page.
 Extracted from ``data_explorer.py`` to keep module sizes under 400 LoC.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -347,3 +348,205 @@ def _render_selected_chart(
         _render_area_chart(df, x_col, local_vars.get("y_col", ""))
     else:
         st.warning(f"Unknown chart type: {chart_type}")
+
+
+# ---------------------------------------------------------------------------
+# TensorDict overview tab
+# ---------------------------------------------------------------------------
+
+
+def _find_td_table(tables: Dict[str, pd.DataFrame], key: str) -> Optional[pd.DataFrame]:
+    """Return the DataFrame whose table label starts with ``'<key> ('``."""
+    for label, df in tables.items():
+        if label.startswith(f"{key} ("):
+            return df
+    return None
+
+
+def _render_td_coord_section(
+    tables: Dict[str, pd.DataFrame],
+    coord_keys: List[str],
+    depot_keys: List[str],
+    lazy_loader: Optional[Callable[[str], Optional[pd.DataFrame]]] = None,
+) -> None:
+    """Scatter-plot coordinate tensors with optional depot overlay."""
+    st.subheader("Coordinate Map")
+
+    ctrl = st.columns([2, 2, 2])
+    with ctrl[0]:
+        coord_key = st.selectbox("Coordinate Key", options=coord_keys, key="td_coord_key")
+
+    coord_df = _find_td_table(tables, coord_key)
+    if coord_df is None and lazy_loader is not None:
+        with st.spinner(f"Loading '{coord_key}'…"):
+            coord_df = lazy_loader(coord_key)
+    if coord_df is None or "x" not in coord_df.columns:
+        st.warning(f"Could not find coordinate data for key '{coord_key}'.")
+        return
+
+    max_sample = int(coord_df["sample_id"].max()) if "sample_id" in coord_df.columns else 0
+
+    with ctrl[1]:
+        sample_mode = st.selectbox(
+            "Display Mode",
+            options=["Single Sample", "All Samples (up to 30)"],
+            key="td_sample_mode",
+        )
+
+    if sample_mode == "Single Sample":
+        with ctrl[2]:
+            sample_idx = st.number_input(
+                "Sample Index",
+                min_value=0,
+                max_value=max_sample,
+                value=0,
+                step=1,
+                key="td_sample_idx",
+            )
+        plot_df = coord_df[coord_df["sample_id"] == int(sample_idx)].copy()
+        fig = px.scatter(
+            plot_df,
+            x="x",
+            y="y",
+            title=f"Sample {sample_idx}: {coord_key}",
+            labels={"x": "X", "y": "Y"},
+            opacity=0.85,
+        )
+        fig.update_traces(marker=dict(size=8, color="#1f77b4"))
+
+        # Overlay depot as a star marker if a depot key exists
+        for dk in depot_keys:
+            depot_df = _find_td_table(tables, dk)
+            if depot_df is None and lazy_loader is not None:
+                depot_df = lazy_loader(dk)
+            if depot_df is not None and "x" in depot_df.columns and int(sample_idx) < len(depot_df):
+                row = depot_df.iloc[int(sample_idx)]
+                fig.add_trace(
+                    go.Scatter(
+                        x=[float(row["x"])],
+                        y=[float(row["y"])],
+                        mode="markers",
+                        marker=dict(size=16, color="#d62728", symbol="star"),
+                        name=f"{dk} (depot)",
+                    )
+                )
+    else:
+        cap = min(30, max_sample + 1)
+        plot_df = coord_df[coord_df["sample_id"] < cap].copy()
+        plot_df["sample_id"] = plot_df["sample_id"].astype(str)
+        fig = px.scatter(
+            plot_df,
+            x="x",
+            y="y",
+            color="sample_id",
+            title=f"Coordinate Map: {coord_key} (first {cap} samples)",
+            labels={"x": "X", "y": "Y", "sample_id": "Sample"},
+            opacity=0.55,
+        )
+
+    fig.update_layout(height=480, **PLOTLY_LAYOUT_DEFAULTS)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def _render_td_dist_section(
+    tables: Dict[str, pd.DataFrame],
+    scalar_keys: List[str],
+    lazy_loader: Optional[Callable[[str], Optional[pd.DataFrame]]] = None,
+) -> None:
+    """Histogram + per-node box-plot for a selected scalar tensor key."""
+    st.subheader("Tensor Distributions")
+
+    sel_key = st.selectbox("Select Key", options=scalar_keys, key="td_dist_key")
+    dist_df = _find_td_table(tables, sel_key)
+    if dist_df is None and lazy_loader is not None:
+        with st.spinner(f"Loading '{sel_key}'…"):
+            dist_df = lazy_loader(sel_key)
+    if dist_df is None:
+        st.warning(f"Could not find data for key '{sel_key}'.")
+        return
+
+    numeric_cols = _numeric_columns(dist_df)
+    if not numeric_cols:
+        st.info("No numeric columns found for this key.")
+        return
+
+    nbins = st.slider("Histogram bins", 10, 100, 40, key="td_dist_nbins")
+
+    flat_vals = dist_df[numeric_cols].to_numpy(dtype=float, na_value=np.nan).flatten()
+    flat_vals = flat_vals[~np.isnan(flat_vals)]
+
+    col_left, col_right = st.columns(2)
+
+    with col_left:
+        st.plotly_chart(
+            create_histogram_chart(
+                pd.Series(flat_vals),
+                nbins=nbins,
+                title=f"Value distribution: {sel_key}",
+            ),
+            use_container_width=True,
+        )
+
+    with col_right:
+        # Box plot — cap number of columns to keep the chart readable
+        MAX_BOX_COLS = 60
+        box_cols = numeric_cols[:MAX_BOX_COLS]
+        if len(numeric_cols) > MAX_BOX_COLS:
+            st.caption(f"Showing first {MAX_BOX_COLS} of {len(numeric_cols)} nodes.")
+        st.plotly_chart(
+            create_box_plot_chart(dist_df, box_cols, title=f"Per-node spread: {sel_key}"),
+            use_container_width=True,
+        )
+
+
+def _render_td_overview_tab(
+    td_meta: Dict[str, Any],
+    tables: Dict[str, pd.DataFrame],
+    lazy_loader: Optional[Callable[[str], Optional[pd.DataFrame]]] = None,
+) -> None:
+    """Render the TensorDict Overview tab.
+
+    Args:
+        td_meta: Metadata dict produced by ``_load_td_file``.
+        tables: Named DataFrames from the same load call.
+        lazy_loader: Optional callable ``(key) -> DataFrame`` for path-based
+            datasets where tensors are not pre-loaded into ``tables``.
+    """
+    filename = td_meta.get("filename", "unknown")
+    batch_size = td_meta.get("batch_size")
+    coord_keys: List[str] = td_meta.get("coord_keys", [])
+    depot_keys: List[str] = td_meta.get("depot_keys", [])
+    scalar_keys: List[str] = td_meta.get("scalar_keys", [])
+    summary_rows: List[Dict[str, Any]] = td_meta.get("summary_rows", [])
+
+    # --- Header metrics ---
+    m1, m2, m3 = st.columns(3)
+    m1.metric("File", filename)
+    m2.metric("Instances (batch)", str(batch_size) if batch_size is not None else "—")
+    m3.metric("Tensor Keys", str(len(summary_rows)))
+
+    # --- Structure table ---
+    if summary_rows:
+        st.subheader("Structure")
+        summary_df = pd.DataFrame(summary_rows)
+        st.dataframe(
+            summary_df.style.format(
+                {c: "{:.4f}" for c in ["Min", "Max", "Mean", "Std"]},
+                na_rep="—",
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    # --- Coordinate scatter ---
+    if coord_keys:
+        st.divider()
+        _render_td_coord_section(tables, coord_keys, depot_keys, lazy_loader=lazy_loader)
+
+    # --- Distribution analysis ---
+    if scalar_keys:
+        st.divider()
+        _render_td_dist_section(tables, scalar_keys, lazy_loader=lazy_loader)
+
+    if not coord_keys and not scalar_keys:
+        st.info("No coordinate or scalar tensors detected for visualisation.")

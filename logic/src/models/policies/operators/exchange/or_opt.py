@@ -16,7 +16,7 @@ def vectorized_or_opt(
     tours: torch.Tensor,
     distance_matrix: torch.Tensor,
     capacities: Optional[torch.Tensor] = None,
-    demands: Optional[torch.Tensor] = None,
+    wastes: Optional[torch.Tensor] = None,
     chain_lengths: tuple = (1, 2, 3),
     max_iterations: int = 100,
 ) -> torch.Tensor:
@@ -52,7 +52,7 @@ def vectorized_or_opt(
         tours: Batch of tours [B, N] where B=batch size, N=tour length
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
         capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-        demands: Node demands [B, N+1] or [N+1] (optional, for capacity checks)
+        wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
         chain_lengths: Tuple of chain lengths to try (default: (1, 2, 3))
         max_iterations: Maximum number of improvement iterations (default: 100)
 
@@ -61,7 +61,7 @@ def vectorized_or_opt(
 
     Note:
         - Tours should include depot as node 0
-        - Capacity constraints are checked if capacities and demands provided
+        - Capacity constraints are checked if capacities and wastes provided
         - Works with both batched and shared distance matrices
         - Stops early if no improvement found
         - Chain lengths > N/2 are automatically skipped
@@ -85,13 +85,13 @@ def vectorized_or_opt(
     if distance_matrix.size(0) == 1 and B > 1:
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
-    # Handle demands if provided
-    has_capacity = capacities is not None and demands is not None
+    # Handle wastes if provided
+    has_capacity = capacities is not None and wastes is not None
     if has_capacity:
-        assert demands is not None
+        assert wastes is not None
         assert capacities is not None
-        if demands.dim() == 1:
-            demands = demands.unsqueeze(0).expand(B, -1)
+        if wastes.dim() == 1:
+            wastes = wastes.unsqueeze(0).expand(B, -1)
         if capacities.dim() == 0:
             capacities = capacities.unsqueeze(0).expand(B)
 
@@ -111,13 +111,13 @@ def vectorized_or_opt(
 
             chain_starts_batch = chain_starts.unsqueeze(0).expand(B, -1)
 
-            # Compute removal gain and chain demands
-            removal_gain, chain_demands = _compute_removal_info(
+            # Compute removal gain and chain wastes
+            removal_gain, chain_wastes = _compute_removal_info(
                 tours,
                 chain_starts_batch,
                 chain_len,
                 distance_matrix,
-                demands,
+                wastes,
                 has_capacity,
                 batch_indices,
                 B,
@@ -135,7 +135,7 @@ def vectorized_or_opt(
                 tours,
                 distance_matrix,
                 removal_gain,
-                chain_demands,
+                chain_wastes,
                 capacities,
                 has_capacity,
                 batch_indices,
@@ -161,9 +161,9 @@ def vectorized_or_opt(
 
 
 def _compute_removal_info(
-    tours, chain_starts, chain_len, dist_mat, demands, has_capacity, batch_indices, B, n_chains, N
+    tours, chain_starts, chain_len, dist_mat, wastes, has_capacity, batch_indices, B, n_chains, N
 ):
-    """Computes removal gain and chain demands."""
+    """Computes removal gain and chain wastes."""
     prev_idx = (chain_starts - 1).clamp(min=0)
     next_idx = (chain_starts + chain_len).clamp(max=N - 1)
 
@@ -179,18 +179,18 @@ def _compute_removal_info(
         - dist_mat[b_exp, prev_nodes, next_nodes]
     )
 
-    chain_demands = None
+    chain_wastes = None
     if has_capacity:
-        chain_demands = torch.zeros(B, n_chains, device=tours.device)
+        chain_wastes = torch.zeros(B, n_chains, device=tours.device)
         for k in range(chain_len):
             nodes = torch.gather(tours, 1, (chain_starts + k).clamp(max=N - 1))
-            chain_demands += torch.gather(demands, 1, nodes)
+            chain_wastes += torch.gather(wastes, 1, nodes)
 
-    return removal_gain, chain_demands
+    return removal_gain, chain_wastes
 
 
 def _find_best_insertions(
-    B, n_chains, N, chain_len, chain_starts, tours, dist_mat, rem_gain, chain_demands, caps, has_cap, b_idx, device
+    B, n_chains, N, chain_len, chain_starts, tours, dist_mat, rem_gain, chain_wastes, caps, has_cap, b_idx, device
 ):
     """Finds best insertion positions for all chains in batch."""
     best_delta = torch.full((B, n_chains), float("inf"), device=device)
@@ -218,7 +218,7 @@ def _find_best_insertions(
         )
 
         if has_cap:
-            feasible = chain_demands <= caps.unsqueeze(1)
+            feasible = chain_wastes <= caps.unsqueeze(1)
             ins_cost = torch.where(feasible, ins_cost, torch.tensor(float("inf"), device=device))
 
         delta = torch.where(skip_mask, torch.tensor(float("inf"), device=device), ins_cost - rem_gain)

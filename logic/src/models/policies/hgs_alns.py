@@ -24,19 +24,20 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
     def __init__(
         self,
         dist_matrix: torch.Tensor,
-        demands: torch.Tensor,
+        wastes: torch.Tensor,
         vehicle_capacity: Any,
         time_limit: float = 1.0,
         device: str = "cuda",
         alns_education_iterations: int = 50,
     ):
-        super().__init__(dist_matrix, demands, vehicle_capacity, time_limit, device)
+        super().__init__(dist_matrix, wastes, vehicle_capacity, time_limit, device)
         self.alns_education_iterations = alns_education_iterations
         self.alns_engine = VectorizedALNS(
             dist_matrix=dist_matrix,
-            demands=demands,
+            wastes=wastes,
             vehicle_capacity=vehicle_capacity,
             device=device,
+            time_limit=self.time_limit,
         )
 
     def educate(
@@ -146,7 +147,7 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         # 3. Solver Execution using HGS-ALNS Engine
         solver = VectorizedHGSALNSEngine(
             dist_matrix=dist_matrix,
-            demands=waste,
+            wastes=waste,
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
             device=str(device),

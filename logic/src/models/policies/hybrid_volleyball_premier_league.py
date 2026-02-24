@@ -131,7 +131,7 @@ class VectorizedHVPL(AutoregressivePolicy):
         batch_size = population_tours.shape[0]
         device = population_tours.device
 
-        alns_engine = VectorizedALNS(dist_matrix=dist, demands=waste, vehicle_capacity=capacity, device=device)
+        alns_engine = VectorizedALNS(dist_matrix=dist, wastes=waste, vehicle_capacity=capacity, device=device)
 
         flat_tours = population_tours.view(batch_size * self.n_teams, -1)
         coached_routes_list, coached_costs = alns_engine.solve(

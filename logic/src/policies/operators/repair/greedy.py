@@ -9,7 +9,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.operators.repair.greedy import greedy_insertion
-    >>> routes = greedy_insertion(routes, removed, dist_matrix, demands, capacity)
+    >>> routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
 from typing import Dict, List, Optional
@@ -21,7 +21,7 @@ def greedy_insertion(
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
@@ -38,7 +38,7 @@ def greedy_insertion(
         routes: Partial routes.
         removed_nodes: List of unassigned node indices.
         dist_matrix: Distance matrix.
-        demands: Demand look-up.
+        wastes: waste look-up.
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
         mandatory_nodes: List of mandatory node indices.
@@ -51,7 +51,7 @@ def greedy_insertion(
     # Calculate current loads
     loads = []
     for route in routes:
-        loads.append(sum(demands.get(node, 0) for node in route))
+        loads.append(sum(wastes.get(node, 0) for node in route))
 
     unassigned = list(removed_nodes)
     while unassigned:
@@ -61,12 +61,12 @@ def greedy_insertion(
         best_pos = -1
 
         for node in unassigned:
-            node_demand = demands.get(node, 0)
-            revenue = node_demand * R if R is not None else float("inf")
+            node_waste = wastes.get(node, 0)
+            revenue = node_waste * R if R is not None else float("inf")
             is_mandatory = node in mandatory_nodes_set
 
             for i, route in enumerate(routes):
-                if loads[i] + node_demand > capacity:
+                if loads[i] + node_waste > capacity:
                     continue
 
                 for pos in range(len(route) + 1):
@@ -88,7 +88,7 @@ def greedy_insertion(
 
         if best_node != -1:
             routes[best_route_idx].insert(best_pos, best_node)
-            loads[best_route_idx] += demands.get(best_node, 0)
+            loads[best_route_idx] += wastes.get(best_node, 0)
             unassigned.remove(best_node)
         else:
             # If no feasible insertions are found, we must handle any remaining mandatory nodes
@@ -99,7 +99,7 @@ def greedy_insertion(
             if mandatory_remaining:
                 node = mandatory_remaining[0]
                 routes.append([node])
-                loads.append(demands.get(node, 0))
+                loads.append(wastes.get(node, 0))
                 unassigned.remove(node)
             else:
                 # No more mandatory nodes and no more profitable/feasible insertions

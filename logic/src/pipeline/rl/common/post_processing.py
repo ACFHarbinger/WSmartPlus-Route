@@ -39,36 +39,23 @@ def decode_routes(actions: torch.Tensor, num_nodes: int) -> List[List[int]]:
     return routes
 
 
-def calculate_efficiency(routes, dist_matrix, demand, capacity):
+def calculate_efficiency(routes, dist_matrix, waste, capacity):
     """
     Compute kg/km efficiency metric.
     Efficiency = Total Waste Collected / Total Distance Traveled.
     """
     total_waste = 0.0
     total_dist = 0.0
-
-    # Simple calculation assuming routes are lists of node indices
-    # And dist_matrix is numpy or tensor
-
-    # Placeholder for full calculation logic
-    # In legacy, this iterates through every route, sums demands, sums edges.
-
-    # routes: List[List[int]] (node indices)
-    # dist_matrix: [num_nodes+1, num_nodes+1]
-    # demand: [num_nodes+1] (or [num_nodes] and shifted)
-
     for route in routes:
         if not route:
             continue
 
         # 1. Calculate Waste
-        # Assuming demand index 0 is depot (0.0), index i is node i
-        # Route indices are 1..N usually? Or 0 is depot?
-        # Usually in our env, 0 is depot.
         route_tensor = torch.tensor(route, dtype=torch.long)
-        # Gather demand
-        # demands needs to be accessible by index
-        waste = demand[route_tensor].sum().item()
+
+        # Gather waste
+        # wastes needs to be accessible by index
+        waste = waste[route_tensor].sum().item()
         total_waste += waste
 
         # 2. Calculate Distance

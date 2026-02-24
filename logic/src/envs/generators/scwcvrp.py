@@ -16,7 +16,7 @@ class SCWCVRPGenerator(WCVRPGenerator):
     """
     Generator for Stochastic Capacitated Waste Collection VRP (SCWCVRP) instances.
 
-    Adds noise to the fill levels to simulate uncertain demand.
+    Adds noise to the fill levels to simulate uncertain waste fill levels.
     """
 
     def __init__(

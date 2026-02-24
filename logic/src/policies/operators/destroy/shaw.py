@@ -2,7 +2,7 @@
 Shaw Removal (Relatedness) Operator Module.
 
 This module implements the Shaw removal heuristic, which removes nodes that are
-similar (related) to a seed node based on distance, time, and demand.
+similar (related) to a seed node based on distance, time, and waste.
 
 Attributes:
     None
@@ -23,8 +23,8 @@ def shaw_removal(
     n_remove: int,
     dist_matrix: np.ndarray,
     nodes: List[int],
-    demands: Optional[List[int]] = None,
-    waste: Optional[Dict[Any, Any]] = None,
+    wastes: Optional[List[int]] = None,
+    waste_dict: Optional[Dict[Any, Any]] = None,
     time_windows: Optional[Dict[Any, Any]] = None,
     relatedness_weights: Tuple[float, float, float] = (0.5, 0.3, 0.2),
     randomization_factor: float = 2.0,
@@ -45,14 +45,14 @@ def shaw_removal(
         n_remove: Number of nodes to remove.
         dist_matrix: Distance matrix.
         nodes: List of all node identifiers.
-        demands: List of demands for each node (optional).
-        waste: Node waste dictionary {node: waste} (optional).
+        wastes: List of wastes for each node (optional).
+        waste_dict: Node waste dictionary {node: waste} (optional).
         time_windows: Time window dict {node: (earliest, latest)} (optional).
-        relatedness_weights: Weights for (dist, time, demand) - deprecated/unused if phi/chi/psi used directly.
+        relatedness_weights: Weights for (dist, time, waste) - deprecated/unused if phi/chi/psi used directly.
         randomization_factor: Power for randomized selection (higher = more random).
         phi: Distance weight in relatedness.
         chi: Time window weight in relatedness.
-        psi: Demand weight in relatedness.
+        psi: waste weight in relatedness.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Modified routes and removed nodes.
@@ -60,7 +60,7 @@ def shaw_removal(
     if not any(routes) or n_remove <= 0:
         return routes, []
 
-    waste = waste or {}
+    waste = waste_dict or {}
     time_windows = time_windows or {}
 
     # Build node map
@@ -100,7 +100,7 @@ def shaw_removal(
                 # Distance component
                 dist_rel: float = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
 
-                # Waste/Demand component
+                # Waste/waste component
                 waste_rel: float = 0.0
                 if waste:
                     waste_rel = float(abs(waste.get(node, 0.0) - waste.get(rem_node, 0.0))) / max_waste

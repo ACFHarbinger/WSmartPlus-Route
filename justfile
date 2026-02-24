@@ -11,11 +11,11 @@ reset := '\033[0m'
 
 # Default variables (can be overridden: just train problem=wcvrp)
 
-problem := "wcvrp"
+problem := "vrpp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "104"
+size := "100"
 area := "riomaior"
 epochs := "100"
 batch_size := "64"
@@ -25,7 +25,7 @@ samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "emp"
+distribution := "gamma1"
 n_cores := "20"
 policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
 
@@ -114,22 +114,18 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem size=size distribution=distribution data_type="test_simulator" n_samples="10" n_days="31":
+gen-data problem=problem distribution=distribution data_type="train_time":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset Type:" "{{ data_type }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ n_samples }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "{{ n_days }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py gen_data \
         data.dataset_type={{ data_type }} \
         data.problem={{ problem }} \
-        data.data_distributions=[{{ distribution }}] \
-        'data.graphs=[{num_loc: {{ size }}, n_samples: {{ n_samples }}, area: {{ area }}, waste_type: plastic, n_days: {{ n_days }}, focus_graph: graphs_{{ size }}V_1N_plastic.json}]'
+        data.data_distributions=[{{ distribution }}]
 
 # Launch the GUI
 gui:

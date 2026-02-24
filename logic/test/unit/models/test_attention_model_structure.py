@@ -72,7 +72,7 @@ class TestAttentionModelStructure:
         dummy_input = {
             "locs": torch.rand(1, 10, 2),
             "depot": torch.rand(1, 2),
-            "demand": torch.rand(1, 10),
+            "waste": torch.rand(1, 10),
             "dist": torch.rand(1, 10, 10),
         }
 

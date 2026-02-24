@@ -60,8 +60,7 @@ python main.py gen_data data.problem=cwcvrp            # Generate CWCVRP data
 | `wcvrp`   | Waste Collection VRP                 | No capacity constraint                  |
 | `vrpp`    | VRP with Profits                     | Select profitable nodes                 |
 | `cvrpp`   | Capacitated VRP with Profits         | VRPP + capacity                         |
-| `sdwcvrp` | Stochastic Demand WCVRP              | Uncertain waste generation              |
-| `scwcvrp` | Selective Capacitated WCVRP          | Profit-driven waste collection          |
+| `scwcvrp` | Stochastic Capacitated WCVRP         | Stochastic waste generation             |
 
 #### Models (`model=`)
 
@@ -243,8 +242,7 @@ assets/configs/
 │   ├── wcvrp.yaml             # Waste Collection VRP
 │   ├── vrpp.yaml              # VRP with Profits
 │   ├── cvrpp.yaml             # Capacitated VRP with Profits
-│   ├── sdwcvrp.yaml           # Stochastic Demand WCVRP
-│   └── scwcvrp.yaml           # Selective Capacitated WCVRP
+│   └── scwcvrp.yaml           # Stochastic Capacitated WCVRP
 │
 ├── model/                      # Neural network architectures
 │   ├── am.yaml                # Attention Model (default)
@@ -495,19 +493,19 @@ env:
 
 **Key Features:**
 
-- Node prizes/rewards
+- Node wastes/rewards
 - Maximum route length constraint
 - No capacity constraints
 - Maximize profit - cost
 
-#### 3.3 SDWCVRP: `envs/sdwcvrp.yaml`
+#### 3.3 SCWCVRP: `envs/scwcvrp.yaml`
 
-**Stochastic Demand WCVRP** - Waste generation with uncertainty.
+**Stochastic Capacitated WCVRP** - Waste generation with uncertainty.
 
 **Key Features:**
 
 - Probabilistic fill rates
-- Multiple demand scenarios
+- Multiple waste scenarios
 - Robust routing under uncertainty
 
 #### 3.4 Other Environments
@@ -793,7 +791,7 @@ python main.py train model=ptr  # Pointer Network
 
 # Change environment
 python main.py eval envs=vrpp  # Vehicle Routing with Profits
-python main.py eval envs=sdwcvrp  # Stochastic Demand WCVRP
+python main.py eval envs=scwcvrp  # Stochastic Capacitated WCVRP
 
 # Change task
 python main.py task=eval  # Evaluation task
@@ -806,7 +804,7 @@ python main.py task=test_sim  # Simulation testing
 # Combine overrides
 python main.py train \
     model=tam \
-    envs=sdwcvrp \
+    envs=scwcvrp \
     seed=42 \
     model.n_encode_layers=6 \
     rl.batch_size=512

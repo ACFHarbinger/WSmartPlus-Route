@@ -12,7 +12,6 @@ from logic.src.envs.tasks.base import BaseProblem
 from logic.src.envs.tasks.cvrpp import CVRPP
 from logic.src.envs.tasks.cwcvrp import CWCVRP
 from logic.src.envs.tasks.scwcvrp import SCWCVRP
-from logic.src.envs.tasks.sdwcvrp import SDWCVRP
 from logic.src.envs.tasks.vrpp import VRPP
 from logic.src.envs.tasks.wcvrp import WCVRP
 
@@ -26,6 +25,5 @@ __all__ = [
     "CVRPP",
     "WCVRP",
     "CWCVRP",
-    "SDWCVRP",
     "SCWCVRP",
 ]

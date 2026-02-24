@@ -225,7 +225,7 @@ impl LocalSearch {
 
         let mut load = 0.0;
         while curr != 0 {
-            load += params.demands[curr];
+            load += params.wastes[curr];
             curr = indiv.successors[curr];
         }
         load
@@ -284,7 +284,7 @@ impl LocalSearch {
                     }
                 } else {
                     // Inter-route
-                    let dem_u = params.demands[u];
+                    let dem_u = params.wastes[u];
                     let load_u = self.calculate_route_load(indiv, params, u);
                     let load_v = self.calculate_route_load(indiv, params, v);
 
@@ -384,8 +384,8 @@ impl LocalSearch {
                     }
                 }
 
-                let dem_u = params.demands[u];
-                let dem_x = params.demands[x];
+                let dem_u = params.wastes[u];
+                let dem_x = params.wastes[x];
 
                 if rid_u != rid_v {
                     let load_u = self.calculate_route_load(indiv, params, u);
@@ -481,8 +481,8 @@ impl LocalSearch {
                     }
                 }
 
-                let dem_u = params.demands[u];
-                let dem_x = params.demands[x];
+                let dem_u = params.wastes[u];
+                let dem_x = params.wastes[x];
 
                 if rid_u != rid_v {
                     let load_u = self.calculate_route_load(indiv, params, u);
@@ -600,8 +600,8 @@ impl LocalSearch {
                     continue;
                 }
 
-                let dem_u = params.demands[u];
-                let dem_v = params.demands[v];
+                let dem_u = params.wastes[u];
+                let dem_v = params.wastes[v];
 
                 if rid_u != rid_v {
                     let load_u = self.calculate_route_load(indiv, params, u);
@@ -744,8 +744,8 @@ impl LocalSearch {
                 continue;
             }
             let rid_u = route_ids[u];
-            let dem_u = params.demands[u];
-            let dem_x = params.demands[x];
+            let dem_u = params.wastes[u];
+            let dem_x = params.wastes[x];
 
             for &v in &params.correlated_vertices[u] {
                 let rid_v = route_ids[v];
@@ -764,7 +764,7 @@ impl LocalSearch {
                     }
                 }
 
-                let dem_v = params.demands[v];
+                let dem_v = params.wastes[v];
 
                 if rid_u != rid_v {
                     let load_u = self.calculate_route_load(indiv, params, u);
@@ -874,8 +874,8 @@ impl LocalSearch {
                 continue;
             }
             let rid_u = route_ids[u];
-            let dem_u = params.demands[u];
-            let dem_x = params.demands[x];
+            let dem_u = params.wastes[u];
+            let dem_x = params.wastes[x];
 
             for &v in &params.correlated_vertices[u] {
                 let y = indiv.successors[v];
@@ -904,8 +904,8 @@ impl LocalSearch {
                     } // Adjacent V->Y(U)->X
                 }
 
-                let dem_v = params.demands[v];
-                let dem_y = params.demands[y];
+                let dem_v = params.wastes[v];
+                let dem_y = params.wastes[y];
 
                 if rid_u != rid_v {
                     let load_u = self.calculate_route_load(indiv, params, u);
@@ -1125,7 +1125,7 @@ impl LocalSearch {
                 while curr != 0 {
                     visited[curr] = true;
                     nodes.push(curr);
-                    load += params.demands[curr];
+                    load += params.wastes[curr];
                     curr = indiv.successors[curr];
                 }
 
@@ -1179,12 +1179,12 @@ impl LocalSearch {
         load2: f64,
     ) -> bool {
         for &u in r1_nodes {
-            let dem_u = params.demands[u];
+            let dem_u = params.wastes[u];
             // Unused result of cost_u_in_2 ignored to prevent warning
             // let (cost_u_in_2, pos_u_in_2) = self.find_best_insertion_cost(u, r2_nodes, params);
 
             for &v in r2_nodes {
-                let dem_v = params.demands[v];
+                let dem_v = params.wastes[v];
 
                 // Soft constraint: Calculate penalty change
                 let pen_1_old = self.get_penalty(load1, params.vehicle_capacity);

@@ -404,7 +404,7 @@ MAX_WASTE: float = 1.0  # Normalized (100% capacity)
 VEHICLE_CAPACITY: float = 200.0  # kg (default for synthetic instances)
 ```
 
-**Usage**: Capacitated VRP variants (CVRP, CWCVRP, SDWCVRP, SCWCVRP)
+**Usage**: Capacitated VRP variants (CVRP, CWCVRP, SCWCVRP)
 
 **Route Termination**: When `cumulative_collected >= VEHICLE_CAPACITY`
 
@@ -426,7 +426,7 @@ MAX_LENGTHS: Dict[int, int] = {
 }
 ```
 
-**Purpose**: Prevent unbounded routes in prize-collecting problems
+**Purpose**: Prevent unbounded routes in waste-collecting problems
 
 **Rationale**: Larger instances need proportionally longer routes (√n heuristic)
 
@@ -440,8 +440,7 @@ PROBLEMS: List[str] = [
     "cvrpp",    # Capacitated VRPP
     "wcvrp",    # Waste Collection VRP (dynamic bins, no capacity)
     "cwcvrp",   # Capacitated WCVRP (standard WSmart+ problem)
-    "sdwcvrp",  # Stochastic Demand WCVRP
-    "scwcvrp",  # Selective Capacitated WCVRP (profit-driven)
+    "scwcvrp",  # Stochastic Capacitated WCVRP
 ]
 ```
 
@@ -692,7 +691,7 @@ ENC_DEC_MODELS: List[str] = ["ddam"]
 ### Feature Dimensions
 
 ```python
-NODE_DIM: int = 3  # [x, y, demand/prize]
+NODE_DIM: int = 3  # [x, y, waste]
 ```
 
 **Usage**: Embedding layers, input projections
