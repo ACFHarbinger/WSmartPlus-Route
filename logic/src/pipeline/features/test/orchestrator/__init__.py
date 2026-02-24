@@ -45,9 +45,12 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
 
     from omegaconf import OmegaConf
 
-    OmegaConf.set_struct(cfg, False)
-    cfg.tracking.log_file = log_file
-    OmegaConf.set_struct(cfg, True)
+    if OmegaConf.is_config(cfg):
+        OmegaConf.set_struct(cfg, False)  # type: ignore[arg-type]
+        cfg.tracking.log_file = log_file
+        OmegaConf.set_struct(cfg, True)  # type: ignore[arg-type]
+    else:
+        cfg.tracking.log_file = log_file
 
     # Capture original stderr for shutdown messages if redirected
     original_stderr = sys.stderr
