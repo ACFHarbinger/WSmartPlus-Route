@@ -130,7 +130,7 @@ class TestPPO:
             mock_dl.return_value = [sub_td]
 
             with patch.object(module, "log") as mock_log:
-                # We need to spy on optimizer, so we pass it
+                # We need to spy on optimizer
                 module.training_step(batch, batch_idx=0)
 
                 assert optimizer.step.call_count == 2
@@ -195,18 +195,17 @@ class TestPPO:
 
         env.reset.side_effect = lambda x: x
 
-        # We want to verify it gets converted. If we pass a dict, PPO converts it to TensorDict
+        # We want to verify it gets converted. If we receive a dict, PPO converts it to TensorDict
         # Then calls env.reset(TensorDict)
-
         with patch.object(env, "reset") as mock_reset:
-             # Make reset fail with a special error to stop execution
-             mock_reset.side_effect = KeyError("Check passed")
-             try:
-                 module.training_step(batch, 0)
-             except KeyError as e:
-                 if str(e) == "'Check passed'":
-                     # Check what reset was called with
-                     call_args = mock_reset.call_args
-                     assert isinstance(call_args[0][0], TensorDict)
-                     return
-                 raise e
+            # Make reset fail with a special error to stop execution
+            mock_reset.side_effect = KeyError("Check passed")
+            try:
+                module.training_step(batch, 0)
+            except KeyError as e:
+                if str(e) == "'Check passed'":
+                    # Check what reset was called with
+                    call_args = mock_reset.call_args
+                    assert isinstance(call_args[0][0], TensorDict)
+                    return
+                raise e

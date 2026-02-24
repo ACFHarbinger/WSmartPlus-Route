@@ -50,13 +50,6 @@ def test_dact_policy_forward():
     assert "actions" in out.keys()
     assert out["actions"].shape == (2, 3, 2)  # batch, steps, 2 nodes
 
-    # Check that the solution in td was updated
-    # (DACTPolicy should update td internally during the loop)
-    # Wait, in ImprovementPolicy.forward, it calls env.step(td)
-    # The return value of policy() is a dict with actions, etc.
-    # The td passed in might be updated in-place or returned?
-    # Usually TensorDict is updated in place if modified.
-
 
 def test_dact_model():
     """Test DACT model wrapper."""

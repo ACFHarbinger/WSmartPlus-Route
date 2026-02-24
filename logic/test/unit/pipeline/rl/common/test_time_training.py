@@ -14,23 +14,19 @@ class TestTimeTraining:
         num_days = 3
 
         # 3D Waste: [bs, num_days, num_nodes+1]
-        waste = torch.zeros(batch_size, num_days, num_nodes + 1)
+        waste_3d = torch.zeros(batch_size, num_days, num_nodes + 1)
         # Day 0: 0, 10, 10, 10
-        waste[:, 0, 1:] = 10.0
+        waste_3d[:, 0, 1:] = 10.0
         # Day 1: 0, 5, 5, 5 (next day waste to add)
-        waste[:, 1, 1:] = 5.0
+        waste_3d[:, 1, 1:] = 5.0
         # Day 2: 0, 2, 2, 2
-        waste[:, 2, 1:] = 2.0
-
-        # Current waste (copy of Day 0)
-        waste = waste[:, 0, :].clone()
+        waste_3d[:, 2, 1:] = 2.0
 
         locs = torch.zeros(batch_size, num_nodes + 1, 2)
 
         td = TensorDict(
             {
-                "waste": waste,
-                "waste": waste,
+                "waste": waste_3d,
                 "locs": locs,
                 "capacity": torch.tensor([100.0, 100.0]),
             },

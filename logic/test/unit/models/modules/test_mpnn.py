@@ -17,25 +17,15 @@ class TestMPNN:
         x = torch.randn(batch_size * num_nodes, node_dim)
 
         # Dense edge index for fully connected graph
-        edge_index = torch.stack([
-            torch.repeat_interleave(torch.arange(batch_size * num_nodes), batch_size * num_nodes),
-            torch.tile(torch.arange(batch_size * num_nodes), (batch_size * num_nodes,))
-        ], dim=0)
-
-        # Filter to keep only edges within the same batch graph
-        # This simplifies the test setup to simulating a batch of graphs
-        # For simplicity, let's just test single large graph or use correct batch indexing
-        # Correct approach:
         edge_list = []
         for b in range(batch_size):
             for i in range(num_nodes):
                 for j in range(num_nodes):
                     if i != j:
                         edge_list.append([b * num_nodes + i, b * num_nodes + j])
+
         edge_index = torch.tensor(edge_list).t()
-
         edge_attr = torch.randn(edge_index.size(1), edge_dim)
-
         return x, edge_index, edge_attr
 
     def test_message_passing_layer_forward(self, setup_data):

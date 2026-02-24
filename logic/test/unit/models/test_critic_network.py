@@ -21,7 +21,7 @@ def test_critic_network_init():
 
 
 def test_critic_network_forward():
-    """Verify forward pass logic."""
+    """Verify forward flow logic."""
     problem = MagicMock()
     problem.NAME = "vrpp"
     component_factory = MagicMock()

@@ -38,7 +38,6 @@ class TestWeightContextualBandit:
         # instance['waste'] -> tensor, 'max_waste' -> tensor
         class MockInstance(dict):
             """Mock dictionary-like instance."""
-
             pass
 
         mock_data = []

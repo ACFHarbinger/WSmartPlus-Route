@@ -132,16 +132,28 @@ def _build_visited_mask(
 
 
 def _get_next_day_waste(
-    td: TensorDict, current_fill: torch.Tensor, day: int, env: Any, batch_size: int, device: torch.device
+    td: TensorDict,
+    current_fill: torch.Tensor,
+    day: int,
+    env: Any,
+    batch_size: int,
+    device: torch.device,
+    key: str = "waste",
 ) -> torch.Tensor:
     """Determine the next day's waste from pre-generated data or on-the-fly generation."""
     next_day_waste = torch.zeros_like(current_fill)
 
-    if "waste" in td.keys() and td["waste"].dim() == 3:
-        # Pre-generated 3D dataset: [bs, num_days, num_loc]
-        total_days = td["waste"].shape[1]
+    full_key = f"_{key}_full"
+    if full_key in td.keys() and td[full_key].dim() == 3:
+        # Use the sequence stored in the hidden key
+        total_days = td[full_key].shape[1]
         next_day_idx = min(day + 1, total_days - 1)
-        next_day_waste = td["waste"][:, next_day_idx, :]
+        next_day_waste = td[full_key][:, next_day_idx, :]
+    elif key in td.keys() and td[key].dim() == 3:
+        # Pre-generated 3D dataset: [bs, num_days, num_loc]
+        total_days = td[key].shape[1]
+        next_day_idx = min(day + 1, total_days - 1)
+        next_day_waste = td[key][:, next_day_idx, :]
     elif hasattr(env, "generator"):
         # On-the-fly dataset (2D waste)
         gen = env.generator
@@ -152,12 +164,13 @@ def _get_next_day_waste(
             fresh_fill = gen._generate_fill_levels([batch_size]).to(device)
 
             # Apply stochastic noise if it's SCWCVRP
+            has_noise = env.name == "scwcvrp"
             noise_variance = getattr(gen, "noise_variance", 0.0)
             noise_mean = getattr(gen, "noise_mean", 0.0)
-
-            if noise_variance > 0:
-                noise = torch.normal(mean=noise_mean, std=noise_variance**0.5, size=fresh_fill.size(), device=device)
-
+            if has_noise:
+                noise = torch.normal(
+                    mean=float(noise_mean), std=float(noise_variance) ** 0.5, size=fresh_fill.size(), device=device
+                )
                 noisy_waste = (fresh_fill + noise).clamp(min=0.0, max=float(getattr(gen, "capacity", 1.0)))
                 next_day_waste = noisy_waste
             else:
@@ -200,6 +213,14 @@ def apply_time_step(dataset: Dataset, epoch_actions: List[torch.Tensor], day: in
 
     current_fill = td[key]
 
+    # If the fill is 3D, it's likely a fresh dataset load.
+    # We move it to a hidden key and use the current day's slice for the 2D state.
+    if current_fill.dim() == 3:
+        full_key = f"_{key}_full"
+        if full_key not in td.keys():
+            td.set(full_key, current_fill)
+        current_fill = current_fill[:, day, :]
+
     # 1. Reset visited bins to 0
     visited_mask = _build_visited_mask(epoch_actions, batch_size, num_nodes, device)
 
@@ -210,7 +231,7 @@ def apply_time_step(dataset: Dataset, epoch_actions: List[torch.Tensor], day: in
         current_fill[visited_mask[:, 1:]] = 0.0
 
     # 2. Get next day waste
-    next_day_waste = _get_next_day_waste(td, current_fill, day, env, batch_size, device)
+    next_day_waste = _get_next_day_waste(td, current_fill, day, env, batch_size, device, key=key)
 
     # 3. Update fill
     new_fill = current_fill + next_day_waste

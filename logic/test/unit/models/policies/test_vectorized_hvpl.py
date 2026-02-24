@@ -35,8 +35,3 @@ def test_vectorized_hvpl():
     assert out["actions"].shape[0] == batch_size
     assert out["reward"].shape[0] == batch_size
     assert out["cost"].shape[0] == batch_size
-
-    print("VectorizedHVPL test passed!")
-
-if __name__ == "__main__":
-    test_vectorized_hvpl()

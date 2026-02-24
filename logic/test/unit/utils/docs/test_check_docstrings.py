@@ -7,13 +7,8 @@ class TestCheckDocstrings:
     @patch("builtins.open", new_callable=mock_open, read_data="def a():\n    pass")
     @patch("os.path.isfile", return_value=True)
     def test_check_path_missing(self, mock_isfile, m_open):
-        # Module has no docstring. func a has no docstring.
-        # check_docstrings.py checks module docstring first.
-        # AST for "def a(): pass" -> Module body. Module docstring is None.
-        # a is FunctionDef. No docstring.
-
         missing = check_path("dummy.py")
-        # Module missing, Function a missing.
+
         assert len(missing) == 2
         assert missing[0]["type"] == "Module"
         assert missing[1]["type"] == "Function"

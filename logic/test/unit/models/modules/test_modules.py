@@ -53,7 +53,7 @@ class TestDistanceAwareGraphConvolution:
     """Tests for DistanceAwareGraphConvolution."""
 
     def test_forward_batch(self):
-        """Verifies batched forward pass with distance."""
+        """Verifies batched forward flow with distance."""
         batch = 2
         nodes = 5
         feat = 3
@@ -68,7 +68,7 @@ class TestDistanceAwareGraphConvolution:
         assert out.shape == (batch, nodes, out_feat)
 
     def test_forward_no_dist(self):
-        """Verifies forward pass without distance."""
+        """Verifies forward flow without distance."""
         batch = 2
         nodes = 5
         feat = 3
@@ -85,7 +85,7 @@ class TestEfficientGraphConvolution:
     """Tests for EfficientGraphConvolution."""
 
     def test_init_and_forward(self):
-        """Verifies initialization and forward pass."""
+        """Verifies initialization and forward flow."""
         feat = 16
         out_feat = 16
         model = EfficientGraphConvolution(feat, out_feat, n_heads=2, num_bases=2)
@@ -103,7 +103,7 @@ class TestFeedForward:
     """Tests for FeedForward (MLP) module."""
 
     def test_forward(self):
-        """Verifies MLP forward pass."""
+        """Verifies MLP forward flow."""
         model = FeedForward(10, 5)
         x = torch.randn(2, 10)
         out = model(x)
@@ -149,7 +149,6 @@ class TestMultiHeadAttention:
         """Verifies MHA with 2D mask."""
         dim = 16
         heads = 2
-        # Fixed: pass embed_dim
         model = MultiHeadAttention(heads, dim, embed_dim=dim)
 
         batch = 2
@@ -181,18 +180,14 @@ class TestNormalization:
 
     def test_group_norm(self):
         """Verifies GroupNorm support."""
-        Normalization(16, norm_name="group", n_groups=None)
-        torch.randn(2, 16, 5)  # GroupNorm expects (N, C, L)
-        # Normalization class handles view internally?
-        # logic.src.models.subnets.modules/normalization.py:
-        # if instance/layer/batch...
-        # 'group' is in dictionary but NOT in forward if/elif block!
-        # Thus it falls to else: return input.
-        # This confirms 'group' norm is effectively disabled in
-        # logic.src.models.subnets.modules/normalization.py forward method.
-        # I should fix Normalized forward method to include group norm?
-        # Yes, if I want it to work.
-        pass
+        embed_dim = 16
+        n_groups = 4
+        model = Normalization(embed_dim, norm_name="group", n_groups=n_groups)
+
+        # Batch, Seq, Dim (N, L, C structure handled by Normalization forward)
+        x = torch.randn(2, 5, embed_dim)
+        out = model(x)
+        assert out.shape == x.shape
 
     def test_layer_norm(self):
         """Verifies LayerNorm support."""
@@ -214,20 +209,20 @@ class TestNormalizedActivationFunction:
 
     def test_adaptive_log_softmax(self):
         """Verifies AdaptiveLogSoftmax behavior."""
-        dim = 128  # Fixed: Increased dim
+        dim = 128
         n_classes = 10
-        NormalizedActivationFunction("adaptivelogsoftmax", dim=dim, n_classes=n_classes)
-        # Forward of AdaptiveLogSoftmaxWithLoss expects (input, target).
-        # logic.src.models.subnets.modules/normalized_activation_function.py forward:
-        # return self.norm_activation(input).
-        # Calls forward(input). Missing target.
-        # Check source of nn.AdaptiveLogSoftmaxWithLoss.
-        # forward(input, target).
-        # log_prob(input).
-        # If NormalizedActivationFunction wraps it, its forward signature `forward(input, mask=None)`
-        # fails for AdaptiveLogSoftmax. It should probably call log_prob(input) if inference?
-        # But this is a generic wrapper.
-        pass
+        model = NormalizedActivationFunction("adaptivelogsoftmax", dim=dim, n_classes=n_classes)
+
+        # Inference mode (no mask/target) -> returns log_prob
+        x = torch.randn(2, dim)
+        out = model(x)
+        assert out.shape == (2, n_classes)
+
+        # Training mode (with mask as target) -> returns namedtuple(output, loss)
+        target = torch.randint(0, n_classes, (2,))
+        out_tuple = model(x, mask=target)
+        assert hasattr(out_tuple, "output")
+        assert hasattr(out_tuple, "loss")
 
 
 class TestSkipConnection:
@@ -297,7 +292,7 @@ class TestMultiHeadCrossAttention:
         assert out.shape == (batch, q_len, embed)
 
     def test_forward_with_mask(self):
-        """Verify forward pass with mask."""
+        """Verify forward flow with mask."""
         batch = 2
         embed = 16
         heads = 4

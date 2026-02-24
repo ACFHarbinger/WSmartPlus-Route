@@ -46,7 +46,7 @@ class TestAttentionModel:
         assert model.n_heads == 8
 
     def test_forward(self, am_setup):
-        """Verifies forward pass output shapes and types."""
+        """Verifies forward flow output shapes and types."""
         model = am_setup
         batch_size = 2
         graph_size = 5
@@ -137,7 +137,7 @@ class TestMustGoManager:
     """Tests for the MustGoManager architecture."""
 
     def test_forward(self, gat_lstm_setup):
-        """Verifies forward pass logic."""
+        """Verifies forward flow logic."""
         manager = gat_lstm_setup
         B, N = 2, 5
         static = torch.rand(B, N, 2)
@@ -335,7 +335,7 @@ class TestMoE:
     """Tests for MoE module."""
 
     def test_moe_forward(self):
-        """Test basic forward pass of MoE."""
+        """Test basic forward flow of MoE."""
         batch_size = 2
         seq_len = 5
         d_model = 16
@@ -359,7 +359,7 @@ class TestMoEFeedForward:
     """Tests for MoEFeedForward wrapper."""
 
     def test_moe_ff_structure(self):
-        """Test structure and forward pass."""
+        """Test structure and forward flow."""
         d_model = 16
         d_ff = 32
 
@@ -409,7 +409,7 @@ class TestMoEModel:
     """Tests for High-Level MoE Model."""
 
     def test_model_initialization_and_forward(self):
-        """Test MoEAttentionModel initialization and forward pass."""
+        """Test MoEAttentionModel initialization and forward flow."""
         # Mock problem
         problem = CVRPP()
 

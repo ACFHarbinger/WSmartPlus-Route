@@ -31,7 +31,7 @@ class TestGatedGraphAttConvEncoder:
         }
 
     def test_layer_forward(self, layer_params):
-        """Test forward pass of a single AttentionGatedConvolutionLayer."""
+        """Test forward flow of a single AttentionGatedConvolutionLayer."""
         layer = AttentionGatedConvolutionLayer(**layer_params)
 
         bs, n_nodes, dim = 2, 5, 16
@@ -56,7 +56,7 @@ class TestGatedGraphAttConvEncoder:
         assert encoder.embed_dim == 16
 
     def test_encoder_forward_with_dist(self):
-        """Test encoder forward pass with distance matrix."""
+        """Test encoder forward flow with distance matrix."""
         bs, n_nodes, dim = 2, 5, 16
         encoder = GatedGraphAttConvEncoder(
             n_heads=4,
@@ -73,7 +73,7 @@ class TestGatedGraphAttConvEncoder:
         assert not torch.isnan(out).any()
 
     def test_encoder_forward_no_dist(self):
-        """Test encoder forward pass without distance matrix (fallback)."""
+        """Test encoder forward flow without distance matrix (fallback)."""
         bs, n_nodes, dim = 2, 5, 16
         encoder = GatedGraphAttConvEncoder(
             n_heads=2,
@@ -87,7 +87,7 @@ class TestGatedGraphAttConvEncoder:
         assert out.shape == (bs, n_nodes, dim)
 
     def test_encoder_forward_2d_dist(self):
-        """Test encoder forward pass with a shared 2D distance matrix."""
+        """Test encoder forward flow with a shared 2D distance matrix."""
         n_nodes, dim = 5, 16
         encoder = GatedGraphAttConvEncoder(
             n_heads=2,
