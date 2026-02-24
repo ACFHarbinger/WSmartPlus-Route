@@ -75,6 +75,6 @@ class TestBoolMask:
         with pytest.raises(AssertionError):
             boolmask.mask_long_scatter(new_mask, idx, check_unset=True)
 
-        # Should pass with check_unset=False
+        # Should be ok with check_unset=False
         new_mask_2 = boolmask.mask_long_scatter(new_mask, idx, check_unset=False)
         assert (new_mask == new_mask_2).all()

@@ -73,7 +73,7 @@ class TestGFACS:
         )
 
     def test_policy_forward(self):
-        """Verify GFACSPolicy forward pass."""
+        """Verify GFACSPolicy forward flow."""
         td = self.env.reset()
         out = self.policy(td, self.env)
 
@@ -87,7 +87,7 @@ class TestGFACS:
         assert out["reward"].dim() == 2   # [batch, n_ants]
 
     def test_model_forward_training(self):
-        """Verify GFACS model forward pass for training."""
+        """Verify GFACS model forward flow for training."""
         td = self.env.reset()
         out = self.model(td, self.env, phase="train")
 

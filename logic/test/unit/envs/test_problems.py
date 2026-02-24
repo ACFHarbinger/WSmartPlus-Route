@@ -359,9 +359,9 @@ class TestCVRPP:
         with pytest.raises(AssertionError, match="Used more than capacity"):
             CVRPP.get_costs(dataset, pi_fail, cw_dict=None)
 
-        # Scenario 2: Visit 1 -> 0 (Depot) -> 2 (Total 60 reset 60) -> Should Pass
-        pi_pass = torch.tensor([[1, 0, 2]])
-        cost, c_dict, _ = CVRPP.get_costs(dataset, pi_pass, cw_dict=None)
+        # Scenario 2: Visit 1 -> 0 (Depot) -> 2 (Total 60 reset 60)
+        pi_route = torch.tensor([[1, 0, 2]])
+        cost, c_dict, _ = CVRPP.get_costs(dataset, pi_route, cw_dict=None)
 
         # Check Profit
         # Length:

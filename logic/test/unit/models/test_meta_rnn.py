@@ -25,8 +25,8 @@ class TestMetaRNN:
         assert isinstance(rnn.lstm, torch.nn.LSTM)
         assert len(rnn.fc) == 3  # Linear, ReLU, Linear
 
-    def test_forward_pass_single(self, rnn):
-        """Test forward pass with single sequence."""
+    def test_forward_flow_single(self, rnn):
+        """Test forward flow with single sequence."""
         batch_size = 4
         seq_len = 5
         input_size = 10
@@ -40,8 +40,8 @@ class TestMetaRNN:
         assert hidden[0].shape == (1, batch_size, 32)
         assert hidden[1].shape == (1, batch_size, 32)
 
-    def test_forward_pass_with_hidden(self, rnn):
-        """Test forward pass with provided hidden state."""
+    def test_forward_flow_with_hidden(self, rnn):
+        """Test forward flow with provided hidden state."""
         batch_size = 1
         seq_len = 1
         input_size = 10

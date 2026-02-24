@@ -218,6 +218,7 @@ def session_cleanup():
         Path("test_tracking"),
         Path("test_mlruns"),
         Path("test_logs"),
+        project_root / "assets" / "model_weights" / "vrpp10_riomaior_plastic" / "gamma1" / "amgat0",
         project_root / "assets" / "keys" / "testkey.pkl",
         project_root / "assets" / "keys" / "testkey.salt",
         project_root / "assets" / "output" / "2_days",

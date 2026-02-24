@@ -34,8 +34,3 @@ def test_ahvpl_forward(batch_size):
     # Check if actions are within range
     assert (out["actions"] >= 0).all()
     assert (out["actions"] < num_nodes).all()
-
-    print(f"AHVPL test passed for batch_size={batch_size}")
-
-if __name__ == "__main__":
-    test_ahvpl_forward(1)

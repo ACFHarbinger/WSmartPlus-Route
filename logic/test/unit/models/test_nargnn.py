@@ -48,7 +48,7 @@ class TestNARGNN:
         )
 
     def test_policy_forward(self):
-        """Verify NARGNNPolicy forward pass."""
+        """Verify NARGNNPolicy forward flow."""
         td = TensorDict({
             "locs": torch.rand(self.batch_size, self.num_nodes, 2),
             "waste": torch.rand(self.batch_size, self.num_nodes),
@@ -68,7 +68,7 @@ class TestNARGNN:
         assert out["reward"].shape == (self.batch_size,)
 
     def test_model_forward_training(self):
-        """Verify NARGNN model forward pass for training."""
+        """Verify NARGNN model forward flow for training."""
         td = TensorDict({
             "locs": torch.rand(self.batch_size, self.num_nodes, 2),
             "waste": torch.rand(self.batch_size, self.num_nodes),

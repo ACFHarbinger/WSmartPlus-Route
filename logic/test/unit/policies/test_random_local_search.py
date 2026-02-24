@@ -80,9 +80,3 @@ def test_random_local_search_policy_custom_probs():
 
     out = policy(td, env=MockEnv())
     assert out["actions"].shape[0] == batch_size
-
-
-if __name__ == "__main__":
-    test_random_local_search_policy_basic()
-    test_random_local_search_policy_custom_probs()
-    print("Tests passed locally!")

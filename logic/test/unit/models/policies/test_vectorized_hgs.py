@@ -30,7 +30,3 @@ def test_vectorized_hgs():
     assert "cost" in out
     assert out["actions"].shape[0] == batch_size
     assert out["reward"].shape[0] == batch_size
-    print("Vectorized HGS test passed!")
-
-if __name__ == "__main__":
-    test_vectorized_hgs()

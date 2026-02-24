@@ -45,14 +45,11 @@ class TestAttentionModelStructure:
         assert model.is_vrpp
         assert not model.is_wc
 
-    def test_forward_pass_structure(self, mock_problem, mock_factory):
-        """Test basic forward pass flow (mocked)."""
+    def test_forward_structure(self, mock_problem, mock_factory):
+        """Test basic forward flow (mocked)."""
         model = AttentionModel(embed_dim=128, hidden_dim=64, problem=mock_problem, component_factory=mock_factory)
 
         # Mock embedder output
-        # context_embedder(input) -> (embeddings, init_context)
-        # We cannot replace the module itself with MagicMock because PyTorch enforces nn.Module type
-        # So we mock the forward method
         model.context_embedder.forward = MagicMock(return_value=(torch.rand(1, 10, 128), None))
 
         # Mock decoder output
@@ -78,10 +75,7 @@ class TestAttentionModelStructure:
 
         # Run forward
         out = model(dummy_input)
-
         cost = out["cost"]
-        # pi might be there or not depending on return_pi default, usually False in forward unless specified
-        # But we didn't specify return_pi=True in the call model(dummy_input)
 
         assert cost.item() == 10.0
         # assert mock_problem.get_costs.called  # AttentionModel delegates cost calc to decoder

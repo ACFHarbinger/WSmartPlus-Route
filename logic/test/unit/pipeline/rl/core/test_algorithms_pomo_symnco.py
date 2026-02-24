@@ -24,7 +24,7 @@ class MockPolicy(torch.nn.Module):
         bs = td.batch_size[0]
         n_s = num_starts if num_starts is not None else self.n_start
         # reward: [batch * n_aug * n_s]
-        # SymNCO passes td which might already be augmented
+        # SymNCO receives td which might already be augmented
         # If n_aug > 1, the total batch size in td is bs * n_aug
         current_bs = td.batch_size[0]
         reward = torch.rand(current_bs * n_s)

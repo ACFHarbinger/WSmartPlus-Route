@@ -24,7 +24,7 @@ class TestGACEncoder:
         assert isinstance(model, nn.Module)
 
     def test_forward(self):
-        """Verifies forward pass."""
+        """Verifies forward flow."""
         embed_dim = 16
         model = GraphAttConvEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
@@ -40,7 +40,7 @@ class TestGATDecoder:
     """Tests for GraphAttentionDecoder."""
 
     def test_forward(self):
-        """Verifies forward pass."""
+        """Verifies forward flow."""
         embed_dim = 16
         model = GraphAttentionDecoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
@@ -59,7 +59,7 @@ class TestGATEncoder:
     """Tests for GraphAttentionEncoder."""
 
     def test_forward(self):
-        """Verifies forward pass."""
+        """Verifies forward flow."""
         embed_dim = 16
         model = GraphAttentionEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, n_groups=4)
         batch = 2
@@ -70,7 +70,7 @@ class TestGATEncoder:
         assert output.shape == (batch, graph_size, embed_dim)
 
     def test_hyper_forward(self):
-        """Verifies hyper-connection forward pass."""
+        """Verifies hyper-connection forward flow."""
         embed_dim = 16
         model = GraphAttentionEncoder(
             n_heads=2, embed_dim=embed_dim, n_layers=1, connection_type="static_hyper", expansion_rate=2
@@ -86,7 +86,7 @@ class TestMoEGraphAttentionEncoder:
     """Tests for MoEGraphAttentionEncoder."""
 
     def test_forward(self):
-        """Verifies MoE encoder forward pass."""
+        """Verifies MoE encoder forward flow."""
         embed_dim = 16
         model = MoEGraphAttentionEncoder(n_heads=2, embed_dim=embed_dim, n_layers=1, num_experts=2, k=1)
         batch = 2
@@ -100,7 +100,7 @@ class TestGCNEncoder:
     """Tests for GraphConvolutionEncoder."""
 
     def test_forward(self):
-        """Verifies forward pass."""
+        """Verifies forward flow."""
         hidden = 16
         model = GraphConvolutionEncoder(n_layers=1, feed_forward_hidden=hidden, n_groups=4)
         batch = 2
@@ -131,7 +131,7 @@ class TestMLPEncoder:
     """Tests for MLPEncoder."""
 
     def test_forward(self):
-        """Verifies MLP encoder forward pass."""
+        """Verifies MLP encoder forward flow."""
         dim = 16
         model = MLPEncoder(n_layers=1, feed_forward_hidden=dim)
         batch = 2
@@ -139,14 +139,6 @@ class TestMLPEncoder:
         x = torch.randn(batch, nodes, dim)
 
         output = model(x)
-        assert output.shape == (batch, nodes, dim)  # MLPEncoder returns [N, B, D] if input is [B, N, D]? Check source.
-        # Actually viewed source of test_subnets earlier said batch, nodes, dim.
-        # MLPEncoder source:
-        # def forward(self, x):
-        #   h = self.init_embed(x)
-        #   for layer in self.layers: h = layer(h)
-        # It should preserve shape. Let me check what passed before.
-        # Line 125 previously: assert output.shape == (batch, nodes, dim)
         assert output.shape == (batch, nodes, dim)
 
 

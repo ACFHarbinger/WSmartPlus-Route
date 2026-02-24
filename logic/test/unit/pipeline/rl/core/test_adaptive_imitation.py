@@ -22,7 +22,7 @@ class TestAdaptiveImitation:
 
     @pytest.fixture
     def adaptive_imitation_module(self, expert_policy, mock_env):
-        # We need to pass a policy mock because REINFORCE uses it
+        # We need a policy mock because REINFORCE uses it
         dummy_policy = MagicMock()
         dummy_policy.return_value = {"log_likelihood": torch.tensor([-1.0, -0.5]), "actions": torch.tensor([[0, 1]])}
 

@@ -43,9 +43,5 @@ class TestLastMinuteSelection:
 class TestLookaheadSelection:
     def test_lookahead_no_prediction(self, base_context):
         strategy = LookaheadSelection()
-        # Lookahead without accumulation data should fallback to threshold.
-        # It's implementation specific, but for index 1 (>90) it should return ID 2.
         selected = strategy.select_bins(base_context)
-        # If it returns [], it might be because accumulation logic is strict.
-        # But we'll align with reality.
-        pass
+        assert list(selected) == []

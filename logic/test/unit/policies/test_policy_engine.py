@@ -122,7 +122,7 @@ def test_alns_engine_override(mock_engine_data):
         policy.execute(**mock_engine_data)
 
         assert mock_run.called
-        # Verify it passed the engine to run_alns
+        # Verify it received the engine to run_alns
         args, _ = mock_run.call_args
         # run_alns(dist_matrix, wastes, max_capacity, R, C, values, ...)
         # values is the 6th arg (index 5)

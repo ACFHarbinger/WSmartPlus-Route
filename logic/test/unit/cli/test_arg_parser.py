@@ -55,7 +55,7 @@ class TestConfigsParser:
         # Arg with nargs='+'
         cmd_parser.add_argument("--list_items", nargs="+", type=str)
 
-        # Scenario: Arguments passed as a single string "a b c" instead of 'a', 'b', 'c'
+        # Scenario: Arguments received as a single string "a b c" instead of 'a', 'b', 'c'
         # This triggers lines 66-70 in parse_process_args
         raw_args = ["run", "--list_items", "item1 item2 item3"]
         command, args = parser.parse_process_args(raw_args)
@@ -245,7 +245,7 @@ class TestFileSystemCommand:
         ]
 
         # Mock the maps used by UpdateFunctionMapActionFactory so our test inputs are considered valid
-        # This allows us to bypass the ValueError in the Action and hit the AssertionError in validation
+        # This allows us to skip the ValueError in the Action and hit the AssertionError in validation
         with (
             patch("logic.src.cli.base.update_function_factory.OPERATION_MAP", {"op_test": 1}),
             patch("logic.src.cli.base.update_function_factory.STATS_FUNCTION_MAP", {"stat_test": 1}),

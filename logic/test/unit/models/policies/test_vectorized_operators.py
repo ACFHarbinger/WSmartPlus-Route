@@ -10,13 +10,6 @@ from logic.src.models.policies.operators import (
 @pytest.fixture
 def data():
     B, N = 5, 20
-    tours = torch.arange(1, N + 1).repeat(B, 1) # simple tours
-    # Add depot 0?
-    # logic seems to assume 0 is background/depot.
-    # Let's make tours like: [0, 1, 2, ..., N, 0] ?
-    # The operators assume "tours" as a sequence of nodes.
-    # vectorized_random_removal assumes > 0 are customers.
-
     tours = torch.zeros((B, N + 2), dtype=torch.long)
     tours[:, 1:-1] = torch.arange(1, N + 1)
 
@@ -33,10 +26,6 @@ def test_vectorized_random_removal(data):
 
     assert new_tours.shape == (B, N_total - n_remove)
     assert removed.shape == (B, n_remove)
-    # Check that removed nodes are not in new_tours?
-    # Since values are unique per row1..N, we can check.
-    # But checking efficiently in torch...
-    pass
 
 def test_vectorized_worst_removal(data):
     tours, dist_matrix = data
