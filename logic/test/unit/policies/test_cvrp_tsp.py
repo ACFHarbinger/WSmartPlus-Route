@@ -82,6 +82,6 @@ def test_cvrp_policy(mock_params):
         # 0->1, 1->2, 2->0, 0->3, 3->4, 4->5, 5->0
         assert cost == 7.0
 
-        # Verify n_vehicles passed
+        # Verify n_vehicles
         args, _ = mock_find.call_args
         assert args[4] == 2 # n_vehicles

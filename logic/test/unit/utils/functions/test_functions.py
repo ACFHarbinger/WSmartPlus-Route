@@ -63,7 +63,7 @@ class TestFunctions:
         """Test sample_many sampling loop."""
 
         def inner_func(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-            """Helper function simulating model forward pass for sampling test."""
+            """Helper function simulating model forward for sampling test."""
             batch_size = x.size(0)
             return torch.randn(batch_size, 5, 5), torch.randint(0, 5, (batch_size, 5))
 

@@ -116,7 +116,7 @@ class TestDeepACOPolicy:
         )
 
     def test_forward(self):
-        """Verify full policy forward pass."""
+        """Verify full policy forward flow."""
         td = TensorDict({
             "locs": torch.rand(self.batch_size, self.num_nodes, 2),
         }, batch_size=[self.batch_size])

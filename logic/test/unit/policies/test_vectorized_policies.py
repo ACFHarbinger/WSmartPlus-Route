@@ -228,7 +228,7 @@ class TestVectorizedPolicies:
 
     @pytest.mark.unit
     def test_alns_policy_forward(self):
-        """Test the ALNSPolicy wrapper forward pass."""
+        """Test the ALNSPolicy wrapper forward function."""
         from logic.src.models.policies.adaptive_large_neighborhood_search import (
             VectorizedALNS,
         )

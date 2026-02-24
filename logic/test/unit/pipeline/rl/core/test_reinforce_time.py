@@ -86,7 +86,7 @@ def test_time_optimized_reinforce():
     from logic.src.models.common.time_tracking_policy import TimeTrackingPolicy
     assert isinstance(module.policy, TimeTrackingPolicy)
 
-    # Run forward pass
+    # Run forward
     out = module.policy(td, env)
 
     assert "inference_time" in out

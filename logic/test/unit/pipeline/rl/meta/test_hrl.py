@@ -30,7 +30,7 @@ class TestHRLModule:
         m.values = []
         m.target_masks = []
 
-        # Mock forward pass for PPO phase
+        # Mock forward function for PPO phase
         m.return_value = (
             torch.randn(2, 10, 2),  # mask_logits
             torch.randn(2, 2),  # gate_logits

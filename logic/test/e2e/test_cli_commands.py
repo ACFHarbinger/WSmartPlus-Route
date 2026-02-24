@@ -64,10 +64,11 @@ def test_cli_gen_data_smoke(tmp_path, problem):
 
 
 @pytest.mark.e2e
-def test_cli_train_lightning_smoke():
+def test_cli_train_lightning_smoke(tmp_path):
     """Smoke test for training loop."""
     # Path to model weights that will be created during training
-    weights_dir = Path("assets/model_weights/vrpp10_riomaior_plastic/gamma1/amgat0")
+    weights_dir = tmp_path / "weights"
+    tracking_uri = tmp_path / "tracking"
 
     try:
         result = subprocess.run(
@@ -91,6 +92,8 @@ def test_cli_train_lightning_smoke():
                 "model.encoder.n_layers=1",
                 "model.encoder.n_heads=2",
                 "tracking.wandb_mode=offline",
+                f"tracking.wst_tracking_uri={tracking_uri}",
+                f"output_dir={weights_dir}",
                 "hpo.n_trials=0",  # Explicitly disable HPO
             ],
             capture_output=True,
@@ -179,10 +182,11 @@ def test_cli_test_sim_smoke():
 
 
 @pytest.mark.e2e
-def test_cli_train_lightning_ppo_smoke():
+def test_cli_train_lightning_ppo_smoke(tmp_path):
     """Smoke test for PPO training loop via CLI."""
     # Path to model weights that will be created during training
-    weights_dir = Path("assets/model_weights/vrpp10_riomaior_plastic/gamma1/amgat0")
+    weights_dir = tmp_path / "weights_ppo"
+    tracking_uri = tmp_path / "tracking_ppo"
 
     try:
         result = subprocess.run(
@@ -207,6 +211,8 @@ def test_cli_train_lightning_ppo_smoke():
                 "model.encoder.n_layers=1",
                 "model.encoder.n_heads=2",
                 "tracking.wandb_mode=offline",
+                f"tracking.wst_tracking_uri={tracking_uri}",
+                f"output_dir={weights_dir}",
                 "hpo.n_trials=0",  # Explicitly disable HPO
             ],
             capture_output=True,

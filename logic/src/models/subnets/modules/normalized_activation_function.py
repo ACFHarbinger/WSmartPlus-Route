@@ -77,4 +77,10 @@ class NormalizedActivationFunction(nn.Module):
         Returns:
             Output tensor.
         """
+        if isinstance(self.norm_activation, nn.AdaptiveLogSoftmaxWithLoss):
+            # If mask is provided, treat it as the target for loss calculation
+            if mask is not None:
+                return self.norm_activation(input, mask)
+            # Otherwise, return the log probabilities (inference behavior)
+            return self.norm_activation.log_prob(input)
         return self.norm_activation(input)
