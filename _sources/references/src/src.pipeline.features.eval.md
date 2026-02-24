@@ -26,6 +26,7 @@ src.pipeline.features.eval.zenml_eval_pipeline
 src.pipeline.features.eval.evaluate
 src.pipeline.features.eval.eval_base
 src.pipeline.features.eval.validation
+src.pipeline.features.eval.drift_detection
 src.pipeline.features.eval.engine
 ```
 

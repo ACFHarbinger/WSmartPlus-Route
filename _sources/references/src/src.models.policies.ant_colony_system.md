@@ -26,7 +26,7 @@
 `````{py:class} VectorizedACOPolicy(env_name: str, n_ants: int = 20, n_iterations: int = 50, alpha: float = 1.0, beta: float = 2.0, decay: float = 0.1, elitism: int = 1, q0: float = 0.9, min_pheromone: float = 0.01, **kwargs)
 :canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy
 
-Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`
+Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`, {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy
 ```

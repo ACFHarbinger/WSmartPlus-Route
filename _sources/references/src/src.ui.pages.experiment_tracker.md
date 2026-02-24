@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_run_detail
     :summary:
     ```
+* - {py:obj}`_render_params_table <src.ui.pages.experiment_tracker._render_params_table>`
+  - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_params_table
+    :summary:
+    ```
 * - {py:obj}`_render_metric_explorer <src.ui.pages.experiment_tracker._render_metric_explorer>`
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_metric_explorer
     :summary:
@@ -106,6 +110,13 @@
 :canonical: src.ui.pages.experiment_tracker._render_run_detail
 
 ```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_run_detail
+```
+````
+
+````{py:function} _render_params_table(params: typing.Dict[str, typing.Any]) -> None
+:canonical: src.ui.pages.experiment_tracker._render_params_table
+
+```{autodoc2-docstring} src.ui.pages.experiment_tracker._render_params_table
 ```
 ````
 

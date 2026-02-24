@@ -26,6 +26,8 @@
 `````{py:class} KSparseACOSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver
 
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
+
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver
 ```
 

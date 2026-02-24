@@ -38,6 +38,8 @@
 `````{py:class} ALNSSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.adaptive_large_neighborhood_search.params.ALNSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver
 
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
+
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver
 ```
 

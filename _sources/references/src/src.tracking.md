@@ -23,6 +23,15 @@ src.tracking.logging
 src.tracking.validation
 ```
 
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.tracking.viz_mixin
+```
+
 ## Package Contents
 
 ### Functions

@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.tracking.integrations.zenml_bridge
+src.tracking.integrations.gradient_tracker
 src.tracking.integrations.simulation
 src.tracking.integrations.lightning
 src.tracking.integrations.data

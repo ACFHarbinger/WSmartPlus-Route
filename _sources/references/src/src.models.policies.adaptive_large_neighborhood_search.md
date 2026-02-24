@@ -26,6 +26,8 @@
 `````{py:class} VectorizedALNS(dist_matrix, demands, vehicle_capacity, time_limit=1.0, device='cuda')
 :canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS
 
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
+
 ```{autodoc2-docstring} src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS
 ```
 

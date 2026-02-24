@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.ui.pages.experiment_tracker';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.ui.pages.data_explorer" href="src.ui.pages.data_explorer.html" />
+    <link rel="next" title="src.ui.pages.hpo_tracker" href="src.ui.pages.hpo_tracker.html" />
     <link rel="prev" title="src.ui.pages.data_explorer_charts" href="src.ui.pages.data_explorer_charts.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -264,6 +264,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -474,6 +475,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._STATUS_ICONS"><code class="docutils literal notranslate"><span class="pre">_STATUS_ICONS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_table"><code class="docutils literal notranslate"><span class="pre">_render_run_table()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_detail"><code class="docutils literal notranslate"><span class="pre">_render_run_detail()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_params_table"><code class="docutils literal notranslate"><span class="pre">_render_params_table()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_metric_explorer"><code class="docutils literal notranslate"><span class="pre">_render_metric_explorer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_comparison"><code class="docutils literal notranslate"><span class="pre">_render_run_comparison()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_artifacts"><code class="docutils literal notranslate"><span class="pre">_render_artifacts()</span></code></a></li>
@@ -520,25 +522,28 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_run_detail" title="src.ui.pages.experiment_tracker._render_run_detail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_detail</span></code></a></p></td>
 <td><p>Display params and tags for a single WSTracker run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_metric_explorer" title="src.ui.pages.experiment_tracker._render_metric_explorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_metric_explorer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_params_table" title="src.ui.pages.experiment_tracker._render_params_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_params_table</span></code></a></p></td>
+<td><p>Helper to render a clean parameters table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_metric_explorer" title="src.ui.pages.experiment_tracker._render_metric_explorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_metric_explorer</span></code></a></p></td>
 <td><p>Interactive metric explorer for a single WSTracker run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_run_comparison" title="src.ui.pages.experiment_tracker._render_run_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_comparison</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_run_comparison" title="src.ui.pages.experiment_tracker._render_run_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_comparison</span></code></a></p></td>
 <td><p>Compare WSTracker metrics across 2+ selected runs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_artifacts" title="src.ui.pages.experiment_tracker._render_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_artifacts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_artifacts" title="src.ui.pages.experiment_tracker._render_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_artifacts</span></code></a></p></td>
 <td><p>Display logged artifacts for a WSTracker run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_dataset_events" title="src.ui.pages.experiment_tracker._render_dataset_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_dataset_events</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_dataset_events" title="src.ui.pages.experiment_tracker._render_dataset_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_dataset_events</span></code></a></p></td>
 <td><p>Display dataset lifecycle events for a WSTracker run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._fmt_size" title="src.ui.pages.experiment_tracker._fmt_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fmt_size</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._fmt_size" title="src.ui.pages.experiment_tracker._fmt_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fmt_size</span></code></a></p></td>
 <td><p>Format byte count into a human-readable string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar" title="src.ui.pages.experiment_tracker._render_tracker_sidebar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tracker_sidebar</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar" title="src.ui.pages.experiment_tracker._render_tracker_sidebar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tracker_sidebar</span></code></a></p></td>
 <td><p>Render sidebar controls for the experiment tracker.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker.render_experiment_tracker" title="src.ui.pages.experiment_tracker.render_experiment_tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_experiment_tracker</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker.render_experiment_tracker" title="src.ui.pages.experiment_tracker.render_experiment_tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_experiment_tracker</span></code></a></p></td>
 <td><p>Render the Experiment Tracker mode.</p></td>
 </tr>
 </tbody>
@@ -586,6 +591,12 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_run_detail">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_run_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_run_detail" title="Link to this definition">#</a></dt>
 <dd><p>Display params and tags for a single WSTracker run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_params_table">
+<span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_params_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_params_table" title="Link to this definition">#</a></dt>
+<dd><p>Helper to render a clean parameters table.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -661,11 +672,11 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.ui.pages.data_explorer.html"
+       href="src.ui.pages.hpo_tracker.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.data_explorer</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.hpo_tracker</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -693,6 +704,7 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._STATUS_ICONS"><code class="docutils literal notranslate"><span class="pre">_STATUS_ICONS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_table"><code class="docutils literal notranslate"><span class="pre">_render_run_table()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_detail"><code class="docutils literal notranslate"><span class="pre">_render_run_detail()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_params_table"><code class="docutils literal notranslate"><span class="pre">_render_params_table()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_metric_explorer"><code class="docutils literal notranslate"><span class="pre">_render_metric_explorer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_run_comparison"><code class="docutils literal notranslate"><span class="pre">_render_run_comparison()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.pages.experiment_tracker._render_artifacts"><code class="docutils literal notranslate"><span class="pre">_render_artifacts()</span></code></a></li>

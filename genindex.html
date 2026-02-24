@@ -628,6 +628,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1110,6 +1111,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.tracking.validation.html#src.tracking.validation.__all__">(in module src.tracking.validation)</a>
 </li>
+        <li><a href="references/src/src.ui.components.html#src.ui.components.__all__">(in module src.ui.components)</a>
+</li>
         <li><a href="references/src/src.ui.pages.html#src.ui.pages.__all__">(in module src.ui.pages)</a>
 </li>
         <li><a href="references/src/src.ui.styles.html#src.ui.styles.__all__">(in module src.ui.styles)</a>
@@ -1204,6 +1207,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.tracking.logging.logger_writer.html#src.tracking.logging.logger_writer.LoggerWriter.__getattr__">(src.tracking.logging.logger_writer.LoggerWriter method)</a>
 </li>
+        <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.TrackedVectorizedALNS.__getattr__">(src.ui.components.alns_charts.TrackedVectorizedALNS method)</a>
+</li>
       </ul></li>
       <li><a href="references/src/src.data.datasets.pytorch.baseline_dataset.html#src.data.datasets.pytorch.baseline_dataset.BaselineDataset.__getitem__">__getitem__() (src.data.datasets.pytorch.baseline_dataset.BaselineDataset method)</a>
 
@@ -1245,6 +1250,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.pytorch.fast_td_dataset.html#src.data.datasets.pytorch.fast_td_dataset.FastTdDataset.__getitems__">(src.data.datasets.pytorch.fast_td_dataset.FastTdDataset method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector.__init_subclass__">__init_subclass__() (src.models.policies.selection.base.VectorizedSelector class method)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.__iter__">__iter__() (src.pipeline.simulations.day_context.SimulationDayContext method)</a>
 </li>
       <li><a href="references/src/src.data.datasets.pytorch.baseline_dataset.html#src.data.datasets.pytorch.baseline_dataset.BaselineDataset.__len__">__len__() (src.data.datasets.pytorch.baseline_dataset.BaselineDataset method)</a>
@@ -1271,6 +1278,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.simulation.sim_dataset.html#src.data.datasets.simulation.sim_dataset.SimulationDataset.__len__">(src.data.datasets.simulation.sim_dataset.SimulationDataset method)</a>
 </li>
         <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.__len__">(src.pipeline.simulations.day_context.SimulationDayContext method)</a>
+</li>
+        <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyStateRecorder.__len__">(src.tracking.viz_mixin.PolicyStateRecorder method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.policies.hybrid_genetic_search.individual.html#src.policies.hybrid_genetic_search.individual.Individual.__lt__">__lt__() (src.policies.hybrid_genetic_search.individual.Individual method)</a>
@@ -1321,15 +1330,21 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._add_bins_to_collect">_add_bins_to_collect() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_cut_and_price.ortools_engine.html#src.policies.branch_cut_and_price.ortools_engine._add_capacity_constraints">_add_capacity_constraints() (in module src.policies.branch_cut_and_price.ortools_engine)</a>
+</li>
       <li><a href="references/src/src.policies.branch_cut_and_price.gurobi_engine.html#src.policies.branch_cut_and_price.gurobi_engine._add_constraints">_add_constraints() (in module src.policies.branch_cut_and_price.gurobi_engine)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch._add_costs_metrics">_add_costs_metrics() (in module src.pipeline.rl.common.epoch)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.trainer.html#src.pipeline.rl.common.trainer.WSTrainer._add_default_callbacks">_add_default_callbacks() (src.pipeline.rl.common.trainer.WSTrainer method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_cut_and_price.ortools_engine.html#src.policies.branch_cut_and_price.ortools_engine._add_distance_constraints">_add_distance_constraints() (in module src.policies.branch_cut_and_price.ortools_engine)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch._add_efficiency_metric">_add_efficiency_metric() (in module src.pipeline.rl.common.epoch)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch._add_overflow_metrics">_add_overflow_metrics() (in module src.pipeline.rl.common.epoch)</a>
+</li>
+      <li><a href="references/src/src.policies.branch_cut_and_price.ortools_engine.html#src.policies.branch_cut_and_price.ortools_engine._add_prize_collecting_penalties">_add_prize_collecting_penalties() (in module src.policies.branch_cut_and_price.ortools_engine)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch._add_reward_metric">_add_reward_metric() (in module src.pipeline.rl.common.epoch)</a>
 </li>
@@ -1343,11 +1358,15 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.html#src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching">_alns_coaching() (src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver method)</a>
 </li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._ALNS_OP_NAMES">_ALNS_OP_NAMES (in module src.ui.components.policy_viz)</a>
+</li>
       <li><a href="references/src/src.pipeline.callbacks.pytorch.reptile.html#src.pipeline.callbacks.pytorch.reptile.ReptileCallback._alpha_scheduler">_alpha_scheduler() (src.pipeline.callbacks.pytorch.reptile.ReptileCallback method)</a>
 </li>
       <li><a href="references/src/src.tracking.logging.plotting.charts.html#src.tracking.logging.plotting.charts._annotate_plot">_annotate_plot() (in module src.tracking.logging.plotting.charts)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.td_learning.html#src.pipeline.rl.meta.td_learning.CostWeightManager._apply_change">_apply_change() (src.pipeline.rl.meta.td_learning.CostWeightManager method)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._apply_layout">_apply_layout() (in module src.ui.pages.hpo_tracker)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.test.config.html#src.pipeline.features.test.config._apply_mg_override">_apply_mg_override() (in module src.pipeline.features.test.config)</a>
 </li>
@@ -1373,6 +1392,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.core.hybrid_attention_model.hybrid_two_step_policy.html#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._assemble_removed_state">_assemble_removed_state() (src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy method)</a>
 </li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._bar_counts">_bar_counts() (in module src.ui.components.policy_viz)</a>
+</li>
       <li><a href="references/src/src.data.distributions.spatial_gaussian_mixture.html#src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture._batch_normalize_and_center">_batch_normalize_and_center() (src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture method)</a>
 </li>
       <li><a href="references/src/src.envs.tasks.base.html#src.envs.tasks.base.BaseProblem._batch_tensor">_batch_tensor() (src.envs.tasks.base.BaseProblem static method)</a>
@@ -1383,9 +1404,21 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.profiling.profiler.html#src.tracking.profiling.profiler._BUFFER_SIZE">_BUFFER_SIZE (in module src.tracking.profiling.profiler)</a>
 </li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._build_arc_data">_build_arc_data() (in module src.ui.components.maps.pydeck_animated)</a>
+</li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection._build_arg_parser">_build_arg_parser() (in module src.pipeline.features.eval.drift_detection)</a>
+
+      <ul>
+        <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._build_arg_parser">(in module src.utils.model.export_onnx)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.features.train.engine.html#src.pipeline.features.train.engine._build_callbacks">_build_callbacks() (in module src.pipeline.features.train.engine)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.solver.html#src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver._build_candidate_lists">_build_candidate_lists() (src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver method)</a>
+</li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts._build_chart">_build_chart() (in module src.ui.components.alns_charts)</a>
+</li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._build_column_data">_build_column_data() (in module src.ui.components.maps.pydeck_animated)</a>
 </li>
       <li><a href="references/src/src.policies.adapters.base_routing_policy.html#src.policies.adapters.base_routing_policy.BaseRoutingPolicy._build_config">_build_config() (src.policies.adapters.base_routing_policy.BaseRoutingPolicy class method)</a>
 </li>
@@ -1394,6 +1427,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._build_dataset_kwargs">_build_dataset_kwargs() (in module src.pipeline.features.eval.engine)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._build_eval_kwargs">_build_eval_kwargs() (in module src.pipeline.features.eval.engine)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._build_evaluator">_build_evaluator() (in module src.ui.pages.hpo_tracker)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.train.engine.html#src.pipeline.features.train.engine._build_experiment_name">_build_experiment_name() (in module src.pipeline.features.train.engine)</a>
 </li>
@@ -1449,6 +1484,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._calculate_next_collection_days">_calculate_next_collection_days() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_cut_and_price.ortools_engine.html#src.policies.branch_cut_and_price.ortools_engine._calculate_real_cost">_calculate_real_cost() (in module src.policies.branch_cut_and_price.ortools_engine)</a>
+</li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.html#src.policies.simulated_annealing_neighborhood_search.common.solution_initialization._categorize_bins_by_zone">_categorize_bins_by_zone() (in module src.policies.simulated_annealing_neighborhood_search.common.solution_initialization)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer_charts.html#src.ui.pages.data_explorer_charts._CHART_TYPES">_CHART_TYPES (in module src.ui.pages.data_explorer_charts)</a>
@@ -1463,6 +1500,8 @@ document.write(`
         <li><a href="references/src/src.envs.vrpp.html#src.envs.vrpp.VRPPEnv._check_done">(src.envs.vrpp.VRPPEnv method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection._check_evidently">_check_evidently() (in module src.pipeline.features.eval.drift_detection)</a>
+</li>
       <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args">_check_missing_args() (src.utils.docs.check_google_style.GoogleStyleValidator method)</a>
 </li>
       <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields">_check_returns_yields() (src.utils.docs.check_google_style.GoogleStyleValidator method)</a>
@@ -1621,6 +1660,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.styles.kpi.html#src.ui.styles.kpi._delta_css_class">_delta_css_class() (in module src.ui.styles.kpi)</a>
 </li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._detect_logger">_detect_logger() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
+</li>
       <li><a href="references/src/src.ui.pages.simulation_summary.html#src.ui.pages.simulation_summary._discover_output_dirs">_discover_output_dirs() (in module src.ui.pages.simulation_summary)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.test_suite.html#src.pipeline.simulations.wsmart_bin_analysis.test.test_suite.PyTestRunner._discover_test_modules">_discover_test_modules() (src.pipeline.simulations.wsmart_bin_analysis.test.test_suite.PyTestRunner method)</a>
@@ -1641,6 +1682,8 @@ document.write(`
         <li><a href="references/src/src.utils.output.excel_summary.html#src.utils.output.excel_summary._DIST_PATTERN">(in module src.utils.output.excel_summary)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._ema">_ema() (in module src.ui.components.policy_viz)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.test.engine.html#src.pipeline.features.test.engine._ensure_directories">_ensure_directories() (in module src.pipeline.features.test.engine)</a>
 </li>
       <li><a href="references/src/src.envs.tasks.base.html#src.envs.tasks.base.BaseProblem._ensure_required_keys">_ensure_required_keys() (src.envs.tasks.base.BaseProblem static method)</a>
@@ -1680,6 +1723,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.callbacks.simulation.policy_summary.html#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_engine">_extract_engine() (src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback method)</a>
 </li>
       <li><a href="references/src/src.tracking.integrations.data.html#src.tracking.integrations.data.RuntimeDataTracker._extract_fields">_extract_fields() (src.tracking.integrations.data.RuntimeDataTracker method)</a>
+</li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._extract_head">_extract_head() (in module src.ui.components.attention_viz)</a>
 </li>
       <li><a href="references/src/src.pipeline.callbacks.simulation.policy_summary.html#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_post_processing">_extract_post_processing() (src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback method)</a>
 </li>
@@ -1779,8 +1824,6 @@ document.write(`
         <li><a href="references/src/src.envs.generators.wcvrp.html#src.envs.generators.wcvrp.WCVRPGenerator._generate">(src.envs.generators.wcvrp.WCVRPGenerator method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.callbacks.pytorch.training_display.html#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._generate_chart">_generate_chart() (src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback method)</a>
 
       <ul>
@@ -1807,6 +1850,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.callbacks.simulation.simulation_display.html#src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._generate_metrics_table">(src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.envs.generators.vrpp.html#src.envs.generators.vrpp.VRPPGenerator._generate_prize">_generate_prize() (src.envs.generators.vrpp.VRPPGenerator method)</a>
 </li>
       <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._generate_problem_data">_generate_problem_data() (in module src.data.generators.datasets)</a>
@@ -1975,6 +2020,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.hpo.optuna_hpo.html#src.pipeline.rl.hpo.optuna_hpo.OptunaHPO._get_sampler">_get_sampler() (src.pipeline.rl.hpo.optuna_hpo.OptunaHPO method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_cut_and_price.ortools_engine.html#src.policies.branch_cut_and_price.ortools_engine._get_search_parameters">_get_search_parameters() (in module src.policies.branch_cut_and_price.ortools_engine)</a>
+</li>
       <li><a href="references/src/src.models.common.transductive.active_search.html#src.models.common.transductive.active_search.ActiveSearch._get_search_params">_get_search_params() (src.models.common.transductive.active_search.ActiveSearch method)</a>
 
       <ul>
@@ -2001,6 +2048,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.solver.html#src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver._global_pheromone_update">_global_pheromone_update() (src.policies.ant_colony_optimization.k_sparse_aco.solver.KSparseACOSolver method)</a>
 </li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._grad_norm">_grad_norm() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
+</li>
       <li><a href="references/src/src.models.core.glop.policy.html#src.models.core.glop.policy.GLOPPolicy._greedy_tsp_solver">_greedy_tsp_solver() (src.models.core.glop.policy.GLOPPolicy static method)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators.html#src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_2opt">_handle_2opt() (in module src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators)</a>
@@ -2022,6 +2071,8 @@ document.write(`
       <li><a href="references/src/src.tracking.database.cmd_stats.html#src.tracking.database.cmd_stats._human_duration">_human_duration() (in module src.tracking.database.cmd_stats)</a>
 </li>
       <li><a href="references/src/src.policies.lin_kernighan_helsgaun.html#src.policies.lin_kernighan_helsgaun._improve_tour">_improve_tour() (in module src.policies.lin_kernighan_helsgaun)</a>
+</li>
+      <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._infer_device">_infer_device() (in module src.utils.model.export_onnx)</a>
 </li>
       <li><a href="references/src/src.tracking.integrations.data.html#src.tracking.integrations.data.RuntimeDataTracker._infer_shape">_infer_shape() (src.tracking.integrations.data.RuntimeDataTracker static method)</a>
 </li>
@@ -2113,6 +2164,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._load_json_file">_load_json_file() (in module src.ui.pages.data_explorer)</a>
 </li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._load_jsonl">_load_jsonl() (in module src.ui.components.maps.pydeck_animated)</a>
+</li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._load_jsonl_file">_load_jsonl_file() (in module src.ui.pages.data_explorer)</a>
 </li>
       <li><a href="references/src/src.utils.model.checkpoint_utils.html#src.utils.model.checkpoint_utils._load_model_file">_load_model_file() (in module src.utils.model.checkpoint_utils)</a>
@@ -2122,6 +2175,8 @@ document.write(`
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._load_npz_file">_load_npz_file() (in module src.ui.pages.data_explorer)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.processor.mapper.html#src.pipeline.simulations.processor.mapper.SimulationDataMapper._load_profit_vars">_load_profit_vars() (src.pipeline.simulations.processor.mapper.SimulationDataMapper method)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._load_study">_load_study() (in module src.ui.pages.hpo_tracker)</a>
 </li>
       <li><a href="references/src/src.pipeline.callbacks.pytorch.reptile.html#src.pipeline.callbacks.pytorch.reptile.ReptileCallback._load_task">_load_task() (src.pipeline.callbacks.pytorch.reptile.ReptileCallback method)</a>
 </li>
@@ -2134,6 +2189,14 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.simulator.html#src.pipeline.simulations.simulator._lock">_lock (in module src.pipeline.simulations.simulator)</a>
 </li>
       <li><a href="references/src/src.tracking.integrations.data_lineage.html#src.tracking.integrations.data_lineage._log_cumulative_bins">_log_cumulative_bins() (in module src.tracking.integrations.data_lineage)</a>
+</li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection._log_drift_summary">_log_drift_summary() (in module src.pipeline.features.eval.drift_detection)</a>
+</li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._log_histograms_tensorboard">_log_histograms_tensorboard() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
+</li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._log_histograms_wandb">_log_histograms_wandb() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
+</li>
+      <li><a href="references/src/src.policies.adapters.policy_neural.html#src.policies.adapters.policy_neural.NeuralPolicy._log_params">_log_params() (src.policies.adapters.policy_neural.NeuralPolicy method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.processor.html#src.pipeline.simulations.processor._log_processor_event">_log_processor_event() (in module src.pipeline.simulations.processor)</a>
 </li>
@@ -2209,6 +2272,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.core.store.html#src.tracking.core.store.TrackingStore._now">_now() (src.tracking.core.store.TrackingStore static method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection._npz_to_dataframe">_npz_to_dataframe() (in module src.pipeline.features.eval.drift_detection)</a>
+</li>
       <li><a href="references/src/src.ui.pages.data_explorer_charts.html#src.ui.pages.data_explorer_charts._numeric_columns">_numeric_columns() (in module src.ui.pages.data_explorer_charts)</a>
 </li>
       <li><a href="references/src/src.models.subnets.decoders.gat.decoder.html#src.models.subnets.decoders.gat.decoder.DeepGATDecoder._one_to_many_logits">_one_to_many_logits() (src.models.subnets.decoders.gat.decoder.DeepGATDecoder method)</a>
@@ -2243,11 +2308,15 @@ document.write(`
         <li><a href="references/src/src.utils.output.excel_summary.html#src.utils.output.excel_summary._parse_policy_name">(in module src.utils.output.excel_summary)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.branch_cut_and_price.ortools_engine.html#src.policies.branch_cut_and_price.ortools_engine._parse_routes">_parse_routes() (in module src.policies.branch_cut_and_price.ortools_engine)</a>
+</li>
       <li><a href="references/src/src.data.datasets.simulation.pd_xlsx_dataset.html#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset._parse_sheet">_parse_sheet() (src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset static method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.actions.selection.html#src.pipeline.simulations.actions.selection.MustGoSelectionAction._parse_strategy_item">_parse_strategy_item() (src.pipeline.simulations.actions.selection.MustGoSelectionAction method)</a>
 </li>
       <li><a href="references/src/src.models.policies.iterated_local_search.html#src.models.policies.iterated_local_search.IteratedLocalSearchPolicy._perturb">_perturb() (src.models.policies.iterated_local_search.IteratedLocalSearchPolicy method)</a>
+</li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._PERTURB_COLORS">_PERTURB_COLORS (in module src.ui.components.policy_viz)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._pivot_json_data">_pivot_json_data() (in module src.ui.pages.data_explorer)</a>
 </li>
@@ -2319,6 +2388,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search.split.html#src.policies.hybrid_genetic_search.split.LinearSplit._reconstruct">_reconstruct() (src.policies.hybrid_genetic_search.split.LinearSplit method)</a>
 </li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._reconstruct_fill_levels">_reconstruct_fill_levels() (in module src.ui.components.maps.pydeck_animated)</a>
+</li>
       <li><a href="references/src/src.models.policies.shared.html#src.models.policies.shared._reconstruct_limited">_reconstruct_limited (in module src.models.policies.shared)</a>
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search.split.html#src.policies.hybrid_genetic_search.split.LinearSplit._reconstruct_limited">_reconstruct_limited() (src.policies.hybrid_genetic_search.split.LinearSplit method)</a>
@@ -2331,7 +2402,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.routes.html#src.policies.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings">_remove_invalid_crossings() (in module src.policies.simulated_annealing_neighborhood_search.common.routes)</a>
 </li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._render_aco">_render_aco() (in module src.ui.components.policy_viz)</a>
+</li>
       <li><a href="references/src/src.ui.pages.training_charts.html#src.ui.pages.training_charts._render_all_metrics_table">_render_all_metrics_table() (in module src.ui.pages.training_charts)</a>
+</li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._render_alns">_render_alns() (in module src.ui.components.policy_viz)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer_charts.html#src.ui.pages.data_explorer_charts._render_area_chart">_render_area_chart() (in module src.ui.pages.data_explorer_charts)</a>
 </li>
@@ -2340,6 +2415,8 @@ document.write(`
       <li><a href="references/src/src.ui.pages.benchmark.html#src.ui.pages.benchmark._render_benchmark_kpis">_render_benchmark_kpis() (in module src.ui.pages.benchmark)</a>
 </li>
       <li><a href="references/src/src.ui.pages.benchmark.html#src.ui.pages.benchmark._render_benchmark_metadata">_render_benchmark_metadata() (in module src.ui.pages.benchmark)</a>
+</li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._render_bipartite">_render_bipartite() (in module src.ui.components.attention_viz)</a>
 </li>
       <li><a href="references/src/src.ui.pages.benchmark.html#src.ui.pages.benchmark._render_comparison_charts">_render_comparison_charts() (in module src.ui.pages.benchmark)</a>
 </li>
@@ -2351,11 +2428,23 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.pages.experiment_tracker.html#src.ui.pages.experiment_tracker._render_dataset_events">_render_dataset_events() (in module src.ui.pages.experiment_tracker)</a>
 </li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._render_day_kpis">_render_day_kpis() (in module src.ui.components.maps.pydeck_animated)</a>
+</li>
       <li><a href="references/src/src.ui.pages.simulation_summary_sections.html#src.ui.pages.simulation_summary_sections._render_distribution_comparison">_render_distribution_comparison() (in module src.ui.pages.simulation_summary_sections)</a>
 </li>
       <li><a href="references/src/src.ui.pages.training_charts.html#src.ui.pages.training_charts._render_epoch_timing">_render_epoch_timing() (in module src.ui.pages.training_charts)</a>
 </li>
       <li><a href="references/src/src.ui.components.sidebar.html#src.ui.components.sidebar._render_filter_controls">_render_filter_controls() (in module src.ui.components.sidebar)</a>
+</li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._render_geo">_render_geo() (in module src.ui.components.attention_viz)</a>
+</li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._render_heatmap">_render_heatmap() (in module src.ui.components.attention_viz)</a>
+</li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._render_hgs">_render_hgs() (in module src.ui.components.policy_viz)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._render_hpo_kpis">_render_hpo_kpis() (in module src.ui.pages.hpo_tracker)</a>
+</li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._render_ils">_render_ils() (in module src.ui.components.policy_viz)</a>
 </li>
       <li><a href="references/src/src.ui.pages.simulation_summary_sections.html#src.ui.pages.simulation_summary_sections._render_kpi_overview">_render_kpi_overview() (in module src.ui.pages.simulation_summary_sections)</a>
 </li>
@@ -2379,6 +2468,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.pages.experiment_tracker_mlflow.html#src.ui.pages.experiment_tracker_mlflow._render_mlflow_explorer">_render_mlflow_explorer() (in module src.ui.pages.experiment_tracker_mlflow)</a>
 </li>
+      <li><a href="references/src/src.ui.pages.experiment_tracker.html#src.ui.pages.experiment_tracker._render_params_table">_render_params_table() (in module src.ui.pages.experiment_tracker)</a>
+</li>
       <li><a href="references/src/src.ui.pages.simulation_summary_sections.html#src.ui.pages.simulation_summary_sections._render_pareto">_render_pareto() (in module src.ui.pages.simulation_summary_sections)</a>
 </li>
       <li><a href="references/src/src.ui.pages.benchmark.html#src.ui.pages.benchmark._render_per_run_details">_render_per_run_details() (in module src.ui.pages.benchmark)</a>
@@ -2387,7 +2478,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.components.sidebar.html#src.ui.components.sidebar._render_playback_controls">_render_playback_controls() (in module src.ui.components.sidebar)</a>
 </li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts._render_prob_table">_render_prob_table() (in module src.ui.components.alns_charts)</a>
+</li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._render_raw_data_tab">_render_raw_data_tab() (in module src.ui.pages.data_explorer)</a>
+</li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._render_rls">_render_rls() (in module src.ui.components.policy_viz)</a>
 </li>
       <li><a href="references/src/src.ui.pages.experiment_tracker.html#src.ui.pages.experiment_tracker._render_run_comparison">_render_run_comparison() (in module src.ui.pages.experiment_tracker)</a>
 
@@ -2405,21 +2500,35 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer_charts.html#src.ui.pages.data_explorer_charts._render_selected_chart">_render_selected_chart() (in module src.ui.pages.data_explorer_charts)</a>
 </li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz._render_selector">_render_selector() (in module src.ui.components.policy_viz)</a>
+</li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._render_sidebar_controls">_render_sidebar_controls() (in module src.ui.pages.data_explorer)</a>
 
       <ul>
         <li><a href="references/src/src.ui.pages.simulation_summary.html#src.ui.pages.simulation_summary._render_sidebar_controls">(in module src.ui.pages.simulation_summary)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._render_static_bins">_render_static_bins() (in module src.ui.components.maps.pydeck_animated)</a>
+</li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._render_statistics_tab">_render_statistics_tab() (in module src.ui.pages.data_explorer)</a>
 </li>
       <li><a href="references/src/src.ui.pages.simulation_summary_sections.html#src.ui.pages.simulation_summary_sections._render_summary_table">_render_summary_table() (in module src.ui.pages.simulation_summary_sections)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._render_tab_contour">_render_tab_contour() (in module src.ui.pages.hpo_tracker)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._render_tab_history">_render_tab_history() (in module src.ui.pages.hpo_tracker)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._render_tab_importance">_render_tab_importance() (in module src.ui.pages.hpo_tracker)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._render_tab_parallel_coords">_render_tab_parallel_coords() (in module src.ui.pages.hpo_tracker)</a>
 </li>
       <li><a href="references/src/src.ui.pages.experiment_tracker.html#src.ui.pages.experiment_tracker._render_tracker_sidebar">_render_tracker_sidebar() (in module src.ui.pages.experiment_tracker)</a>
 </li>
       <li><a href="references/src/src.ui.pages.training_charts.html#src.ui.pages.training_charts._render_training_kpis">_render_training_kpis() (in module src.ui.pages.training_charts)</a>
 </li>
       <li><a href="references/src/src.ui.pages.training.html#src.ui.pages.training._render_training_progress">_render_training_progress() (in module src.ui.pages.training)</a>
+</li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._render_trial_table">_render_trial_table() (in module src.ui.pages.hpo_tracker)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer_charts.html#src.ui.pages.data_explorer_charts._render_visualization_tab">_render_visualization_tab() (in module src.ui.pages.data_explorer_charts)</a>
 </li>
@@ -2615,6 +2724,14 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.profiling.profiler.html#src.tracking.profiling.profiler.ExecutionProfiler._should_profile">_should_profile() (src.tracking.profiling.profiler.ExecutionProfiler method)</a>
 </li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._should_track">_should_track() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
+</li>
+      <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._SingleInputWrapper">_SingleInputWrapper (class in src.utils.model.export_onnx)</a>
+</li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.ALNSSnapshotTracker._snapshot">_snapshot() (src.ui.components.alns_charts.ALNSSnapshotTracker method)</a>
+</li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts._softmax_probs">_softmax_probs() (in module src.ui.components.alns_charts)</a>
+</li>
       <li><a href="references/src/src.tracking.logging.modules.storage.html#src.tracking.logging.modules.storage._sort_log">_sort_log() (in module src.tracking.logging.modules.storage)</a>
 </li>
       <li><a href="references/src/src.tracking.database.cmd_stats.html#src.tracking.database.cmd_stats._sparkbar">_sparkbar() (in module src.tracking.database.cmd_stats)</a>
@@ -2687,6 +2804,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.envs.base.batch.html#src.envs.base.batch.BatchMixin._sync_spec_shapes">_sync_spec_shapes() (src.envs.base.batch.BatchMixin method)</a>
 </li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._to_numpy">_to_numpy() (in module src.ui.components.attention_viz)</a>
+</li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._top_k_edges">_top_k_edges() (in module src.ui.components.attention_viz)</a>
+</li>
       <li><a href="references/src/src.utils.functions.lexsort.html#src.utils.functions.lexsort._torch_lexsort_cuda">_torch_lexsort_cuda() (in module src.utils.functions.lexsort)</a>
 </li>
       <li><a href="references/src/src.tracking.core.tracker.html#src.tracking.core.tracker._tracker">_tracker (in module src.tracking.core.tracker)</a>
@@ -2696,6 +2817,8 @@ document.write(`
       <li><a href="references/src/src.policies.lin_kernighan_helsgaun.html#src.policies.lin_kernighan_helsgaun._try_3opt_move">_try_3opt_move() (in module src.policies.lin_kernighan_helsgaun)</a>
 </li>
       <li><a href="references/src/src.policies.operators.exchange.ejection.html#src.policies.operators.exchange.ejection._try_insert_with_chain">_try_insert_with_chain() (in module src.policies.operators.exchange.ejection)</a>
+</li>
+      <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._try_simplify">_try_simplify() (in module src.utils.model.export_onnx)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._try_vrpp_split">_try_vrpp_split() (in module src.ui.pages.data_explorer)</a>
 </li>
@@ -2747,11 +2870,17 @@ document.write(`
         <li><a href="references/src/src.policies.neural_agent.simulation.html#src.policies.neural_agent.simulation.SimulationMixin._validate_must_go">(src.policies.neural_agent.simulation.SimulationMixin method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._validate_onnx">_validate_onnx() (in module src.utils.model.export_onnx)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.test.engine.html#src.pipeline.features.test.engine._validate_sim_config">_validate_sim_config() (in module src.pipeline.features.test.engine)</a>
 </li>
       <li><a href="references/src/src.models.policies.shared.html#src.models.policies.shared._vectorized_split_limited">_vectorized_split_limited (in module src.models.policies.shared)</a>
 </li>
       <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._verify_and_save">_verify_and_save() (in module src.data.generators.datasets)</a>
+</li>
+      <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyVizMixin._viz">_viz (src.tracking.viz_mixin.PolicyVizMixin property)</a>
+</li>
+      <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyVizMixin._viz_record">_viz_record() (src.tracking.viz_mixin.PolicyVizMixin method)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.eval.zenml_eval_pipeline.html#src.pipeline.features.eval.zenml_eval_pipeline._ZENML_AVAILABLE">_ZENML_AVAILABLE (in module src.pipeline.features.eval.zenml_eval_pipeline)</a>
 
@@ -2917,6 +3046,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.advance_timestep">advance_timestep() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation method)</a>
 </li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.ALNSSnapshotTracker.after">after() (src.ui.components.alns_charts.ALNSSnapshotTracker method)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.hooks.html#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.after_day">after_day() (src.pipeline.simulations.checkpoints.hooks.CheckpointHook method)</a>
 </li>
       <li><a href="references/src/src.models.subnets.modules.efficient_graph_convolution.html#src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.aggregate">aggregate() (src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution method)</a>
@@ -2994,6 +3125,8 @@ document.write(`
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.params.html#src.policies.adaptive_large_neighborhood_search.params.ALNSParams">ALNSParams (class in src.policies.adaptive_large_neighborhood_search.params)</a>
 </li>
       <li><a href="references/src/src.policies.adapters.policy_alns.html#src.policies.adapters.policy_alns.ALNSPolicy">ALNSPolicy (class in src.policies.adapters.policy_alns)</a>
+</li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.ALNSSnapshotTracker">ALNSSnapshotTracker (class in src.ui.components.alns_charts)</a>
 </li>
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver">ALNSSolver (class in src.policies.adaptive_large_neighborhood_search.alns)</a>
 </li>
@@ -3175,9 +3308,11 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.configs.models.decoding.html#src.configs.models.decoding.DecodingConfig.beam_width">beam_width (src.configs.models.decoding.DecodingConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.utils.decoding.beam_search.html#src.utils.decoding.beam_search.BeamSearch">BeamSearch (class in src.utils.decoding.beam_search)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="references/src/src.utils.decoding.beam_search.html#src.utils.decoding.beam_search.BeamSearch">BeamSearch (class in src.utils.decoding.beam_search)</a>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.ALNSSnapshotTracker.before">before() (src.ui.components.alns_charts.ALNSSnapshotTracker method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.hooks.html#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.before_day">before_day() (src.pipeline.simulations.checkpoints.hooks.CheckpointHook method)</a>
 </li>
@@ -4387,6 +4522,10 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.exponential.html#src.pipeline.rl.common.baselines.exponential.ExponentialBaseline">ExponentialBaseline (class in src.pipeline.rl.common.baselines.exponential)</a>
 </li>
+      <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx.export_encoder_to_onnx">export_encoder_to_onnx() (in module src.utils.model.export_onnx)</a>
+</li>
+      <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx.export_policy_components">export_policy_components() (in module src.utils.model.export_onnx)</a>
+</li>
       <li><a href="references/src/src.tracking.database.commands.html#src.tracking.database.commands.export_run">export_run() (in module src.tracking.database.commands)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.extra_output">extra_output (src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
@@ -4820,6 +4959,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.tracking.logging.visualization.helpers.html#src.tracking.logging.visualization.helpers.MyModelWrapper.forward">(src.tracking.logging.visualization.helpers.MyModelWrapper method)</a>
 </li>
+        <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._SingleInputWrapper.forward">(src.utils.model.export_onnx._SingleInputWrapper method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -4923,6 +5064,8 @@ document.write(`
         <li><a href="references/src/src.policies.ant_colony_optimization.k_sparse_aco.pheromones.html#src.policies.ant_colony_optimization.k_sparse_aco.pheromones.SparsePheromoneTau.get">(src.policies.ant_colony_optimization.k_sparse_aco.pheromones.SparsePheromoneTau method)</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.registry.html#src.policies.other.post_processing.registry.PostProcessorRegistry.get">(src.policies.other.post_processing.registry.PostProcessorRegistry class method)</a>
+</li>
+        <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyStateRecorder.get">(src.tracking.viz_mixin.PolicyStateRecorder method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.html#src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.get_2opt_neighbors">get_2opt_neighbors() (in module src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods)</a>
@@ -5321,6 +5464,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.models.policies.selection.factory.html#src.models.policies.selection.factory.get_vectorized_selector">get_vectorized_selector() (in module src.models.policies.selection.factory)</a>
 </li>
+      <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyVizMixin.get_viz_data">get_viz_data() (src.tracking.viz_mixin.PolicyVizMixin method)</a>
+</li>
       <li><a href="references/src/src.models.meta.hypernet.optimizer.html#src.models.meta.hypernet.optimizer.HyperNetworkOptimizer.get_weights">get_weights() (src.models.meta.hypernet.optimizer.HyperNetworkOptimizer method)</a>
 </li>
       <li><a href="references/src/src.models.core.gfacs.model.html#src.models.core.gfacs.model.GFACS">GFACS (class in src.models.core.gfacs.model)</a>
@@ -5350,6 +5495,8 @@ document.write(`
       <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.GoogleStyleValidator">GoogleStyleValidator (class in src.utils.docs.check_google_style)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.gplic_file">gplic_file (src.configs.tasks.sim.SimConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback">GradientTrackerCallback (class in src.tracking.integrations.gradient_tracker)</a>
 </li>
       <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.graph">graph (src.configs.envs.env.EnvConfig attribute)</a>
 
@@ -5845,6 +5992,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.simulation.pd_xlsx_dataset.html#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.load">(src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset static method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection.load_and_flatten">load_and_flatten() (in module src.pipeline.features.eval.drift_detection)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.repository.html#src.pipeline.simulations.repository.load_area_and_waste_type_params">load_area_and_waste_type_params() (in module src.pipeline.simulations.repository)</a>
 
       <ul>
@@ -5908,6 +6057,8 @@ document.write(`
       <li><a href="references/src/src.ui.services.data_loader.html#src.ui.services.data_loader.load_multiple_training_runs">load_multiple_training_runs() (in module src.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.configs.models.model.html#src.configs.models.model.ModelConfig.load_path">load_path (src.configs.models.model.ModelConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.ui.services.data_loader.html#src.ui.services.data_loader.load_policy_params">load_policy_params() (in module src.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.utils.model.problem_factory.html#src.utils.model.problem_factory.load_problem">load_problem() (in module src.utils.model.problem_factory)</a>
 </li>
@@ -5996,7 +6147,11 @@ document.write(`
       <li><a href="references/src/src.data.generators.transforms.html#src.data.generators.transforms.log">log (in module src.data.generators.transforms)</a>
 
       <ul>
+        <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection.log">(in module src.pipeline.features.eval.drift_detection)</a>
+</li>
         <li><a href="references/src/src.pipeline.features.eval.evaluate.html#src.pipeline.features.eval.evaluate.log">(in module src.pipeline.features.eval.evaluate)</a>
+</li>
+        <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx.log">(in module src.utils.model.export_onnx)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.configs.tracking.html#src.configs.tracking.TrackingConfig.log_activations">log_activations (src.configs.tracking.TrackingConfig attribute)</a>
@@ -6235,9 +6390,11 @@ document.write(`
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="references/src/src.tracking.database.commands.html#src.tracking.database.commands.main">main() (in module src.tracking.database.commands)</a>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection.main">main() (in module src.pipeline.features.eval.drift_detection)</a>
 
       <ul>
+        <li><a href="references/src/src.tracking.database.commands.html#src.tracking.database.commands.main">(in module src.tracking.database.commands)</a>
+</li>
         <li><a href="references/src/src.tracking.logging.visualization.html#src.tracking.logging.visualization.main">(in module src.tracking.logging.visualization)</a>
 </li>
         <li><a href="references/src/src.ui.app.html#src.ui.app.main">(in module src.ui.app)</a>
@@ -6247,6 +6404,8 @@ document.write(`
         <li><a href="references/src/src.utils.docs.add_docstrings_batch.html#src.utils.docs.add_docstrings_batch.main">(in module src.utils.docs.add_docstrings_batch)</a>
 </li>
         <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.main">(in module src.utils.docs.check_google_style)</a>
+</li>
+        <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx.main">(in module src.utils.model.export_onnx)</a>
 </li>
         <li><a href="references/src/src.utils.output.excel_summary.html#src.utils.output.excel_summary.main">(in module src.utils.output.excel_summary)</a>
 </li>
@@ -7415,6 +7574,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.features.eval.html#module-src.pipeline.features.eval">src.pipeline.features.eval</a>
 </li>
+        <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#module-src.pipeline.features.eval.drift_detection">src.pipeline.features.eval.drift_detection</a>
+</li>
         <li><a href="references/src/src.pipeline.features.eval.engine.html#module-src.pipeline.features.eval.engine">src.pipeline.features.eval.engine</a>
 </li>
         <li><a href="references/src/src.pipeline.features.eval.eval_base.html#module-src.pipeline.features.eval.eval_base">src.pipeline.features.eval.eval_base</a>
@@ -8111,6 +8272,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.tracking.integrations.filesystem.html#module-src.tracking.integrations.filesystem">src.tracking.integrations.filesystem</a>
 </li>
+        <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#module-src.tracking.integrations.gradient_tracker">src.tracking.integrations.gradient_tracker</a>
+</li>
         <li><a href="references/src/src.tracking.integrations.lightning.html#module-src.tracking.integrations.lightning">src.tracking.integrations.lightning</a>
 </li>
         <li><a href="references/src/src.tracking.integrations.mlflow_bridge.html#module-src.tracking.integrations.mlflow_bridge">src.tracking.integrations.mlflow_bridge</a>
@@ -8185,11 +8348,17 @@ document.write(`
 </li>
         <li><a href="references/src/src.tracking.validation.hashing.html#module-src.tracking.validation.hashing">src.tracking.validation.hashing</a>
 </li>
+        <li><a href="references/src/src.tracking.viz_mixin.html#module-src.tracking.viz_mixin">src.tracking.viz_mixin</a>
+</li>
         <li><a href="references/src/src.ui.html#module-src.ui">src.ui</a>
 </li>
         <li><a href="references/src/src.ui.app.html#module-src.ui.app">src.ui.app</a>
 </li>
         <li><a href="references/src/src.ui.components.html#module-src.ui.components">src.ui.components</a>
+</li>
+        <li><a href="references/src/src.ui.components.alns_charts.html#module-src.ui.components.alns_charts">src.ui.components.alns_charts</a>
+</li>
+        <li><a href="references/src/src.ui.components.attention_viz.html#module-src.ui.components.attention_viz">src.ui.components.attention_viz</a>
 </li>
         <li><a href="references/src/src.ui.components.benchmark_charts.html#module-src.ui.components.benchmark_charts">src.ui.components.benchmark_charts</a>
 </li>
@@ -8203,7 +8372,11 @@ document.write(`
 </li>
         <li><a href="references/src/src.ui.components.maps.multi_route.html#module-src.ui.components.maps.multi_route">src.ui.components.maps.multi_route</a>
 </li>
+        <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#module-src.ui.components.maps.pydeck_animated">src.ui.components.maps.pydeck_animated</a>
+</li>
         <li><a href="references/src/src.ui.components.maps.simulation.html#module-src.ui.components.maps.simulation">src.ui.components.maps.simulation</a>
+</li>
+        <li><a href="references/src/src.ui.components.policy_viz.html#module-src.ui.components.policy_viz">src.ui.components.policy_viz</a>
 </li>
         <li><a href="references/src/src.ui.components.sidebar.html#module-src.ui.components.sidebar">src.ui.components.sidebar</a>
 </li>
@@ -8220,6 +8393,8 @@ document.write(`
         <li><a href="references/src/src.ui.pages.experiment_tracker_mlflow.html#module-src.ui.pages.experiment_tracker_mlflow">src.ui.pages.experiment_tracker_mlflow</a>
 </li>
         <li><a href="references/src/src.ui.pages.experiment_tracker_zenml.html#module-src.ui.pages.experiment_tracker_zenml">src.ui.pages.experiment_tracker_zenml</a>
+</li>
+        <li><a href="references/src/src.ui.pages.hpo_tracker.html#module-src.ui.pages.hpo_tracker">src.ui.pages.hpo_tracker</a>
 </li>
         <li><a href="references/src/src.ui.pages.simulation.html#module-src.ui.pages.simulation">src.ui.pages.simulation</a>
 </li>
@@ -8374,6 +8549,8 @@ document.write(`
         <li><a href="references/src/src.utils.model.checkpoint_utils.html#module-src.utils.model.checkpoint_utils">src.utils.model.checkpoint_utils</a>
 </li>
         <li><a href="references/src/src.utils.model.config_utils.html#module-src.utils.model.config_utils">src.utils.model.config_utils</a>
+</li>
+        <li><a href="references/src/src.utils.model.export_onnx.html#module-src.utils.model.export_onnx">src.utils.model.export_onnx</a>
 </li>
         <li><a href="references/src/src.utils.model.loader.html#module-src.utils.model.loader">src.utils.model.loader</a>
 </li>
@@ -8944,6 +9121,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.policies.vrpp.html#src.configs.policies.vrpp.VRPPConfig.Omega">Omega (src.configs.policies.vrpp.VRPPConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback.on_after_backward">on_after_backward() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
+</li>
       <li><a href="references/src/src.tracking.integrations.data.html#src.tracking.integrations.data.RuntimeDataTracker.on_augment">on_augment() (src.tracking.integrations.data.RuntimeDataTracker method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.core.reinforce.html#src.pipeline.rl.core.reinforce.REINFORCE.on_before_optimizer_step">on_before_optimizer_step() (src.pipeline.rl.core.reinforce.REINFORCE method)</a>
@@ -8978,6 +9157,8 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.callbacks.pytorch.training_display.html#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_batch_end">(src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback method)</a>
+</li>
+        <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback.on_train_batch_end">(src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
 </li>
         <li><a href="references/src/src.tracking.integrations.lightning.html#src.tracking.integrations.lightning.TrackingCallback.on_train_batch_end">(src.tracking.integrations.lightning.TrackingCallback method)</a>
 </li>
@@ -9290,7 +9471,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.adapters.registry.html#src.policies.adapters.registry.PolicyRegistry">PolicyRegistry (class in src.policies.adapters.registry)</a>
 </li>
+      <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyStateRecorder">PolicyStateRecorder (class in src.tracking.viz_mixin)</a>
+</li>
       <li><a href="references/src/src.pipeline.callbacks.simulation.policy_summary.html#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback">PolicySummaryCallback (class in src.pipeline.callbacks.simulation.policy_summary)</a>
+</li>
+      <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyVizMixin">PolicyVizMixin (class in src.tracking.viz_mixin)</a>
 </li>
       <li><a href="references/src/src.models.core.polynet.model.html#src.models.core.polynet.model.PolyNet">PolyNet (class in src.models.core.polynet.model)</a>
 </li>
@@ -9326,6 +9511,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy.post_decoder_hook">post_decoder_hook() (src.utils.decoding.base.DecodingStrategy method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.html#src.configs.Config.post_processing">post_processing (src.configs.Config attribute)</a>
 
       <ul>
@@ -9358,8 +9545,6 @@ document.write(`
         <li><a href="references/src/src.configs.policies.vrpp.html#src.configs.policies.vrpp.VRPPConfig.post_processing">(src.configs.policies.vrpp.VRPPConfig attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.post_processing_epochs">post_processing_epochs (src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.actions.post_process.html#src.pipeline.simulations.actions.post_process.PostProcessAction">PostProcessAction (class in src.pipeline.simulations.actions.post_process)</a>
@@ -9595,7 +9780,11 @@ document.write(`
       <li><a href="references/src/src.ui.pages.simulation.map.html#src.ui.pages.simulation.map.reconstruct_tour">reconstruct_tour() (in module src.ui.pages.simulation.map)</a>
 </li>
       <li><a href="references/src/src.tracking.profiling.throughput.html#src.tracking.profiling.throughput.ThroughputTracker.record">record() (src.tracking.profiling.throughput.ThroughputTracker method)</a>
+
+      <ul>
+        <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyStateRecorder.record">(src.tracking.viz_mixin.PolicyStateRecorder method)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.models.subnets.decoders.ptr.decoder.html#src.models.subnets.decoders.ptr.decoder.PointerDecoder.recurrence">recurrence() (src.models.subnets.decoders.ptr.decoder.PointerDecoder method)</a>
 </li>
       <li><a href="references/src/src.utils.validation.check_multi_classes.html#src.utils.validation.check_multi_classes.RED">RED (in module src.utils.validation.check_multi_classes)</a>
@@ -9666,6 +9855,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.components.sidebar.html#src.ui.components.sidebar.render_about_section">render_about_section() (in module src.ui.components.sidebar)</a>
 </li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.render_alns_operator_charts">render_alns_operator_charts() (in module src.ui.components.alns_charts)</a>
+</li>
+      <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz.render_attention_viz">render_attention_viz() (in module src.ui.components.attention_viz)</a>
+</li>
       <li><a href="references/src/src.ui.components.sidebar.html#src.ui.components.sidebar.render_auto_refresh_toggle">render_auto_refresh_toggle() (in module src.ui.components.sidebar)</a>
 </li>
       <li><a href="references/src/src.ui.pages.benchmark.html#src.ui.pages.benchmark.render_benchmark_analysis">render_benchmark_analysis() (in module src.ui.pages.benchmark)</a>
@@ -9684,6 +9877,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.pages.experiment_tracker.html#src.ui.pages.experiment_tracker.render_experiment_tracker">render_experiment_tracker() (in module src.ui.pages.experiment_tracker)</a>
 </li>
+      <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker.render_hpo_tracker">render_hpo_tracker() (in module src.ui.pages.hpo_tracker)</a>
+</li>
       <li><a href="references/src/src.ui.pages.simulation.kpi.html#src.ui.pages.simulation.kpi.render_kpi_dashboard">render_kpi_dashboard() (in module src.ui.pages.simulation.kpi)</a>
 </li>
       <li><a href="references/src/src.ui.pages.simulation.map.html#src.ui.pages.simulation.map.render_map_view">render_map_view() (in module src.ui.pages.simulation.map)</a>
@@ -9695,6 +9890,10 @@ document.write(`
       <li><a href="references/src/src.ui.pages.simulation.charts.html#src.ui.pages.simulation.charts.render_policy_comparison">render_policy_comparison() (in module src.ui.pages.simulation.charts)</a>
 </li>
       <li><a href="references/src/src.ui.pages.simulation.kpi.html#src.ui.pages.simulation.kpi.render_policy_info">render_policy_info() (in module src.ui.pages.simulation.kpi)</a>
+</li>
+      <li><a href="references/src/src.ui.components.policy_viz.html#src.ui.components.policy_viz.render_policy_viz">render_policy_viz() (in module src.ui.components.policy_viz)</a>
+</li>
+      <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated.render_pydeck_animated_map">render_pydeck_animated_map() (in module src.ui.components.maps.pydeck_animated)</a>
 </li>
       <li><a href="references/src/src.ui.pages.simulation.tour.html#src.ui.pages.simulation.tour.render_raw_data_view">render_raw_data_view() (in module src.ui.pages.simulation.tour)</a>
 </li>
@@ -9718,10 +9917,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.models.activation_function.html#src.configs.models.activation_function.ActivationConfig.replacement_value">replacement_value (src.configs.models.activation_function.ActivationConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.pipeline.callbacks.pytorch.reptile.html#src.pipeline.callbacks.pytorch.reptile.ReptileCallback">ReptileCallback (class in src.pipeline.callbacks.pytorch.reptile)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.pipeline.callbacks.pytorch.reptile.html#src.pipeline.callbacks.pytorch.reptile.ReptileCallback">ReptileCallback (class in src.pipeline.callbacks.pytorch.reptile)</a>
+</li>
       <li><a href="references/src/src.utils.validation.check_multi_classes.html#src.utils.validation.check_multi_classes.RESET">RESET (in module src.utils.validation.check_multi_classes)</a>
 </li>
       <li><a href="references/src/src.envs.base.ops.html#src.envs.base.ops.OpsMixin.reset">reset() (src.envs.base.ops.OpsMixin method)</a>
@@ -9733,6 +9932,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.tracking.profiling.throughput.html#src.tracking.profiling.throughput.ThroughputTracker.reset">(src.tracking.profiling.throughput.ThroughputTracker method)</a>
 </li>
+        <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyStateRecorder.reset">(src.tracking.viz_mixin.PolicyStateRecorder method)</a>
+</li>
         <li><a href="references/src/src.utils.decoding.evaluate.html#src.utils.decoding.evaluate.Evaluate.reset">(src.utils.decoding.evaluate.Evaluate method)</a>
 </li>
       </ul></li>
@@ -9743,6 +9944,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation">reset_simulation() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation method)</a>
+</li>
+      <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyVizMixin.reset_viz">reset_viz() (src.tracking.viz_mixin.PolicyVizMixin method)</a>
 </li>
       <li><a href="references/src/src.tracking.hooks.weight_hooks.html#src.tracking.hooks.weight_hooks.restore_optimizer_step">restore_optimizer_step() (in module src.tracking.hooks.weight_hooks)</a>
 </li>
@@ -9866,7 +10069,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.branch_cut_and_price.vrpy_engine.html#src.policies.branch_cut_and_price.vrpy_engine.run_bcp_vrpy">run_bcp_vrpy() (in module src.policies.branch_cut_and_price.vrpy_engine)</a>
 </li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection.run_column_drift_suite">run_column_drift_suite() (in module src.pipeline.features.eval.drift_detection)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.run_day">run_day() (in module src.pipeline.simulations.day_context)</a>
+</li>
+      <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection.run_drift_detection">run_drift_detection() (in module src.pipeline.features.eval.drift_detection)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.eval.html#src.pipeline.features.eval.run_evaluate_model">run_evaluate_model() (in module src.pipeline.features.eval)</a>
 </li>
@@ -10346,6 +10553,8 @@ document.write(`
         <li><a href="references/src/src.policies.hybrid_volleyball_premier_league.hvpl.html#src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver.solve">(src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.slack_induction_by_string_removal.solver.html#src.policies.slack_induction_by_string_removal.solver.SISRSolver.solve">(src.policies.slack_induction_by_string_removal.solver.SISRSolver method)</a>
+</li>
+        <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.TrackedVectorizedALNS.solve">(src.ui.components.alns_charts.TrackedVectorizedALNS method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.policies.lin_kernighan_helsgaun.html#src.policies.lin_kernighan_helsgaun.solve_lkh">solve_lkh() (in module src.policies.lin_kernighan_helsgaun)</a>
@@ -13491,14 +13700,19 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.pipeline.features.eval.drift_detection
+
+      <ul>
+        <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#module-src.pipeline.features.eval.drift_detection">module</a>
+</li>
+      </ul></li>
+      <li>
     src.pipeline.features.eval.engine
 
       <ul>
         <li><a href="references/src/src.pipeline.features.eval.engine.html#module-src.pipeline.features.eval.engine">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.features.eval.eval_base
 
@@ -13520,6 +13734,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.features.eval.evaluators.html#module-src.pipeline.features.eval.evaluators">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.features.eval.evaluators.augmentation
 
@@ -15929,6 +16145,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.tracking.integrations.gradient_tracker
+
+      <ul>
+        <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#module-src.tracking.integrations.gradient_tracker">module</a>
+</li>
+      </ul></li>
+      <li>
     src.tracking.integrations.lightning
 
       <ul>
@@ -16188,6 +16411,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.tracking.viz_mixin
+
+      <ul>
+        <li><a href="references/src/src.tracking.viz_mixin.html#module-src.tracking.viz_mixin">module</a>
+</li>
+      </ul></li>
+      <li>
     src.ui
 
       <ul>
@@ -16206,6 +16436,20 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.ui.components.html#module-src.ui.components">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.ui.components.alns_charts
+
+      <ul>
+        <li><a href="references/src/src.ui.components.alns_charts.html#module-src.ui.components.alns_charts">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.ui.components.attention_viz
+
+      <ul>
+        <li><a href="references/src/src.ui.components.attention_viz.html#module-src.ui.components.attention_viz">module</a>
 </li>
       </ul></li>
       <li>
@@ -16251,10 +16495,24 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.ui.components.maps.pydeck_animated
+
+      <ul>
+        <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#module-src.ui.components.maps.pydeck_animated">module</a>
+</li>
+      </ul></li>
+      <li>
     src.ui.components.maps.simulation
 
       <ul>
         <li><a href="references/src/src.ui.components.maps.simulation.html#module-src.ui.components.maps.simulation">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.ui.components.policy_viz
+
+      <ul>
+        <li><a href="references/src/src.ui.components.policy_viz.html#module-src.ui.components.policy_viz">module</a>
 </li>
       </ul></li>
       <li>
@@ -16311,6 +16569,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.ui.pages.experiment_tracker_zenml.html#module-src.ui.pages.experiment_tracker_zenml">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.ui.pages.hpo_tracker
+
+      <ul>
+        <li><a href="references/src/src.ui.pages.hpo_tracker.html#module-src.ui.pages.hpo_tracker">module</a>
 </li>
       </ul></li>
       <li>
@@ -16850,6 +17115,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.utils.model.config_utils.html#module-src.utils.model.config_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.utils.model.export_onnx
+
+      <ul>
+        <li><a href="references/src/src.utils.model.export_onnx.html#module-src.utils.model.export_onnx">module</a>
 </li>
       </ul></li>
       <li>
@@ -17587,6 +17859,8 @@ document.write(`
       <li><a href="references/src/src.tracking.integrations.filesystem.html#src.tracking.integrations.filesystem.FilesystemTracker.track_save">track_save() (src.tracking.integrations.filesystem.FilesystemTracker method)</a>
 </li>
       <li><a href="references/src/src.configs.models.normalization.html#src.configs.models.normalization.NormalizationConfig.track_stats">track_stats (src.configs.models.normalization.NormalizationConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.TrackedVectorizedALNS">TrackedVectorizedALNS (class in src.ui.components.alns_charts)</a>
 </li>
       <li><a href="references/src/src.tracking.core.tracker.html#src.tracking.core.tracker.Tracker">Tracker (class in src.tracking.core.tracker)</a>
 </li>

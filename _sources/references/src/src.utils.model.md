@@ -16,6 +16,7 @@
 src.utils.model.loader
 src.utils.model.processing
 src.utils.model.checkpoint_utils
+src.utils.model.export_onnx
 src.utils.model.config_utils
 src.utils.model.problem_factory
 ```

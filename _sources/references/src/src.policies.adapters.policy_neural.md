@@ -45,6 +45,14 @@ Bases: {py:obj}`logic.src.policies.adapters.IPolicy`
 
 ````
 
+````{py:method} _log_params(context: typing.Dict[str, typing.Any], cost_weights: typing.Dict[str, float]) -> None
+:canonical: src.policies.adapters.policy_neural.NeuralPolicy._log_params
+
+```{autodoc2-docstring} src.policies.adapters.policy_neural.NeuralPolicy._log_params
+```
+
+````
+
 ````{py:method} _get_must_go_mask(kwargs: dict, bins: typing.Any, profit_vars: typing.Optional[dict], device: torch.device) -> typing.Optional[torch.Tensor]
 :canonical: src.policies.adapters.policy_neural.NeuralPolicy._get_must_go_mask
 

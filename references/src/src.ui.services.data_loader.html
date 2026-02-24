@@ -264,6 +264,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -476,6 +477,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_hparams"><code class="docutils literal notranslate"><span class="pre">load_hparams()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_training_metrics"><code class="docutils literal notranslate"><span class="pre">load_training_metrics()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_multiple_training_runs"><code class="docutils literal notranslate"><span class="pre">load_multiple_training_runs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_policy_params"><code class="docutils literal notranslate"><span class="pre">load_policy_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.discover_simulation_logs"><code class="docutils literal notranslate"><span class="pre">discover_simulation_logs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_simulation_log"><code class="docutils literal notranslate"><span class="pre">load_simulation_log()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_simulation_log_fresh"><code class="docutils literal notranslate"><span class="pre">load_simulation_log_fresh()</span></code></a></li>
@@ -528,22 +530,25 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_multiple_training_runs" title="src.ui.services.data_loader.load_multiple_training_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_multiple_training_runs</span></code></a></p></td>
 <td><p>Load metrics from multiple training runs for comparison.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.discover_simulation_logs" title="src.ui.services.data_loader.discover_simulation_logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_simulation_logs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_policy_params" title="src.ui.services.data_loader.load_policy_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_policy_params</span></code></a></p></td>
+<td><p>Retrieve structured policy configuration from the tracking database.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.discover_simulation_logs" title="src.ui.services.data_loader.discover_simulation_logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_simulation_logs</span></code></a></p></td>
 <td><p>Discover all simulation log files in assets/output.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_simulation_log" title="src.ui.services.data_loader.load_simulation_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_simulation_log" title="src.ui.services.data_loader.load_simulation_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log</span></code></a></p></td>
 <td><p>Load and parse a simulation log file (cached).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_simulation_log_fresh" title="src.ui.services.data_loader.load_simulation_log_fresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log_fresh</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_simulation_log_fresh" title="src.ui.services.data_loader.load_simulation_log_fresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log_fresh</span></code></a></p></td>
 <td><p>Load a simulation log without caching (for live tailing).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.get_simulation_metadata" title="src.ui.services.data_loader.get_simulation_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_metadata</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.get_simulation_metadata" title="src.ui.services.data_loader.get_simulation_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_metadata</span></code></a></p></td>
 <td><p>Extract metadata from simulation entries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.entries_to_dataframe" title="src.ui.services.data_loader.entries_to_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entries_to_dataframe</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.entries_to_dataframe" title="src.ui.services.data_loader.entries_to_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entries_to_dataframe</span></code></a></p></td>
 <td><p>Convert log entries to a pandas DataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.compute_daily_stats" title="src.ui.services.data_loader.compute_daily_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_daily_stats</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.compute_daily_stats" title="src.ui.services.data_loader.compute_daily_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_daily_stats</span></code></a></p></td>
 <td><p>Compute mean and std of metrics per day.</p></td>
 </tr>
 </tbody>
@@ -606,6 +611,17 @@ DataFrame with training metrics.</p>
 version_names: List of version folder names (e.g., [“version_0”, “version_1”]).</p>
 <p>Returns:
 Dict mapping version name to DataFrame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.ui.services.data_loader.load_policy_params">
+<span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_policy_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_policy_params" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve structured policy configuration from the tracking database.</p>
+<p>Args:
+policy_name: Name of the routing policy.
+sample_id: Index of the simulation instance.</p>
+<p>Returns:
+Dict of parameters matching the prefix ‘policy_params/{policy_name}/s{sample_id}/’.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -726,6 +742,7 @@ DataFrame with day, metric_mean, metric_std columns.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_hparams"><code class="docutils literal notranslate"><span class="pre">load_hparams()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_training_metrics"><code class="docutils literal notranslate"><span class="pre">load_training_metrics()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_multiple_training_runs"><code class="docutils literal notranslate"><span class="pre">load_multiple_training_runs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_policy_params"><code class="docutils literal notranslate"><span class="pre">load_policy_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.discover_simulation_logs"><code class="docutils literal notranslate"><span class="pre">discover_simulation_logs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_simulation_log"><code class="docutils literal notranslate"><span class="pre">load_simulation_log()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.ui.services.data_loader.load_simulation_log_fresh"><code class="docutils literal notranslate"><span class="pre">load_simulation_log_fresh()</span></code></a></li>

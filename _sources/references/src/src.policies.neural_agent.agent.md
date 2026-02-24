@@ -26,7 +26,7 @@
 ````{py:class} NeuralAgent(model)
 :canonical: src.policies.neural_agent.agent.NeuralAgent
 
-Bases: {py:obj}`src.policies.neural_agent.batch.BatchMixin`, {py:obj}`src.policies.neural_agent.simulation.SimulationMixin`
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`src.policies.neural_agent.batch.BatchMixin`, {py:obj}`src.policies.neural_agent.simulation.SimulationMixin`
 
 ```{autodoc2-docstring} src.policies.neural_agent.agent.NeuralAgent
 ```

@@ -26,10 +26,19 @@
 `````{py:class} VectorizedSelector
 :canonical: src.models.policies.selection.base.VectorizedSelector
 
-Bases: {py:obj}`abc.ABC`
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.models.policies.selection.base.VectorizedSelector
 ```
+
+````{py:method} __init_subclass__(**kwargs) -> None
+:canonical: src.models.policies.selection.base.VectorizedSelector.__init_subclass__
+:classmethod:
+
+```{autodoc2-docstring} src.models.policies.selection.base.VectorizedSelector.__init_subclass__
+```
+
+````
 
 ````{py:method} select(fill_levels: torch.Tensor, **kwargs) -> torch.Tensor
 :canonical: src.models.policies.selection.base.VectorizedSelector.select

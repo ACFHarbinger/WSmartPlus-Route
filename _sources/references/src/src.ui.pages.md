@@ -30,6 +30,7 @@ src.ui.pages.experiment_tracker_zenml
 src.ui.pages.simulation_summary_sections
 src.ui.pages.data_explorer_charts
 src.ui.pages.experiment_tracker
+src.ui.pages.hpo_tracker
 src.ui.pages.data_explorer
 src.ui.pages.training_charts
 ```

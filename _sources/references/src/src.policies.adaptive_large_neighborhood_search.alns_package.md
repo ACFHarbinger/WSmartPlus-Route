@@ -115,7 +115,7 @@
 ```
 ````
 
-````{py:function} run_alns_package(dist_matrix, demands, capacity, R, C, values)
+````{py:function} run_alns_package(dist_matrix, demands, capacity, R, C, values, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.adaptive_large_neighborhood_search.alns_package.run_alns_package
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns_package.run_alns_package

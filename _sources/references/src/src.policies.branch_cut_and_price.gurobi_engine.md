@@ -78,7 +78,7 @@
 ```
 ````
 
-````{py:function} run_bcp_gurobi(dist_matrix: typing.Any, demands: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, env: typing.Optional[gurobipy.Env] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:function} run_bcp_gurobi(dist_matrix: typing.Any, demands: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, env: typing.Optional[gurobipy.Env] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_cut_and_price.gurobi_engine.run_bcp_gurobi
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.gurobi_engine.run_bcp_gurobi

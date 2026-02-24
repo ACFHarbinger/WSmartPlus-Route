@@ -43,6 +43,10 @@
   - ```{autodoc2-docstring} src.ui.services.data_loader.load_multiple_training_runs
     :summary:
     ```
+* - {py:obj}`load_policy_params <src.ui.services.data_loader.load_policy_params>`
+  - ```{autodoc2-docstring} src.ui.services.data_loader.load_policy_params
+    :summary:
+    ```
 * - {py:obj}`discover_simulation_logs <src.ui.services.data_loader.discover_simulation_logs>`
   - ```{autodoc2-docstring} src.ui.services.data_loader.discover_simulation_logs
     :summary:
@@ -117,6 +121,13 @@
 :canonical: src.ui.services.data_loader.load_multiple_training_runs
 
 ```{autodoc2-docstring} src.ui.services.data_loader.load_multiple_training_runs
+```
+````
+
+````{py:function} load_policy_params(policy_name: str, sample_id: int) -> typing.Dict[str, typing.Any]
+:canonical: src.ui.services.data_loader.load_policy_params
+
+```{autodoc2-docstring} src.ui.services.data_loader.load_policy_params
 ```
 ````
 

@@ -26,6 +26,8 @@
 `````{py:class} HyperHeuristicACO(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[src.policies.ant_colony_optimization.hyper_heuristic_aco.params.HyperACOParams] = None, initial_solution: typing.Optional[typing.List[typing.List[int]]] = None, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO
 
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
+
 ```{autodoc2-docstring} src.policies.ant_colony_optimization.hyper_heuristic_aco.hyper_aco.HyperHeuristicACO
 ```
 

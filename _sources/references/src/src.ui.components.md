@@ -22,8 +22,37 @@ src.ui.components.maps
 :titlesonly:
 :maxdepth: 1
 
+src.ui.components.alns_charts
+src.ui.components.attention_viz
 src.ui.components.explorer_charts
 src.ui.components.benchmark_charts
 src.ui.components.charts
+src.ui.components.policy_viz
 src.ui.components.sidebar
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.ui.components.__all__>`
+  - ```{autodoc2-docstring} src.ui.components.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.ui.components.__all__
+:value: >
+   ['render_policy_viz']
+
+```{autodoc2-docstring} src.ui.components.__all__
+```
+
+````

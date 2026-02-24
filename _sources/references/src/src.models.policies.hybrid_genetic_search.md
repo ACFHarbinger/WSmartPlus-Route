@@ -26,6 +26,8 @@
 `````{py:class} VectorizedHGS(dist_matrix: torch.Tensor, demands: torch.Tensor, vehicle_capacity: typing.Any, time_limit: float = 1.0, device: str = 'cuda')
 :canonical: src.models.policies.hybrid_genetic_search.VectorizedHGS
 
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
+
 ```{autodoc2-docstring} src.models.policies.hybrid_genetic_search.VectorizedHGS
 ```
 
