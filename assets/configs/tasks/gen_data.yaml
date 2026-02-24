@@ -24,13 +24,13 @@ start: 0 # Starting epoch/index (usually 0)
 data:
   # Problem Configuration
   problem: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
-  data_distributions: ["gamma1"] # Waste generation distributions to use.
+  data_distributions: ["gamma1", "gamma3", "emp"] # Waste generation distributions to use.
   penalty_factor: 3.0
   overwrite: true
   seed: 42
   n_epochs: 1
   epoch_start: 0
-  dataset_type: "train"
+  dataset_type: "train_time" # train, train_time, test_simulator
   data_dir: "datasets" # Directory to save generated data
   name: "wsr"
   filename: null
@@ -41,11 +41,27 @@ data:
       n_samples: 128000
       area: "riomaior"
       waste_type: "plastic"
+      focus_size: 128000
+      focus_graph: "graphs_20V_1N_plastic.json"
+      n_days: 31
     - num_loc: 50
       n_samples: 128000
       area: "riomaior"
       waste_type: "plastic"
+      focus_size: 128000
+      focus_graph: "graphs_50V_1N_plastic.json"
+      n_days: 31
     - num_loc: 100
       n_samples: 128000
       area: "riomaior"
       waste_type: "plastic"
+      focus_size: 128000
+      focus_graph: "graphs_100V_1N_plastic.json"
+      n_days: 31
+    - num_loc: 170
+      n_samples: 128000
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 128000
+      focus_graph: "graphs_170V_1N_plastic.json"
+      n_days: 31

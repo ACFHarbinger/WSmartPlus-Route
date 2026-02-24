@@ -246,7 +246,7 @@ def mock_ppo_deps(mocker):
     dataset_list = [
         {
             "loc": torch.rand(10, 2),
-            "demand": torch.rand(10),
+            "waste": torch.rand(10),
             "hrl_mask": torch.zeros(10, 10),
             "full_mask": torch.zeros(10, 11),
         }

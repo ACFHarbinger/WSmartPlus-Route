@@ -21,7 +21,7 @@ class VRPPEnv(RL4COEnvBase):
     Vehicle Routing Problem with Profits Environment.
 
     The agent must select which nodes to visit to maximize
-    total prize collected minus travel cost.
+    total waste collected minus travel cost.
     """
 
     NAME = "vrpp"
@@ -76,7 +76,7 @@ class VRPPEnv(RL4COEnvBase):
             td (TensorDict): Input tensor dictionary containing:
                 - locs (Tensor): Location coordinates, shape (batch, N, 2) or (batch, N+1, 2)
                 - depot (Tensor): Depot coordinates, shape (batch, 2)
-                - waste (Tensor, optional): Waste/prize at each location, shape (batch, N) or (batch, N+1)
+                - waste (Tensor, optional): Waste at each location, shape (batch, N) or (batch, N+1)
                 - visited (Tensor, optional): If present, skip reinitialization (transductive search)
 
         Returns:
@@ -199,7 +199,7 @@ class VRPPEnv(RL4COEnvBase):
         # Update tour length
         td["tour_length"] = td["tour_length"] + distance
 
-        # Collect prize (only for unvisited, non-depot nodes)
+        # Collect waste (only for unvisited, non-depot nodes)
         is_new_visit = ~td["visited"].gather(1, action.unsqueeze(-1)).squeeze(-1)
         is_not_depot = action != 0
 

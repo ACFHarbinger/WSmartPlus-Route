@@ -10,7 +10,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco import run_k_sparse_aco
-    >>> result = run_k_sparse_aco(dist_matrix, demands, ...)
+    >>> result = run_k_sparse_aco(dist_matrix, wastes, ...)
 """
 
 from .runner import run_k_sparse_aco

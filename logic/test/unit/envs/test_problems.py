@@ -88,7 +88,6 @@ class TestStateVRPP:
         # In new envs, visited is (B, N+1) and usually boolean
         assert state.td["visited"].shape == (batch_size, n_loc + 1)
         # waste should be padded with 0 (depot) -> n_loc + 1
-        # In new envs, prize/demand is used. VRPP uses 'waste'.
         assert state.td["waste"].shape == (batch_size, n_loc + 1)
         assert state.td["waste"][:, 0].eq(0).all()
         assert state.td["collected_waste"].shape == (batch_size,)
@@ -117,8 +116,8 @@ class TestStateVRPP:
         # Check visited
         assert state.td["visited"][:, 1].item()
 
-        # Check collected prize
-        # Node 1 prize = 5.0. total = 5.0
+        # Check collected waste
+        # Node 1 waste = 5.0. total = 5.0
         assert state.get_current_profit().item() == 5.0
 
         # Check lengths

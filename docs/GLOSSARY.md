@@ -21,13 +21,13 @@ This document provides a reference for common abbreviations, acronyms, and domai
 
 ## Problem Domain Terms
 
-| Term        | Expanded Form           | Description                                                                   |
-| :---------- | :---------------------- | :---------------------------------------------------------------------------- |
-| **VRP**     | Vehicle Routing Problem | The core optimization task of finding optimal routes for vehicles.            |
-| **VRPP**    | VRP with Profits        | A variant where nodes have associated profits and not all need to be visited. |
-| **WCVRP**   | Waste Collection VRP    | VRP specifically tailored for bin collection with various constraints.        |
-| **CWC VRP** | Capacitated WCVRP       | Waste collection with strict vehicle capacity constraints.                    |
-| **SDWCVRP** | Stochastic Demand WCVRP | Waste collection where bin fill levels are uncertain.                         |
+| Term        | Expanded Form                | Description                                                                   |
+| :---------- | :--------------------------- | :---------------------------------------------------------------------------- |
+| **VRP**     | Vehicle Routing Problem      | The core optimization task of finding optimal routes for vehicles.            |
+| **VRPP**    | VRP with Profits             | A variant where nodes have associated profits and not all need to be visited. |
+| **WCVRP**   | Waste Collection VRP         | VRP specifically tailored for bin collection with various constraints.        |
+| **CWC VRP** | Capacitated WCVRP            | Waste collection with strict vehicle capacity constraints.                    |
+| **SCWCVRP** | Stochastic Capacitated WCVRP | Waste collection where bin fill levels are uncertain.                         |
 
 ## Code Semantics
 

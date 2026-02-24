@@ -16,7 +16,7 @@ def vectorized_cross_exchange(
     tours: torch.Tensor,
     distance_matrix: torch.Tensor,
     capacities: Optional[torch.Tensor] = None,
-    demands: Optional[torch.Tensor] = None,
+    wastes: Optional[torch.Tensor] = None,
     max_segment_len: int = 3,
     max_iterations: int = 50,
 ) -> torch.Tensor:
@@ -55,7 +55,7 @@ def vectorized_cross_exchange(
             Note: Single-route tours will not be modified (cross-exchange requires 2+ routes)
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
         capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-        demands: Node demands [B, N+1] or [N+1] (optional, for capacity checks)
+        wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
         max_segment_len: Maximum segment length to consider (default: 3)
         max_iterations: Maximum number of improvement iterations (default: 50)
 
@@ -65,7 +65,7 @@ def vectorized_cross_exchange(
     Note:
         - Tours should include depot as node 0
         - For single-route problems, this operator has no effect
-        - Capacity constraints are checked if capacities and demands provided
+        - Capacity constraints are checked if capacities and wastes provided
         - Works with both batched and shared distance matrices
         - Segment lengths of 0 are allowed (one-sided moves)
         - Complexity: O(N^4 * max_segment_len^2) per iteration
@@ -89,13 +89,13 @@ def vectorized_cross_exchange(
     if distance_matrix.size(0) == 1 and B > 1:
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
-    # Handle demands if provided
-    has_capacity = capacities is not None and demands is not None
+    # Handle wastes if provided
+    has_capacity = capacities is not None and wastes is not None
     if has_capacity:
-        assert demands is not None
+        assert wastes is not None
         assert capacities is not None
-        if demands.dim() == 1:
-            demands = demands.unsqueeze(0).expand(B, -1)
+        if wastes.dim() == 1:
+            wastes = wastes.unsqueeze(0).expand(B, -1)
         if capacities.dim() == 0:
             capacities = capacities.unsqueeze(0).expand(B)
 
@@ -108,7 +108,7 @@ def vectorized_cross_exchange(
             tours,
             max_segment_len,
             distance_matrix,
-            demands,
+            wastes,
             capacities,
             has_capacity,
             device,
@@ -124,7 +124,7 @@ def _perform_cross_exchange_iteration(
     tours,
     max_segment_len,
     distance_matrix,
-    demands,
+    wastes,
     capacities,
     has_capacity,
     device,
@@ -152,7 +152,7 @@ def _perform_cross_exchange_iteration(
                     seg_a_len,
                     seg_b_len,
                     distance_matrix,
-                    demands,
+                    wastes,
                     capacities,
                     has_capacity,
                     device,
@@ -185,7 +185,7 @@ def _find_best_move_for_segments(
     seg_a_len,
     seg_b_len,
     distance_matrix,
-    demands,
+    wastes,
     capacities,
     has_capacity,
     device,
@@ -211,7 +211,7 @@ def _find_best_move_for_segments(
                         r_a_end,
                         r_b_start,
                         r_b_end,
-                        demands,
+                        wastes,
                         capacities,
                     ):
                         continue
@@ -238,13 +238,13 @@ def _find_best_move_for_segments(
     return best_delta, best_move
 
 
-def _check_cross_capacity(b, tour, s_a, len_a, s_b, len_b, r_a_s, r_a_e, r_b_s, r_b_e, demands, capacities):
+def _check_cross_capacity(b, tour, s_a, len_a, s_b, len_b, r_a_s, r_a_e, r_b_s, r_b_e, wastes, capacities):
     """Checks feasibility of swapping segments between two routes."""
-    dem_a = demands[b, tour[s_a : s_a + len_a]].sum() if len_a > 0 else 0.0
-    dem_b = demands[b, tour[s_b : s_b + len_b]].sum() if len_b > 0 else 0.0
+    dem_a = wastes[b, tour[s_a : s_a + len_a]].sum() if len_a > 0 else 0.0
+    dem_b = wastes[b, tour[s_b : s_b + len_b]].sum() if len_b > 0 else 0.0
 
-    r_a_dem = demands[b, tour[r_a_s:r_a_e]].sum()
-    r_b_dem = demands[b, tour[r_b_s:r_b_e]].sum()
+    r_a_dem = wastes[b, tour[r_a_s:r_a_e]].sum()
+    r_b_dem = wastes[b, tour[r_b_s:r_b_e]].sum()
 
     return (r_a_dem - dem_a + dem_b <= capacities[b]) and (r_b_dem - dem_b + dem_a <= capacities[b])
 

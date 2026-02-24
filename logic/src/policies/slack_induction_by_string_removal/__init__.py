@@ -12,7 +12,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.slack_induction_by_string_removal import run_sisr
-    >>> result = run_sisr(dist_matrix, demands, ...)
+    >>> result = run_sisr(dist_matrix, wastes, ...)
 """
 
 from .sisr import SISRParams, SISRSolver, run_sisr

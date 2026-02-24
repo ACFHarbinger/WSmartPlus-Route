@@ -323,7 +323,6 @@ class TestTemporalAttentionModel:
             "depot": torch.rand(1, 2),
             "locs": torch.rand(1, 4, 2),
             "waste": torch.zeros(1, 4),
-            "prize": torch.zeros(1, 4),
         }
 
         # Calling forward should inject fill_history if missing
@@ -430,7 +429,6 @@ class TestMoEModel:
         input_data = {
             "depot": torch.rand(2, 2),
             "locs": torch.rand(2, 5, 2),
-            "prize": torch.rand(2, 5),
             "waste": torch.rand(2, 5),
             "capacity": torch.full((2,), 1000.0),
             "max_waste": torch.full((2,), 1000.0),

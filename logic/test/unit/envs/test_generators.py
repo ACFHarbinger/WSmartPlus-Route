@@ -89,9 +89,8 @@ class TestVRPPGenerator:
         td_u = gen_u(10)
         assert td_u["waste"].shape == (10, 50)
 
-    def test_prize_distributions(self):
+    def test_waste_distributions(self):
         """Test distance correlated waste."""
-        # Since 'prize' is standardized to 'waste' in VRPPGenerator
         gen = VRPPGenerator(waste_distribution="dist")
         td = gen(5)
         assert td["waste"].shape == (5, 50)

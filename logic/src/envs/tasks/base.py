@@ -162,7 +162,7 @@ class BaseProblem:
         """Map legacy keys to environment keys."""
         if k == "loc":
             return "locs"
-        if k in ["prize", "demand"]:
+        if k in ["wastes"]:
             return "waste"
         return k
 

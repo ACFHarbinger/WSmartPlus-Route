@@ -44,7 +44,7 @@ class TSPPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -64,11 +64,11 @@ class TSPPolicy(BaseRoutingPolicy):
         time_limit = values.get("time_limit", 2.0)
         tour = find_route(sub_dist_matrix, nodes_to_visit, time_limit=time_limit)
 
-        # demands_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
-        demands_arr_bins = np.array([sub_demands[i] for i in range(1, n_nodes)])
+        # wastes_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
+        wastes_arr_bins = np.array([sub_wastes[i] for i in range(1, n_nodes)])
 
         # 2. Split the tour greedily based on capacity
-        full_tour = get_multi_tour(tour, demands_arr_bins, capacity, sub_dist_matrix)
+        full_tour = get_multi_tour(tour, wastes_arr_bins, capacity, sub_dist_matrix)
 
         # 3. Convert flat tour to List[List[int]]
         real_routes: List[List[int]] = []

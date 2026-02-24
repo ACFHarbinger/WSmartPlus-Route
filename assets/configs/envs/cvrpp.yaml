@@ -2,10 +2,10 @@
 # =============================================================================
 # Capacitated Vehicle Routing Problem with Profits (CVRPP) Configuration
 # =============================================================================
-# Prize-collecting routing WITH vehicle capacity constraints.
+# Waste-collecting routing WITH vehicle capacity constraints.
 #
 # Combines:
-#   - VRPP: Prize/profit collection objective
+#   - VRPP: Waste/profit collection objective
 #   - CVRP: Capacity constraints
 #
 # Realistic variant where vehicle has limited capacity and must return
@@ -25,13 +25,13 @@ env:
   # =============================================================================
   capacity:
     100.0 # Normalized vehicle capacity.
-    # Prize values typically sum to > capacity, forcing selective collection.
+    # Waste values typically sum to > capacity, forcing selective collection.
     # Range: 0.5-2.0. Higher = less constrained routing.
 
   # =============================================================================
   # Objective Function Weights
   # =============================================================================
-  # Objective: maximize (prize_weight × Σ prizes) - (cost_weight × total_distance)
+  # Objective: maximize (waste_weight × Σ wastes) - (cost_weight × total_distance)
   # Subject to: vehicle capacity constraints
 
   reward:

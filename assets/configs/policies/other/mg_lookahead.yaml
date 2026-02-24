@@ -11,8 +11,8 @@
 #   3. Neural models use this prediction during route construction
 #
 # USE CASES:
-#   - Temporal environments (CWCVRP, SDWCVRP) with multi-day simulation
-#   - Preventing overflows in stochastic demand scenarios
+#   - Temporal environments (CWCVRP, SCWCVRP) with multi-day simulation
+#   - Preventing overflows in stochastic waste scenarios
 #   - Default strategy for most neural policies
 #
 # PARAMETERS:

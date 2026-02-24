@@ -32,19 +32,19 @@ class VectorizedALNS(PolicyVizMixin):
     Vectorized Adaptive Large Neighborhood Search Solver.
     """
 
-    def __init__(self, dist_matrix, demands, vehicle_capacity, time_limit=1.0, device="cuda"):
+    def __init__(self, dist_matrix, wastes, vehicle_capacity, time_limit=1.0, device="cuda"):
         """
         Initialize the Vectorized ALNS solver.
 
         Args:
             dist_matrix: Distance matrix [B, N, N].
-            demands: Node demands [B, N].
+            wastes: Bin wastes [B, N].
             vehicle_capacity: Vehicle capacity constraint.
             time_limit: Time limit for solving in seconds.
             device: Computation device ('cpu' or 'cuda').
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.vehicle_capacity = vehicle_capacity
         self.time_limit = time_limit
         self.device = device
@@ -123,7 +123,7 @@ class VectorizedALNS(PolicyVizMixin):
                 routes_list, _ = vectorized_linear_split(
                     candidate_solutions,
                     self.dist_matrix,
-                    self.demands,
+                    self.wastes,
                     self.vehicle_capacity,
                     max_vehicles=max_vehicles,
                 )
@@ -201,7 +201,7 @@ class VectorizedALNS(PolicyVizMixin):
 
         # Final conversion to CVRP routes using optimal split
         best_routes, final_costs = vectorized_linear_split(
-            best_solutions, self.dist_matrix, self.demands, self.vehicle_capacity, max_vehicles=max_vehicles
+            best_solutions, self.dist_matrix, self.wastes, self.vehicle_capacity, max_vehicles=max_vehicles
         )
 
         return best_routes, final_costs

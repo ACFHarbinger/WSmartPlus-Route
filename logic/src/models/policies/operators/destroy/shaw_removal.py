@@ -2,7 +2,7 @@
 Shaw removal (relatedness-based) operator (vectorized).
 
 The Shaw removal heuristic removes nodes that are similar (related) to a seed node
-based on distance, time windows, and demand. This creates clusters of related nodes
+based on distance, time windows, and waste. This creates clusters of related nodes
 that can be efficiently rearranged during repair.
 """
 
@@ -15,7 +15,7 @@ def vectorized_shaw_removal(
     tours: torch.Tensor,
     distance_matrix: torch.Tensor,
     n_remove: int,
-    demands: Optional[torch.Tensor] = None,
+    wastes: Optional[torch.Tensor] = None,
     time_windows: Optional[torch.Tensor] = None,
     phi: float = 9.0,
     chi: float = 3.0,
@@ -28,7 +28,7 @@ def vectorized_shaw_removal(
     Shaw removal computes relatedness between nodes based on multiple criteria:
     - Distance: phi * d(i,j) / max_dist
     - Time windows: chi * |T_i - T_j| / max_time
-    - Demand: psi * |q_i - q_j| / max_demand
+    - Waste: psi * |q_i - q_j| / max_waste
 
     Nodes with low relatedness scores (high similarity) to already-removed nodes
     are selected for removal, creating clusters of related nodes.
@@ -46,11 +46,11 @@ def vectorized_shaw_removal(
         tours: Batch of tours [B, N] where B=batch size, N=tour length
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
         n_remove: Number of nodes to remove from each tour
-        demands: Node demands [B, N+1] or [N+1] (optional, for demand relatedness)
+        wastes: Node wastes [B, N+1] or [N+1] (optional, for waste relatedness)
         time_windows: Time windows [B, N+1, 2] or [N+1, 2] (optional, [earliest, latest])
         phi: Weight for distance component (default: 9.0)
         chi: Weight for time window component (default: 3.0)
-        psi: Weight for demand component (default: 2.0)
+        psi: Weight for waste component (default: 2.0)
         randomization_factor: Power for randomized selection (default: 2.0)
             Higher values = more randomness
 
@@ -62,18 +62,18 @@ def vectorized_shaw_removal(
     Note:
         - Tours should include depot as node 0
         - Removed nodes are marked as -1 in returned tours
-        - Works with both batched and shared distance/demand matrices
+        - Works with both batched and shared distance/waste matrices
         - Time windows are optional; if not provided, chi is ignored
     """
     # Prepare inputs
-    tours, distance_matrix, demands, time_windows, is_batch = _prepare_shaw_inputs(
-        tours, distance_matrix, demands, time_windows
+    tours, distance_matrix, wastes, time_windows, is_batch = _prepare_shaw_inputs(
+        tours, distance_matrix, wastes, time_windows
     )
     device = tours.device
 
     # Initialize parameters and tracks
-    distance_matrix, demands, time_windows, max_dist, max_demand, max_time = _init_shaw_params(
-        tours, distance_matrix, demands, time_windows
+    distance_matrix, wastes, time_windows, max_dist, max_waste, max_time = _init_shaw_params(
+        tours, distance_matrix, wastes, time_windows
     )
     B, N = tours.shape
     removed_mask = torch.zeros(B, N, dtype=torch.bool, device=device)
@@ -93,13 +93,13 @@ def vectorized_shaw_removal(
             N,
             tours,
             distance_matrix,
-            demands,
+            wastes,
             time_windows,
             removed_mask,
             removed_count,
             valid_counts,
             max_dist,
-            max_demand,
+            max_waste,
             max_time,
             phi,
             psi,
@@ -135,18 +135,18 @@ def vectorized_shaw_removal(
     )
 
 
-def _prepare_shaw_inputs(tours, distance_matrix, demands, time_windows):
+def _prepare_shaw_inputs(tours, distance_matrix, wastes, time_windows):
     """Ensures all inputs are batched tensors."""
     is_batch = tours.dim() == 2
     if not is_batch:
         tours = tours.unsqueeze(0)
         if distance_matrix.dim() == 3:
             distance_matrix = distance_matrix.unsqueeze(0)
-        if demands is not None and demands.dim() == 2:
-            demands = demands.unsqueeze(0)
+        if wastes is not None and wastes.dim() == 2:
+            wastes = wastes.unsqueeze(0)
         if time_windows is not None and time_windows.dim() == 3:
             time_windows = time_windows.unsqueeze(0)
-    return tours, distance_matrix, demands, time_windows, is_batch
+    return tours, distance_matrix, wastes, time_windows, is_batch
 
 
 def _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device):
@@ -165,13 +165,13 @@ def _calculate_relatedness_batch(
     N,
     tours,
     distance_matrix,
-    demands,
+    wastes,
     time_windows,
     removed_mask,
     removed_count,
     valid_counts,
     max_dist,
-    max_demand,
+    max_waste,
     max_time,
     phi,
     psi,
@@ -191,9 +191,9 @@ def _calculate_relatedness_batch(
         d_rel = distance_matrix[b][tours[b].unsqueeze(1), rem_nodes.unsqueeze(0)] / max_dist
         rel = phi * d_rel
 
-        # Demand component
-        if demands is not None:
-            q_rel = torch.abs(demands[b][tours[b]].unsqueeze(1) - demands[b][rem_nodes].unsqueeze(0)) / max_demand
+        # Waste component
+        if wastes is not None:
+            q_rel = torch.abs(wastes[b][tours[b]].unsqueeze(1) - wastes[b][rem_nodes].unsqueeze(0)) / max_waste
             rel += psi * q_rel
 
         # Time window component
@@ -252,7 +252,7 @@ def _select_next_removal_batch(
         removed_count[b] += 1
 
 
-def _init_shaw_params(tours, distance_matrix, demands, time_windows):
+def _init_shaw_params(tours, distance_matrix, wastes, time_windows):
     """Initialize max values for normalization."""
     B, N = tours.shape
 
@@ -263,12 +263,12 @@ def _init_shaw_params(tours, distance_matrix, demands, time_windows):
     max_dist = distance_matrix.max().item()
     max_dist = max_dist if max_dist > 1e-6 else 1.0
 
-    max_demand = 1.0
-    if demands is not None:
-        if demands.dim() == 1:
-            demands = demands.unsqueeze(0).expand(B, -1)
-        max_demand = demands.max().item()
-        max_demand = max_demand if max_demand > 1e-6 else 1.0
+    max_waste = 1.0
+    if wastes is not None:
+        if wastes.dim() == 1:
+            wastes = wastes.unsqueeze(0).expand(B, -1)
+        max_waste = wastes.max().item()
+        max_waste = max_waste if max_waste > 1e-6 else 1.0
 
     max_time = 1.0
     if time_windows is not None:
@@ -278,4 +278,4 @@ def _init_shaw_params(tours, distance_matrix, demands, time_windows):
         max_time = time_windows[:, :, 0].max().item()
         max_time = max_time if max_time > 1e-6 else 1.0
 
-    return distance_matrix, demands, time_windows, max_dist, max_demand, max_time
+    return distance_matrix, wastes, time_windows, max_dist, max_waste, max_time

@@ -2,7 +2,7 @@
 Builders for Vehicle Routing Problem (VRP) instances.
 
 This module provides builder classes to construct VRP instances from raw data,
-handling coordinate normalization, demand scaling, and feature extraction.
+handling coordinate normalization, waste scaling, and feature extraction.
 """
 
 from typing import Optional
@@ -153,7 +153,7 @@ class VRPInstanceBuilder:
             noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_arr.shape)
             noisy_fill_arr = np.clip(fill_arr + noise, 0, MAX_CAPACITY_PERCENT)
         else:
-            noisy_fill_arr = fill_arr
+            noisy_fill_arr = np.maximum(fill_arr, MAX_CAPACITY_PERCENT)
 
         return {
             "depot": depot,
@@ -170,12 +170,6 @@ class VRPInstanceBuilder:
         Returns:
             TensorDict: A TensorDict with keys matching environment expectations.
         """
-        # We reuse the logic but convert to tensors before returning
-        # Note: self._num_days is handled by taking the first day for train data
-        # or keeping it as (dataset_size, num_days, num_loc) for simulation data.
-
-        # Reuse build for now, then convert? Or refactor build?
-        # Let's refactor slightly to get raw arrays.
         depot, loc, bins, idx = self._prepare_coordinates()
 
         fill_values = []
@@ -189,10 +183,6 @@ class VRPInstanceBuilder:
         fill_vals = np.array(fill_values)  # (num_days, dataset_size, num_loc)
         fill_vals = np.transpose(fill_vals, (1, 0, 2))  # (dataset_size, num_days, num_loc)
 
-        # For training data, we usually expect 1 day.
-        # If num_days > 1, we keep the temporal dimension.
-        # But for RL4COEnvBase reset, it usually expects 'demand' or 'waste' of shape (bs, num_loc)
-
         bs = self._dataset_size
         device = "cpu"  # Generate on CPU
 
@@ -205,7 +195,7 @@ class VRPInstanceBuilder:
             noise = torch.randn_like(real_waste) * np.sqrt(self._noise_variance) + self._noise_mean
             noisy_waste = torch.clamp(real_waste + noise, 0, MAX_WASTE)
 
-            # For TensorDict, we usually want (bs, num_loc) for demand.
+            # For TensorDict, we usually want (bs, num_loc) for waste.
             # If num_days == 1, squeeze it.
             if self._num_days == 1:
                 real_waste = real_waste.squeeze(1)
@@ -215,7 +205,6 @@ class VRPInstanceBuilder:
                 "depot": depot_tensor,
                 "locs": locs_tensor,
                 "real_waste": real_waste,
-                "demand": noisy_waste,
                 "waste": noisy_waste,
             }
         else:
@@ -226,9 +215,7 @@ class VRPInstanceBuilder:
             td_data = {
                 "depot": depot_tensor,
                 "locs": locs_tensor,
-                "demand": waste,
-                "waste": waste,
-                "prize": waste.clone(),
+                "waste": torch.clamp(waste, 0, MAX_WASTE),
             }
 
         # Common attributes
@@ -236,7 +223,6 @@ class VRPInstanceBuilder:
             {
                 "capacity": torch.full((bs,), self.vehicle_cap, device=device),
                 "max_waste": torch.full((bs,), float(MAX_WASTE), device=device),
-                "max_length": torch.full((bs,), 2.4, device=device),  # Default or parameterized
             }
         )
 

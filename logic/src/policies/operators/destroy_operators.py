@@ -8,7 +8,7 @@ Attributes:
     random_removal (function): Randomly removes nodes.
     worst_removal (function): Removes nodes with highest cost contribution.
     cluster_removal (function): Removes spatially clustered nodes.
-    shaw_removal (function): Removes related nodes (distance/time/demand).
+    shaw_removal (function): Removes related nodes (distance/time/waste).
     string_removal (function): Removes contiguous sequences of nodes.
 
 Example:

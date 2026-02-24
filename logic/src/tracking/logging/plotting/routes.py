@@ -117,7 +117,7 @@ def plot_vehicle_routes(
     depot = data["depot"].cpu().numpy()
     locs_tensor = data.get("locs") if "locs" in data.keys() else data.get("loc")
     locs = locs_tensor.cpu().numpy()
-    demands = data.get("waste", data.get("demand")).cpu().numpy() * waste_scale
+    wastes = data.get("waste", data.get("waste")).cpu().numpy() * waste_scale
     capacity = waste_scale  # capacity is always 1
 
     x_dep, y_dep = depot
@@ -135,7 +135,7 @@ def plot_vehicle_routes(
     for veh_number, r in enumerate(routes):
         color = cmap(len(routes) - veh_number)  # invert to have in rainbow order
 
-        route_waste = demands[r - 1]
+        route_waste = wastes[r - 1]
         coords = locs[r - 1, :]
         xs, ys = coords.transpose()
 

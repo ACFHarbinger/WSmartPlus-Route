@@ -31,7 +31,7 @@ def benchmark_random_local_search(
     td = TensorDict(
         {
             "locs": torch.rand(batch_size, num_nodes, 2, device=device),
-            "demand": torch.rand(batch_size, num_nodes, device=device),
+            "waste": torch.rand(batch_size, num_nodes, device=device),
             "capacity": torch.ones(batch_size, device=device),
         },
         batch_size=[batch_size],
@@ -40,7 +40,7 @@ def benchmark_random_local_search(
     policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=iterations).to(device)
 
     class MockEnv:
-        prize_weight = 1.0
+        waste_weight = 1.0
         cost_weight = 1.0
 
     # Warmup
@@ -140,7 +140,7 @@ def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5) -> Dict[str
 
     dist_mat = np.random.randint(10, 100, size=(num_nodes + 1, num_nodes + 1))
     np.fill_diagonal(dist_mat, 0)
-    demands = np.random.randint(5, 20, size=num_nodes)
+    wastes = np.random.randint(5, 20, size=num_nodes)
     max_caps = 100
     to_collect = list(range(1, num_nodes + 1))
 
@@ -149,7 +149,7 @@ def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5) -> Dict[str
     # PyVRP
     try:
         start = time.time()
-        _ = find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles)
+        _ = find_routes(dist_mat, wastes, max_caps, to_collect, n_vehicles)
         elapsed = time.time() - start
         results["pyvrp"] = elapsed
         print(f"    - PyVRP: {elapsed:.4f}s")
@@ -164,7 +164,7 @@ def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5) -> Dict[str
     # OR-Tools
     try:
         start = time.time()
-        _ = find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles)
+        _ = find_routes_ortools(dist_mat, wastes, max_caps, to_collect, n_vehicles)
         elapsed = time.time() - start
         results["ortools"] = elapsed
         print(f"    - OR-Tools: {elapsed:.4f}s")

@@ -42,7 +42,7 @@ class ACOPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -58,7 +58,7 @@ class ACOPolicy(BaseRoutingPolicy):
         """
         routes, profit, solver_cost = run_k_sparse_aco(
             sub_dist_matrix,
-            sub_demands,
+            sub_wastes,
             capacity,
             revenue,
             cost_unit,

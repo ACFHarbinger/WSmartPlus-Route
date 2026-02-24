@@ -3,7 +3,7 @@
 # Selective Capacitated Waste Collection VRP (SCWCVRP) Configuration
 # =============================================================================
 # Advanced variant combining:
-#   - Stochastic demand (uncertain waste generation)
+#   - Stochastic waste (uncertain waste generation)
 #   - Selective collection (optional bin visits)
 #   - Capacity constraints
 #

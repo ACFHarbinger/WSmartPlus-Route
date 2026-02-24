@@ -21,6 +21,7 @@ class GraphConfig:
         focus_graph: Paths to the files with the coordinates of the graphs to focus on.
         focus_size: Number of focus graphs to include.
         n_samples: Number of samples/instances to generate for this graph.
+        n_days: Number of days to generate for this graph.
     """
 
     area: str = "riomaior"

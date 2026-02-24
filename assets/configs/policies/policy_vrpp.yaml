@@ -124,7 +124,7 @@ vrpp:
     # Constraints:
     #   - Flow conservation: Σ x[i,j] = Σ x[j,i] for all j
     #   - Visit once: Σ x[i,j] ≤ 1 for all i (if y[i]=1)
-    #   - Capacity: Σ demand[i] * y[i] ≤ vehicle_capacity
+    #   - Capacity: Σ waste[i] * y[i] ≤ vehicle_capacity
     #   - Subtour elimination: u[i] - u[j] + n*x[i,j] ≤ n-1
     #   - Must-go: y[i] = 1 for all i in must_go set
     #

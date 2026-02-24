@@ -195,7 +195,7 @@ class AttentionModel(nn.Module):
 
 **Forward Pass Lifecycle:**
 
-1.  **Embedding**: Nodes (bins) are embedded based on their features (location, demand, fill level).
+1.  **Embedding**: Nodes (bins) are embedded based on their features (location, waste fill level).
 2.  **Encoding**: Multi-head attention aggregates neighborhood information across all nodes.
 3.  **Decoding**: At each step, the decoder computes attention scores over feasible nodes, samples or greedily selects the next node.
 4.  **Masking**: Invalid moves (over-capacity, already visited) are masked with `-inf` before softmax.
@@ -217,9 +217,9 @@ model = AttentionModel(
 
 # Forward pass
 batch = {
-    'coords': torch.rand(32, 50, 2),    # 32 instances, 50 nodes
-    'demand': torch.rand(32, 50),
-    'prize': torch.rand(32, 50) * 10
+    'loc': torch.rand(32, 50, 2),    # 32 instances, 50 nodes
+    'waste': torch.rand(32, 50),
+    'depot': torch.rand(32, 2)
 }
 tours, log_probs = model(batch, return_pi=True)
 ```
@@ -509,9 +509,8 @@ policy = LastMinute(threshold=0.9)  # Trigger at 90% full
 
 ```python
 class StateVRPP:
-    coords: Tensor      # (batch, nodes, 2)
-    demand: Tensor      # (batch, nodes)
-    prize: Tensor       # (batch, nodes)
+    loc: Tensor      # (batch, nodes, 2)
+    waste: Tensor      # (batch, nodes)
     depot: Tensor       # (batch, 1)
     visited: Tensor     # (batch, nodes) boolean mask
     current_node: Tensor
@@ -522,11 +521,11 @@ class StateVRPP:
 
 ```python
 def get_reward(self, dataset, pi):
-    # Total prize collected
-    collected = (dataset['prize'] * pi.visited).sum(dim=-1)
+    # Total waste collected
+    collected = (dataset['waste'] * pi.visited).sum(dim=-1)
 
     # Total travel cost
-    cost = self._calculate_route_cost(dataset['coords'], pi)
+    cost = self._calculate_route_cost(dataset['loc'], pi)
 
     # Net reward
     return collected - cost
@@ -562,14 +561,13 @@ def step(self, action):
 
 **Problem Variants:**
 
-| Variant | Description                             |
-| ------- | --------------------------------------- |
-| VRPP    | Vehicle Routing Problem with Profits    |
-| CVRPP   | Capacitated VRPP                        |
-| WCVRP   | Waste Collection VRP                    |
-| CWCVRP  | Capacitated Waste Collection VRP        |
-| SDWCVRP | Stochastic-Dynamic Waste Collection VRP |
-| SCWCVRP | Selective CWCVRP                        |
+| Variant | Description                          |
+| ------- | ------------------------------------ |
+| VRPP    | Vehicle Routing Problem with Profits |
+| CVRPP   | Capacitated VRPP                     |
+| WCVRP   | Waste Collection VRP                 |
+| CWCVRP  | Capacitated Waste Collection VRP     |
+| SCWCVRP | Stochastic Capacitated WCVRP         |
 
 ### 3.5 The Simulator Engine (`logic/src/pipeline/simulator/`)
 
@@ -894,7 +892,7 @@ The core insight: routing decisions depend on **context** (current state) and **
 
 **Why It Works:**
 
-- Attention learns to prioritize nodes based on distance, demand, and reward.
+- Attention learns to prioritize nodes based on distance, waste, and reward.
 - Multi-head attention captures diverse decision criteria (e.g., minimize distance vs. maximize profit).
 - The autoregressive nature allows learning sequential dependencies.
 
@@ -1331,8 +1329,9 @@ class MyProblem(BaseProblem):
 
 class StateMyProblem(BaseState):
     def __init__(self, input):
-        self.coords = input['coords']
-        self.demand = input['demand']
+        self.locs = input['locs']
+        self.depot = input['depot']
+        self.waste = input['waste']
         # ... custom attributes
 
     def get_mask(self):
@@ -1514,8 +1513,9 @@ class TestMyModel:
     def sample_input(self):
         batch_size, graph_size = 10, 20
         return {
-            'coords': torch.rand(batch_size, graph_size, 2),
-            'demand': torch.rand(batch_size, graph_size)
+            'locs': torch.rand(batch_size, graph_size, 2),
+            'waste': torch.rand(batch_size, graph_size),
+            'depot': torch.rand(batch_size, 1, 2)
         }
 
     def test_forward_pass(self, model, sample_input):
@@ -1527,8 +1527,9 @@ class TestMyModel:
     @pytest.mark.parametrize("batch_size", [1, 16, 64])
     def test_variable_batch_sizes(self, model, batch_size):
         input_data = {
-            'coords': torch.rand(batch_size, 20, 2),
-            'demand': torch.rand(batch_size, 20)
+            'locs': torch.rand(batch_size, 20, 2),
+            'waste': torch.rand(batch_size, 20),
+            'depot': torch.rand(batch_size, 1, 2)
         }
         output = model(input_data)
         assert output.shape[0] == batch_size

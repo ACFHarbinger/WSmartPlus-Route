@@ -12,7 +12,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.operators.repair import greedy_insertion
-    >>> new_routes = greedy_insertion(routes, removed, dist_matrix, demands, capacity)
+    >>> new_routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
 from .greedy import greedy_insertion

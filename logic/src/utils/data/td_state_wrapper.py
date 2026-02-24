@@ -33,8 +33,8 @@ class TensorDictStateWrapper:
         # Expose common properties directly
         self.dist_matrix = td.get("dist", None)
 
-        # Handle 'demands_with_depot' for WCVRP partial updates (now standardized to 'waste')
-        self.demands_with_depot = td.get("waste")
+        # Handle 'waste_with_depot' for WCVRP partial updates (now standardized to 'waste')
+        self.waste_with_depot = td.get("waste")
 
     def get_mask(self) -> Optional[torch.Tensor]:
         """Get action mask from TensorDict."""

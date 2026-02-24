@@ -24,7 +24,7 @@ def kick(ctx: Any, destroy_ratio: float = 0.2) -> bool:
     Removes random nodes and reinserts them greedily.
 
     Args:
-        ctx: Context object with routes, node_map, demands, capacity, etc.
+        ctx: Context object with routes, node_map, wastes, capacity, etc.
         destroy_ratio: Fraction of nodes to remove (default: 0.2).
 
     Returns:
@@ -60,8 +60,8 @@ def kick(ctx: Any, destroy_ratio: float = 0.2) -> bool:
 
         for ri, route in enumerate(ctx.routes):
             current_load = ctx._get_load_cached(ri)
-            node_demand = ctx.demands.get(node, 0)
-            if current_load + node_demand > ctx.Q:
+            node_waste = ctx.wastes.get(node, 0)
+            if current_load + node_waste > ctx.Q:
                 continue
 
             # Try inserting at each position

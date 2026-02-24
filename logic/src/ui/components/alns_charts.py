@@ -23,7 +23,7 @@ Usage::
     )
 
     solver = TrackedVectorizedALNS(
-        dist_matrix=d, demands=dem, vehicle_capacity=cap, log_freq=25
+        dist_matrix=d, wastes=waste, vehicle_capacity=cap, log_freq=25
     )
     solver.solve(initial_solutions, n_iterations=500)
 

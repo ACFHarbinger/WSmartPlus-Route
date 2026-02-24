@@ -16,7 +16,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco import HyperHeuristicACO
-    >>> solver = HyperHeuristicACO(dist_matrix, demands, capacity, R, C, params)
+    >>> solver = HyperHeuristicACO(dist_matrix, wastes, capacity, R, C, params)
     >>> best_solution = solver.solve(initial_solution)
 """
 
@@ -46,7 +46,7 @@ class HyperHeuristicACO(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -59,7 +59,7 @@ class HyperHeuristicACO(PolicyVizMixin):
 
         Args:
             dist_matrix: Distance matrix between nodes.
-            demands: Dictionary mapping node indices to demands.
+            wastes: Dictionary mapping node indices to wastes.
             capacity: Vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
@@ -68,7 +68,7 @@ class HyperHeuristicACO(PolicyVizMixin):
             mandatory_nodes: List of mandatory node indices.
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -135,7 +135,7 @@ class HyperHeuristicACO(PolicyVizMixin):
                 eta_mean=float(self.eta.mean()),
             )
 
-        collected_rev = sum(self.demands.get(n, 0) * self.R for r in best_routes for n in r)
+        collected_rev = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r)
         return best_routes, collected_rev - best_cost, best_cost / self.C if self.C > 0 else best_cost
 
     def build_solution(self) -> List[List[int]]:
@@ -146,7 +146,7 @@ class HyperHeuristicACO(PolicyVizMixin):
         ctx = HyperOperatorContext(
             routes=copy.deepcopy(self.initial_solution),
             dist_matrix=self.dist_matrix,
-            demands=self.demands,
+            wastes=self.wastes,
             capacity=self.capacity,
             R=self.R,
             C=self.C,

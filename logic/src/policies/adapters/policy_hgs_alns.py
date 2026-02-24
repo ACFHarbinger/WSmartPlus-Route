@@ -43,7 +43,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -79,7 +79,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
 
         solver = HGSALNSSolver(
             dist_matrix=sub_dist_matrix,
-            demands=sub_demands,
+            wastes=sub_wastes,
             capacity=capacity,
             R=revenue,
             C=cost_unit,

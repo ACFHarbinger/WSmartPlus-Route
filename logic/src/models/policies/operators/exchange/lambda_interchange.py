@@ -17,7 +17,7 @@ def vectorized_lambda_interchange(
     tours: torch.Tensor,
     distance_matrix: torch.Tensor,
     capacities: Optional[torch.Tensor] = None,
-    demands: Optional[torch.Tensor] = None,
+    wastes: Optional[torch.Tensor] = None,
     lambda_max: int = 2,
     max_iterations: int = 50,
 ) -> torch.Tensor:
@@ -48,7 +48,7 @@ def vectorized_lambda_interchange(
         tours: Batch of tours [B, N] where B=batch size, N=tour length
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
         capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-        demands: Node demands [B, N+1] or [N+1] (optional, for capacity checks)
+        wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
         lambda_max: Maximum segment length to consider (default: 2)
             Higher values = larger neighborhood but slower
         max_iterations: Maximum number of full neighborhood sweeps (default: 50)
@@ -105,7 +105,7 @@ def vectorized_lambda_interchange(
                     tours=tours,
                     distance_matrix=distance_matrix,
                     capacities=capacities,
-                    demands=demands,
+                    wastes=wastes,
                     max_segment_len=max(seg_a_len, seg_b_len),
                     max_iterations=1,  # Single iteration per combination
                 )

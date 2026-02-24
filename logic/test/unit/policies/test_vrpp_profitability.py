@@ -13,12 +13,12 @@ def test_subset_dimensions():
 
     # 1. Test use_all_bins=False (Restore Default behavior)
     # This should result in a 4x4 problem (depot + 3 selected nodes)
-    sub_dm, sub_demands, indices, mandatory = policy._create_subset_problem(
+    sub_dm, sub_wastes, indices, mandatory = policy._create_subset_problem(
         must_go, dist_matrix, bins_mock, use_all_bins=False
     )
 
     assert sub_dm.shape == (4, 4), f"Subset DM should be 4x4, got {sub_dm.shape}"
-    assert len(sub_demands) == 3
+    assert len(sub_wastes) == 3
     assert mandatory == [1, 2, 3], f"Mandatory local indices should be [1, 2, 3], got {mandatory}"
     assert indices == [0, 1, 3, 5]
 
@@ -37,7 +37,7 @@ def test_hvpl_respects_subset():
     # We will check if the default configuration results in a tour restricted to must_go
     dist_matrix = np.ones((11, 11))
     np.fill_diagonal(dist_matrix, 0)
-    demands = {i: 50.0 for i in range(1, 11)}
+    wastes = {i: 50.0 for i in range(1, 11)}
     must_go = [2, 4, 6]
 
     config = {

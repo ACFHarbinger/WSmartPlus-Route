@@ -224,8 +224,7 @@ Use Google-style docstrings:
 ```python
 def solve_vrpp(
     distances: np.ndarray,
-    demands: np.ndarray,
-    prizes: np.ndarray,
+    wastes: np.ndarray,
     capacity: float
 ) -> Tuple[List[List[int]], float, float]:
     """
@@ -236,25 +235,23 @@ def solve_vrpp(
 
     Args:
         distances: Pairwise distance matrix of shape (n, n).
-        demands: Demand at each node of shape (n,).
-        prizes: Prize/reward for visiting each node of shape (n,).
+        wastes: Reward for visiting each node of shape (n,).
         capacity: Maximum vehicle capacity.
 
     Returns:
         A tuple containing:
             - routes: List of routes, each a list of node indices.
-            - total_profit: Sum of collected prizes.
+            - total_profit: Sum of collected wastes.
             - total_cost: Total distance traveled.
 
     Raises:
         ValueError: If distances matrix is not square.
-        ValueError: If demands has negative values.
+        ValueError: If wastes has negative values.
 
     Example:
         >>> distances = np.array([[0, 1, 2], [1, 0, 1], [2, 1, 0]])
-        >>> demands = np.array([0, 5, 3])
-        >>> prizes = np.array([0, 10, 8])
-        >>> routes, profit, cost = solve_vrpp(distances, demands, prizes, 10)
+        >>> wastes = np.array([0, 10, 8])
+        >>> routes, profit, cost = solve_vrpp(distances, wastes, 10)
     """
     ...
 ```
@@ -498,8 +495,7 @@ class TestMyModel:
         """Create a sample batch for testing."""
         return {
             'loc': torch.rand(4, 20, 2),
-            'demand': torch.rand(4, 20),
-            'prize': torch.rand(4, 20),
+            'waste': torch.rand(4, 20),
             'depot': torch.rand(4, 2)
         }
 

@@ -3,7 +3,7 @@ Temporal Attention Model for multi-day waste collection routing.
 
 Extends the base AttentionModel with a GRU-based fill level predictor that uses
 historical waste data to anticipate future bin fill levels. This enables proactive
-collection decisions in stochastic demand scenarios (SDWCVRP, CWCVRP).
+collection decisions in stochastic waste scenarios (SCWCVRP, SWCVRP).
 
 Architecture:
     Base AttentionModel + FillPredictor -> TemporalEmbedding -> CombineLayer

@@ -51,7 +51,7 @@ class TestContextEmbedder:
         """Test fallback key logic for Waste."""
         model = WCContextEmbedder(embed_dim=16)
 
-        # No 'waste' or 'demand', but 'noisy_waste'
+        # No 'waste', but 'noisy_waste'
         input_data = {"locs": torch.rand(1, 5, 2), "depot": torch.rand(1, 2), "noisy_waste": torch.rand(1, 5)}
 
         # Should not raise key error

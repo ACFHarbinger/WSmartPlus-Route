@@ -324,9 +324,9 @@ env_config = EnvConfig(
     max_fill=0.9
 )
 
-# Stochastic demand with gamma distribution
+# Stochastic waste with gamma distribution
 env_config = EnvConfig(
-    name="sdwcvrp",
+    name="scwcvrp",
     fill_distribution="gamma",
     min_fill=0.0,
     max_fill=1.0
@@ -418,7 +418,7 @@ class DataConfig:
         data_distributions: List of distributions ('uniform', 'cluster', 'all').
         dataset_size: Number of instances to generate.
         num_locs: Problem sizes to generate.
-        penalty_factor: Penalty weight for unmet demands (VRPP).
+        penalty_factor: Penalty weight for uncollected waste (VRPP).
         overwrite: Overwrite existing files.
         seed: Random seed.
         n_epochs: Number of epochs worth of data.

@@ -24,7 +24,6 @@ def load_problem(name: str) -> Type[Any]:
         CVRPP,
         CWCVRP,
         SCWCVRP,
-        SDWCVRP,
         VRPP,
         WCVRP,
     )
@@ -34,7 +33,6 @@ def load_problem(name: str) -> Type[Any]:
         "cvrpp": CVRPP,
         "wcvrp": WCVRP,
         "cwcvrp": CWCVRP,
-        "sdwcvrp": SDWCVRP,
         "scwcvrp": SCWCVRP,
     }.get(name)
     assert problem is not None, "Currently unsupported problem: {}!".format(name)

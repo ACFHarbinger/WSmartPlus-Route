@@ -1,5 +1,5 @@
 """
-Wrapper for Google OR-Tools to solve the prize-collecting VRP.
+Wrapper for Google OR-Tools to solve the waste-collecting VRP.
 
 This module adapts the WSmart-Route problem definition into a format
 compatible with OR-Tools' routing solver.
@@ -9,12 +9,12 @@ import numpy as np
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 
-def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
+def run_alns_ortools(dist_matrix, wastes, capacity, R, C, values):
     """
     Run ALNS using Google OR-Tools with Guided Local Search.
     """
-    # 1. Identify active nodes (Depot + keys in demands)
-    active_nodes = [0] + sorted(list(demands.keys()))
+    # 1. Identify active nodes (Depot + keys in wastes)
+    active_nodes = [0] + sorted(list(wastes.keys()))
     compact_to_global = {c: g for c, g in enumerate(active_nodes)}
 
     n_active = len(active_nodes)
@@ -28,15 +28,15 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
             g2 = compact_to_global[c2]
             sub_matrix[c1][c2] = int(dist_matrix[g1][g2])
 
-    # 3. Create Demands Array
-    sub_demands = [0] * n_active
+    # 3. Create wastes Array
+    sub_wastes = [0] * n_active
     for c in range(1, n_active):
         g = compact_to_global[c]
-        sub_demands[c] = int(demands[g])
+        sub_wastes[c] = int(wastes[g])
 
     scale_factor = 1000
     scaled_capacity = int(capacity * scale_factor)
-    scaled_demands = [int(d * scale_factor) for d in sub_demands]
+    scaled_wastes = [int(d * scale_factor) for d in sub_wastes]
 
     # 4. OR-Tools Setup
     manager = pywrapcp.RoutingIndexManager(n_active, max_vehicles, 0)
@@ -51,14 +51,14 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    def demand_callback(from_index):
-        """Returns the demand of the node."""
+    def waste_callback(from_index):
+        """Returns the waste of the node."""
         from_node = manager.IndexToNode(from_index)
-        return scaled_demands[from_node]
+        return scaled_wastes[from_node]
 
-    demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
+    waste_callback_index = routing.RegisterUnaryTransitCallback(waste_callback)
     routing.AddDimensionWithVehicleCapacity(
-        demand_callback_index,
+        waste_callback_index,
         0,  # null capacity slack
         [scaled_capacity] * max_vehicles,
         True,  # start cumul to zero
@@ -95,7 +95,7 @@ def run_alns_ortools(dist_matrix, demands, capacity, R, C, values):
                 routes.append(route)
 
         total_cost = solution.ObjectiveValue() * C
-        collected_revenue = sum(demands.get(node_idx, 0) * R for route in routes for node_idx in route)
+        collected_revenue = sum(wastes.get(node_idx, 0) * R for route in routes for node_idx in route)
         profit = collected_revenue - total_cost
 
     return routes, profit, total_cost

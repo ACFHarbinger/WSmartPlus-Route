@@ -2,10 +2,10 @@
 # =============================================================================
 # Vehicle Routing Problem with Profits (VRPP) Environment Configuration
 # =============================================================================
-# Classic prize-collecting routing problem:
-#   - Each node has a profit/prize
+# Classic waste-collecting routing problem:
+#   - Each node has a profit/waste
 #   - No capacity constraints (uncapacitated)
-#   - Maximize: total_prize - travel_cost
+#   - Maximize: total_waste - travel_cost
 #
 # Benchmark problem for testing neural constructive heuristics.
 # =============================================================================
@@ -24,10 +24,10 @@ env:
   # =============================================================================
   # Objective Function Weights
   # =============================================================================
-  # Objective: maximize (prize_weight × Σ prizes) - (cost_weight × total_distance)
+  # Objective: maximize (waste_weight × Σ wastes) - (cost_weight × total_distance)
   reward:
     waste_weight:
-      1.0 # Weight for node prizes/rewards. (prize_weight in user's request)
+      1.0 # Weight for node wastes/rewards. (waste_weight in user's request)
       # Higher = prioritize collecting high-value nodes.
       # Typical range: 0.5-2.0.
 
@@ -37,6 +37,6 @@ env:
       # Typical range: 0.5-2.0.
       #
       # Balance Examples:
-      #   - prize_weight=1.0, cost_weight=1.0: Balanced (default)
-      #   - prize_weight=2.0, cost_weight=1.0: Prioritize collecting nodes
-      #   - prize_weight=1.0, cost_weight=2.0: Prioritize short routes
+      #   - waste_weight=1.0, cost_weight=1.0: Balanced (default)
+      #   - waste_weight=2.0, cost_weight=1.0: Prioritize collecting nodes
+      #   - waste_weight=1.0, cost_weight=2.0: Prioritize short routes

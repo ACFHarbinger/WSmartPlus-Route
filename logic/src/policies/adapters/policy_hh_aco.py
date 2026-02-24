@@ -42,7 +42,7 @@ class HyperACOPolicy(BaseRoutingPolicy):
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
-        sub_demands: Dict[int, float],
+        sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
         cost_unit: float,
@@ -58,7 +58,7 @@ class HyperACOPolicy(BaseRoutingPolicy):
         """
         routes, profit, solver_cost = run_hyper_heuristic_aco(
             sub_dist_matrix,
-            sub_demands,
+            sub_wastes,
             capacity,
             revenue,
             cost_unit,

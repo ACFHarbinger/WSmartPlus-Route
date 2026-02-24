@@ -23,8 +23,8 @@ class VRPPGenerator(Generator):
     Generates instances with:
     - Depot location
     - Customer locations
-    - Waste/demand at each location
-    - Prizes (revenue) for visiting each location
+    - Waste at each location
+    - Waste values for visiting each location
     - Vehicle capacity
     - Maximum route length
     """
@@ -38,9 +38,6 @@ class VRPPGenerator(Generator):
         min_waste: float = 0.0,
         max_waste: float = 1.0,
         waste_distribution: str = "uniform",
-        min_prize: float = 0.0,
-        max_prize: float = 1.0,
-        prize_distribution: str = "uniform",
         capacity: float = 1.0,
         max_length: Optional[float] = None,
         depot_type: str = "center",
@@ -55,12 +52,9 @@ class VRPPGenerator(Generator):
             min_loc: Minimum coordinate value.
             max_loc: Maximum coordinate value.
             loc_distribution: Distribution for location generation.
-            min_waste: Minimum waste/demand value.
-            max_waste: Maximum waste/demand value.
+            min_waste: Minimum waste value.
+            max_waste: Maximum waste value.
             waste_distribution: Distribution for waste generation.
-            min_prize: Minimum prize value.
-            max_prize: Maximum prize value.
-            prize_distribution: Distribution for prize generation.
             capacity: Vehicle capacity.
             max_length: Maximum route length (None for unlimited).
             depot_type: Depot placement ("center", "corner", "random").
@@ -72,9 +66,6 @@ class VRPPGenerator(Generator):
         self.min_waste = min_waste
         self.max_waste = max_waste
         self.waste_distribution = kwargs.get("data_distribution", waste_distribution)
-        self.min_prize = min_prize
-        self.max_prize = max_prize
-        self.prize_distribution = kwargs.get("data_distribution", prize_distribution)
         self.capacity = capacity if capacity is not None else 1.0
         self.max_length = max_length
         self.depot_type = depot_type
@@ -87,7 +78,7 @@ class VRPPGenerator(Generator):
         # Generate depot
         depot = self._generate_depot(batch_size)
 
-        # Generate waste/demand
+        # Generate waste
         waste = self._generate_waste(batch_size)
 
         # Compute max_waste per instance (for normalization)
@@ -125,7 +116,7 @@ class VRPPGenerator(Generator):
             raise ValueError(f"Unknown depot type: {self.depot_type}")
 
     def _generate_waste(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate waste/demand values."""
+        """Generate waste values."""
         # Use common utility for consistency
         bs = math.prod(batch_size) if batch_size else 1
         coords = (
@@ -136,25 +127,3 @@ class VRPPGenerator(Generator):
         if isinstance(waste, np.ndarray):
             waste = torch.from_numpy(waste).float()
         return waste.to(self.device).view(*batch_size, self.num_loc)
-
-    def _generate_prize(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate prize values."""
-        if self.prize_distribution == "distance_correlated":
-            # Distance correlation still handled locally for now
-            depot = self._generate_depot(batch_size)
-            locs = self._generate_locations(batch_size)
-            distances = torch.norm(locs - depot.unsqueeze(-2), dim=-1)
-            max_dist = distances.max(dim=-1, keepdim=True).values
-            normalized_dist = distances / (max_dist + 1e-8)
-            return normalized_dist * (self.max_prize - self.min_prize) + self.min_prize
-
-        # Otherwise use common utility
-        bs = math.prod(batch_size) if batch_size else 1
-        coords = (
-            self._generate_depot(batch_size).view(bs, 2),
-            self._generate_locations(batch_size).view(bs, self.num_loc, 2),
-        )
-        prize = generate_waste(self.num_loc, self.prize_distribution, coords, bs, bins=self.bins)
-        if isinstance(prize, np.ndarray):
-            prize = torch.from_numpy(prize).float()
-        return prize.to(self.device).view(*batch_size, self.num_loc)

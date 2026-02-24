@@ -16,7 +16,7 @@
  * ## Objective Function
  *
  * Maximizes **Profit = Revenue - Cost - Penalties**
- * - **Revenue**: `R × Σ demands_served`
+ * - **Revenue**: `R × Σ wastes_served`
  * - **Cost**: `C × total_distance`
  * - **Penalties**: Soft constraint violations (capacity excess)
  *
@@ -28,7 +28,7 @@
  * # Single instance
  * routes, profit, cost = solve(
  *     dist_matrix=[[0, 10], [10, 0]],
- *     demands=[0, 5],
+ *     wastes=[0, 5],
  *     coords=[(0, 0), (1, 1)],
  *     capacity=100.0,
  *     r=1.0,
@@ -42,7 +42,7 @@
  * # Batch processing (parallel)
  * routes_batch, profits, costs = solve_batch(
  *     dist_matrices=[...],
- *     demands_batch=[...],
+ *     wastes_batch=[...],
  *     coords_batch=[...],
  *     capacity=100.0,
  *     r=1.0,
@@ -77,7 +77,7 @@ use std::sync::Arc;
  * # Arguments
  *
  * * `dist_matrix` - Symmetric distance matrix (N+1 × N+1, index 0 is depot)
- * * `demands` - Node demands (depot = 0)
+ * * `wastes` - Node wastes (depot = 0)
  * * `coords` - Node coordinates for geometric optimization
  * * `capacity` - Vehicle capacity
  * * `r` - Revenue coefficient
@@ -96,7 +96,7 @@ use std::sync::Arc;
  */
 fn solve_instance(
     dist_matrix: Vec<Vec<f64>>,
-    demands: Vec<f64>,
+    wastes: Vec<f64>,
     coords: Vec<(f64, f64)>,
     capacity: f64,
     r: f64,
@@ -115,7 +115,7 @@ fn solve_instance(
 
     let params = Arc::new(Params::new(
         dist_matrix,
-        demands,
+        wastes,
         coords,
         capacity,
         r,
@@ -134,7 +134,7 @@ fn solve_instance(
  * # Arguments
  *
  * * `dist_matrix` - Symmetric distance matrix (N+1 × N+1, index 0 is depot)
- * * `demands` - Node demands (depot = 0)
+ * * `wastes` - Node wastes (depot = 0)
  * * `coords` - Node coordinates for geometric optimization
  * * `capacity` - Vehicle capacity
  * * `r` - Revenue coefficient (internally boosted by 100× to ensure profitability)
@@ -156,7 +156,7 @@ fn solve_instance(
  * ```python
  * routes, profit, cost = solve(
  *     dist_matrix=[[0, 10], [10, 0]],
- *     demands=[0, 5],
+ *     wastes=[0, 5],
  *     coords=[(0, 0), (1, 1)],
  *     capacity=100.0,
  *     r=1.0,
@@ -171,7 +171,7 @@ fn solve_instance(
 #[pyfunction]
 fn solve(
     dist_matrix: Vec<Vec<f64>>,
-    demands: Vec<f64>,
+    wastes: Vec<f64>,
     coords: Vec<(f64, f64)>,
     capacity: f64,
     r: f64,
@@ -185,7 +185,7 @@ fn solve(
     let actual_max_vehicles = max_vehicles.unwrap_or(0);
     let (routes, profit, cost) = solve_instance(
         dist_matrix,
-        demands,
+        wastes,
         coords,
         capacity,
         r * 100.0, // Aggressively boost revenue to ensure serving clients is profitable (avoid empty routes)
@@ -207,7 +207,7 @@ fn solve(
  * # Arguments
  *
  * * `dist_matrices` - List of distance matrices
- * * `demands_batch` - List of demand arrays
+ * * `wastes_batch` - List of waste arrays
  * * `coords_batch` - List of coordinate arrays (may be empty)
  * * `capacity` - Vehicle capacity (shared across all instances)
  * * `r` - Revenue coefficient
@@ -231,7 +231,7 @@ fn solve(
 #[pyfunction]
 fn solve_batch(
     dist_matrices: Vec<Vec<Vec<f64>>>,
-    demands_batch: Vec<Vec<f64>>,
+    wastes_batch: Vec<Vec<f64>>,
     coords_batch: Vec<Vec<(f64, f64)>>,
     capacity: f64,
     r: f64,
@@ -242,9 +242,9 @@ fn solve_batch(
     max_vehicles: Option<usize>,
 ) -> PyResult<(Vec<Vec<Vec<usize>>>, Vec<f64>, Vec<f64>)> {
     let batch_size = dist_matrices.len();
-    if demands_batch.len() != batch_size {
+    if wastes_batch.len() != batch_size {
         return Err(pyo3::exceptions::PyValueError::new_err(
-            "Batch size mismatch between dists and demands",
+            "Batch size mismatch between dists and wastes",
         ));
     }
     // Handle coords batch if present or generate empty
@@ -260,7 +260,7 @@ fn solve_batch(
 
     let results: Vec<(Vec<Vec<usize>>, f64, f64)> = dist_matrices
         .into_par_iter()
-        .zip(demands_batch.into_par_iter())
+        .zip(wastes_batch.into_par_iter())
         .enumerate()
         .map(|(i, (dist, dem))| {
             let coords = if use_coords {

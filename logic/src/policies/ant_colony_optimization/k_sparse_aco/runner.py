@@ -10,7 +10,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.runner import run_k_sparse_aco
-    >>> result = run_k_sparse_aco(dist_matrix, demands, capacity, ...)
+    >>> result = run_k_sparse_aco(dist_matrix, wastes, capacity, ...)
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -23,7 +23,7 @@ from .solver import KSparseACOSolver
 
 def run_k_sparse_aco(
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: float,
     C: float,
@@ -36,7 +36,7 @@ def run_k_sparse_aco(
 
     Args:
         dist_matrix: Distance matrix.
-        demands: Node demands dictionary.
+        wastes: Node wastes dictionary.
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -63,5 +63,5 @@ def run_k_sparse_aco(
         elitist_weight=values.get("elitist_weight", 1.0),
     )
 
-    solver = KSparseACOSolver(dist_matrix, demands, capacity, R, C, params, mandatory_nodes)
+    solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

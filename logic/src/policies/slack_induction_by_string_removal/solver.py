@@ -10,7 +10,7 @@ Attributes:
 
 Example:
     >>> from logic.src.policies.slack_induction_by_string_removal.solver import SISRSolver
-    >>> solver = SISRSolver(dist_matrix, demands, ...)
+    >>> solver = SISRSolver(dist_matrix, wastes, ...)
     >>> result = solver.solve()
 """
 
@@ -37,7 +37,7 @@ class SISRSolver(PolicyVizMixin):
     def __init__(
         self,
         dist_matrix: np.ndarray,
-        demands: Dict[int, float],
+        wastes: Dict[int, float],
         capacity: float,
         R: float,
         C: float,
@@ -50,7 +50,7 @@ class SISRSolver(PolicyVizMixin):
             params: Parameters for the SISR algorithm.
         """
         self.dist_matrix = dist_matrix
-        self.demands = demands
+        self.wastes = wastes
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -91,7 +91,7 @@ class SISRSolver(PolicyVizMixin):
                 partial_routes,
                 removed,
                 self.dist_matrix,
-                self.demands,
+                self.wastes,
                 self.capacity,
                 blink_rate=self.params.blink_rate,
             )
@@ -127,7 +127,7 @@ class SISRSolver(PolicyVizMixin):
                 accepted=int(accept),
             )
 
-        collected_revenue = sum(self.demands.get(node, 0) * self.R for route in best_routes for node in route)
+        collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in best_routes for node in route)
         profit = collected_revenue - (best_cost * self.C)
 
         return best_routes, profit, best_cost
@@ -145,21 +145,21 @@ class SISRSolver(PolicyVizMixin):
 
     def _build_initial_solution(self) -> List[List[int]]:
         """Greedy constructive heuristic."""
-        nodes = list(self.demands.keys())
+        nodes = list(self.wastes.keys())
         random.shuffle(nodes)
         routes = []
         curr_route = []
         load = 0.0
         for node in nodes:
-            demand = self.demands.get(node, 0.0)
-            if load + demand <= self.capacity:
+            waste = self.wastes.get(node, 0.0)
+            if load + waste <= self.capacity:
                 curr_route.append(node)
-                load += demand
+                load += waste
             else:
                 if curr_route:
                     routes.append(curr_route)
                 curr_route = [node]
-                load = demand
+                load = waste
         if curr_route:
             routes.append(curr_route)
         return routes

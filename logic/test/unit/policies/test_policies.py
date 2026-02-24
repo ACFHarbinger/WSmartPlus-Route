@@ -184,12 +184,42 @@ class TestAdvancedSolverEngines:
         mock_model.objVal = 10.0
 
         dist_matrix = np.array([[0, 10, 100], [10, 0, 100], [100, 100, 0]], dtype=float)
-        demands = {1: 1, 2: 1}
+        wastes = {1: 1, 2: 1}
         capacity = 5
         R = 20
         C = 1
         values = {"time_limit": 1, "bcp_engine": "gurobi"}
-        pass
+        # Mock decision variables forExtraction logic
+        mock_vars = {}
+
+        def mock_add_var(vtype=None, name="", **kwargs):
+            m_var = MagicMock()
+            # Support Gurobi operator overloading for expressions
+            for op in ["__add__", "__sub__", "__mul__", "__rmul__", "__ge__", "__le__", "__eq__"]:
+                setattr(m_var, op, MagicMock(return_value=m_var))
+
+            if name == "x_0_1" or name == "x_1_0":
+                m_var.X = 1.0
+            else:
+                m_var.X = 0.0
+            mock_vars[name] = m_var
+            return m_var
+
+        mock_model.addVar.side_effect = mock_add_var
+
+        routes, cost = run_bcp(dist_matrix, wastes, capacity, R, C, values)
+
+        # Assertions
+        assert routes == [[1]]
+        assert cost == 10.0
+        assert mock_model.optimize.called
+        # Check if mandatory visit constraint was added if we provided must_go_indices
+        # In this call we didn't, so let's verify a call with must_go_indices as well
+        must_go_values = {"time_limit": 1, "bcp_engine": "gurobi"}
+        run_bcp(dist_matrix, wastes, capacity, R, C, must_go_values, must_go_indices={1})
+        # Verify that addConstr was called for the must_visit constraint
+        # The name in gurobi_engine.py is f"must_visit_{i}"
+        mock_model.addConstr.assert_any_call(mock_vars["y_1"] == 1, name="must_visit_1")
 
 
 class TestMultiVehiclePolicies:
@@ -204,12 +234,12 @@ class TestMultiVehiclePolicies:
             [20, 10, 0, 10],
             [10, 20, 10, 0],
         ], dtype=np.int32)
-        demands = np.array([1, 1, 1])
+        wastes = np.array([1, 1, 1])
         max_capacity = 5
         to_collect = np.array([1, 2, 3], dtype=np.int32)
         n_vehicles = 1
         depot = 0
-        tour = find_routes(dist_matrix, demands, max_capacity, to_collect, n_vehicles, depot=depot)
+        tour = find_routes(dist_matrix, wastes, max_capacity, to_collect, n_vehicles, depot=depot)
         assert isinstance(tour, list)
         assert set(tour) == {0, 1, 2, 3}
 

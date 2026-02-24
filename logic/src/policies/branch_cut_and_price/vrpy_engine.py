@@ -14,7 +14,7 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 def run_bcp_vrpy(
     dist_matrix: np.ndarray,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: float,
     C: float,
@@ -25,17 +25,17 @@ def run_bcp_vrpy(
     """
     Solve CVRP using VRPy (Column Generation / Branch-and-Price).
 
-    Note: VRPy does not natively support Prize-Collecting CVRP via simple
+    Note: VRPy does not natively support Waste-Collecting CVRP via simple
     configuration. This implementation solves standard CVRP for ALL nodes
-    present in the demands dictionary (no node dropping).
+    present in the wastes dictionary (no node dropping).
 
     Uses NetworkX DiGraph representation.
 
     Args:
         dist_matrix: Distance matrix (N x N)
-        demands: Node demands {node_id: demand_value}
+        wastes: Node wastes {node_id: waste_value}
         capacity: Vehicle capacity
-        R: Revenue per unit demand (unused in this variant)
+        R: Revenue per unit waste (unused in this variant)
         C: Cost per unit distance
         values: Config with 'time_limit' (default: 30)
         mandatory_nodes: Optional list of mandatory node indices (unused).
@@ -58,8 +58,8 @@ def run_bcp_vrpy(
 
     # Add Nodes
     for i in range(1, n_nodes + 1):
-        d = demands.get(i, 0.0)
-        G.add_node(i, demand=d)
+        d = wastes.get(i, 0.0)
+        G.add_node(i, waste=d)
 
     # Source and Sink
     SOURCE = "Source"

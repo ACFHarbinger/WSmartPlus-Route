@@ -22,7 +22,7 @@ def _create_variables(
     model: gp.Model,
     nodes: List[int],
     customers: List[int],
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
 ) -> Tuple[Dict[Tuple[int, int], gp.Var], Dict[int, gp.Var], Dict[int, gp.Var]]:
     """Create decision variables x, y, u."""
@@ -33,7 +33,7 @@ def _create_variables(
             if i != j:
                 x[i, j] = model.addVar(vtype=GRB.BINARY, name=f"x_{i}_{j}")
 
-    # y[i]: 1 if node i is visited (Prize Collecting)
+    # y[i]: 1 if node i is visited (Waste Collecting)
     y = {}
     for i in customers:
         y[i] = model.addVar(vtype=GRB.BINARY, name=f"y_{i}")
@@ -41,7 +41,7 @@ def _create_variables(
     # u[i]: load after visiting node i (MTZ)
     u = {}
     for i in customers:
-        u[i] = model.addVar(lb=demands.get(i, 0), ub=capacity, vtype=GRB.CONTINUOUS, name=f"u_{i}")
+        u[i] = model.addVar(lb=wastes.get(i, 0), ub=capacity, vtype=GRB.CONTINUOUS, name=f"u_{i}")
 
     return x, y, u
 
@@ -51,7 +51,7 @@ def _create_objective(
     x: Dict[Tuple[int, int], gp.Var],
     y: Dict[int, gp.Var],
     dist_matrix: Any,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     nodes: List[int],
     customers: List[int],
     R: float,
@@ -64,7 +64,7 @@ def _create_objective(
     revenue_penalty = gp.LinExpr(0)
     m_nodes = mandatory_nodes if mandatory_nodes is not None else set()
     for i in customers:
-        d = demands.get(i, 0)
+        d = wastes.get(i, 0)
         rev = d * R
         if i in m_nodes:
             # Must Visit constraint
@@ -83,7 +83,7 @@ def _add_constraints(
     u: Dict[int, gp.Var],
     nodes: List[int],
     customers: List[int],
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
 ) -> None:
     """Add flow conservation and capacity constraints."""
@@ -96,7 +96,7 @@ def _add_constraints(
     for i in customers:
         for j in customers:
             if i != j:
-                d_j = demands.get(j, 0)
+                d_j = wastes.get(j, 0)
                 model.addConstr(u[j] >= u[i] + d_j - capacity * (1 - x[i, j]), name=f"mtz_{i}_{j}")
 
 
@@ -129,7 +129,7 @@ def _extract_solution(
 
 def run_bcp_gurobi(
     dist_matrix: Any,
-    demands: Dict[int, float],
+    wastes: Dict[int, float],
     capacity: float,
     R: float,
     C: float,
@@ -139,11 +139,11 @@ def run_bcp_gurobi(
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
-    Solve Prize-Collecting CVRP using Gurobi MIP solver.
+    Solve Waste-Collecting CVRP using Gurobi MIP solver.
 
     Args:
         dist_matrix: NxN distance matrix.
-        demands: Dictionary of node demands.
+        wastes: Dictionary of node wastes.
         capacity: Maximum vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
@@ -162,9 +162,9 @@ def run_bcp_gurobi(
     customers = list(range(1, num_nodes))
 
     model = _setup_model(values, env)
-    x, y, u = _create_variables(model, nodes, customers, demands, capacity)
-    _create_objective(model, x, y, dist_matrix, demands, nodes, customers, R, C, m_set)
-    _add_constraints(model, x, y, u, nodes, customers, demands, capacity)
+    x, y, u = _create_variables(model, nodes, customers, wastes, capacity)
+    _create_objective(model, x, y, dist_matrix, wastes, nodes, customers, R, C, m_set)
+    _add_constraints(model, x, y, u, nodes, customers, wastes, capacity)
 
     model.optimize()
 

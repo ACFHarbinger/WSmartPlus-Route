@@ -588,7 +588,7 @@ Standardizes access to objects managing waste bin states in simulations and envi
 | Property             | Description                                    |
 | :------------------- | :--------------------------------------------- |
 | `fill_levels`        | Current normalized fill levels (batch, n_bins) |
-| `demands`            | Current bin demands/capacity usage             |
+| `wastes`             | Current bin wastes/capacity usage              |
 | `update_fill_levels` | Transition state after collection events       |
 
 **Usage Pattern**:
@@ -886,7 +886,7 @@ from logic.src.interfaces.must_go import SelectionContext
 | `IPostProcessing`  | Tour refinement                | `process`                        |
 | `ITraversable`     | Configuration standardization  | `get`, `items`, `keys`           |
 | `ITensorDictLike`  | Tensor storage standardization | `batch_size`, `device`, `get`    |
-| `IBinContainer`    | Bin state standardization      | `fill_levels`, `demands`         |
+| `IBinContainer`    | Bin state standardization      | `fill_levels`, `wastes`          |
 
 ### File Locations
 

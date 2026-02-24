@@ -128,12 +128,12 @@ class TestVectorizedPolicies:
     @pytest.mark.unit
     def test_vectorized_linear_split(self, v_device, v_sample_data):
         """Test vectorized linear split."""
-        dist, demands = v_sample_data
+        dist, wastes = v_sample_data
         tours = torch.tensor([[1, 2, 3, 4, 5]], device=v_device)
         dist_b = dist.unsqueeze(0)
-        demands_b = demands.unsqueeze(0)
+        wastes_b = wastes.unsqueeze(0)
         capacity = 2.0
-        routes, costs = vectorized_linear_split(tours, dist_b, demands_b, capacity)
+        routes, costs = vectorized_linear_split(tours, dist_b, wastes_b, capacity)
         assert len(routes) == 1
         assert costs.shape == (1,)
 
@@ -159,11 +159,11 @@ class TestVectorizedPolicies:
     @pytest.mark.unit
     def test_vectorized_hgs_solve(self, v_device, v_sample_data):
         """Test full HGS solve run."""
-        dist, demands = v_sample_data
+        dist, wastes = v_sample_data
         B = 1
         dist_b = dist.unsqueeze(0)
-        demands_b = demands.unsqueeze(0)
-        hgs = VectorizedHGS(dist_b, demands_b, vehicle_capacity=3.0, device=v_device)
+        wastes_b = wastes.unsqueeze(0)
+        hgs = VectorizedHGS(dist_b, wastes_b, vehicle_capacity=3.0, device=v_device)
         init_sol = torch.tensor([[1, 2, 3, 4, 5]], device=v_device)
         routes, costs = hgs.solve(init_sol, n_generations=5, population_size=10)
         assert len(routes) == B
@@ -184,9 +184,9 @@ class TestVectorizedPolicies:
         diff = locs.unsqueeze(2) - locs.unsqueeze(1)
         dist_matrix = torch.sqrt((diff**2).sum(dim=-1))
 
-        # Demands (B, N)
-        demands = torch.rand(batch_size, num_nodes, device=device) * 0.5
-        demands[:, 0] = 0.0  # Depot has 0 demand
+        # Wastes (B, N)
+        wastes = torch.rand(batch_size, num_nodes, device=device) * 0.5
+        wastes[:, 0] = 0.0  # Depot has 0 waste
 
         # Capacity (B,)
         capacity = torch.ones(batch_size, device=device) * 1.5
@@ -197,7 +197,7 @@ class TestVectorizedPolicies:
         # 2. Initialize Solver
         solver = VectorizedALNS(
             dist_matrix=dist_matrix,
-            demands=demands,
+            wastes=wastes,
             vehicle_capacity=capacity,
             time_limit=1.0,
             device=device,
@@ -224,7 +224,7 @@ class TestVectorizedPolicies:
                     assert curr_load <= capacity[b].item() + 1e-5
                     curr_load = 0
                 else:
-                    curr_load += demands[b, node].item()
+                    curr_load += wastes[b, node].item()
 
     @pytest.mark.unit
     def test_alns_policy_forward(self):
@@ -250,7 +250,7 @@ class TestVectorizedPolicies:
                 diff = locs.unsqueeze(2) - locs.unsqueeze(1)
                 dist_matrix = torch.sqrt((diff**2).sum(dim=-1))
 
-                demands = td["demand"]
+                wastes = td["waste"]
                 capacity = td["capacity"]
 
                 # Create initial solutions (random)
@@ -263,7 +263,7 @@ class TestVectorizedPolicies:
 
                 solver = VectorizedALNS(
                     dist_matrix=dist_matrix,
-                    demands=demands,
+                    wastes=wastes,
                     vehicle_capacity=capacity,
                     time_limit=self.time_limit,
                     device=locs.device
@@ -286,19 +286,19 @@ class TestVectorizedPolicies:
         td = TensorDict(
             {
                 "locs": torch.rand(batch_size, num_nodes, 2, device=device),
-                "demand": torch.rand(batch_size, num_nodes, device=device) * 0.2,
+                "waste": torch.rand(batch_size, num_nodes, device=device) * 0.2,
                 "depot": torch.zeros(batch_size, 2, device=device),
                 "capacity": torch.ones(batch_size, device=device),
             },
             batch_size=[batch_size],
         )
-        td["demand"][:, 0] = 0.0
+        td["waste"][:, 0] = 0.0
 
         policy = ALNSPolicyWrapper(env_name="cvrpp", time_limit=1.0, max_iterations=5).to(device)
 
         # Mock environment
         class MockEnv:
-            prize_weight = 1.0
+            waste_weight = 1.0
             cost_weight = 1.0
 
         out = policy(td, env=MockEnv())

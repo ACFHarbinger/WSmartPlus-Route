@@ -45,7 +45,7 @@ def train_opts(tmp_path):
         "w_overflows": 100.0,
         "w_lost": 10.0,
         "w_penalty": 0.0,
-        "w_prize": 0.0,
+        "w_waste": 0.0,
         "mrl_method": "cb",
         "hpo_method": "gs",
     }
@@ -227,7 +227,7 @@ def parity_instance():
     Small VRPP instance where all solvers should ideally match or be very close.
     5 Bins, 1 Vehicle, Capacity 100.
     """
-    bins = np.array([10.0, 20.0, 30.0, 40.0, 50.0])  # Demands/Fill
+    bins = np.array([10.0, 20.0, 30.0, 40.0, 50.0])  # Wastes/Fill
     dist_matrix = [
         [0, 10, 20, 30, 40, 50],
         [10, 0, 10, 20, 30, 40],
@@ -238,7 +238,7 @@ def parity_instance():
     ]
     values = {
         "Q": 1000.0,  # Large capacity to allow visiting all
-        "R": 1.0,     # Prize per unit
+        "R": 1.0,     # Revenue per unit
         "B": 1.0,
         "C": 1.0,     # Cost per unit distance
         "V": 1.0,

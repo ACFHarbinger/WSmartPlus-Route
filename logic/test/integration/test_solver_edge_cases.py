@@ -9,9 +9,9 @@ class TestSolverEdgeCases:
     Tests for solver stability handling edge cases:
     - N=0 (No clients)
     - N=1 (Single client)
-    - Exact Capacity (Demand = Capacity)
-    - Zero Demand (Client with 0 demand)
-    - Impossible Demand (Demand > Capacity)
+    - Exact Capacity (Waste = Capacity)
+    - Zero Waste (Client with 0 waste)
+    - Impossible Waste (Waste > Capacity)
     """
 
     @pytest.fixture
@@ -74,7 +74,7 @@ class TestSolverEdgeCases:
             try:
                 tour = find_routes_ortools(
                     dist_mat=np.array(data["dist_matrix"]),
-                    demands=np.array([0]), # Depot demand
+                    wastes=np.array([0]), # Depot waste
                     max_caps=100,
                     to_collect=[], # Empty list
                     n_vehicles=1
@@ -87,7 +87,7 @@ class TestSolverEdgeCases:
             try:
                 tour = find_routes(
                     dist_mat=np.array(data["dist_matrix"]),
-                    demands=np.array([0]), # Depot demand
+                    wastes=np.array([0]), # Depot waste
                     max_caps=100,
                     to_collect=[], # Empty list
                     n_vehicles=1
@@ -98,10 +98,10 @@ class TestSolverEdgeCases:
 
         elif backend == "hgs":
             try:
-                demands_dict = {}
+                wastes_dict = {}
                 routes, _, _ = run_hgs(
                     np.array(data["dist_matrix"]),
-                    demands_dict,
+                    wastes_dict,
                     100,
                     1.0, 1.0, data["values"]
                 )
@@ -147,7 +147,7 @@ class TestSolverEdgeCases:
         if backend == "ortools":
             tour = find_routes_ortools(
                 dist_mat=np.array(data["dist_matrix"]),
-                demands=np.array([0, 50]),
+                wastes=np.array([0, 50]),
                 max_caps=100,
                 to_collect=[1],
                 n_vehicles=1
@@ -157,7 +157,7 @@ class TestSolverEdgeCases:
         elif backend == "pyvrp":
             tour = find_routes(
                 dist_mat=np.array(data["dist_matrix"]),
-                demands=np.array([0, 50]),
+                wastes=np.array([0, 50]),
                 max_caps=100,
                 to_collect=[1],
                 n_vehicles=1
@@ -165,10 +165,10 @@ class TestSolverEdgeCases:
             assert 1 in tour
 
         elif backend == "hgs":
-            demands_dict = {1: 50}
+            wastes_dict = {1: 50}
             routes, _, _ = run_hgs(
                 np.array(data["dist_matrix"]),
-                demands_dict,
+                wastes_dict,
                 100, 1.0, 1.0, data["values"]
             )
             flat = []
@@ -181,7 +181,7 @@ class TestSolverEdgeCases:
     @pytest.mark.integration
     @pytest.mark.parametrize("backend", ["gurobi"])
     def test_exact_capacity(self, backend, check_license):
-        """Test with demand exactly equal to capacity."""
+        """Test with waste exactly equal to capacity."""
         # 2 nodes, 50+50 = 100 capacity.
         bins = np.array([50.0, 50.0])
         dist_matrix = [[0,1,1],[1,0,1],[1,1,0]]
@@ -206,12 +206,12 @@ class TestSolverEdgeCases:
             pytest.skip(f"Gurobi skipped/failed: {e}")
 
     @pytest.mark.integration
-    def test_zero_demand_node(self):
-        """Test handling of nodes with 0 demand."""
+    def test_zero_waste_node(self):
+        """Test handling of nodes with 0 waste."""
         # Should be valid to visit.
         tour = find_routes_ortools(
             dist_mat=np.array([[0,1],[1,0]]),
-            demands=np.array([0, 0]), # Node 1 has 0 demand
+            wastes=np.array([0, 0]), # Node 1 has 0 waste
             max_caps=100,
             to_collect=[1],
             n_vehicles=1
@@ -219,21 +219,16 @@ class TestSolverEdgeCases:
         assert 1 in tour
 
     @pytest.mark.integration
-    def test_impossible_demand_pyvrp(self):
-        """Test demand > capacity."""
-        # PyVRP acts as VRP solver. If demand > capacity, it might fail or return partial?
-        # Typically undefined behavior or error. We just want it NOT to segfault.
+    def test_impossible_waste_pyvrp(self):
+        """Test waste > capacity."""
         try:
             tour = find_routes(
                 dist_mat=np.array([[0,1],[1,0]]),
-                demands=np.array([0, 150]), # 150 > 100
+                wastes=np.array([0, 150]), # 150 > 100
                 max_caps=100,
                 to_collect=[1],
                 n_vehicles=1
             )
-            # It might visit it if multiple trips allowed? PyVRP usually assumes single trip per vehicle unless configured.
-            # Here we check it returns SOMETHING list-like.
             assert isinstance(tour, list)
         except Exception:
-            # Raising exception is also acceptable for impossible constraints
             pass

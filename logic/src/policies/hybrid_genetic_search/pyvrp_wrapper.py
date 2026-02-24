@@ -10,12 +10,12 @@ import pyvrp
 from pyvrp.stop import MaxRuntime
 
 
-def solve_pyvrp(dist_matrix, demands, capacity, R, C, values):
+def solve_pyvrp(dist_matrix, wastes, capacity, R, C, values):
     """
     Solve using external PyVRP library, matching WSmart-Route style.
     """
     # 1. Map active nodes
-    active_nodes = [0] + sorted(list(demands.keys()))
+    active_nodes = [0] + sorted(list(wastes.keys()))
     compact_to_global = {c: g for c, g in enumerate(active_nodes)}
     n_active = len(active_nodes)
 
@@ -24,8 +24,8 @@ def solve_pyvrp(dist_matrix, demands, capacity, R, C, values):
     # Index 0 is depot in active_nodes, so we start from 1
     for i in range(1, n_active):
         g = compact_to_global[i]
-        d = int(demands.get(g, 0))
-        # Use delivery for demand as in cvrp.py
+        d = int(wastes.get(g, 0))
+        # Use delivery for waste as in cvrp.py
         clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
 
     depots_list = [pyvrp.Depot(x=0, y=0)]
@@ -61,7 +61,7 @@ def solve_pyvrp(dist_matrix, demands, capacity, R, C, values):
         routes.append(r)
 
     total_cost = res.cost() * C
-    collected_revenue = sum(demands[n] * R for r in routes for n in r)
+    collected_revenue = sum(wastes[n] * R for r in routes for n in r)
     profit = collected_revenue - total_cost
 
     return routes, profit, total_cost
