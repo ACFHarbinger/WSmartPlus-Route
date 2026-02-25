@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.simulated_annealing_neighborhood_search.select.random
 src.policies.simulated_annealing_neighborhood_search.select.consecutive
 src.policies.simulated_annealing_neighborhood_search.select.greedy
+src.policies.simulated_annealing_neighborhood_search.select.random
 ```
 
 ## Package Contents

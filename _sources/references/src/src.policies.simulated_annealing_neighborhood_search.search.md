@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.simulated_annealing_neighborhood_search.search.random_search
 src.policies.simulated_annealing_neighborhood_search.search.reversed
 src.policies.simulated_annealing_neighborhood_search.search.deterministic
+src.policies.simulated_annealing_neighborhood_search.search.random_search
 ```
 
 ## Package Contents

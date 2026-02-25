@@ -14,8 +14,8 @@
 :maxdepth: 3
 
 src.pipeline.features.eval
-src.pipeline.features.train
 src.pipeline.features.test
+src.pipeline.features.train
 ```
 
 ## Submodules

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.rl.common.base.optimization
 src.pipeline.rl.common.base.module
+src.pipeline.rl.common.base.optimization
 src.pipeline.rl.common.base.steps
 src.pipeline.rl.common.base.data
 ```

@@ -40,11 +40,11 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:property} demands
-:canonical: src.interfaces.bin_container.IBinContainer.demands
+````{py:property} wastes
+:canonical: src.interfaces.bin_container.IBinContainer.wastes
 :type: torch.Tensor
 
-```{autodoc2-docstring} src.interfaces.bin_container.IBinContainer.demands
+```{autodoc2-docstring} src.interfaces.bin_container.IBinContainer.wastes
 ```
 
 ````

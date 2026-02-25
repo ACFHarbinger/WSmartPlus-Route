@@ -22,12 +22,12 @@ src.policies.other.must_go.base
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.must_go.selection_last_minute
 src.policies.other.must_go.selection_combined
 src.policies.other.must_go.selection_service_level
+src.policies.other.must_go.selection_last_minute
+src.policies.other.must_go.selection_lookahead
 src.policies.other.must_go.selection_revenue
 src.policies.other.must_go.selection_regular
-src.policies.other.must_go.selection_lookahead
 ```
 
 ## Package Contents

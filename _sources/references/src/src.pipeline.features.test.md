@@ -22,10 +22,10 @@ src.pipeline.features.test.orchestrator
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.features.test.engine
+src.pipeline.features.test.config
 src.pipeline.features.test.zenml_sim_pipeline
 src.pipeline.features.test.validation
-src.pipeline.features.test.config
-src.pipeline.features.test.engine
 ```
 
 ## Package Contents

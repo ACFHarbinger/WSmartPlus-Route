@@ -162,7 +162,7 @@
 :canonical: src.constants.simulation.PROBLEMS
 :type: typing.List[str]
 :value: >
-   ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'sdwcvrp', 'scwcvrp']
+   ['vrpp', 'cvrpp', 'wcvrp', 'cwcvrp', 'scwcvrp']
 
 ```{autodoc2-docstring} src.constants.simulation.PROBLEMS
 ```

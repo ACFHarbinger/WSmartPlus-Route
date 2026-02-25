@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.local_search.local_search_base
 src.policies.local_search.local_search_aco
+src.policies.local_search.local_search_base
 src.policies.local_search.local_search_hgs
 ```
 

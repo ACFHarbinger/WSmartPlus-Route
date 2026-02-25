@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} HGSSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.params.HGSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} HGSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.params.HGSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -67,7 +67,7 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 `````
 
-````{py:function} run_hgs(dist_matrix, demands, capacity, R, C, values, mandatory_nodes=None, *args)
+````{py:function} run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args)
 :canonical: src.policies.hybrid_genetic_search.hgs.run_hgs
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.run_hgs

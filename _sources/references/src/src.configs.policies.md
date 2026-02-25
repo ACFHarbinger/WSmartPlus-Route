@@ -22,20 +22,20 @@ src.configs.policies.other
 :titlesonly:
 :maxdepth: 1
 
-src.configs.policies.ahvpl
+src.configs.policies.tsp
+src.configs.policies.cvrp
 src.configs.policies.aco
-src.configs.policies.vrpp
-src.configs.policies.hvpl
+src.configs.policies.ahvpl
+src.configs.policies.hgs
 src.configs.policies.sisr
 src.configs.policies.bcp
-src.configs.policies.cvrp
 src.configs.policies.alns
-src.configs.policies.lkh
-src.configs.policies.hgs
-src.configs.policies.sans
 src.configs.policies.neural
+src.configs.policies.lkh
 src.configs.policies.hgs_alns
-src.configs.policies.tsp
+src.configs.policies.hvpl
+src.configs.policies.sans
+src.configs.policies.vrpp
 ```
 
 ## Package Contents

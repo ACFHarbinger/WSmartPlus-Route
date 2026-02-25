@@ -31,21 +31,21 @@
 
 ### API
 
-````{py:function} find_routes(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2.0, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
+````{py:function} find_routes(dist_mat, wastes, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2.0, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.cvrp.find_routes
 
 ```{autodoc2-docstring} src.policies.cvrp.find_routes
 ```
 ````
 
-````{py:function} find_routes_ortools(dist_mat, demands, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
+````{py:function} find_routes_ortools(dist_mat, wastes, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.cvrp.find_routes_ortools
 
 ```{autodoc2-docstring} src.policies.cvrp.find_routes_ortools
 ```
 ````
 
-````{py:function} get_solution_costs(demands: typing.List[int], n_vehicles: int, manager: ortools.constraint_solver.pywrapcp.RoutingIndexManager, routing: ortools.constraint_solver.pywrapcp.RoutingModel, solution: ortools.constraint_solver.pywrapcp.Assignment, distancesC: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int], typing.List[int], typing.List[int]]
+````{py:function} get_solution_costs(wastes: typing.List[int], n_vehicles: int, manager: ortools.constraint_solver.pywrapcp.RoutingIndexManager, routing: ortools.constraint_solver.pywrapcp.RoutingModel, solution: ortools.constraint_solver.pywrapcp.Assignment, distancesC: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int], typing.List[int], typing.List[int]]
 :canonical: src.policies.cvrp.get_solution_costs
 
 ```{autodoc2-docstring} src.policies.cvrp.get_solution_costs

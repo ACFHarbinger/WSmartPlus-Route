@@ -23,8 +23,8 @@ src.pipeline.features.train.model_factory
 :maxdepth: 1
 
 src.pipeline.features.train.zenml_train_pipeline
-src.pipeline.features.train.hpo
 src.pipeline.features.train.engine
+src.pipeline.features.train.hpo
 ```
 
 ## Package Contents

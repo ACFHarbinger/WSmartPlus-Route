@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.simulated_annealing_neighborhood_search.common.penalties
 src.policies.simulated_annealing_neighborhood_search.common.solution_initialization
-src.policies.simulated_annealing_neighborhood_search.common.update
-src.policies.simulated_annealing_neighborhood_search.common.check
-src.policies.simulated_annealing_neighborhood_search.common.revenue
 src.policies.simulated_annealing_neighborhood_search.common.objectives
-src.policies.simulated_annealing_neighborhood_search.common.routes
+src.policies.simulated_annealing_neighborhood_search.common.check
 src.policies.simulated_annealing_neighborhood_search.common.distance
+src.policies.simulated_annealing_neighborhood_search.common.revenue
+src.policies.simulated_annealing_neighborhood_search.common.update
+src.policies.simulated_annealing_neighborhood_search.common.penalties
+src.policies.simulated_annealing_neighborhood_search.common.routes
 ```
 
 ## Package Contents

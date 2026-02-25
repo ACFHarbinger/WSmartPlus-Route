@@ -27,7 +27,7 @@
 
 ### API
 
-`````{py:class} VectorizedHGSALNSEngine(dist_matrix: torch.Tensor, demands: torch.Tensor, vehicle_capacity: typing.Any, time_limit: float = 1.0, device: str = 'cuda', alns_education_iterations: int = 50)
+`````{py:class} VectorizedHGSALNSEngine(dist_matrix: torch.Tensor, wastes: torch.Tensor, vehicle_capacity: typing.Any, time_limit: float = 1.0, device: str = 'cuda', alns_education_iterations: int = 50)
 :canonical: src.models.policies.hgs_alns.VectorizedHGSALNSEngine
 
 Bases: {py:obj}`logic.src.models.policies.hybrid_genetic_search.VectorizedHGS`

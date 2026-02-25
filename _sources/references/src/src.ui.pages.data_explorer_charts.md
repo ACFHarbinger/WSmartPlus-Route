@@ -51,6 +51,22 @@
   - ```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_selected_chart
     :summary:
     ```
+* - {py:obj}`_find_td_table <src.ui.pages.data_explorer_charts._find_td_table>`
+  - ```{autodoc2-docstring} src.ui.pages.data_explorer_charts._find_td_table
+    :summary:
+    ```
+* - {py:obj}`_render_td_coord_section <src.ui.pages.data_explorer_charts._render_td_coord_section>`
+  - ```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_td_coord_section
+    :summary:
+    ```
+* - {py:obj}`_render_td_dist_section <src.ui.pages.data_explorer_charts._render_td_dist_section>`
+  - ```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_td_dist_section
+    :summary:
+    ```
+* - {py:obj}`_render_td_overview_tab <src.ui.pages.data_explorer_charts._render_td_overview_tab>`
+  - ```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_td_overview_tab
+    :summary:
+    ```
 ````
 
 ### Data
@@ -137,5 +153,33 @@
 :canonical: src.ui.pages.data_explorer_charts._render_selected_chart
 
 ```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_selected_chart
+```
+````
+
+````{py:function} _find_td_table(tables: typing.Dict[str, pandas.DataFrame], key: str) -> typing.Optional[pandas.DataFrame]
+:canonical: src.ui.pages.data_explorer_charts._find_td_table
+
+```{autodoc2-docstring} src.ui.pages.data_explorer_charts._find_td_table
+```
+````
+
+````{py:function} _render_td_coord_section(tables: typing.Dict[str, pandas.DataFrame], coord_keys: typing.List[str], depot_keys: typing.List[str], lazy_loader: typing.Optional[typing.Callable[[str], typing.Optional[pandas.DataFrame]]] = None) -> None
+:canonical: src.ui.pages.data_explorer_charts._render_td_coord_section
+
+```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_td_coord_section
+```
+````
+
+````{py:function} _render_td_dist_section(tables: typing.Dict[str, pandas.DataFrame], scalar_keys: typing.List[str], lazy_loader: typing.Optional[typing.Callable[[str], typing.Optional[pandas.DataFrame]]] = None) -> None
+:canonical: src.ui.pages.data_explorer_charts._render_td_dist_section
+
+```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_td_dist_section
+```
+````
+
+````{py:function} _render_td_overview_tab(td_meta: typing.Dict[str, typing.Any], tables: typing.Dict[str, pandas.DataFrame], lazy_loader: typing.Optional[typing.Callable[[str], typing.Optional[pandas.DataFrame]]] = None) -> None
+:canonical: src.ui.pages.data_explorer_charts._render_td_overview_tab
+
+```{autodoc2-docstring} src.ui.pages.data_explorer_charts._render_td_overview_tab
 ```
 ````

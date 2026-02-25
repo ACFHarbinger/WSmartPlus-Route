@@ -27,8 +27,8 @@
   - ```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._add_capacity_constraints
     :summary:
     ```
-* - {py:obj}`_add_prize_collecting_penalties <src.policies.branch_cut_and_price.ortools_engine._add_prize_collecting_penalties>`
-  - ```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._add_prize_collecting_penalties
+* - {py:obj}`_add_waste_collecting_penalties <src.policies.branch_cut_and_price.ortools_engine._add_waste_collecting_penalties>`
+  - ```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._add_waste_collecting_penalties
     :summary:
     ```
 * - {py:obj}`_get_search_parameters <src.policies.branch_cut_and_price.ortools_engine._get_search_parameters>`
@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} run_bcp_ortools(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:function} run_bcp_ortools(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_cut_and_price.ortools_engine.run_bcp_ortools
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine.run_bcp_ortools
@@ -61,17 +61,17 @@
 ```
 ````
 
-````{py:function} _add_capacity_constraints(routing: ortools.constraint_solver.pywrapcp.RoutingModel, manager: ortools.constraint_solver.pywrapcp.RoutingIndexManager, demands: typing.Dict[int, float], capacity: float, num_vehicles: int) -> None
+````{py:function} _add_capacity_constraints(routing: ortools.constraint_solver.pywrapcp.RoutingModel, manager: ortools.constraint_solver.pywrapcp.RoutingIndexManager, wastes: typing.Dict[int, float], capacity: float, num_vehicles: int) -> None
 :canonical: src.policies.branch_cut_and_price.ortools_engine._add_capacity_constraints
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._add_capacity_constraints
 ```
 ````
 
-````{py:function} _add_prize_collecting_penalties(routing: ortools.constraint_solver.pywrapcp.RoutingModel, manager: ortools.constraint_solver.pywrapcp.RoutingIndexManager, demands: typing.Dict[int, float], mandatory_nodes: typing.Optional[typing.List[int]], R: float, num_nodes: int) -> None
-:canonical: src.policies.branch_cut_and_price.ortools_engine._add_prize_collecting_penalties
+````{py:function} _add_waste_collecting_penalties(routing: ortools.constraint_solver.pywrapcp.RoutingModel, manager: ortools.constraint_solver.pywrapcp.RoutingIndexManager, wastes: typing.Dict[int, float], mandatory_nodes: typing.Optional[typing.List[int]], R: float, num_nodes: int) -> None
+:canonical: src.policies.branch_cut_and_price.ortools_engine._add_waste_collecting_penalties
 
-```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._add_prize_collecting_penalties
+```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._add_waste_collecting_penalties
 ```
 ````
 

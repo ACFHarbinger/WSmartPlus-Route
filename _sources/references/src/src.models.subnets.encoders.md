@@ -13,20 +13,20 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.subnets.encoders.mdam
-src.models.subnets.encoders.tgc
-src.models.subnets.encoders.gfacs
-src.models.subnets.encoders.deepaco
-src.models.subnets.encoders.nargnn
-src.models.subnets.encoders.ggac
-src.models.subnets.encoders.gac
-src.models.subnets.encoders.mlp
-src.models.subnets.encoders.gcn
-src.models.subnets.encoders.gat
-src.models.subnets.encoders.matnet
 src.models.subnets.encoders.common
+src.models.subnets.encoders.nargnn
+src.models.subnets.encoders.gac
+src.models.subnets.encoders.gfacs
+src.models.subnets.encoders.gat
 src.models.subnets.encoders.ptr
+src.models.subnets.encoders.deepaco
+src.models.subnets.encoders.mlp
 src.models.subnets.encoders.moe
+src.models.subnets.encoders.ggac
+src.models.subnets.encoders.mdam
+src.models.subnets.encoders.matnet
+src.models.subnets.encoders.tgc
+src.models.subnets.encoders.gcn
 ```
 
 ## Package Contents

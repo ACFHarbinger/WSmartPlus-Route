@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.rl.meta.weight_strategy
 src.pipeline.rl.meta.contextual_bandits
-src.pipeline.rl.meta.module
-src.pipeline.rl.meta.hypernet_strategy
-src.pipeline.rl.meta.weight_optimizer
-src.pipeline.rl.meta.td_learning
 src.pipeline.rl.meta.hrl
+src.pipeline.rl.meta.module
+src.pipeline.rl.meta.weight_optimizer
+src.pipeline.rl.meta.hypernet_strategy
+src.pipeline.rl.meta.td_learning
 src.pipeline.rl.meta.registry
+src.pipeline.rl.meta.weight_strategy
 ```
 
 ## Package Contents

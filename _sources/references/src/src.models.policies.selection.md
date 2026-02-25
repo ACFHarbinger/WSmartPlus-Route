@@ -14,14 +14,14 @@
 :maxdepth: 1
 
 src.models.policies.selection.factory
-src.models.policies.selection.service_level
-src.models.policies.selection.last_minute
-src.models.policies.selection.combined
-src.models.policies.selection.regular
-src.models.policies.selection.revenue
-src.models.policies.selection.manager
 src.models.policies.selection.lookahead
 src.models.policies.selection.base
+src.models.policies.selection.last_minute
+src.models.policies.selection.regular
+src.models.policies.selection.service_level
+src.models.policies.selection.revenue
+src.models.policies.selection.combined
+src.models.policies.selection.manager
 ```
 
 ## Package Contents

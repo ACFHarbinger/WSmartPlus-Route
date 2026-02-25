@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.rl.hpo.base
+src.pipeline.rl.hpo.zenml_hpo_pipeline
 src.pipeline.rl.hpo.dehb
 src.pipeline.rl.hpo.ray_tune_hpo
 src.pipeline.rl.hpo.optuna_hpo
-src.pipeline.rl.hpo.zenml_hpo_pipeline
-src.pipeline.rl.hpo.base
 ```
 
 ## Package Contents

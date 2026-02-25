@@ -47,7 +47,7 @@
 
 ### API
 
-`````{py:class} ALNSState(routes: typing.List[typing.List[int]], unassigned: typing.List[int], dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any])
+`````{py:class} ALNSState(routes: typing.List[typing.List[int]], unassigned: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any])
 :canonical: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
@@ -115,7 +115,7 @@
 ```
 ````
 
-````{py:function} run_alns_package(dist_matrix, demands, capacity, R, C, values, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
+````{py:function} run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.adaptive_large_neighborhood_search.alns_package.run_alns_package
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns_package.run_alns_package

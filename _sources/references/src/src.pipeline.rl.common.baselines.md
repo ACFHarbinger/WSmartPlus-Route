@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.rl.common.baselines.rollout
-src.pipeline.rl.common.baselines.none
-src.pipeline.rl.common.baselines.mean
-src.pipeline.rl.common.baselines.critic
+src.pipeline.rl.common.baselines.base
 src.pipeline.rl.common.baselines.warmup
+src.pipeline.rl.common.baselines.mean
+src.pipeline.rl.common.baselines.exponential
+src.pipeline.rl.common.baselines.none
 src.pipeline.rl.common.baselines.pomo
 src.pipeline.rl.common.baselines.shared_critic
-src.pipeline.rl.common.baselines.exponential
-src.pipeline.rl.common.baselines.base
+src.pipeline.rl.common.baselines.critic
+src.pipeline.rl.common.baselines.rollout
 ```
 
 ## Package Contents

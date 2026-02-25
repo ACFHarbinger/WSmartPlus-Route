@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 3
 
-src.tracking.helpers
-src.tracking.hooks
-src.tracking.core
-src.tracking.profiling
 src.tracking.integrations
 src.tracking.database
+src.tracking.profiling
+src.tracking.helpers
+src.tracking.hooks
 src.tracking.logging
+src.tracking.core
 src.tracking.validation
 ```
 

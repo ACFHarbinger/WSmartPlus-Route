@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hybrid_genetic_search.params
-src.policies.hybrid_genetic_search.split
-src.policies.hybrid_genetic_search.pyvrp_wrapper
-src.policies.hybrid_genetic_search.evolution
 src.policies.hybrid_genetic_search.hgs
+src.policies.hybrid_genetic_search.params
+src.policies.hybrid_genetic_search.pyvrp_wrapper
 src.policies.hybrid_genetic_search.individual
+src.policies.hybrid_genetic_search.split
+src.policies.hybrid_genetic_search.evolution
 ```
 
 ## Package Contents

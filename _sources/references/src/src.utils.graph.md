@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.graph.network_utils
-src.utils.graph.generation
 src.utils.graph.algorithms
 src.utils.graph.conversion
+src.utils.graph.network_utils
+src.utils.graph.generation
 ```
 
 ## Package Contents

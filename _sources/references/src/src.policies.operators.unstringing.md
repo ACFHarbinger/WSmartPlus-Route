@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.operators.unstringing.type_iii
 src.policies.operators.unstringing.type_ii
 src.policies.operators.unstringing.type_i
-src.policies.operators.unstringing.type_iii
 src.policies.operators.unstringing.type_iv
 ```
 

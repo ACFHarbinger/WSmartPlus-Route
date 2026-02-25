@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} vectorized_linear_split(giant_tours, dist_matrix, demands, vehicle_capacity, max_len=None, max_vehicles=None)
+````{py:function} vectorized_linear_split(giant_tours, dist_matrix, wastes, vehicle_capacity, max_len=None, max_vehicles=None)
 :canonical: src.models.policies.shared.linear.vectorized_linear_split
 
 ```{autodoc2-docstring} src.models.policies.shared.linear.vectorized_linear_split

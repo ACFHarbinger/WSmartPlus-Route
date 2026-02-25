@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HGSALNSSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.HGSParams, alns_education_iterations: int = 50, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} HGSALNSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.HGSParams, alns_education_iterations: int = 50, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hgs_alns.HGSALNSSolver
 
 Bases: {py:obj}`src.policies.hybrid_genetic_search.hgs.HGSSolver`

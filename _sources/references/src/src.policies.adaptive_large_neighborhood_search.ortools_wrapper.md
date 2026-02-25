@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} run_alns_ortools(dist_matrix, demands, capacity, R, C, values)
+````{py:function} run_alns_ortools(dist_matrix, wastes, capacity, R, C, values)
 :canonical: src.policies.adaptive_large_neighborhood_search.ortools_wrapper.run_alns_ortools
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.ortools_wrapper.run_alns_ortools

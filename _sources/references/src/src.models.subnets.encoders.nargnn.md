@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.nargnn.gnn_layer
+src.models.subnets.encoders.nargnn.gnn_encoder
+src.models.subnets.encoders.nargnn.edge_embedding
 src.models.subnets.encoders.nargnn.node_encoder
 src.models.subnets.encoders.nargnn.encoder
-src.models.subnets.encoders.nargnn.edge_embedding
+src.models.subnets.encoders.nargnn.gnn_layer
 src.models.subnets.encoders.nargnn.edge_heatmap_generator
-src.models.subnets.encoders.nargnn.gnn_encoder
 ```
 
 ## Package Contents

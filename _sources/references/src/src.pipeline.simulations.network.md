@@ -22,13 +22,13 @@ src.pipeline.simulations.network.base
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.simulations.network.euclidean
-src.pipeline.simulations.network.file
 src.pipeline.simulations.network.osm
+src.pipeline.simulations.network.euclidean
 src.pipeline.simulations.network.google
+src.pipeline.simulations.network.geopandas
 src.pipeline.simulations.network.haversine
 src.pipeline.simulations.network.geodesic
-src.pipeline.simulations.network.geopandas
+src.pipeline.simulations.network.file
 ```
 
 ## Package Contents

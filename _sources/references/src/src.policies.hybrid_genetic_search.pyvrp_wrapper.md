@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} solve_pyvrp(dist_matrix, demands, capacity, R, C, values)
+````{py:function} solve_pyvrp(dist_matrix, wastes, capacity, R, C, values)
 :canonical: src.policies.hybrid_genetic_search.pyvrp_wrapper.solve_pyvrp
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.pyvrp_wrapper.solve_pyvrp

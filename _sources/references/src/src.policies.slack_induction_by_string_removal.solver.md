@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SISRSolver(dist_matrix: numpy.ndarray, demands: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.slack_induction_by_string_removal.params.SISRParams)
+`````{py:class} SISRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.slack_induction_by_string_removal.params.SISRParams)
 :canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

@@ -68,7 +68,7 @@
 ```
 ````
 
-````{py:function} calculate_efficiency(routes, dist_matrix, demand, capacity)
+````{py:function} calculate_efficiency(routes, dist_matrix, waste, capacity)
 :canonical: src.pipeline.rl.common.post_processing.calculate_efficiency
 
 ```{autodoc2-docstring} src.pipeline.rl.common.post_processing.calculate_efficiency

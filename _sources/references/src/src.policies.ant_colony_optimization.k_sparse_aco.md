@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.policies.ant_colony_optimization.k_sparse_aco.params
-src.policies.ant_colony_optimization.k_sparse_aco.solver
-src.policies.ant_colony_optimization.k_sparse_aco.pheromones
-src.policies.ant_colony_optimization.k_sparse_aco.runner
 src.policies.ant_colony_optimization.k_sparse_aco.construction
+src.policies.ant_colony_optimization.k_sparse_aco.pheromones
+src.policies.ant_colony_optimization.k_sparse_aco.solver
+src.policies.ant_colony_optimization.k_sparse_aco.runner
 ```
 
 ## Package Contents

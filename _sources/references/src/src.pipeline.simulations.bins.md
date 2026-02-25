@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.simulations.bins.prediction
 src.pipeline.simulations.bins.base
+src.pipeline.simulations.bins.prediction
 ```
 
 ## Package Contents
