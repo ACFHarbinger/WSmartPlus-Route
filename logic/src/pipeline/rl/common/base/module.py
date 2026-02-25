@@ -144,10 +144,16 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
         # Convert hparams to a serializable dict
         hparams_dict: Dict[str, Any] = {}
-        # ... logic to populate hparams_dict ...
+        for k, v in self.hparams.items():
+            if isinstance(v, (str, int, float, bool, list, dict)) or v is None:
+                hparams_dict[k] = v
+            else:
+                hparams_dict[k] = str(v)
+
         try:
             with open(args_path, "w") as f:
                 json.dump(hparams_dict, f, indent=4)
+            logger.info(f"Saved sidecar args.json to {args_path}")
         except (OSError, TypeError, ValueError) as e:
             logger.warning(f"Could not save sidecar args.json: {e}")
 
