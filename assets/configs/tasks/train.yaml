@@ -23,19 +23,19 @@ defaults:
 # =============================================================================
 seed: 42 # Random seed for reproducibility
 start: 0 # Starting epoch (for resuming training)
-load_dataset: "data/datasets/${env.name}/${env.name}${env.num_loc}_${env.data_distribution}_time${train.n_epochs}_seed${train.seed}.td"
+load_dataset: "data/datasets/vrpp/vrpp170_gamma1_time31_seed42.td"
 
 # =============================================================================
 # Environment
 # =============================================================================
 env:
-  name: "wcvrp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
+  name: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
 
 # =============================================================================
 # Training Settings
 # =============================================================================
 train:
-  train_data_size: 1280 # Number of training instances per epoch
+  train_data_size: 12800 # Number of training instances per epoch
   val_data_size: 128 # Number of validation instances
 
   train_time: true # Enable multi-day temporal training (for WCVRP)
@@ -44,7 +44,7 @@ train:
   data_distribution: "gamma1" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
   seed: 42 # Random seed for dataset generation
 
-  n_epochs: 100 # Total training epochs
+  n_epochs: 31 # Total training epochs
   batch_size: 128 # Training batch size. Reduce if OOM errors occur.
   eval_batch_size: 128 # Validation batch size (can be larger than train)
 
@@ -70,14 +70,14 @@ optim:
 # =============================================================================
 rl:
   algorithm:
-    "adaptive_imitation" # RL algorithm. Options:
+    "reinforce" # RL algorithm. Options:
     # - "adaptive_imitation": IL → RL transition
     # - "reinforce": REINFORCE with baseline
     # - "ppo": Proximal Policy Optimization
     # - "imitation": Pure imitation learning
 
   # Baseline Configuration
-  baseline: "exponential" # Baseline type. Options: exponential, rollout, critic, no
+  baseline: "rollout" # Baseline type. Options: exponential, rollout, critic, no
   bl_alpha: 0.05 # Exponential baseline moving average weight
   exp_beta: 0.8 # Exponential moving average coefficient
 

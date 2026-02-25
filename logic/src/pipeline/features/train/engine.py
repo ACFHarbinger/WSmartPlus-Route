@@ -163,8 +163,12 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
 
         # Save final weights if path is provided
         if cfg.train.final_model_path:
+            logger.info(f"💾 Saving final model weights to: {cfg.train.final_model_path}")
             model.save_weights(cfg.train.final_model_path)
+            logger.info("✅ Final model weights saved successfully.")
             run.log_artifact(cfg.train.final_model_path, artifact_type="model")
+        else:
+            logger.warning("⚠️ No final_model_path provided, skipping weight saving.")
 
         val_reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
         run.log_metric("best/val_reward", val_reward)
