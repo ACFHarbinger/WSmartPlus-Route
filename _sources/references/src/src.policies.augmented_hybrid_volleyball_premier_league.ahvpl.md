@@ -69,6 +69,14 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````
 
+````{py:method} _active_crossover(p1: src.policies.hybrid_genetic_search.individual.Individual, p2: src.policies.hybrid_genetic_search.individual.Individual) -> src.policies.hybrid_genetic_search.individual.Individual
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._active_crossover
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._active_crossover
+```
+
+````
+
 ````{py:method} _alns_coaching(ind: src.policies.hybrid_genetic_search.individual.Individual) -> src.policies.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching
 
