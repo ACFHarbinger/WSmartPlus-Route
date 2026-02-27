@@ -93,12 +93,17 @@ def regret_k_insertion(  # noqa: C901
         List[List[int]]: New routes after insertion.
     """
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
-    # Calculate current loads
+    # Calculate current loads and track visited
     loads = []
+    visited = set()
     for route in routes:
         loads.append(sum(wastes.get(node, 0) for node in route))
+        visited.update(route)
 
-    unassigned = list(removed_nodes)
+    # All unvisited nodes (including those previously removed) are candidates
+    n_nodes = len(dist_matrix) - 1
+    unassigned = list(set(range(1, n_nodes + 1)) - visited)
+
     while unassigned:
         all_candidates = []
         unprofitable_nodes = []

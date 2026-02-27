@@ -24,24 +24,7 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 from ..operators.destroy_operators import worst_removal
 from ..operators.repair_operators import greedy_insertion
 from .params import PSOMAParams
-
-
-class PSOMAParticle:
-    """
-    A single PSO particle representing a routing solution.
-
-    Attributes:
-        routes: Current route set.
-        profit: Objective value of current position.
-        pbest_routes: Personal best route set.
-        pbest_profit: Objective value of personal best.
-    """
-
-    def __init__(self, routes: List[List[int]], profit: float):
-        self.routes = routes
-        self.profit = profit
-        self.pbest_routes = copy.deepcopy(routes)
-        self.pbest_profit = profit
+from .particle import PSOMAParticle
 
 
 class PSOMAsSolver(PolicyVizMixin):
@@ -148,19 +131,30 @@ class PSOMAsSolver(PolicyVizMixin):
         """Initialise swarm with random feasible solutions."""
         swarm = []
         for _ in range(self.params.pop_size):
-            shuffled = random.sample(self.nodes, len(self.nodes))
-            routes = greedy_insertion(
-                [],
-                shuffled,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            routes = self._build_random_solution()
             profit = self._evaluate(routes)
             swarm.append(PSOMAParticle(routes, profit))
         return swarm
+
+    def _build_random_solution(self) -> List[List[int]]:
+        """Order-dependent sequential construction (matches ALNS style)."""
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        optimized_routes = build_nn_routes(
+            nodes=self.nodes,
+            mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
+        )
+
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(optimized_routes)
 
     def _global_best(self, swarm: List[PSOMAParticle]) -> Tuple[List[List[int]], float]:
         """Return (routes, profit) of best particle."""
@@ -174,72 +168,69 @@ class PSOMAsSolver(PolicyVizMixin):
         gbest: List[List[int]],
     ) -> List[List[int]]:
         """
-        Update particle position via probabilistic segment adoption.
-
-        Discrete velocity: with prob ω keep current; with prob c1*rand adopt
-        a random route segment from pbest; with prob c2*rand adopt a random
-        route segment from gbest.
-
-        Args:
-            current: Current particle routes.
-            pbest: Personal best routes.
-            gbest: Global best routes.
-
-        Returns:
-            Updated routes.
+        Update particle position via OX crossover toward pbest and gbest.
         """
         routes = copy.deepcopy(current)
 
-        # Cognitive component: copy a random route from pbest
-        r1 = random.random()
-        if r1 < self.params.c1 * random.random() and pbest:
-            src = random.choice(pbest)
-            if src:
-                routes = self._inject_segment(routes, src)
+        # Cognitive component: crossover with pbest
+        if random.random() < self.params.c1 * random.random() and pbest:
+            routes = self._crossover(routes, pbest)
 
-        # Social component: copy a random route from gbest
-        r2 = random.random()
-        if r2 < self.params.c2 * random.random() and gbest:
-            src = random.choice(gbest)
-            if src:
-                routes = self._inject_segment(routes, src)
+        # Social component: crossover with gbest
+        if random.random() < self.params.c2 * random.random() and gbest:
+            routes = self._crossover(routes, gbest)
 
         # Inertia: with prob (1-omega) randomly relocate one node
         if random.random() > self.params.omega:
             routes = self._random_relocate(routes)
 
-        return routes
+        # 2-opt local search after every position update
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
 
-    def _inject_segment(self, routes: List[List[int]], segment: List[int]) -> List[List[int]]:
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(routes)
+
+    def _crossover(self, base_routes: List[List[int]], guide_routes: List[List[int]]) -> List[List[int]]:
         """
-        Inject a route segment from a guide solution into the current solution.
-
-        Nodes in the segment that are already visited are skipped.  The
-        remaining nodes are inserted greedily.
-
-        Args:
-            routes: Current routes.
-            segment: Route segment from pbest / gbest.
-
-        Returns:
-            Updated routes.
+        OX crossover: inject a random segment from guide into base preserving order.
         """
-        visited = {n for r in routes for n in r}
-        new_nodes = [n for n in segment if n not in visited]
-        if not new_nodes:
-            return routes
+        winner_flat = [n for r in guide_routes for n in r]
+        loser_flat = [n for r in base_routes for n in r]
 
-        with contextlib.suppress(Exception):
-            routes = greedy_insertion(
-                routes,
-                new_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-        return routes
+        if len(winner_flat) < 2:
+            return copy.deepcopy(base_routes)
+
+        a = random.randint(0, len(winner_flat) - 1)
+        b = random.randint(a, min(a + max(1, len(winner_flat) // 3), len(winner_flat)))
+        segment = winner_flat[a:b]
+        segment_set = set(segment)
+
+        remaining = [n for n in loser_flat if n not in segment_set]
+        insert_pos = min(a, len(remaining))
+        child_flat = remaining[:insert_pos] + segment + remaining[insert_pos:]
+
+        child_routes: List[List[int]] = []
+        curr_route: List[int] = []
+        load = 0.0
+        for node in child_flat:
+            waste = self.wastes.get(node, 0.0)
+            if load + waste <= self.capacity:
+                curr_route.append(node)
+                load += waste
+            else:
+                if curr_route:
+                    child_routes.append(curr_route)
+                curr_route = [node]
+                load = waste
+        if curr_route:
+            child_routes.append(curr_route)
+
+        visited = {n for r in child_routes for n in r}
+        for n in self.mandatory_nodes:
+            if n not in visited:
+                child_routes.append([n])
+
+        return child_routes
 
     def _random_relocate(self, routes: List[List[int]]) -> List[List[int]]:
         """
@@ -271,18 +262,12 @@ class PSOMAsSolver(PolicyVizMixin):
 
     def _local_search(self, routes: List[List[int]]) -> List[List[int]]:
         """
-        Memetic local search: worst-removal + greedy-insertion.
-
-        Args:
-            routes: Current routes.
-
-        Returns:
-            Improved routes.
+        Memetic local search: worst-removal + greedy-insertion + ACO.
         """
-        n = max(1, self.params.n_removal)
+        n = max(3, self.params.n_removal)
         try:
             partial, removed = worst_removal(routes, n, self.dist_matrix)
-            routes = greedy_insertion(
+            repaired = greedy_insertion(
                 partial,
                 removed,
                 self.dist_matrix,
@@ -291,9 +276,12 @@ class PSOMAsSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
+            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+            return ls.optimize(repaired)
         except Exception:
-            pass
-        return routes
+            return copy.deepcopy(routes)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Net profit for a set of routes."""

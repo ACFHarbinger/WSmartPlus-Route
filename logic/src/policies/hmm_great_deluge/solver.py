@@ -105,8 +105,11 @@ class HMMGDSolver(PolicyVizMixin):
         best_profit = profit
         best_cost = self._cost(best_routes)
 
-        # Great Deluge: water level starts above best profit
-        water_level = best_profit * (1.0 + self.params.flood_margin) if best_profit > 0 else self.params.flood_margin
+        # Great Deluge for maximization: water level starts *below* initial profit
+        # and slowly rises. We accept any move that is better than the water level.
+        water_level = (
+            best_profit * (1.0 - self.params.flood_margin) if best_profit > 0 else -abs(self.params.flood_margin)
+        )
 
         # Current HMM state
         state = _STATE_IMPROVING
@@ -124,6 +127,13 @@ class HMMGDSolver(PolicyVizMixin):
             # Apply LLH
             try:
                 new_routes = llh(routes, self.params.n_removal)
+
+                # Apply 2-opt after each LLH application
+                from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+                ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+                new_routes = ls.optimize(new_routes)
+
                 new_profit = self._evaluate(new_routes)
             except Exception:
                 new_routes = routes
@@ -131,7 +141,8 @@ class HMMGDSolver(PolicyVizMixin):
 
             delta = new_profit - profit
 
-            # --- Great Deluge acceptance ---
+            # --- Great Deluge acceptance (Maximization) ---
+            # Accept if profit is better than the rising water level
             accepted = new_profit >= water_level
 
             if accepted:
@@ -172,8 +183,8 @@ class HMMGDSolver(PolicyVizMixin):
             else:
                 self._A[prev_state] = np.ones(self.n_llh) / self.n_llh
 
-            # Decrease water level (rain falls)
-            water_level -= self.params.rain_speed * abs(best_profit + 1e-9)
+            # Increase water level (flood rises)
+            water_level += self.params.rain_speed * abs(best_profit + 1e-9)
 
             self._viz_record(
                 iteration=iteration,
@@ -272,16 +283,32 @@ class HMMGDSolver(PolicyVizMixin):
 
     def _random_solution(self) -> List[List[int]]:
         """Generate a random feasible routing solution."""
-        shuffled = random.sample(self.nodes, len(self.nodes))
-        return greedy_insertion(
-            [],
-            shuffled,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            R=self.R,
+        return self._build_random_solution()
+
+    def _build_random_solution(self) -> List[List[int]]:
+        """Order-dependent sequential construction (matches ALNS style).
+
+        Random node ordering causes different capacity cutoffs, creating
+        genuinely diverse initial solutions. Uses self.C for the profitability
+        check so that economics are consistent with the solver's _evaluate().
+        """
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        optimized_routes = build_nn_routes(
+            nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
         )
+
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(optimized_routes)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Net profit for a set of routes."""
