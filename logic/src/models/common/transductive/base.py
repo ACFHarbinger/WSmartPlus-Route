@@ -10,7 +10,7 @@ Example:
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import torch
 from tensordict import TensorDict
@@ -80,11 +80,10 @@ class TransductiveModel(nn.Module, ABC):
         optimizer = self._setup_optimizer(self._get_search_params())
 
         # Track best solution found during search
-        best_reward = None
-        best_actions = None
+        best_reward: Optional[torch.Tensor] = None
+        best_actions: Optional[torch.Tensor] = None
 
-        search_history = []
-
+        search_history: List[Dict[str, float]] = []
         for _ in range(self.n_search_steps):
             optimizer.zero_grad()
 

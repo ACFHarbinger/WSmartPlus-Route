@@ -10,7 +10,7 @@ from tensordict import TensorDict
 from logic.src.interfaces import ITensorDictLike, ITraversable
 
 
-def _internal_safe_copy(obj, visited):
+def _internal_safe_copy(obj: object, visited: set):
     """Internal helper for safe_td_copy to handle recursion and avoid circular refs."""
     obj_id = id(obj)
     if obj_id in visited:
@@ -49,7 +49,7 @@ def _internal_safe_copy(obj, visited):
     return None
 
 
-def safe_td_copy(td: Any) -> Any:
+def safe_td_copy(td: object) -> Any:
     """
     Perform a deep copy of a TensorDict that is safe against circular references
     and complex objects.

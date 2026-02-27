@@ -74,7 +74,7 @@ class BaseProblem:
                 # Fallback for empty/missing loc
                 return torch.zeros(pi.size(0), device=pi.device)
 
-            d: torch.Tensor = loc_with_depot.gather(1, pi[..., None].expand(*pi.size(), loc_with_depot.size(-1)))
+            d: torch.Tensor = loc_with_depot.gather(1, pi.unsqueeze(-1).expand(*pi.size(), loc_with_depot.size(-1)))
             length = (
                 (d[:, 1:] - d[:, :-1]).norm(p=2, dim=-1).sum(1)
                 + (d[:, 0] - dataset["depot"]).norm(p=2, dim=-1)

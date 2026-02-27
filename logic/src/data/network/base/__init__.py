@@ -1,11 +1,4 @@
-"""__init__.py module.
-
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import __init__
-"""
+"""Base classes for distance computation strategies."""
 
 from .distance_strategy import DistanceStrategy
-from .iterative_distance_streategy import IterativeDistanceStrategy
+from .iterative_distance_strategy import IterativeDistanceStrategy

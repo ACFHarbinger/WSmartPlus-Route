@@ -7,8 +7,11 @@ Example:
     >>> import cvrpp
 """
 
+from typing import List
+
 import torch
 from torch_geometric.data import Batch, Data
+from torch_geometric.data.data import BaseData
 
 from logic.src.utils.ops import get_full_graph_edge_index, sparsify_graph
 
@@ -38,7 +41,7 @@ class CVRPPEdgeEmbedding(EdgeEmbedding):
             Any: Description of return value.
         """
         k_sparse = self._get_k_sparse(batch_cost_matrix.shape[-1])
-        graph_data = []
+        graph_data: List[BaseData] = []
 
         for idx, cost_matrix in enumerate(batch_cost_matrix):
             n = cost_matrix.shape[0]

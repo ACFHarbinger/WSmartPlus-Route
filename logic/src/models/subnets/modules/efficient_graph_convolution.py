@@ -1,14 +1,15 @@
 """Optimized Graph Convolution implementation with multiple aggregators."""
 
-from typing import Iterable, Optional, Tuple
+from typing import Any, Iterable, Optional, Tuple, cast
 
 import torch
+import torch_sparse
 from torch import Tensor
 from torch.nn import Linear, Parameter
 from torch_geometric.nn import MessagePassing
 from torch_geometric.nn.conv.gcn_conv import gcn_norm
 from torch_geometric.nn.inits import glorot, zeros
-from torch_geometric.typing import Adj, OptTensor, SparseTensor, torch_sparse
+from torch_geometric.typing import Adj, OptTensor, SparseTensor
 from torch_geometric.utils import add_remaining_self_loops, scatter
 
 
@@ -88,17 +89,23 @@ class EfficientGraphConvolution(MessagePassing):
         self._cached_adj_t = None
         self._cached_edge_index = None
 
-    def forward(self, x: Tensor, edge_index: Adj) -> Tensor:
+    def forward(self, *args: Any, **kwargs: Any) -> Tensor:
         """
         Forward pass for Efficient Graph Convolution.
 
         Args:
-            x: Node features tensor of shape (batch_size, num_nodes, in_channels).
-            edge_index: Graph adjacency information.
+            *args: Positional arguments, expecting (x, edge_index).
+            **kwargs: Keyword arguments, expecting x=Tensor, edge_index=Adj.
 
         Returns:
             Updated node features tensor.
         """
+        x = kwargs.get("x", args[0] if len(args) > 0 else None)
+        edge_index = kwargs.get("edge_index", args[1] if len(args) > 1 else None)
+
+        if x is None or edge_index is None:
+            raise ValueError("Forward requires x and edge_index")
+
         symnorm_weight: OptTensor = None
         if "symnorm" in self.aggregators or self.add_self_loops:
             edge_index, symnorm_weight = self._norm_and_cache(x, edge_index)
@@ -153,15 +160,18 @@ class EfficientGraphConvolution(MessagePassing):
                         self._cached_edge_index = (edge_index, sw)
 
                     return edge_index, sw
+                assert self._cached_edge_index is not None
                 return self._cached_edge_index
 
             if self._cached_adj_t is None:
-                adj_t = gcn_norm(edge_index, num_nodes=num_nodes, add_self_loops=self.add_self_loops)
+                st_edge_index = cast(torch_sparse.SparseTensor, edge_index)
+                adj_t = gcn_norm(st_edge_index, num_nodes=num_nodes, add_self_loops=self.add_self_loops)
                 if self.cached:
-                    self._cached_adj_t = adj_t
+                    self._cached_adj_t = cast(SparseTensor, adj_t)
 
-                return adj_t, None
-            return self._cached_adj_t, None
+                return cast(Adj, adj_t), None
+            assert self._cached_adj_t is not None
+            return cast(Adj, self._cached_adj_t), None
 
         if self.add_self_loops:
             if isinstance(edge_index, Tensor):
@@ -171,25 +181,28 @@ class EfficientGraphConvolution(MessagePassing):
                         self._cached_edge_index = (edge_index, None)
 
                     return edge_index, None
+                assert self._cached_edge_index is not None
                 return self._cached_edge_index[0], None
 
             if self._cached_adj_t is None:
-                adj_t = torch_sparse.fill_diag(edge_index, 1.0)
+                st_edge_index = cast(torch_sparse.SparseTensor, edge_index)
+                adj_t = torch_sparse.fill_diag(st_edge_index, 1.0)
                 if self.cached:
-                    self._cached_adj_t = adj_t
+                    self._cached_adj_t = cast(SparseTensor, adj_t)
 
-                return adj_t, None
-            return self._cached_adj_t, None
+                return cast(Adj, adj_t), None
+            assert self._cached_adj_t is not None
+            return cast(Adj, self._cached_adj_t), None
 
         return edge_index, None
 
-    def message(self, x_j: Tensor) -> Tensor:
+    def message(self, x_j: Tensor) -> Tensor:  # type: ignore[override]
         """
         Passes messages along edges.
         """
         return x_j
 
-    def aggregate(
+    def aggregate(  # type: ignore[override]
         self,
         inputs: Tensor,
         index: Tensor,
@@ -233,12 +246,16 @@ class EfficientGraphConvolution(MessagePassing):
             return out
         raise ValueError(f'Unknown aggregator "{aggregator}".')
 
-    def message_and_aggregate(self, adj_t: SparseTensor, x: Tensor) -> Tensor:
+    def message_and_aggregate(self, adj_t: SparseTensor, x: Tensor) -> Tensor:  # type: ignore[override]
         """
         Performs message passing and aggregation in a single step for sparse tensors.
         """
         aggregated = []
-        adj_t_nonorm = adj_t.set_value(None) if len(self.aggregators) > 1 and "symnorm" in self.aggregators else adj_t
+        if len(self.aggregators) > 1 and "symnorm" in self.aggregators:
+            st_adj_t = cast(torch_sparse.SparseTensor, adj_t)
+            adj_t_nonorm = st_adj_t.set_value(None, layout=None)
+        else:
+            adj_t_nonorm = adj_t
 
         for aggregator in self.aggregators:
             out = self._run_sparse_aggregator(aggregator, adj_t, adj_t_nonorm, x)
@@ -251,17 +268,21 @@ class EfficientGraphConvolution(MessagePassing):
     ) -> Tensor:
         """Execute a single sparse neighborhood aggregator."""
         if aggregator == "symnorm":
-            return torch_sparse.matmul(adj_t, x, reduce="sum")
+            out = torch_sparse.matmul(adj_t, x, reduce="sum")
+            return cast(Tensor, out)
 
         if aggregator in ["var", "std"]:
             mean = torch_sparse.matmul(adj_t_nonorm, x, reduce="mean")
             mean_sq = torch_sparse.matmul(adj_t_nonorm, x * x, reduce="mean")
+            assert isinstance(mean, Tensor)
+            assert isinstance(mean_sq, Tensor)
             out = mean_sq - mean * mean
             if aggregator == "std":
                 out = torch.sqrt(torch.relu(out) + 1e-5)
             return out
 
-        return torch_sparse.matmul(adj_t_nonorm, x, reduce=aggregator)
+        out = torch_sparse.matmul(adj_t_nonorm, x, reduce=aggregator)
+        return cast(Tensor, out)
 
     def __repr__(self):
         """String representation of the layer."""

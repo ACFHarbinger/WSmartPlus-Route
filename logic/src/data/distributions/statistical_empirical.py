@@ -14,7 +14,6 @@ import torch
 
 if TYPE_CHECKING:
     from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
-    from logic.src.utils.data.loader import load_grid_base
 
 
 class Empirical:
@@ -38,6 +37,8 @@ class Empirical:
         self.dataset = None
         self.data_path = data_path
         if grid is None and data_path is not None and indices is not None and os.path.isdir(data_path):
+            from logic.src.utils.data.loader import load_grid_base
+
             self.grid = load_grid_base(data_path, indices, area)
 
         if data_path is not None and os.path.isfile(data_path):

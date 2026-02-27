@@ -10,6 +10,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from copy import deepcopy
 from itertools import chain
+from typing import Any, Dict
 
 import torch
 
@@ -57,9 +58,9 @@ def load_state_dict(self, state_dict):
         )
     }
 
-    def cast(param, value):
+    def cast(param: Any, value: object) -> Any:
         """Make a deep copy of value, casting all tensors to device of param."""
-        if torch.is_tensor(value):
+        if isinstance(value, torch.Tensor):
             # Floating-point types are a bit special here. They are the only ones
             # that are assumed to always match the type of params.
             if any(tp in type(param.data).__name__ for tp in ("Half", "Float", "Double")):
@@ -76,7 +77,7 @@ def load_state_dict(self, state_dict):
     # Copy state assigned to params (and cast tensors to appropriate types).
     # State that is not assigned to params is copied as is (needed for
     # backward compatibility).
-    state = defaultdict(dict)  # type: ignore[var-annotated]
+    state: Dict[Any, Any] = defaultdict(dict)
     for k, v in state_dict["state"].items():
         if k in id_map:
             param = id_map[k]

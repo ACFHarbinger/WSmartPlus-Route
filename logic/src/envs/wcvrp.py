@@ -62,7 +62,7 @@ class WCVRPEnv(RL4COEnvBase):
         self.waste_weight = revenue_kg if revenue_kg is not None else waste_weight
         self.cost_weight = cost_km if cost_km is not None else cost_weight
 
-    def _reset_instance(self, td: TensorDict) -> TensorDict:
+    def _reset_instance(self, tensordict: TensorDict) -> TensorDict:
         """
         Initialize Waste Collection VRP (WCVRP) episode state with capacity tracking.
 
@@ -76,7 +76,7 @@ class WCVRPEnv(RL4COEnvBase):
             - cur_overflows: Count of bins currently at or exceeding max_waste threshold
 
         Args:
-            td (TensorDict): Input tensor dictionary containing:
+            tensordict (TensorDict): Input tensor dictionary containing:
                 - locs (Tensor): Location coordinates, shape (batch, N, 2) or (batch, N+1, 2)
                 - depot (Tensor): Depot coordinates, shape (batch, 2)
                 - waste (Tensor): Current bin fill levels, shape (batch, N) or (batch, N+1)
@@ -100,22 +100,22 @@ class WCVRPEnv(RL4COEnvBase):
             The initial overflow count is computed as sum(waste[1:] >= max_waste[1:]).
         """
         # If state already initialized (e.g. transductive search resuming), skip coord mod
-        if "visited" in td.keys():
-            return td
+        if "visited" in tensordict.keys():
+            return tensordict
 
-        device = td.device
-        bs = td.batch_size
+        device = tensordict.device
+        bs = tensordict.batch_size
 
         # Prepend depot to locs and waste if they are customer-only
-        locs = td["locs"]
-        waste = td["waste"]
+        locs = tensordict["locs"]
+        waste = tensordict["waste"]
 
         # Robust N vs N+1 logic
         # gen_n represents customers only. If shape is gen_n + 1, it already has depot.
         gen_n = getattr(self.generator, "num_loc", None)
 
         needs_prepend = False
-        if "depot" in td.keys():
+        if "depot" in tensordict.keys():
             # 1. If we know N, check if we are already at N+1
             if gen_n is not None and locs.shape[-2] == gen_n + 1:
                 needs_prepend = False
@@ -123,44 +123,44 @@ class WCVRPEnv(RL4COEnvBase):
             elif (
                 gen_n is not None
                 and locs.shape[-2] == gen_n
-                or not torch.allclose(locs[..., 0, :], td["depot"], atol=1e-4)
+                or not torch.allclose(locs[..., 0, :], tensordict["depot"], atol=1e-4)
             ):
                 needs_prepend = True
 
         if needs_prepend:
-            td["locs"] = torch.cat([td["depot"].unsqueeze(1), locs], dim=1)
-            locs = td["locs"]
+            tensordict["locs"] = torch.cat([tensordict["depot"].unsqueeze(1), locs], dim=1)
+            locs = tensordict["locs"]
             if waste is not None:
-                td["waste"] = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
+                tensordict["waste"] = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
         elif waste is not None and waste.shape[-1] == locs.shape[-2] - 1:
             # Catch case where locs has depot but waste doesn't
-            td["waste"] = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
+            tensordict["waste"] = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
 
-        num_nodes = td["locs"].shape[-2]
+        num_nodes = tensordict["locs"].shape[-2]
 
-        td["current_node"] = torch.zeros(bs, dtype=torch.long, device=device)
-        td["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
-        td["visited"][..., 0] = True
+        tensordict["current_node"] = torch.zeros(bs, dtype=torch.long, device=device)
+        tensordict["visited"] = torch.zeros(*bs, num_nodes, dtype=torch.bool, device=device)
+        tensordict["visited"].index_fill_(-1, torch.tensor([0], device=device), True)
 
-        td["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
-        td["tour_length"] = torch.zeros(*bs, device=device)
-        td["current_load"] = torch.zeros(*bs, device=device)
-        td["collected_waste"] = torch.zeros(*bs, device=device)
-        td["total_collected"] = torch.zeros(*bs, device=device)
+        tensordict["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
+        tensordict["tour_length"] = torch.zeros(*bs, device=device)
+        tensordict["current_load"] = torch.zeros(*bs, device=device)
+        tensordict["collected_waste"] = torch.zeros(*bs, device=device)
+        tensordict["total_collected"] = torch.zeros(*bs, device=device)
 
         # Calculate initial overflows (consistent with _get_reward: count of nodes >= max_waste)
-        max_waste = td.get("max_waste", torch.tensor(1.0, device=device))
+        max_waste = tensordict.get("max_waste", torch.tensor(1.0, device=device))
         mw = max_waste.unsqueeze(-1) if max_waste.dim() == 1 else max_waste
 
         # Customers only (skip depot at index 0)
-        waste_cust = td["waste"][..., 1:]
+        waste_cust = tensordict["waste"][..., 1:]
         max_w_cust = mw if mw.shape[-1] == 1 else mw[..., 1:]
 
-        td["cur_overflows"] = (waste_cust >= max_w_cust).float().sum(-1)
+        tensordict["cur_overflows"] = (waste_cust >= max_w_cust).float().sum(-1)
 
-        return td
+        return tensordict
 
-    def _step_instance(self, td: TensorDict) -> TensorDict:
+    def _step_instance(self, tensordict: TensorDict) -> TensorDict:
         """
         Execute a waste collection action with capacity constraints and bin clearing.
 
@@ -180,7 +180,7 @@ class WCVRPEnv(RL4COEnvBase):
                 * total_collected remains unchanged (cumulative across trips)
 
         Args:
-            td (TensorDict): Current state containing:
+            tensordict (TensorDict): Current state containing:
                 - action (LongTensor): Selected node to visit, shape (batch,)
                 - current_node (LongTensor): Current position, shape (batch,)
                 - current_load (Tensor): Current vehicle load, shape (batch,)
@@ -199,54 +199,58 @@ class WCVRPEnv(RL4COEnvBase):
                 - tour, tour_length, visited: Updated via parent class
 
         Note:
-            The method calls super()._step_instance() first to handle base VRP state updates
+            The method calls super()._step_instance(tensordict) first to handle base VRP state updates
             (distance, tour, visited), then applies capacity-specific waste collection logic.
         """
-        action = td["action"]
-        waste = td["waste"]
+        action = tensordict["action"]
+        waste = tensordict["waste"]
 
         # Core mechanics
-        td = super()._step_instance(td)
+        tensordict = super()._step_instance(tensordict)
 
         is_not_depot = action != 0
-        waste = td["waste"]  # Re-fetch updated waste (OpsMixin might have touched it, but we already prepended)
+        waste = tensordict["waste"]  # Re-fetch updated waste (OpsMixin might have touched it, but we already prepended)
         waste_at_node = waste.gather(1, action.unsqueeze(-1)).squeeze(-1)
 
         # Collect waste (clamped to max_waste if present)
-        max_w = td.get("max_waste", torch.tensor(1e9, device=td.device))
-        if max_w.dim() > 1 and max_w.shape[-1] == td["visited"].shape[-1] - 1:
-            max_w = torch.cat([torch.tensor(1e9, device=td.device).expand(*td.batch_size, 1), max_w], dim=1)
+        max_w = tensordict.get("max_waste", torch.tensor(1e9, device=tensordict.device))
+        if max_w.dim() > 1 and max_w.shape[-1] == tensordict["visited"].shape[-1] - 1:
+            max_w = torch.cat(
+                [torch.tensor(1e9, device=tensordict.device).expand(*tensordict.batch_size, 1), max_w], dim=1
+            )
         max_w_at_node = max_w.gather(1, action.unsqueeze(-1)).squeeze(-1) if max_w.dim() > 1 else max_w
 
         collected = torch.min(waste_at_node, max_w_at_node) * is_not_depot.float()
-        td["current_load"] = td["current_load"] + collected
-        td["collected_waste"] = td["collected_waste"] + collected
-        td["total_collected"] = td["collected_waste"]  # Alias
+        tensordict["current_load"] = tensordict["current_load"] + collected
+        tensordict["collected_waste"] = tensordict["collected_waste"] + collected
+        tensordict["total_collected"] = tensordict["collected_waste"]  # Alias
 
         # Empty at depot
         at_depot = action == 0
-        td["current_load"] = torch.where(at_depot, torch.zeros_like(td["current_load"]), td["current_load"])
+        tensordict["current_load"] = torch.where(
+            at_depot, torch.zeros_like(tensordict["current_load"]), tensordict["current_load"]
+        )
 
         # Clear bin (set waste to 0 after collection)
-        td["waste"].scatter_(1, action.unsqueeze(-1), 0)
+        tensordict["waste"].scatter_(1, action.unsqueeze(-1), 0)
 
         # Update current node (overriding super which might used unsqueezed action)
-        td["current_node"] = action.squeeze(-1) if action.dim() > 1 else action
+        tensordict["current_node"] = action.squeeze(-1) if action.dim() > 1 else action
 
-        return td
+        return tensordict
 
-    def _step(self, td: TensorDict) -> TensorDict:
+    def _step(self, tensordict: TensorDict) -> TensorDict:
         """step.
 
         Args:
-            td (TensorDict): Description of td.
+            tensordict (TensorDict): Description of tensordict.
 
         Returns:
             Any: Description of return value.
         """
-        return super(WCVRPEnv, self)._step(td)
+        return super(WCVRPEnv, self)._step(tensordict)
 
-    def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
+    def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """
         Compute action mask based on capacity, visited status, and must-go constraints.
 
@@ -267,7 +271,7 @@ class WCVRPEnv(RL4COEnvBase):
             - **Waste array mismatch**: Dynamically prepends depot zero if needed
 
         Args:
-            td (TensorDict): Current state containing:
+            tensordict (TensorDict): Current state containing:
                 - visited (BoolTensor): Visit status, shape (batch, num_nodes)
                 - waste (Tensor): Bin fill levels, shape (batch, num_nodes) or (batch, N)
                 - current_load (Tensor): Current vehicle load, shape (batch,)
@@ -283,20 +287,20 @@ class WCVRPEnv(RL4COEnvBase):
             Nodes requiring more waste collection than remaining capacity are masked out,
             forcing a depot return when the vehicle is near full.
         """
-        mask = ~td["visited"].clone()
+        mask = ~tensordict["visited"].clone()
 
         # Check capacity constraints
-        waste = td["waste"]
+        waste = tensordict["waste"]
         if waste.shape[-1] == mask.shape[-1] - 1:
-            waste = torch.cat([torch.zeros(*td.batch_size, 1, device=td.device), waste], dim=1)
+            waste = torch.cat([torch.zeros(*tensordict.batch_size, 1, device=tensordict.device), waste], dim=1)
 
-        remaining_capacity = td["capacity"].unsqueeze(-1) - td["current_load"].unsqueeze(-1)
+        remaining_capacity = tensordict["capacity"].unsqueeze(-1) - tensordict["current_load"].unsqueeze(-1)
         exceeds_capacity = waste > remaining_capacity
 
         mask = mask & ~exceeds_capacity
 
         # Must-go routing logic
-        must_go = td.get("must_go", None)
+        must_go = tensordict.get("must_go", None)
 
         if must_go is not None:
             # must_go: (batch, num_nodes) boolean tensor
@@ -318,31 +322,45 @@ class WCVRPEnv(RL4COEnvBase):
 
         return mask
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, tensordict: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Compute WCVRP reward.
 
         Efficient routing (low cost, high collection) = high reward.
+
+        Args:
+            tensordict (TensorDict): Current state containing:
+                - total_collected (Tensor): Total waste collected, shape (batch,)
+                - tour_length (Tensor): Current tour length, shape (batch,)
+                - current_node (Tensor): Current node index, shape (batch,)
+                - locs (Tensor): Node locations, shape (batch, num_nodes, 2)
+                - depot (Tensor): Depot location, shape (batch, 2)
+                - visited (BoolTensor): Visit status, shape (batch, num_nodes)
+                - waste (Tensor): Bin fill levels, shape (batch, num_nodes) or (batch, N)
+                - max_waste (Tensor): Maximum bin capacity, shape (batch,) or (batch, N)
+
+        Returns:
+            Tensor: Reward tensor, shape (batch,)
         """
-        collection = td["total_collected"]
-        cost = td["tour_length"]
+        collection = tensordict["total_collected"]
+        cost = tensordict["tour_length"]
 
         # Add return to depot
-        current = td["current_node"]
+        current = tensordict["current_node"]
         if current.dim() > 1:
             current = current.squeeze(-1)
         if current.dim() == 0:
             current = current.unsqueeze(0)
 
-        locs = td["locs"]
+        locs = tensordict["locs"]
         # Use robust concatenation
-        if locs.shape[-2] == td.get("visited", torch.zeros(0)).shape[-1] - 1:
-            locs = torch.cat([td["depot"].unsqueeze(1), locs], dim=1)
+        if locs.shape[-2] == tensordict.get("visited", torch.zeros(0)).shape[-1] - 1:
+            locs = torch.cat([tensordict["depot"].unsqueeze(1), locs], dim=1)
 
         # Use robust indexing
         current_idx = current[:, None, None].expand(-1, -1, 2)
         current_loc = locs.gather(1, current_idx).squeeze(1)
-        depot_loc = td["depot"]
+        depot_loc = tensordict["depot"]
         return_distance = torch.norm(depot_loc - current_loc, dim=-1)
 
         not_at_depot = current != 0
@@ -350,10 +368,10 @@ class WCVRPEnv(RL4COEnvBase):
 
         # Calculate overflows: unvisited nodes where waste >= max_waste
         # In current WCVRP, visited nodes have waste=0 in the final td.
-        max_waste = td.get("max_waste", torch.tensor(1.0, device=td.device))
+        max_waste = tensordict.get("max_waste", torch.tensor(1.0, device=tensordict.device))
 
         # We only care about customers (index 1 onwards) for overflows
-        waste = td["waste"][..., 1:]
+        waste = tensordict["waste"][..., 1:]
         if max_waste.dim() > 1:  # (B, N)
             max_waste = max_waste[..., 1:]
         elif max_waste.dim() == 1:
@@ -362,14 +380,14 @@ class WCVRPEnv(RL4COEnvBase):
         overflows = (waste >= max_waste).float().sum(-1)
 
         # Store individual components in TensorDict for logging/meta access
-        td["collection"] = collection
-        td["cost"] = total_cost
-        td["overflows"] = overflows
+        tensordict["collection"] = collection
+        tensordict["cost"] = total_cost
+        tensordict["overflows"] = overflows
 
         # Store decomposed rewards for GDPO (signed for maximization)
-        td["reward_waste"] = collection
-        td["reward_cost"] = -total_cost
-        td["reward_overflow"] = -overflows
+        tensordict["reward_waste"] = collection
+        tensordict["reward_cost"] = -total_cost
+        tensordict["reward_overflow"] = -overflows
 
         reward = self.waste_weight * collection - self.cost_weight * total_cost - self.overflow_penalty * overflows
 
@@ -379,4 +397,4 @@ class WCVRPEnv(RL4COEnvBase):
         if reward.dim() == 0:
             reward = reward.unsqueeze(0)
 
-        return reward.view(td.batch_size)
+        return reward.view(tensordict.batch_size)

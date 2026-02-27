@@ -4,8 +4,9 @@ Data Mapper for transformation between raw data and simulation representations.
 
 import json
 import os
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
+import numpy as np
 import pandas as pd
 import torch
 
@@ -116,7 +117,9 @@ class SimulationDataMapper:
         new_data = self.setup_df(depot, new_data, ["ID", "Stock", "Accum_Rate"])
         return new_data, coords
 
-    def _prepare_model_data(self, coordinates, method, configs, problem_size) -> Dict[str, torch.Tensor]:
+    def _prepare_model_data(
+        self, coordinates: Any, method: str, configs: Dict[str, Any], problem_size: int
+    ) -> Dict[str, torch.Tensor]:
         """Prepare the base model data dictionary."""
         depot, loc = format_coordinates(coordinates, method)
         model_data = {
@@ -135,7 +138,15 @@ class SimulationDataMapper:
 
         return model_data
 
-    def _prepare_edges(self, dist_matrix, configs, device, edge_threshold, edge_method, adj_matrix):
+    def _prepare_edges(
+        self,
+        dist_matrix: np.ndarray,
+        configs: Dict[str, Any],
+        device: torch.device,
+        edge_threshold: float,
+        edge_method: str,
+        adj_matrix: Optional[np.ndarray],
+    ) -> Optional[torch.Tensor]:
         """Prepare edge indices and adjacency matrix."""
         if not (0 < edge_threshold < 1):
             return None
@@ -157,7 +168,7 @@ class SimulationDataMapper:
         dtype = torch.float32 if configs.get("encoder") in ["gac", "tgc"] else torch.bool
         return edges.unsqueeze(0).to(device, dtype=dtype)
 
-    def _load_profit_vars(self, area, waste_type):
+    def _load_profit_vars(self, area: str, waste_type: str) -> Dict[str, float]:
         """Load profit-related variables for the simulation."""
         from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
@@ -178,17 +189,17 @@ class SimulationDataMapper:
 
     def process_model_input(
         self,
-        coordinates,
-        dist_matrix,
-        device,
-        method,
-        configs,
-        edge_threshold,
-        edge_method,
-        area,
-        waste_type,
-        adj_matrix=None,
-    ):
+        coordinates: Any,
+        dist_matrix: np.ndarray,
+        device: torch.device,
+        method: str,
+        configs: Dict[str, Any],
+        edge_threshold: float,
+        edge_method: str,
+        area: str,
+        waste_type: str,
+        adj_matrix: Optional[np.ndarray] = None,
+    ) -> Tuple[Dict[str, torch.Tensor], Tuple[Optional[torch.Tensor], torch.Tensor], Dict[str, float]]:
         """Prepares data for neural models."""
         problem_size = len(dist_matrix) - 1
 
@@ -210,7 +221,9 @@ class SimulationDataMapper:
             profit_vars,
         )
 
-    def save_results(self, matrix, results_dir, seed, data_dist, policy, sample_id):
+    def save_results(
+        self, matrix: List[List[float]], results_dir: str, seed: int, data_dist: str, policy: str, sample_id: int
+    ) -> None:
         """Exports history to Excel."""
         path = os.path.join(results_dir, "fill_history", data_dist)
         os.makedirs(path, exist_ok=True)

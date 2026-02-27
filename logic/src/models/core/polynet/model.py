@@ -6,7 +6,7 @@ REINFORCE-based training with Poppy loss for diverse solution strategies.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import torch
 from tensordict import TensorDict
@@ -124,7 +124,7 @@ class PolyNet(nn.Module):
         # Apply augmentation if training
         if phase == "train" and self.num_augment > 1:
             # Repeat for augmentation
-            td = td.repeat_interleave(self.num_augment, dim=0)
+            td = cast(TensorDict, self.env.reset(batch)).repeat_interleave(self.num_augment, dim=0)  #
 
         # Forward pass
         out = self.policy(

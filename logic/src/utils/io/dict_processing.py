@@ -69,20 +69,21 @@ def process_dict_two_inputs(
     """
     modified = False
     # Check if this level has both keys
-    has_k1 = input_key1 in data_dict
+    val1 = data_dict.get(input_key1) if hasattr(data_dict, "get") else None
+    has_k1 = val1 is not None
+
     val2 = None
     has_k2 = False
 
     if isinstance(input_key2_or_val, str):
-        if input_key2_or_val in data_dict:
+        val2 = data_dict.get(input_key2_or_val) if hasattr(data_dict, "get") else None
+        if val2 is not None:
             has_k2 = True
-            val2 = data_dict[input_key2_or_val]
     else:
         has_k2 = True
         val2 = input_key2_or_val
 
     if has_k1 and has_k2:
-        val1 = data_dict[input_key1]
         if isinstance(val1, (list, tuple)) and isinstance(val2, (list, tuple)) and len(val1) == len(val2):
             data_dict[output_key] = type(val1)([process_func(v1, v2) for v1, v2 in zip(val1, val2)])
         else:

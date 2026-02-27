@@ -16,6 +16,7 @@ Key features:
 from typing import List, Optional, Tuple
 
 import torch
+
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
@@ -181,7 +182,7 @@ def _get_candidate_sets(alpha_measures: torch.Tensor, max_candidates: int) -> Li
     candidates = []
     for i in range(n):
         sorted_indices = torch.argsort(alpha_measures[i])
-        valid = [idx.item() for idx in sorted_indices if idx != i]
+        valid = [int(idx.item()) for idx in sorted_indices if idx != i]
         candidates.append(valid[:max_candidates])
     return candidates
 
@@ -196,19 +197,23 @@ def _compute_score(
     n = len(tour) - 1
     cost = 0.0
     for i in range(n):
-        cost += distance_matrix[tour[i], tour[i + 1]].item()
+        # Cast indices to int to resolve bad-index errors
+        u, v = int(tour[i].item()), int(tour[i + 1].item())
+        cost += float(distance_matrix[u, v].item())
 
     penalty = 0.0
     if wastes is not None and capacity is not None:
         current_load = 0.0
+        cap_val = float(capacity.item())
         for node in tour:
-            node_idx = node.item()
+            # Explicitly cast to int to satisfy Pyrefly
+            node_idx = int(node.item())
             if node_idx == 0:
                 current_load = 0.0
             elif node_idx < len(wastes):
-                current_load += wastes[node_idx].item()
-                if current_load > capacity.item() + 1e-6:
-                    penalty += current_load - capacity.item()
+                current_load += float(wastes[node_idx].item())
+                if current_load > cap_val + 1e-6:
+                    penalty += current_load - cap_val
     return penalty, cost
 
 

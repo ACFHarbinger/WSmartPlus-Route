@@ -3,7 +3,7 @@ Strategy for computing distances using Google Maps API.
 """
 
 import os
-from typing import Any
+from typing import Any, cast
 
 import googlemaps
 import numpy as np
@@ -50,7 +50,7 @@ class GoogleMapsStrategy(DistanceStrategy):
             for id_j in range(0, size, FREE_SIZE):
                 origins = src[id_i : id_i + FREE_SIZE]
                 dests = dst[id_j : id_j + FREE_SIZE]
-                response = gmaps.distance_matrix(origins, dests, mode="driving", units="metric")
+                response = cast(Any, gmaps).distance_matrix(origins, dests, mode="driving", units="metric")
                 for row_id, row in enumerate(response["rows"]):
                     for col_id, elem in enumerate(row["elements"]):
                         if "distance" in elem:
