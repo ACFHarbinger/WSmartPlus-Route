@@ -4,7 +4,7 @@ Main AttentionModel class assembling all mixins.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import torch
 import torch.utils.checkpoint
@@ -295,14 +295,14 @@ class AttentionModel(DecodingMixin, nn.Module):
         # Pass through Encoder
         if self.checkpoint_encoder and self.training:
             # Gradient checkpointing for memory efficiency
-            outputs = torch.utils.checkpoint.checkpoint(self.encoder, embeddings, mask, use_reentrant=False)
+            outputs = cast(
+                torch.Tensor, torch.utils.checkpoint.checkpoint(self.encoder, embeddings, mask, use_reentrant=False)
+            )
         else:
             outputs = self.encoder(embeddings, mask)
 
         # Graph aggregation for context
         graph_context = self._aggregate_graph_context(outputs)
-
-        # Pass through Decoder
 
         # Pass through Decoder
         # The decoder handles autoregressive steps

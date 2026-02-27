@@ -6,7 +6,7 @@ dataset type (NumpyDictDataset, PandasExcelDataset, PandasCsvDataset)
 rather than from filesystem CSV/Excel files.
 """
 
-from typing import Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -35,12 +35,14 @@ class DatasetRepository(SimulationRepository):
         """Switch to a different sample within the dataset."""
         self._sample = self._dataset[sample_id]
 
-    def get_indices(self, filename, n_samples, n_nodes, data_size, lock=None):
-        """Returns trivial indices [0..n_nodes-1] for each sample."""
-        indices = list(range(n_nodes))
-        return [indices] * n_samples
+    def get_indices(
+        self, filename: Any, n_samples: int, n_nodes: int, data_size: int, lock: Optional[Any] = None
+    ) -> List[List[int]]:
+        """Returns node indices from the dataset, or trivial [0..n_nodes-1]."""
+        ids = list(self._sample["node_ids"]) if "node_ids" in self._sample else list(range(n_nodes))
+        return [ids] * n_samples
 
-    def get_depot(self, area=None, data_dir=None):
+    def get_depot(self, area: Any, data_dir: Optional[str] = None) -> pd.DataFrame:
         """Builds a depot DataFrame from the dataset's depot array."""
         depot = self._sample["depot"]
         depot_id = self._sample.get("depot_id", 0)
@@ -57,11 +59,11 @@ class DatasetRepository(SimulationRepository):
 
     def get_simulator_data(
         self,
-        number_of_bins,
-        area="Rio Maior",
-        waste_type=None,
-        lock=None,
-        data_dir=None,
+        number_of_bins: int,
+        area: str = "Rio Maior",
+        waste_type: Optional[str] = None,
+        lock: Optional[Any] = None,
+        data_dir: Optional[str] = None,
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Builds data and bins_coordinates DataFrames from the dataset."""
         locs = self._sample["locs"]

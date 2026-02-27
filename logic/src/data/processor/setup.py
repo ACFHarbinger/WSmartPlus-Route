@@ -70,7 +70,6 @@ def setup_dist_path_tup(
         symkey_name=symkey_name,
         focus_idx=focus_idx,
     )
-    print(dist_matrix.shape)
     dist_matrix_edges, shortest_paths, adj_matrix = apply_edges(dist_matrix, edge_thresh, edge_method)
     paths = get_paths_between_states(size + 1, shortest_paths)
     dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0).to(device)

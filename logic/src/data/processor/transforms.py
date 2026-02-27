@@ -67,7 +67,7 @@ def dihedral_8_augmentation_wrapper(xy: torch.Tensor, reduce: bool = True, *args
             # Fallback or warning if batch size is not divisible by 8
             log.warning(f"Batch size {xy.shape[0]} is not divisible by 8 for dihedral8 augmentation. Using full batch.")
         else:
-            xy = xy[: xy.shape[0] // 8, ...]
+            xy = xy[: xy.shape[0] // 8]
     return dihedral_8_augmentation(xy)
 
 
@@ -94,7 +94,7 @@ def symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment
         idx = torch.arange(0, total_batch, num_augment, device=xy.device)
         phi[idx] = 0.0
 
-    x, y = xy[..., [0]], xy[..., [1]]
+    x, y = xy.split(1, dim=-1)
     return symmetric_transform(x, y, phi[:, None, None])
 
 

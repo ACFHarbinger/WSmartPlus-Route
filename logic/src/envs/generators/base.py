@@ -198,10 +198,8 @@ class Generator(ABC):
         offsets = torch.randn(*batch_size, num_loc, 2, device=self.device) * std
 
         # Get assigned cluster centers
-        locs = torch.zeros(*batch_size, num_loc, 2, device=self.device)
-        for i in range(num_clusters):
-            mask = cluster_assignments == i
-            locs[mask] = centers[..., i : i + 1, :].expand(*batch_size, num_loc, -1)[mask]
+        indices = cluster_assignments.unsqueeze(-1).expand(*batch_size, num_loc, 2)
+        locs = torch.gather(centers, -2, indices)
 
         locs = locs + offsets
         return torch.clamp(locs, self.min_loc, self.max_loc)

@@ -2,7 +2,7 @@
 Coordinate transformation and normalization logic for simulation data.
 """
 
-from typing import Any, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from logic.src.constants import EARTH_RADIUS, EARTH_WMP_RADIUS
 from logic.src.data.network import haversine_distance
 
 
-def format_coordinates(coords: Any, method: str, col_names: Optional[list[str]] = None) -> Tuple[Any, Any]:
+def format_coordinates(coords: Any, method: str, col_names: Optional[List[str]] = None) -> Tuple[Any, Any]:
     """
     Normalizes and formats coordinates based on the specified method.
     Supported methods: 'mmn', 'mun', 'smsd', 'ecp', 'utmp', 'wmp', 'hdp', 'c3d', 's4d'.

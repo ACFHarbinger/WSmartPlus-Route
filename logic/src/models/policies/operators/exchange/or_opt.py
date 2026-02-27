@@ -9,6 +9,7 @@ for geographically clustered customers.
 from typing import Optional
 
 import torch
+
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 

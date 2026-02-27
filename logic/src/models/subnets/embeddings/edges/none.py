@@ -9,9 +9,12 @@ Example:
 
 from __future__ import annotations
 
+from typing import List
+
 import torch
 from torch import nn
 from torch_geometric.data import Batch, Data
+from torch_geometric.data.data import BaseData
 
 from logic.src.utils.ops import get_full_graph_edge_index
 
@@ -51,7 +54,7 @@ class NoEdgeEmbedding(nn.Module):
         Returns:
             Batch with dummy edge attributes.
         """
-        data_list = []
+        data_list: List[BaseData] = []
         n = init_embeddings.shape[1]
         device = init_embeddings.device
         edge_index = get_full_graph_edge_index(n, self_loop=self.self_loop).to(device)

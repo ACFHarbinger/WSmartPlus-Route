@@ -13,7 +13,7 @@ allowing the attention mechanism to consider predicted future fill levels
 when constructing routes.
 """
 
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 from torch import nn
@@ -139,7 +139,7 @@ class TemporalAttentionModel(AttentionModel):
             nn.Linear(embed_dim, embed_dim),
         )
 
-    def _get_initial_embeddings(self, input):
+    def _get_initial_embeddings(self, input: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor, Optional[Any]]:
         """
         Get initial embeddings for nodes, incorporating predicted future fill levels.
 
@@ -153,7 +153,7 @@ class TemporalAttentionModel(AttentionModel):
         base_embeddings = self.context_embedder.init_node_embeddings(input)
 
         if "fill_history" not in list(input.keys()) or not self.predict_future:
-            return base_embeddings
+            return base_embeddings, None
 
         fill_history = input["fill_history"]
         batch_size, graph_size, _ = fill_history.size()

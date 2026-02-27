@@ -174,7 +174,7 @@ class VectorizedAHVPL(VectorizedHVPL):
         # Replace worst in population manager
         for b in range(batch_size):
             for s in range(n_sub):
-                idx = worst_indices[b, s].item()
+                idx = int(worst_indices[b, s].item())
                 pop_manager.population[b, idx] = sub_tours[b, s]
                 pop_manager.costs[b, idx] = sub_costs.view(batch_size, n_sub)[b, s]
 

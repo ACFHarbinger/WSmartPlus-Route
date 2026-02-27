@@ -19,27 +19,27 @@ class CVRPPEnv(VRPPEnv):
 
     name: str = "cvrpp"
 
-    def _reset_instance(self, td: TensorDict) -> TensorDict:
+    def _reset_instance(self, tensordict: TensorDict) -> TensorDict:
         """Initialize CVRPP state with capacity tracking."""
-        td = super()._reset_instance(td)
+        tensordict = super()._reset_instance(tensordict)
 
-        bs = td.batch_size[0]
-        device = td.device
+        bs = tensordict.batch_size[0]
+        device = tensordict.device
 
         # Track remaining capacity
-        capacity = td.get("capacity", torch.ones(bs, device=device) * 100)
-        td["capacity"] = capacity  # Ensure it's in the TensorDict for _step
-        td["remaining_capacity"] = capacity.clone()
-        td["collected_waste"] = torch.zeros(bs, device=device)
-        td["collected"] = td["collected_waste"]  # Alias
+        capacity = tensordict.get("capacity", torch.ones(bs, device=device) * 100)
+        tensordict["capacity"] = capacity  # Ensure it's in the TensorDict for _step
+        tensordict["remaining_capacity"] = capacity.clone()
+        tensordict["collected_waste"] = torch.zeros(bs, device=device)
+        tensordict["collected"] = tensordict["collected_waste"]  # Alias
 
-        return td
+        return tensordict
 
     def _reset(self, tensordict: Optional[TensorDict] = None, **kwargs) -> TensorDict:  # type: ignore[override]
         # Correct TorchRL signature
         return super()._reset(tensordict, **kwargs)
 
-    def _step_instance(self, td: TensorDict) -> TensorDict:
+    def _step_instance(self, tensordict: TensorDict) -> TensorDict:
         """reset.
 
         Args:
@@ -50,42 +50,42 @@ class CVRPPEnv(VRPPEnv):
             Any: Description of return value.
         """
         """Execute action with capacity tracking."""
-        action = td["action"]
+        action = tensordict["action"]
 
         # Update capacity when collecting
-        waste = td["waste"]
+        waste = tensordict["waste"]
         waste_at_node = waste.gather(1, action.unsqueeze(-1)).squeeze(-1) if waste.dim() > 1 else waste
 
         # Reset capacity at depot
         at_depot = action == 0
-        td["remaining_capacity"] = torch.where(
+        tensordict["remaining_capacity"] = torch.where(
             at_depot,
-            td["capacity"],
-            td["remaining_capacity"] - waste_at_node,
+            tensordict["capacity"],
+            tensordict["remaining_capacity"] - waste_at_node,
         )
-        td["collected_waste"] = torch.where(
+        tensordict["collected_waste"] = torch.where(
             at_depot,
-            torch.zeros_like(td["collected_waste"]),
-            td["collected_waste"] + waste_at_node,
+            torch.zeros_like(tensordict["collected_waste"]),
+            tensordict["collected_waste"] + waste_at_node,
         )
-        td["collected"] = td["collected_waste"]  # Alias
+        tensordict["collected"] = tensordict["collected_waste"]  # Alias
 
-        return td
+        return tensordict
 
-    def _step(self, td: TensorDict) -> TensorDict:
+    def _step(self, tensordict: TensorDict) -> TensorDict:
         """step.
 
         Args:
-            td (TensorDict): Description of td.
+            tensordict (TensorDict): Description of tensordict.
 
         Returns:
             Any: Description of return value.
         """
         # RL4CO base _step calls _step_instance and then _get_action_mask.
         # Since we use _step_instance above, we just call super().
-        return super(VRPPEnv, self)._step(td)
+        return super(VRPPEnv, self)._step(tensordict)
 
-    def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
+    def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """
         Mask nodes that would exceed capacity, respecting must-go constraints.
 
@@ -93,18 +93,17 @@ class CVRPPEnv(VRPPEnv):
         re-applies must-go logic to determine depot validity.
         """
         # Get base mask (without must-go depot logic applied yet)
-        base_mask = ~td["visited"].clone()
+        base_mask = ~tensordict["visited"].clone()
 
         # Mask nodes whose waste exceeds remaining capacity
-        waste = td["waste"]
-        remaining = td["remaining_capacity"].unsqueeze(-1)
+        waste = tensordict["waste"]
+        remaining = tensordict["remaining_capacity"].unsqueeze(-1)
         exceeds_capacity = waste > remaining
 
         mask = base_mask & ~exceeds_capacity
 
         # Must-go routing logic (same as parent but considering capacity)
-        must_go = td.get("must_go", None)
-
+        must_go = tensordict.get("must_go", None)
         if must_go is not None:
             # Handle dimension mismatch (if must_go excludes depot)
             if must_go.size(-1) == mask.size(-1) - 1:

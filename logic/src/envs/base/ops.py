@@ -6,7 +6,7 @@ from abc import abstractmethod
 from typing import Any, Optional, cast
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDictBase
 
 
 class OpsMixin:
@@ -21,70 +21,85 @@ class OpsMixin:
         Args:
             generator: Optional data generator.
         """
-        from torchrl.data import DiscreteTensorSpec, UnboundedContinuousTensorSpec
+        from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 
-        # self.device is assumed from EnvBase
-        self.done_spec = DiscreteTensorSpec(n=2, shape=(*self.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
-        self.reward_spec = UnboundedContinuousTensorSpec(shape=(*self.batch_size, 1), device=self.device)  # type: ignore[attr-defined]
+        # self.device and self.batch_size are assumed from EnvBase
+        batch_size = getattr(self, "batch_size", torch.Size([]))
+        device = getattr(self, "device", "cpu")
 
-    def step(self, td: TensorDict) -> TensorDict:
+        # Cast to TensorSpec to satisfy Pyrefly in cases of multiple inheritance
+        # Ensure shape is a torch.Size object
+        self.done_spec = cast(
+            TensorSpec, DiscreteTensorSpec(n=2, shape=torch.Size((*batch_size, 1)), dtype=torch.bool, device=device)
+        )
+        self.reward_spec = cast(
+            TensorSpec, UnboundedContinuousTensorSpec(shape=torch.Size((*batch_size, 1)), device=device)
+        )
+
+    def step(self, tensordict: TensorDictBase) -> TensorDictBase:
         """
         Execute action and update state.
         Synchronizes environment batch size with input TensorDict.
         """
-        self.batch_size = td.batch_size
-        out = cast(TensorDict, super().step(td))  # type: ignore[misc]
+        self.batch_size = tensordict.batch_size
+        out = cast(TensorDictBase, super().step(tensordict))  # type: ignore[misc]
         return out
 
-    def reset(self, td: Optional[TensorDict] = None, **kwargs) -> TensorDict:
+    def reset(self, tensordict: Optional[TensorDictBase] = None, **kwargs) -> TensorDictBase:
         """
         Sync batch size and initialize state.
         """
         # Support both 'td' and 'tensordict' naming
-        if td is None and "tensordict" in kwargs:
-            td = kwargs.pop("tensordict")
+        if tensordict is None:
+            tensordict = kwargs.pop("tensordict", None)
+            if tensordict is None:
+                tensordict = kwargs.pop("td", None)
 
-        if td is not None:
-            self.batch_size = td.batch_size
+        if tensordict is not None:
+            self.batch_size = tensordict.batch_size
 
-        return self._reset(td, **kwargs)
+        return self._reset(tensordict, **kwargs)
 
-    def _reset(self, td: Optional[TensorDict] = None, batch_size: Optional[int] = None) -> TensorDict:
+    def _reset(self, tensordict: Optional[TensorDictBase] = None, **kwargs) -> TensorDictBase:
         """
         Initialize episode state from problem instance.
         """
-        if td is None:
+        batch_size_arg = kwargs.pop("batch_size", None)
+        if tensordict is None:
             if self.generator is None:  # type: ignore[attr-defined]
-                raise ValueError("Either provide td or set a generator for the environment")
-            td = self.generator(batch_size or self.batch_size)  # type: ignore[attr-defined]
+                raise ValueError("Either provide tensordict or set a generator for the environment")
+            tensordict = self.generator(batch_size_arg or self.batch_size)  # type: ignore[attr-defined]
         else:
-            td = td.clone()
+            tensordict = tensordict.clone()
 
+        assert tensordict is not None
         # Move to device
-        td = td.to(self.device)  # type: ignore[attr-defined]
+        tensordict = tensordict.to(self.device)  # type: ignore[attr-defined]
 
         # Call problem-specific reset (must be implemented by subclasses)
-        td = self._reset_instance(td)
+        tensordict = self._reset_instance(tensordict)
 
         # Add common fields
-        td["action_mask"] = self._get_action_mask(td)
-        td["i"] = torch.zeros(td.batch_size, dtype=torch.long, device=self.device)  # type: ignore[attr-defined]
+        tensordict["action_mask"] = self._get_action_mask(tensordict)
+        tensordict["i"] = torch.zeros(tensordict.batch_size, dtype=torch.long, device=self.device)  # type: ignore[attr-defined]
 
         # Initialize done signals with [B, 1] shape
-        td["done"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
-        if td is not None and "terminated" in td.keys():
-            td["terminated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
-        if td is not None and "truncated" in td.keys():
-            td["truncated"] = torch.zeros((*td.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
+        tensordict["done"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
 
-        return td
+        # Safe key check on tensordict
+        if "terminated" in tensordict:
+            tensordict["terminated"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
+        if "truncated" in tensordict:
+            tensordict["truncated"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
 
-    def _step(self, td: TensorDict) -> TensorDict:
+        return tensordict
+
+    def _step(self, tensordict: TensorDictBase) -> TensorDictBase:
         """
         Execute action and return new state as 'next' entry.
         """
         # Copy and clean to avoid cycles
-        td_next = td.copy()
+        td_next = tensordict.copy()
         for key in ["next", "reward", "done"]:
             if key in td_next.keys():
                 del td_next[key]
@@ -93,7 +108,7 @@ class OpsMixin:
         td_next = self._step_instance(td_next)
 
         # Update common fields in the next state
-        td_next["i"] = td["i"] + 1
+        td_next["i"] = tensordict["i"] + 1
         td_next["action_mask"] = self._get_action_mask(td_next)
         done = self._check_done(td_next)
 
@@ -108,7 +123,7 @@ class OpsMixin:
         td_next["truncated"] = torch.zeros_like(done)
 
         # Reward calculation
-        reward = self._get_reward(td_next, td.get("action", None))
+        reward = self._get_reward(td_next, tensordict.get("action", None))
 
         # Ensure reward shape matches batch_size [B, 1] for consistency
         if reward.dim() == len(td_next.batch_size):
@@ -122,7 +137,7 @@ class OpsMixin:
 
     def make_state(
         self,
-        nodes: TensorDict,
+        nodes: TensorDictBase,
         edges: Optional[torch.Tensor] = None,
         cost_weights: Optional[torch.Tensor] = None,
         dist_matrix: Optional[torch.Tensor] = None,
@@ -135,19 +150,20 @@ class OpsMixin:
         from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
         # If nodes is not already initialized (missing 'current_node' etc), reset it
-        td = nodes
-        if "current_node" not in td.keys():
-            td = self._reset(td)
+        tensordict = nodes
+        if tensordict is not None and "current_node" not in tensordict:
+            tensordict = self._reset(tensordict)
 
-        # Ensure dist is in td if provided
+        assert tensordict is not None
+        # Ensure dist is in tensordict if provided
         if dist_matrix is not None:
-            td["dist"] = dist_matrix
+            tensordict["dist"] = dist_matrix
 
-        return TensorDictStateWrapper(td, self.name, self)  # type: ignore[attr-defined]
+        return TensorDictStateWrapper(tensordict, self.name, self)  # type: ignore[attr-defined]
 
     def get_costs(
         self,
-        td: TensorDict,
+        tensordict: TensorDictBase,
         pi: torch.Tensor,
         cost_weights: Optional[torch.Tensor] = None,
         dist_matrix: Optional[torch.Tensor] = None,
@@ -157,10 +173,12 @@ class OpsMixin:
         This provides the API expected by the AttentionModel.
         """
         # Reset and follow pi
-        curr_td = self.reset(td)
+        curr_td = self.reset(tensordict)
         for i in range(pi.size(1)):
             curr_td["action"] = pi[:, i]
-            curr_td = self.step(curr_td)["next"]
+            # Use tensordict instead of td in step call result
+            result = self.step(curr_td)
+            curr_td = result["next"]
 
         reward = self.get_reward(curr_td, pi)
 
@@ -168,13 +186,13 @@ class OpsMixin:
         # We also return the final td so metrics can be extracted
         return -reward, {"total": -reward}, curr_td
 
-    def _step_instance(self, td: TensorDict) -> TensorDict:
+    def _step_instance(self, tensordict: TensorDictBase) -> TensorDictBase:
         """
         Core state transition logic common to most routing problems.
         Updates visited mask, current node, and tour tracking.
         """
-        action = td["action"]
-        current = td.get("current_node", torch.zeros_like(action))
+        action = tensordict["action"]
+        current = tensordict.get("current_node", torch.zeros_like(action))
 
         # Robustly squeeze to [B]
         if current.dim() > 1:
@@ -187,7 +205,7 @@ class OpsMixin:
         if action.dim() == 0:
             action = action.unsqueeze(0)
 
-        locs = td["locs"]
+        locs = tensordict["locs"]
 
         # Compute distance traveled
         current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
@@ -195,32 +213,33 @@ class OpsMixin:
         distance = torch.norm(next_loc - current_loc, dim=-1)
 
         # Update tour length
-        td["tour_length"] = td.get("tour_length", torch.zeros_like(distance)) + distance
+        tensordict["tour_length"] = tensordict.get("tour_length", torch.zeros_like(distance)) + distance
 
         # Update visited
-        td["visited"] = td["visited"].scatter(1, action.unsqueeze(-1), True)
+        tensordict["visited"] = tensordict["visited"].scatter(1, action.unsqueeze(-1), True)
 
         # Update current node
-        td["current_node"] = action.unsqueeze(-1)
+        tensordict["current_node"] = action.unsqueeze(-1)
 
         # Append to tour
-        if "tour" not in td.keys():
-            td["tour"] = action.unsqueeze(-1)
+        assert tensordict is not None
+        if "tour" not in tensordict:
+            tensordict["tour"] = action.unsqueeze(-1)
         else:
-            td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
+            tensordict["tour"] = torch.cat([tensordict["tour"], action.unsqueeze(-1)], dim=-1)
 
-        return td
+        return tensordict
 
-    def _check_done(self, td: TensorDict) -> torch.Tensor:
+    def _check_done(self, tensordict: TensorDictBase) -> torch.Tensor:
         """
         Check if episodes are complete.
         Returns: [B] bool tensor
         """
-        current_node = td.get("current_node", None)
-        step_count = td.get("i", None)
+        current_node = tensordict.get("current_node", None)
+        step_count = tensordict.get("i", None)
 
         if current_node is None or step_count is None:
-            return torch.zeros(td.batch_size, dtype=torch.bool, device=td.device)
+            return torch.zeros(tensordict.batch_size, dtype=torch.bool, device=tensordict.device)
 
         # Done if we're back at depot (node 0) after at least one step
         # Handle current_node being [B] or [B, 1]
@@ -228,28 +247,28 @@ class OpsMixin:
         steps = step_count.squeeze(-1) if step_count.dim() > 1 else step_count
         done = (node == 0) & (steps > 0)
         try:
-            return done.reshape(td.batch_size)
+            return done.reshape(tensordict.batch_size)
         except Exception:
-            return done.flatten().reshape(td.batch_size)
+            return done.flatten().reshape(tensordict.batch_size)
 
-    def get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Public method to compute rewards.
         """
-        return self._get_reward(td, actions)
+        return self._get_reward(tensordict, actions)
 
     @abstractmethod
-    def _reset_instance(self, td: TensorDict) -> TensorDict:
+    def _reset_instance(self, tensordict: TensorDictBase) -> TensorDictBase:
         """Problem-specific instance initialization."""
         raise NotImplementedError
 
     @abstractmethod
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Compute reward."""
         raise NotImplementedError
 
     @abstractmethod
-    def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
+    def _get_action_mask(self, tensordict: TensorDictBase) -> torch.Tensor:
         """Return mask of valid actions."""
         raise NotImplementedError
 

@@ -13,7 +13,7 @@ from logic.src.interfaces import ITraversable
 T = TypeVar("T")
 
 
-def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
+def move_to(var: object, device: torch.device, non_blocking: bool = False) -> Any:
     """
     Recursively moves variables to the specified device.
     Supports dicts and Tensors.
@@ -34,7 +34,7 @@ def move_to(var: T, device: torch.device, non_blocking: bool = False) -> T:
     if isinstance(var, ITraversable):
         return {k: move_to(v, device, non_blocking=non_blocking) for k, v in var.items()}  # type: ignore
     if isinstance(var, (list, tuple)):
-        return type(var)(move_to(v, device, non_blocking=non_blocking) for v in var)  # type: ignore
+        return type(var)(move_to(v, device, non_blocking=non_blocking) for v in var)  # type: ignore[call-arg]
     return var
 
 
@@ -80,7 +80,7 @@ def compute_in_batches(
     return safe_cat(all_res, 0)
 
 
-def do_batch_rep(v: Any, n: int) -> Any:
+def do_batch_rep(v: object, n: int) -> Any:
     """
     Replicates a variable n times along the batch dimension.
 
@@ -101,11 +101,11 @@ def do_batch_rep(v: Any, n: int) -> Any:
     elif isinstance(v, tuple):
         return tuple(do_batch_rep(v_, n) for v_ in v)
     if isinstance(v, torch.Tensor):
-        return v[None, ...].expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
+        return v.unsqueeze(0).expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
 
     # Handle TensorDict or other objects with unsqueeze/expand/reshape
     if hasattr(v, "unsqueeze") and hasattr(v, "batch_size"):
         # TensorDict-like
         return v.unsqueeze(0).expand(n, *v.batch_size).clone().reshape(-1)
 
-    return v[None, ...].expand(n, *v.size()).contiguous().view(-1, *v.size()[1:])
+    return cast(Any, v)[None, ...].expand(n, *cast(Any, v).size()).contiguous().view(-1, *cast(Any, v).size()[1:])
