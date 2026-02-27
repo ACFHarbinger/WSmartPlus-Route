@@ -17,13 +17,15 @@ def _log_sim_metrics(log: Dict[str, Any], log_std: Optional[Dict[str, Any]] = No
         if run is None:
             return
         for pol_name_k, metrics in log.items():
-            if isinstance(metrics, (list, tuple)):
-                for metric_name, val in zip(udef.SIM_METRICS, metrics):
+            metrics_obj: object = metrics
+            if isinstance(metrics_obj, (list, tuple)):
+                for metric_name, val in zip(udef.SIM_METRICS, metrics_obj):
                     run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
         if log_std is not None:
             for pol_name_k, std_metrics in log_std.items():
-                if isinstance(std_metrics, (list, tuple)):
-                    for metric_name, val in zip(udef.SIM_METRICS, std_metrics):
+                std_metrics_obj: object = std_metrics
+                if isinstance(std_metrics_obj, (list, tuple)):
+                    for metric_name, val in zip(udef.SIM_METRICS, std_metrics_obj):
                         run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
 
@@ -41,15 +43,16 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
 
     if sim.n_samples > 1:
         if sim.resume:
-            return output_stats(  # type: ignore[call-arg, misc]
-                udef.ROOT_DIR,  # type: ignore[arg-type]
-                sim.days,
-                sim.graph.num_loc,
-                sim.output_dir,
-                sim.graph.area,
-                sim.n_samples,
-                policies,
-                udef.SIM_METRICS,
+            output_stats_any: Any = output_stats
+            return output_stats_any(
+                home_dir=str(udef.ROOT_DIR),
+                ndays=sim.days,
+                nbins=sim.graph.num_loc,
+                output_dir=sim.output_dir,
+                area=sim.graph.area,
+                nsamples=sim.n_samples,
+                policies=policies,
+                keys=udef.SIM_METRICS,
                 lock=lock,
             )
         else:
@@ -59,7 +62,9 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
 
             # Extract list from Manager objects
             for key, val in log_tmp.items():
-                log_full[key].extend(val)
+                val_obj: object = val
+                if isinstance(val_obj, list):
+                    log_full[key].extend(val_obj)
 
             for pol in policies:
                 if log_full[pol]:

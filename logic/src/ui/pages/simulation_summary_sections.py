@@ -5,7 +5,7 @@ Extracted from ``simulation_summary.py`` to keep module sizes under 400 LoC.
 Functions are re-exported from the original module for backward compatibility.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
 import pandas as pd
 import plotly.express as px
@@ -55,16 +55,46 @@ def _render_kpi_overview(summary_df: pd.DataFrame, dist_filter: str) -> None:
         kpi_data["Distribution"] = dist_filter
 
     if "profit_mean" in df.columns:
-        best = df.loc[df["profit_mean"].idxmax()]
-        kpi_data["Best Profit"] = f"{format_number(float(best['profit_mean']))} ({best['Policy']})"
+        best_idx = df["profit_mean"].idxmax()
+        best_row = df.loc[best_idx]
+
+        # Extract the value
+        val = best_row["profit_mean"]
+
+        # 1. Narrow the type: If it's a Series, take the first value
+        # 2. Convert to item if it's a numpy/pandas scalar
+        scalar_val = val.iloc[0] if isinstance(val, pd.Series) else val
+
+        # If it's still a numpy scalar (e.g. np.float64),
+        # float() will accept it, but Pyrefly might still be nervous.
+        # A quick cast or .item() call usually settles it.
+        kpi_data["Best Profit"] = (
+            f"{format_number(float(scalar_val))} ({best_row['Policy'] if not isinstance(best_row['Policy'], pd.Series) else best_row['Policy'].iloc[0]})"
+        )
 
     if "overflows_mean" in df.columns:
-        best = df.loc[df["overflows_mean"].idxmin()]
-        kpi_data["Fewest Overflows"] = f"{format_number(float(best['overflows_mean']), 1)} ({best['Policy']})"
+        best_row = df.loc[df["overflows_mean"].idxmin()]
+
+        # Safely extract scalar value and policy name
+        val = best_row["overflows_mean"]
+        scalar_val = val.iloc[0] if isinstance(val, pd.Series) else val
+
+        policy = best_row["Policy"]
+        policy_name = policy.iloc[0] if isinstance(policy, pd.Series) else policy
+
+        kpi_data["Fewest Overflows"] = f"{format_number(float(scalar_val), 1)} ({policy_name})"
 
     if "kg/km_mean" in df.columns:
-        best = df.loc[df["kg/km_mean"].idxmax()]
-        kpi_data["Best Efficiency"] = f"{format_number(float(best['kg/km_mean']))} kg/km ({best['Policy']})"
+        best_row = df.loc[df["kg/km_mean"].idxmax()]
+
+        # Repeat the safe extraction logic
+        val = best_row["kg/km_mean"]
+        scalar_val = val.iloc[0] if isinstance(val, pd.Series) else val
+
+        policy = best_row["Policy"]
+        policy_name = policy.iloc[0] if isinstance(policy, pd.Series) else policy
+
+        kpi_data["Best Efficiency"] = f"{format_number(float(scalar_val))} kg/km ({policy_name})"
 
     if kpi_data:
         st.markdown(create_kpi_row(kpi_data), unsafe_allow_html=True)
@@ -127,7 +157,7 @@ def _render_metric_bar_chart(summary_df: pd.DataFrame, dist_filter: str) -> None
     mean_col = f"{metric}_mean"
     std_col = f"{metric}_std"
 
-    plot_df = df[["Policy", "Distribution", mean_col]].copy()
+    plot_df = cast(pd.DataFrame, df[["Policy", "Distribution", mean_col]].copy())
     if std_col in df.columns:
         plot_df[std_col] = df[std_col]
     else:

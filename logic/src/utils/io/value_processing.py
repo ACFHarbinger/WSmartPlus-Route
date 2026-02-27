@@ -2,13 +2,13 @@
 Recursive traversal utilities for JSON-like data structures.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from logic.src.interfaces import ITraversable
 
 
 def find_single_input_values(
-    data: Union[Dict[str, Any], List[Any]],
+    data: object,
     current_path: str = "",
     output_key: str = "km",
 ) -> List[Tuple[str, Any]]:
@@ -27,16 +27,18 @@ def find_single_input_values(
 
     if isinstance(data, ITraversable):
         for k, v in data.items():
+            item_v: object = v
             new_path = f"{current_path}.{k}" if current_path else k
             if k == output_key:
-                results.append((current_path if current_path else k, v))
-            elif isinstance(v, (dict, list)):
-                results.extend(find_single_input_values(v, new_path, output_key))
+                results.append((current_path if current_path else k, item_v))
+            elif isinstance(item_v, (dict, list, ITraversable)):
+                results.extend(find_single_input_values(item_v, new_path, output_key))
     elif isinstance(data, list):
         for i, v in enumerate(data):
+            list_item: object = v
             new_path = f"{current_path}[{i}]"
-            if isinstance(v, (dict, list)):
-                results.extend(find_single_input_values(v, new_path, output_key))
+            if isinstance(list_item, (dict, list, ITraversable)):
+                results.extend(find_single_input_values(list_item, new_path, output_key))
 
     return results
 
@@ -70,7 +72,7 @@ def _process_val_pair(path: str, v1: Any, v2: Any, results: List[Tuple[str, Any,
 
 
 def find_two_input_values(
-    data: Union[Dict[str, Any], List[Any]],
+    data: object,
     current_path: str = "",
     input_key1: Optional[str] = None,
     input_key2: Union[str, int, float, None] = None,
@@ -84,14 +86,16 @@ def find_two_input_values(
             _process_val_pair(current_path, v1, v2, results)
 
         for k, v in data.items():
+            item_v: object = v
             new_path = f"{current_path}.{k}" if current_path else k
-            if isinstance(v, (dict, list)):
-                results.extend(find_two_input_values(v, new_path, input_key1, input_key2))
+            if isinstance(item_v, (dict, list, ITraversable)):
+                results.extend(find_two_input_values(item_v, new_path, input_key1, input_key2))
 
     elif isinstance(data, list):
         for i, v in enumerate(data):
+            list_item: object = v
             new_path = f"{current_path}[{i}]"
-            if isinstance(v, (dict, list)):
-                results.extend(find_two_input_values(v, new_path, input_key1, input_key2))
+            if isinstance(list_item, (dict, list, ITraversable)):
+                results.extend(find_two_input_values(list_item, new_path, input_key1, input_key2))
 
     return results

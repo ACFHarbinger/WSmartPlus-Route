@@ -46,12 +46,13 @@ class MultiStartAugmentEval(EvalBase):
         policy.eval()
         results = []
         start_time = time.time()
-        from logic.src.data.transforms import StateAugmentation
+        from logic.src.data.processor.transforms import StateAugmentation
 
         augment = StateAugmentation(num_augment=self.num_augment)
 
         for batch in tqdm(data_loader, disable=not self.progress, desc="Multi-Start Augment Eval"):
-            batch = move_to(batch, self.device)  # type: ignore[arg-type]
+            batch_obj: object = batch
+            batch = move_to(batch_obj, self.device)  # type: ignore[arg-type]
             with torch.no_grad():
                 aug_batch = augment(batch)
                 out = policy(aug_batch, strategy="greedy", num_starts=self.num_starts, **kwargs)
@@ -64,8 +65,9 @@ class MultiStartAugmentEval(EvalBase):
         total_time = time.time() - start_time
         avg_reward = torch.cat([r["reward"] for r in results]).mean().item()
 
+        dataset = data_loader.dataset
         return {
             "avg_reward": avg_reward,
             "total_time": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
+            "samples_per_second": len(dataset) / total_time if dataset else 0.0,  # type: ignore[arg-type]
         }

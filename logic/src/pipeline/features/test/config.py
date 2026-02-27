@@ -155,12 +155,15 @@ def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str
 
 def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
     """Find the list of configurations/variants within a policy config."""
-    if hasattr(pol_cfg, "items"):
-        for _k, v in pol_cfg.items():
+    pol_cfg_obj: object = pol_cfg
+    if isinstance(pol_cfg_obj, ITraversable) or hasattr(pol_cfg_obj, "items"):
+        pol_cfg_dict = cast(Dict[str, Any], pol_cfg_obj)
+        for _k, v in pol_cfg_dict.items():
             if isinstance(v, list):
                 return v, None
-            if hasattr(v, "items"):
-                v_dict = cast(Dict[str, Any], v)
+            v_obj: object = v
+            if isinstance(v_obj, ITraversable) or hasattr(v_obj, "items"):
+                v_dict = cast(Dict[str, Any], v_obj)
                 # If this dict itself contains components, it's an inner variant
                 if any(k in v_dict for k in ["must_go", "post_processing", "engine", "params"]):
                     return [v], _k
@@ -168,8 +171,9 @@ def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
                 for sub_k, sub_v in v_dict.items():
                     if isinstance(sub_v, list):
                         return sub_v, sub_k
-                    if hasattr(sub_v, "items"):
-                        sub_v_dict = cast(Dict[str, Any], sub_v)
+                    sub_v_obj: object = sub_v
+                    if isinstance(sub_v_obj, ITraversable) or hasattr(sub_v_obj, "items"):
+                        sub_v_dict = cast(Dict[str, Any], sub_v_obj)
                         if any(sk in sub_v_dict for sk in ["must_go", "post_processing", "engine", "params"]):
                             return [sub_v], sub_k
     return [], None
@@ -183,12 +187,13 @@ def _parse_inner_components(
     pp_list: List[Any] = []
     match_idx = -1
     for idx, item in enumerate(inner_cfg):
-        if isinstance(item, ITraversable):
-            if "must_go" in item:
-                mg_list = item["must_go"]
+        item_obj: object = item
+        if isinstance(item_obj, ITraversable):
+            if "must_go" in item_obj:
+                mg_list = item_obj["must_go"]
                 match_idx = idx
-            if "post_processing" in item:
-                pp_list = item["post_processing"]
+            if "post_processing" in item_obj:
+                pp_list = item_obj["post_processing"]
     return mg_list, pp_list, match_idx
 
 
@@ -197,8 +202,9 @@ def _apply_mg_override(var_cfg: Any, match_idx: int, mg_item: str) -> None:
     var_inner, _ = _find_inner_config(var_cfg)
     if var_inner and 0 <= match_idx < len(var_inner):
         item = var_inner[match_idx]
-        if isinstance(item, (dict, ITraversable)):
-            cast(Any, item)["must_go"] = [mg_item]
+        item_obj: object = item
+        if isinstance(item_obj, (dict, ITraversable)):
+            cast(Any, item_obj)["must_go"] = [mg_item]
 
 
 def _clean_id(path_or_str: Any, prefix: str) -> str:

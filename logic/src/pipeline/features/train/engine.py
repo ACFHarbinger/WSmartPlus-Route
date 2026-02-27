@@ -43,13 +43,15 @@ def _build_callbacks(cfg: Config) -> list:
     callbacks: list = [SpeedMonitor(epoch_time=True)]
     if cfg.train.callbacks:
         for cb_cfg in cfg.train.callbacks:
-            if isinstance(cb_cfg, ITraversable):
-                if "_target_" in cb_cfg:
-                    callbacks.append(hydra.utils.instantiate(cb_cfg))
+            cb_cfg_obj: object = cb_cfg
+            if isinstance(cb_cfg_obj, ITraversable):
+                if "_target_" in cb_cfg_obj:
+                    callbacks.append(hydra.utils.instantiate(cb_cfg_obj))
                 else:
-                    for _, actual_cfg in cb_cfg.items():
-                        if isinstance(actual_cfg, ITraversable) and "_target_" in actual_cfg:
-                            callbacks.append(hydra.utils.instantiate(actual_cfg))
+                    for _, actual_cfg in cb_cfg_obj.items():
+                        actual_cfg_obj: object = actual_cfg
+                        if isinstance(actual_cfg_obj, ITraversable) and "_target_" in actual_cfg_obj:
+                            callbacks.append(hydra.utils.instantiate(actual_cfg_obj))
             else:
                 with contextlib.suppress(Exception):
                     callbacks.append(hydra.utils.instantiate(cb_cfg))

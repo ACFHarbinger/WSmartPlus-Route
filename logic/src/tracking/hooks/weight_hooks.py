@@ -160,46 +160,50 @@ def add_weight_update_monitor_hook(
         ...     optimizer.zero_grad()
     """
     update_history = defaultdict(list)
-    step_count = [0]  # Mutable to allow modification in hook
-
-    # Store original step function
+    step_count = [0]
     original_step = optimizer.step
 
-    def monitored_step(*args, **kwargs):
-        """Wrapper that logs weight updates."""
+    # Pre-map parameters to names once outside the loop to avoid indexing object/Unknown
+    # We use id(param) as a stable key
+    param_names = {}
+
+    # Simple mapping logic: associate id(tensor) with a readable string or index
+    for i, group in enumerate(optimizer.param_groups):
+        for j, param in enumerate(group["params"]):
+            param_names[id(param)] = f"group{i}_param{j}"
+
+    def monitored_step(*args: Any, **kwargs: Any) -> Any:
         step_count[0] += 1
+        pre_weights: Dict[int, torch.Tensor] = {}
 
-        # Capture pre-update state
-        pre_weights = {}
-        for group in optimizer.param_groups:
-            for param in group["params"]:
-                if param.grad is not None:
-                    # Find parameter name
-                    for name, p in optimizer.state_dict()["param_groups"][0].items():
-                        if p is param:
-                            pre_weights[name] = param.data.clone()
+        # Log updates only on intervals to save memory/compute
+        should_log = step_count[0] % log_interval == 0
 
-        # Execute update
-        result = original_step(*args, **kwargs)
-
-        # Log update magnitude
-        if step_count[0] % log_interval == 0:
+        if should_log:
             for group in optimizer.param_groups:
                 for param in group["params"]:
                     if param.grad is not None:
-                        for name, pre_weight in pre_weights.items():
-                            update = (param.data - pre_weight).norm().item()
-                            update_history[name].append(update)
+                        # Use id(param) instead of searching the state_dict
+                        pre_weights[id(param)] = param.data.clone()
+
+        result = original_step(*args, **kwargs)
+
+        if should_log:
+            for group in optimizer.param_groups:
+                for param in group["params"]:
+                    p_id = id(param)
+                    if p_id in pre_weights:
+                        # Normalize update magnitude by weight magnitude for relative change
+                        update_norm = (param.data - pre_weights[p_id]).norm().item()
+                        update_history[param_names[p_id]].append(update_norm)
 
         return result
 
-    # Replace optimizer step
     optimizer.step = monitored_step  # type: ignore[method-assign]
 
     return {
-        "update_history": dict(update_history),
+        "update_history": update_history,
         "step_count": step_count,
-        "original_step": original_step,
     }
 
 

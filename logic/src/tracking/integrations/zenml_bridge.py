@@ -160,31 +160,30 @@ def configure_zenml_stack(
         ``False`` on any error.
     """
     try:
-        from zenml.client import Client  # type: ignore[import-not-found]
+        from zenml.client import Client
+        from zenml.enums import StackComponentType  # Import the enum
 
         client = Client()
         tracker_component_name = f"mlflow-tracker-{stack_name}"
 
-        # Register the MLflow experiment tracker component if absent
+        # Register the MLflow experiment tracker component
         with contextlib.suppress(Exception):
             client.create_stack_component(
                 name=tracker_component_name,
-                component_type="experiment_tracker",
+                # Use the Enum member instead of the literal string
+                component_type=StackComponentType.EXPERIMENT_TRACKER,
                 flavor="mlflow",
                 configuration={"tracking_uri": mlflow_tracking_uri},
             )
 
-        # Create the stack if absent
+        # Create the stack
         with contextlib.suppress(Exception):
             client.create_stack(
                 name=stack_name,
-                components={"experiment_tracker": tracker_component_name},
+                components={StackComponentType.EXPERIMENT_TRACKER: tracker_component_name},
             )
 
-        # Activate the stack
-        with contextlib.suppress(Exception):
-            client.activate_stack(stack_name)
-
+        client.activate_stack(stack_name)
         return True
 
     except Exception as exc:

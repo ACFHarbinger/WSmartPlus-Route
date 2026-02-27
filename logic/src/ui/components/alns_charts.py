@@ -72,7 +72,16 @@ class TrackedVectorizedALNS:
     def __getattr__(self, name: str) -> Any:
         return getattr(self._inner, name)
 
-    def solve(self, initial_solutions: Any, *args: Any, **kwargs: Any) -> Any:
+    def solve(
+        self,
+        initial_solutions: Any,
+        n_iterations: int = 2000,
+        time_limit: Optional[float] = None,
+        max_vehicles: int = 0,
+        start_temp: float = 0.5,
+        cooling_rate: float = 0.9995,
+        **kwargs: Any,
+    ) -> Any:
         """
         Solve using the inner VectorizedALNS, logging weight snapshots.
 
@@ -80,19 +89,12 @@ class TrackedVectorizedALNS:
         recording ``d_weights`` / ``r_weights`` between chunks so that the
         weight trajectory can be plotted after completion.
 
-        All positional / keyword arguments are passed through to the original
-        ``solve()`` method unchanged.
-
         Returns:
             The same ``(routes, costs)`` tuple returned by ``VectorizedALNS.solve``.
         """
 
         self.weight_history = {"destroy": [], "repair": []}
         inner = self._inner
-
-        # Extract n_iterations from positional or keyword args
-        n_iterations: int = kwargs.pop("n_iterations", args[0] if args else 2000)
-        remaining_args = args[1:]  # strip n_iterations from positional if present
 
         remaining = n_iterations
         result: Any = None
@@ -110,20 +112,25 @@ class TrackedVectorizedALNS:
 
         while remaining > 0:
             chunk = min(self.log_freq, remaining)
+
             result = inner.solve(
-                current_solutions,
-                *remaining_args,
+                initial_solutions=current_solutions,
                 n_iterations=chunk,
+                time_limit=time_limit,
+                max_vehicles=max_vehicles,
+                start_temp=start_temp,
+                cooling_rate=cooling_rate,
                 **kwargs,
             )
             # After each chunk, update current_solutions from the result
             # (VectorizedALNS.solve returns (routes_list, costs))
-            # We reconstruct a tensor from best solutions for the next chunk.
-            # NOTE: because the inner solve always starts fresh from the provided
-            # initial_solutions, we cannot truly continue from mid-state here.
-            # The weight trajectory still reflects the evolving roulette wheel
-            # accumulated across the full run since d_weights/r_weights are
-            # attributes on the solver object that persist between calls.
+            if result and isinstance(result, tuple) and len(result) > 0:
+                # routes_list is a list of lists, if we want to continue we should
+                # ideally convert it back to a tensor, but VectorizedALNS.solve
+                # currently doesn't easily support continuing from routes_list
+                # because it expects a giant tour initial_solutions tensor.
+                pass
+
             _snapshot()
             remaining -= chunk
 
