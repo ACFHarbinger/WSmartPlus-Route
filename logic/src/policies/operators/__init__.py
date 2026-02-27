@@ -10,7 +10,6 @@ This package provides a comprehensive suite of local search operators for VRP:
 - Exchange operators: or-opt, cross-exchange, ejection chain, λ-interchange
 """
 
-# Move operators
 # Destroy operators
 from .destroy_operators import (
     cluster_removal,
@@ -20,8 +19,6 @@ from .destroy_operators import (
     worst_removal,
 )
 
-# SISR operators are now integrated into destroy_operators and repair_operators
-# No longer importing from .sisr_operators
 # Exchange operators
 from .exchange_operators import (
     cross_exchange,
@@ -29,6 +26,8 @@ from .exchange_operators import (
     lambda_interchange,
     move_or_opt,
 )
+
+# Move operators
 from .move_operators import move_relocate, move_swap
 
 # Perturbation operators
@@ -48,6 +47,14 @@ from .route_operators import (
     move_2opt_star,
     move_3opt_intra,
     move_swap_star,
+)
+
+# Unstringing operators
+from .unstringing_operators import (
+    apply_type_i_unstringing,
+    apply_type_ii_unstringing,
+    apply_type_iii_unstringing,
+    apply_type_iv_unstringing,
 )
 
 __all__ = [
@@ -78,4 +85,9 @@ __all__ = [
     "cross_exchange",
     "ejection_chain",
     "lambda_interchange",
+    # Unstringing
+    "apply_type_i_unstringing",
+    "apply_type_ii_unstringing",
+    "apply_type_iii_unstringing",
+    "apply_type_iv_unstringing",
 ]

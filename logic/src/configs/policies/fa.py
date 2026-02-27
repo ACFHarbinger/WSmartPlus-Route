@@ -1,0 +1,41 @@
+"""
+FA (Discrete Firefly Algorithm) configuration for Hydra.
+"""
+
+from dataclasses import dataclass, field
+from typing import Any, List, Optional
+
+
+@dataclass
+class FAConfig:
+    """
+    Configuration for the Discrete Firefly Algorithm policy.
+
+    Attributes:
+        pop_size: Number of fireflies.
+        beta0: Maximum attractiveness coefficient.
+        gamma: Light absorption coefficient.
+        alpha_profit: Profit weight in favourability score.
+        beta_will: Willingness weight in favourability score.
+        gamma_cost: Insertion-cost penalty weight in favourability score.
+        alpha_rnd: Random-walk probability per firefly per iteration.
+        max_iterations: Maximum iterations.
+        time_limit: Wall-clock time limit in seconds.
+        vrpp: If True, solver operates in full VRPP mode.
+        must_go: Must-go selection strategy config list.
+        post_processing: Post-processing operation config list.
+    """
+
+    engine: str = "fa"
+    pop_size: int = 20
+    beta0: float = 1.0
+    gamma: float = 0.1
+    alpha_profit: float = 0.5
+    beta_will: float = 0.3
+    gamma_cost: float = 0.2
+    alpha_rnd: float = 0.2
+    max_iterations: int = 100
+    time_limit: float = 60.0
+    vrpp: bool = True
+    must_go: Optional[List[Any]] = field(default_factory=list)
+    post_processing: Optional[List[Any]] = field(default_factory=list)
