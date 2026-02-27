@@ -6,6 +6,8 @@ Key features include Alpha-measure pruning, lexicographical optimization (Penalt
 and Iterated Local Search with 2-opt and 3-opt moves.
 """
 
+from __future__ import annotations
+
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -183,7 +185,16 @@ def _initialize_tour(distance_matrix: np.ndarray, initial_tour: Optional[List[in
         return curr_tour
 
 
-def _try_2opt_move(curr_tour, i, t1, t2, candidates, distance_matrix, waste, capacity):
+def _try_2opt_move(
+    curr_tour: List[int],
+    i: int,
+    t1: int,
+    t2: int,
+    candidates: Dict[int, List[int]],
+    distance_matrix: np.ndarray,
+    waste: Optional[np.ndarray],
+    capacity: Optional[float],
+) -> Tuple[Optional[List[int]], float, float, bool, int]:
     """Attempt 2-opt moves for edge (t1, t2)."""
     nodes_count = len(curr_tour) - 1
     # Check candidates for t2
@@ -216,7 +227,18 @@ def _try_2opt_move(curr_tour, i, t1, t2, candidates, distance_matrix, waste, cap
     return None, 0.0, 0.0, False, -1
 
 
-def _try_3opt_move(curr_tour, i, j, t1, t2, t3, t4, distance_matrix, waste, capacity):
+def _try_3opt_move(
+    curr_tour: List[int],
+    i: int,
+    j: int,
+    t1: int,
+    t2: int,
+    t3: int,
+    t4: int,
+    distance_matrix: np.ndarray,
+    waste: Optional[np.ndarray],
+    capacity: Optional[float],
+) -> Tuple[Optional[List[int]], float, float, bool]:
     """Attempt 3-opt moves given a failing 2-opt configuration."""
     nodes_count = len(curr_tour) - 1
     for k in range(j + 2, nodes_count):
@@ -236,7 +258,15 @@ def _try_3opt_move(curr_tour, i, j, t1, t2, t3, t4, distance_matrix, waste, capa
     return None, 0.0, 0.0, False
 
 
-def _improve_tour(curr_tour, curr_pen, curr_cost, candidates, distance_matrix, waste, capacity):
+def _improve_tour(
+    curr_tour: List[int],
+    curr_pen: float,
+    curr_cost: float,
+    candidates: Dict[int, List[int]],
+    distance_matrix: np.ndarray,
+    waste: Optional[np.ndarray],
+    capacity: Optional[float],
+) -> Tuple[List[int], float, float, bool]:
     """Run one pass of local search improvement."""
     nodes_count = len(curr_tour) - 1
 
@@ -290,7 +320,8 @@ def _improve_tour(curr_tour, curr_pen, curr_cost, candidates, distance_matrix, w
                     waste,
                     capacity,
                 )
-                if res_imp and is_better(res_p, res_c, curr_pen, curr_cost):
+                if res_imp and res_tour is not None and is_better(res_p, res_c, curr_pen, curr_cost):
+                    # Explicit narrowing for Pyrefly
                     return res_tour, res_p, res_c, True
 
     return curr_tour, curr_pen, curr_cost, False
