@@ -84,9 +84,14 @@ if _ZENML_AVAILABLE:
         # Filter to only the requested policy
         sim = cfg.sim
         original_policies = list(sim.full_policies)
-        sim.full_policies = [
-            p for p in original_policies if (str(p) if not isinstance(p, dict) else list(p.keys())[0]) == policy_name
+
+        filtered_policies = [
+            p
+            for p in original_policies
+            if ((list(p.keys())[0] if p else "") if isinstance(p, dict) else str(p)) == policy_name
         ]
+
+        sim.full_policies = filtered_policies
 
         bridge = ZenMLBridge()
         run_wsr_simulator_test(cfg, sinks=[bridge])
@@ -113,8 +118,8 @@ if _ZENML_AVAILABLE:
 
         # Sequential chain: each policy step depends on the previous one
         for policy_name in policy_names:
-            batch_id = run_policy_step.with_options(  # type: ignore[union-attr]
-                name=f"sim_{policy_name}",
+            batch_id = run_policy_step.with_options(  # type: ignore[union-attr, call-arg, misc]
+                name=f"sim_{policy_name}",  # type: ignore[call-arg]
             )(config_dict=cfg_art, policy_name=policy_name, batch_id=batch_id)
 
         return aggregate_sim_results(batch_id)
@@ -143,6 +148,13 @@ def simulation_pipeline(cfg: Any) -> None:
 
     # Extract policy names from the config
     sim = cfg.sim
-    policy_names: List[str] = [str(p) if not isinstance(p, dict) else list(p.keys())[0] for p in sim.full_policies]
+    policy_names: List[str] = []
+    for p in sim.full_policies:
+        p_obj: object = p
+        if isinstance(p_obj, dict):
+            if p_obj:
+                policy_names.append(str(list(p_obj.keys())[0]))
+        else:
+            policy_names.append(str(p))
 
     _simulation_pipeline(config_dict=config_dict, policy_names=policy_names)

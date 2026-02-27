@@ -13,6 +13,12 @@ from logic.src.ui.services.log_parser import (
     get_unique_samples,
 )
 
+# Local imports
+from logic.src.utils.ui.sim_page import (
+    filter_simulation_data,
+    normalize_tour_points,
+)
+
 from .bins import render_bin_tab
 from .charts import (
     render_metric_charts,
@@ -26,12 +32,6 @@ from .kpi import (
 )
 from .map import render_map_view
 from .tour import render_raw_data_view, render_tour_details
-
-# Local imports
-from .utils import (
-    filter_simulation_data,
-    normalize_tour_points,
-)
 
 
 def render_simulation_visualizer() -> None:

@@ -32,18 +32,26 @@ def _render_mlflow_explorer(tracking_uri: str, experiment_name: str) -> None:
     """Full MLflow runs explorer with metric charting."""
     st.subheader("🧪 MLflow Runs")
 
+    # The type is Union[DataFrame, list[Run]]
     mlflow_df = load_mlflow_runs(tracking_uri, experiment_name)
 
-    if mlflow_df.empty:
+    # Use len() instead of .empty to satisfy both list and DataFrame types
+    if mlflow_df is None or len(mlflow_df) == 0:
         st.info(
             f"No MLflow runs found at `{tracking_uri}`.\n\n"
-            "Enable MLflow tracking (`tracking.mlflow_enabled: true`) and "
-            "run a training or simulation to populate this view."
+            "Enable MLflow tracking and run a training to populate this view."
         )
         return
 
-    # Run table — pick useful columns
-    display_cols = [c for c in mlflow_df.columns if not c.startswith("params.") and not c.startswith("tags.")]
+    # To use DataFrame-specific methods (.columns, .head), cast it or narrow it
+    import pandas as pd
+
+    if not isinstance(mlflow_df, pd.DataFrame):
+        # Convert list to DataFrame if necessary
+        mlflow_df = pd.DataFrame([r.__dict__ for r in mlflow_df])
+
+    # Now Pyrefly knows mlflow_df is definitely a DataFrame
+    display_cols = [c for c in mlflow_df.columns if not c.startswith("params.")]
     display_cols = [c for c in display_cols if c in mlflow_df.columns][:10]
 
     st.dataframe(

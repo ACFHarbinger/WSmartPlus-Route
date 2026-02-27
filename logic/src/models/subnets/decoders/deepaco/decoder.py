@@ -173,11 +173,9 @@ class ACODecoder(NonAutoregressiveDecoder):
         best_costs = torch.full((batch_size,), float("inf"), device=device)
         total_log_probs = torch.zeros(batch_size, device=device)
 
-        if return_all:
-            all_tours_list = []
-            all_costs_list = []
-            all_log_probs_list = []
-
+        all_tours_list = []
+        all_costs_list = []
+        all_log_probs_list = []
         for _ in range(self.n_ants):
             # Construct tour for each ant
             tours, costs, log_probs = self._construct_tour(prob_matrix, dist_matrix)

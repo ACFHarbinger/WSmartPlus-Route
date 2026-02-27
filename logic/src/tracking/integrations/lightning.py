@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import os
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
@@ -80,7 +80,7 @@ class TrackingCallback(Callback):
                 "trainer.max_epochs": trainer.max_epochs,
                 "trainer.precision": str(trainer.precision),
                 "trainer.gradient_clip_val": trainer.gradient_clip_val,
-                "trainer.log_every_n_steps": trainer.log_every_n_steps,
+                "trainer.log_every_n_steps": getattr(trainer, "log_every_n_steps", 50),
             }
         )
         run.log_params(hparams)
@@ -189,7 +189,7 @@ class TrackingCallback(Callback):
             run.log_metrics(time_metrics, step=trainer.current_epoch)
 
         # Register best and last checkpoints
-        for cb in trainer.callbacks:
+        for cb in cast(Any, trainer).callbacks:
             if isinstance(cb, ModelCheckpoint):
                 log_checkpoint_artifact(run, cb, trainer.current_epoch)
 
@@ -263,7 +263,7 @@ class TrackingCallback(Callback):
             return
         val_reward = trainer.callback_metrics.get("val/reward")
         epoch = trainer.current_epoch
-        for cb in trainer.callbacks:
+        for cb in cast(Any, trainer).callbacks:
             if isinstance(cb, ModelCheckpoint) and cb.best_model_path:
                 path = cb.best_model_path
                 if os.path.exists(path):

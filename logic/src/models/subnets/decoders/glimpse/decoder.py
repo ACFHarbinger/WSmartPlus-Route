@@ -242,25 +242,30 @@ class GlimpseDecoder(nn.Module):
         """Compute log probabilities for the current state."""
         query = self._get_parallel_step_context(fixed.node_embeddings, state)
 
-        # Logits: [batch_size, 1, graph_size]
-        # Current implementation assumes single step
-        if mask is None:
-            mask = state.get_mask()
+        # 1. Resolve the mask and ensure it's not None for the type checker
+        current_mask = mask if mask is not None else state.get_mask()
+
+        if current_mask is None:
+            raise ValueError("A mask must be provided either as an argument or via the state.")
+
+        # 2. Handle the unsqueeze logic on the guaranteed tensor
+        # We use a temporary variable so the analyzer sees 'Tensor', not 'Optional[Tensor]'
+        input_mask = current_mask.unsqueeze(1) if current_mask.dim() == 2 else current_mask
 
         logits = one_to_many_logits(
             query.unsqueeze(1),
             fixed.glimpse_key,  # type: ignore[arg-type]
             fixed.glimpse_val,  # type: ignore[arg-type]
             fixed.logit_key,  # type: ignore[arg-type]
-            mask.unsqueeze(1) if mask is not None and mask.dim() == 2 else mask,
+            input_mask,  # Now guaranteed to be a Tensor
             self.n_heads,
             tanh_clipping=self.tanh_clipping,
             mask_val=mask_val,
         ).squeeze(1)
 
         if normalize:
-            return torch.log_softmax(logits, dim=-1), mask
-        return logits, mask
+            return torch.log_softmax(logits, dim=-1), current_mask
+        return logits, current_mask
 
     def _get_parallel_step_context(self, embeddings: torch.Tensor, state: Any, from_depot: bool = False):
         """Extract step context from state and project."""

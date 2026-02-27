@@ -68,7 +68,7 @@ def run_evaluate_model(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
         beam_widths = [bw]
 
     # --- Centralised experiment tracking ---
-    model_path = ev.policy.load_path if ev.policy else "unknown"
+    model_path = ev.policy.model.load_path if ev.policy else "unknown"
     experiment_name = f"eval-{ev.problem}-{ev.graph.num_loc}loc-{strategy}"
     tracker = wst.init(experiment_name=experiment_name)
     run_tags = {

@@ -59,26 +59,31 @@ def process_file(
     modified = False
     key1, key2 = input_keys
 
+    checkpoint_data: object = data
     if key1 is not None and process_func is not None:
         # Two-input mode
-        if isinstance(data, ITraversable):
-            modified = process_dict_two_inputs(data, key1, key2, output_key, process_func)  # type: ignore[arg-type]
-        elif isinstance(data, list):
-            for item in data:
-                if isinstance(item, ITraversable) and process_dict_two_inputs(
-                    item,
+        if isinstance(checkpoint_data, ITraversable):
+            modified = process_dict_two_inputs(checkpoint_data, key1, key2, output_key, process_func)
+        elif isinstance(checkpoint_data, list):
+            for item in checkpoint_data:
+                item_v: object = item
+                if isinstance(item_v, ITraversable) and process_dict_two_inputs(
+                    item_v,
                     key1,
                     key2,
                     output_key,
-                    process_func,  # type: ignore[arg-type]
+                    process_func,
                 ):
                     modified = True
     # Single-input/Constant mode
-    elif isinstance(data, ITraversable):
-        modified = process_dict_of_dicts(data, output_key, process_func, update_val)  # type: ignore[arg-type]
-    elif isinstance(data, list):
-        for item in data:
-            if isinstance(item, dict) and process_dict_of_dicts(item, output_key, process_func, update_val):
+    elif isinstance(checkpoint_data, ITraversable):
+        modified = process_dict_of_dicts(checkpoint_data, output_key, process_func, update_val)
+    elif isinstance(checkpoint_data, list):
+        for item in checkpoint_data:
+            list_item: object = item
+            if isinstance(list_item, (dict, ITraversable)) and process_dict_of_dicts(
+                list_item, output_key, process_func, update_val
+            ):
                 modified = True
 
     if modified:
