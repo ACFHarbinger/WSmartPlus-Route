@@ -66,6 +66,8 @@ class Bins:
         waste_file: Optional[str] = None,
         noise_mean: float = 0.0,
         noise_variance: float = 0.0,
+        n_days: int = 31,
+        n_samples: int = 1,
     ):
         """
         Initializes the bin population with area-specific parameters.
@@ -104,9 +106,7 @@ class Bins:
         self.collectlevl = np.ones((n)) * 80
         self.data_dir = data_dir
         self.indices = np.array(indices) if indices is not None else np.arange(n)
-
-        grid_to_load = grid is None and sample_dist == "emp"
-        self.grid = load_grid_base(data_dir, self.indices, area) if grid_to_load else grid
+        self.grid = load_grid_base(data_dir, self.indices, area) if grid is None else grid
 
         self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
@@ -120,7 +120,15 @@ class Bins:
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
         else:
-            self.waste_dataset = GenerativeDataset()
+            self.waste_dataset = GenerativeDataset(
+                data_dir=data_dir,
+                n_samples=n_samples,
+                n_days=n_days,
+                n_bins=n,
+                distribution=sample_dist,
+                noise_mean=noise_mean,
+                noise_variance=noise_variance,
+            )
 
         self.waste_fills: Optional[np.ndarray] = None
         self.noisy_waste_fills: Optional[np.ndarray] = None
@@ -137,7 +145,7 @@ class Bins:
                         "sim.waste_type": str(waste_type) if waste_type is not None else "all",
                         "sim.noise_mean": noise_mean,
                         "sim.noise_variance": noise_variance,
-                        "sim.is_stochastic": self.waste_dataset is None,
+                        "sim.is_stochastic": isinstance(self.waste_dataset, GenerativeDataset),
                         "sim.has_waste_file": waste_file is not None,
                     }
                 )
@@ -188,7 +196,7 @@ class Bins:
 
     def is_stochastic(self) -> bool:
         """Checks if using stochastic filling."""
-        return self.waste_dataset is None
+        return isinstance(self.waste_dataset, GenerativeDataset)
 
     def get_fill_history(self, device: Optional[torch.device] = None) -> Union[np.ndarray, torch.Tensor]:
         """Retrieves history of daily fill increments."""
@@ -319,7 +327,19 @@ class Bins:
     ) -> Union[np.ndarray, Tuple[int, np.ndarray, np.ndarray, float]]:
         """Generates fills by sampling from distributions."""
         todaysfilling = np.zeros(self.n)
-        if self.distribution == "gamma":
+        if isinstance(self.waste_dataset, GenerativeDataset) and self.waste_fills is not None:
+            # Use pre-generated waste data from the GenerativeDataset
+            day_idx = self.day_count + (1 if self.start_with_fill else 0)
+            todaysfilling = self.waste_fills[day_idx]
+            noisyfilling = None
+            if self.noisy_waste_fills is not None:
+                noisyfilling = self.noisy_waste_fills[day_idx]
+            else:
+                noisyfilling = todaysfilling.copy()
+            if only_fill:
+                return np.minimum(todaysfilling, MAX_CAPACITY_PERCENT)
+            return self._process_filling(todaysfilling, noisyfilling)
+        elif self.distribution == "gamma":
             todaysfilling = np.random.gamma(self.dist_param1, self.dist_param2, size=(n_samples, self.n))
             if n_samples <= 1:
                 todaysfilling = todaysfilling.squeeze(0)
@@ -338,10 +358,9 @@ class Bins:
 
     def loadFilling(self, day: int) -> Tuple[int, np.ndarray, np.ndarray, float]:
         """Loads deterministic waste fills from pre-recorded data."""
+        assert self.waste_fills is not None and self.noisy_waste_fills is not None
         todaysfilling = self.waste_fills[day] if self.start_with_fill else self.waste_fills[day - 1]
-        noisyfilling = None
-        if self.noisy_waste_fills is not None:
-            noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day - 1]
+        noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day - 1]
         return self._process_filling(todaysfilling, noisyfilling)
 
     def __setDistribution(self, param1, param2):

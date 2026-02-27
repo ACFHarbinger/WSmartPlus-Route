@@ -11,7 +11,7 @@ import torch
 from tensordict import TensorDict
 
 if TYPE_CHECKING:
-    from logic.src.envs.base import RL4COEnvBase
+    from logic.src.interfaces.env import IEnv
 
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 
@@ -65,7 +65,7 @@ class GDPO(REINFORCE):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional["RL4COEnvBase"] = None,  # type: ignore[override]
+        env: Optional["IEnv"] = None,
     ) -> torch.Tensor:
         """
         Compute GDPO loss using decoupled normalization.

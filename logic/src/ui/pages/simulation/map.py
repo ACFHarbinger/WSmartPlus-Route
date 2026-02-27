@@ -125,7 +125,7 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     </div>
     """
     sim_map.get_root().html.add_child(folium.Element(legend_html))  # type: ignore
-    st_folium(sim_map, width=None, height=500, returned_objects=[])
+    st_folium(sim_map, width=None, height=1080, returned_objects=[])
 
 
 def render_bin_heatmap(display_entry: Any) -> None:

@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.base import RL4COEnvBase
+if TYPE_CHECKING:
+    from logic.src.interfaces.env import IEnv
 from logic.src.models.common.time_tracking_policy import TimeTrackingPolicy
 
 from .reinforce import REINFORCE
@@ -38,7 +39,7 @@ class TimeOptimizedREINFORCE(REINFORCE):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional["RL4COEnvBase"] = None,  # type: ignore[override]
+        env: Optional["IEnv"] = None,
     ) -> torch.Tensor:
         """
         Compute REINFORCE loss with time penalty.

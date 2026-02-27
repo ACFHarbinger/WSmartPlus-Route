@@ -10,7 +10,7 @@ Example:
 from typing import Any, Optional, Protocol
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDictBase
 
 
 class IEnv(Protocol):
@@ -20,21 +20,26 @@ class IEnv(Protocol):
     """
 
     name: str
-    device: torch.device
+
+    @property
+    def device(self) -> torch.device:
+        """Device to place tensors on."""
+        ...
+
     generator: Optional[Any] = None
 
-    def reset(self, td: Optional[TensorDict] = None, batch_size: Optional[list] = None) -> TensorDict:
+    def reset(self, tensordict: Optional[TensorDictBase] = None, **kwargs: Any) -> TensorDictBase:
         """Reset environment."""
         ...
 
-    def step(self, td: TensorDict) -> TensorDict:
+    def step(self, tensordict: TensorDictBase) -> TensorDictBase:
         """Step environment."""
         ...
 
-    def get_reward(self, td: TensorDict, actions: torch.Tensor) -> TensorDict:
+    def get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Calculate reward."""
         ...
 
-    def get_action_mask(self, td: TensorDict) -> torch.Tensor:
+    def get_action_mask(self, tensordict: TensorDictBase) -> torch.Tensor:
         """Get valid action mask."""
         ...

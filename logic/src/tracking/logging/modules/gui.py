@@ -59,13 +59,9 @@ def send_daily_output_to_gui(
     full_payload["tour_indices"] = tour_indices
 
     if must_go is not None:
-        mapped_must_go = []
-        for i in must_go:
-            if i > 0:
-                if coords_lookup is not None and 0 <= i < len(coords_lookup):
-                    mapped_must_go.append(int(coords_lookup.iloc[i].get("ID", i - 1)))
-                else:
-                    mapped_must_go.append(int(i - 1))
+        # Map 1-based bin IDs (logic) to 0-based GUI IDs (indices)
+        # Bins are i=1..N, Depot is i=0 (skipped)
+        mapped_must_go = [int(i) - 1 for i in must_go if int(i) > 0]
         full_payload.update({"must_go": mapped_must_go})
 
     full_payload = deep_sanitize(full_payload)

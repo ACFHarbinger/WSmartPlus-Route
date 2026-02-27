@@ -14,6 +14,7 @@ import torch
 matplotlib.use("Agg")
 import loss_landscapes
 import matplotlib.pyplot as plt
+from loss_landscapes.metrics import Metric
 
 from logic.src.configs import Config
 from logic.src.models.policies.local_search import vectorized_two_opt
@@ -66,6 +67,33 @@ def rl_loss_fn(m, x_batch, cost_weights=None):
         model_to_call.set_strategy("greedy")
         cost, _, _, _, _ = model_to_call(x_batch, cost_weights=cost_weights, return_pi=False)
     return cost.float().mean().item()
+
+
+class ImitationMetric(Metric):
+    """Metric class for imitation loss."""
+
+    def __init__(self, x_batch, pi_target, cost_weights=None):
+        super().__init__()
+        self.x_batch = x_batch
+        self.pi_target = pi_target
+        self.cost_weights = cost_weights
+
+    def __call__(self, model_wrapper):
+        """Computes imitation loss for the current model state."""
+        return imitation_loss_fn(model_wrapper, self.x_batch, self.pi_target, cost_weights=self.cost_weights)
+
+
+class RLMetric(Metric):
+    """Metric class for RL cost."""
+
+    def __init__(self, x_batch, cost_weights=None):
+        super().__init__()
+        self.x_batch = x_batch
+        self.cost_weights = cost_weights
+
+    def __call__(self, model_wrapper):
+        """Computes RL cost for the current model state."""
+        return rl_loss_fn(model_wrapper, self.x_batch, cost_weights=self.cost_weights)
 
 
 def plot_loss_landscape(
@@ -134,12 +162,12 @@ def plot_loss_landscape(
 
     orig_cost_weights = getattr(model, "cost_weights", None)
 
-    def imitation_metric(m):
-        """Computes imitation loss for the current model state."""
-        m_dev = torch.device("cpu")
-        x_m = move_dict_to_device(x_batch, m_dev)
-        pi_m = pi_target.to(m_dev)
-        return imitation_loss_fn(m, x_m, pi_m, cost_weights=orig_cost_weights)
+    # Move data to CPU for landscape computation consistency if needed by wrapper
+    m_dev = torch.device("cpu")
+    x_m = move_dict_to_device(x_batch, m_dev)
+    pi_m = pi_target.to(m_dev)
+
+    imitation_metric = ImitationMetric(x_m, pi_m, cost_weights=orig_cost_weights)
 
     try:
         data = loss_landscapes.random_plane(
@@ -171,11 +199,7 @@ def plot_loss_landscape(
     # RL
     print(f"Computing RL Cost Landscape on {model_device}...")
 
-    def rl_metric(m):
-        """Computes RL cost for the current model state."""
-        m_dev = torch.device("cpu")
-        x_m = move_dict_to_device(x_batch, m_dev)
-        return rl_loss_fn(m, x_m, cost_weights=orig_cost_weights)
+    rl_metric = RLMetric(x_m, cost_weights=orig_cost_weights)
 
     try:
         data = loss_landscapes.random_plane(

@@ -13,7 +13,6 @@ import numpy as np
 from loguru import logger
 
 import logic.src.constants as udef
-from logic.src.interfaces import ITraversable
 from logic.src.utils.io.files import read_json
 
 
@@ -56,8 +55,8 @@ def _convert_numpy(obj: Any) -> Any:
         return int(obj)
     elif isinstance(obj, (np.float64, np.float32)):
         return float(obj)
-    elif isinstance(obj, ITraversable):
-        return {k: _convert_numpy(v) for k, v in obj.items()}
+    elif isinstance(obj, dict) or hasattr(obj, "items"):
+        return {str(k): _convert_numpy(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [_convert_numpy(v) for v in obj]
     return obj
@@ -114,13 +113,15 @@ def log_to_json(
     try:
         if os.path.isfile(json_path):
             try:
-                old = read_json(json_path, lock=None)
-            except json.JSONDecodeError:
-                old = [] if "full" in json_path else {}
+                old_raw = read_json(json_path, lock=None)
+                old = cast(Union[Dict[str, Any], List[Any]], old_raw)
+            except (json.JSONDecodeError, ValueError):
+                logger.error(f"Failed to decode {json_path}. Starting fresh.")
+                old = [] if sample_id is not None else {}
             if sample_id is not None and isinstance(old, list) and len(old) > sample_id:
-                new = old[sample_id]
-            elif isinstance(old, ITraversable):
-                new = old
+                new = cast(Dict[str, Any], old[sample_id])
+            elif not isinstance(old, list) and (isinstance(old, dict) or hasattr(old, "get")):
+                new = cast(Dict[str, Any], old)
             else:
                 new = {}
         else:
@@ -128,7 +129,7 @@ def log_to_json(
             old = [] if sample_id is not None else {}
 
         for key, val in dit.items():
-            values = val.values() if isinstance(val, ITraversable) else val
+            values = val.values() if hasattr(val, "values") else val
             new[key] = dict(zip(keys, values))
 
         if sort_log_flag:
@@ -139,7 +140,7 @@ def log_to_json(
                     old[sample_id] = new
                 else:
                     old.append(new)
-            elif isinstance(old, ITraversable):
+            elif isinstance(old, dict) or hasattr(old, "get"):
                 old[str(sample_id)] = new
         else:
             old = new
@@ -175,20 +176,22 @@ def log_to_json2(
     try:
         if os.path.isfile(json_path):
             try:
-                old = read_json(json_path, lock=None)
-            except json.JSONDecodeError:
-                old = [] if "full" in json_path else {}
+                old_raw = read_json(json_path, lock=None)
+                old = cast(Union[Dict[str, Any], List[Any]], old_raw)
+            except (json.JSONDecodeError, ValueError):
+                logger.error(f"Failed to decode {json_path} in log_to_json2.")
+                old = [] if sample_id is not None else {}
             if sample_id is not None and isinstance(old, list) and len(old) > sample_id:
-                new = old[sample_id]
-            elif isinstance(old, ITraversable):
-                new = old
+                new = cast(Dict[str, Any], old[sample_id])
+            elif not isinstance(old, list) and (isinstance(old, dict) or hasattr(old, "get")):
+                new = cast(Dict[str, Any], old)
             else:
                 new = {}
         else:
             new = {}
             old = [] if sample_id is not None else {}
         for key, val in dit.items():
-            values = val.values() if isinstance(val, ITraversable) else val
+            values = val.values() if hasattr(val, "values") else val
             new[key] = dict(zip(keys, values))
         if sort_log_flag:
             new = _sort_log(new)
@@ -198,7 +201,7 @@ def log_to_json2(
                     old[sample_id] = new
                 else:
                     old.append(new)
-            elif isinstance(old, ITraversable):
+            elif isinstance(old, dict) or hasattr(old, "get"):
                 old[str(sample_id)] = new
         else:
             old = new
