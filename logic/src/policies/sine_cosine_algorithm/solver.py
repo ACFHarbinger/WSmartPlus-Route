@@ -21,7 +21,6 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.repair_operators import greedy_insertion
 from .params import SCAParams
 
 
@@ -115,6 +114,14 @@ class SCASolver(PolicyVizMixin):
                 a=a,
             )
 
+        # Apply final local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        best_routes = ls.optimize(best_routes)
+        best_profit = self._evaluate(best_routes)
+        best_cost = self._cost(best_routes)
+
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------
@@ -140,12 +147,11 @@ class SCASolver(PolicyVizMixin):
         """
         sigmoid = 1.0 / (1.0 + np.exp(-x))
 
-        # Binary selection via threshold
         mandatory_set = set(self.mandatory_nodes)
         selected_nodes: List[int] = []
 
         # Always include mandatory nodes
-        for _idx, node in enumerate(self.nodes):
+        for node in self.nodes:
             if node in mandatory_set:
                 selected_nodes.append(node)
 
@@ -165,23 +171,18 @@ class SCASolver(PolicyVizMixin):
         if not selected_nodes:
             return []
 
-        # LRV ordering for visit sequence
-        order_vals = [(x[self.nodes.index(n)], n) for n in selected_nodes if n in self.nodes]
-        order_vals.sort(reverse=True)
-        ordered = [n for _, n in order_vals]
+        from logic.src.policies.operators.repair.greedy import greedy_insertion
 
-        try:
-            routes = greedy_insertion(
-                [],
-                ordered,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-        except Exception:
-            routes = []
+        routes = greedy_insertion(
+            [],
+            selected_nodes,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+            expand_pool=False,
+        )
         return routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:

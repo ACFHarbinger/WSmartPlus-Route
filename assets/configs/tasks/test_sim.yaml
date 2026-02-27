@@ -23,14 +23,24 @@ defaults:
   - /policies@p.vrpp: policy_vrpp
   - /policies@p.ahvpl: policy_ahvpl
   - /policies@p.hvpl: policy_hvpl
+  - /policies@p.qde: policy_qde
+  - /policies@p.psoma: policy_psoma
+  - /policies@p.abc: policy_abc
+  - /policies@p.fa: policy_fa
+  - /policies@p.sca: policy_sca
+  - /policies@p.hs: policy_hs
+  - /policies@p.slc: policy_slc
+  - /policies@p.lca: policy_lca
+  - /policies@p.gphh: policy_gphh
+  - /policies@p.hmm_gd: policy_hmm_gd
   - _self_
   - override /tracking: test_sim
 
 # General Configuration
 task: test_sim
 seed: 42
-load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
-#load_dataset: "data/wsr_simulator/datasets/april_2024_summary_with_coords.csv"
+#load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
+load_dataset: "data/wsr_simulator/datasets/april_2024_summary_with_coords.csv"
 
 # Simulation Configuration
 sim:
@@ -43,7 +53,7 @@ sim:
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   data_distribution: "gamma1"
-  #stats_filepath: "datasets/april_2024_summary_with_coords.csv"
+  stats_filepath: "datasets/april_2024_summary_with_coords.csv"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
@@ -69,3 +79,13 @@ sim:
     - neural: ${p.neural.neural}
     - ks_aco: ${p.ks_aco.ks_aco}
     - hh_aco: ${p.hh_aco.hh_aco}
+    - qde: ${p.qde.qde}
+    - psoma: ${p.psoma.psoma}
+    - abc: ${p.abc.abc}
+    - fa: ${p.fa.fa}
+    - sca: ${p.sca.sca}
+    - hs: ${p.hs.hs}
+    - slc: ${p.slc.slc}
+    - lca: ${p.lca.lca}
+    - gphh: ${p.gphh.gphh}
+    - hmm_gd: ${p.hmm_gd.hmm_gd}

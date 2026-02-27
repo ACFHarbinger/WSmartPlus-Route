@@ -119,16 +119,14 @@ class GenerativeDataset(SimulationDataset):
         """
         # Build graph tuple expected by generate_waste (batch_size=1 format)
         graph: Tuple[np.ndarray, np.ndarray] = (
-            self.depot[None, :],   # (1, coord_dim)
+            self.depot[None, :],  # (1, coord_dim)
             self.locs[None, :, :],  # (1, n_bins, coord_dim)
         )
 
         days = []
         for _ in range(self.n_days):
             # generate_waste with dataset_size=1 returns (n_bins,)
-            waste_day = generate_waste(
-                self.n_bins, self.distribution, graph, dataset_size=1
-            )
+            waste_day = generate_waste(self.n_bins, self.distribution, graph, dataset_size=1)
             waste_day = np.clip(np.asarray(waste_day) * self.max_waste, 0, self.max_waste)
             days.append(waste_day)
 
@@ -144,8 +142,6 @@ class GenerativeDataset(SimulationDataset):
             np.ndarray: Noisy waste array, same shape.
         """
         if self.noise_variance > 0:
-            noise = np.random.normal(
-                self.noise_mean, np.sqrt(self.noise_variance), waste.shape
-            )
+            noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), waste.shape)
             return np.clip(waste + noise, 0, self.max_waste)
         return waste.copy()

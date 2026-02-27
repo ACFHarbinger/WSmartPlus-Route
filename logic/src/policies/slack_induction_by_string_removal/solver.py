@@ -63,7 +63,8 @@ class SISRSolver(PolicyVizMixin):
         current_routes = [r[:] for r in initial_solution] if initial_solution else self._build_initial_solution()
 
         best_routes = [r[:] for r in current_routes]
-        best_cost = self._calculate_cost(best_routes)
+        collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in best_routes for node in route)
+        best_cost = collected_revenue - (self._calculate_cost(best_routes) * self.C)  # Profit
         current_cost = best_cost
 
         T = self.params.start_temp
@@ -96,23 +97,26 @@ class SISRSolver(PolicyVizMixin):
                 blink_rate=self.params.blink_rate,
             )
 
+            # Calculate profit instead of cost for maximizing
+            collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in new_routes for node in route)
             new_cost = self._calculate_cost(new_routes)
+            new_profit = collected_revenue - (new_cost * self.C)
 
-            # Acceptance (Simulated Annealing)
-            delta = new_cost - current_cost
+            # Acceptance (Simulated Annealing) for maximization
+            delta = new_profit - current_cost  # Notice: we compare profit
             accept = False
 
-            if delta < 1e-6:
+            if delta > -1e-6:
                 accept = True
             else:
-                prob = math.exp(-delta / T) if T > 0 else 0
+                prob = math.exp(delta / T) if T > 0 else 0
                 if random.random() < prob:
                     accept = True
 
             if accept:
                 current_routes = new_routes
-                current_cost = new_cost
-                if current_cost < best_cost - 1e-6:
+                current_cost = new_profit
+                if current_cost > best_cost + 1e-6:
                     best_routes = [r[:] for r in current_routes]
                     best_cost = current_cost
 
@@ -127,10 +131,7 @@ class SISRSolver(PolicyVizMixin):
                 accepted=int(accept),
             )
 
-        collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in best_routes for node in route)
-        profit = collected_revenue - (best_cost * self.C)
-
-        return best_routes, profit, best_cost
+        return best_routes, best_cost, self._calculate_cost(best_routes)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
         total = 0.0
@@ -145,21 +146,15 @@ class SISRSolver(PolicyVizMixin):
 
     def _build_initial_solution(self) -> List[List[int]]:
         """Greedy constructive heuristic."""
-        nodes = list(self.wastes.keys())
-        random.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
-        for node in nodes:
-            waste = self.wastes.get(node, 0.0)
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-        if curr_route:
-            routes.append(curr_route)
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        routes = build_nn_routes(
+            nodes=list(self.wastes.keys()),
+            mandatory_nodes=[],  # SISR doesn't use mandatory_nodes parameter
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
+        )
         return routes

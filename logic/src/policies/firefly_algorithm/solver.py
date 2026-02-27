@@ -125,16 +125,32 @@ class FASolver(PolicyVizMixin):
 
     def _new_firefly(self) -> List[List[int]]:
         """Generate a random feasible routing solution."""
-        shuffled = random.sample(self.nodes, len(self.nodes))
-        return greedy_insertion(
-            [],
-            shuffled,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            R=self.R,
+        return self._build_random_solution()
+
+    def _build_random_solution(self) -> List[List[int]]:
+        """Order-dependent sequential construction (matches ALNS style).
+
+        Random node ordering causes different capacity cutoffs, creating
+        genuinely diverse initial solutions. Uses self.C for the profitability
+        check so that economics are consistent with the solver's _evaluate().
+        """
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        optimized_routes = build_nn_routes(
+            nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
         )
+
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(optimized_routes)
 
     def _swap_distance(self, routes_a: List[List[int]], routes_b: List[List[int]]) -> int:
         """
@@ -218,6 +234,11 @@ class FASolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
+            # Apply comprehensive local search
+            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+            return ls.optimize(routes)
         return routes
 
     def _best_insertion_cost(self, node: int, routes: List[List[int]]) -> float:
@@ -255,8 +276,9 @@ class FASolver(PolicyVizMixin):
             Perturbed routes.
         """
         try:
-            partial, removed = random_removal(routes, 1)
-            return greedy_insertion(
+            n_rem = max(3, self.params.n_removal)
+            partial, removed = random_removal(routes, n_rem)
+            repaired = greedy_insertion(
                 partial,
                 removed,
                 self.dist_matrix,
@@ -265,6 +287,11 @@ class FASolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
+            # Apply comprehensive local search
+            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+            return ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)
 

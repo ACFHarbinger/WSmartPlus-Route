@@ -27,7 +27,7 @@ class QDEParams:
 
     pop_size: int = 20
     F: float = 0.5
-    CR: float = 0.7
+    CR: float = 0.9
     max_iterations: int = 200
     time_limit: float = 60.0
     n_removal: int = 2

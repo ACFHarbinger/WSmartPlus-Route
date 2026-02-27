@@ -15,19 +15,22 @@ problem := "vrpp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "100"
+size := "104"
 area := "riomaior"
 epochs := "31"
 batch_size := "64"
 temporal_horizon := "0"
-days := "31"
+days := "30"
 samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "gamma1"
+distribution := "emp"
 n_cores := "20"
-policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr,ahvpl"
+
+#policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr,ahvpl"
+
+policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,hmm_gd"
 
 # --- Setup & Environment ---
 

@@ -144,16 +144,32 @@ class LCASolver(PolicyVizMixin):
 
     def _random_solution(self) -> List[List[int]]:
         """Generate a random feasible routing solution."""
-        shuffled = random.sample(self.nodes, len(self.nodes))
-        return greedy_insertion(
-            [],
-            shuffled,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            R=self.R,
+        return self._build_random_solution()
+
+    def _build_random_solution(self) -> List[List[int]]:
+        """Order-dependent sequential construction (matches ALNS style).
+
+        Random node ordering causes different capacity cutoffs, creating
+        genuinely diverse initial solutions. Uses self.C for the profitability
+        check so that economics are consistent with the solver's _evaluate().
+        """
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        optimized_routes = build_nn_routes(
+            nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
         )
+
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(optimized_routes)
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
         """
@@ -165,10 +181,10 @@ class LCASolver(PolicyVizMixin):
         Returns:
             Perturbed routes.
         """
-        n = max(1, self.params.n_removal)
+        n = max(3, self.params.n_removal)
         try:
             partial, removed = worst_removal(routes, n, self.dist_matrix)
-            return greedy_insertion(
+            repaired = greedy_insertion(
                 partial,
                 removed,
                 self.dist_matrix,
@@ -177,6 +193,11 @@ class LCASolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
+            # Apply comprehensive local search
+            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+            return ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)
 
@@ -225,7 +246,11 @@ class LCASolver(PolicyVizMixin):
                     mandatory_nodes=self.mandatory_nodes,
                 )
 
-        return child
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(child)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Net profit for a set of routes."""

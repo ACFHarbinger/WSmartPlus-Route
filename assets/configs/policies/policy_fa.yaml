@@ -74,7 +74,6 @@ fa:
       # Higher → penalise expensive (long-detour) insertions more strongly
 
     # Note: alpha_profit + beta_will + gamma_cost should roughly sum to 1.0
-
     # -------------------------------------------------------------------------
     # Random Walk
     # -------------------------------------------------------------------------
@@ -90,6 +89,10 @@ fa:
       # Maximum FA iterations
       # Range: 20-300 (50 = quick, 100 = production, 200 = benchmark)
       # Fewer iterations needed vs. single-solution methods due to population
+
+    - n_removal: 3
+      # Number of nodes to remove in each iteration
+      # Range: 1-10 (1 = slow, 3 = production, 10 = fast)
 
     - time_limit: 60.0
       # Maximum wall-clock seconds

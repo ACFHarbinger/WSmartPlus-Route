@@ -26,6 +26,7 @@ def greedy_insertion(
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
     cost_unit: float = 1.0,
+    expand_pool: bool = True,
 ) -> List[List[int]]:
     """
     Insert removed nodes into their best (cheapest) positions greedily.
@@ -48,12 +49,20 @@ def greedy_insertion(
         List[List[int]]: New routes after insertion.
     """
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
-    # Calculate current loads
+    # Calculate current loads and track visited nodes
     loads = []
+    visited = set()
     for route in routes:
         loads.append(sum(wastes.get(node, 0) for node in route))
+        visited.update(route)
 
-    unassigned = list(removed_nodes)
+    if expand_pool:
+        # All unvisited nodes (including those previously removed) are candidates
+        n_nodes = len(dist_matrix) - 1
+        unassigned = list(set(range(1, n_nodes + 1)) - visited)
+    else:
+        unassigned = list(removed_nodes)
+
     while unassigned:
         best_cost = float("inf")
         best_node = -1
