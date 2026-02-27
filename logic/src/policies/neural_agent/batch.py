@@ -57,8 +57,10 @@ class BatchMixin:
             current_waste = dynamic_feat[:, :, -1]
 
             # 1. Critical ratio Now
-            critical_mask = (current_waste > hrl_manager.critical_threshold).float()
-            critical_ratio = critical_mask.mean(dim=1, keepdim=True)  # (B, 1)
+            critical_mask = current_waste > hrl_manager.critical_threshold
+            critical_ratio = critical_mask.float().mean(
+                dim=1, keepdim=True
+            )  # (B, 1)  # pyrefly: ignore[missing-attribute]
 
             # 2. Max Current Waste
             max_current_waste = current_waste.max(dim=1, keepdim=True)[0]  # (B, 1)
@@ -118,7 +120,7 @@ class BatchMixin:
         else:
             last_dst = torch.zeros(dst_vertices.size(0), dtype=torch.long, device=dst_vertices.device)
 
-        travelled = dist_matrix[src_vertices, dst_vertices] * pair_mask.float()
+        travelled = dist_matrix[src_vertices, dst_vertices] * pair_mask.float()  # pyrefly: ignore[missing-attribute]
 
         ret_dict = {}
         ret_dict["overflows"] = cost_dict["overflows"]

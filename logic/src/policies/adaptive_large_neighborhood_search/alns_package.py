@@ -6,7 +6,7 @@ to use the `alns` package as a solver backend for the routing problem.
 """
 
 import copy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
 from alns import ALNS
@@ -124,13 +124,13 @@ class ALNSState:
         return self.objective()
 
 
-def alns_pkg_random_removal(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+def alns_pkg_random_removal(state: ALNSState, rng: np.random.Generator, **kwargs: Any) -> ALNSState:
     """
     Randomly remove nodes from the current solution for the `alns` package.
 
     Args:
         state: The current ALNSState.
-        random_state: NumPy RandomState for reproducibility.
+        rng: NumPy Generator for reproducibility.
 
     Returns:
         ALNSState: A new state with nodes removed.
@@ -139,8 +139,8 @@ def alns_pkg_random_removal(state: ALNSState, random_state: np.random.RandomStat
     all_nodes = [n for r in new_state.routes for n in r]
     if not all_nodes:
         return new_state
-    n_remove = min(len(all_nodes), random_state.randint(1, min(len(all_nodes) + 1, 10)))
-    removed = random_state.choice(all_nodes, n_remove, replace=False)
+    n_remove = min(len(all_nodes), int(rng.integers(1, min(len(all_nodes) + 1, 10))))
+    removed = rng.choice(all_nodes, n_remove, replace=False)
 
     new_routes = []
     for r in new_state.routes:
@@ -154,13 +154,13 @@ def alns_pkg_random_removal(state: ALNSState, random_state: np.random.RandomStat
     return new_state
 
 
-def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+def alns_pkg_worst_removal(state: ALNSState, rng: np.random.Generator, **kwargs: Any) -> ALNSState:
     """
     Remove nodes with the highest cost contribution for the `alns` package.
 
     Args:
         state: The current ALNSState.
-        random_state: NumPy RandomState for reproducibility.
+        rng: NumPy Generator for reproducibility.
 
     Returns:
         ALNSState: A new state with nodes removed.
@@ -183,7 +183,7 @@ def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState
             costs.append((cost, node))
 
     costs.sort(key=lambda x: x[0], reverse=True)
-    n_remove = min(len(all_nodes), random_state.randint(1, min(len(all_nodes) + 1, 10)))
+    n_remove = min(len(all_nodes), int(rng.integers(1, min(len(all_nodes) + 1, 10))))
     removed = [x[1] for x in costs[:n_remove]]
 
     new_routes = []
@@ -198,19 +198,19 @@ def alns_pkg_worst_removal(state: ALNSState, random_state: np.random.RandomState
     return new_state
 
 
-def alns_pkg_greedy_insertion(state: ALNSState, random_state: np.random.RandomState) -> ALNSState:
+def alns_pkg_greedy_insertion(state: ALNSState, rng: np.random.Generator, **kwargs: Any) -> ALNSState:
     """
     Greedily insert unassigned nodes into the best positions for the `alns` package.
 
     Args:
         state: The current ALNSState.
-        random_state: NumPy RandomState for reproducibility.
+        rng: NumPy Generator for reproducibility.
 
     Returns:
         ALNSState: A new state with nodes re-inserted.
     """
     new_state = state.copy()
-    random_state.shuffle(new_state.unassigned)
+    rng.shuffle(new_state.unassigned)
     while new_state.unassigned:
         node = new_state.unassigned.pop(0)
         best_cost = float("inf")
@@ -263,10 +263,10 @@ def run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: Opti
     initial_routes = [[i] for i in nodes]
     init_state = ALNSState(initial_routes, [], dist_matrix, wastes, capacity, R, C, values)
 
-    alns = ALNS(np.random.RandomState(42))
-    alns.add_destroy_operator(alns_pkg_random_removal)
-    alns.add_destroy_operator(alns_pkg_worst_removal)
-    alns.add_repair_operator(alns_pkg_greedy_insertion)
+    alns = ALNS(np.random.default_rng(42))
+    alns.add_destroy_operator(alns_pkg_random_removal)  # pyrefly: ignore[bad-argument-type]
+    alns.add_destroy_operator(alns_pkg_worst_removal)  # pyrefly: ignore[bad-argument-type]
+    alns.add_repair_operator(alns_pkg_greedy_insertion)  # pyrefly: ignore[bad-argument-type]
 
     time_limit = values.get("time_limit", 10)
     select = RouletteWheel([25, 10, 1, 0], 0.8, 1, 1)
@@ -274,7 +274,7 @@ def run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: Opti
     stop = MaxRuntime(time_limit)
 
     result = alns.iterate(init_state, select, accept, stop, collect_stats=True)
-    best_state = result.best_state
+    best_state: ALNSState = cast(ALNSState, result.best_state)
 
     if recorder is not None:
         try:

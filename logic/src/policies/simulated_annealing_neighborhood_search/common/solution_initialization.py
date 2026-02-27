@@ -13,23 +13,10 @@ def _categorize_bins_by_zone(bins, bins_coordinates):
     zone_2_l = min_lng + 2 * lng_amp / 3
 
     zone_bins = {1: [], 2: [], 3: []}  # type: ignore[var-annotated]
-
-    # Bin index starts at 1 usually?
-    # Logic in original: lng_list_without_dep is lng_list[1:]
-    # for n, h in enumerate: n + 1
-    # Assuming bins_coordinates is aligned 0..N
-
     for i in range(len(bins)):
         bin_id = bins[i]
         try:
-            # Assuming bins_coordinates is DataFrame indexed 0..N, depot at 0
-            # Need to find index for bin_id if they are not matching
-            # Original code: list(bins_coordinates['Lng'])[1:]
-            # n is index in that list, so bin_id corresponds to n+1
             lng = bins_coordinates.iloc[bin_id - 1 if bin_id > 0 else 0]["Lng"]
-            # Hmm, original code assumed index match. Let's stick to original logic:
-            # lng_list = list(bins_coordinates["Lng"])
-            # The bin IDs seem to be n+1 where n is enumerate index.
         except IndexError:
             continue
 
@@ -55,15 +42,11 @@ def _find_closest_valid_bin(current_bin, potential_bins_in_zone, available_bins,
         return None
 
     row = distance_matrix[current_bin][:]
-    # Filter only relevant bins (in zone and available)
-    # This is inefficient but mimics original logic
     candidates = [b for b in potential_bins_in_zone if b in available_bins and b not in current_route]
 
     if not candidates:
         return None
 
-    # Find closest among candidates
-    # Distance matrix index matches bin ID? usually yes (0 is depot)
     closest_bin = min(candidates, key=lambda b: row[b])
     return closest_bin
 
@@ -139,15 +122,6 @@ def find_initial_solution(  # noqa: C901
                 # Check capacity
                 stock = _get_bin_stock(data, next_bin, E, B)
                 if space_occupied + stock > vehicle_capacity:
-                    # Logic in original: break inner loop if capacity full?
-                    # Original logic has 'if space < capacity: append'.
-                    # It continues searching if capacity fits.
-                    # If this bin doesn't fit, do we try another?
-                    # Original code breaks strictly if loop condition met or continues?
-                    # "while space_occupied < vehicle_capacity and ..."
-                    # If next closest doesn't fit, we might stop this zone pass?
-                    # Just skip it for now to be safe or break?
-                    # Original: "if space_occupied < vehicle_capacity ... append"
                     break
 
                 # Add bin

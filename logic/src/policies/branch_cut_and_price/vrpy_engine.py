@@ -53,7 +53,7 @@ def run_bcp_vrpy(
     logging.getLogger("cspy").setLevel(logging.WARNING)
     logging.getLogger("vrpy").setLevel(logging.WARNING)
 
-    G = nx.DiGraph()
+    G: nx.DiGraph = nx.DiGraph()  # pyrefly: ignore[bad-assignment]
     n_nodes = len(dist_matrix) - 1
 
     # Add Nodes
@@ -68,9 +68,9 @@ def run_bcp_vrpy(
     # Add Edges
     for i in range(1, n_nodes + 1):
         # Depot to customer
-        G.add_edge(SOURCE, i, cost=float(dist_matrix[0][i] * C))
+        G.add_edge(SOURCE, i, cost=float(dist_matrix[0][i] * C))  # pyrefly: ignore[bad-argument-type]
         # Customer to depot
-        G.add_edge(i, SINK, cost=float(dist_matrix[i][0] * C))
+        G.add_edge(i, SINK, cost=float(dist_matrix[i][0] * C))  # pyrefly: ignore[bad-argument-type]
 
     for i in range(1, n_nodes + 1):
         for j in range(1, n_nodes + 1):
