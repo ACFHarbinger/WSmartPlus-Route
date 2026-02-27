@@ -1,32 +1,32 @@
 """
-RRT (Record-to-Record Travel) Policy Adapter.
+ILS (Iterated Local Search) Policy Adapter.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.rrt import RRTConfig
+from logic.src.configs.policies.ils import ILSConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.record_to_record_travel.params import RRParams
-from logic.src.policies.record_to_record_travel.solver import RRSolver
+from logic.src.policies.iterated_local_search.params import ILSParams
+from logic.src.policies.iterated_local_search.solver import ILSSolver
 
 from .factory import PolicyRegistry
 
 
-@PolicyRegistry.register("rrt")
-class RRTPolicy(BaseRoutingPolicy):
-    """Record-to-Record Travel policy class."""
+@PolicyRegistry.register("ils")
+class ILSPolicy(BaseRoutingPolicy):
+    """Iterated Local Search policy class."""
 
-    def __init__(self, config: Optional[Union[RRTConfig, Dict[str, Any]]] = None):
+    def __init__(self, config: Optional[Union[ILSConfig, Dict[str, Any]]] = None):
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return RRTConfig
+        return ILSConfig
 
     def _get_config_key(self) -> str:
-        return "rrt"
+        return "ils"
 
     def _run_solver(
         self,
@@ -39,15 +39,16 @@ class RRTPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        params = RRParams(
-            tolerance=float(values.get("tolerance", 0.05)),
-            max_iterations=int(values.get("max_iterations", 500)),
+        params = ILSParams(
+            n_restarts=int(values.get("n_restarts", 30)),
+            inner_iterations=int(values.get("inner_iterations", 20)),
             n_removal=int(values.get("n_removal", 2)),
             n_llh=int(values.get("n_llh", 5)),
+            perturbation_strength=float(values.get("perturbation_strength", 0.15)),
             time_limit=float(values.get("time_limit", 60.0)),
         )
 
-        solver = RRSolver(
+        solver = ILSSolver(
             sub_dist_matrix,
             sub_wastes,
             capacity,

@@ -28,7 +28,6 @@ class PostProcessorFactory:
         Create a post-processor instance by name.
         """
         from .fast_tsp import FastTSPPostProcessor
-        from .iterated_local_search import IteratedLocalSearchPostProcessor
         from .local_search import ClassicalLocalSearchPostProcessor
         from .random_local_search import RandomLocalSearchPostProcessor
 
@@ -42,8 +41,6 @@ class PostProcessorFactory:
                 return ClassicalLocalSearchPostProcessor(operator_name=n_lower)
             elif n_lower in ["random", "random_local_search"]:
                 return RandomLocalSearchPostProcessor()
-            elif n_lower == "ils":
-                return IteratedLocalSearchPostProcessor()
 
             raise ValueError(f"Unknown post-processor: {name}")
         return cls()
@@ -65,15 +62,6 @@ class PostProcessorFactory:
             # ClassicalLocalSearch needs 'operator_name'
             if method in ["2opt", "2opt_star", "swap", "relocate", "swap_star", "3opt"] or method == "fast_tsp":
                 processor = cls.create(method)
-            elif method == "ils":
-                # IteratedLocalSearchPostProcessor takes many params
-                # We can pass config fields if they match
-                from .iterated_local_search import IteratedLocalSearchPostProcessor
-
-                processor = IteratedLocalSearchPostProcessor(
-                    ls_iterations=config.iterations,
-                    # Add other maps if needed
-                )
             else:
                 processor = cls.create(method)
 
