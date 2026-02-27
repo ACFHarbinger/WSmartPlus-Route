@@ -28,6 +28,7 @@ from .sca import SCAConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
 from .tsp import TSPConfig
+from .vns import VNSConfig
 from .vrpp import VRPPConfig
 
 __all__ = [
@@ -58,4 +59,5 @@ __all__ = [
     "LCAConfig",
     "GPHHConfig",
     "HMMGDConfig",
+    "VNSConfig",
 ]

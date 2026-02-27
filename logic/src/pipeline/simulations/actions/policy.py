@@ -18,6 +18,9 @@ class PolicyExecutionAction(SimulationAction):
         """Execute the selected routing policy."""
         from logic.src.policies.adapters.registry import PolicyRegistry
 
+        # Ensure all adapters are imported so the registry is fully populated
+        PolicyFactory.ensure_registered()
+
         # 1. GET FULL POLICY NAME (for identification)
         full_policy = str(context.get("full_policy") or "")
 
@@ -40,24 +43,21 @@ class PolicyExecutionAction(SimulationAction):
         if not solver_key:
             solver_key = full_policy
 
-        # If the key is purely a selection strategy, default to 'tsp'
+        # Resolve compound names (e.g. 'lookahead_lahc_custom_emp' -> 'lahc')
         registered = set(PolicyRegistry.list_policies())
         if solver_key and solver_key not in registered:
-            from logic.src.policies.other.must_go.base.selection_registry import MustGoSelectionRegistry
-
-            selection_keys = set(MustGoSelectionRegistry.list_strategies())
-            # Check if it's a selection-only name
             lower = str(solver_key).lower()
-            if any(sel in lower for sel in selection_keys) and not any(
-                f"_{eng}" in lower or f"{eng}_" in lower or eng == lower for eng in registered
-            ):
-                solver_key = "tsp"
-            else:
-                # Try to extract a registered engine from the compound name
-                for eng in sorted(registered, key=len, reverse=True):
-                    if f"_{eng}" in lower or f"{eng}_" in lower or eng == lower:
-                        solver_key = eng
-                        break
+            # Try to extract a registered engine from the compound name
+            resolved = False
+            for eng in sorted(registered, key=len, reverse=True):
+                if f"_{eng}" in lower or f"{eng}_" in lower or eng == lower:
+                    solver_key = eng
+                    resolved = True
+                    break
+            if not resolved:
+                raise ValueError(
+                    f"Unknown policy '{solver_key}' (from '{full_policy}'). Registered policies: {sorted(registered)}"
+                )
 
         # If no nodes to collect, skip policy and return to depot
         must_go = context.get("must_go", [])

@@ -40,6 +40,7 @@ defaults:
   - /policies@p.ga: policy_ga
   - /policies@p.sa: policy_sa
   - /policies@p.ils: policy_ils
+  - /policies@p.vns: policy_vns
   - _self_
   - override /tracking: test_sim
 
@@ -103,3 +104,4 @@ sim:
     - ga: ${p.ga.ga}
     - sa: ${p.sa.sa}
     - ils: ${p.ils.ils}
+    - vns: ${p.vns.vns}

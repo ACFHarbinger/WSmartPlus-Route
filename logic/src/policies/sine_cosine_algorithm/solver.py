@@ -114,14 +114,6 @@ class SCASolver(PolicyVizMixin):
                 a=a,
             )
 
-        # Apply final local search
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        best_routes = ls.optimize(best_routes)
-        best_profit = self._evaluate(best_routes)
-        best_cost = self._cost(best_routes)
-
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------

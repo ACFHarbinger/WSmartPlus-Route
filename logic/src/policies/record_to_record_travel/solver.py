@@ -119,14 +119,7 @@ class RRSolver(PolicyVizMixin):
                 tolerance=tolerance,
             )
 
-        # Final local search polish
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        record_routes = ls.optimize(record_routes)
-        record_profit = self._evaluate(record_routes)
         record_cost = self._cost(record_routes)
-
         return record_routes, record_profit, record_cost
 
     # ------------------------------------------------------------------
@@ -210,10 +203,7 @@ class RRSolver(PolicyVizMixin):
             C=self.C,
         )
 
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        return ls.optimize(routes)
+        return routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         if not routes:
