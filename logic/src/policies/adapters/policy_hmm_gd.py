@@ -11,8 +11,8 @@ import numpy as np
 
 from logic.src.configs.policies.hmm_gd import HMMGDConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.hmm_great_deluge.params import HMMGDParams
-from logic.src.policies.hmm_great_deluge.solver import HMMGDSolver
+from logic.src.policies.hidden_markov_model_great_deluge.params import HMMGDParams
+from logic.src.policies.hidden_markov_model_great_deluge.solver import HMMGDSolver
 
 from .factory import PolicyRegistry
 

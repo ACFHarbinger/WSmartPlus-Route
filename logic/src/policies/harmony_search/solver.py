@@ -131,12 +131,7 @@ class HSSolver(PolicyVizMixin):
             R=self.R,
             C=self.C,
         )
-
-        # Apply comprehensive local search
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        return ls.optimize(optimized_routes)
+        return optimized_routes
 
     def _improvise(self, hm: List[List[List[int]]]) -> List[List[int]]:
         """

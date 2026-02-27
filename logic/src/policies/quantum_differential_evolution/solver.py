@@ -118,14 +118,6 @@ class QDESolver(PolicyVizMixin):
                 population_size=pop_size,
             )
 
-        # Apply comprehensive local search on final solution
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        best_routes = ls.optimize(best_routes)
-        best_profit = self._evaluate(best_routes)
-        best_cost = self._cost(best_routes)
-
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------

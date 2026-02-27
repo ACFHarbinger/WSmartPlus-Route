@@ -1,14 +1,22 @@
 """
-Iterated Local Search (ILS) for VRPP.
+Variable Neighborhood Search (VNS) for VRPP.
 
-ILS alternates between a local search descent phase and a perturbation phase.
-The descent phase applies destroy/repair LLHs until no improvement is found.
-The perturbation phase randomly disrupts the current solution to escape the
-local optimum.  If the perturbed + re-optimised solution beats the incumbent,
-it replaces the current solution (hill-climbing acceptance).
+VNS systematically changes neighborhood structures to escape local optima.
+Each outer iteration consists of two phases:
+
+  1. Shaking: generate a random neighbour in the k-th shaking structure N_k
+     (increasing severity as k grows).
+  2. Local search descent: apply repeated LLH improvement from the shaken
+     solution until no further improvement within the budget.
+
+If the local search result improves the incumbent, the algorithm resets to
+the first (mildest) neighborhood k=1.  Otherwise it advances to k+1.  Once
+all k_max shaking structures are exhausted without improvement one outer
+iteration is complete.  The process repeats for max_iterations outer loops
+or until the time_limit is reached.
 
 Reference:
-    Lourenço, Martin & Stützle, "Iterated Local Search", 2003.
+    Hansen & Mladenović, "Variable Neighborhood Search", 1999.
 """
 
 import copy
@@ -22,12 +30,12 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..operators.destroy_operators import cluster_removal, random_removal, worst_removal
 from ..operators.repair_operators import greedy_insertion, regret_2_insertion
-from .params import ILSParams
+from .params import VNSParams
 
 
-class ILSSolver(PolicyVizMixin):
+class VNSSolver(PolicyVizMixin):
     """
-    Iterated Local Search solver for VRPP.
+    Variable Neighborhood Search solver for VRPP.
     """
 
     def __init__(
@@ -37,7 +45,7 @@ class ILSSolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: ILSParams,
+        params: VNSParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
         self.dist_matrix = dist_matrix
@@ -50,6 +58,16 @@ class ILSSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
+        # Shaking neighborhoods N_1 ... N_{k_max} ordered by increasing severity
+        self._neighborhoods = [
+            self._shake_n1,
+            self._shake_n2,
+            self._shake_n3,
+            self._shake_n4,
+            self._shake_n5,
+        ]
+
+        # LLH pool for local search descent phase
         self._llh_pool = [
             self._llh0,
             self._llh1,
@@ -64,7 +82,7 @@ class ILSSolver(PolicyVizMixin):
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run Iterated Local Search.
+        Run Variable Neighborhood Search.
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -73,55 +91,45 @@ class ILSSolver(PolicyVizMixin):
             return [], 0.0, 0.0
 
         start = time.time()
+        k_max = min(self.params.k_max, len(self._neighborhoods))
 
-        # Initial solution
         routes = self._build_initial_solution()
         profit = self._evaluate(routes)
         best_routes = copy.deepcopy(routes)
         best_profit = profit
 
-        for restart in range(self.params.n_restarts):
+        for iteration in range(self.params.max_iterations):
             if time.time() - start > self.params.time_limit:
                 break
 
-            # === Descent phase ===
-            improved = True
-            inner_count = 0
-            while improved and inner_count < self.params.inner_iterations:
+            k = 0  # 0-based index into self._neighborhoods
+            while k < k_max:
                 if time.time() - start > self.params.time_limit:
                     break
-                improved = False
-                inner_count += 1
 
-                llh_idx = random.randint(0, self.params.n_llh - 1)
-                llh = self._llh_pool[llh_idx]
-
+                # === Shaking phase ===
                 try:
-                    new_routes = llh(copy.deepcopy(routes), self.params.n_removal)
-                    new_profit = self._evaluate(new_routes)
+                    shaken = self._neighborhoods[k](copy.deepcopy(routes))
                 except Exception:
+                    k += 1
                     continue
 
-                if new_profit > profit:
-                    routes = new_routes
-                    profit = new_profit
-                    improved = True
+                # === Local search descent phase ===
+                ls_routes, ls_profit = self._local_search(shaken, start)
 
+                # === Move or not (VNS acceptance criterion) ===
+                if ls_profit > profit:
+                    routes = ls_routes
+                    profit = ls_profit
                     if profit > best_profit:
                         best_routes = copy.deepcopy(routes)
                         best_profit = profit
-
-            # === Perturbation phase ===
-            perturbed = self._perturb(copy.deepcopy(routes))
-            perturbed_profit = self._evaluate(perturbed)
-
-            # Hill-climbing acceptance: accept perturbation as starting point
-            # if it leads to better results after another descent
-            routes = perturbed
-            profit = perturbed_profit
+                    k = 0  # Improvement: restart from the mildest neighborhood
+                else:
+                    k += 1  # No improvement: try next neighborhood
 
             self._viz_record(
-                iteration=restart,
+                iteration=iteration,
                 best_profit=best_profit,
                 best_cost=self._cost(best_routes),
             )
@@ -130,21 +138,12 @@ class ILSSolver(PolicyVizMixin):
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------
-    # Perturbation
+    # Shaking neighborhoods (N_1 ... N_5, increasing severity)
     # ------------------------------------------------------------------
 
-    def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """Apply strong perturbation to escape local optimum."""
-        flat = [n for r in routes for n in r]
-        if len(flat) < 4:
-            return routes
-
-        n_remove = max(2, int(len(flat) * self.params.perturbation_strength))
-
-        # Random removal of a large chunk
-        partial, removed = random_removal(routes, n_remove)
-
-        # Reinsert removed nodes
+    def _shake_n1(self, routes: List[List[int]]) -> List[List[int]]:
+        """N_1: Remove 1 node randomly, greedy reinsert."""
+        partial, removed = random_removal(routes, 1)
         return greedy_insertion(
             partial,
             removed,
@@ -154,6 +153,98 @@ class ILSSolver(PolicyVizMixin):
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
         )
+
+    def _shake_n2(self, routes: List[List[int]]) -> List[List[int]]:
+        """N_2: Remove 2 nodes randomly, greedy reinsert."""
+        partial, removed = random_removal(routes, 2)
+        return greedy_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _shake_n3(self, routes: List[List[int]]) -> List[List[int]]:
+        """N_3: Worst removal of 2 nodes, regret-2 reinsert."""
+        partial, removed = worst_removal(routes, 2, self.dist_matrix)
+        return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _shake_n4(self, routes: List[List[int]]) -> List[List[int]]:
+        """N_4: Cluster removal of 3 nodes, greedy reinsert."""
+        partial, removed = cluster_removal(routes, 3, self.dist_matrix, self.nodes)
+        return greedy_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _shake_n5(self, routes: List[List[int]]) -> List[List[int]]:
+        """N_5: Remove 3 nodes randomly, regret-2 reinsert."""
+        partial, removed = random_removal(routes, 3)
+        return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    # ------------------------------------------------------------------
+    # Local search descent
+    # ------------------------------------------------------------------
+
+    def _local_search(
+        self,
+        routes: List[List[int]],
+        start: float,
+    ) -> Tuple[List[List[int]], float]:
+        """
+        Apply repeated LLH improvement until no further progress or budget reached.
+
+        Args:
+            routes: Starting solution for the descent.
+            start: Wall-clock start time of the outer solve() call.
+
+        Returns:
+            (routes, profit) after descent.
+        """
+        profit = self._evaluate(routes)
+
+        for _ in range(self.params.local_search_iterations):
+            if time.time() - start > self.params.time_limit:
+                break
+
+            llh_idx = random.randint(0, self.params.n_llh - 1)
+            llh = self._llh_pool[llh_idx]
+
+            try:
+                new_routes = llh(copy.deepcopy(routes), self.params.n_removal)
+                new_profit = self._evaluate(new_routes)
+            except Exception:
+                continue
+
+            if new_profit > profit:
+                routes = new_routes
+                profit = new_profit
+
+        return routes, profit
 
     # ------------------------------------------------------------------
     # LLH pool

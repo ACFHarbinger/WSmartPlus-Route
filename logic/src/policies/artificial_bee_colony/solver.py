@@ -148,8 +148,7 @@ class ABCSolver(PolicyVizMixin):
 
     def _build_random_solution(self) -> List[List[int]]:
         """
-        Builds a random initial solution applying nearest neighbor ordering
-        and 2-opt local search to the resulting routes.
+        Builds a random initial solution applying nearest neighbor ordering.
         """
         from logic.src.policies.operators.heuristics.initialization import build_nn_routes
 
@@ -162,12 +161,7 @@ class ABCSolver(PolicyVizMixin):
             R=self.R,
             C=self.C,
         )
-
-        # Apply comprehensive local search
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        return ls.optimize(routes)
+        return routes
 
     def _perturb(self, current: List[List[int]], peer: List[List[int]]) -> List[List[int]]:
         """
