@@ -47,6 +47,10 @@ class ITraversable(Protocol):
         """Support iteration over keys (required for mapping-like behavior)."""
         ...
 
+    def __len__(self) -> int:
+        """Return the number of items."""
+        ...
+
     def keys(self) -> Any:
         """Return available configuration keys.
 

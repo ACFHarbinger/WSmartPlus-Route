@@ -20,6 +20,7 @@ def _add_bin_marker(
     collected_set: set,
     must_go_set: set,
     toured_ids: set,
+    dataset_id: Optional[int] = None,
 ) -> None:
     """Add a single bin marker to the map with appropriate styling.
 
@@ -31,6 +32,7 @@ def _add_bin_marker(
         collected_set: Set of bin IDs that were collected today.
         must_go_set: Set of bin IDs selected for collection today.
         toured_ids: Set of bin IDs that appear in the tour.
+        dataset_id: Optional dataset-level ID for backward-compatible must-go matching.
     """
     lat = point.get("lat")
     lng = point.get("lng") or point.get("lon")
@@ -39,21 +41,23 @@ def _add_bin_marker(
 
     is_toured = bin_id in toured_ids
     is_served = bin_id in collected_set
-    is_must_go = bin_id in must_go_set
+    # Check must_go against both positional id and dataset_id
+    # (logs may contain either format depending on when they were generated)
+    is_must_go = bin_id in must_go_set or (dataset_id is not None and dataset_id in must_go_set)
 
     # Get fill level
     fill_level = 50.0
     if bin_states is not None and 0 <= bin_id < len(bin_states):
         fill_level = bin_states[bin_id]
 
-    # 3-tier color system:
+    # 3-tier color system (Priority: Must-Go > Served > Pending):
+    #   Orange = must-go (selected, takes priority to match legend)
     #   Green  = served (collected today)
-    #   Orange = must-go (selected but not yet served)
     #   Red    = pending (not selected, not served)
-    if is_served:
-        color = BIN_COLORS["served"]
-    elif is_must_go:
+    if is_must_go:
         color = BIN_COLORS["must_go"]
+    elif is_served:
+        color = BIN_COLORS["served"]
     else:
         color = BIN_COLORS["pending"]
 
@@ -178,6 +182,13 @@ def create_simulation_map(  # noqa: C901
         if bin_id == -1:
             continue  # Skip depot (handled in Pass 1)
 
+        # Extract dataset_id for backward-compatible must-go matching
+        ds_id: Optional[int] = None
+        with contextlib.suppress(ValueError, TypeError):
+            raw_ds = bin_point.get("dataset_id")
+            if raw_ds is not None:
+                ds_id = int(raw_ds)
+
         rendered_ids.add(bin_id)
         _add_bin_marker(
             m,
@@ -187,6 +198,7 @@ def create_simulation_map(  # noqa: C901
             collected_set,
             must_go_set,
             toured_ids,
+            dataset_id=ds_id,
         )
 
     # Fallback for bins in tour not in all_bin_coords

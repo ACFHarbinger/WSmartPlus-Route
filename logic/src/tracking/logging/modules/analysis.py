@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 from loguru import logger
 
 import logic.src.constants as udef
-from logic.src.interfaces import ITraversable
 from logic.src.utils.io.files import compose_dirpath, read_json
 
 
@@ -65,15 +64,21 @@ def output_stats(
         for pol in policies:
             tmp = [list(data[n_id][pol].values()) for n_id in range(nsamples)]
             mean_dit[pol] = {key: val for key, val in zip(keys, [*map(statistics.mean, zip(*tmp))])}
-            std_dit[pol] = {key: val for key, val in zip(keys, [*map(statistics.stdev, zip(*tmp))])}
+            if nsamples > 1:
+                std_dit[pol] = {key: val for key, val in zip(keys, [*map(statistics.stdev, zip(*tmp))])}
+            else:
+                std_dit[pol] = {key: 0.0 for key in keys}
+
         if sort_log_func:
             mean_dit = sort_log_func(mean_dit)
             std_dit = sort_log_func(std_dit)
+
         if print_output:
             for pol in mean_dit:
-                lg, lg_std = mean_dit[pol], std_dit[pol]
-                logm = lg.values() if isinstance(lg, ITraversable) else lg
-                logs = lg_std.values() if isinstance(lg_std, ITraversable) else lg_std
+                lg_obj = mean_dit[pol]
+                lg_std_obj = std_dit[pol]
+                logm = lg_obj.values() if hasattr(lg_obj, "values") else lg_obj
+                logs = lg_std_obj.values() if hasattr(lg_std_obj, "values") else lg_std_obj
                 print(f"{pol}:")
                 for key, m, s in zip(keys, logm, logs):
                     print(f"- {key}: {m:.2f} +- {s:.4f}")

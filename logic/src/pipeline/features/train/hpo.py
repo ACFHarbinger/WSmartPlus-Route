@@ -220,7 +220,7 @@ def run_hpo(cfg: Config) -> float:
             ray_mlflow_uri = mlflow_uri if (mlflow_enabled and ray_mlflow) else None
             ray_mlflow_exp = mlflow_exp if ray_mlflow_uri else None
 
-            hpo_runner = RayTuneHPO(
+            hpo_runner: Any = RayTuneHPO(
                 cfg=cfg,
                 objective_fn=_ray_tune_objective,
                 search_space=search_space,

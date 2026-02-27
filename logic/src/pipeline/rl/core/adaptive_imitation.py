@@ -280,7 +280,7 @@ class AdaptiveImitation(REINFORCE):
 
         if expert_reward is not None:
             self.log("train/expert_reward", expert_reward.mean(), on_step=False, on_epoch=True)
-        expert_cost = expert_out.get("cost", None)
+        expert_cost = expert_out.get("cost", None) if expert_out is not None else None
         if expert_cost is not None:
             self.log("train/expert_cost", expert_cost.mean(), on_step=False, on_epoch=True)
 

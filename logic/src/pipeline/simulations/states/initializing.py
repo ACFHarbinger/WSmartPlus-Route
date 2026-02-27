@@ -22,7 +22,6 @@ from logic.src.data.processor import (
     setup_basedata,
     setup_dist_path_tup,
 )
-from logic.src.interfaces import ITraversable
 from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.configs.setup_env import setup_env
@@ -102,23 +101,14 @@ class InitializingState(SimState):
         sim = ctx.cfg.sim
         config_paths = sim.config_path if sim.config_path else None
 
-        if config_paths:
-            if isinstance(config_paths, ITraversable):
-                for key, path in config_paths.items():
-                    try:
-                        loaded = path if isinstance(path, ITraversable) else load_config(path)
-                        ctx.config[key] = loaded
-                        print(f"[INFO] Loaded configuration for '{key}' from {path}")
-                    except (OSError, ValueError) as e:
-                        print(f"[Warning] Failed to load config file {path}: {e}")
-            elif isinstance(config_paths, dict):
-                for key, path in config_paths.items():
-                    try:
-                        loaded = path if isinstance(path, (dict, ITraversable)) else load_config(path)
-                        ctx.config[key] = loaded
-                        print(f"[INFO] Loaded configuration for '{key}' from {path}")
-                    except (OSError, ValueError) as e:
-                        print(f"[Warning] Failed to load config file {path}: {e}")
+        if config_paths and hasattr(config_paths, "items") and hasattr(config_paths, "keys"):
+            for key, path in config_paths.items():
+                try:
+                    loaded = path if hasattr(path, "items") else load_config(path)
+                    ctx.config[key] = loaded
+                    print(f"[INFO] Loaded configuration for '{key}' from {path}")
+                except (OSError, ValueError) as e:
+                    print(f"[Warning] Failed to load config file {path}: {e}")
 
         self._load_neural_configs(ctx)
 
@@ -179,14 +169,15 @@ class InitializingState(SimState):
             # Extract decoding parameters from policy config
             decoding = ctx.pol_cfg.get("decoding", {}) if isinstance(ctx.pol_cfg, dict) else {}
             temp = decoding.get("temperature", 1.0)
-            strat = decoding.get("strategy", "greedy")
+            strat = str(decoding.get("strategy", "greedy"))
 
-            model_path = ctx.pol_cfg.get("model_path") if isinstance(ctx.pol_cfg, dict) else None
+            model_path_raw = ctx.pol_cfg.get("model_path") if isinstance(ctx.pol_cfg, dict) else None
+            model_paths: dict[str, str] = model_path_raw if isinstance(model_path_raw, dict) else {}
 
             ctx.model_env, configs = setup_model(
                 ctx.pol_name,
                 ctx.model_weights_path,
-                model_path,
+                model_paths,
                 ctx.device,
                 ctx.lock,
                 temp,
@@ -277,7 +268,7 @@ class InitializingState(SimState):
         ctx.cached = [] if sim.cache_regular else None
         if sim.stats_filepath is not None:
             ctx.bins.set_statistics(sim.stats_filepath)
-        if sim.waste_filepath is not None:
+        if ctx.bins.waste_dataset is not None:
             ctx.bins.set_sample_waste(ctx.sample_id)
 
         ctx.bins.set_indices(ctx.indices)
@@ -296,6 +287,8 @@ class InitializingState(SimState):
                 waste_file=sim.waste_filepath,
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
+                n_days=sim.days,
+                n_samples=sim.n_samples,
             )
             # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
             try:
@@ -313,4 +306,6 @@ class InitializingState(SimState):
                 waste_file=sim.waste_filepath,
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
+                n_days=sim.days,
+                n_samples=sim.n_samples,
             )

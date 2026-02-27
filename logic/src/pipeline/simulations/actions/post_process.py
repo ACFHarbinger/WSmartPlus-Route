@@ -77,8 +77,9 @@ class PostProcessAction(SimulationAction):
 
                 for k, v in cfg.items():
                     pp_name = k
-                    if isinstance(v, ITraversable):
-                        pp_params.update(v)
+                    v_obj: object = v
+                    if isinstance(v_obj, ITraversable):
+                        pp_params.update(v_obj)
             except (OSError, ValueError) as e:
                 logger.warning(f"Error loading post_processing config {item}: {e}")
                 return []
