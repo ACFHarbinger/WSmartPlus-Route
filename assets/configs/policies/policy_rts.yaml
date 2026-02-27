@@ -9,15 +9,15 @@
 
 rts:
   custom:
-    - initial_tenure: 7
+    - initial_tenure: 10
     - min_tenure: 3
-    - max_tenure: 20
+    - max_tenure: 35
     - tenure_increase: 1.5
     - tenure_decrease: 0.9
-    - n_removal: 2
+    - n_removal: 3
     - n_llh: 5
-    - max_iterations: 500
-    - time_limit: 60.0
+    - max_iterations: 8000
+    - time_limit: 120.0
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

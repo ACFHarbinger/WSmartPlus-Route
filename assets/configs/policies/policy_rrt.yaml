@@ -8,13 +8,13 @@
 #   linearly, transitioning from broad exploration to strict exploitation.
 # =============================================================================
 
-rr:
+rrt:
   custom:
-    - tolerance: 0.05
-    - n_removal: 2
+    - tolerance: 0.10
+    - n_removal: 3
     - n_llh: 5
-    - max_iterations: 500
-    - time_limit: 60.0
+    - max_iterations: 20000
+    - time_limit: 120.0
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

@@ -9,13 +9,13 @@
 
 ga:
   custom:
-    - pop_size: 30
-    - max_generations: 100
-    - crossover_rate: 0.8
-    - mutation_rate: 0.1
-    - tournament_size: 3
-    - n_removal: 2
-    - time_limit: 60.0
+    - pop_size: 60
+    - max_generations: 3500
+    - crossover_rate: 0.85
+    - mutation_rate: 0.15
+    - tournament_size: 4
+    - n_removal: 3
+    - time_limit: 120.0
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

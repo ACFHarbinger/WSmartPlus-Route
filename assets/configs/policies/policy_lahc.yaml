@@ -42,12 +42,12 @@ lahc:
     # -------------------------------------------------------------------------
     # LAHC Parameters
     # -------------------------------------------------------------------------
-    - queue_size: 50
+    - queue_size: 150
       # Length of the circular history queue (L)
       # Range: 10-200 (10 = rapid cooling, 50 = moderate, 200 = slow)
       # Large L = more historical tolerance = wider exploration
 
-    - n_removal: 2
+    - n_removal: 3
       # Nodes removed per LLH destroy step
       # Range: 1-5
 
@@ -57,11 +57,11 @@ lahc:
     # -------------------------------------------------------------------------
     # Runtime Control
     # -------------------------------------------------------------------------
-    - max_iterations: 500
+    - max_iterations: 40000
       # Total LLH application cycles
-      # Range: 100-2000
+      # Range: 100-100000
 
-    - time_limit: 60.0
+    - time_limit: 120.0
       # Maximum wall-clock seconds
       # Range: 10-300
 

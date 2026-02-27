@@ -9,13 +9,13 @@
 
 sa:
   custom:
-    - initial_temp: 100.0
-    - alpha: 0.995
+    - initial_temp: 200.0
+    - alpha: 0.998
     - min_temp: 0.01
-    - n_removal: 2
+    - n_removal: 3
     - n_llh: 5
-    - max_iterations: 500
-    - time_limit: 60.0
+    - max_iterations: 45000
+    - time_limit: 120.0
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

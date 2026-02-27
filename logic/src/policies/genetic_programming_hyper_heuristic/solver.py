@@ -155,12 +155,6 @@ class GPHHSolver(PolicyVizMixin):
             self.params.apply_steps,
         )
 
-        # Apply comprehensive local search on the final selected routes to ensure parity
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        best_routes = ls.optimize(best_routes)
-
         best_profit = self._evaluate(best_routes)
         best_cost = self._cost(best_routes)
 
@@ -352,12 +346,7 @@ class GPHHSolver(PolicyVizMixin):
             R=self.R,
             C=self.C,
         )
-
-        # Apply comprehensive local search
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        return ls.optimize(optimized_routes)
+        return optimized_routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Net profit for a set of routes."""
