@@ -61,6 +61,16 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_sisr as policy_sisr  # noqa
         import logic.src.policies.adapters.policy_hvpl as policy_hvpl  # noqa
         import logic.src.policies.adapters.policy_ahvpl as policy_ahvpl  # noqa
+        import logic.src.policies.adapters.policy_qde as policy_qde  # noqa
+        import logic.src.policies.adapters.policy_psoma as policy_psoma  # noqa
+        import logic.src.policies.adapters.policy_abc as policy_abc  # noqa
+        import logic.src.policies.adapters.policy_fa as policy_fa  # noqa
+        import logic.src.policies.adapters.policy_sca as policy_sca  # noqa
+        import logic.src.policies.adapters.policy_hs as policy_hs  # noqa
+        import logic.src.policies.adapters.policy_slc as policy_slc  # noqa
+        import logic.src.policies.adapters.policy_lca as policy_lca  # noqa
+        import logic.src.policies.adapters.policy_gphh as policy_gphh  # noqa
+        import logic.src.policies.adapters.policy_hmm_gd as policy_hmm_gd  # noqa
 
         # Normalize name
         if not isinstance(name, str):

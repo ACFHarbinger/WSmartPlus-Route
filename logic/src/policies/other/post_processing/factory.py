@@ -68,7 +68,7 @@ class PostProcessorFactory:
             elif method == "ils":
                 # IteratedLocalSearchPostProcessor takes many params
                 # We can pass config fields if they match
-                from .ils import IteratedLocalSearchPostProcessor
+                from .iterated_local_search import IteratedLocalSearchPostProcessor
 
                 processor = IteratedLocalSearchPostProcessor(
                     ls_iterations=config.iterations,

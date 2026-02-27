@@ -3,7 +3,7 @@ Iterated Local Search Post-Processor.
 """
 
 import random
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch
@@ -85,13 +85,14 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
             "three_opt": vectorized_three_opt,
         }
 
-        op_probs_dict = None
+        op_probs_dict: Optional[Dict[str, float]] = None
         ops_sorted: List[str] = []
         op_weights: List[float] = []
         ls_func = None
 
-        if isinstance(self.ls_operator, ITraversable):
-            op_probs_dict = self.ls_operator
+        ls_op: object = self.ls_operator
+        if isinstance(ls_op, ITraversable):
+            op_probs_dict = dict(ls_op)  # type: ignore[arg-type]
         elif isinstance(self.ls_operator, str) and self.ls_operator == "random":
             op_probs_dict = self.default_op_probs
 
@@ -102,12 +103,13 @@ class IteratedLocalSearchPostProcessor(IPostProcessor):
             op_name = self.ls_operator if isinstance(self.ls_operator, str) else "2opt"
             ls_func = ops.get(op_name, vectorized_two_opt)
 
-        p_probs_dict = None
+        p_probs_dict: Optional[Dict[str, float]] = None
         p_modes_sorted: List[str] = []
         p_weights: List[float] = []
 
-        if isinstance(self.perturbation_type, ITraversable):
-            p_probs_dict = self.perturbation_type
+        p_type: object = self.perturbation_type
+        if isinstance(p_type, ITraversable):
+            p_probs_dict = dict(p_type)  # type: ignore[arg-type]
         elif isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
             p_probs_dict = self.default_perturb_probs
 
