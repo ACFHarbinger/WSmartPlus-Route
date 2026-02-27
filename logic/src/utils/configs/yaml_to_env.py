@@ -96,7 +96,11 @@ def load_config(config_path):
 def deep_merge(target, source):
     """Deeply merge source dictionary into target dictionary."""
     for key, value in source.items():
-        if isinstance(value, ITraversable) and key in target and isinstance(target[key], ITraversable):
+        if (
+            isinstance(value, ITraversable)
+            and target.get(key) is not None
+            and isinstance(target.get(key), ITraversable)
+        ):
             deep_merge(target[key], value)
         else:
             target[key] = value

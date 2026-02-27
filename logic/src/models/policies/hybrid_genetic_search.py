@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import random
 import time
-from typing import Any, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Union
 
 import torch
 
@@ -64,7 +64,7 @@ class VectorizedHGS(PolicyVizMixin):
         time_limit: Optional[float] = None,
         max_vehicles: int = 0,
         crossover_rate: float = 0.7,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[Union[torch.Tensor, List[List[Any]]], torch.Tensor]:
         """
         Runs the HGS algorithm starting from a set of initial solutions (Expert Imitation Mode).
 

@@ -238,7 +238,7 @@ def _get_routes_with_loads(tour, waste, N) -> List[Tuple[int, int, List[int], fl
         if end > start:
             nodes = [n for n in tour[start:end].tolist() if 0 < n < N]
             if nodes:
-                load = sum(waste[n].item() for n in nodes)
+                load = float(sum(waste[n].item() for n in nodes))
                 routes.append((start, end, nodes, load))
     return routes
 

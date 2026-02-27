@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import TYPE_CHECKING, Any, Tuple, Union
 
 import torch
 from torch import nn
 
 from logic.src.models.subnets.modules.normalization import Normalization
 
-try:
+if TYPE_CHECKING:
+    # This block is only seen by static type checkers
     from torch_geometric.nn import MessagePassing
-except ImportError:
-    MessagePassing = object
+else:
+    # This block is executed at runtime
+    try:
+        from torch_geometric.nn import MessagePassing
+    except ImportError:
+        MessagePassing = object
 
 
 class MessagePassingLayer(MessagePassing):
@@ -56,12 +61,18 @@ class MessagePassingLayer(MessagePassing):
             Normalization(node_dim, norm),
         )
 
-    def forward(
-        self, x: torch.Tensor, edge_index: torch.Tensor, edge_attr: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, *args: Any, **kwargs: Any) -> Union[Tuple[torch.Tensor, torch.Tensor], Any]:
         """
-        Forward pass.
+        Forward pass aligned with MessagePassing.forward signature.
         """
+        # Extract specific tensors from kwargs or args
+        x = kwargs.get("x", args[0] if len(args) > 0 else None)
+        edge_index = kwargs.get("edge_index", args[1] if len(args) > 1 else None)
+        edge_attr = kwargs.get("edge_attr", args[2] if len(args) > 2 else None)
+
+        if x is None or edge_index is None or edge_attr is None:
+            raise ValueError("Forward requires x, edge_index, and edge_attr")
+
         row, col = edge_index
 
         # 1. Update edges
@@ -73,15 +84,15 @@ class MessagePassingLayer(MessagePassing):
 
         return out_nodes, edge_attr_updated
 
-    def message(self, x_i: torch.Tensor, x_j: torch.Tensor, edge_attr: torch.Tensor) -> torch.Tensor:
+    def message(self, x_i: torch.Tensor, x_j: torch.Tensor, edge_attr: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
         """
-        Create messages.
+        Create messages. PyG maps 'x_i', 'x_j', etc., based on this signature.
         """
         return edge_attr
 
-    def update(self, aggr_out: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
+    def update(self, aggr_out: torch.Tensor, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
         """
-        Update node features.
+        Update node features using aggregated messages and original features.
         """
         node_input = torch.cat([x, aggr_out], dim=-1)
         return self.node_model(node_input)

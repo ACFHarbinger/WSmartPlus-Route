@@ -221,27 +221,27 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         ops_sorted: list[str] = []
         op_weights: list[float] = []
 
-        if isinstance(self.ls_operator, ITraversable):
-            op_probs_dict = self.ls_operator
-        elif isinstance(self.ls_operator, str) and self.ls_operator == "random":
+        if isinstance(self.ls_operator, str) and self.ls_operator == "random":
             op_probs_dict = self.default_op_probs
+        elif isinstance(self.ls_operator, ITraversable):
+            op_probs_dict = self.ls_operator
 
         if op_probs_dict:
             ops_sorted = sorted(op_probs_dict.keys())
-            op_weights = [op_probs_dict[op] for op in ops_sorted]
+            op_weights = [op_probs_dict.get(op, 0.0) for op in ops_sorted]
 
         p_probs_dict = None
         p_modes_sorted: list[str] = []
         p_weights: list[float] = []
 
-        if isinstance(self.perturbation_type, ITraversable):
-            p_probs_dict = self.perturbation_type
-        elif isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
+        if isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
             p_probs_dict = self.default_perturb_probs
+        elif isinstance(self.perturbation_type, ITraversable):
+            p_probs_dict = self.perturbation_type
 
         if p_probs_dict:
             p_modes_sorted = sorted(p_probs_dict.keys())
-            p_weights = [p_probs_dict[m] for m in p_modes_sorted]
+            p_weights = [p_probs_dict.get(m, 0.0) for m in p_modes_sorted]
 
         # 4. Initial local search
         if op_probs_dict:

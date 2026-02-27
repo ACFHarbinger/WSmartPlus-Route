@@ -45,11 +45,11 @@ class Mix_Distribution:
         mask = p <= 0.33
         n_mixed = int(mask.sum().item())
         if n_mixed > 0:
-            coords[mask] = self.Mixed.sample((n_mixed, num_loc, 2))
+            coords[mask] = self.Mixed.sample_tensor((n_mixed, num_loc, 2))
 
         mask = (p > 0.33) & (p <= 0.66)
         n_cluster = int(mask.sum().item())
         if n_cluster > 0:
-            coords[mask] = self.Cluster.sample((n_cluster, num_loc, 2))
+            coords[mask] = self.Cluster.sample_tensor((n_cluster, num_loc, 2))
 
         return coords

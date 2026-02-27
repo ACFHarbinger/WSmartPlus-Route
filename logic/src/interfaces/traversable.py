@@ -11,7 +11,9 @@ Example:
     ...     return config.get(key, None)
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Iterator, Optional, Protocol, TypeVar, Union, overload, runtime_checkable
+
+_T = TypeVar("_T")
 
 
 @runtime_checkable
@@ -24,38 +26,25 @@ class ITraversable(Protocol):
 
     **Replaces patterns like**:
         - isinstance(config, dict) or isinstance(config, DictConfig)
-        - hasattr(config, '__getitem__') and hasattr(config, 'get')
+        - hasattr(config, 'keys') and hasattr(config, 'get')
 
     Example:
         >>> def extract_param(config: ITraversable, key: str) -> Any:
-        ...     if key in config:
-        ...         return config[key]
-        ...     return config.get(key, None)
+        ...     if hasattr(config, "get"):
+        ...         return config.get(key, None)
+        ...     return None
     """
 
-    def __getitem__(self, key: Any) -> Any:
-        """Get value by key.
-
-        Args:
-            key: Configuration key
-
-        Returns:
-            Configuration value
-
-        Raises:
-            KeyError: If key not found
-        """
+    def __getitem__(self, key: str, /) -> Any:
+        """Get value by key. Positional-only to match dict."""
         ...
 
-    def __contains__(self, key: object) -> bool:
-        """Check if key exists.
+    def __contains__(self, key: str, /) -> bool:
+        """Check if key exists. Positional-only to match dict."""
+        ...
 
-        Args:
-            key: Configuration key
-
-        Returns:
-            True if key exists
-        """
+    def __iter__(self) -> Iterator[str]:
+        """Support iteration over keys (required for mapping-like behavior)."""
         ...
 
     def keys(self) -> Any:
@@ -82,11 +71,17 @@ class ITraversable(Protocol):
         """
         ...
 
-    def get(self, key: Any, default: Optional[Any] = None) -> Any:
+    @overload
+    def get(self, key: str) -> Optional[Any]: ...
+
+    @overload
+    def get(self, key: str, default: _T) -> Union[Any, _T]: ...
+
+    def get(self, key: str, default: Any = None) -> Any:
         """Get value by key with optional default.
 
         Args:
-            key: Configuration key
+            key: Configuration key (string)
             default: Value to return if key not found
 
         Returns:

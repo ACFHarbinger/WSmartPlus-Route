@@ -2,7 +2,7 @@
 Factory functions for creating vectorized selectors.
 """
 
-from typing import Any, Optional
+from typing import Optional
 
 from logic.src.interfaces import ITraversable
 
@@ -39,7 +39,7 @@ def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
     return get_vectorized_selector(strategy, **strategy_params)
 
 
-def _get_strategy(cfg: Any) -> Optional[str]:
+def _get_strategy(cfg: object) -> Optional[str]:
     """Extract strategy name from config."""
     if hasattr(cfg, "strategy"):
         return cfg.strategy
@@ -48,7 +48,7 @@ def _get_strategy(cfg: Any) -> Optional[str]:
     return None
 
 
-def _get_params(cfg: Any) -> dict:
+def _get_params(cfg: object) -> dict:
     """Extract parameters from config, excluding strategy."""
     if hasattr(cfg, "__dict__"):
         return {k: v for k, v in vars(cfg).items() if k != "strategy" and v is not None}

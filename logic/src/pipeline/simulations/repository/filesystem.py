@@ -5,6 +5,7 @@ File-based implementation of SimulationRepository.
 import contextlib
 import json
 import os
+from typing import Any, List, Optional, Tuple, cast
 
 import pandas as pd
 
@@ -31,7 +32,7 @@ class FileSystemRepository(SimulationRepository):
         """
         self.default_data_dir = os.path.join(data_root_dir, "data", "wsr_simulator")
 
-    def _get_data_dir(self, override_dir=None):
+    def _get_data_dir(self, override_dir: Optional[str] = None) -> str:
         """get data dir.
 
         Args:
@@ -42,7 +43,9 @@ class FileSystemRepository(SimulationRepository):
         """
         return override_dir if override_dir else self.default_data_dir
 
-    def get_indices(self, filename, n_samples, n_nodes, data_size, lock=None):
+    def get_indices(
+        self, filename: Any, n_samples: int, n_nodes: int, data_size: int, lock: Optional[Any] = None
+    ) -> List[List[int]]:
         """
         Implementation of get_indices that persists generated indices to JSON.
         """
@@ -93,7 +96,7 @@ class FileSystemRepository(SimulationRepository):
 
         return indices
 
-    def get_depot(self, area, data_dir=None):
+    def get_depot(self, area: Any, data_dir: Optional[str] = None) -> pd.DataFrame:
         """
         Implementation of get_depot that reads from Facilities.csv.
         """
@@ -107,7 +110,14 @@ class FileSystemRepository(SimulationRepository):
         new_cols = pd.DataFrame({"Stock": [0], "Accum_Rate": [0]})
         return pd.concat([depot_df, new_cols], axis=1)
 
-    def get_simulator_data(self, number_of_bins, area="Rio Maior", waste_type=None, lock=None, data_dir=None):
+    def get_simulator_data(
+        self,
+        number_of_bins: int,
+        area: str = "Rio Maior",
+        waste_type: Optional[str] = None,
+        lock: Optional[Any] = None,
+        data_dir: Optional[str] = None,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Implementation of get_simulator_data that handles area-specific file logic.
         """
@@ -129,8 +139,8 @@ class FileSystemRepository(SimulationRepository):
                 data, bins_coordinates = self._get_both_areas_data(d_dir, number_of_bins, src_area)
 
             # Final filtering/sorting common to all
-            data = data[data["ID"].isin(bins_coordinates["ID"])]
-            bins_coordinates = bins_coordinates[bins_coordinates["ID"].isin(data["ID"])]
+            data = cast(pd.DataFrame, data[data["ID"].isin(bins_coordinates["ID"])])
+            bins_coordinates = cast(pd.DataFrame, bins_coordinates[bins_coordinates["ID"].isin(data["ID"])])
 
             data = data.sort_values(by="ID").reset_index(drop=True)
             bins_coordinates = bins_coordinates.sort_values(by="ID").reset_index(drop=True)
@@ -152,12 +162,11 @@ class FileSystemRepository(SimulationRepository):
                     )
 
             return data, bins_coordinates
-
         finally:
             if lock is not None:
                 lock.release()
 
-    def _get_mixrmbac_data(self, d_dir, number_of_bins, src_area):
+    def _get_mixrmbac_data(self, d_dir: str, number_of_bins: int, src_area: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         if number_of_bins <= 20:
             data = pd.read_excel(os.path.join(d_dir, "bins_waste", "StockAndAccumulationRate - small.xlsx"))
             bins_coordinates = pd.read_excel(os.path.join(d_dir, "coordinates", "Coordinates - small.xlsx"))
@@ -170,7 +179,9 @@ class FileSystemRepository(SimulationRepository):
             bins_coordinates = pd.read_excel(os.path.join(d_dir, "coordinates", "Coordinates.xlsx"))
         return data, bins_coordinates
 
-    def _get_riomaior_data(self, d_dir, number_of_bins, src_area, wtype):
+    def _get_riomaior_data(
+        self, d_dir: str, number_of_bins: int, src_area: str, wtype: Optional[str]
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         assert number_of_bins <= 317, f"Number of bins for area {src_area} must be <= 317"
         if number_of_bins == 104:
             df = pd.read_csv(os.path.join(d_dir, "bins_waste", "Rio_Maior_Sensores_2021_2024_cleaned_104.csv"))
@@ -206,7 +217,9 @@ class FileSystemRepository(SimulationRepository):
         data = self._preprocess_county_data(data)
         return data, bins_coordinates
 
-    def _get_figueiradafoz_data(self, d_dir, number_of_bins, src_area, wtype):
+    def _get_figueiradafoz_data(
+        self, d_dir: str, number_of_bins: int, src_area: str, wtype: Optional[str]
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         data = self._preprocess_county_date(pd.read_csv(os.path.join(d_dir, "out_crude_rate[figdafoz].csv")))
         assert number_of_bins <= 1094, f"Number of bins for area {src_area} must be <= 1094"
         coords_tmp = pd.read_csv(os.path.join(d_dir, "coordinates", "out_info[figdafoz].csv"))
@@ -230,7 +243,7 @@ class FileSystemRepository(SimulationRepository):
         data = self._preprocess_county_data(data)
         return data, bins_coordinates
 
-    def _get_both_areas_data(self, d_dir, number_of_bins, src_area):
+    def _get_both_areas_data(self, d_dir: str, number_of_bins: int, src_area: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         wsrs_data = pd.read_excel(os.path.join(d_dir, "bins_waste", "StockAndAccumulationRate.xlsx"))
         wsba_data = self._preprocess_county_data(
             self._preprocess_county_date(
@@ -281,9 +294,9 @@ class FileSystemRepository(SimulationRepository):
             bins_coordinates = pd.concat([bins_coordinates, coords_tmp])
             data = pd.concat([data, data_tmp])
 
-        return data, bins_coordinates
+        return cast(pd.DataFrame, data), cast(pd.DataFrame, bins_coordinates)
 
-    def _preprocess_county_date(self, data, date_str="Date"):
+    def _preprocess_county_date(self, data: pd.DataFrame, date_str: str = "Date") -> pd.DataFrame:
         """preprocess county date."""
         data[date_str] = pd.to_datetime(data[date_str], format="%Y-%m-%d")
         data = data.set_index(date_str)
@@ -291,7 +304,7 @@ class FileSystemRepository(SimulationRepository):
         data.columns = data.columns.astype(int)
         return data
 
-    def _preprocess_county_data(self, data):
+    def _preprocess_county_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """preprocess county data."""
 
         def __get_stock(col):
@@ -302,7 +315,7 @@ class FileSystemRepository(SimulationRepository):
             return 0
 
         accum_rate = data.clip(lower=0).fillna(0).mean()
-        stock = data.apply(__get_stock, axis=0)
+        stock = cast(pd.Series, data.apply(__get_stock, axis=0))
         new_data = pd.DataFrame({"ID": data.columns})
         new_data["Stock"] = new_data["ID"].map(stock)
         new_data["Accum_Rate"] = new_data["ID"].map(accum_rate)

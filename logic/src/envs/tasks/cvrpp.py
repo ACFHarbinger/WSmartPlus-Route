@@ -46,13 +46,14 @@ class CVRPP(VRPP):
 
         # Simple loop-based trip check for robustness in tests
         for b in range(pi.size(0)):
-            cur_trip_waste = 0
+            cur_trip_waste = 0.0  # Initialize as float to satisfy type checker
             for i in range(pi.size(1)):
                 node = pi[b, i].item()
                 if node == 0:
-                    cur_trip_waste = 0
+                    cur_trip_waste = 0.0
                 else:
-                    cur_trip_waste += w[b, i].item()  # type: ignore[assignment]
+                    # cur_trip_waste is now consistently float
+                    cur_trip_waste += w[b, i].item()
                     # Use a small epsilon for float comparison
                     assert cur_trip_waste <= capacity[b].item() + 1e-6, "Used more than capacity"
 

@@ -6193,6 +6193,24 @@ wheels = [
 ]
 
 [[package]]
+name = "torch-sparse"
+version = "0.6.18+pt22cu121"
+source = { registry = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" }
+dependencies = [
+    { name = "scipy" },
+]
+wheels = [
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp310-cp310-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp310-cp310-win_amd64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp311-cp311-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp311-cp311-win_amd64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp312-cp312-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp312-cp312-win_amd64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp39-cp39-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp39-cp39-win_amd64.whl" },
+]
+
+[[package]]
 name = "torch-tb-profiler"
 version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
@@ -6563,6 +6581,7 @@ dependencies = [
     { name = "torch" },
     { name = "torch-geometric" },
     { name = "torch-scatter" },
+    { name = "torch-sparse" },
     { name = "torchrl" },
     { name = "tqdm" },
     { name = "wandb" },
@@ -6718,6 +6737,7 @@ requires-dist = [
     { name = "torch", specifier = ">=2.2.2" },
     { name = "torch-geometric", specifier = ">=2.3.1" },
     { name = "torch-scatter", specifier = ">=2.1.2", index = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" },
+    { name = "torch-sparse", specifier = ">=0.6.18" },
     { name = "torch-tb-profiler", marker = "extra == 'gpu'", specifier = ">=0.4.3" },
     { name = "torchrl", specifier = "==0.3.1" },
     { name = "tqdm", specifier = ">=4.67.1" },

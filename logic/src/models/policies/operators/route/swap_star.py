@@ -3,6 +3,7 @@ Swap* local search operator (inter-route swap with re-insertion).
 """
 
 import torch
+
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 

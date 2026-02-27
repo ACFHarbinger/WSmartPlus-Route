@@ -9,10 +9,12 @@ focus on k-nearest neighbors, which is critical for scaling to large instances.
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import List
 
 import torch
 from torch import nn
 from torch_geometric.data import Batch, Data
+from torch_geometric.data.data import BaseData
 
 from logic.src.utils.ops import get_distance_matrix, get_full_graph_edge_index, sparsify_graph
 
@@ -47,6 +49,7 @@ class EdgeEmbedding(nn.Module):
         )
         super().__init__()
 
+        self._get_k_sparse: Callable[[int], int]
         if k_sparse is None:
             self._get_k_sparse = lambda n: max(n // 5, 10)
         elif isinstance(k_sparse, int):
@@ -90,7 +93,7 @@ class EdgeEmbedding(nn.Module):
             PyG Batch object.
         """
         k_sparse = self._get_k_sparse(batch_cost_matrix.shape[-1])
-        graph_data = []
+        graph_data: List[BaseData] = []
 
         for idx, cost_matrix in enumerate(batch_cost_matrix):
             if self.sparsify:

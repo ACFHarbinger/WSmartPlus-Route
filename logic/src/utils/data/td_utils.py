@@ -2,7 +2,7 @@
 Utilities for TensorDict datasets.
 """
 
-from typing import Union, cast
+from typing import Any, Dict, Union, cast
 
 import tensordict
 import torch
@@ -12,7 +12,9 @@ from tensordict.tensordict import TensorDict
 from logic.src.interfaces import ITraversable
 
 # Version check for tensordict
-td_kwargs = {"_run_checks": False} if version.parse(str(tensordict.__version__)) <= version.parse("0.4.0") else {}
+td_kwargs: Dict[str, Any] = (
+    {"_run_checks": False} if version.parse(str(tensordict.__version__)) <= version.parse("0.4.0") else {}
+)
 
 
 def tensordict_collate_fn(

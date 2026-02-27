@@ -1,10 +1,8 @@
-"""__init__.py module.
+"""
+Data generation tools for creating synthetic VRP instances.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import __init__
+Provides builders, dataset generation scripts, and validators for
+VRPP, WCVRP, and SWCVRP problem types.
 """
 
 from .datasets import generate_datasets

@@ -92,7 +92,10 @@ class ImprovementPolicy(nn.Module, ABC):
 
         # Default steps from td or config
         if max_steps is None:
-            max_steps = td.get("max_steps", torch.tensor(10)).item()
+            max_steps_td = td.get("max_steps", None)
+            max_steps = int(max_steps_td.item()) if max_steps_td is not None else 10
+
+        assert isinstance(max_steps, int), f"max_steps must be an int, got {type(max_steps)}"
 
         for _i in range(max_steps):
             # 1. Encode current state

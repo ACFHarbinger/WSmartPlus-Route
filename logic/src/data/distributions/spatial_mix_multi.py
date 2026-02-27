@@ -62,6 +62,6 @@ class Mix_Multi_Distributions:
                 coords[mask] = torch.rand(n_samples, num_loc, 2)
             else:
                 dist = cls(**kwargs)
-                coords[mask] = dist.sample((n_samples, num_loc, 2))
+                coords[mask] = dist.sample_tensor((n_samples, num_loc, 2))
 
         return coords.clamp_(0, 1)

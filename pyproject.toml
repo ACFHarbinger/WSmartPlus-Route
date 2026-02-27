@@ -31,6 +31,7 @@ dependencies = [
     "requests>=2.32.5",
     "wandb>=0.16.0",
     "openpyxl>=3.1.5",
+    "torch-sparse>=0.6.18",
 ]
 
 [project.optional-dependencies]
