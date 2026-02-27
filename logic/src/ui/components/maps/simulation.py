@@ -225,7 +225,7 @@ def create_simulation_map(  # noqa: C901
 
     # Draw route polyline segments
     if show_route and len(route_coords) > 1:
-        from logic.src.pipeline.simulations.network import (
+        from logic.src.data.network import (
             EuclideanStrategy,
             GeodesicStrategy,
             HaversineStrategy,

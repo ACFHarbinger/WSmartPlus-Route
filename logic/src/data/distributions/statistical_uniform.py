@@ -4,8 +4,8 @@ Statistical sampling distributions - Uniform.
 
 from typing import Tuple
 
-import torch
 import numpy as np
+import torch
 
 
 class Uniform:

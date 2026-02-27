@@ -132,7 +132,7 @@ class TestInitializingState:
         mock_model_data.return_value = (MagicMock(), MagicMock())
 
         # Mock the local import of load_area_and_waste_type_params
-        with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params", return_value=(100.0, None, None, None, None)):
+        with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params", return_value=(100.0, None, None, None, None)):
             state = InitializingState()
             state.handle(ctx)
 
@@ -146,7 +146,7 @@ class TestInitializingState:
     @patch("logic.src.pipeline.simulations.states.initializing.setup_dist_path_tup")
     @patch("logic.src.pipeline.simulations.states.initializing.Bins")
     @patch("logic.src.pipeline.simulations.states.initializing.SimulationCheckpoint")
-    @patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params")
+    @patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params")
     @patch("logic.src.pipeline.simulations.states.initializing.os.path.exists")
     @patch("logic.src.pipeline.simulations.states.initializing.os.makedirs")
     def test_initializing_handle_vrpp(self, mock_makedirs, mock_exists, mock_area_params, mock_checkpoint, mock_bins, mock_dist, mock_proc, mock_base, mock_setup_env, ctx_vars, tmp_path):
@@ -192,7 +192,7 @@ class TestInitializingState:
         saved_state = (MagicMock(), MagicMock(), (MagicMock(), MagicMock(), MagicMock(), MagicMock()), None, MagicMock(), (None, None), [], 0, 0, {}, 0.0)
         mock_checkpoint_inst.load_state.return_value = (saved_state, 1)
 
-        with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params", return_value=(100.0, None, None, None, None)):
+        with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params", return_value=(100.0, None, None, None, None)):
             state = InitializingState()
             state.handle(ctx)
 

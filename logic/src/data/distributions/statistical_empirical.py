@@ -6,21 +6,27 @@ from __future__ import annotations
 
 import os
 import pickle
-import pandas
 from typing import TYPE_CHECKING, Optional, Tuple
 
 import numpy as np
+import pandas
 import torch
 
 if TYPE_CHECKING:
-    from logic.src.utils.data.loader import load_grid_base
     from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
+    from logic.src.utils.data.loader import load_grid_base
 
 
 class Empirical:
     """Sampling from an empirical dataset (e.g. file or Bins object)."""
 
-    def __init__(self, grid: Optional[GridBase] = None, area: Optional[str] = None, indices: Optional[np.ndarray] = None, data_path: Optional[str] = None):
+    def __init__(
+        self,
+        grid: Optional[GridBase] = None,
+        area: Optional[str] = None,
+        indices: Optional[np.ndarray] = None,
+        data_path: Optional[str] = None,
+    ):
         """Initialize Class.
 
         Args:
@@ -36,7 +42,8 @@ class Empirical:
 
         if data_path is not None and os.path.isfile(data_path):
             if data_path.endswith(".pkl"):
-                self.dataset = pickle.load(open(data_path, "rb"))
+                with open(data_path, "rb") as f:
+                    self.dataset = pickle.load(f)
             elif data_path.endswith(".csv"):
                 self.dataset = pandas.read_csv(data_path)
             elif data_path.endswith(".xlsx"):
@@ -91,9 +98,7 @@ class Empirical:
         if self.dataset is not None:
             if isinstance(self.dataset, pandas.DataFrame):
                 return self.dataset.sample(n=n_samples).values
-            elif isinstance(self.dataset, np.ndarray):
-                return self.dataset[np.random.choice(len(self.dataset), n_samples)]
-            elif isinstance(self.dataset, dict):
+            elif isinstance(self.dataset, (np.ndarray, dict)):
                 return self.dataset[np.random.choice(len(self.dataset), n_samples)]
             elif isinstance(self.dataset, torch.Tensor):
                 return self.dataset[np.random.choice(len(self.dataset), n_samples)].cpu().numpy()

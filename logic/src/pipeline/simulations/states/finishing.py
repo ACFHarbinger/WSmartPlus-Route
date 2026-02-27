@@ -17,11 +17,11 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from logic.src.constants import DAY_METRICS, SIM_METRICS
+from logic.src.data.processor import save_matrix_to_excel
 from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.integrations.simulation import get_sim_tracker
 from logic.src.tracking.logging.log_utils import final_simulation_summary, log_to_json
 
-from ..processor import save_matrix_to_excel
 from .base import SimState
 
 if TYPE_CHECKING:

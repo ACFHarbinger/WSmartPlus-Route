@@ -165,7 +165,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         Returns:
             Tuple of (capacity, revenue, cost_unit, merged_values_dict)
         """
-        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
+        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
 

@@ -11,12 +11,12 @@ from .pytorch.fast_gen_dataset import TensorDictDatasetFastGeneration
 from .pytorch.fast_td_dataset import FastTdDataset
 from .pytorch.generator_dataset import GeneratorDataset
 from .pytorch.td_dataset import TensorDictDataset
+from .simulation.gen_dataset import GenerativeDataset
 from .simulation.np_pkl_dataset import NumpyPickleDataset
 from .simulation.npz_dataset import NumpyDictDataset
 from .simulation.pd_csv_dataset import PandasCsvDataset
 from .simulation.pd_xlsx_dataset import PandasExcelDataset
 from .simulation.sim_dataset import SimulationDataset
-from .simulation.gen_dataset import GenerativeDataset
 
 __all__ = [
     "td_kwargs",
