@@ -39,3 +39,8 @@ class MustGoSelectionRegistry:
     def get_strategy_class(cls, name: str) -> Optional[Type[IMustGoSelectionStrategy]]:
         """Get a strategy class by name."""
         return cls._strategies.get(name.lower())
+
+    @classmethod
+    def list_strategies(cls) -> list:
+        """List all registered strategy names."""
+        return list(cls._strategies.keys())

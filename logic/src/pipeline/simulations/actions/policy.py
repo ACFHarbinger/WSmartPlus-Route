@@ -16,6 +16,8 @@ class PolicyExecutionAction(SimulationAction):
 
     def execute(self, context: Dict[str, Any]) -> None:
         """Execute the selected routing policy."""
+        from logic.src.policies.adapters.registry import PolicyRegistry
+
         # 1. GET FULL POLICY NAME (for identification)
         full_policy = str(context.get("full_policy") or "")
 
@@ -26,101 +28,36 @@ class PolicyExecutionAction(SimulationAction):
         # Explicit engine/solver from config
         solver_key = flat_cfg.get("policy.type") or flat_cfg.get("policy.solver") or flat_cfg.get("policy.engine")
 
-        # Fallback to identify solver from keys in raw config (standard Hydra behavior)
+        # Fallback: identify solver from keys in raw config matching registry
         if not solver_key:
-            known_policy_keys = [
-                "vrpp",
-                "cvrp",
-                "tsp",
-                "hgs_alns",
-                "hgs",
-                "alns",
-                "bcp",
-                "sans",
-                "ils",
-                "lkh",
-                "aco",
-                "sisr",
-                "neural",
-                "qde",
-                "psoma",
-                "abc",
-                "fa",
-                "sca",
-                "hs",
-                "slc",
-                "lca",
-                "gphh",
-                "hmm_gd",
-            ]
-            for key in known_policy_keys:
+            registered = set(PolicyRegistry.list_policies())
+            for key in registered:
                 if key in raw_cfg:
                     solver_key = key
                     break
 
-        # Last resort fallback to full_policy string (if it's a simple name like 'hgs')
+        # Last resort: use full_policy string
         if not solver_key:
             solver_key = full_policy
 
-        # Standardize 'tsp' for selection strategies that don't specify a solver
-        selection_keys = ["regular", "last_minute", "select_all", "lookahead", "means_std", "revenue", "service_level"]
-        engine_keys = [
-            "hgs",
-            "alns",
-            "hgs_alns",
-            "vrpp",
-            "neural",
-            "bcp",
-            "sans",
-            "ils",
-            "lkh",
-            "aco",
-            "hh_aco",
-            "ks_aco",
-            "sisr",
-            "cvrp",
-            "tsp",
-            "am",
-            "ptr",
-            "ddam",
-            "ahvpl",
-            "hvpl",
-            "qde",
-            "psoma",
-            "abc",
-            "fa",
-            "sca",
-            "hs",
-            "slc",
-            "lca",
-            "gphh",
-            "hmm_gd",
-        ]
+        # If the key is purely a selection strategy, default to 'tsp'
+        registered = set(PolicyRegistry.list_policies())
+        if solver_key and solver_key not in registered:
+            from logic.src.policies.other.must_go.base.selection_registry import MustGoSelectionRegistry
 
-        # Prioritize exact matches in Registry to avoid false positives (e.g. 'gamma' contains 'am')
-        from logic.src.policies.adapters.registry import PolicyRegistry
-
-        # If solver_key is already a valid registered policy, keep it
-        if solver_key and (PolicyRegistry.get(str(solver_key)) or PolicyRegistry.get(f"policy_{solver_key}")):
-            pass
-        elif any(f"{k}" in str(solver_key).lower() for k in selection_keys) and not any(
-            # Robust check: engine must be preceded/followed by _ or be a whole word
-            f"_{k}" in str(solver_key).lower() or f"{k}_" in str(solver_key).lower() or k == str(solver_key).lower()
-            for k in engine_keys
-        ):
-            solver_key = "tsp"
-        # Final robust fallback: if still unknown or it's an expanded name, try to find an engine keyword
-        elif solver_key not in engine_keys:
-            for engine in engine_keys:
-                # Robust match: engine word or part of _snake_case_
-                if (
-                    f"_{engine}" in str(solver_key).lower()
-                    or f"{engine}_" in str(solver_key).lower()
-                    or engine == str(solver_key).lower()
-                ):
-                    # Handle special mapping for neural
-                    solver_key = "neural" if engine in ["am", "ptr", "ddam"] else engine
-                    break
+            selection_keys = set(MustGoSelectionRegistry.list_strategies())
+            # Check if it's a selection-only name
+            lower = str(solver_key).lower()
+            if any(sel in lower for sel in selection_keys) and not any(
+                f"_{eng}" in lower or f"{eng}_" in lower or eng == lower for eng in registered
+            ):
+                solver_key = "tsp"
+            else:
+                # Try to extract a registered engine from the compound name
+                for eng in sorted(registered, key=len, reverse=True):
+                    if f"_{eng}" in lower or f"{eng}_" in lower or eng == lower:
+                        solver_key = eng
+                        break
 
         # If no nodes to collect, skip policy and return to depot
         must_go = context.get("must_go", [])
@@ -131,8 +68,6 @@ class PolicyExecutionAction(SimulationAction):
             return
 
         try:
-            # We no longer pass 'engine' and 'threshold' as separate args from here
-            # because they should be inside 'context' or 'config' handled by adapter
             adapter = PolicyFactory.get_adapter(solver_key, config=raw_cfg)
             tour, cost, extra_output = adapter.execute(**context)
 

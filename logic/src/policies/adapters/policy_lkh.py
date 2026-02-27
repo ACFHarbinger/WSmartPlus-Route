@@ -10,7 +10,7 @@ import numpy as np
 
 from logic.src.configs.policies import LKHConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
+from logic.src.policies.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 from logic.src.policies.tsp import get_multi_tour, get_route_cost
 
 from .factory import PolicyRegistry

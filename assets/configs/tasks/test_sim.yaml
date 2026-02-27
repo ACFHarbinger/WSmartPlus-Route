@@ -15,7 +15,6 @@ defaults:
   - /policies@p.hgs_alns: policy_hgs_alns
   - /policies@p.hh_aco: policy_hh_aco
   - /policies@p.ks_aco: policy_ks_aco
-  - /policies@p.lkh: policy_lkh
   - /policies@p.neural: policy_neural
   - /policies@p.sans: policy_sans
   - /policies@p.sisr: policy_sisr
@@ -33,6 +32,14 @@ defaults:
   - /policies@p.lca: policy_lca
   - /policies@p.gphh: policy_gphh
   - /policies@p.hmm_gd: policy_hmm_gd
+  - /policies@p.lahc: policy_lahc
+  - /policies@p.rrt: policy_rrt
+  - /policies@p.oba: policy_oba
+  - /policies@p.gls: policy_gls
+  - /policies@p.rts: policy_rts
+  - /policies@p.ga: policy_ga
+  - /policies@p.sa: policy_sa
+  - /policies@p.ils: policy_ils
   - _self_
   - override /tracking: test_sim
 
@@ -72,7 +79,6 @@ sim:
     - vrpp: ${p.vrpp.vrpp}
     - hgs_alns: ${p.hgs_alns.hgs_alns}
     - sisr: ${p.sisr.sisr}
-    - lkh: ${p.lkh.lkh}
     - tsp: ${p.tsp.tsp}
     - cvrp: ${p.cvrp.cvrp}
     - bcp: ${p.bcp.bcp}
@@ -89,3 +95,11 @@ sim:
     - lca: ${p.lca.lca}
     - gphh: ${p.gphh.gphh}
     - hmm_gd: ${p.hmm_gd.hmm_gd}
+    - lahc: ${p.lahc.lahc}
+    - rrt: ${p.rrt.rrt}
+    - oba: ${p.oba.oba}
+    - gls: ${p.gls.gls}
+    - rts: ${p.rts.rts}
+    - ga: ${p.ga.ga}
+    - sa: ${p.sa.sa}
+    - ils: ${p.ils.ils}
