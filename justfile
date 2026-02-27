@@ -15,7 +15,7 @@ problem := "vrpp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "170"
+size := "104"
 area := "riomaior"
 epochs := "31"
 batch_size := "64"
@@ -25,7 +25,7 @@ samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "gamma1"
+distribution := "emp"
 n_cores := "20"
 policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
 
@@ -94,7 +94,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
+test-sim policies='ahvpl' days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
