@@ -15,19 +15,19 @@ problem := "vrpp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "104"
+size := "100"
 area := "riomaior"
 epochs := "31"
 batch_size := "64"
 temporal_horizon := "0"
-days := "30"
+days := "31"
 samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "emp"
+distribution := "gamma1"
 n_cores := "20"
-policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
+policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr,ahvpl"
 
 # --- Setup & Environment ---
 
@@ -94,7 +94,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies='ahvpl' days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
+test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -118,7 +118,7 @@ test-sim policies='ahvpl' days=days area=area size=size samples=samples problem=
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem distribution=distribution data_type="train_time":
+gen-data problem=problem distribution=distribution data_type="test_simulator":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"

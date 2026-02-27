@@ -8,7 +8,7 @@ import os
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-import pandas
+import pandas as pd
 import torch
 
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
@@ -88,27 +88,29 @@ class Bins:
         self.ndays: int = 0
         self.collectdays = np.ones((n)) * 5
         self.collectlevl = np.ones((n)) * 80
-        self.data_dir = data_dir
-
         if indices is None:
             self.indices = np.array(range(n))
         else:
             self.indices = np.array(indices)
 
+        self.data_dir = data_dir
         if grid is None and sample_dist == "emp":
             src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
             waste_csv = f"out_rate_crude[{src_area}].csv"
             info_csv = f"out_info[{src_area}].csv"
 
             # Read info file to map indices to IDs
-            info_df = pandas.read_csv(os.path.join(data_dir, "coordinates", info_csv))
-            real_ids = info_df.iloc[self.indices]["ID"].tolist()
+            if 0 in self.indices:
+                info_df = pd.read_csv(os.path.join(data_dir, "coordinates", info_csv))
+                real_ids = info_df.iloc[self.indices]["ID"].tolist()
 
-            # Check ID type in waste csv
-            waste_path = os.path.join(data_dir, "bins_waste", waste_csv)
-            waste_header = pandas.read_csv(waste_path, nrows=0).columns
-            if pandas.api.types.is_string_dtype(waste_header):
-                real_ids = [str(i) for i in real_ids]
+                # Check ID type in waste csv
+                waste_path = os.path.join(data_dir, "bins_waste", waste_csv)
+                waste_header = pd.read_csv(waste_path, nrows=0).columns
+                if pd.api.types.is_string_dtype(waste_header):
+                    real_ids = [str(i) for i in real_ids]
+            else:
+                real_ids = [str(i) for i in self.indices]
 
             self.grid = GridBase(
                 real_ids,
@@ -162,7 +164,7 @@ class Bins:
 
     def set_statistics(self, stats_file: str) -> None:
         """Loads pre-computed fill statistics."""
-        data = pandas.read_csv(os.path.join(self.data_dir, stats_file))
+        data = pd.read_csv(os.path.join(self.data_dir, stats_file))
         if "ID" in data.columns:
             data = data[data["ID"] != 0].reset_index(drop=True)
 

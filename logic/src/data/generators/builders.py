@@ -267,7 +267,7 @@ class VRPInstanceBuilder:
                 )
         else:
             bins = None
-            idx = [None]  # type: ignore[list-item]
+            idx = np.array(range(self._problem_size))
             coord_size = 2 if self._method != "triple" else 3
             depot = np.random.uniform(size=(self._dataset_size, coord_size))
             loc = np.random.uniform(size=(self._dataset_size, self._problem_size, coord_size))

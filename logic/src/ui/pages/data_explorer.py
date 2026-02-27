@@ -672,14 +672,17 @@ def _render_sidebar_controls(df: pd.DataFrame) -> Dict[str, Any]:
         help="Select columns to display in Raw Data tab",
     )
 
-    row_limit = st.sidebar.slider(
-        "Row Display Limit",
-        min_value=min(1, len(df)),
-        max_value=max(len(df), 1),
-        value=min(len(df), 1000),
-        step=max(1, min(10, len(df) // 10)),
-        help="Limit rows shown in Raw Data tab",
-    )
+    if len(df) <= 1:
+        row_limit = len(df)
+    else:
+        row_limit = st.sidebar.slider(
+            "Row Display Limit",
+            min_value=1,
+            max_value=len(df),
+            value=min(len(df), 1000),
+            step=max(1, min(10, len(df) // 10)),
+            help="Limit rows shown in Raw Data tab",
+        )
 
     precision = st.sidebar.slider(
         "Decimal Precision",
