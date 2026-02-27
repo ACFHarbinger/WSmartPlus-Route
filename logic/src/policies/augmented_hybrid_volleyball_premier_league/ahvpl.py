@@ -32,7 +32,6 @@ from ..hybrid_genetic_search.evolution import (
 )
 from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
-from ..local_search.local_search_hgs import HGSLocalSearch
 from .params import AHVPLParams
 
 
@@ -84,9 +83,6 @@ class AHVPLSolver(PolicyVizMixin):
             mandatory_nodes,
         )
 
-        # HGS: Local search for mutation
-        self.local_search = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params.hgs_params)
-
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
         Run the Augmented HVPL algorithm.
@@ -112,40 +108,34 @@ class AHVPLSolver(PolicyVizMixin):
             if time.time() - start_time > self.params.time_limit:
                 break
 
-            # 1. Bi-criteria fitness update (HGS diversity management)
+            # 1. Bi-criteria fitness for parent selection
             update_biased_fitness(population, self.params.hgs_params.elite_size)
 
-            # 2. HGS Crossover — replaces VPL deterministic learning phase
+            # 2. HGS Crossover — generate children (cheap)
             n_crossovers = max(1, int(len(population) * self.params.hgs_params.crossover_rate))
-            children: List[Individual] = []
+            n_children = 0
             for _ in range(n_crossovers):
                 if time.time() - start_time > self.params.time_limit:
                     break
-
                 p1, p2 = self._select_parents(population)
-                child = ordered_crossover(p1, p2)
+                child = self._active_crossover(p1, p2)
                 evaluate(child, self.split_manager)
+                population.append(child)
+                n_children += 1
 
-                # 3. ALNS Coaching — deep local search on child's routes
-                if child.routes:
-                    child = self._alns_coaching(child)
+            # 3. Population-wide ALNS Coaching (on full pop including children)
+            for i, ind in enumerate(population):
+                if time.time() - start_time > self.params.time_limit:
+                    break
+                if ind.routes:
+                    population[i] = self._alns_coaching(ind)
 
-                # 4. HGS Mutation — optional deeper local search
-                if random.random() < self.params.hgs_params.mutation_rate and child.routes:
-                    child = self.local_search.optimize(child)
-                    evaluate(child, self.split_manager)
+            # 4. Survivor Selection — trim by biased fitness
+            update_biased_fitness(population, self.params.hgs_params.elite_size)
+            population.sort(key=lambda x: x.fitness)
+            population = population[: self.params.n_teams]
 
-                children.append(child)
-
-            population.extend(children)
-
-            # 5. Survivor Selection — trim by biased fitness
-            if len(population) > self.params.n_teams * 2:
-                update_biased_fitness(population, self.params.hgs_params.elite_size)
-                population.sort(key=lambda x: x.fitness)
-                population = population[: self.params.n_teams]
-
-            # Update global best
+            # 5. Update global best
             iter_best = max(population, key=lambda x: x.profit_score)
             if iter_best.profit_score > best_profit:
                 best_routes = [r[:] for r in iter_best.routes]
@@ -161,12 +151,10 @@ class AHVPLSolver(PolicyVizMixin):
                 best_cost=best_cost,
                 iter_best_profit=iter_best.profit_score,
                 population_size=len(population),
-                n_children=len(children),
+                n_children=n_children,
             )
 
             # 7. VPL Substitution — replace worst teams with fresh ACO solutions
-            update_biased_fitness(population, self.params.hgs_params.elite_size)
-            population.sort(key=lambda x: x.fitness)
             n_sub = max(1, int(self.params.n_teams * self.params.sub_rate))
             for i in range(len(population) - n_sub, len(population)):
                 new_ind = self._construct_individual()
@@ -196,6 +184,11 @@ class AHVPLSolver(PolicyVizMixin):
         if not giant_tour:
             return None
 
+        # Ensure all nodes are present for genetic consistency
+        visited = set(giant_tour)
+        missing = [n for n in self.nodes if n not in visited]
+        giant_tour.extend(missing)
+
         ind = Individual(giant_tour)
         evaluate(ind, self.split_manager)
         return ind
@@ -211,25 +204,64 @@ class AHVPLSolver(PolicyVizMixin):
 
         return tournament(), tournament()
 
+    def _active_crossover(self, p1: Individual, p2: Individual) -> Individual:
+        """
+        Ordered Crossover on active (visited) nodes only.
+
+        Uses the union of both parents' active node sets so both
+        temporary individuals are permutations of the same set
+        (required by OX). Each parent's ordering is preserved for its
+        own active nodes; the other parent's exclusive nodes are appended.
+        """
+        # Identify active nodes from each parent's routes
+        p1_active = set(n for r in p1.routes for n in r)
+        p2_active = set(n for r in p2.routes for n in r)
+
+        # Both parents must have active nodes for crossover
+        if not p1_active or not p2_active:
+            return Individual(p1.giant_tour[:])
+
+        # Build each temp individual as a permutation of the union.
+        # Keep original ordering for own active nodes, append the rest.
+        p1_ordered = [n for n in p1.giant_tour if n in p1_active]
+        p1_extra = [n for n in p2.giant_tour if n in (p2_active - p1_active)]
+        p1_ordered.extend(p1_extra)
+
+        p2_ordered = [n for n in p2.giant_tour if n in p2_active]
+        p2_extra = [n for n in p1.giant_tour if n in (p1_active - p2_active)]
+        p2_ordered.extend(p2_extra)
+
+        temp_p1 = Individual(p1_ordered)
+        temp_p2 = Individual(p2_ordered)
+        child = ordered_crossover(temp_p1, temp_p2)
+
+        # Re-append globally unvisited nodes for genetic consistency
+        visited = set(child.giant_tour)
+        missing = [n for n in self.nodes if n not in visited]
+        child.giant_tour.extend(missing)
+
+        return child
+
     def _alns_coaching(self, ind: Individual) -> Individual:
         """
         Apply ALNS deep local search to an individual's routes.
 
         Runs the ALNS solver starting from the individual's decoded routes,
-        then reconstructs the giant tour from the improved routes.
+        then reconstructs the giant tour and re-evaluates via LinearSplit
+        for consistent fitness metrics.
         """
         improved_routes, improved_profit, improved_cost = self.alns_solver.solve(initial_solution=ind.routes)
 
         if improved_profit > ind.profit_score and improved_routes:
-            ind.routes = improved_routes
-            ind.profit_score = improved_profit
-            ind.cost = improved_cost
             ind.giant_tour = self._routes_to_giant_tour(improved_routes)
 
             # Preserve unvisited nodes for genetic consistency
             visited = set(ind.giant_tour)
             missing = [n for n in self.nodes if n not in visited]
             ind.giant_tour.extend(missing)
+
+            # Re-evaluate through LinearSplit for consistent metrics
+            evaluate(ind, self.split_manager)
 
         return ind
 

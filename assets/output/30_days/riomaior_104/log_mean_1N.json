@@ -11,6 +11,18 @@
   "days": 15,
   "time": 901.144420687
  },
+ "lookahead_ahvpl_custom_emp": {
+  "overflows": 9.0,
+  "kg": 9958.375,
+  "ncol": 553.0,
+  "kg_lost": 126.82500000000002,
+  "km": 1256.702,
+  "kg/km": 7.924213536701621,
+  "cost": -8692.673,
+  "profit": 4556.001487500001,
+  "days": 7,
+  "time": 444.943717668
+ },
  "lookahead_alns_custom_emp": {
   "overflows": 13.0,
   "kg": 9746.525,
