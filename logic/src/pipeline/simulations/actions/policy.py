@@ -42,6 +42,16 @@ class PolicyExecutionAction(SimulationAction):
                 "aco",
                 "sisr",
                 "neural",
+                "qde",
+                "psoma",
+                "abc",
+                "fa",
+                "sca",
+                "hs",
+                "slc",
+                "lca",
+                "gphh",
+                "hmm_gd",
             ]
             for key in known_policy_keys:
                 if key in raw_cfg:
@@ -75,6 +85,16 @@ class PolicyExecutionAction(SimulationAction):
             "ddam",
             "ahvpl",
             "hvpl",
+            "qde",
+            "psoma",
+            "abc",
+            "fa",
+            "sca",
+            "hs",
+            "slc",
+            "lca",
+            "gphh",
+            "hmm_gd",
         ]
 
         # Prioritize exact matches in Registry to avoid false positives (e.g. 'gamma' contains 'am')

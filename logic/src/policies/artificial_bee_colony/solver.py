@@ -19,8 +19,10 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.destroy_operators import random_removal
-from ..operators.repair_operators import greedy_insertion
+from ..operators import (
+    greedy_insertion,
+    random_removal,
+)
 from .params import ABCParams
 
 
@@ -81,8 +83,11 @@ class ABCSolver(PolicyVizMixin):
 
             # --- Employed bee phase ---
             for i in range(self.params.n_sources):
-                neighbour = self._perturb(sources[i])
+                # Select a random peer to guide the interpolation
+                peer_idx = random.choice([x for x in range(self.params.n_sources) if x != i])
+                neighbour = self._perturb(sources[i], sources[peer_idx])
                 nb_profit = self._evaluate(neighbour)
+
                 if nb_profit > profits[i]:
                     sources[i] = neighbour
                     profits[i] = nb_profit
@@ -99,8 +104,10 @@ class ABCSolver(PolicyVizMixin):
 
             for _ in range(self.params.n_sources):
                 i = self._roulette(probs)
-                neighbour = self._perturb(sources[i])
+                peer_idx = random.choice([x for x in range(self.params.n_sources) if x != i])
+                neighbour = self._perturb(sources[i], sources[peer_idx])
                 nb_profit = self._evaluate(neighbour)
+
                 if nb_profit > profits[i]:
                     sources[i] = neighbour
                     profits[i] = nb_profit
@@ -137,54 +144,83 @@ class ABCSolver(PolicyVizMixin):
 
     def _new_source(self) -> List[List[int]]:
         """Generate a new random feasible food source."""
-        shuffled = random.sample(self.nodes, len(self.nodes))
-        return greedy_insertion(
-            [],
-            shuffled,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            R=self.R,
+        return self._build_random_solution()
+
+    def _build_random_solution(self) -> List[List[int]]:
+        """
+        Builds a random initial solution applying nearest neighbor ordering
+        and 2-opt local search to the resulting routes.
+        """
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        routes = build_nn_routes(
+            nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
         )
 
-    def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(routes)
+
+    def _perturb(self, current: List[List[int]], peer: List[List[int]]) -> List[List[int]]:
         """
-        Neighbourhood perturbation: random removal + greedy re-insertion.
-
-        Models the employed / onlooker bee's local exploitation.
-
-        Args:
-            routes: Current food source (routes).
-
-        Returns:
-            Perturbed routes.
+        Cross-solution interpolation: extracts nodes from a peer and injects
+        them into the current solution, mimicking the v_ij = x_ij + φ(x_ij - x_kj) equation.
         """
-        n = max(1, self.params.n_removal)
+        if not current or not peer:
+            return copy.deepcopy(current)
+
+        n = max(3, self.params.n_removal)
+
+        peer_nodes = [node for route in peer for node in route]
+        if not peer_nodes:
+            return copy.deepcopy(current)
+
+        # Take a random subset of nodes from peer
+        selected_peer_nodes = random.sample(peer_nodes, min(n, len(peer_nodes)))
+
+        current_copy = copy.deepcopy(current)
+        # Remove these nodes from current
+        for route in current_copy:
+            for node in selected_peer_nodes:
+                if node in route:
+                    route.remove(node)
+
+        current_copy = [r for r in current_copy if r]
+
+        # Also randomly remove some additional nodes for diversity
         try:
-            partial, removed = random_removal(routes, n)
-            return greedy_insertion(
+            partial, additional_removed = random_removal(current_copy, n)
+            to_insert = list(set(selected_peer_nodes + additional_removed))
+
+            repaired = greedy_insertion(
                 partial,
-                removed,
+                to_insert,
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
+            # Apply comprehensive local search
+            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+            return ls.optimize(repaired)
         except Exception:
-            return copy.deepcopy(routes)
+            return copy.deepcopy(current)
 
     @staticmethod
     def _roulette(probs: List[float]) -> int:
         """
         Roulette-wheel selection.
-
-        Args:
-            probs: Probability distribution over source indices.
-
-        Returns:
-            Selected index.
         """
         r = random.random()
         cumulative = 0.0

@@ -19,7 +19,6 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.repair_operators import greedy_insertion
 from .params import QDEParams
 
 
@@ -119,6 +118,14 @@ class QDESolver(PolicyVizMixin):
                 population_size=pop_size,
             )
 
+        # Apply comprehensive local search on final solution
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        best_routes = ls.optimize(best_routes)
+        best_profit = self._evaluate(best_routes)
+        best_cost = self._cost(best_routes)
+
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------
@@ -146,7 +153,7 @@ class QDESolver(PolicyVizMixin):
         total_load = 0.0
 
         for j in ranked:
-            node = j + 1  # 1-based
+            node = j + 1  # 1-based index (depot is 0)
             waste = self.wastes.get(node, 0.0)
             if node in mandatory_set or total_load + waste <= self.capacity:
                 selected.append(node)
@@ -154,6 +161,8 @@ class QDESolver(PolicyVizMixin):
 
         if not selected:
             return []
+
+        from logic.src.policies.operators.repair.greedy import greedy_insertion
 
         routes = greedy_insertion(
             [],
@@ -163,6 +172,7 @@ class QDESolver(PolicyVizMixin):
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=False,
         )
         return routes
 

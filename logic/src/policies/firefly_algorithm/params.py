@@ -36,5 +36,6 @@ class FAParams:
     beta_will: float = 0.3
     gamma_cost: float = 0.2
     alpha_rnd: float = 0.2
+    n_removal: int = 3
     max_iterations: int = 100
     time_limit: float = 60.0

@@ -17,7 +17,6 @@ Reference:
     Survey §"Soccer League Competition" — dual-tier competition framework.
 """
 
-import contextlib
 import copy
 import random
 import time
@@ -164,16 +163,27 @@ class SLCSolver(PolicyVizMixin):
 
     def _random_solution(self) -> List[List[int]]:
         """Generate a random feasible routing solution."""
-        shuffled = random.sample(self.nodes, len(self.nodes))
-        return greedy_insertion(
-            [],
-            shuffled,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            R=self.R,
+        return self._build_random_solution()
+
+    def _build_random_solution(self) -> List[List[int]]:
+        """Order-dependent sequential construction (matches ALNS style)."""
+        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+
+        optimized_routes = build_nn_routes(
+            nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
         )
+
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(optimized_routes)
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
         """
@@ -185,10 +195,10 @@ class SLCSolver(PolicyVizMixin):
         Returns:
             Perturbed routes.
         """
-        n = max(1, self.params.n_removal)
+        n = max(3, self.params.n_removal)
         try:
             partial, removed = random_removal(routes, n)
-            return greedy_insertion(
+            repaired = greedy_insertion(
                 partial,
                 removed,
                 self.dist_matrix,
@@ -197,6 +207,11 @@ class SLCSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
+            # Apply comprehensive local search
+            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+            return ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)
 
@@ -215,7 +230,7 @@ class SLCSolver(PolicyVizMixin):
             New child routing solution.
         """
         winner_flat = [n for r in winner_routes for n in r]
-        loser_visited = {n for r in loser_routes for n in r}
+        loser_flat = [n for r in loser_routes for n in r]
 
         if len(winner_flat) < 2:
             return copy.deepcopy(loser_routes)
@@ -224,23 +239,41 @@ class SLCSolver(PolicyVizMixin):
         a = random.randint(0, len(winner_flat) - 1)
         b = random.randint(a, min(a + max(1, len(winner_flat) // 3), len(winner_flat)))
         segment = winner_flat[a:b]
-        new_nodes = [n for n in segment if n not in loser_visited]
+        segment_set = set(segment)
 
-        if not new_nodes:
-            return self._perturb(loser_routes)
+        # Order Crossover (OX): fill remaining from loser preserving order
+        remaining = [n for n in loser_flat if n not in segment_set]
+        insert_pos = min(a, len(remaining))
+        child_flat = remaining[:insert_pos] + segment + remaining[insert_pos:]
 
-        child = copy.deepcopy(loser_routes)
-        with contextlib.suppress(Exception):
-            child = greedy_insertion(
-                child,
-                new_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-        return child
+        # Split into routes by capacity
+        child_routes: List[List[int]] = []
+        curr_route: List[int] = []
+        load = 0.0
+        for node in child_flat:
+            waste = self.wastes.get(node, 0.0)
+            if load + waste <= self.capacity:
+                curr_route.append(node)
+                load += waste
+            else:
+                if curr_route:
+                    child_routes.append(curr_route)
+                curr_route = [node]
+                load = waste
+        if curr_route:
+            child_routes.append(curr_route)
+
+        # Ensure mandatory nodes
+        visited = {n for r in child_routes for n in r}
+        for n in self.mandatory_nodes:
+            if n not in visited:
+                child_routes.append([n])
+
+        # Apply comprehensive local search
+        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+
+        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
+        return ls.optimize(child_routes)
 
     def _league_best(self, teams: List[List[Tuple[List[List[int]], float]]]) -> Tuple[List[List[int]], float]:
         """Return the best (routes, profit) across all teams."""
