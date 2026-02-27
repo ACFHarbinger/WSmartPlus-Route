@@ -5,7 +5,7 @@ Statistical prediction and frequency calculation for waste bins.
 from typing import Tuple
 
 import numpy as np
-from scipy.stats import gamma
+from scipy.stats import gamma  # pyrefly: ignore[missing-module-attribute]
 
 
 def predict_days_to_overflow(ui: np.ndarray, vi: np.ndarray, f: np.ndarray, cl: float) -> np.ndarray:

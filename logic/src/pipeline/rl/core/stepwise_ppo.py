@@ -138,7 +138,12 @@ class StepwisePPO(RL4COLitModule):
         if isinstance(opt, list):
             opt = opt[0]
 
+        sub_td = None
+        new_log_p = None
         loss = torch.tensor(0.0, device=self.device)
+        actor_loss = torch.tensor(0.0, device=self.device)
+        critic_loss = torch.tensor(0.0, device=self.device)
+        ratio = torch.tensor(0.0, device=self.device)
         for _ in range(self.ppo_epochs):
             for sub_td in dataloader:
                 sub_td = sub_td.to(self.device)
@@ -179,31 +184,38 @@ class StepwisePPO(RL4COLitModule):
         self.log("train/critic_loss", critic_loss)
         self.log("train/advantage", data["advantage"].mean())
         # StepwisePPO diagnostics (from last mini-batch)
-        with torch.no_grad():
-            clip_fraction = ((ratio - 1.0).abs() > self.eps_clip).float().mean()
-            approx_kl = (sub_td["log_p"] - new_log_p).mean()
-        self.log("train/clip_fraction", clip_fraction)
-        self.log("train/approx_kl", approx_kl)
+        if sub_td is not None and new_log_p is not None:
+            with torch.no_grad():
+                clip_fraction = ((ratio - 1.0).abs() > self.eps_clip).float().mean()
+                approx_kl = (sub_td["log_p"] - new_log_p).mean()
+            self.log("train/clip_fraction", clip_fraction)
+            self.log("train/approx_kl", approx_kl)
         return loss
 
     def _process_experiences(self, experiences: list) -> TensorDict:
         """Compute GAE advantages and returns."""
-        # Convert list of dicts to a stacked TensorDict
-        # experiences: list of Dict[str, Tensor] where each Tensor is [B, ...]
-
         rewards = torch.stack([e["reward"] for e in experiences], dim=1)  # [B, T]
         values = torch.stack([e["value"] for e in experiences], dim=1)  # [B, T]
         dones = torch.stack([e["done"] for e in experiences], dim=1)  # [B, T]
 
-        # We need the value of the final state (T+1) which we didn't store.
-        # But we can assume it's terminal 0 if 'done' is true.
         bs, T = rewards.shape
         next_values = torch.zeros((bs, T), device=rewards.device)
         next_values[:, :-1] = values[:, 1:]
 
-        # GAE
+        # GAE Calculation
         advantages = torch.zeros_like(rewards)
-        last_gae = 0
+
+        # FIX: Initialize as a Tensor (or 0.0) to avoid int vs Tensor conflicts
+        last_gae = torch.zeros(bs, device=rewards.device)
+
+        for t in reversed(range(T)):
+            mask = 1.0 - dones[:, t].float()
+            delta = rewards[:, t] + self.gamma * next_values[:, t] * mask - values[:, t]
+            # Now the assignment is consistent: Tensor = Tensor + (scalar * scalar * Tensor * Tensor)
+            last_gae = delta + self.gamma * self.gae_lambda * mask * last_gae
+            advantages[:, t] = last_gae
+
+        returns = advantages + values
         for t in reversed(range(T)):
             # delta = r_t + gamma * V_{t+1} * (1 - done_t) - V_t
             mask = 1.0 - dones[:, t].float()

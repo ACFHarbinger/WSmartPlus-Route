@@ -153,8 +153,10 @@ class StepMixin:
         # Move to device (crucial when pin_memory=False)
         if hasattr(batch, "to"):
             batch = cast(Any, batch).to(self.device)
-        elif isinstance(batch, ITraversable):
-            batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}
+        else:
+            batch_obj: object = batch
+            if isinstance(batch_obj, ITraversable):
+                batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch_obj.items()}
 
         if baseline_val is not None:
             baseline_val = cast(Any, baseline_val).to(self.device)
@@ -244,17 +246,20 @@ class StepMixin:
 
         return out
 
-    def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
+    def training_step(self, *args: Any, **kwargs: Any) -> torch.Tensor:
         """
         Execute a single training step.
 
         Args:
-            batch: Input batch, potentially wrapped by baseline.
-            batch_idx: Index of the current batch.
+            *args: Positional arguments (batch, batch_idx).
+            **kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: The computed loss.
         """
+        batch: Any = args[0] if args else kwargs["batch"]
+        batch_idx: int = args[1] if len(args) > 1 else kwargs.get("batch_idx", 0)
+
         # 1. Unwrap batch if it was wrapped by baseline (e.g. RolloutBaseline)
         if hasattr(self.baseline, "unwrap_batch"):
             td, baseline_val = self.baseline.unwrap_batch(batch)
@@ -269,28 +274,32 @@ class StepMixin:
 
         return out["loss"]
 
-    def validation_step(self, batch: Any, batch_idx: int) -> dict:
+    def validation_step(self, *args: Any, **kwargs: Any) -> dict:
         """
         Execute a single validation step.
 
         Args:
-            batch: TensorDict batch for validation.
-            batch_idx: Index of the current batch.
+            *args: Positional arguments (batch, batch_idx).
+            **kwargs: Additional keyword arguments.
 
         Returns:
             dict: Output dictionary with metrics.
         """
+        batch: Any = args[0] if args else kwargs["batch"]
+        batch_idx: int = args[1] if len(args) > 1 else kwargs.get("batch_idx", 0)
         return self.shared_step(batch, batch_idx, phase="val")
 
-    def test_step(self, batch: Any, batch_idx: int) -> dict:
+    def test_step(self, *args: Any, **kwargs: Any) -> dict:
         """
         Execute a single test step.
 
         Args:
-            batch: TensorDict batch for testing.
-            batch_idx: Index of the current batch.
+            *args: Positional arguments (batch, batch_idx).
+            **kwargs: Additional keyword arguments.
 
         Returns:
             dict: Output dictionary with metrics.
         """
+        batch: Any = args[0] if args else kwargs["batch"]
+        batch_idx: int = args[1] if len(args) > 1 else kwargs.get("batch_idx", 0)
         return self.shared_step(batch, batch_idx, phase="test")

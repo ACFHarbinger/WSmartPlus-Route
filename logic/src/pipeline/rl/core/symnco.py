@@ -91,7 +91,8 @@ class SymNCO(POMO):
         loss_ps = torch.tensor(0.0, device=reward.device)
         loss_ss = torch.tensor(0.0, device=reward.device)
         loss_inv = torch.tensor(0.0, device=reward.device)
-
+        loss = torch.tensor(0.0, device=reward.device)
+        ll = torch.tensor(0.0, device=reward.device)
         if phase == "train":
             # log_likelihood: [batch, n_aug, n_start]
             ll = out["log_likelihood"].view(bs, n_aug, n_start)

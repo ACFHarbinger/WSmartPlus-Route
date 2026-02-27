@@ -3,7 +3,7 @@ Base classes and utilities for simulation actions.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 
 def _find_must_go(d: Any) -> Any:
@@ -37,25 +37,26 @@ def _flatten_config(cfg: Any) -> dict:
         return {}
 
     curr = cfg
-    # Unwrap single-key nested dicts (Hydra structure often starts with policy name)
-    while (isinstance(curr, dict) or hasattr(curr, "items")) and len(curr) == 1:
-        # Check if the single key is one of our target markers
-        key = next(iter(curr.keys())) if hasattr(curr, "keys") else next(iter(dict(curr).keys()))
+
+    # Use a type guard to help Pyright
+    while isinstance(curr, Mapping) and len(curr) == 1:
+        # Safer key extraction
+        key = next(iter(curr.keys()))
 
         if key in ["must_go", "policy", "post_processing"]:
             break
         curr = curr[key]
 
-    # Handle list of dicts (common in Hydra 'custom' lists)
-    if isinstance(curr, (list, tuple)) or (not isinstance(curr, (str, dict)) and hasattr(curr, "__iter__")):
+    # Handle list of dicts
+    if isinstance(curr, (list, tuple)):
         merged: Dict[str, Any] = {}
         for item in curr:
-            if hasattr(item, "items"):
-                merged.update(dict(item))
+            if isinstance(item, Mapping):
+                merged.update(item)  # No need to cast to dict() if it's already a Mapping
         return merged
 
-    # Handle dict which might contain lists to be flattened
-    if hasattr(curr, "items") or isinstance(curr, dict):
+    # Handle dict/Mapping
+    if isinstance(curr, Mapping):
         flat = dict(curr)
         # Iterate over all keys and flatten if value is a list of dicts
         for _k, v in list(flat.items()):

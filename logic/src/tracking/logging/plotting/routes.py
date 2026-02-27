@@ -4,6 +4,8 @@ TSP and VRP route visualization.
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -18,12 +20,19 @@ def draw_graph(distance_matrix):
     Args:
         distance_matrix (np.ndarray): The adjacency/distance matrix.
     """
+    # 1. Cast nx to Any to bypass the missing-attribute checks
+    nx_any = cast(Any, nx)
+
     G = nx.from_numpy_array(distance_matrix)
-    pos = nx.spring_layout(G)
-    nx.draw(G, pos, with_labels=True)
+
+    # 2. Use the casted object for the layout and drawing
+    pos = nx_any.spring_layout(G)
+    nx_any.draw(G, pos, with_labels=True)
+
     labels = {(u, v): str(attr["weight"]) for u, v, attr in G.edges(data=True)}
     print(G.edges(data=True))
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+
+    nx_any.draw_networkx_edge_labels(G, pos, edge_labels=labels)
     plt.show()
 
 

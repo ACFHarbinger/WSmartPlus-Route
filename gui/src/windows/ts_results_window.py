@@ -234,7 +234,7 @@ class SimulationResultsWindow(QWidget):
             return
 
         tour_indices_set = set(day_cache.get("tour_indices") or [])
-        must_go_set = set(day_cache.get("must_go") or [])
+        must_go_set = self._normalize_must_go(day_cache.get("must_go") or [], routes)
         bin_states = day_cache.get("bin_state_c") or []
         collected = day_cache.get("bin_state_collected") or []
 
@@ -257,49 +257,15 @@ class SimulationResultsWindow(QWidget):
         # All bins from dataset (toured + non-toured)
         sample_idx = int(sample)
         if self.dataset is not None and sample_idx < len(self.dataset):
-            sample_data = self.dataset[sample_idx]
-            locs = sample_data["locs"]  # (n_bins, 2) — lat, lng
-            depot = sample_data["depot"]  # (2,) — lat, lng
-
-            # If no depot marker was found in routes, add from dataset
-            if not any(p.get("type") == "depot" for p in routes):
-                folium.Marker(
-                    location=[float(depot[0]), float(depot[1])],
-                    popup=f"Depot<br>Lat: {depot[0]:.4f}<br>Lng: {depot[1]:.4f}",
-                    icon=folium.Icon(color="blue", icon="home", prefix="fa"),
-                ).add_to(m)
-
-            for bin_id in range(len(locs)):
-                lat, lng = float(locs[bin_id, 0]), float(locs[bin_id, 1])
-
-                is_toured = bin_id in tour_indices_set
-                is_served = bin_id in collected_set
-                is_must_go = bin_id in must_go_set
-
-                fill = bin_states[bin_id] if 0 <= bin_id < len(bin_states) else 50.0
-                color = "#28a745" if is_served else "#fd7e14" if is_must_go else "#dc3545"
-                radius = (5 + (fill / 100.0) * 10) if is_toured else (4 + (fill / 100.0) * 4)
-                opacity = 0.7 if is_toured else 0.35
-                weight = 4 if is_must_go else 2
-
-                popup = f"Bin {bin_id}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill:.1f}%"
-                if is_must_go:
-                    popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
-                if is_served:
-                    popup += "<br><b style='color: #28a745;'>Served</b>"
-                if not is_toured:
-                    popup += "<br><i>Not in route</i>"
-
-                folium.CircleMarker(
-                    location=[lat, lng],
-                    radius=radius,
-                    popup=popup,
-                    color=color,
-                    fill=True,
-                    fillColor="#fd7e14" if is_must_go and is_served else color,
-                    fillOpacity=opacity,
-                    weight=weight,
-                ).add_to(m)
+            self._add_bin_markers_to_map(
+                m,
+                self.dataset[sample_idx],
+                routes,
+                tour_indices_set,
+                collected_set,
+                must_go_set,
+                bin_states,
+            )
 
         # Route polyline
         route_coords = [(p["lat"], p["lng"]) for p in routes if "lat" in p and "lng" in p]
@@ -310,6 +276,75 @@ class SimulationResultsWindow(QWidget):
         os.makedirs(os.path.dirname(temp_path), exist_ok=True)
         m.save(temp_path)
         webbrowser.open(f"file://{os.path.abspath(temp_path)}")
+
+    @staticmethod
+    def _normalize_must_go(must_go_raw, routes):
+        """Normalize must_go IDs to positional indices using the route coord mapping.
+
+        Logs may contain either positional indices or dataset IDs depending on when
+        they were generated. This method adds both representations to the set so
+        downstream matching works for either format.
+        """
+        ds_id_to_pos = {}
+        for rpt in routes:
+            pos_id = rpt.get("id")
+            ds_id = rpt.get("dataset_id")
+            if pos_id is not None and ds_id is not None and int(pos_id) >= 0:
+                ds_id_to_pos[int(ds_id)] = int(pos_id)
+
+        result = set()
+        for mg in must_go_raw:
+            mg_int = int(mg)
+            result.add(mg_int)
+            if mg_int in ds_id_to_pos:
+                result.add(ds_id_to_pos[mg_int])
+        return result
+
+    @staticmethod
+    def _add_bin_markers_to_map(m, sample_data, routes, tour_indices_set, collected_set, must_go_set, bin_states):
+        """Add bin CircleMarkers to the Folium map with appropriate styling."""
+        locs = sample_data["locs"]
+        depot = sample_data["depot"]
+
+        # If no depot marker was found in routes, add from dataset
+        if not any(p.get("type") == "depot" for p in routes):
+            folium.Marker(
+                location=[float(depot[0]), float(depot[1])],
+                popup=f"Depot<br>Lat: {depot[0]:.4f}<br>Lng: {depot[1]:.4f}",
+                icon=folium.Icon(color="blue", icon="home", prefix="fa"),
+            ).add_to(m)
+
+        for bin_id in range(len(locs)):
+            lat, lng = float(locs[bin_id, 0]), float(locs[bin_id, 1])
+
+            is_toured = bin_id in tour_indices_set
+            is_served = bin_id in collected_set
+            is_must_go = bin_id in must_go_set
+
+            fill = bin_states[bin_id] if 0 <= bin_id < len(bin_states) else 50.0
+            color = "#fd7e14" if is_must_go else "#28a745" if is_served else "#dc3545"
+            radius = (5 + (fill / 100.0) * 10) if is_toured else (4 + (fill / 100.0) * 4)
+            opacity = 0.7 if is_toured else 0.35
+            weight = 4 if is_must_go else 2
+
+            popup = f"Bin {bin_id}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill:.1f}%"
+            if is_must_go:
+                popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
+            if is_served:
+                popup += "<br><b style='color: #28a745;'>Served</b>"
+            if not is_toured:
+                popup += "<br><i>Not in route</i>"
+
+            folium.CircleMarker(
+                location=[lat, lng],
+                radius=radius,
+                popup=popup,
+                color=color,
+                fill=True,
+                fillColor="#fd7e14" if is_must_go and is_served else color,
+                fillOpacity=opacity,
+                weight=weight,
+            ).add_to(m)
 
     def closeEvent(self, event):
         """Cleanup threads on close."""

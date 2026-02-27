@@ -16,6 +16,7 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.interfaces.env import IEnv
 from logic.src.models.common.autoregressive.constructive import ConstructivePolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 
@@ -79,7 +80,7 @@ class A2C(RL4COLitModule):
         policy_cast = cast(ConstructivePolicy, policy)
 
         super().__init__(
-            env=env,
+            env=cast(IEnv, env),
             policy=policy_cast,  # type: ignore[arg-type]
             optimizer=actor_optimizer,  # Ignored as we override configure_optimizers
             optimizer_kwargs={"lr": actor_lr},
@@ -118,7 +119,7 @@ class A2C(RL4COLitModule):
         td: TensorDict,
         out: dict,
         batch_idx: int,
-        env: Optional[RL4COEnvBase] = None,  # type: ignore[override]
+        env: Optional[IEnv] = None,
     ) -> torch.Tensor:
         """
         Calculate A2C loss.

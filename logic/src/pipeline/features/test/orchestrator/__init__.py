@@ -79,14 +79,15 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
     policies = sim.full_policies
     sample_idx_dict: Dict[str, List[int]] = {pol: list(range(sim.n_samples)) for pol in policies}
     if sim.resume:
-        to_remove = runs_per_policy(  # type: ignore[call-arg, misc]
-            udef.ROOT_DIR,  # type: ignore[arg-type]
-            sim.days,
-            [sim.graph.num_loc],
-            sim.output_dir,
-            sim.graph.area,
-            [sim.n_samples],
-            policies,
+        runs_per_policy_any: Any = runs_per_policy
+        to_remove = runs_per_policy_any(
+            home_dir=str(udef.ROOT_DIR),
+            ndays=sim.days,
+            nbins=sim.graph.num_loc,
+            output_dir=sim.output_dir,
+            area=sim.graph.area,
+            nsamples=[sim.n_samples],
+            policies=policies,
             lock=lock,
         )[0]
         for pol in policies:
