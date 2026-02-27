@@ -150,6 +150,8 @@ def add_route_random(routes_list, distance_matrix):
     """
     if len(routes_list) > 0:
         chosen_route = rsample(routes_list, 1)[0]
+    else:
+        return routes_list
 
     length_chosen_route = len(chosen_route)
     possible_percent = [0.3, 0.4, 0.5, 0.6]
