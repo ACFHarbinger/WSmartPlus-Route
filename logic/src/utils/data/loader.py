@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import pickle
+import pandas as pd
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -20,6 +21,7 @@ import torch.utils.data
 from tensordict import TensorDict
 
 from logic.src.utils.functions import get_path_until_string
+from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 
 
 def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -204,3 +206,30 @@ def load_simulation_dataset(filename: str) -> Dict[str, np.ndarray]:
     """
     data = np.load(check_extension(filename, ".npz"))
     return dict(data)
+
+
+def load_grid_base(data_dir: str, indices: np.ndarray, area: Optional[str] = None) -> GridBase:
+    src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
+    waste_csv = f"out_rate_crude[{src_area}].csv"
+    info_csv = f"out_info[{src_area}].csv"
+
+    # Read info file to map indices to IDs
+    if 0 in indices:
+        info_df = pd.read_csv(os.path.join(data_dir, "coordinates", info_csv))
+        real_ids = info_df.iloc[indices]["ID"].tolist()
+
+        # Check ID type in waste csv
+        waste_path = os.path.join(data_dir, "bins_waste", waste_csv)
+        waste_header = pd.read_csv(waste_path, nrows=0).columns
+        if pd.api.types.is_string_dtype(waste_header):
+            real_ids = [str(i) for i in real_ids]
+    else:
+        real_ids = [str(i) for i in indices]
+
+    return GridBase(
+        real_ids,
+        data_dir,
+        rate_type="crude",
+        names=[waste_csv, info_csv, None],
+        same_file=True,
+    )

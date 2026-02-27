@@ -33,7 +33,7 @@ class ITraversable(Protocol):
         ...     return config.get(key, None)
     """
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: Any) -> Any:
         """Get value by key.
 
         Args:
@@ -47,7 +47,7 @@ class ITraversable(Protocol):
         """
         ...
 
-    def __contains__(self, key: str) -> bool:
+    def __contains__(self, key: object) -> bool:
         """Check if key exists.
 
         Args:
@@ -82,7 +82,7 @@ class ITraversable(Protocol):
         """
         ...
 
-    def get(self, key: str, default: Optional[Any] = None) -> Any:
+    def get(self, key: Any, default: Optional[Any] = None) -> Any:
         """Get value by key with optional default.
 
         Args:

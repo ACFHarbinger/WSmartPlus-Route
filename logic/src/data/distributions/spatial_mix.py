@@ -28,7 +28,7 @@ class Mix_Distribution:
         self.Mixed = Mixed(n_cluster_mix=n_cluster_mix)
         self.Cluster = Cluster(n_cluster=n_cluster)
 
-    def sample(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
         """Sample.
 
         Args:

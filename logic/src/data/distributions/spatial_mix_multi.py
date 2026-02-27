@@ -39,7 +39,7 @@ class Mix_Multi_Distributions:
             (Mixed, {"n_cluster_mix": 4}),
         ]
 
-    def sample(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
         """Sample.
 
         Args:

@@ -25,7 +25,7 @@ def tensordict_collate_fn(
         # specialized approach that doesn't lose nested structure.
         return torch.stack(batch)  # type: ignore[arg-type]
 
-    if isinstance(batch[0], ITraversable):
+    if isinstance(batch[0], ITraversable):  # type: ignore[unsafe-overlap]
         # We recursively collate the values
         return {key: tensordict_collate_fn([d[key] for d in batch]) for key in batch[0].keys()}  # type: ignore[union-attr]
 
