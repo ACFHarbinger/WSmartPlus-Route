@@ -30,7 +30,7 @@ def mock_params():
     }
 
 def test_tsp_policy(mock_params):
-    with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load, \
+    with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load, \
          patch("logic.src.policies.adapters.policy_tsp.find_route") as mock_find, \
          patch("logic.src.policies.adapters.policy_tsp.get_multi_tour") as mock_get_multi:
 
@@ -62,7 +62,7 @@ def test_tsp_policy(mock_params):
         assert args[1] == [1, 2, 3, 4, 5]
 
 def test_cvrp_policy(mock_params):
-    with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load, \
+    with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load, \
          patch("logic.src.policies.adapters.policy_cvrp.find_routes") as mock_find:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)

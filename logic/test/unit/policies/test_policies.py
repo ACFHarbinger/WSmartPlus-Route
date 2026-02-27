@@ -59,7 +59,7 @@ class TestPolicyAdapters:
 
     @pytest.fixture(autouse=True)
     def mock_loader(self):
-        with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load:
+        with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load:
             # Q, R, B, C, V
             mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1100.0)
             yield mock_load

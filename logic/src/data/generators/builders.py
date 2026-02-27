@@ -13,9 +13,9 @@ from tensordict import TensorDict
 
 from logic.src.constants import MAX_WASTE
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
-from logic.src.pipeline.simulations.processor import process_coordinates
 from logic.src.data.generators.waste import generate_waste
-from logic.src.utils.data.data_utils import load_focus_coords
+from logic.src.data.processor import process_coordinates
+from logic.src.utils.data.loader import load_focus_coords
 from logic.src.utils.functions import get_path_until_string
 
 
@@ -157,8 +157,9 @@ class VRPInstanceBuilder:
             noisy_fill_arr = np.maximum(fill_arr, MAX_CAPACITY_PERCENT)
 
         return {
-            "depot": depot,
-            "locs": loc,
+            "depot": np.flip(depot, axis=-1) if depot.shape[-1] == 2 else depot,
+            "locs": np.flip(loc, axis=-1) if loc.shape[-1] == 2 else loc,
+            "node_ids": np.tile(np.arange(1, self._problem_size + 1), (self._dataset_size, 1)),
             "waste": fill_arr,
             "noisy_waste": noisy_fill_arr,
             "max_waste": np.full(self._dataset_size, MAX_CAPACITY_PERCENT),

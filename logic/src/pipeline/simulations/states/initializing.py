@@ -16,6 +16,12 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from logic.src.constants import DAY_METRICS, ROOT_DIR
+from logic.src.data.processor import (
+    process_data,
+    process_model_data,
+    setup_basedata,
+    setup_dist_path_tup,
+)
 from logic.src.interfaces import ITraversable
 from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.utils.configs.config_loader import load_config
@@ -25,12 +31,6 @@ from logic.src.utils.configs.setup_worker import setup_model
 
 from ..bins import Bins
 from ..checkpoints import SimulationCheckpoint
-from ..processor import (
-    process_data,
-    process_model_data,
-    setup_basedata,
-    setup_dist_path_tup,
-)
 from .base import SimState
 
 if TYPE_CHECKING:
@@ -150,7 +150,7 @@ class InitializingState(SimState):
                 print(f"[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
 
     def _setup_capacities(self, ctx):
-        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
+        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
         sim = ctx.cfg.sim
         capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)

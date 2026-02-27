@@ -88,8 +88,7 @@ def test_bcp_engine_override(mock_engine_data):
 
 @pytest.mark.unit
 def test_vrpp_engine_override(mocker, mock_engine_data):
-    # VRPP Policy imports logic.src.utils.data.data_utils inside execute
-    mocker.patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params",
+    mocker.patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params",
                  return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
     with patch("logic.src.policies.adapters.policy_vrpp.run_vrpp_optimizer") as mock_opt:
@@ -132,7 +131,7 @@ def test_alns_engine_override(mock_engine_data):
 def test_sans_execution(mock_engine_data):
     # Patch improved_simulated_annealing in its home module (or where it's used)
     with patch("logic.src.policies.adapters.policy_sans.improved_simulated_annealing") as mock_sans, \
-         patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_load:
+         patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
         mock_sans.return_value = ([[1, 0]], 10.0, 5.0, 2.0, 10.0)

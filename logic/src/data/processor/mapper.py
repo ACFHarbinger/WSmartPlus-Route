@@ -159,7 +159,7 @@ class SimulationDataMapper:
 
     def _load_profit_vars(self, area, waste_type):
         """Load profit-related variables for the simulation."""
-        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
+        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
         (
             VEHICLE_CAPACITY,

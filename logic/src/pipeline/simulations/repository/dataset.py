@@ -1,30 +1,33 @@
 """
-PandasExcel-based implementation of SimulationRepository.
+Unified dataset-backed implementation of SimulationRepository.
 
-Loads all simulation data (depot, coordinates) directly from a
-PandasExcelDataset (.xlsx file) rather than from filesystem CSV files.
-Indices are simply 0..N-1 since the dataset already contains only the
-relevant bins.
+Loads all simulation data (depot, coordinates, waste) from any supported
+dataset type (NumpyDictDataset, PandasExcelDataset, PandasCsvDataset)
+rather than from filesystem CSV/Excel files.
 """
+
+from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
 
-from logic.src.data.datasets import PandasExcelDataset
+from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
 
 from .base import SimulationRepository
 
+# Supported dataset types
+_DatasetType = Union[NumpyDictDataset, PandasExcelDataset, PandasCsvDataset]
 
-class PandasExcelRepository(SimulationRepository):
+
+class DatasetRepository(SimulationRepository):
     """
-    Repository that sources simulation data from a PandasExcelDataset.
+    Repository that sources simulation data from any supported dataset.
 
-    The dataset is expected to contain at least depot and locs per sample.
-    Since the dataset already holds only the selected bins, indices are
-    trivially 0..N-1 and no filesystem lookup is needed.
+    All dataset formats are expected to store coordinates in ``(lat, lng)``
+    order and include ``node_ids`` as bin-only (no depot).
     """
 
-    def __init__(self, dataset: PandasExcelDataset, sample_id: int = 0):
+    def __init__(self, dataset: _DatasetType, sample_id: int = 0):
         self._dataset = dataset
         self._sample = dataset[sample_id]
 
@@ -40,9 +43,11 @@ class PandasExcelRepository(SimulationRepository):
     def get_depot(self, area=None, data_dir=None):
         """Builds a depot DataFrame from the dataset's depot array."""
         depot = self._sample["depot"]
+        depot_id = self._sample.get("depot_id", 0)
+
         return pd.DataFrame(
             {
-                "ID": [0],
+                "ID": [depot_id],
                 "Lat": [float(depot[0])],
                 "Lng": [float(depot[1])],
                 "Stock": [0.0],
@@ -57,20 +62,17 @@ class PandasExcelRepository(SimulationRepository):
         waste_type=None,
         lock=None,
         data_dir=None,
-    ):
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Builds data and bins_coordinates DataFrames from the dataset."""
         locs = self._sample["locs"]
         n_bins = locs.shape[0]
-        assert n_bins == number_of_bins, "Number of bins in dataset does not match number of bins requested."
+        assert n_bins == number_of_bins, (
+            f"Number of bins in dataset ({n_bins}) does not match number requested ({number_of_bins})."
+        )
 
         ids = self._sample["node_ids"]
-        bins_coordinates = pd.DataFrame(
-            {
-                "ID": ids,
-                "Lat": locs[:, 0],
-                "Lng": locs[:, 1],
-            }
-        )
+
+        bins_coordinates = pd.DataFrame({"ID": ids, "Lat": locs[:, 0], "Lng": locs[:, 1]})
         data = pd.DataFrame(
             {
                 "ID": ids,
@@ -79,9 +81,3 @@ class PandasExcelRepository(SimulationRepository):
             }
         )
         return data, bins_coordinates
-
-    def get_area_params(self, area, waste_type):
-        """Delegates to data_utils for area/waste parameters."""
-        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
-
-        return load_area_and_waste_type_params(area, waste_type)

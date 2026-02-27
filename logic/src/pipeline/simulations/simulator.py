@@ -116,39 +116,13 @@ def init_single_sim_worker(
 def _initialize_worker_repository(cfg: Config) -> None:
     """Initialize the singleton repository instance in a worker process."""
     from logic.src.constants import ROOT_DIR
-    from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
-    from logic.src.pipeline.simulations.repository import (
-        FileSystemRepository,
-        NumpyDictRepository,
-        PandasCsvRepository,
-        PandasExcelRepository,
-        set_repository,
-    )
+    from logic.src.pipeline.simulations.repository import set_repository_from_path
 
     load_ds = cfg.load_dataset
-    if load_ds is not None and str(load_ds).endswith(".npz"):
-        # We need to prepend ROOT_DIR if it's a relative path
-        abs_load_ds = os.path.join(ROOT_DIR, load_ds) if not os.path.isabs(load_ds) else load_ds
-        if os.path.exists(abs_load_ds):
-            dataset = NumpyDictDataset.load(abs_load_ds)
-            set_repository(NumpyDictRepository(dataset))
-            return
+    if load_ds is not None and set_repository_from_path(str(load_ds)):
+        return
 
-    if load_ds is not None and str(load_ds).endswith(".xlsx"):
-        abs_load_ds = os.path.join(ROOT_DIR, load_ds) if not os.path.isabs(load_ds) else load_ds
-        if os.path.exists(abs_load_ds):
-            dataset = PandasExcelDataset.load(abs_load_ds)
-            set_repository(PandasExcelRepository(dataset))
-            return
-
-    if load_ds is not None and str(load_ds).endswith(".csv"):
-        abs_load_ds = os.path.join(ROOT_DIR, load_ds) if not os.path.isabs(load_ds) else load_ds
-        if os.path.exists(abs_load_ds):
-            dataset = PandasCsvDataset.load(abs_load_ds)
-            set_repository(PandasCsvRepository(dataset))
-            return
-
-    set_repository(FileSystemRepository(ROOT_DIR))
+    set_repository_from_path(str(ROOT_DIR))
 
 
 def display_log_metrics(

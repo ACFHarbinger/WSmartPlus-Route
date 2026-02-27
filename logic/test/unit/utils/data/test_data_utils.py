@@ -1,6 +1,6 @@
 
 import pytest
-from logic.src.utils.data.data_utils import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
 class TestDataUtils:
     def test_load_area_and_waste_type_params_known(self):

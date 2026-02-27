@@ -343,12 +343,3 @@ class FileSystemRepository(SimulationRepository):
                 )
 
         return new_data
-
-    def get_area_params(self, area, waste_type):
-        """
-        Retrieves area and waste-type specific simulation parameters.
-        Delegates to data_utils.load_area_and_waste_type_params.
-        """
-        from logic.src.utils.data.data_utils import load_area_and_waste_type_params
-
-        return load_area_and_waste_type_params(area, waste_type)

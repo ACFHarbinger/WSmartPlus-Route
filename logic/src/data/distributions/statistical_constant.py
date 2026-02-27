@@ -4,8 +4,8 @@ Statistical sampling distributions - Constant.
 
 from typing import Tuple, Union
 
-import torch
 import numpy as np
+import torch
 
 
 class Constant:

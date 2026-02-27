@@ -12,16 +12,16 @@ from __future__ import annotations
 import json
 import os
 import pickle
-import pandas as pd
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.utils.data
 from tensordict import TensorDict
 
-from logic.src.utils.functions import get_path_until_string
 from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
+from logic.src.utils.functions import get_path_until_string
 
 
 def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -66,7 +66,7 @@ def load_focus_coords(
         Tuple of (depot, locations, minmax array, index).
     """
     # Lazy imports to avoid circular dependency
-    from logic.src.pipeline.simulations.processor import process_coordinates, process_data
+    from logic.src.data.processor import process_coordinates, process_data
     from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
 
     focus_graph_dir = get_path_until_string(focus_graph, "wsr_simulator")
