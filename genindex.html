@@ -559,6 +559,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -845,6 +846,8 @@ document.write(`
         <li><a href="references/src/src.configs.tasks.html#src.configs.tasks.__all__">(in module src.configs.tasks)</a>
 </li>
         <li><a href="references/src/src.data.datasets.html#src.data.datasets.__all__">(in module src.data.datasets)</a>
+</li>
+        <li><a href="references/src/src.data.datasets.simulation.html#src.data.datasets.simulation.__all__">(in module src.data.datasets.simulation)</a>
 </li>
         <li><a href="references/src/src.data.distributions.html#src.data.distributions.__all__">(in module src.data.distributions)</a>
 </li>
@@ -1218,6 +1221,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.data.datasets.pytorch.td_dataset.html#src.data.datasets.pytorch.td_dataset.TensorDictDataset.__getitem__">(src.data.datasets.pytorch.td_dataset.TensorDictDataset method)</a>
 </li>
+        <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#src.data.datasets.simulation.gen_dataset.GenerativeDataset.__getitem__">(src.data.datasets.simulation.gen_dataset.GenerativeDataset method)</a>
+</li>
         <li><a href="references/src/src.data.datasets.simulation.np_pkl_dataset.html#src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.__getitem__">(src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset method)</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.npz_dataset.html#src.data.datasets.simulation.npz_dataset.NumpyDictDataset.__getitem__">(src.data.datasets.simulation.npz_dataset.NumpyDictDataset method)</a>
@@ -1265,6 +1270,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.pytorch.generator_dataset.html#src.data.datasets.pytorch.generator_dataset.GeneratorDataset.__len__">(src.data.datasets.pytorch.generator_dataset.GeneratorDataset method)</a>
 </li>
         <li><a href="references/src/src.data.datasets.pytorch.td_dataset.html#src.data.datasets.pytorch.td_dataset.TensorDictDataset.__len__">(src.data.datasets.pytorch.td_dataset.TensorDictDataset method)</a>
+</li>
+        <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#src.data.datasets.simulation.gen_dataset.GenerativeDataset.__len__">(src.data.datasets.simulation.gen_dataset.GenerativeDataset method)</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.np_pkl_dataset.html#src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.__len__">(src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset method)</a>
 </li>
@@ -1372,6 +1379,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.features.test.config.html#src.pipeline.features.test.config._apply_mg_override">_apply_mg_override() (in module src.pipeline.features.test.config)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.base.steps.html#src.pipeline.rl.common.base.steps.StepMixin._apply_must_go_selection">_apply_must_go_selection() (src.pipeline.rl.common.base.steps.StepMixin method)</a>
+</li>
+      <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#src.data.datasets.simulation.gen_dataset.GenerativeDataset._apply_noise">_apply_noise() (src.data.datasets.simulation.gen_dataset.GenerativeDataset method)</a>
 </li>
       <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._apply_noise_config">_apply_noise_config() (in module src.data.generators.datasets)</a>
 </li>
@@ -1855,10 +1864,10 @@ document.write(`
         <li><a href="references/src/src.pipeline.callbacks.simulation.simulation_display.html#src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._generate_metrics_table">(src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._generate_problem_data">_generate_problem_data() (in module src.data.generators.datasets)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._generate_problem_data">_generate_problem_data() (in module src.data.generators.datasets)</a>
+</li>
       <li><a href="references/src/src.pipeline.callbacks.pytorch.reptile.html#src.pipeline.callbacks.pytorch.reptile.ReptileCallback._generate_task_set">_generate_task_set() (src.pipeline.callbacks.pytorch.reptile.ReptileCallback static method)</a>
 </li>
       <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._generate_test_simulator_data">_generate_test_simulator_data() (in module src.data.generators.datasets)</a>
@@ -1868,6 +1877,8 @@ document.write(`
       <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._generate_train_time_data">_generate_train_time_data() (in module src.data.generators.datasets)</a>
 </li>
       <li><a href="references/src/src.envs.generators.vrpp.html#src.envs.generators.vrpp.VRPPGenerator._generate_waste">_generate_waste() (src.envs.generators.vrpp.VRPPGenerator method)</a>
+</li>
+      <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#src.data.datasets.simulation.gen_dataset.GenerativeDataset._generate_waste_days">_generate_waste_days() (src.data.datasets.simulation.gen_dataset.GenerativeDataset method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.contextual_bandits.html#src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit._generate_weight_configs">_generate_weight_configs() (src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit method)</a>
 </li>
@@ -1942,8 +1953,6 @@ document.write(`
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._get_eval_output_path">_get_eval_output_path() (in module src.pipeline.features.eval.engine)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.repository.filesystem.html#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_figueiradafoz_data">_get_figueiradafoz_data() (src.pipeline.simulations.repository.filesystem.FileSystemRepository method)</a>
-</li>
-      <li><a href="references/src/src.utils.data.generation.html#src.utils.data.generation._get_fill_gamma">_get_fill_gamma() (in module src.utils.data.generation)</a>
 </li>
       <li><a href="references/src/src.models.policies.ant_colony_system.html#src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic">_get_heuristic() (src.models.policies.ant_colony_system.VectorizedACOPolicy method)</a>
 </li>
@@ -2823,6 +2832,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._td_tensor_to_df">_td_tensor_to_df() (in module src.ui.pages.data_explorer)</a>
 </li>
+      <li><a href="references/src/src.data.distributions.statistical_gamma.html#src.data.distributions.statistical_gamma.Gamma._tile_param">_tile_param() (src.data.distributions.statistical_gamma.Gamma method)</a>
+</li>
       <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._to_numpy">_to_numpy() (in module src.ui.components.attention_viz)</a>
 </li>
       <li><a href="references/src/src.ui.components.attention_viz.html#src.ui.components.attention_viz._top_k_edges">_top_k_edges() (in module src.ui.components.attention_viz)</a>
@@ -3335,6 +3346,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.checkpoints.hooks.html#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.before_day">before_day() (src.pipeline.simulations.checkpoints.hooks.CheckpointHook method)</a>
 </li>
+      <li><a href="references/src/src.data.distributions.statistical_beta.html#src.data.distributions.statistical_beta.Beta">Beta (class in src.data.distributions.statistical_beta)</a>
+</li>
       <li><a href="references/src/src.configs.policies.aco.html#src.configs.policies.aco.ACOConfig.beta">beta (src.configs.policies.aco.ACOConfig attribute)</a>
 
       <ul>
@@ -3739,6 +3752,8 @@ document.write(`
         <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.console">(in module src.utils.docs.check_google_style)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.data.distributions.statistical_constant.html#src.data.distributions.statistical_constant.Constant">Constant (class in src.data.distributions.statistical_constant)</a>
+</li>
       <li><a href="references/src/src.models.common.non_autoregressive.decoder.html#src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.construct">construct() (src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder method)</a>
 
       <ul>
@@ -4193,6 +4208,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.tsp.html#src.policies.tsp.dist_matrix_from_graph">dist_matrix_from_graph() (in module src.policies.tsp)</a>
 </li>
+      <li><a href="references/src/src.data.distributions.spatial_distance.html#src.data.distributions.spatial_distance.Distance">Distance (class in src.data.distributions.spatial_distance)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.distance_matrix">distance_matrix (src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
 
       <ul>
@@ -4313,7 +4330,7 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.tracking.logging.logstash_handler.html#src.tracking.logging.logstash_handler.LogstashTcpHandler.emit">emit() (src.tracking.logging.logstash_handler.LogstashTcpHandler method)</a>
 </li>
-      <li><a href="references/src/src.data.distributions.empirical.html#src.data.distributions.empirical.Empirical">Empirical (class in src.data.distributions.empirical)</a>
+      <li><a href="references/src/src.data.distributions.statistical_empirical.html#src.data.distributions.statistical_empirical.Empirical">Empirical (class in src.data.distributions.statistical_empirical)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.enable_scaler">enable_scaler (src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
@@ -5009,9 +5026,11 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.subnets.factories.gac.html#src.models.subnets.factories.gac.GACComponentFactory">GACComponentFactory (class in src.models.subnets.factories.gac)</a>
 </li>
-      <li><a href="references/src/src.data.distributions.statistical.html#src.data.distributions.statistical.Gamma">Gamma (class in src.data.distributions.statistical)</a>
+      <li><a href="references/src/src.data.distributions.statistical_gamma.html#src.data.distributions.statistical_gamma.Gamma">Gamma (class in src.data.distributions.statistical_gamma)</a>
 </li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.gamma">gamma (src.configs.rl.RLConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.constants.data.html#src.constants.data.GAMMA_PRESETS">GAMMA_PRESETS (in module src.constants.data)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.gapik_file">gapik_file (src.configs.tasks.sim.SimConfig attribute)</a>
 </li>
@@ -5051,7 +5070,9 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.security.keys.html#src.utils.security.keys.generate_key">generate_key() (in module src.utils.security.keys)</a>
 </li>
-      <li><a href="references/src/src.utils.data.generation.html#src.utils.data.generation.generate_waste">generate_waste() (in module src.utils.data.generation)</a>
+      <li><a href="references/src/src.data.generators.waste.html#src.data.generators.waste.generate_waste">generate_waste() (in module src.data.generators.waste)</a>
+</li>
+      <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#src.data.datasets.simulation.gen_dataset.GenerativeDataset">GenerativeDataset (class in src.data.datasets.simulation.gen_dataset)</a>
 </li>
       <li><a href="references/src/src.envs.generators.base.html#src.envs.generators.base.Generator">Generator (class in src.envs.generators.base)</a>
 </li>
@@ -6051,6 +6072,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.data.loader.html#src.utils.data.loader.load_focus_coords">load_focus_coords() (in module src.utils.data.loader)</a>
 </li>
+      <li><a href="references/src/src.utils.data.loader.html#src.utils.data.loader.load_grid_base">load_grid_base() (in module src.utils.data.loader)</a>
+</li>
       <li><a href="references/src/src.ui.services.data_loader.html#src.ui.services.data_loader.load_hparams">load_hparams() (in module src.ui.services.data_loader)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_id_containers">load_id_containers() (in module src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load)</a>
@@ -6847,6 +6870,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.constants.dashboard.html#module-src.constants.dashboard">src.constants.dashboard</a>
 </li>
+        <li><a href="references/src/src.constants.data.html#module-src.constants.data">src.constants.data</a>
+</li>
         <li><a href="references/src/src.constants.hpo.html#module-src.constants.hpo">src.constants.hpo</a>
 </li>
         <li><a href="references/src/src.constants.metrics.html#module-src.constants.metrics">src.constants.metrics</a>
@@ -6891,6 +6916,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.data.datasets.simulation.html#module-src.data.datasets.simulation">src.data.datasets.simulation</a>
 </li>
+        <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#module-src.data.datasets.simulation.gen_dataset">src.data.datasets.simulation.gen_dataset</a>
+</li>
         <li><a href="references/src/src.data.datasets.simulation.np_pkl_dataset.html#module-src.data.datasets.simulation.np_pkl_dataset">src.data.datasets.simulation.np_pkl_dataset</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.npz_dataset.html#module-src.data.datasets.simulation.npz_dataset">src.data.datasets.simulation.npz_dataset</a>
@@ -6903,9 +6930,9 @@ document.write(`
 </li>
         <li><a href="references/src/src.data.distributions.html#module-src.data.distributions">src.data.distributions</a>
 </li>
-        <li><a href="references/src/src.data.distributions.empirical.html#module-src.data.distributions.empirical">src.data.distributions.empirical</a>
-</li>
         <li><a href="references/src/src.data.distributions.spatial_cluster.html#module-src.data.distributions.spatial_cluster">src.data.distributions.spatial_cluster</a>
+</li>
+        <li><a href="references/src/src.data.distributions.spatial_distance.html#module-src.data.distributions.spatial_distance">src.data.distributions.spatial_distance</a>
 </li>
         <li><a href="references/src/src.data.distributions.spatial_gaussian_mixture.html#module-src.data.distributions.spatial_gaussian_mixture">src.data.distributions.spatial_gaussian_mixture</a>
 </li>
@@ -6915,7 +6942,15 @@ document.write(`
 </li>
         <li><a href="references/src/src.data.distributions.spatial_mixed.html#module-src.data.distributions.spatial_mixed">src.data.distributions.spatial_mixed</a>
 </li>
-        <li><a href="references/src/src.data.distributions.statistical.html#module-src.data.distributions.statistical">src.data.distributions.statistical</a>
+        <li><a href="references/src/src.data.distributions.statistical_beta.html#module-src.data.distributions.statistical_beta">src.data.distributions.statistical_beta</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_constant.html#module-src.data.distributions.statistical_constant">src.data.distributions.statistical_constant</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_empirical.html#module-src.data.distributions.statistical_empirical">src.data.distributions.statistical_empirical</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_gamma.html#module-src.data.distributions.statistical_gamma">src.data.distributions.statistical_gamma</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_uniform.html#module-src.data.distributions.statistical_uniform">src.data.distributions.statistical_uniform</a>
 </li>
         <li><a href="references/src/src.data.generators.html#module-src.data.generators">src.data.generators</a>
 </li>
@@ -6926,6 +6961,8 @@ document.write(`
         <li><a href="references/src/src.data.generators.transforms.html#module-src.data.generators.transforms">src.data.generators.transforms</a>
 </li>
         <li><a href="references/src/src.data.generators.validators.html#module-src.data.generators.validators">src.data.generators.validators</a>
+</li>
+        <li><a href="references/src/src.data.generators.waste.html#module-src.data.generators.waste">src.data.generators.waste</a>
 </li>
         <li><a href="references/src/src.envs.html#module-src.envs">src.envs</a>
 </li>
@@ -8470,8 +8507,6 @@ document.write(`
         <li><a href="references/src/src.utils.data.html#module-src.utils.data">src.utils.data</a>
 </li>
         <li><a href="references/src/src.utils.data.data_utils.html#module-src.utils.data.data_utils">src.utils.data.data_utils</a>
-</li>
-        <li><a href="references/src/src.utils.data.generation.html#module-src.utils.data.generation">src.utils.data.generation</a>
 </li>
         <li><a href="references/src/src.utils.data.loader.html#module-src.utils.data.loader">src.utils.data.loader</a>
 </li>
@@ -10124,24 +10159,24 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.utils.data.rl_utils.html#src.utils.data.rl_utils.safe_td_copy">safe_td_copy() (in module src.utils.data.rl_utils)</a>
 </li>
-      <li><a href="references/src/src.data.distributions.empirical.html#src.data.distributions.empirical.Empirical.sample">sample() (src.data.distributions.empirical.Empirical method)</a>
+      <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.sample">sample() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase method)</a>
 
       <ul>
-        <li><a href="references/src/src.data.distributions.spatial_cluster.html#src.data.distributions.spatial_cluster.Cluster.sample">(src.data.distributions.spatial_cluster.Cluster method)</a>
-</li>
-        <li><a href="references/src/src.data.distributions.spatial_gaussian_mixture.html#src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture.sample">(src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture method)</a>
-</li>
-        <li><a href="references/src/src.data.distributions.spatial_mix.html#src.data.distributions.spatial_mix.Mix_Distribution.sample">(src.data.distributions.spatial_mix.Mix_Distribution method)</a>
-</li>
-        <li><a href="references/src/src.data.distributions.spatial_mix_multi.html#src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions.sample">(src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions method)</a>
-</li>
-        <li><a href="references/src/src.data.distributions.spatial_mixed.html#src.data.distributions.spatial_mixed.Mixed.sample">(src.data.distributions.spatial_mixed.Mixed method)</a>
-</li>
-        <li><a href="references/src/src.data.distributions.statistical.html#src.data.distributions.statistical.Gamma.sample">(src.data.distributions.statistical.Gamma method)</a>
-</li>
-        <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.sample">(src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase method)</a>
-</li>
         <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.sample_gen.html#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.sample">(src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.data.distributions.spatial_distance.html#src.data.distributions.spatial_distance.Distance.sample_array">sample_array() (src.data.distributions.spatial_distance.Distance method)</a>
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.statistical_beta.html#src.data.distributions.statistical_beta.Beta.sample_array">(src.data.distributions.statistical_beta.Beta method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_constant.html#src.data.distributions.statistical_constant.Constant.sample_array">(src.data.distributions.statistical_constant.Constant method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_empirical.html#src.data.distributions.statistical_empirical.Empirical.sample_array">(src.data.distributions.statistical_empirical.Empirical method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_gamma.html#src.data.distributions.statistical_gamma.Gamma.sample_array">(src.data.distributions.statistical_gamma.Gamma method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_uniform.html#src.data.distributions.statistical_uniform.Uniform.sample_array">(src.data.distributions.statistical_uniform.Uniform method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.test.conftest.html#src.pipeline.simulations.wsmart_bin_analysis.test.conftest.sample_container">sample_container() (in module src.pipeline.simulations.wsmart_bin_analysis.test.conftest)</a>
@@ -10172,6 +10207,28 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.models.core.attention_model.decoding.html#src.models.core.attention_model.decoding.DecodingMixin.sample_many">(src.models.core.attention_model.decoding.DecodingMixin method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.data.distributions.spatial_cluster.html#src.data.distributions.spatial_cluster.Cluster.sample_tensor">sample_tensor() (src.data.distributions.spatial_cluster.Cluster method)</a>
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.spatial_gaussian_mixture.html#src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture.sample_tensor">(src.data.distributions.spatial_gaussian_mixture.Gaussian_Mixture method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.spatial_mix.html#src.data.distributions.spatial_mix.Mix_Distribution.sample_tensor">(src.data.distributions.spatial_mix.Mix_Distribution method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.spatial_mix_multi.html#src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions.sample_tensor">(src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.spatial_mixed.html#src.data.distributions.spatial_mixed.Mixed.sample_tensor">(src.data.distributions.spatial_mixed.Mixed method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_beta.html#src.data.distributions.statistical_beta.Beta.sample_tensor">(src.data.distributions.statistical_beta.Beta method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_constant.html#src.data.distributions.statistical_constant.Constant.sample_tensor">(src.data.distributions.statistical_constant.Constant method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_empirical.html#src.data.distributions.statistical_empirical.Empirical.sample_tensor">(src.data.distributions.statistical_empirical.Empirical method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_gamma.html#src.data.distributions.statistical_gamma.Gamma.sample_tensor">(src.data.distributions.statistical_gamma.Gamma method)</a>
+</li>
+        <li><a href="references/src/src.data.distributions.statistical_uniform.html#src.data.distributions.statistical_uniform.Uniform.sample_tensor">(src.data.distributions.statistical_uniform.Uniform method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.utils.decoding.sampling.html#src.utils.decoding.sampling.Sampling">Sampling (class in src.utils.decoding.sampling)</a>
@@ -11101,6 +11158,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.constants.data
+
+      <ul>
+        <li><a href="references/src/src.constants.data.html#module-src.constants.data">module</a>
+</li>
+      </ul></li>
+      <li>
     src.constants.hpo
 
       <ul>
@@ -11255,6 +11319,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.data.datasets.simulation.gen_dataset
+
+      <ul>
+        <li><a href="references/src/src.data.datasets.simulation.gen_dataset.html#module-src.data.datasets.simulation.gen_dataset">module</a>
+</li>
+      </ul></li>
+      <li>
     src.data.datasets.simulation.np_pkl_dataset
 
       <ul>
@@ -11297,17 +11368,17 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.data.distributions.empirical
-
-      <ul>
-        <li><a href="references/src/src.data.distributions.empirical.html#module-src.data.distributions.empirical">module</a>
-</li>
-      </ul></li>
-      <li>
     src.data.distributions.spatial_cluster
 
       <ul>
         <li><a href="references/src/src.data.distributions.spatial_cluster.html#module-src.data.distributions.spatial_cluster">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.distributions.spatial_distance
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.spatial_distance.html#module-src.data.distributions.spatial_distance">module</a>
 </li>
       </ul></li>
       <li>
@@ -11339,10 +11410,38 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.data.distributions.statistical
+    src.data.distributions.statistical_beta
 
       <ul>
-        <li><a href="references/src/src.data.distributions.statistical.html#module-src.data.distributions.statistical">module</a>
+        <li><a href="references/src/src.data.distributions.statistical_beta.html#module-src.data.distributions.statistical_beta">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.distributions.statistical_constant
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.statistical_constant.html#module-src.data.distributions.statistical_constant">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.distributions.statistical_empirical
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.statistical_empirical.html#module-src.data.distributions.statistical_empirical">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.distributions.statistical_gamma
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.statistical_gamma.html#module-src.data.distributions.statistical_gamma">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.distributions.statistical_uniform
+
+      <ul>
+        <li><a href="references/src/src.data.distributions.statistical_uniform.html#module-src.data.distributions.statistical_uniform">module</a>
 </li>
       </ul></li>
       <li>
@@ -11378,6 +11477,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.data.generators.validators.html#module-src.data.generators.validators">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.generators.waste
+
+      <ul>
+        <li><a href="references/src/src.data.generators.waste.html#module-src.data.generators.waste">module</a>
 </li>
       </ul></li>
       <li>
@@ -13697,6 +13803,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#module-src.pipeline.features.eval.drift_detection">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.features.eval.engine
 
@@ -13739,8 +13847,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.features.eval.evaluators.combined.html#module-src.pipeline.features.eval.evaluators.combined">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.features.eval.evaluators.greedy
 
@@ -16787,13 +16893,6 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.utils.data.generation
-
-      <ul>
-        <li><a href="references/src/src.utils.data.generation.html#module-src.utils.data.generation">module</a>
-</li>
-      </ul></li>
-      <li>
     src.utils.data.loader
 
       <ul>
@@ -17942,6 +18041,8 @@ document.write(`
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.routes.html#src.policies.simulated_annealing_neighborhood_search.common.routes.uncross_arcs_in_routes">uncross_arcs_in_routes() (in module src.policies.simulated_annealing_neighborhood_search.common.routes)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.routes.html#src.policies.simulated_annealing_neighborhood_search.common.routes.uncross_arcs_in_sans_routes">uncross_arcs_in_sans_routes() (in module src.policies.simulated_annealing_neighborhood_search.common.routes)</a>
+</li>
+      <li><a href="references/src/src.data.distributions.statistical_uniform.html#src.data.distributions.statistical_uniform.Uniform">Uniform (class in src.data.distributions.statistical_uniform)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline.unwrap_batch">unwrap_batch() (src.pipeline.rl.common.baselines.base.Baseline method)</a>
 

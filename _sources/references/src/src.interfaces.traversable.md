@@ -31,7 +31,7 @@ Bases: {py:obj}`typing.Protocol`
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable
 ```
 
-````{py:method} __getitem__(key: str) -> typing.Any
+````{py:method} __getitem__(key: typing.Any) -> typing.Any
 :canonical: src.interfaces.traversable.ITraversable.__getitem__
 
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable.__getitem__
@@ -39,7 +39,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} __contains__(key: str) -> bool
+````{py:method} __contains__(key: object) -> bool
 :canonical: src.interfaces.traversable.ITraversable.__contains__
 
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable.__contains__
@@ -71,7 +71,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} get(key: str, default: typing.Optional[typing.Any] = None) -> typing.Any
+````{py:method} get(key: typing.Any, default: typing.Optional[typing.Any] = None) -> typing.Any
 :canonical: src.interfaces.traversable.ITraversable.get
 
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable.get

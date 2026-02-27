@@ -35,10 +35,10 @@
 ```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster.__init__
 ```
 
-````{py:method} sample(size: typing.Tuple[int, int, int]) -> torch.Tensor
-:canonical: src.data.distributions.spatial_cluster.Cluster.sample
+````{py:method} sample_tensor(size: typing.Tuple[int, int, int]) -> torch.Tensor
+:canonical: src.data.distributions.spatial_cluster.Cluster.sample_tensor
 
-```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster.sample
+```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster.sample_tensor
 ```
 
 ````

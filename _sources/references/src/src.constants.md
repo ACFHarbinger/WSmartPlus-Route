@@ -26,4 +26,5 @@ src.constants.simulation
 src.constants.waste
 src.constants.hpo
 src.constants.user_interface
+src.constants.data
 ```

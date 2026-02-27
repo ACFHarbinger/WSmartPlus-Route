@@ -15,6 +15,7 @@
 
 src.data.generators.builders
 src.data.generators.transforms
+src.data.generators.waste
 src.data.generators.datasets
 src.data.generators.validators
 ```

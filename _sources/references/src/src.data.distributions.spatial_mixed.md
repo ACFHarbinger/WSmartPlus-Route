@@ -35,10 +35,10 @@
 ```{autodoc2-docstring} src.data.distributions.spatial_mixed.Mixed.__init__
 ```
 
-````{py:method} sample(size: typing.Tuple[int, int, int]) -> torch.Tensor
-:canonical: src.data.distributions.spatial_mixed.Mixed.sample
+````{py:method} sample_tensor(size: typing.Tuple[int, int, int]) -> torch.Tensor
+:canonical: src.data.distributions.spatial_mixed.Mixed.sample_tensor
 
-```{autodoc2-docstring} src.data.distributions.spatial_mixed.Mixed.sample
+```{autodoc2-docstring} src.data.distributions.spatial_mixed.Mixed.sample_tensor
 ```
 
 ````

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.data.distributions.statistical &#8212; WSmart-Route  documentation</title>
+    <title>src.data.distributions.statistical_constant &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.data.distributions.statistical';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.data.distributions.statistical_constant';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.data.distributions.spatial_mix_multi" href="src.data.distributions.spatial_mix_multi.html" />
-    <link rel="prev" title="src.data.distributions.spatial_mixed" href="src.data.distributions.spatial_mixed.html" />
+    <link rel="next" title="src.data.distributions.statistical_uniform" href="src.data.distributions.statistical_uniform.html" />
+    <link rel="prev" title="src.data.distributions.statistical_beta" href="src.data.distributions.statistical_beta.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -195,6 +195,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -372,7 +373,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.data.distributions.statistical.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.data.distributions.statistical_constant.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -456,7 +457,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.data.distributions.statistical</h1>
+    <h1>src.data.distributions.statistical_constant</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -469,8 +470,9 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical.Gamma"><code class="docutils literal notranslate"><span class="pre">Gamma</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical.Gamma.sample"><code class="docutils literal notranslate"><span class="pre">Gamma.sample()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical_constant.Constant"><code class="docutils literal notranslate"><span class="pre">Constant</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical_constant.Constant.sample_tensor"><code class="docutils literal notranslate"><span class="pre">Constant.sample_tensor()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical_constant.Constant.sample_array"><code class="docutils literal notranslate"><span class="pre">Constant.sample_array()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -488,17 +490,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.statistical">
-<span id="src-data-distributions-statistical"></span><h1><a class="reference internal" href="#module-src.data.distributions.statistical" title="src.data.distributions.statistical"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical</span></code></a><a class="headerlink" href="#module-src.data.distributions.statistical" title="Link to this heading">#</a></h1>
-<p>Statistical sampling distributions.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.statistical_constant">
+<span id="src-data-distributions-statistical-constant"></span><h1><a class="reference internal" href="#module-src.data.distributions.statistical_constant" title="src.data.distributions.statistical_constant"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_constant</span></code></a><a class="headerlink" href="#module-src.data.distributions.statistical_constant" title="Link to this heading">#</a></h1>
+<p>Statistical sampling distributions - Constant.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.distributions.statistical.Gamma" title="src.data.distributions.statistical.Gamma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gamma</span></code></a></p></td>
-<td><p>Gamma distribution sampling.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.distributions.statistical_constant.Constant" title="src.data.distributions.statistical_constant.Constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Constant</span></code></a></p></td>
+<td><p>Constant value sampling.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,20 +509,31 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.data.distributions.statistical.Gamma">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.statistical.</span></span><span class="sig-name descname"><span class="pre">Gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.statistical.Gamma" title="Link to this definition">#</a></dt>
-<dd><p>Gamma distribution sampling.</p>
+<dt class="sig sig-object py" id="src.data.distributions.statistical_constant.Constant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.statistical_constant.</span></span><span class="sig-name descname"><span class="pre">Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.statistical_constant.Constant" title="Link to this definition">#</a></dt>
+<dd><p>Constant value sampling.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
-alpha (Union[float, torch.Tensor]): Description of alpha.
-beta (Union[float, torch.Tensor]): Description of beta.</p>
+value (Union[float, torch.Tensor]): Constant value to return.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.data.distributions.statistical.Gamma.sample">
-<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.data.distributions.statistical.Gamma.sample" title="Link to this definition">#</a></dt>
-<dd><p>Sample from Gamma distribution.</p>
+<dt class="sig sig-object py" id="src.data.distributions.statistical_constant.Constant.sample_tensor">
+<span class="sig-name descname"><span class="pre">sample_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.data.distributions.statistical_constant.Constant.sample_tensor" title="Link to this definition">#</a></dt>
+<dd><p>Return constant tensor.</p>
 <p>Args:
 size: Sampling shape (e.g., (batch_size, num_loc, components))</p>
+<p>Returns:
+torch.Tensor: Constant values</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.data.distributions.statistical_constant.Constant.sample_array">
+<span class="sig-name descname"><span class="pre">sample_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.distributions.statistical_constant.Constant.sample_array" title="Link to this definition">#</a></dt>
+<dd><p>Return constant array.</p>
+<p>Args:
+size: Sampling shape (e.g., (batch_size, num_loc, components))</p>
+<p>Returns:
+np.ndarray: Constant values</p>
 </dd></dl>
 
 </dd></dl>
@@ -541,20 +554,20 @@ size: Sampling shape (e.g., (batch_size, num_loc, components))</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.data.distributions.spatial_mixed.html"
+       href="src.data.distributions.statistical_beta.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.spatial_mixed</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_beta</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.data.distributions.spatial_mix_multi.html"
+       href="src.data.distributions.statistical_uniform.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.spatial_mix_multi</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_uniform</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -577,8 +590,9 @@ size: Sampling shape (e.g., (batch_size, num_loc, components))</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical.Gamma"><code class="docutils literal notranslate"><span class="pre">Gamma</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical.Gamma.sample"><code class="docutils literal notranslate"><span class="pre">Gamma.sample()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical_constant.Constant"><code class="docutils literal notranslate"><span class="pre">Constant</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical_constant.Constant.sample_tensor"><code class="docutils literal notranslate"><span class="pre">Constant.sample_tensor()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.distributions.statistical_constant.Constant.sample_array"><code class="docutils literal notranslate"><span class="pre">Constant.sample_array()</span></code></a></li>
 </ul>
 </li>
 </ul>

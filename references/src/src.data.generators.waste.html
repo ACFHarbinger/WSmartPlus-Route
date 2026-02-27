@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.utils.data.generation &#8212; WSmart-Route  documentation</title>
+    <title>src.data.generators.waste &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils.data.generation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.data.generators.waste';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.utils.data.td_state_wrapper" href="src.utils.data.td_state_wrapper.html" />
-    <link rel="prev" title="src.utils.data.td_utils" href="src.utils.data.td_utils.html" />
+    <link rel="next" title="src.data.generators.datasets" href="src.data.generators.datasets.html" />
+    <link rel="prev" title="src.data.generators.transforms" href="src.data.generators.transforms.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -195,6 +195,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -218,7 +219,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
@@ -227,7 +228,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
@@ -257,8 +258,8 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
 </ul>
@@ -372,7 +373,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.utils.data.generation.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.data.generators.waste.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -456,7 +457,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.utils.data.generation</h1>
+    <h1>src.data.generators.waste</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -469,8 +470,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.data.generation._get_fill_gamma"><code class="docutils literal notranslate"><span class="pre">_get_fill_gamma()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.data.generation.generate_waste"><code class="docutils literal notranslate"><span class="pre">generate_waste()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.waste.generate_waste"><code class="docutils literal notranslate"><span class="pre">generate_waste()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -486,23 +486,19 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.data.generation">
-<span id="src-utils-data-generation"></span><h1><a class="reference internal" href="#module-src.utils.data.generation" title="src.utils.data.generation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.generation</span></code></a><a class="headerlink" href="#module-src.utils.data.generation" title="Link to this heading">#</a></h1>
-<p>generation.py module.</p>
-<p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import generation</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.generators.waste">
+<span id="src-data-generators-waste"></span><h1><a class="reference internal" href="#module-src.data.generators.waste" title="src.data.generators.waste"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators.waste</span></code></a><a class="headerlink" href="#module-src.data.generators.waste" title="Link to this heading">#</a></h1>
+<p>Waste generation utilities for VRP instances.</p>
+<p>This module provides functions for generating waste/fill values using various
+statistical and spatial distributions. It delegates to distribution classes
+from <code class="docutils literal notranslate"><span class="pre">logic.src.data.distributions</span></code>.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.data.generation._get_fill_gamma" title="src.utils.data.generation._get_fill_gamma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_fill_gamma</span></code></a></p></td>
-<td><p>Generates waste levels using a Gamma distribution.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.data.generation.generate_waste" title="src.utils.data.generation.generate_waste"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_waste</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.waste.generate_waste" title="src.data.generators.waste.generate_waste"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_waste</span></code></a></p></td>
 <td><p>Generates waste values based on a distribution or empirical data.</p></td>
 </tr>
 </tbody>
@@ -512,21 +508,11 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="src.utils.data.generation._get_fill_gamma">
-<span class="sig-prename descclassname"><span class="pre">src.utils.data.generation.</span></span><span class="sig-name descname"><span class="pre">_get_fill_gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.utils.data.generation._get_fill_gamma" title="Link to this definition">#</a></dt>
-<dd><p>Generates waste levels using a Gamma distribution.</p>
-<p>Args:
-dataset_size: Number of instances.
-problem_size: Number of bins per instance.
-gamma_option: Index to select gamma parameters (alpha, theta).</p>
-<p>Returns:
-Generated waste levels [dataset_size, problem_size].</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.utils.data.generation.generate_waste">
-<span class="sig-prename descclassname"><span class="pre">src.utils.data.generation.</span></span><span class="sig-name descname"><span class="pre">generate_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.data.generation.generate_waste" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.data.generators.waste.generate_waste">
+<span class="sig-prename descclassname"><span class="pre">src.data.generators.waste.</span></span><span class="sig-name descname"><span class="pre">generate_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.generators.waste.generate_waste" title="Link to this definition">#</a></dt>
 <dd><p>Generates waste values based on a distribution or empirical data.</p>
+<p>Delegates to distribution classes from <code class="docutils literal notranslate"><span class="pre">logic.src.data.distributions</span></code>
+for standard distributions.</p>
 <p>Args:
 problem_size: Number of nodes/bins.
 distribution: Distribution type (‘empty’, ‘const’, ‘unif’, ‘gammaX’, ‘emp’, ‘dist’, ‘beta’).
@@ -554,20 +540,20 @@ Generated waste values.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.utils.data.td_utils.html"
+       href="src.data.generators.transforms.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.td_utils</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators.transforms</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.utils.data.td_state_wrapper.html"
+       href="src.data.generators.datasets.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.td_state_wrapper</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators.datasets</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -590,8 +576,7 @@ Generated waste values.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.data.generation._get_fill_gamma"><code class="docutils literal notranslate"><span class="pre">_get_fill_gamma()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.data.generation.generate_waste"><code class="docutils literal notranslate"><span class="pre">generate_waste()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.generators.waste.generate_waste"><code class="docutils literal notranslate"><span class="pre">generate_waste()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -51,6 +51,10 @@
   - ```{autodoc2-docstring} src.utils.data.loader.load_simulation_dataset
     :summary:
     ```
+* - {py:obj}`load_grid_base <src.utils.data.loader.load_grid_base>`
+  - ```{autodoc2-docstring} src.utils.data.loader.load_grid_base
+    :summary:
+    ```
 ````
 
 ### API
@@ -115,5 +119,12 @@
 :canonical: src.utils.data.loader.load_simulation_dataset
 
 ```{autodoc2-docstring} src.utils.data.loader.load_simulation_dataset
+```
+````
+
+````{py:function} load_grid_base(data_dir: str, indices: numpy.ndarray, area: typing.Optional[str] = None) -> logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase
+:canonical: src.utils.data.loader.load_grid_base
+
+```{autodoc2-docstring} src.utils.data.loader.load_grid_base
 ```
 ````
