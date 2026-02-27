@@ -3,20 +3,22 @@ Repository Pattern for Simulation data access.
 """
 
 import contextlib
-from typing import Union
+import os
+from typing import Optional, Union
+
+from logic.src.constants import DATASET_EXTENSIONS, ROOT_DIR
+from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
 
 from .base import SimulationRepository
-from .csv import PandasCsvRepository
+from .dataset import DatasetRepository
 from .filesystem import FileSystemRepository
-from .npz import NumpyDictRepository
-from .xlsx import PandasExcelRepository
 
 # Singleton repository instance
 _REPOSITORY = None
 
 
 def set_repository(
-    repo: Union[FileSystemRepository, NumpyDictRepository, PandasExcelRepository, PandasCsvRepository],
+    repo: Union[DatasetRepository, FileSystemRepository],
 ) -> None:
     """
     Replace the singleton repository instance.
@@ -32,6 +34,57 @@ def set_repository(
         run = get_active_run()
         if run is not None:
             run.log_params({"sim.repository_type": type(repo).__name__})
+
+
+def set_repository_from_path(
+    path: str,
+    root_dir: Optional[Union[str, os.PathLike]] = None,
+) -> bool:
+    """Load a dataset file (or directory) and set it as the active repository.
+
+    Detects the dataset format from the file extension, loads it using
+    the matching dataset class, wraps it in a ``DatasetRepository``,
+    and calls ``set_repository()``.  If *path* points to a directory,
+    a ``FileSystemRepository`` is created instead.
+
+    Args:
+        path: Path to a dataset file (``.npz``, ``.xlsx``, ``.csv``) or
+              a data directory.  Can be relative (resolved against
+              *root_dir*) or absolute.
+        root_dir: Base directory for resolving relative paths.
+                  Defaults to ``ROOT_DIR``.
+
+    Returns:
+        ``True`` if the repository was successfully set, ``False`` if the
+        path does not exist or has an unsupported extension.
+    """
+    if root_dir is None:
+        root_dir = str(ROOT_DIR)
+
+    abs_path = os.path.join(root_dir, path) if not os.path.isabs(path) else path
+
+    # Directory → FileSystemRepository
+    if os.path.isdir(abs_path):
+        set_repository(FileSystemRepository(abs_path))
+        return True
+
+    # File → DatasetRepository
+    if not os.path.isfile(abs_path):
+        return False
+
+    ext = os.path.splitext(abs_path)[1].lower()
+    if ext not in DATASET_EXTENSIONS:
+        return False
+
+    loader_map = {
+        ".npz": NumpyDictDataset,
+        ".xlsx": PandasExcelDataset,
+        ".csv": PandasCsvDataset,
+    }
+
+    dataset = loader_map[ext].load(abs_path)
+    set_repository(DatasetRepository(dataset))
+    return True
 
 
 def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
@@ -152,8 +205,7 @@ def load_area_and_waste_type_params(area, waste_type):
     """
     Convenience wrapper to load area params.
     """
-    assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
-    params = _REPOSITORY.get_area_params(area, waste_type)
+    params = SimulationRepository.get_area_params(area, waste_type)
     with contextlib.suppress(Exception):
         from logic.src.tracking.core.run import get_active_run
 
@@ -171,10 +223,9 @@ def load_area_and_waste_type_params(area, waste_type):
 __all__ = [
     "SimulationRepository",
     "FileSystemRepository",
-    "NumpyDictRepository",
-    "PandasExcelRepository",
-    "PandasCsvRepository",
+    "DatasetRepository",
     "set_repository",
+    "set_repository_from_path",
     "load_indices",
     "load_depot",
     "load_simulator_data",

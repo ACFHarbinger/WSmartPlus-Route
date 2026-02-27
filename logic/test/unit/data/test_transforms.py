@@ -2,7 +2,7 @@
 
 import torch
 from tensordict import TensorDict
-from logic.src.data.generators.transforms import (
+from logic.src.data.processor.transforms import (
     batchify,
     dihedral_8_augmentation,
     symmetric_augmentation,

@@ -51,7 +51,7 @@ def mock_bins_params_loader(mocker):
     Returns: vehicle_capacity, revenue, density, expenses, bin_volume
     """
     return mocker.patch(
-        "logic.src.pipeline.simulations.bins.base.load_area_and_waste_type_params",
+        "logic.src.pipeline.simulations.repository.load_area_and_waste_type_params",
         return_value=(None, 1.0, 10.0, 0.5, 1000.0)
     )
 

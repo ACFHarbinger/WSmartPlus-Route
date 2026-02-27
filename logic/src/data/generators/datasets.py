@@ -20,9 +20,9 @@ from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.data import DataConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.data.generators.builders import VRPInstanceBuilder
-from logic.src.pipeline.simulations.repository import FileSystemRepository, set_repository
+from logic.src.pipeline.simulations.repository import set_repository_from_path
 from logic.src.tracking.logging.pylogger import get_pylogger
-from logic.src.utils.data.data_utils import (
+from logic.src.utils.data.loader import (
     check_extension,
     save_simulation_dataset,
     save_td_dataset,
@@ -48,7 +48,7 @@ def generate_datasets(cfg: Config) -> None:
     validate_data_config(cfg)
 
     # Initialize the filesystem repository for coordinate/depot loading
-    set_repository(FileSystemRepository(ROOT_DIR))
+    set_repository_from_path(str(ROOT_DIR))
 
     data = cfg.data
 

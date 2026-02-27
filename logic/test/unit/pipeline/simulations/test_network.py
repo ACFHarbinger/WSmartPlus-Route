@@ -4,14 +4,13 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import pytest
-
-from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
-from logic.src.pipeline.simulations.network import (
+from logic.src.data.network import (
     EuclideanStrategy,
     GeodesicStrategy,
     HaversineStrategy,
     compute_distance_matrix,
 )
+from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
 
 
 class TestNetwork:
@@ -47,7 +46,7 @@ class TestNetwork:
         dm_file = tmp_path / "test_dm.csv"
 
         # 1. Compute and save
-        with patch("logic.src.pipeline.simulations.network.ROOT_DIR", str(tmp_path)):
+        with patch("logic.src.data.network.ROOT_DIR", str(tmp_path)):
             # Mock os.path.join to just use tmp_path
             # But compute_distance_matrix uses ROOT_DIR/data/...
             # Better to just mock open or use relative path?

@@ -7,8 +7,7 @@ from typing import Any, Optional, Tuple
 import numpy as np
 
 from logic.src.constants import EARTH_RADIUS, EARTH_WMP_RADIUS
-
-from ..network import haversine_distance
+from logic.src.data.network import haversine_distance
 
 
 def format_coordinates(coords: Any, method: str, col_names: Optional[list[str]] = None) -> Tuple[Any, Any]:
@@ -108,7 +107,7 @@ def _format_mun(lat, lng, coords, IS_PANDAS):
         lat = (lat - lat.mean()) / (lat.max() - lat.min())
         lng = (lng - lng.mean()) / (lng.max() - lng.min())
     else:
-        coords = coords[:, :, [1, 0]]
+        coords = np.flip(coords, axis=-1)
         min_arr = np.min(coords, axis=1, keepdims=True)
         max_arr = np.max(coords, axis=1, keepdims=True)
         mean_arr = np.mean(coords, axis=1, keepdims=True)
@@ -121,7 +120,7 @@ def _format_smsd(lat, lng, coords, IS_PANDAS):
         lat = (lat - lat.mean()) / lat.std()
         lng = (lng - lng.mean()) / lng.std()
     else:
-        coords = coords[:, :, [1, 0]]
+        coords = np.flip(coords, axis=-1)
         mean_arr = np.mean(coords, axis=1, keepdims=True)
         std_arr = np.std(coords, axis=1, keepdims=True)
         coords = (coords - mean_arr) / std_arr
@@ -139,7 +138,7 @@ def _format_ecp(lat, lng, coords, IS_PANDAS):
         center_meridian = (lng.max() + lng.min()) / 2
         lat_lower, lat_upper = per_func(lat, 10), per_func(lat, 90)
     else:
-        coords = coords[:, :, [1, 0]]
+        coords = np.flip(coords, axis=-1)
         min_arr = np.min(coords, axis=1, keepdims=True)
         max_arr = np.max(coords, axis=1, keepdims=True)
         center_meridian = (max_arr + min_arr) / 2
@@ -172,7 +171,7 @@ def _format_hdp(lat, lng, coords, IS_PANDAS):
         lat_max, lat_min = lat.max(), lat.min()
         lng_max, lng_min = lng.max(), lng.min()
     else:
-        coords = coords[:, :, [1, 0]]
+        coords = np.flip(coords, axis=-1)
         min_arr = np.min(coords, axis=1, keepdims=True)
         max_arr = np.max(coords, axis=1, keepdims=True)
         lng_min, lat_min = np.split(min_arr, 2, axis=-1)
@@ -199,7 +198,7 @@ def _format_mmn(lat, lng, coords, IS_PANDAS):
         lat = (lat - lat.min()) / (lat.max() - lat.min()) if lat.max() != lat.min() else lat
         lng = (lng - lng.min()) / (lng.max() - lng.min()) if lng.max() != lng.min() else lng
     else:
-        coords = coords[:, :, [1, 0]]
+        coords = np.flip(coords, axis=-1)
         min_arr = np.min(coords, axis=1, keepdims=True)
         max_arr = np.max(coords, axis=1, keepdims=True)
         # Avoid division by zero

@@ -16,14 +16,9 @@ import logic.src.constants as udef
 import logic.src.tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
-from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
 from logic.src.pipeline.simulations.repository import (
-    FileSystemRepository,
-    NumpyDictRepository,
-    PandasCsvRepository,
-    PandasExcelRepository,
     load_simulator_data,
-    set_repository,
+    set_repository_from_path,
 )
 from logic.src.tracking.logging.pylogger import get_pylogger
 
@@ -179,25 +174,11 @@ def _resolve_data_size(cfg: Config) -> int:
     sim = cfg.sim
     load_ds = cfg.load_dataset
 
-    if load_ds is not None and str(load_ds).endswith(".npz"):
-        dataset = NumpyDictDataset.load(load_ds)
-        set_repository(NumpyDictRepository(dataset))
+    if load_ds is not None and set_repository_from_path(str(load_ds)):
         _override_waste_filepath(cfg, load_ds)
         return sim.graph.num_loc
 
-    if load_ds is not None and str(load_ds).endswith(".xlsx"):
-        dataset = PandasExcelDataset.load(load_ds)
-        set_repository(PandasExcelRepository(dataset))
-        _override_waste_filepath(cfg, load_ds)
-        return sim.graph.num_loc
-
-    if load_ds is not None and str(load_ds).endswith(".csv"):
-        dataset = PandasCsvDataset.load(load_ds)
-        set_repository(PandasCsvRepository(dataset))
-        _override_waste_filepath(cfg, load_ds)
-        return sim.graph.num_loc
-
-    set_repository(FileSystemRepository(udef.ROOT_DIR))
+    set_repository_from_path(str(udef.ROOT_DIR))
 
     try:
         data_tmp, _ = load_simulator_data(sim.data_dir, sim.graph.num_loc, sim.graph.area, sim.graph.waste_type)

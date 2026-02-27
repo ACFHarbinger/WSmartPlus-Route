@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from logic.src.pipeline.simulations.processor import (
+from logic.src.data.processor import (
     setup_df,
     process_model_data,
 )

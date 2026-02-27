@@ -73,7 +73,7 @@ class TestSimulatorIntegration:
             "init_new_state": mocker.patch("logic.src.pipeline.simulations.states.initializing.InitializingState._initialize_new_state"),
             "run_day": mocker.patch("logic.src.pipeline.simulations.states.running.run_day"),
             "checkpoint_manager": mocker.patch("logic.src.pipeline.simulations.states.running.checkpoint_manager"),
-            "params": mocker.patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params"),
+            "params": mocker.patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params"),
         }
         deps["run_day"].side_effect = lambda x: x
         deps["setup_basedata"].return_value = (mock.MagicMock(), mock.MagicMock(), mock.MagicMock())

@@ -23,9 +23,9 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mock_depot = pd.DataFrame({"ID": [0], "Lat": [40], "Lng": [-8], "Stock": [0], "Accum_Rate": [0]})
     mock_data = pd.DataFrame({"ID": [1, 2], "Stock": [10, 20], "Accum_Rate": [0.1, 0.2]})
     mock_coords = pd.DataFrame({"ID": [1, 2], "Lat": [40.1, 40.2], "Lng": [-8.1, -8.2]})
-    mocker.patch("logic.src.pipeline.simulations.processor.load_depot", return_value=mock_depot)
+    mocker.patch("logic.src.data.processor.setup.load_depot", return_value=mock_depot)
     mocker.patch(
-        "logic.src.pipeline.simulations.processor.load_simulator_data",
+        "logic.src.data.processor.setup.load_simulator_data",
         return_value=(mock_data.copy(), mock_coords.copy()),
     )
 
@@ -60,15 +60,15 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         return_value=(mock_dist_tup, mock_adj_matrix),
     )
     mocker.patch(
-        "logic.src.pipeline.simulations.processor.compute_distance_matrix",
+        "logic.src.data.processor.setup.compute_distance_matrix",
         return_value=np.array([[0, 1], [1, 0]]),
     )
     mocker.patch(
-        "logic.src.pipeline.simulations.processor.apply_edges",
+        "logic.src.data.processor.setup.apply_edges",
         return_value=("mock_dist_edges", "mock_paths", "mock_adj"),
     )
     mocker.patch(
-        "logic.src.pipeline.simulations.processor.get_paths_between_states",
+        "logic.src.data.processor.setup.get_paths_between_states",
         return_value="mock_all_paths",
     )
 

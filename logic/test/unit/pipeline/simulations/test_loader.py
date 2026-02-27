@@ -21,6 +21,6 @@ class TestFileSystemRepository:
 
     def test_wrappers(self):
         # Test that wrappers call the imported function
-        with patch("logic.src.utils.data.data_utils.load_area_and_waste_type_params") as mock_method:
+        with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_method:
             load_area_and_waste_type_params("A", "B")
             mock_method.assert_called_with("A", "B")

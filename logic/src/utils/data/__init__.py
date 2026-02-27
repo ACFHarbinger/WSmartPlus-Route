@@ -14,7 +14,6 @@ from .loader import (
     save_simulation_dataset,
     save_td_dataset,
 )
-from .parameters import load_area_and_waste_type_params
 from .td_state_wrapper import TensorDictStateWrapper
 
 __all__ = [
@@ -28,6 +27,5 @@ __all__ = [
     "collate_fn",
     "load_focus_coords",
     "load_grid_base",
-    "load_area_and_waste_type_params",
     "TensorDictStateWrapper",
 ]

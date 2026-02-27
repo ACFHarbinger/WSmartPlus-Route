@@ -19,7 +19,7 @@ from logic.src.constants.routing import (
     DEFAULT_TIME_LIMIT,
     DEFAULT_V_VALUE,
 )
-from logic.src.pipeline.simulations.processor import convert_to_dict
+from logic.src.data.processor import convert_to_dict
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.simulated_annealing_neighborhood_search import (
     improved_simulated_annealing,

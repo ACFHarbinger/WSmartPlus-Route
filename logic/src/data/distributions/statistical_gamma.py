@@ -5,8 +5,8 @@ Statistical sampling distributions - Gamma.
 import math
 from typing import List, Optional, Tuple, Union
 
-import torch
 import numpy as np
+import torch
 
 from logic.src.constants.data import GAMMA_PRESETS
 
