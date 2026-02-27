@@ -1,6 +1,7 @@
 import random
 from copy import deepcopy
 from random import sample as rsample
+from typing import List
 
 from shapely.geometry import LineString
 
@@ -39,16 +40,7 @@ def _find_crossed_arcs(route, points, route_idx, cache):
     cache[route_idx] = []
 
     # Iterate through edges (arcs)
-    # k is the route, valid indices are up to len(k)-2 for edges?
-    # Original loop: for i, val1 in enumerate(k[0 : len(k) - 3]):
-    #                for j, _val2 in enumerate(k[i + 2 : len(k) - 1]):
-    # edges are (val1, k[i+1]) and (k[j+i+2], k[j+i+3])
-
     n = len(route)
-    # Ensure indices are within bounds
-    # i range: 0 to n-4 (since i+2 is start of j, and j needs at least 1 edge)
-    # Edge 1: (i, i+1)
-    # Edge 2: (j, j+1) where j > i+1
 
     for i in range(n - 3):
         I_1 = route[i]
@@ -130,18 +122,6 @@ def uncross_arcs_in_routes(
 
         while relevant_crossings:
             # Perform swap on the first valid crossing
-            # Crossing structure: [[I1, F1], [I2, F2]]
-            # We want to reverse segment between F1 and I2 (inclusive?)
-            # Original code:
-            # swap_bin_1 = relevant[0][0][1] (F1)
-            # position_bin_1 = k.index(swap_bin_1)
-            # swap_bin_2 = relevant[0][1][0] (I2)
-            # position_bin_2 = k.index(swap_bin_2)
-            # Reverse k[position_bin_1 + 1 : position_bin_2] ?
-            # Original logic: k[position_bin_1 + 1 : position_bin_2] = k[position_bin_2 - 1 : position_bin_1 : -1]
-            # This logic seems slightly off in original or I am misreading.
-            # Let's trust the indices logic from original but cleaned up.
-
             first_crossing = relevant_crossings[0]
             swap_bin_1 = first_crossing[0][1]
             swap_bin_2 = first_crossing[1][0]
@@ -195,7 +175,7 @@ def rearrange_part_route(routes_list, distance_matrix):
     if not routes_list:
         return 0
 
-    chosen_route = rsample(routes_list, 1)[0]
+    chosen_route: List = rsample(routes_list, 1)[0]
     length_chosen_route = len(chosen_route)
 
     if length_chosen_route < 4:
@@ -209,14 +189,6 @@ def rearrange_part_route(routes_list, distance_matrix):
         return 0
 
     bins = []
-    # Ensure start index keeps enough buffer from end
-    # chosen_route length is L. Index range 0..L-1.
-    # We want a segment of length 'chosen_n_percent'.
-    # Start index must be at least 1 (after depot start)
-    # End index must be at most L-2 (before depot end)
-
-    # Original logic was a bit fuzzy. Let's implementing a clean segment selection.
-    # Valid start indices: 1 to L - 1 - length
 
     max_start_index = length_chosen_route - 1 - chosen_n_percent
     if max_start_index < 1:
@@ -226,29 +198,15 @@ def rearrange_part_route(routes_list, distance_matrix):
     segment = chosen_route[start_index : start_index + chosen_n_percent]
 
     # Remove segment from route
-    # Note: modifying chosen_route in place affects routes_list element?
-    # Yes, lists are mutable references.
-
-    # But wait, original code:
-    # position_chosen_bin determined iteratively?
-    # "chosen_bin_0 = rsample(chosen_route[1 : len(chosen_route) - chosen_n_percent], 1)[0]"
-    # This picks a random start bin.
-
-    # Let's stick to strict segment extraction
     bins = segment
     del chosen_route[start_index : start_index + chosen_n_percent]
 
     # Reorder bins using NN
-    # organize_route returns [depot, bin1, ..., binN, depot]
-    # We just want the sequence bin1...binN
     sorted_route_full = organize_route(bins, distance_matrix)
     # Remove depots (starts 0, ends 0)
     sorted_segment = sorted_route_full[1:-1]
 
     # Insert back at the same position
-    # chosen_route[start_index:start_index] = sorted_segment?
-    # Original code inserted one by one.
-
     for i, bin_id in enumerate(sorted_segment):
         chosen_route.insert(start_index + i, bin_id)
 

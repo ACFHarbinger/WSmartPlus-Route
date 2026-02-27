@@ -84,8 +84,8 @@ def _run_hexaly_optimizer(  # noqa: C901
         for node in forbidden:
             model.constraint(model.contains(all_visited, node) == 0)
 
-        total_profit_int = 0
-        total_dist_int = 0
+        total_profit_int: Any = 0
+        total_dist_int: Any = 0
         vehicles_used_expr = model.create_constant(0)
         for k in range(number_vehicles):
             route = routes[k]

@@ -27,6 +27,7 @@ import fast_tsp
 import networkx as nx
 import numpy as np
 import torch
+from networkx.algorithms.shortest_paths.weighted import dijkstra_path
 
 
 def find_route(C, to_collect, time_limit=2.0):
@@ -197,7 +198,7 @@ def dist_matrix_from_graph(G: nx.Graph) -> Tuple[np.ndarray, List[List[List[int]
             if id_i == id_j:
                 paths_between_states[id_i].append([])
                 continue
-            p = nx.dijkstra_path(G, source=id_i, target=id_j)
+            p = dijkstra_path(G, source=id_i, target=id_j)
             paths_between_states[id_i].append(p)
             dist_matrix[id_i, id_j] = int(get_path_cost(G, p))
     return dist_matrix, paths_between_states

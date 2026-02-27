@@ -108,7 +108,7 @@ def _add_waste_collecting_penalties(
         routing.AddDisjunction([manager.NodeToIndex(i)], penalty)
 
 
-def _get_search_parameters(values: Dict[str, Any]) -> pywrapcp.DefaultRoutingSearchParameters:
+def _get_search_parameters(values: Dict[str, Any]) -> Any:
     """Configure search parameters."""
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     time_limit_sec = values.get("time_limit", 30)
