@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from tensordict import TensorDict
 
-from logic.src.utils.data.data_utils import generate_waste
+from logic.src.data.generators.waste import generate_waste
 
 from .base import Generator
 

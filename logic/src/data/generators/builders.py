@@ -14,7 +14,8 @@ from tensordict import TensorDict
 from logic.src.constants import MAX_WASTE
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.pipeline.simulations.processor import process_coordinates
-from logic.src.utils.data.data_utils import generate_waste, load_focus_coords
+from logic.src.data.generators.waste import generate_waste
+from logic.src.utils.data.data_utils import load_focus_coords
 from logic.src.utils.functions import get_path_until_string
 
 

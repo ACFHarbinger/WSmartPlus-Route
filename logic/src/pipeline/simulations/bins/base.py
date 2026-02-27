@@ -8,11 +8,12 @@ import os
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
+import pandas
 import torch
 
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.data.datasets import (
+    GenerativeDataset,
     NumpyDictDataset,
     NumpyPickleDataset,
     PandasCsvDataset,
@@ -20,6 +21,7 @@ from logic.src.data.datasets import (
     SimulationDataset,
 )
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
+from logic.src.utils.data.loader import load_grid_base
 
 from ..wsmart_bin_analysis import GridBase
 from .prediction import calculate_frequency_and_level, predict_days_to_overflow
@@ -38,6 +40,18 @@ class Bins:
     The Bins object maintains two parallel state vectors:
         - real_c: Ground truth fill levels (0-100%)
         - c: Observed fill levels (may include sensor noise)
+
+    Args:
+        n (int): Number of bins.
+        data_dir (str): Path to data directory.
+        sample_dist (str, optional): Sampling distribution. Defaults to "gamma".
+        grid (Optional[GridBase], optional): Grid object. Defaults to None.
+        area (Optional[str], optional): Area name. Defaults to None.
+        waste_type (Optional[str], optional): Waste type. Defaults to None.
+        indices (Optional[Union[np.ndarray, List[int]]], optional): List of bin indices. Defaults to None.
+        waste_file (Optional[str], optional): Path to waste file. Defaults to None.
+        noise_mean (float, optional): Noise mean. Defaults to 0.0.
+        noise_variance (float, optional): Noise variance. Defaults to 0.0.
     """
 
     def __init__(
@@ -48,7 +62,7 @@ class Bins:
         grid: Optional[GridBase] = None,
         area: Optional[str] = None,
         waste_type: Optional[str] = None,
-        indices: Optional[List[int]] = None,
+        indices: Optional[Union[np.ndarray, List[int]]] = None,
         waste_file: Optional[str] = None,
         noise_mean: float = 0.0,
         noise_variance: float = 0.0,
@@ -88,39 +102,11 @@ class Bins:
         self.ndays: int = 0
         self.collectdays = np.ones((n)) * 5
         self.collectlevl = np.ones((n)) * 80
-        if indices is None:
-            self.indices = np.array(range(n))
-        else:
-            self.indices = np.array(indices)
-
         self.data_dir = data_dir
-        if grid is None and sample_dist == "emp":
-            src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
-            waste_csv = f"out_rate_crude[{src_area}].csv"
-            info_csv = f"out_info[{src_area}].csv"
+        self.indices = np.array(indices) if indices is not None else np.arange(n)
 
-            # Read info file to map indices to IDs
-            if 0 in self.indices:
-                info_df = pd.read_csv(os.path.join(data_dir, "coordinates", info_csv))
-                real_ids = info_df.iloc[self.indices]["ID"].tolist()
-
-                # Check ID type in waste csv
-                waste_path = os.path.join(data_dir, "bins_waste", waste_csv)
-                waste_header = pd.read_csv(waste_path, nrows=0).columns
-                if pd.api.types.is_string_dtype(waste_header):
-                    real_ids = [str(i) for i in real_ids]
-            else:
-                real_ids = [str(i) for i in self.indices]
-
-            self.grid = GridBase(
-                real_ids,
-                data_dir,
-                rate_type="crude",
-                names=[waste_csv, info_csv, None],
-                same_file=True,
-            )
-        else:
-            self.grid = grid  # type: ignore[assignment]
+        grid_to_load = grid is None and sample_dist == "emp"
+        self.grid = load_grid_base(data_dir, self.indices, area) if grid_to_load else grid
 
         self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
@@ -133,10 +119,11 @@ class Bins:
                 self.waste_dataset = PandasCsvDataset.load(path)
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
+        else:
+            self.waste_dataset = GenerativeDataset()
 
         self.waste_fills: Optional[np.ndarray] = None
         self.noisy_waste_fills: Optional[np.ndarray] = None
-
         with contextlib.suppress(Exception):
             from logic.src.tracking.core.run import get_active_run
 
@@ -164,7 +151,7 @@ class Bins:
 
     def set_statistics(self, stats_file: str) -> None:
         """Loads pre-computed fill statistics."""
-        data = pd.read_csv(os.path.join(self.data_dir, stats_file))
+        data = pandas.read_csv(os.path.join(self.data_dir, stats_file))
         if "ID" in data.columns:
             data = data[data["ID"] != 0].reset_index(drop=True)
 
