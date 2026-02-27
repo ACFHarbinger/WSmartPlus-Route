@@ -5,6 +5,8 @@ Configuration constants and global mappings.
 from __future__ import annotations
 
 # Re-exporting from split modules
+from logic.src.constants.dashboard import *  # noqa: F403
+from logic.src.constants.data import *  # noqa: F403
 from logic.src.constants.hpo import *  # noqa: F403
 from logic.src.constants.models import *  # noqa: F403
 from logic.src.constants.paths import *  # noqa: F403

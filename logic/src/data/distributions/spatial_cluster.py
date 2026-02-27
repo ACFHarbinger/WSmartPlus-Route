@@ -25,7 +25,7 @@ class Cluster:
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
-    def sample(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
         """Sample clustered locations.
 
         Args:

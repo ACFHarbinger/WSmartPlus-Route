@@ -16,6 +16,7 @@ from .simulation.npz_dataset import NumpyDictDataset
 from .simulation.pd_csv_dataset import PandasCsvDataset
 from .simulation.pd_xlsx_dataset import PandasExcelDataset
 from .simulation.sim_dataset import SimulationDataset
+from .simulation.gen_dataset import GenerativeDataset
 
 __all__ = [
     "td_kwargs",
@@ -33,4 +34,5 @@ __all__ = [
     "NumpyPickleDataset",
     "PandasExcelDataset",
     "PandasCsvDataset",
+    "GenerativeDataset",
 ]

@@ -25,7 +25,7 @@ class Gaussian_Mixture:
         self.num_modes = num_modes
         self.cdist = cdist
 
-    def sample(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
         """Sample.
 
         Args:
