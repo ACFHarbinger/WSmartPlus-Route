@@ -5,6 +5,7 @@ Data preview utilities for JSON structures.
 import glob
 import json
 import os
+from typing import Union
 
 from .value_processing import find_single_input_values, find_two_input_values
 
@@ -39,6 +40,9 @@ def preview_changes(
     # Set parameters for presence of input_keys
     key1, key2 = input_keys
     has_2_keys = key1 is not None and key2 is not None
+    key_value: Union[str, int, float, None] = None
+    input2_name: str = ""
+
     if has_2_keys:
         has_2_inputs = True
         key_value = key2  # Second input is the name of the second key
@@ -71,9 +75,9 @@ def preview_changes(
                     print(f"- No suitable input pairs ({key1}, {input2_name}) found")
             else:
                 # Single-input mode: find the output key
-                key_values_found = find_single_input_values(data, output_key=output_key)  # type: ignore[assignment]
+                key_values_found = find_single_input_values(data, output_key=output_key)
                 if key_values_found:
-                    for location, old_value in key_values_found:  # type: ignore[misc]
+                    for location, old_value in key_values_found:
                         new_value = process_func(old_value, update_val)
                         print(
                             f"- Would update file '{location}' and key '{output_key}': "
@@ -111,6 +115,9 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
     # Set parameters for presence of input_keys
     key1, key2 = input_keys
     has_2_keys = key1 is not None and key2 is not None
+    key_value: Union[str, int, float, None] = None
+    input2_name: str = ""
+
     if has_2_keys:
         has_2_inputs = True
         key_value = key2  # Second input is the name of the second key
@@ -126,30 +133,30 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
 
-        if has_2_inputs:
-            # Two-input mode: find pairs of keys
-            key_values_found = find_two_input_values(data, input_key1=key1, input_key2=key_value)
-            if key_values_found:
-                for location, value1, value2 in key_values_found:
-                    new_value = process_func(value1, value2)
-                    print(
-                        f"- Would calculate and write to key '{output_key}' at '{location}': "
-                        f"{value1} {process_func.__name__} {input2_name} → {new_value}"
-                    )
+            if has_2_inputs:
+                # Two-input mode: find pairs of keys
+                key_values_found = find_two_input_values(data, input_key1=key1, input_key2=key_value)
+                if key_values_found:
+                    for location, value1, value2 in key_values_found:
+                        new_value = process_func(value1, value2)
+                        print(
+                            f"- Would calculate and write to key '{output_key}' at '{location}': "
+                            f"{value1} {process_func.__name__} {input2_name} → {new_value}"
+                        )
+                else:
+                    print(f"- No suitable input pairs ({key1}, {input2_name}) found")
             else:
-                print(f"- No suitable input pairs ({key1}, {input2_name}) found")
-        else:
-            # Single-input mode: find the output key
-            key_values_found = find_single_input_values(data, output_key=output_key)  # type: ignore[assignment]
-            if key_values_found:
-                for location, old_value in key_values_found:  # type: ignore[misc]
-                    new_value = process_func(old_value, update_val)
-                    print(
-                        f"- Would update file '{location}' and key '{output_key}': "
-                        f"{old_value} {process_func.__name__} {update_val} → {new_value}"
-                    )
-            else:
-                print(f"- No '{output_key}' values found")
+                # Single-input mode: find the output key
+                key_values_found = find_single_input_values(data, output_key=output_key)
+                if key_values_found:
+                    for location, old_value in key_values_found:
+                        new_value = process_func(old_value, update_val)
+                        print(
+                            f"- Would update file '{location}' and key '{output_key}': "
+                            f"{old_value} {process_func.__name__} {update_val} → {new_value}"
+                        )
+                else:
+                    print(f"- No '{output_key}' values found")
     except Exception as e:
         print(f"- ERROR {e}: could not read '{file_path}'")
 
@@ -192,29 +199,30 @@ def preview_pattern_files_statistics(
             key_values_found = find_single_input_values(data, output_key=output_key)
             if key_values_found:
                 # Group values by field name (the part after the last dot)
-                grouped_values = {}  # type: ignore[var-annotated]
-                for location, value in key_values_found:
-                    # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
-                    field_name = location.split(".", 1)[-1] if "." in location else location
+                grouped_values = {}
+                if key_values_found:
+                    for location, value in key_values_found:
+                        # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
+                        field_name = location.split(".", 1)[-1] if "." in location else location
 
-                    if field_name not in grouped_values:
-                        grouped_values[field_name] = []
-                    grouped_values[field_name].append(value)
+                        if field_name not in grouped_values:
+                            grouped_values[field_name] = []
+                        grouped_values[field_name].append(value)
 
-            # Show what would be written to output file if modifications were made
-            if grouped_values:
-                # Get directory of current file and create output path
-                file_dir = os.path.dirname(file_path)
-                output_path = os.path.join(file_dir, output_filename)
-                for field_name, values in grouped_values.items():
-                    if values:
-                        new_value = process_func(values)
-                        print(
-                            f"- Would write to '{output_path}': '{field_name}.{output_key}' = "
-                            f"{process_func.__name__}({values}) = {new_value}"
-                        )
+                # Show what would be written to output file if modifications were made
+                if grouped_values:
+                    # Get directory of current file and create output path
+                    file_dir = os.path.dirname(file_path)
+                    output_path = os.path.join(file_dir, output_filename)
+                    for field_name, values in grouped_values.items():
+                        if values:
+                            new_value = process_func(values)
+                            print(
+                                f"- Would write to '{output_path}': '{field_name}.{output_key}' = "
+                                f"{process_func.__name__}({values}) = {new_value}"
+                            )
 
-                files_with_changes += 1
+                    files_with_changes += 1
             else:
                 print(f"- No '{output_key}' values found that would be processed")
         except Exception as e:
@@ -243,16 +251,17 @@ def preview_file_statistics(file_path, output_filename="output.json", output_key
 
         # Track if any modifications would be made
         key_values_found = find_single_input_values(data, output_key=output_key)
+        grouped_values = {}
         if key_values_found:
             # Group values by field name (the part after the last dot)
-            grouped_values = {}  # type: ignore[var-annotated]
             for location, value in key_values_found:
+                field_val: object = value
                 # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
                 field_name = location.split(".", 1)[-1] if "." in location else location
 
                 if field_name not in grouped_values:
                     grouped_values[field_name] = []
-                grouped_values[field_name].append(value)
+                grouped_values[field_name].append(field_val)
 
         # Show what would be written to output file if modifications were made
         if grouped_values:

@@ -35,15 +35,15 @@ class ITraversable(Protocol):
         ...     return None
     """
 
-    def __getitem__(self, key: str, /) -> Any:
+    def __getitem__(self, key: Any, /) -> Any:
         """Get value by key. Positional-only to match dict."""
         ...
 
-    def __contains__(self, key: str, /) -> bool:
+    def __contains__(self, key: Any, /) -> bool:
         """Check if key exists. Positional-only to match dict."""
         ...
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Any]:
         """Support iteration over keys (required for mapping-like behavior)."""
         ...
 
@@ -72,12 +72,12 @@ class ITraversable(Protocol):
         ...
 
     @overload
-    def get(self, key: str) -> Optional[Any]: ...
+    def get(self, key: str, /) -> Optional[Any]: ...
 
     @overload
-    def get(self, key: str, default: _T) -> Union[Any, _T]: ...
+    def get(self, key: str, default: _T, /) -> Union[Any, _T]: ...
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any = None, /) -> Any:
         """Get value by key with optional default.
 
         Args:

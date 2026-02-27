@@ -95,21 +95,34 @@ if _ZENML_AVAILABLE:
 
 
 def training_pipeline(cfg: Any) -> float:
-    """Serialise *cfg* and launch the ZenML training pipeline.
-
-    Args:
-        cfg: Root Hydra :class:`~logic.src.configs.Config` object.
-
-    Returns:
-        Best validation reward.
-
-    Raises:
-        ImportError: If ZenML is not installed.
-    """
+    """Serialise *cfg* and launch the ZenML training pipeline."""
     if not _ZENML_AVAILABLE:
         raise ImportError("zenml is not installed — cannot run ZenML training pipeline")
 
     from omegaconf import OmegaConf
+    from zenml.client import Client
 
-    config_dict: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)  # type: ignore[assignment]
-    return _training_pipeline(config_dict=config_dict)
+    config_dict: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)  # type: ignore
+
+    # 1. Launch the pipeline
+    run_response = _training_pipeline(config_dict=config_dict)
+
+    if run_response is None:
+        return 0.0
+
+    # 2. Extract the best validation reward from the run metadata
+    # This assumes your pipeline logs a 'best_val_reward' in one of its steps
+    try:
+        run = Client().get_pipeline_run(run_response.id)
+
+        # Access the specific step
+        eval_step = run.steps["evaluator_step"]
+
+        # Use .output to get the primary output artifact of the step
+        # This is where the .load() method lives
+        reward = eval_step.output.load()
+
+        return float(reward)
+    except (KeyError, AttributeError, ValueError):
+        # Fallback if the artifact isn't a float or step is missing
+        return 0.0

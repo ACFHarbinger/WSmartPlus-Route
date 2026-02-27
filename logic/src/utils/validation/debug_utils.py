@@ -30,52 +30,33 @@ def watch(
         NameError: If variable is not found in locals or globals.
     """
     caller_frame = sys._getframe(frame_depth)
-    active_callback = callback
-    if active_callback is None:
+    if callback is None:
 
-        def default_callback(old, new, frame):
-            """
-            Default callback for the tracer.
-
-            Args:
-                old: Old value.
-                new: New value.
-                frame: Current stack frame.
-            """
+        def default_callback(old: Any, new: Any, frame: FrameType) -> None:
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
             print(f"DEBUG → {var_name}: {old} → {new}")
             print(f"        at {caller.filename}:{caller.lineno} in {caller.name}")
 
-        active_callback = default_callback
+        # 2. Use a final variable that is NOT Optional
+        actual_callback: Callable[[Any, Any, FrameType], None] = default_callback
+    else:
+        actual_callback = callback
 
     old_value = [None]
 
-    def tracer(frame: FrameType, event: str, arg) -> Callable:
-        """
-        Trace function for sys.settrace.
-
-        Args:
-            frame: Stack frame.
-            event: Event type.
-            arg: Argument.
-
-        Returns:
-            The tracer function.
-        """
-        if event != "line":
-            return tracer
-        if frame is not caller_frame:
+    def tracer(frame: FrameType, event: str, arg: Any) -> Callable:
+        if event != "line" or frame is not caller_frame:
             return tracer
 
-        # safely read the variable (locals first)
         try:
             new_value = frame.f_locals[var_name]
         except KeyError:
             new_value = frame.f_globals.get(var_name)
 
         if new_value is not old_value[0]:
-            active_callback(old_value[0], new_value, frame)
+            # Now Pyrefly knows actual_callback is definitely a Callable
+            actual_callback(old_value[0], new_value, frame)
             old_value[0] = new_value
         return tracer
 
@@ -105,52 +86,33 @@ def watch_all(
         frame_depth (int, optional): Stack depth to watch from. Defaults to 1.
     """
     caller_frame = sys._getframe(frame_depth)
-    active_callback = callback
-    if active_callback is None:
+    # 1. Establish the non-optional callback
+    if callback is None:
 
         def default_callback(var_name: str, old: Any, new: Any, frame: FrameType) -> None:
-            """
-            Default callback for the tracer.
-
-            Args:
-                var_name: Name of the variable.
-                old: Old value.
-                new: New value.
-                frame: Current stack frame.
-            """
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
             print(f"DEBUG → {var_name}: {old} → {new}")
             print(f"        at {caller.filename}:{caller.lineno} in {caller.name}")
 
-        active_callback = default_callback
+        actual_callback: Callable[[str, Any, Any, FrameType], None] = default_callback
+    else:
+        actual_callback = callback
 
     old_locals = dict(caller_frame.f_locals)
 
     def tracer(frame: FrameType, event: str, arg: Any) -> Callable:
-        """
-        Trace function for sys.settrace.
-
-        Args:
-            frame: Stack frame.
-            event: Event type.
-            arg: Argument.
-
-        Returns:
-            The tracer function.
-        """
-        if event != "line":
-            return tracer
-        if frame is not caller_frame:
+        if event != "line" or frame is not caller_frame:
             return tracer
 
         current_locals = frame.f_locals
         for name, new_value in current_locals.items():
             if name not in old_locals:
-                active_callback(name, None, new_value, frame)
+                # 2. Use the guaranteed non-optional callback
+                actual_callback(name, None, new_value, frame)
                 old_locals[name] = new_value
             elif old_locals[name] is not new_value:
-                active_callback(name, old_locals[name], new_value, frame)
+                actual_callback(name, old_locals[name], new_value, frame)
                 old_locals[name] = new_value
         return tracer
 

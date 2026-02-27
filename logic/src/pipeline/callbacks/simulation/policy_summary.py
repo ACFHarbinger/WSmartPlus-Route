@@ -85,8 +85,9 @@ class PolicySummaryCallback:
 
         # 2. Check 'policy' sub-config
         if not solver_key:
-            if isinstance(policy_cfg, ITraversable):
-                solver_key = policy_cfg.get("type") or policy_cfg.get("solver") or policy_cfg.get("engine")
+            policy_cfg_obj: object = policy_cfg
+            if isinstance(policy_cfg_obj, ITraversable):
+                solver_key = policy_cfg_obj.get("type") or policy_cfg_obj.get("solver") or policy_cfg_obj.get("engine")
             elif isinstance(policy_cfg, str):
                 solver_key = policy_cfg
 
@@ -110,43 +111,51 @@ class PolicySummaryCallback:
         items = []
         if isinstance(config_must_go, MustGoConfig):
             items = [config_must_go]
-        elif isinstance(config_must_go, (list, tuple)) or (
-            not isinstance(config_must_go, (str, dict)) and hasattr(config_must_go, "__iter__")
-        ):
+        elif isinstance(config_must_go, (list, tuple)):
             items = list(config_must_go)
-        elif config_must_go:
+        elif not isinstance(config_must_go, (str, dict, type(None))) and hasattr(config_must_go, "__iter__"):
+            # config_must_go is Iterable but not str/dict/None
+            from typing import Iterable, cast
+
+            items = list(cast(Iterable[Any], config_must_go))
+        elif config_must_go is not None:
             items = [config_must_go]
 
         for item in items:
-            name = "Unknown"
-            params = ""
-
-            if isinstance(item, MustGoConfig):
-                name = item.strategy  # type: ignore[assignment]
-                if item.strategy == "lookahead":
-                    pass
-                elif item.strategy == "regular":
-                    params = f"(freq={item.frequency})"
-                elif item.strategy == "revenue":
-                    params = f"(thresh={item.revenue_threshold})"
-            elif isinstance(item, ITraversable):
-                if "strategy" in item:
-                    name = item.get("strategy")
-                    if "threshold" in item:
-                        params = f"(t={item['threshold']})"
-                else:
-                    keys = list(item.keys())
-                    if keys:
-                        name = keys[0]
-                        val = item[name]
-                        if isinstance(val, ITraversable) and "threshold" in val:
-                            params = f"(t={val['threshold']})"
-            elif isinstance(item, str):
-                name = item
-
+            name, params = self._parse_selection_item(item)
             strategies.append(f"{name}{params}")
 
         return ", ".join(strategies) if strategies else "None"
+
+    def _parse_selection_item(self, item: Any) -> tuple[str, str]:
+        """Parse a single selection item into name and params."""
+        name: str = "Unknown"
+        params: str = ""
+
+        item_obj: object = item
+        if isinstance(item_obj, MustGoConfig):
+            name = str(item_obj.strategy)  # type: ignore[assignment]
+            if item_obj.strategy == "regular":
+                params = f"(freq={item_obj.frequency})"
+            elif item_obj.strategy == "revenue":
+                params = f"(thresh={item_obj.revenue_threshold})"
+        elif isinstance(item_obj, ITraversable):
+            if "strategy" in item_obj:
+                name = str(item_obj.get("strategy") or "Unknown")
+                if "threshold" in item_obj:
+                    params = f"(t={item_obj['threshold']})"
+            else:
+                item_keys = list(item_obj.keys())
+                if item_keys:
+                    name = str(item_keys[0])
+                    val = item_obj[name]
+                    val_obj: object = val
+                    if isinstance(val_obj, ITraversable) and "threshold" in val_obj:
+                        params = f"(t={val_obj['threshold']})"
+        elif isinstance(item_obj, str):
+            name = item_obj
+
+        return name, params
 
     def _extract_post_processing(self, config: Dict[str, Any]) -> str:
         """Extract post processing steps."""
@@ -160,9 +169,10 @@ class PolicySummaryCallback:
         steps = []
         items = pp if isinstance(pp, list) else [pp]
         for item in items:
-            if isinstance(item, str):
-                steps.append(item)
-            elif isinstance(item, ITraversable):
-                steps.append(list(item.keys())[0])
+            item_obj: object = item
+            if isinstance(item_obj, str):
+                steps.append(item_obj)
+            elif isinstance(item_obj, ITraversable):
+                steps.append(list(item_obj.keys())[0])
 
         return ", ".join(steps)

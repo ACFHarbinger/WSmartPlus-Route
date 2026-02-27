@@ -282,8 +282,9 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
 
     # Algorithm specific overrides
     algo_name = cfg.rl.algorithm
-    if algo_name in common_kwargs and isinstance(common_kwargs[algo_name], (dict, ITraversable)):
-        algo_specific = common_kwargs[algo_name]
+    algo_specific_obj: object = common_kwargs.get(algo_name)
+    if algo_name in common_kwargs and isinstance(algo_specific_obj, (dict, ITraversable)):
+        algo_specific = cast(Dict[str, Any], algo_specific_obj)
         if algo_name == "ppo":
             common_kwargs["ppo_epochs"] = algo_specific.get("epochs", 10)
         elif algo_name == "sapo":

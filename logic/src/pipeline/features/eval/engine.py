@@ -7,7 +7,7 @@ import datetime
 import itertools
 import math
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import torch
@@ -92,7 +92,10 @@ def eval_dataset_mp(
     """Worker function for multiprocessing evaluation."""
     (dataset_path, beam_width, softmax_temp, cfg, i, num_processes) = args
     ev = cfg.eval
-    model_path = ev.policy.load_path if ev.policy else None
+    model_path = ""
+    if ev.policy and ev.policy.model:
+        model_path = ev.policy.model.load_path or ""
+
     model, _ = load_model(model_path)
     val_size = ev.val_size // num_processes
 
@@ -172,11 +175,13 @@ def _eval_dataset(
         if seq is not None:
             seq_tensor = torch.tensor(seq, device=device).unsqueeze(0)
             instance = dataset[i]
-            if isinstance(instance, (list, tuple)):
-                batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance)}
-            elif isinstance(instance, ITraversable):
+            instance_obj: object = instance
+            batch_i: Any
+            if isinstance(instance_obj, (list, tuple)):
+                batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance_obj)}
+            elif isinstance(instance_obj, ITraversable):
                 batch_i = {}
-                for k, v in instance.items():
+                for k, v in instance_obj.items():
                     if torch.is_tensor(v):
                         batch_i[k] = v.unsqueeze(0).to(device)
                     elif isinstance(v, np.ndarray):
@@ -184,9 +189,11 @@ def _eval_dataset(
                     else:
                         batch_i[k] = v
             else:
-                batch_i = instance.unsqueeze(0).to(device)
+                batch_i = cast(torch.Tensor, instance).unsqueeze(0).to(device)
 
-            _, c_dict, _ = model.problem.get_costs(batch_i, seq_tensor, None, batch_i.get("dist_matrix"))
+            _, c_dict, _ = model.problem.get_costs(
+                batch_i, seq_tensor, None, batch_i.get("dist_matrix") if isinstance(batch_i, dict) else None
+            )
         else:
             c_dict = {
                 "length": torch.tensor(0.0),
@@ -231,8 +238,14 @@ def eval_dataset(
         Tuple of (costs, tours, durations).
     """
     ev = cfg.eval
-    model_path = ev.policy.load_path if ev.policy else None
-    model, _ = load_model(model_path)
+    model_path = ""
+    if ev.policy:
+        if hasattr(ev.policy, "load_path") and ev.policy.load_path:
+            model_path = ev.policy.load_path
+        elif hasattr(ev.policy, "model") and ev.policy.model and ev.policy.model.load_path:
+            model_path = ev.policy.model.load_path or ""
+
+    model, _ = load_model(str(model_path))
     use_cuda = torch.cuda.is_available() and not getattr(ev, "no_cuda", False)
     if getattr(cfg, "device", None) == "cpu":
         use_cuda = False

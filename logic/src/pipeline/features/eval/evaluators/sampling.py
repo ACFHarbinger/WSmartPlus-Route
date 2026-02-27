@@ -46,12 +46,24 @@ class SamplingEval(EvalBase):
         start_time = time.time()
 
         for batch in tqdm(data_loader, disable=not self.progress, desc=f"Sampling Eval ({self.samples} samples)"):
-            batch = move_to(batch, self.device)  # type: ignore[arg-type]
+            batch_obj: object = batch
+            batch = move_to(batch_obj, self.device)  # type: ignore[arg-type]
 
             # Expand batch for sampling
-            locs = batch.get("locs") if "locs" in batch.keys() else batch.get("loc", None)
-            batch_size = locs.size(0) if isinstance(batch, ITraversable) else batch.size(0)
-            batch = do_batch_rep(batch, self.samples)
+            locs = None
+            if isinstance(batch_obj, ITraversable) or hasattr(batch_obj, "get"):
+                # Use cast to satisfy type checker for 'get' on Any-like object
+                from typing import cast as t_cast
+
+                locs_obj = t_cast(Any, batch_obj)
+                locs = locs_obj.get("locs") or locs_obj.get("loc")
+
+            if locs is None:
+                raise ValueError("Batch must contain 'locs' or 'loc' for sampling expansion.")
+
+            batch_size = locs.size(0)
+            batch_rep_obj: object = batch
+            batch = do_batch_rep(batch_rep_obj, self.samples)
 
             with torch.no_grad():
                 out = policy(batch, strategy="sampling", **kwargs)
@@ -74,10 +86,11 @@ class SamplingEval(EvalBase):
         total_time = time.time() - start_time
         avg_reward = torch.cat([r["reward"] for r in results]).mean().item()
 
+        dataset = data_loader.dataset
         metrics = {
             "avg_reward": avg_reward,
             "duration": total_time,
-            "samples_per_second": len(data_loader.dataset) / total_time,  # type: ignore[arg-type]
+            "samples_per_second": len(dataset) / total_time if dataset else 0.0,  # type: ignore[arg-type]
         }
 
         if return_results:
