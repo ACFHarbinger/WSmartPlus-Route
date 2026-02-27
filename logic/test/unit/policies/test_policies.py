@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import torch
+from typing import cast, Callable
 
 from logic.src.policies import tsp
 from logic.src.policies.adapters import PolicyRegistry
@@ -68,7 +69,7 @@ class TestPolicyAdapters:
     def test_alns_adapter(self, mock_policy_data):
         with patch("logic.src.policies.adapters.policy_alns.run_alns") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
-            policy = PolicyRegistry.get("alns")()
+            policy = cast(Callable, PolicyRegistry.get("alns"))()
             assert isinstance(policy, ALNSPolicy)
             tour, cost, extra = policy.execute(policy="alns_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
@@ -78,7 +79,7 @@ class TestPolicyAdapters:
     def test_bcp_adapter(self, mock_policy_data):
         with patch("logic.src.policies.adapters.policy_bcp.run_bcp") as mock_run:
             mock_run.return_value = ([[1]], 10.0)
-            policy = PolicyRegistry.get("bcp")()
+            policy = cast(Callable, PolicyRegistry.get("bcp"))()
             assert isinstance(policy, BCPPolicy)
             tour, cost, extra = policy.execute(policy="bcp_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
@@ -88,7 +89,7 @@ class TestPolicyAdapters:
     def test_hgs_adapter(self, mock_policy_data):
         with patch("logic.src.policies.adapters.policy_hgs.run_hgs") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
-            policy = PolicyRegistry.get("hgs")()
+            policy = cast(Callable, PolicyRegistry.get("hgs"))()
             assert isinstance(policy, HGSPolicy)
             tour, cost, extra = policy.execute(policy="hgs_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
@@ -98,7 +99,7 @@ class TestPolicyAdapters:
     def test_lkh_adapter(self, mock_policy_data):
         with patch("logic.src.policies.adapters.policy_lkh.solve_lkh") as mock_run:
             mock_run.return_value = ([0, 1, 0], 5.0)
-            policy = PolicyRegistry.get("lkh")()
+            policy = cast(Callable, PolicyRegistry.get("lkh"))()
             assert isinstance(policy, LKHPolicy)
             tour, cost, extra = policy.execute(policy="lkh_1.0", **mock_policy_data)
             # LKH policy adds +1 to indices internally, so input [1] becomes index 2
