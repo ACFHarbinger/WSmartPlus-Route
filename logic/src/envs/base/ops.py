@@ -87,9 +87,9 @@ class OpsMixin:
         tensordict["done"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
 
         # Safe key check on tensordict
-        if "terminated" in tensordict:
+        if "terminated" in tensordict.keys():
             tensordict["terminated"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
-        if "truncated" in tensordict:
+        if "truncated" in tensordict.keys():
             tensordict["truncated"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.bool, device=self.device)  # type: ignore[attr-defined]
 
         return tensordict
@@ -151,7 +151,7 @@ class OpsMixin:
 
         # If nodes is not already initialized (missing 'current_node' etc), reset it
         tensordict = nodes
-        if tensordict is not None and "current_node" not in tensordict:
+        if tensordict is not None and "current_node" not in tensordict.keys():
             tensordict = self._reset(tensordict)
 
         assert tensordict is not None
@@ -223,7 +223,7 @@ class OpsMixin:
 
         # Append to tour
         assert tensordict is not None
-        if "tour" not in tensordict:
+        if "tour" not in tensordict.keys():
             tensordict["tour"] = action.unsqueeze(-1)
         else:
             tensordict["tour"] = torch.cat([tensordict["tour"], action.unsqueeze(-1)], dim=-1)

@@ -351,7 +351,6 @@ class GraphConfig:
         vertex_method: Coordinate transformation method ('mmn', 'standard').
         distance_method: Distance matrix computation ('ogd', 'euclidean').
         dm_filepath: Path to pre-computed distance matrix.
-        waste_filepath: Path to historical waste fill data.
         edge_threshold: Edge density threshold (0 = fully connected).
         edge_method: Edge selection method ('dist', 'knn').
         focus_graph: Paths to specific graph file for clustering.
@@ -365,7 +364,6 @@ class GraphConfig:
     vertex_method: str = "mmn"
     distance_method: str = "ogd"
     dm_filepath: Optional[str] = None
-    waste_filepath: Optional[str] = None
     edge_threshold: str = "0"
     edge_method: Optional[str] = None
     focus_graph: Optional[List[str]] = None
@@ -386,8 +384,7 @@ graph_config = GraphConfig(
 
 # Custom distance matrix
 graph_config = GraphConfig(
-    dm_filepath="data/custom_distances.csv",
-    waste_filepath="data/historical_fill_levels.csv"
+    dm_filepath="data/custom_distances.csv"
 )
 
 # Focus on specific graphs for curriculum learning

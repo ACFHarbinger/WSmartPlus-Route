@@ -79,7 +79,10 @@ class VRPPGenerator(Generator):
         self.data_dir = data_dir
         self.area = area
         self.indices = indices if indices is not None else list(range(0, num_loc))
-        self.grid = load_grid_base(self.indices, self.area, self.data_dir)
+        try:
+            self.grid = load_grid_base(self.indices, self.area, self.data_dir)
+        except FileNotFoundError:
+            self.grid = None
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate VRPP instances."""

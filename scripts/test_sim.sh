@@ -110,7 +110,6 @@ uv run python main.py test_sim \
     "sim.data_distribution='${DATA_DIST}'" \
     "sim.graph.focus_graph='${IDX_PATH}'" \
     "sim.graph.dm_filepath='${DM_PATH}'" \
-    "sim.graph.waste_filepath='${WASTE_PATH}'" \
     "sim.checkpoint_days=30" \
     "sim.graph.edge_threshold='1.0'" \
     "sim.graph.edge_method='dist'" \

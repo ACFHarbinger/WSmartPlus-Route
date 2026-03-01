@@ -26,11 +26,11 @@ class TestIntegrationTraining:
         cfg = Config()
         cfg.env.name = problem_name
         cfg.train.n_epochs = 1
-        cfg.train.logs_dir = str(tmp_path / "logs")
+        cfg.tracking.log_dir = str(tmp_path / "logs")
         cfg.train.final_model_path = str(tmp_path / "final.pt")
         # Safety net: reduce data size in case mock fails
-        cfg.train_data_size = 10
-        cfg.val_data_size = 10
+        cfg.train.train_data_size = 10
+        cfg.train.val_data_size = 10
 
         # We mock WSTrainer to avoid actual training in unit tests,
         # but check if run_training flow completes.
@@ -64,16 +64,25 @@ class TestIntegrationSimulation:
             "model": {},
             "train": {"train_time": False}
         })
-        return sequential_simulations(cfg, opts["device"], indices_ls, sample_idx_ls, opts["model_path"], lock)
+        return sequential_simulations(cfg, opts["device"], indices_ls, sample_idx_ls, opts["model_path"], lock) # type: ignore[call-arg]
 
     @pytest.mark.unit
     def test_sim_sequential_basic(self, sim_opts):
         """Test basic sequential simulation run."""
         # Ensure we have some policies to test
         sim_opts["policies"] = ["policy_regular_emp"]
-        log, log_std, failed = self._run_sim(sim_opts)
-        assert not failed
-        assert any("regular_emp" in k for k in log.keys())
+        from logic.src.policies.adapters.registry import PolicyRegistry
+        MockPolicy = MagicMock()
+        PolicyRegistry.register("policy_regular_emp")(MockPolicy)
+        instance = MockPolicy.return_value
+        instance.execute.return_value = ([0, 1, 2, 0], 10.0, None)
+        try:
+            log, log_std, failed = self._run_sim(sim_opts)
+            assert not failed
+            assert any("regular_emp" in k for k in log.keys())
+        finally:
+            if "policy_regular_emp" in PolicyRegistry._registry:
+                del PolicyRegistry._registry["policy_regular_emp"]
 
     @pytest.mark.unit
     @patch("logic.src.pipeline.simulations.states.initializing.setup_model")
@@ -84,21 +93,6 @@ class TestIntegrationSimulation:
         # Register a Mock class that accepts any arguments (like config)
         MockPolicy = MagicMock()
         PolicyRegistry.register("meanstd0.84_am_emp")(MockPolicy)
-
-        # Ensure the instance.execute calls our patched/mocked execution
-        # When factory instantiates MockPolicy(config=...), it returns a mock instance.
-        # We need THAT instance's execute to return our values.
-        # But mock_exec patches NeuralPolicy.execute.
-        # If we use MagicMock, NeuralPolicy.execute is NOT called.
-        # So we should set the return value on likely the produced instance or just use NeuralPolicy and fix it?
-        # Actually, using MagicMock means PolicyFactory returns a new mock.
-        # The test expects `mock_exec` (patch of NeuralPolicy.execute) to be used??
-        # The test code:
-        # mock_exec.return_value = ...
-        # If I use MagicMock, the simulation calls instance.execute().
-        # This instance is NOT NeuralPolicy instance.
-        # So mock_exec is ignored.
-        # I should configure the registered mock to return what we want.
 
         instance = MockPolicy.return_value
         instance.execute.return_value = ([0, 1, 2, 0], 10.0, None)

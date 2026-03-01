@@ -175,7 +175,6 @@ def _resolve_data_size(cfg: Config) -> int:
     load_ds = cfg.load_dataset
 
     if load_ds is not None and set_repository_from_path(str(load_ds)):
-        _override_waste_filepath(cfg, load_ds)
         return sim.graph.num_loc
 
     set_repository_from_path(str(udef.ROOT_DIR))
@@ -192,17 +191,6 @@ def _resolve_data_size(cfg: Config) -> int:
         if area == "both":
             return 57 if size <= 57 else 371 if size <= 371 else 485 if size <= 485 else 542
         return size
-
-
-def _override_waste_filepath(cfg: Config, load_dataset: str) -> None:
-    """Override ``sim.waste_filepath`` to point to *load_dataset*.
-
-    ``Bins`` joins ``data_dir`` with ``waste_filepath``, so we compute the
-    relative path from the simulator data root to the dataset file.
-    """
-    data_dir = os.path.join(udef.ROOT_DIR, "data", "wsr_simulator")
-    abs_dataset = os.path.join(udef.ROOT_DIR, load_dataset) if not os.path.isabs(load_dataset) else load_dataset
-    cfg.sim.waste_filepath = os.path.relpath(abs_dataset, data_dir)
 
 
 # ---------------------------------------------------------------------------

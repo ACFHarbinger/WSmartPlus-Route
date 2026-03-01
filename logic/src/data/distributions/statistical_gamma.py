@@ -49,10 +49,8 @@ class Gamma:
         if size == param_len:
             return param
 
-        param = param * math.ceil(size / param_len)
-        if size % param_len != 0:
-            param = param[: param_len - size % param_len]
-        return param
+        tiled = param * math.ceil(size / param_len)
+        return tiled[:size]
 
     def sample_tensor(self, size: Tuple[int, ...]) -> torch.Tensor:
         """Sample from Gamma distribution.

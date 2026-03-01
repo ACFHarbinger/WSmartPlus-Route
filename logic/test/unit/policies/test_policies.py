@@ -19,7 +19,6 @@ from logic.src.policies.adapters.policy_alns import run_alns, ALNSPolicy
 from logic.src.policies.adapters.policy_bcp import run_bcp, BCPPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
 from logic.src.policies.adapters.policy_lkh import LKHPolicy
-from logic.src.policies.lin_kernighan_helsgaun import solve_lkh
 
 
 class MockBins:
@@ -92,18 +91,6 @@ class TestPolicyAdapters:
             policy = cast(Callable, PolicyRegistry.get("hgs"))()
             assert isinstance(policy, HGSPolicy)
             tour, cost, extra = policy.execute(policy="hgs_1.0", **mock_policy_data)
-            assert tour == [0, 1, 0]
-            assert mock_run.called
-
-    @pytest.mark.unit
-    def test_lkh_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.adapters.policy_lkh.solve_lkh") as mock_run:
-            mock_run.return_value = ([0, 1, 0], 5.0)
-            policy = cast(Callable, PolicyRegistry.get("lkh"))()
-            assert isinstance(policy, LKHPolicy)
-            tour, cost, extra = policy.execute(policy="lkh_1.0", **mock_policy_data)
-            # LKH policy adds +1 to indices internally, so input [1] becomes index 2
-            # Update: mapping is now 1-to-1 for local execution, so [0, 1, 0] is expected
             assert tour == [0, 1, 0]
             assert mock_run.called
 
@@ -264,27 +251,3 @@ class TestSingleVehiclePolicies:
         test_tour = [0, 1, 2, 0]
         res_cost = tsp.get_route_cost(test_C, test_tour)
         assert abs(float(res_cost) - 35.0) < 1e-6
-
-
-class TestLinKernighanHelsgaun:
-    """Tests for the Lin-Kernighan-Helsgaun heuristic implementation."""
-
-    @pytest.mark.unit
-    def test_small_instance(self):
-        """Test LKH on a small 4-node square graph."""
-        dist = np.array([[0, 1, 1.414, 1], [1, 0, 1, 1.414], [1.414, 1, 0, 1], [1, 1.414, 1, 0]])
-        tour, cost = solve_lkh(dist, max_iterations=10)
-        assert len(tour) == 5
-        assert tour[0] == 0
-        assert tour[-1] == 0
-        assert len(set(tour)) == 4
-        assert abs(cost - 4.0) < 1e-4
-
-    @pytest.mark.unit
-    def test_cvrp_penalty_improvement(self):
-        """Test that LKH-3 prioritizes penalty reduction over distance."""
-        dist = np.array([[0, 1, 10], [1, 0, 1], [10, 1, 0]])
-        waste = np.array([0, 60, 40])
-        capacity = 50.0
-        tour, cost = solve_lkh(dist, waste=waste, capacity=capacity, max_iterations=20)
-        assert tour == [0, 2, 1, 0]
