@@ -44,7 +44,6 @@ def mock_sim_opts(tmp_path):
         "checkpoint_dir": str(tmp_path / "checkpoints"),
         "garbage_filepath": None,
         "stats_filepath": None,
-        "waste_filepath": None,
         "data_distribution": "unif",  # Explicitly set
     }
 

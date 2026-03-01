@@ -41,7 +41,6 @@ def _make_test_cfg(**overrides):
         n_samples=1,
         resume=False,
         n_vehicles=1,
-        waste_filepath=None,
         graph=graph,
         noise_mean=0.0,
         noise_variance=0.0,

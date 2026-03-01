@@ -36,7 +36,6 @@ class SimConfig:
         symkey_name: Name of the cryptographic key used to access the API keys.
         gapik_file: Name of the file that contains the key to use for the Google API.
         stats_filepath: Path to the file to read the statistics from.
-        waste_filepath: Path to the file to read the waste fill for each day from.
         graph: Graph/instance configuration.
         data_dir: Directory containing the simulation data.
         load_dataset: Path to a pre-generated dataset file (.npz, .xlsx).
@@ -57,7 +56,6 @@ class SimConfig:
 
     cpu_cores: int = 0
     n_vehicles: int = 1
-    waste_filepath: Optional[str] = None
     graph: GraphConfig = field(default_factory=GraphConfig)
     noise_mean: float = 0.0
     noise_variance: float = 0.0

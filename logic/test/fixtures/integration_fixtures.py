@@ -94,7 +94,6 @@ def sim_opts(tmp_path, setup_sim_data):
         "seed": 42,
         # args expected by initial state/setup
         "stats_filepath": None,
-        "waste_filepath": None,
         "cache_regular": False,
         "n_vehicles": 1,
         "checkpoint_dir": "checkpoints",

@@ -73,7 +73,7 @@ class SimulationRepository(ABC):
         """
         expenses = 1.0
         bin_volume = 2.5
-        src_area = area.translate(str.maketrans("", "", "-_ ")).lower()
+        src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
         if waste_type == "paper":
             revenue = 0.65 * 250 / 1000
             if src_area in ["riomaior", "mixrmbac"]:

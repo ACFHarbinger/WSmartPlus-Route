@@ -170,7 +170,7 @@ class AdaptiveImitation(REINFORCE):
         # Iterate over all keys in the TensorDict and keep only Tensors
         # to ensure we break any nesting or recursive structures.
         safe_data = {}
-        for key in td:
+        for key in td.keys():
             val = td.get(key)
             if isinstance(val, torch.Tensor):
                 safe_data[key] = val

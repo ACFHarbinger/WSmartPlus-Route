@@ -17,6 +17,8 @@ def test_custom_class_is_traversable():
             return True
         def __iter__(self) -> Iterator[Any]:
             return iter(["key"])
+        def __len__(self) -> int:
+            return 1
         def keys(self) -> Any:
             return ["key"]
         def items(self) -> Any:
@@ -44,6 +46,7 @@ def test_dataclass_mock_is_traversable():
         def __getitem__(self, key: Any) -> Any: return None
         def __contains__(self, key: Any) -> bool: return False
         def __iter__(self) -> Iterator[Any]: return iter([])
+        def __len__(self) -> int: return 0
         def keys(self) -> Any: return []
         def items(self) -> Any: return []
         def values(self) -> Any: return []

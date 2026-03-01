@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 import pickle
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
 import numpy as np
 import pandas
@@ -25,6 +25,7 @@ class Empirical:
         area: Optional[str] = None,
         indices: Optional[np.ndarray] = None,
         data_path: Optional[str] = None,
+        dataset: Optional[Any] = None,
     ):
         """Initialize Class.
 
@@ -34,7 +35,7 @@ class Empirical:
             data_path (Optional[str]): Path to data file/directory.
         """
         self.grid = grid
-        self.dataset = None
+        self.dataset = dataset
         self.data_path = data_path
         if grid is None and data_path is not None and indices is not None and os.path.isdir(data_path):
             from logic.src.utils.data.loader import load_grid_base
@@ -84,7 +85,7 @@ class Empirical:
             vals_tensor = torch.from_numpy(vals).float() / 100.0
         else:
             raise ValueError("No grid or dataset found.")
-        return vals_tensor
+        return torch.clip(vals_tensor, 0, 1)
 
     def sample_array(self, size: Tuple[int, ...]) -> np.ndarray:
         """Sample from empirical dataset.
@@ -98,14 +99,15 @@ class Empirical:
         n_samples = size[0]
         if self.dataset is not None:
             if isinstance(self.dataset, pandas.DataFrame):
-                return self.dataset.sample(n=n_samples).values
+                sampled = self.dataset.sample(n=n_samples).values
             elif isinstance(self.dataset, (np.ndarray, dict)):
-                return self.dataset[np.random.choice(len(self.dataset), n_samples)]
+                sampled = self.dataset[np.random.choice(len(self.dataset), n_samples)]
             elif isinstance(self.dataset, torch.Tensor):
-                return self.dataset[np.random.choice(len(self.dataset), n_samples)].cpu().numpy()
+                sampled = self.dataset[np.random.choice(len(self.dataset), n_samples)].cpu().numpy()
             else:
                 raise ValueError("Dataset must be a pandas DataFrame, numpy array, dictionary, or torch Tensor.")
         elif self.grid is not None:
-            return self.grid.sample(n_samples=n_samples)
+            sampled = self.grid.sample(n_samples=n_samples)
         else:
             raise ValueError("No grid or dataset found.")
+        return np.clip(sampled, 0, 100)
