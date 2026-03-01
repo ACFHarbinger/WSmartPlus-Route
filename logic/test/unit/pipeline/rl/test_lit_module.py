@@ -2,6 +2,8 @@
 Tests for RL4COLitModule base class.
 """
 
+from typing import Any, cast
+
 import pytest
 import torch
 from logic.src.pipeline.rl.common.base import RL4COLitModule
@@ -56,7 +58,7 @@ class TestRL4COLitModule:
 
         assert "reward" in out
         assert "loss" in out
-        assert model.log.call_count >= 1
+        assert cast(Any, model.log).call_count >= 1
 
     def test_configure_optimizers(self, setup_data):
         """Test optimizer configuration."""
@@ -93,8 +95,8 @@ class TestRL4COLitModule:
 
         model.setup(stage="fit")
 
-        assert len(model.train_dataset) == 10
-        assert len(model.val_dataset) == 5
+        assert len(cast(Any, model.train_dataset)) == 10
+        assert len(cast(Any, model.val_dataset)) == 5
 
     def test_dataloaders(self, setup_data, mocker):
         """Test dataloader creation."""

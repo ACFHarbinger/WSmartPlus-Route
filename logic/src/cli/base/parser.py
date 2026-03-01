@@ -7,7 +7,7 @@ used across all command-specific parsers.
 
 import argparse
 import sys
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, NoReturn, Optional, Sequence, Tuple, Union
 
 
 class ConfigsParser(argparse.ArgumentParser):
@@ -117,7 +117,7 @@ class ConfigsParser(argparse.ArgumentParser):
         command = filtered_args.pop("command")
         return command, filtered_args
 
-    def error_message(self, message: str, print_help: bool = True) -> None:
+    def error_message(self, message: str, print_help: bool = True) -> NoReturn:
         """Print error message and optionally help.
 
         Args:

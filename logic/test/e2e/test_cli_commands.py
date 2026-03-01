@@ -5,7 +5,6 @@ End-to-end smoke tests for CLI commands.
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 
 import pytest
 
@@ -136,22 +135,6 @@ def test_cli_eval_smoke(tmp_path):
 
     data_file = data_dir / "riomaior10_unif_eval_test1_N2_seed42.npz"
     assert data_file.exists()
-
-    # Run evaluation
-    # Use policy.model.path to specify checkpoint if needed, or rely on default
-    # The user wants to use 'policy' instead of 'model'.
-    # If policy is a NeuralConfig, it has a 'model' field which is ModelConfig.
-    # ModelConfig likely has a 'path' or 'load_path' field.
-    # Let's assume we don't pass a specific model path for smoke test, or use a dummy one.
-    # But wait, the previous test failure was "Key 'model' not in 'EvalConfig'".
-    # Now that we removed it, we must ensure we DON'T pass 'model=...' in CLI.
-    # The previous test run didn't explicitly pass 'model', it was failing on config composition?
-    # No, the error was "Key 'model' not in 'EvalConfig'" when loading 'tasks/evaluation.yaml'.
-    # 'evaluation.yaml' has 'model: checkpoints/best_model.pt'.
-    # We need to update 'evaluation.yaml' to use 'policy.model.path' or remove 'model' key there too.
-    # CLI help says --model.
-    # Let's revert to help check for eval if model is required and cannot be mocked easily.
-    # But wait, we can check --help for test_sim.
 
     result = subprocess.run(
         [sys.executable, "main.py", "eval", "--help"],

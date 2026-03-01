@@ -85,6 +85,7 @@ class TestGetPathUntilString:
     def test_truncates_at_string(self):
         path = "/home/user/WSmart-Route/logic/src/models"
         result = get_path_until_string(path, "WSmart-Route")
+        assert result is not None
         assert result.endswith("WSmart-Route")
 
     def test_returns_none_if_not_found(self):

@@ -27,7 +27,7 @@ class NARGNN(nn.Module):
         env_name: str = "tsp",
         num_layers_heatmap_generator: int = 5,
         num_layers_graph_encoder: int = 15,
-        baseline: str = "rollout",
+        baseline: Optional[str] = "rollout",
         **kwargs,
     ):
         """

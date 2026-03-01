@@ -4,9 +4,10 @@ Visualization package for WSmart-Route.
 
 import argparse
 import os
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 import torch
+from omegaconf import DictConfig
 
 from logic.src.configs import Config
 from logic.src.tracking.logging.visualization.embeddings import (
@@ -23,7 +24,9 @@ from logic.src.tracking.logging.visualization.landscape import (
 )
 
 
-def visualize_epoch(model: Any, problem: Any, cfg: Config, epoch: int, tb_logger: Any = None) -> None:
+def visualize_epoch(
+    model: Any, problem: Any, cfg: Union[Config, DictConfig], epoch: int, tb_logger: Any = None
+) -> None:
     """
     Main entry point for visualization during training.
 

@@ -1,19 +1,13 @@
 """Unit tests for files.py."""
 
-import os
 import json
-import zipfile
+import os
 import threading
-import signal
-import pytest
-from unittest.mock import patch, MagicMock
-from logic.src.utils.io.files import (
-    read_json,
-    zip_directory,
-    extract_zip,
-    confirm_proceed,
-    compose_dirpath
-)
+from typing import Any, cast
+from unittest.mock import patch
+
+from logic.src.utils.io.files import compose_dirpath, confirm_proceed, extract_zip, read_json, zip_directory
+
 
 def test_read_json(tmp_path):
     """Test safe JSON reading."""
@@ -65,12 +59,12 @@ def test_compose_dirpath():
         return dir_path, extra
 
     # Single nbins
-    res, extra = mock_fun("home", 30, 50, "out", "area", extra="test")
+    res, extra_val = cast(Any, mock_fun)("home", 30, 50, "out", "area", "test")
     assert "home/assets/out/30_days/area_50" in res
-    assert extra == "test"
+    assert extra_val == "test"
 
     # Multi nbins (list)
-    res_list, _ = mock_fun("home", 30, [20, 50], "out", "area")
+    res_list, _ = cast(Any, mock_fun)("home", 30, [20, 50], "out", "area")
     assert isinstance(res_list, list)
     assert len(res_list) == 2
     assert "area_20" in res_list[0]

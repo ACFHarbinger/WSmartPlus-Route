@@ -5,9 +5,13 @@ import logic.src.policies.adapters.policy_ahvpl as policy_ahvpl_module
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.adapters import PolicyFactory, PolicyRegistry
+from logic.src.policies.adapters import PolicyFactory
 from logic.src.policies.adapters.policy_ahvpl import AHVPLPolicy
+from logic.src.policies.adapters.policy_alns import ALNSPolicy
+from logic.src.policies.adapters.policy_bcp import BCPPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
+from logic.src.policies.adapters.policy_sans import SANSPolicy
+from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
 
 
 class MockBins:
@@ -67,6 +71,7 @@ def mock_engine_data():
         "graph_size": n_bins
     }
 
+@pytest.mark.unit
 def test_policy_factory_standardized():
     # Test that PolicyFactory correctly identifies policies from Registry
     p = PolicyFactory.get_adapter("hgs")
@@ -77,7 +82,8 @@ def test_bcp_engine_override(mock_engine_data):
     with patch("logic.src.policies.adapters.policy_bcp.run_bcp") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0)
 
-        policy = PolicyRegistry.get("bcp")()
+        policy = PolicyFactory.get_adapter("bcp")
+        assert isinstance(policy, BCPPolicy)
         policy.execute(**mock_engine_data)
 
         # Verify run_bcp was called
@@ -94,7 +100,8 @@ def test_vrpp_engine_override(mocker, mock_engine_data):
     with patch("logic.src.policies.adapters.policy_vrpp.run_vrpp_optimizer") as mock_opt:
         mock_opt.return_value = ([0, 1, 0], 10.0, 5.0)
 
-        policy = PolicyRegistry.get("vrpp")()
+        policy = PolicyFactory.get_adapter("vrpp")
+        assert isinstance(policy, VRPPPolicy)
         policy.execute(**mock_engine_data)
 
         assert mock_opt.called
@@ -104,7 +111,8 @@ def test_hgs_engine_override(mock_engine_data):
     with patch("logic.src.policies.adapters.policy_hgs.run_hgs") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0, 5.0)
 
-        policy = PolicyRegistry.get("hgs")()
+        policy = PolicyFactory.get_adapter("hgs")
+        assert isinstance(policy, HGSPolicy)
         policy.execute(**mock_engine_data)
 
         assert mock_run.called
@@ -117,7 +125,8 @@ def test_alns_engine_override(mock_engine_data):
         # Set specific engine in config
         mock_engine_data["config"]["alns"]["engine"] = "ortools"
 
-        policy = PolicyRegistry.get("alns")()
+        policy = PolicyFactory.get_adapter("alns")
+        assert isinstance(policy, ALNSPolicy)
         policy.execute(**mock_engine_data)
 
         assert mock_run.called
@@ -136,7 +145,8 @@ def test_sans_execution(mock_engine_data):
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
         mock_sans.return_value = ([[1, 0]], 10.0, 5.0, 2.0, 10.0)
 
-        policy = PolicyRegistry.get("sans")()
+        policy = PolicyFactory.get_adapter("sans")
+        assert isinstance(policy, SANSPolicy)
         policy.execute(**mock_engine_data)
 
         assert mock_sans.called
@@ -150,7 +160,7 @@ def test_ahvpl_engine_override(mock_engine_data):
 
         mock_engine_data["config"]["ahvpl"] = {}
 
-        policy = PolicyRegistry.get("ahvpl")()
+        policy = PolicyFactory.get_adapter("ahvpl")
         assert isinstance(policy, AHVPLPolicy)
         policy.execute(**mock_engine_data)
 

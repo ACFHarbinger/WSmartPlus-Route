@@ -1,6 +1,5 @@
-import os
-import json
 from unittest.mock import MagicMock, patch
+
 import pandas as pd
 import torch
 from logic.src.tracking.logging.log_utils import (
@@ -13,6 +12,8 @@ from logic.src.tracking.logging.log_utils import (
 )
 from logic.src.tracking.logging.log_visualization import log_training
 from omegaconf import OmegaConf
+from typing import Any, cast
+
 
 class TestLogUtils:
     """Class for log_utils tests."""
@@ -103,7 +104,7 @@ class TestLogUtils:
             },
             "baseline": "critic"
         })
-        log_values(cost, grad_norms, epoch, batch_id, step, l_dict, tb_logger, opts)
+        log_values(cost, cast(Any, grad_norms), epoch, batch_id, step, l_dict, tb_logger, opts)
         assert mock_wandb.log.called
         assert tb_logger.add_scalar.called
 
@@ -124,7 +125,7 @@ class TestLogUtils:
             ],  # data
         ]
         mock_open_file.return_value.__enter__.return_value = MagicMock()
-        mean, std = output_stats("home", 1, 50, "out", "area", 2, ["policy1"], ["cost"], print_output=False)
+        mean, std = output_stats("home", 1, 50, "out", "area", 2, ["policy1"], ["cost"], print_output=False)    # type: ignore
         assert isinstance(mean, dict)
         assert isinstance(std, dict)
         assert mock_dump.called
@@ -133,7 +134,7 @@ class TestLogUtils:
     def test_runs_per_policy(self, mock_read):
         """Test runs_per_policy function."""
         mock_read.return_value = [{"policy1": "res"}, {}]
-        res = runs_per_policy("home", 1, [50], "out", "area", [100], ["policy1"], print_output=True)
+        res = runs_per_policy("home", 1, [50], "out", "area", [100], ["policy1"], print_output=True)    # type: ignore
         assert isinstance(res, list)
         assert len(res) == 1
         assert res[0]["policy1"] == [0]

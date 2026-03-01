@@ -1,13 +1,15 @@
 
 import time
+from typing import Any, cast
+
 import pytest
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-
+from logic.src.envs.base import RL4COEnvBase
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from logic.src.pipeline.rl.core.time_tracking import TimeOptimizedREINFORCE
-from logic.src.envs.base import RL4COEnvBase
+from tensordict import TensorDict
+
 
 class MockPolicy(nn.Module):
     def __init__(self):
@@ -30,7 +32,7 @@ class MockBaseline(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def eval(self, td, reward, env=None):
+    def eval(self, td, reward, env=None):  # type: ignore[override]
         return torch.zeros_like(reward)
 
 @pytest.mark.unit
@@ -39,8 +41,8 @@ def test_reinforce_base_no_time():
     # Mock dependencies
     class MockEnv(RL4COEnvBase):
         name = "mock_env"
-        def reset(self, td, **kwargs): return td
-        def get_reward(self, td, actions): return torch.zeros(td.size(0))
+        def reset(self, td, **kwargs): return td  # type: ignore[override]
+        def get_reward(self, td, actions): return torch.zeros(td.size(0))  # type: ignore[override]
 
     env = MockEnv()
     policy = MockPolicy()
@@ -64,8 +66,8 @@ def test_time_optimized_reinforce():
 
     class MockEnv(RL4COEnvBase):
         name = "mock_env"
-        def reset(self, td, **kwargs): return td
-        def get_reward(self, td, actions): return torch.zeros(td.size(0))
+        def reset(self, td, **kwargs): return td  # type: ignore[override]
+        def get_reward(self, td, actions): return torch.zeros(td.size(0))  # type: ignore[override]
 
     env = MockEnv()
     policy = MockPolicy()
@@ -97,7 +99,7 @@ def test_time_optimized_reinforce():
     out["log_likelihood"] = torch.ones(batch_size) * 1.0
 
     # This should call TimeOptimizedREINFORCE.calculate_loss
-    loss = module.calculate_loss(td, out, 0, env)
+    module.calculate_loss(td, out, 0, cast(Any, env))
 
     assert "inference_time" in out
 

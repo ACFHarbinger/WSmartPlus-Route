@@ -61,4 +61,5 @@ class TestSimulation:
 
         assert "pol1" in log
         assert len(log["pol1"]) == 2
+        assert log_std is not None
         assert "pol1" in log_std

@@ -2,13 +2,13 @@
 Tests for REINFORCE algorithm implementation.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-from unittest.mock import MagicMock, patch
-
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
+from tensordict import TensorDict
 
 
 class MockBaseline(nn.Module):
@@ -18,7 +18,7 @@ class MockBaseline(nn.Module):
         self.val = torch.zeros(1) # dummy param
         self.eval_return_value = None
 
-    def eval(self, td, reward, env=None):
+    def eval(self, tensordict, reward, env=None):   # type: ignore[override]
         if self.eval_return_value is not None:
             return self.eval_return_value
         return torch.zeros(reward.shape[0])
@@ -114,7 +114,7 @@ class TestREINFORCE:
         module, _, _ = setup_reinforce
 
         # Set pre-calculated baseline value
-        module._current_baseline_val = torch.tensor([5.0, 5.0])
+        module._current_baseline_val = torch.tensor([5.0, 5.0]) # type: ignore[attr-defined]
 
         # Mock baseline eval to ensure it's NOT called
         module.baseline = MockBaseline()

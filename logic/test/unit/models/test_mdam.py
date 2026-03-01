@@ -1,28 +1,29 @@
 
-import pytest
-import torch
-import torch.nn as nn
-from tensordict import TensorDict
+from typing import Optional, cast
 from unittest.mock import MagicMock
 
+import pytest
+import torch
+from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.subnets.decoders.mdam.decoder import MDAMDecoder
 from logic.src.models.subnets.decoders.mdam.path import MDAMPath
-from logic.src.envs.base import RL4COEnvBase
+from tensordict import TensorDict, TensorDictBase
+
 
 class MockEnv(RL4COEnvBase):
     name = "vrpp"
     def __init__(self):
-        self.device = "cpu"
+        self.device = torch.device("cpu")
 
-    def step(self, td):
+    def step(self, tensordict: TensorDictBase) -> TensorDictBase:
         # minimal step implementation
-        next_td = td.clone()
+        next_td = tensordict.clone()
         # Mocking done
-        next_td["done"] = torch.ones(td.batch_size, dtype=torch.bool)
-        return {"next": next_td}
+        next_td["done"] = torch.ones(tensordict.batch_size, dtype=torch.bool)
+        return TensorDict({"next": next_td})
 
-    def get_reward(self, td, actions):
-        return torch.zeros(td.batch_size, dtype=torch.float)
+    def get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None):
+        return torch.zeros(tensordict.batch_size, dtype=torch.float)
 
 @pytest.fixture
 def mdam_decoder():
@@ -51,7 +52,7 @@ def test_mdam_path_precompute():
     assert cache.node_embeddings.shape == (batch_size, num_nodes, embed_dim)
     assert cache.graph_context.shape == (batch_size, 1, embed_dim)
     # Glimpse key/val should be (num_heads, batch, 1, num_nodes, key_dim)
-    assert cache.glimpse_key.shape == (2, batch_size, 1, num_nodes, embed_dim // 2)
+    assert cast(torch.Tensor, cache.glimpse_key).shape == (2, batch_size, 1, num_nodes, embed_dim // 2)
 
 def test_mdam_decoder_forward(mdam_decoder):
     batch_size = 2

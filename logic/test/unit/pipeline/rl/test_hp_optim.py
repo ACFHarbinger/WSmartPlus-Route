@@ -1,5 +1,6 @@
 """Tests for hyperparameter optimization pipelines (DEHB, Optuna)."""
 
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -59,7 +60,7 @@ class TestOptunaHPO:
 
         # Test grid (requires search_space)
         cfg.hpo.method = "grid"
-        cfg.hpo.search_space = {"a": [1, 2]}
+        cfg.hpo.search_space = cast(Any, {"a": [1, 2]})
         hpo = OptunaHPO(cfg, MagicMock())
         sampler = hpo._get_sampler()
         assert isinstance(sampler, optuna.samplers.GridSampler)
