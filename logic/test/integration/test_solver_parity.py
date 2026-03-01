@@ -30,12 +30,6 @@ class TestSolverParity:
                 optimizer="gurobi",
                 time_limit=5
             )
-            # Calculate objective: Waste - Cost
-            # Waste = sum(bins[i-1] * R) for i in visited (excluding 0)
-            # Cost = route cost * C
-            # But run_vrpp_optimizer returns (Route, Profit, Cost).
-            # Profit returned is usually the net objective? Or just revenue?
-            # Let's trust the return values for now or recompute.
             results["gurobi"] = (cost_g, sorted(list(set(routes_g) - {0})))
         except Exception as e:
             pytest.skip(f"Gurobi failed or not available: {e}")

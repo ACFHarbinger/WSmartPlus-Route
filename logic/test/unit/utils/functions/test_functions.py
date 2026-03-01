@@ -127,6 +127,7 @@ class TestFunctions:
         """Test get_path_until_string function."""
         path = "/home/user/project/outputs/run1/model.pt"
         result = get_path_until_string(path, "outputs")
+        assert result is not None
         assert result.endswith("outputs")
 
     def test_do_batch_rep_tensor(self):

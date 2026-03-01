@@ -2,6 +2,8 @@
 
 import torch
 import torch.nn as nn
+from typing import cast
+
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.encoders.gac.encoder import GraphAttConvEncoder
 from logic.src.models.subnets.decoders.gat.decoder import GraphAttentionDecoder
@@ -236,7 +238,7 @@ class TestGlimpseDecoder:
         assert fixed.node_embeddings.shape == (batch, nodes, dim)
         # assert fixed.glimpse_key.shape == (2, batch, 1, nodes, 8) -> Implementation returns (batch, heads, nodes, key_dim)
         # make_heads returns [batch, n_heads, graph_size, key_size]
-        assert fixed.glimpse_key.shape == (batch, 2, nodes, 8)
+        assert cast(torch.Tensor, fixed.glimpse_key).shape == (batch, 2, nodes, 8)
 
     def test_get_parallel_step_context(self):
         """Verifies step context."""

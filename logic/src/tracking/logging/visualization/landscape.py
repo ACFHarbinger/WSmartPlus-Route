@@ -5,7 +5,7 @@ Functions for computing and plotting loss landscapes.
 """
 
 import os
-from typing import Any
+from typing import Any, Union
 
 import matplotlib
 import numpy as np
@@ -15,6 +15,7 @@ matplotlib.use("Agg")
 import loss_landscapes
 import matplotlib.pyplot as plt
 from loss_landscapes.metrics import Metric
+from omegaconf import DictConfig
 
 from logic.src.configs import Config
 from logic.src.models.policies.local_search import vectorized_two_opt
@@ -98,7 +99,7 @@ class RLMetric(Metric):
 
 def plot_loss_landscape(
     model: Any,
-    cfg: Config,
+    cfg: Union[Config, DictConfig],
     output_dir: str,
     epoch: int = 0,
     size: int = 50,

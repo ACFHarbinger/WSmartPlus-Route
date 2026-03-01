@@ -2,6 +2,8 @@
 Tests for RL algorithms (REINFORCE, PPO).
 """
 
+from typing import Any, cast
+
 import pytest
 import torch
 import torch.nn as nn
@@ -91,6 +93,6 @@ class TestAlgorithms:
         loss = model.training_step(batch, 0)
 
         assert isinstance(loss, torch.Tensor)
-        assert model.manual_backward.call_count >= 1
+        assert cast(Any, model.manual_backward).call_count >= 1
         assert mock_opt.step.call_count >= 1
-        assert model.log.call_count >= 1
+        assert cast(Any, model.log).call_count >= 1

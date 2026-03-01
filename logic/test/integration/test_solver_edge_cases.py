@@ -41,7 +41,7 @@ class TestSolverEdgeCases:
         """Test with 0 clients (only depot) - Commercial Solvers."""
         data = edge_case_data
         data["bins"] = np.array([])
-        data["dist_matrix"] = [[0]] # 1x1 matrix (Depot only)
+        data["dist_matrix"] = [[0.]] # 1x1 matrix (Depot only)
         data["binsids"] = [0]
 
         try:
@@ -115,7 +115,7 @@ class TestSolverEdgeCases:
         """Test with 1 client - Commercial Solvers."""
         data = edge_case_data
         data["bins"] = np.array([50.0])
-        data["dist_matrix"] = [[0, 10], [10, 0]]
+        data["dist_matrix"] = [[0., 10.], [10., 0.]]
         data["binsids"] = [1]
 
         try:
@@ -184,7 +184,7 @@ class TestSolverEdgeCases:
         """Test with waste exactly equal to capacity."""
         # 2 nodes, 50+50 = 100 capacity.
         bins = np.array([50.0, 50.0])
-        dist_matrix = [[0,1,1],[1,0,1],[1,1,0]]
+        dist_matrix = [[0.,1.,1.],[1.,0.,1.],[1.,1.,0.]]
         values = {"Q": 100.0, "R": 1, "B":1, "C":0.1, "V":1, "Omega":0, "delta":0, "psi":0}
 
         # Test Gurobi (most sensitive to constraints)

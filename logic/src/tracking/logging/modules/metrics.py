@@ -2,10 +2,11 @@
 Metrics logging for training (terminal, WandB, TensorBoard).
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
 import wandb
+from omegaconf import DictConfig
 
 import logic.src.constants as udef
 from logic.src.configs import Config
@@ -19,7 +20,7 @@ def log_values(
     step: int,
     l_dict: Dict[str, torch.Tensor],
     tb_logger: Any,
-    cfg: Config,
+    cfg: Union[Config, DictConfig],
 ) -> None:
     """Logs training metrics to console, TensorBoard, and WandB."""
     avg_cost: float = cost.mean().item()
@@ -79,7 +80,7 @@ def log_epoch(
     x_tup: Tuple[str, int],
     loss_keys: List[str],
     epoch_loss: Dict[str, List[torch.Tensor]],
-    cfg: Config,
+    cfg: Union[Config, DictConfig],
 ) -> None:
     """Logs summary statistics for a completed epoch."""
     wandb_mode: str = getattr(cfg.rl, "wandb_mode", "disabled")

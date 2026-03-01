@@ -1,19 +1,19 @@
 """Unit tests for beam_search.py."""
 
-import torch
-import pytest
-import numpy as np
+from typing import Any, cast
 from unittest.mock import MagicMock
 
+import torch
 from logic.src.utils.decoding import (
     BatchBeam,
-    segment_topk_idx,
-    backtrack,
     CachedLookup,
     _beam_search,
+    backtrack,
+    beam_search,
     get_beam_search_results,
-    beam_search
+    segment_topk_idx,
 )
+
 
 def test_segment_topk_idx_single_group():
     """Test topk when there is only one group (batch_size=1)."""
@@ -57,23 +57,6 @@ def test_segment_topk_idx_k_larger_than_segment():
 
 def test_backtrack():
     """Test path reconstruction through parent pointers."""
-    # Step 0: Initial (nothing)
-    # Step 1:
-    #   actions: [a1, a2] for batch 0,1
-    #   parents: [0, 0] (initial parents)
-    # Step 2:
-    #   actions: [b1, b2, b3, b4] (2 beams per batch)
-    #   parents: [0, 0, 1, 1] (b1,b2 from a1, b3,b4 from a2)
-
-    p1 = torch.tensor([0, 0]) # Not really used in backtrack core but for structure
-    a1 = torch.tensor([[11, 12], [21, 22]]) # [batch, beam]
-
-    # In beam search output, actions and parents are usually flattened?
-    # Wait, backtrack(parents, actions) arguments:
-    # parents: list of [sum_i beam_i]
-    # actions: list of [sum_i beam_i]
-
-    # Let's say batch=2, beam=2
     # Step 1:
     parents1 = torch.tensor([0, 1]) # Unused for first backtrack step usually
     actions1 = torch.tensor([1, 2]) # Batch 0 took 1, Batch 1 took 2
@@ -107,7 +90,7 @@ def test_cached_lookup():
 
     # First access
     idx1 = torch.tensor([0, 2])
-    val1 = lookup[idx1]
+    val1 = cast(Any, lookup[idx1])
     assert torch.equal(val1, torch.tensor([10, 30]))
     assert lookup.key is idx1
 
@@ -117,7 +100,7 @@ def test_cached_lookup():
 
     # Access with different key
     idx2 = torch.tensor([1, 3])
-    val3 = lookup[idx2]
+    val3 = cast(Any, lookup[idx2])
     assert torch.equal(val3, torch.tensor([20, 40]))
     assert lookup.key is idx2
 
@@ -131,8 +114,8 @@ def test_batch_beam_lifecycle():
     # Initialize
     beam = BatchBeam.initialize(state)
     assert beam.batch_size == 3
-    assert beam.score.shape == (3,)
-    assert torch.all(beam.score == 0)
+    assert cast(torch.Tensor, beam.score).shape == (3,)
+    assert torch.all(cast(torch.Tensor, beam.score) == 0)
     assert beam.parent is None
 
     # Propose expansions
@@ -153,9 +136,9 @@ def test_batch_beam_lifecycle():
 
     next_beam = beam.expand(parent, action, score=torch.linspace(0, 1, 15))
     assert next_beam.state == new_state
-    assert torch.equal(next_beam.parent, parent)
-    assert torch.equal(next_beam.action, action)
-    assert next_beam.score.shape == (15,)
+    assert torch.equal(cast(torch.Tensor, next_beam.parent), parent)
+    assert torch.equal(cast(torch.Tensor, next_beam.action), action)
+    assert cast(torch.Tensor, next_beam.score).shape == (15,)
 
 def test_get_beam_search_results_empty():
     """Test get_beam_search_results with None state."""
@@ -220,6 +203,7 @@ def test_beam_search_integration():
     beams, final_state = _beam_search(initial_state, beam_size=2, propose_expansions=mock_propose)
 
     assert len(beams) == 3 # Initial + 2 steps
+    assert final_state is not None
     assert final_state.step == 2
     assert final_state.all_finished()
 
@@ -229,9 +213,12 @@ def test_beam_search_integration():
     )
 
     assert batch_size == 2
-    assert cost.shape == (4,)
+    assert cost is not None
+    assert cast(torch.Tensor, cost).shape == (4,)
+    assert solutions is not None
     assert solutions.shape[0] == 4
     assert solutions.shape[1] == 2
+    assert res_ids is not None
     assert res_ids.shape == (4,)
 
 
@@ -277,17 +264,16 @@ def test_batch_beam_slicing():
     )
 
     idx = torch.tensor([0, 2])
-    sliced = beam[idx]
-
-    assert torch.equal(sliced.score, torch.tensor([1.0, 3.0]))
+    sliced = cast(BatchBeam, beam[idx])
+    assert torch.equal(cast(torch.Tensor, sliced.score), torch.tensor([1.0, 3.0]))
     assert sliced.state == "sliced_state"
-    assert torch.equal(sliced.parent, torch.tensor([0, 1]))
-    assert torch.equal(sliced.action, torch.tensor([1, 3]))
+    assert torch.equal(cast(torch.Tensor, sliced.parent), torch.tensor([0, 1]))
+    assert torch.equal(cast(torch.Tensor, sliced.action), torch.tensor([1, 3]))
 
 
 def test_batch_beam_clear_state():
     """Test clear_state method."""
-    beam = BatchBeam(score=None, state="state", parent=None, action=None, batch_size=1, device=None)
+    beam = BatchBeam(score=cast(Any, None), state="state", parent=None, action=None, batch_size=1, device=None)
     cleared = beam.clear_state()
     assert cleared.state is None
     assert cleared.score is None
@@ -299,11 +285,11 @@ def test_cached_lookup_mismatched_key_length():
     lookup = CachedLookup(data)
 
     # First access
-    val1 = lookup[torch.tensor([0, 1])]
+    val1 = cast(Any, lookup[torch.tensor([0, 1])])
     assert len(val1) == 2
 
     # Second access with different length (should recompute)
-    val2 = lookup[torch.tensor([0, 1, 2])]
+    val2 = cast(Any, lookup[torch.tensor([0, 1, 2])])
     assert len(val2) == 3
 
 

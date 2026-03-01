@@ -169,16 +169,17 @@ include = ["gui", "logic"]
 # Ignore rules (Migration of your basedpyright ignores)
 ignore = ["**/__init__.py"]
 
-[tool.pyrefly.analysis]
-reportOptionalSubscript = false
-reportOptionalMemberAccess = false
-reportOptionalCall = false
-reportOptionalIterable = false
-reportAttributeAccessIssue = false
-reportGeneralTypeIssues = false
-reportOperatorIssue = false
-reportArgumentType = false
-reportCallIssue = false
+[tool.pyrefly.errors]
+"implicit-import" = false
+"optional-subscript" = false
+"optional-member-access" = false
+"optional-call" = false
+"optional-iterable" = false
+"attribute-access-issue" = false
+"general-type-issues" = false
+"operator-issue" = false
+"argument-type" = false
+"call-issue" = false
 
 # Enable semantic features that were missing in your greyed-out view
 indexing = true

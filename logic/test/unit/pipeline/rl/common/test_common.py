@@ -2,6 +2,8 @@
 Tests for RL pipeline features (epoch utilities, metrics).
 """
 
+from typing import Any
+
 import torch
 from logic.src.pipeline.rl.common.epoch import compute_validation_metrics, prepare_epoch
 from tensordict import TensorDict
@@ -18,7 +20,7 @@ class TestFeatures:
         baseline.wrap_dataset.side_effect = lambda d, policy=None, env=None: "wrapped_dataset"
         baseline.unwrap_dataset.side_effect = lambda d: d
 
-        dataset = "original_dataset"
+        dataset: Any = "original_dataset"
 
         # Training phase with baseline wrapping
         wrapped = prepare_epoch(policy, env, baseline, dataset, 0, phase="train")

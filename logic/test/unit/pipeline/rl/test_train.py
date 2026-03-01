@@ -1,5 +1,6 @@
 """Tests for the modernized PyTorch Lightning training pipeline."""
 
+from typing import Any, Dict, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -72,7 +73,7 @@ class TestTrainingOrchestration:
             cfg = Config()
             # Convert to DictConfig to allow overriding with mocks if needed,
             # or just use plain objects.
-            cfg_dict = OmegaConf.to_container(OmegaConf.create(cfg), resolve=True)
+            cfg_dict = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg)), resolve=True))
             cfg_dict["rl"]["algorithm"] = algo
             cfg_dict["model"]["name"] = "am"
 
@@ -93,7 +94,7 @@ class TestTrainingOrchestration:
                  patch("logic.src.pipeline.features.train.AttentionModelPolicy"), \
                  patch("logic.src.models.common.critic_network.policy.create_critic_from_actor"):
 
-                model = create_model(cfg)
+                model = create_model(cast(Any, cfg))
                 assert model is not None
                 assert model.__class__.__name__.lower() == algo
 
@@ -124,7 +125,7 @@ class TestWSTrainer:
             trainer = WSTrainer(max_epochs=5)
             assert trainer.max_epochs == 5
             # Check for ModelCheckpoint and RichProgressBar in callbacks
-            callback_types = [type(c) for c in trainer.callbacks]
+            callback_types = [type(c) for c in cast(Any, trainer).callbacks]
             from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 
             assert ModelCheckpoint in callback_types

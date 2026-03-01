@@ -89,34 +89,17 @@ class TestNetwork:
         dist_matrix[3, 2] = 10.0
         dist_matrix[0, 2] = 30.0
         dist_matrix[2, 0] = 30.0
-
-        # Threshold: Keep top 1 edge (Global sparsification by distance).
-        # Edges (clients only):
-        # (2,3) dist 10
-        # (1,2) dist 20
-        # (1,3) dist 100
-        # If we keep 1, only (2,3) remains. (1,2) is removed.
-
         dm_edges, paths, adj = apply_edges(dist_matrix, edge_thresh=1, edge_method="dist")
 
         # Verify adjacency
+        assert adj is not None
+        assert paths is not None
+        assert dm_edges is not None
         assert adj[1, 2] == 0  # 20 > 10, not in top 1
         assert adj[2, 3] == 1  # 10 is shortest, kept
         assert adj[0, 2] == 1  # Depot preserved
-
-        # Shortest path 1->2.
-        # Direct 1-2 removed (was 20).
-        # Path 1 -> 0 -> 2 (10 + 30 = 40).
-        # Or 1 -> 0 -> 1 ...
-        # (1,2) should not have direct edge (which was 20).
-        # FW keeps weights where adj=1.
-        # dm_edges[1,2] should be path length via kept edges.
-        # Path: 1 -> 0 -> 2 (10 + 30 = 40).
-        # Original direct was 20.
-        # So distance increases.
-
-        if dm_edges[1, 2] != float("inf"):
-            assert dm_edges[1, 2] > 20.0
+        assert dm_edges[1, 2] != float("inf")
+        assert dm_edges[1, 2] > 20.0
 
     def test_apply_edges_no_sparsification(self):
         dist_matrix = np.ones((2, 2))
@@ -126,9 +109,6 @@ class TestNetwork:
         assert np.allclose(dm, dist_matrix)
 
     def test_get_paths_between_states(self):
-        # Must provide valid paths for all pairs (excluding diagonal if implementation logic dictates)
-        # Implementation loops ii in 0..n, jj in 0..n.
-        # If ii!=jj, access shortest_paths[(ii,jj)]
         paths_dict = {(0, 1): [0, 1], (1, 0): [1, 0]}
         res = get_paths_between_states(2, paths_dict)
         assert res[0][1] == [0, 1]

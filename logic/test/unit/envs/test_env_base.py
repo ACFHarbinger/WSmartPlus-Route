@@ -7,17 +7,17 @@ from tensordict import TensorDict
 
 
 class ConcreteEnv(RL4COEnvBase):
-    def _reset_instance(self, td):
-        td["visited"] = torch.zeros((*td.batch_size, 5), dtype=torch.bool)
-        td["current_node"] = torch.zeros((*td.batch_size, 1), dtype=torch.long)
-        td["tour"] = td["current_node"].clone()
-        return td
+    def _reset_instance(self, tensordict):
+        tensordict["visited"] = torch.zeros((*tensordict.batch_size, 5), dtype=torch.bool)
+        tensordict["current_node"] = torch.zeros((*tensordict.batch_size, 1), dtype=torch.long)
+        tensordict["tour"] = tensordict["current_node"].clone()
+        return tensordict
 
-    def _get_reward(self, td, actions=None):
-        return torch.zeros(td.batch_size)
+    def _get_reward(self, tensordict, actions=None):
+        return torch.zeros(tensordict.batch_size)
 
-    def _get_action_mask(self, td):
-        return torch.ones((*td.batch_size, 5), dtype=torch.bool)
+    def _get_action_mask(self, tensordict):
+        return torch.ones((*tensordict.batch_size, 5), dtype=torch.bool)
 
 
 def test_env_base_init():
@@ -34,8 +34,8 @@ def test_env_base_reset():
 
     out_td = env.reset(td)
     assert out_td.batch_size == torch.Size([2])
-    assert "visited" in out_td.keys()
-    assert "action_mask" in out_td.keys()
+    assert "visited" in out_td.keys()   # type: ignore[not-iterable]
+    assert "action_mask" in out_td.keys()   # type: ignore[not-iterable]
     assert out_td["i"].sum() == 0
 
 
@@ -59,4 +59,4 @@ def test_env_base_step():
     next_td = env._step(td)
     assert next_td["i"].tolist() == [1, 1]
     assert next_td["current_node"].flatten().tolist() == [1, 2]
-    assert "reward" in next_td.keys()
+    assert "reward" in next_td.keys()   # type: ignore[not-iterable]

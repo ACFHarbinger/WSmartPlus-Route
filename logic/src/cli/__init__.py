@@ -3,6 +3,7 @@ Unified entry point for the WSmart+ Route modular CLI.
 """
 
 import argparse
+from typing import Any, Dict, Tuple, Union
 
 from logic.src.cli.benchmark_parser import validate_benchmark_args
 from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
@@ -18,7 +19,7 @@ from .base import (
 )
 
 
-def parse_params():
+def parse_params() -> Tuple[Union[str, Tuple[str, str]], Dict[str, Any]]:
     """
     Parses arguments, determines the command, and performs necessary validation.
     Returns: (command, validated_opts) where 'command' might be a tuple (comm, inner_comm)
@@ -28,13 +29,14 @@ def parse_params():
     try:
         # Parse arguments into a dictionary using the custom handler
         command, opts = parser.parse_process_args()
+        assert command is not None
 
         # --- COMMAND-SPECIFIC VALIDATION AND POST-PROCESSING ---
         # "gen_data", "eval", "test_sim", "train" are now fully handled by Hydra or removed from legacy flow
         if command == "file_system":
             # This returns a tuple: (fs_command, validated_opts)
-            command, opts = validate_file_system_args(opts)
-            command = ("file_system", command)  # type: ignore[assignment]  # Re-wrap for main()
+            inner_comm, opts = validate_file_system_args(opts)
+            return ("file_system", inner_comm), opts
         elif command == "gui":
             opts = validate_gui_args(opts)
         elif command == "test_suite":

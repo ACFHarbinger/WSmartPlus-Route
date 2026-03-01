@@ -1,6 +1,7 @@
 
 import torch
 import pytest
+from typing import Any, cast
 from logic.src.utils.functions import boolmask
 
 class TestBoolMask:
@@ -77,4 +78,4 @@ class TestBoolMask:
 
         # Should be ok with check_unset=False
         new_mask_2 = boolmask.mask_long_scatter(new_mask, idx, check_unset=False)
-        assert (new_mask == new_mask_2).all()
+        assert torch.all(cast(Any, new_mask) == new_mask_2)

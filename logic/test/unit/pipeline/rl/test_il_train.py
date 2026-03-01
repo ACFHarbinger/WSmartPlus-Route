@@ -1,6 +1,7 @@
 """Tests for Imitation Learning training pipelines."""
 
 import time
+from typing import Any
 
 import pytest
 import torch
@@ -73,7 +74,7 @@ class TestHGS:
 
         def calc_cost(t):
             """Calculate route cost."""
-            c = 0
+            c: Any = 0
             for k in range(len(t) - 1):
                 c += dist[0, t[k], t[k + 1]]
             return c
@@ -92,7 +93,7 @@ class TestHGS:
 
         def calc_cost(t):
             """Calculate route cost."""
-            c = 0
+            c: Any = 0
             for k in range(len(t) - 1):
                 c += dist[0, t[k], t[k + 1]]
             return c
@@ -113,7 +114,7 @@ class TestHGS:
 
         def calc_cost(t):
             """Calculate route cost."""
-            c = 0
+            c: Any = 0
             for k in range(len(t) - 1):
                 c += dist[0, t[k], t[k + 1]]
             return c
@@ -139,7 +140,7 @@ class TestHGS:
 
         def calc_cost(t):
             """Calculate route cost."""
-            c = 0
+            c: Any = 0
             for k in range(len(t) - 1):
                 c += dist[0, t[k], t[k + 1]]
             return c
@@ -212,9 +213,9 @@ class TestHGS:
         # Parse into individual routes
         parsed_routes = []
         current_route = [0]
-        for node in r_flat[1:]:
-            current_route.append(node)
-            if node == 0:
+        for node_val in r_flat[1:]:
+            current_route.append(node_val)
+            if node_val == 0:
                 if len(current_route) > 2:  # Ignore 0-0 sequence if any
                     parsed_routes.append(current_route)
                 current_route = [0]
@@ -324,7 +325,7 @@ class TestVectorized2OptIL:
 
         def calc_cost(t, d):
             """Calculate route cost."""
-            c = 0
+            c: Any = 0
             for k in range(len(t) - 1):
                 c += d[0, t[k], t[k + 1]]
             return c

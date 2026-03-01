@@ -2,6 +2,7 @@
 Tests for RL baseline implementations.
 """
 
+
 import pytest
 import torch
 import torch.nn as nn
@@ -130,11 +131,11 @@ class TestBaselines:
         # Base class init doesn't set alpha, let's check evaluation
 
         # Update to epoch 0
-        warmup_bl.epoch_callback(None, 0)  # alpha = (0+1)/2 = 0.5
+        warmup_bl.epoch_callback(nn.Module(), 0)  # alpha = (0+1)/2 = 0.5
         assert warmup_bl.alpha == 0.5
 
         # Update to epoch 1
-        warmup_bl.epoch_callback(None, 1)  # alpha = (1+1)/2 = 1.0
+        warmup_bl.epoch_callback(nn.Module(), 1)  # alpha = (1+1)/2 = 1.0
         assert warmup_bl.alpha == 1.0
 
     def test_pomo_baseline(self):

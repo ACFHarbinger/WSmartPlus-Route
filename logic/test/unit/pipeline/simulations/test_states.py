@@ -263,6 +263,7 @@ class TestFinishingState:
         state.handle(ctx)
 
         assert ctx.current_state is None
+        assert ctx.result is not None
         assert ctx.result["success"] is True
         mock_log_json.assert_called()
         mock_excel.assert_called()
