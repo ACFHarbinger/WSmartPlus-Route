@@ -67,7 +67,7 @@ Bases: {py:obj}`torch_geometric.nn.MessagePassing`
 
 ````
 
-````{py:method} forward(x: torch.Tensor, edge_index: torch_geometric.typing.Adj) -> torch.Tensor
+````{py:method} forward(*args: typing.Any, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.forward

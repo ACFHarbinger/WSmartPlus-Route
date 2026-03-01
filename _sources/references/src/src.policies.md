@@ -14,19 +14,38 @@
 :maxdepth: 3
 
 src.policies.augmented_hybrid_volleyball_premier_league
+src.policies.genetic_programming_hyper_heuristic
 src.policies.branch_cut_and_price
 src.policies.ant_colony_optimization
 src.policies.local_search
 src.policies.slack_induction_by_string_removal
+src.policies.variable_neighborhood_search
+src.policies.hidden_markov_model_great_deluge
 src.policies.hybrid_volleyball_premier_league
+src.policies.artificial_bee_colony
+src.policies.reactive_tabu_search
 src.policies.other
 src.policies.operators
 src.policies.adapters
+src.policies.guided_local_search
+src.policies.quantum_differential_evolution
 src.policies.vehicle_routing_problem_with_profits
 src.policies.simulated_annealing_neighborhood_search
+src.policies.iterated_local_search
+src.policies.late_acceptance_hill_climbing
+src.policies.genetic_algorithm
+src.policies.league_championship_algorithm
+src.policies.firefly_algorithm
 src.policies.hybrid_genetic_search
+src.policies.soccer_league_competition
+src.policies.harmony_search
+src.policies.old_bachelor_acceptance
 src.policies.neural_agent
+src.policies.simulated_annealing
+src.policies.record_to_record_travel
 src.policies.adaptive_large_neighborhood_search
+src.policies.sine_cosine_algorithm
+src.policies.particle_swarm_optimization_memetic
 ```
 
 ## Submodules
@@ -37,7 +56,6 @@ src.policies.adaptive_large_neighborhood_search
 
 src.policies.tsp
 src.policies.cvrp
-src.policies.lin_kernighan_helsgaun
 src.policies.hgs_alns
 ```
 

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} Bins(n: int, data_dir: str, sample_dist: str = 'gamma', grid: typing.Optional[src.pipeline.simulations.wsmart_bin_analysis.GridBase] = None, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None, indices: typing.Optional[typing.Union[numpy.ndarray, typing.List[int]]] = None, waste_file: typing.Optional[str] = None, noise_mean: float = 0.0, noise_variance: float = 0.0)
+`````{py:class} Bins(n: int, data_dir: str, sample_dist: str = 'gamma', grid: typing.Optional[src.pipeline.simulations.wsmart_bin_analysis.GridBase] = None, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None, indices: typing.Optional[typing.Union[numpy.ndarray, typing.List[int]]] = None, waste_file: typing.Optional[str] = None, noise_mean: float = 0.0, noise_variance: float = 0.0, n_days: int = 31, n_samples: int = 1)
 :canonical: src.pipeline.simulations.bins.base.Bins
 
 ```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins
@@ -75,10 +75,10 @@
 
 ````
 
-````{py:method} predictdaystooverflow(cl: float) -> numpy.ndarray
-:canonical: src.pipeline.simulations.bins.base.Bins.predictdaystooverflow
+````{py:method} predict_days_to_overflow(cl: float) -> numpy.ndarray
+:canonical: src.pipeline.simulations.bins.base.Bins.predict_days_to_overflow
 
-```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.predictdaystooverflow
+```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.predict_days_to_overflow
 ```
 
 ````
@@ -115,26 +115,18 @@
 
 ````
 
-````{py:method} stochasticFilling(n_samples: int = 1, only_fill: bool = False) -> typing.Union[numpy.ndarray, typing.Tuple[int, numpy.ndarray, numpy.ndarray, float]]
-:canonical: src.pipeline.simulations.bins.base.Bins.stochasticFilling
+````{py:method} deterministic_filling(date)
+:canonical: src.pipeline.simulations.bins.base.Bins.deterministic_filling
 
-```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.stochasticFilling
+```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.deterministic_filling
 ```
 
 ````
 
-````{py:method} deterministicFilling(date)
-:canonical: src.pipeline.simulations.bins.base.Bins.deterministicFilling
+````{py:method} load_filling(day: int) -> typing.Tuple[int, numpy.ndarray, numpy.ndarray, float]
+:canonical: src.pipeline.simulations.bins.base.Bins.load_filling
 
-```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.deterministicFilling
-```
-
-````
-
-````{py:method} loadFilling(day: int) -> typing.Tuple[int, numpy.ndarray, numpy.ndarray, float]
-:canonical: src.pipeline.simulations.bins.base.Bins.loadFilling
-
-```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.loadFilling
+```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.load_filling
 ```
 
 ````
@@ -147,18 +139,18 @@
 
 ````
 
-````{py:method} setGammaDistribution(option=0)
-:canonical: src.pipeline.simulations.bins.base.Bins.setGammaDistribution
+````{py:method} set_gamma_distribution(option=0)
+:canonical: src.pipeline.simulations.bins.base.Bins.set_gamma_distribution
 
-```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.setGammaDistribution
+```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.set_gamma_distribution
 ```
 
 ````
 
-````{py:method} setCollectionLvlandFreq(cf=0.9)
-:canonical: src.pipeline.simulations.bins.base.Bins.setCollectionLvlandFreq
+````{py:method} set_collection_level_and_freq(cf=0.9)
+:canonical: src.pipeline.simulations.bins.base.Bins.set_collection_level_and_freq
 
-```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.setCollectionLvlandFreq
+```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.set_collection_level_and_freq
 ```
 
 ````

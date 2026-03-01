@@ -71,7 +71,7 @@
 
 ````
 
-````{py:method} solve(initial_solutions: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> typing.Any
+````{py:method} solve(initial_solutions: typing.Any, n_iterations: int = 2000, time_limit: typing.Optional[float] = None, max_vehicles: int = 0, start_temp: float = 0.5, cooling_rate: float = 0.9995, **kwargs: typing.Any) -> typing.Any
 :canonical: src.ui.components.alns_charts.TrackedVectorizedALNS.solve
 
 ```{autodoc2-docstring} src.ui.components.alns_charts.TrackedVectorizedALNS.solve

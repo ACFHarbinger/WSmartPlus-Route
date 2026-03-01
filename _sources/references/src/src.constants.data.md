@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.constants.data.GAMMA_PRESETS
     :summary:
     ```
+* - {py:obj}`DATASET_EXTENSIONS <src.constants.data.DATASET_EXTENSIONS>`
+  - ```{autodoc2-docstring} src.constants.data.DATASET_EXTENSIONS
+    :summary:
+    ```
 ````
 
 ### API
@@ -30,6 +34,16 @@
    [([5, 5, 5, 5, 5, 10, 10, 10, 10, 10], [5, 2]), ([2, 2, 2, 2, 2, 6, 6, 6, 6, 6], [6, 4]), ([1, 1, 1,...
 
 ```{autodoc2-docstring} src.constants.data.GAMMA_PRESETS
+```
+
+````
+
+````{py:data} DATASET_EXTENSIONS
+:canonical: src.constants.data.DATASET_EXTENSIONS
+:value: >
+   None
+
+```{autodoc2-docstring} src.constants.data.DATASET_EXTENSIONS
 ```
 
 ````

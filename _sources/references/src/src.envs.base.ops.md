@@ -37,7 +37,7 @@
 
 ````
 
-````{py:method} step(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} step(tensordict: tensordict.TensorDictBase) -> tensordict.TensorDictBase
 :canonical: src.envs.base.ops.OpsMixin.step
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin.step
@@ -45,7 +45,7 @@
 
 ````
 
-````{py:method} reset(td: typing.Optional[tensordict.TensorDict] = None, **kwargs) -> tensordict.TensorDict
+````{py:method} reset(tensordict: typing.Optional[tensordict.TensorDictBase] = None, **kwargs) -> tensordict.TensorDictBase
 :canonical: src.envs.base.ops.OpsMixin.reset
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin.reset
@@ -53,7 +53,7 @@
 
 ````
 
-````{py:method} _reset(td: typing.Optional[tensordict.TensorDict] = None, batch_size: typing.Optional[int] = None) -> tensordict.TensorDict
+````{py:method} _reset(tensordict: typing.Optional[tensordict.TensorDictBase] = None, **kwargs) -> tensordict.TensorDictBase
 :canonical: src.envs.base.ops.OpsMixin._reset
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin._reset
@@ -61,7 +61,7 @@
 
 ````
 
-````{py:method} _step(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} _step(tensordict: tensordict.TensorDictBase) -> tensordict.TensorDictBase
 :canonical: src.envs.base.ops.OpsMixin._step
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin._step
@@ -69,7 +69,7 @@
 
 ````
 
-````{py:method} make_state(nodes: tensordict.TensorDict, edges: typing.Optional[torch.Tensor] = None, cost_weights: typing.Optional[torch.Tensor] = None, dist_matrix: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any) -> typing.Any
+````{py:method} make_state(nodes: tensordict.TensorDictBase, edges: typing.Optional[torch.Tensor] = None, cost_weights: typing.Optional[torch.Tensor] = None, dist_matrix: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any) -> typing.Any
 :canonical: src.envs.base.ops.OpsMixin.make_state
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin.make_state
@@ -77,7 +77,7 @@
 
 ````
 
-````{py:method} get_costs(td: tensordict.TensorDict, pi: torch.Tensor, cost_weights: typing.Optional[torch.Tensor] = None, dist_matrix: typing.Optional[torch.Tensor] = None) -> typing.Any
+````{py:method} get_costs(tensordict: tensordict.TensorDictBase, pi: torch.Tensor, cost_weights: typing.Optional[torch.Tensor] = None, dist_matrix: typing.Optional[torch.Tensor] = None) -> typing.Any
 :canonical: src.envs.base.ops.OpsMixin.get_costs
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin.get_costs
@@ -85,7 +85,7 @@
 
 ````
 
-````{py:method} _step_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} _step_instance(tensordict: tensordict.TensorDictBase) -> tensordict.TensorDictBase
 :canonical: src.envs.base.ops.OpsMixin._step_instance
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin._step_instance
@@ -93,7 +93,7 @@
 
 ````
 
-````{py:method} _check_done(td: tensordict.TensorDict) -> torch.Tensor
+````{py:method} _check_done(tensordict: tensordict.TensorDictBase) -> torch.Tensor
 :canonical: src.envs.base.ops.OpsMixin._check_done
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin._check_done
@@ -101,7 +101,7 @@
 
 ````
 
-````{py:method} get_reward(td: tensordict.TensorDict, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
+````{py:method} get_reward(tensordict: tensordict.TensorDictBase, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.envs.base.ops.OpsMixin.get_reward
 
 ```{autodoc2-docstring} src.envs.base.ops.OpsMixin.get_reward
@@ -109,7 +109,7 @@
 
 ````
 
-````{py:method} _reset_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} _reset_instance(tensordict: tensordict.TensorDictBase) -> tensordict.TensorDictBase
 :canonical: src.envs.base.ops.OpsMixin._reset_instance
 :abstractmethod:
 
@@ -118,7 +118,7 @@
 
 ````
 
-````{py:method} _get_reward(td: tensordict.TensorDict, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
+````{py:method} _get_reward(tensordict: tensordict.TensorDictBase, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.envs.base.ops.OpsMixin._get_reward
 :abstractmethod:
 
@@ -127,7 +127,7 @@
 
 ````
 
-````{py:method} _get_action_mask(td: tensordict.TensorDict) -> torch.Tensor
+````{py:method} _get_action_mask(tensordict: tensordict.TensorDictBase) -> torch.Tensor
 :canonical: src.envs.base.ops.OpsMixin._get_action_mask
 :abstractmethod:
 

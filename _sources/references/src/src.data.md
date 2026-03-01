@@ -16,4 +16,6 @@
 src.data.generators
 src.data.datasets
 src.data.distributions
+src.data.network
+src.data.processor
 ```

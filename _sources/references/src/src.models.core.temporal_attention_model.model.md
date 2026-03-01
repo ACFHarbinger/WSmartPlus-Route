@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.AttentionModel`
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.model.TemporalAttentionModel.__init__
 ```
 
-````{py:method} _get_initial_embeddings(input)
+````{py:method} _get_initial_embeddings(input: typing.Dict[str, torch.Tensor]) -> typing.Tuple[torch.Tensor, typing.Optional[typing.Any]]
 :canonical: src.models.core.temporal_attention_model.model.TemporalAttentionModel._get_initial_embeddings
 
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.model.TemporalAttentionModel._get_initial_embeddings

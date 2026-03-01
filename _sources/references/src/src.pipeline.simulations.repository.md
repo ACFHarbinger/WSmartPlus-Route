@@ -13,10 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.simulations.repository.csv
 src.pipeline.simulations.repository.base
-src.pipeline.simulations.repository.npz
-src.pipeline.simulations.repository.xlsx
+src.pipeline.simulations.repository.dataset
 src.pipeline.simulations.repository.filesystem
 ```
 
@@ -30,6 +28,10 @@ src.pipeline.simulations.repository.filesystem
 
 * - {py:obj}`set_repository <src.pipeline.simulations.repository.set_repository>`
   - ```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository
+    :summary:
+    ```
+* - {py:obj}`set_repository_from_path <src.pipeline.simulations.repository.set_repository_from_path>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository_from_path
     :summary:
     ```
 * - {py:obj}`load_indices <src.pipeline.simulations.repository.load_indices>`
@@ -78,10 +80,17 @@ src.pipeline.simulations.repository.filesystem
 
 ````
 
-````{py:function} set_repository(repo: typing.Union[src.pipeline.simulations.repository.filesystem.FileSystemRepository, src.pipeline.simulations.repository.npz.NumpyDictRepository, src.pipeline.simulations.repository.xlsx.PandasExcelRepository, src.pipeline.simulations.repository.csv.PandasCsvRepository]) -> None
+````{py:function} set_repository(repo: typing.Union[src.pipeline.simulations.repository.dataset.DatasetRepository, src.pipeline.simulations.repository.filesystem.FileSystemRepository]) -> None
 :canonical: src.pipeline.simulations.repository.set_repository
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository
+```
+````
+
+````{py:function} set_repository_from_path(path: str, root_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> bool
+:canonical: src.pipeline.simulations.repository.set_repository_from_path
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository_from_path
 ```
 ````
 
@@ -116,7 +125,7 @@ src.pipeline.simulations.repository.filesystem
 ````{py:data} __all__
 :canonical: src.pipeline.simulations.repository.__all__
 :value: >
-   ['SimulationRepository', 'FileSystemRepository', 'NumpyDictRepository', 'PandasExcelRepository', 'Pa...
+   ['SimulationRepository', 'FileSystemRepository', 'DatasetRepository', 'set_repository', 'set_reposit...
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.__all__
 ```

@@ -49,7 +49,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
 ```{autodoc2-docstring} src.pipeline.rl.core.a2c.A2C.__init__
 ```
 
-````{py:method} calculate_loss(td: tensordict.TensorDict, out: dict, batch_idx: int, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None) -> torch.Tensor
+````{py:method} calculate_loss(td: tensordict.TensorDict, out: dict, batch_idx: int, env: typing.Optional[logic.src.interfaces.env.IEnv] = None) -> torch.Tensor
 :canonical: src.pipeline.rl.core.a2c.A2C.calculate_loss
 
 ```{autodoc2-docstring} src.pipeline.rl.core.a2c.A2C.calculate_loss

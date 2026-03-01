@@ -75,7 +75,7 @@
 ```
 ````
 
-````{py:function} _get_search_parameters(values: typing.Dict[str, typing.Any]) -> ortools.constraint_solver.pywrapcp.DefaultRoutingSearchParameters
+````{py:function} _get_search_parameters(values: typing.Dict[str, typing.Any]) -> typing.Any
 :canonical: src.policies.branch_cut_and_price.ortools_engine._get_search_parameters
 
 ```{autodoc2-docstring} src.policies.branch_cut_and_price.ortools_engine._get_search_parameters

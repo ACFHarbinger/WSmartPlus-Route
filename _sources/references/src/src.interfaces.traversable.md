@@ -21,7 +21,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_T <src.interfaces.traversable._T>`
+  - ```{autodoc2-docstring} src.interfaces.traversable._T
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} _T
+:canonical: src.interfaces.traversable._T
+:value: >
+   'TypeVar(...)'
+
+```{autodoc2-docstring} src.interfaces.traversable._T
+```
+
+````
 
 `````{py:class} ITraversable
 :canonical: src.interfaces.traversable.ITraversable
@@ -31,7 +53,7 @@ Bases: {py:obj}`typing.Protocol`
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable
 ```
 
-````{py:method} __getitem__(key: typing.Any) -> typing.Any
+````{py:method} __getitem__(key: typing.Any, /) -> typing.Any
 :canonical: src.interfaces.traversable.ITraversable.__getitem__
 
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable.__getitem__
@@ -39,10 +61,26 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} __contains__(key: object) -> bool
+````{py:method} __contains__(key: typing.Any, /) -> bool
 :canonical: src.interfaces.traversable.ITraversable.__contains__
 
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable.__contains__
+```
+
+````
+
+````{py:method} __iter__() -> typing.Iterator[typing.Any]
+:canonical: src.interfaces.traversable.ITraversable.__iter__
+
+```{autodoc2-docstring} src.interfaces.traversable.ITraversable.__iter__
+```
+
+````
+
+````{py:method} __len__() -> int
+:canonical: src.interfaces.traversable.ITraversable.__len__
+
+```{autodoc2-docstring} src.interfaces.traversable.ITraversable.__len__
 ```
 
 ````
@@ -71,7 +109,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} get(key: typing.Any, default: typing.Optional[typing.Any] = None) -> typing.Any
+````{py:method} get(key: str, default: typing.Any = None, /) -> typing.Any
 :canonical: src.interfaces.traversable.ITraversable.get
 
 ```{autodoc2-docstring} src.interfaces.traversable.ITraversable.get

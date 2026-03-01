@@ -58,7 +58,7 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
-````{py:method} _reset_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} _reset_instance(tensordict: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.vrpp.VRPPEnv._reset_instance
 
 ```{autodoc2-docstring} src.envs.vrpp.VRPPEnv._reset_instance
@@ -66,7 +66,7 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
-````{py:method} _step_instance(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} _step_instance(tensordict: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.vrpp.VRPPEnv._step_instance
 
 ```{autodoc2-docstring} src.envs.vrpp.VRPPEnv._step_instance
@@ -74,7 +74,7 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
-````{py:method} _get_action_mask(td: tensordict.TensorDict) -> torch.Tensor
+````{py:method} _get_action_mask(tensordict: tensordict.TensorDict) -> torch.Tensor
 :canonical: src.envs.vrpp.VRPPEnv._get_action_mask
 
 ```{autodoc2-docstring} src.envs.vrpp.VRPPEnv._get_action_mask
@@ -82,7 +82,7 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
-````{py:method} _get_reward(td: tensordict.TensorDict, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
+````{py:method} _get_reward(tensordict: tensordict.TensorDict, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.envs.vrpp.VRPPEnv._get_reward
 
 ```{autodoc2-docstring} src.envs.vrpp.VRPPEnv._get_reward
@@ -90,7 +90,7 @@ Bases: {py:obj}`logic.src.envs.base.RL4COEnvBase`
 
 ````
 
-````{py:method} _check_done(td: tensordict.TensorDict) -> torch.Tensor
+````{py:method} _check_done(tensordict: tensordict.TensorDict) -> torch.Tensor
 :canonical: src.envs.vrpp.VRPPEnv._check_done
 
 ```{autodoc2-docstring} src.envs.vrpp.VRPPEnv._check_done

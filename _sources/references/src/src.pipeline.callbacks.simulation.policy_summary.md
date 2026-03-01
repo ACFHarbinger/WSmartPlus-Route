@@ -53,6 +53,14 @@
 
 ````
 
+````{py:method} _parse_selection_item(item: typing.Any) -> tuple[str, str]
+:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_selection_item
+
+```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_selection_item
+```
+
+````
+
 ````{py:method} _extract_post_processing(config: typing.Dict[str, typing.Any]) -> str
 :canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_post_processing
 

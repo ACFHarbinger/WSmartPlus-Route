@@ -33,7 +33,7 @@ Bases: {py:obj}`typing.NamedTuple`
 
 ````{py:attribute} score
 :canonical: src.utils.decoding.batch_beam.BatchBeam.score
-:type: torch.Tensor
+:type: typing.Optional[torch.Tensor]
 :value: >
    None
 

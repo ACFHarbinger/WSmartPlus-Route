@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.other.post_processing.factory
-src.policies.other.post_processing.iterated_local_search
 src.policies.other.post_processing.random_local_search
+src.policies.other.post_processing.lkh
 src.policies.other.post_processing.local_search
 src.policies.other.post_processing.path
 src.policies.other.post_processing.registry
@@ -41,7 +41,7 @@ src.policies.other.post_processing.fast_tsp
 ````{py:data} __all__
 :canonical: src.policies.other.post_processing.__all__
 :value: >
-   ['IPostProcessor', 'PostProcessorRegistry', 'PostProcessorFactory', 'FastTSPPostProcessor', 'Classic...
+   ['IPostProcessor', 'PostProcessorRegistry', 'PostProcessorFactory', 'FastTSPPostProcessor', 'LinKern...
 
 ```{autodoc2-docstring} src.policies.other.post_processing.__all__
 ```

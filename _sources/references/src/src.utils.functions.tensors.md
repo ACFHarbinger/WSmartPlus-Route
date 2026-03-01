@@ -53,7 +53,7 @@
 
 ````
 
-````{py:function} move_to(var: src.utils.functions.tensors.T, device: torch.device, non_blocking: bool = False) -> src.utils.functions.tensors.T
+````{py:function} move_to(var: object, device: torch.device, non_blocking: bool = False) -> typing.Any
 :canonical: src.utils.functions.tensors.move_to
 
 ```{autodoc2-docstring} src.utils.functions.tensors.move_to
@@ -67,7 +67,7 @@
 ```
 ````
 
-````{py:function} do_batch_rep(v: typing.Any, n: int) -> typing.Any
+````{py:function} do_batch_rep(v: object, n: int) -> typing.Any
 :canonical: src.utils.functions.tensors.do_batch_rep
 
 ```{autodoc2-docstring} src.utils.functions.tensors.do_batch_rep

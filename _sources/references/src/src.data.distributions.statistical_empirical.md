@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} Empirical(grid: typing.Optional[logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase] = None, area: typing.Optional[str] = None, indices: typing.Optional[numpy.ndarray] = None, data_path: typing.Optional[str] = None)
+`````{py:class} Empirical(grid: typing.Optional[logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase] = None, area: typing.Optional[str] = None, indices: typing.Optional[numpy.ndarray] = None, data_path: typing.Optional[str] = None, dataset: typing.Optional[typing.Any] = None)
 :canonical: src.data.distributions.statistical_empirical.Empirical
 
 ```{autodoc2-docstring} src.data.distributions.statistical_empirical.Empirical

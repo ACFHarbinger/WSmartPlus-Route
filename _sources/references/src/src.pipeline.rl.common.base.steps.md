@@ -82,7 +82,7 @@
 
 ````
 
-````{py:method} training_step(batch: typing.Any, batch_idx: int) -> torch.Tensor
+````{py:method} training_step(*args: typing.Any, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.pipeline.rl.common.base.steps.StepMixin.training_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.training_step
@@ -90,7 +90,7 @@
 
 ````
 
-````{py:method} validation_step(batch: typing.Any, batch_idx: int) -> dict
+````{py:method} validation_step(*args: typing.Any, **kwargs: typing.Any) -> dict
 :canonical: src.pipeline.rl.common.base.steps.StepMixin.validation_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.validation_step
@@ -98,7 +98,7 @@
 
 ````
 
-````{py:method} test_step(batch: typing.Any, batch_idx: int) -> dict
+````{py:method} test_step(*args: typing.Any, **kwargs: typing.Any) -> dict
 :canonical: src.pipeline.rl.common.base.steps.StepMixin.test_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.test_step

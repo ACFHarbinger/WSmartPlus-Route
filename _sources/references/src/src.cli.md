@@ -45,7 +45,7 @@ src.cli.fs_parser
 
 ### API
 
-````{py:function} parse_params()
+````{py:function} parse_params() -> typing.Tuple[typing.Union[str, typing.Tuple[str, str]], typing.Dict[str, typing.Any]]
 :canonical: src.cli.parse_params
 
 ```{autodoc2-docstring} src.cli.parse_params

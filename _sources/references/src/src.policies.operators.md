@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.operators.heuristics
 src.policies.operators.move
 src.policies.operators.repair
 src.policies.operators.perturbation
@@ -30,6 +31,7 @@ src.policies.operators.unstringing
 
 src.policies.operators.exchange_operators
 src.policies.operators.destroy_operators
+src.policies.operators.unstringing_operators
 src.policies.operators.move_operators
 src.policies.operators.route_operators
 src.policies.operators.repair_operators

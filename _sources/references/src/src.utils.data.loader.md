@@ -122,7 +122,7 @@
 ```
 ````
 
-````{py:function} load_grid_base(data_dir: str, indices: numpy.ndarray, area: typing.Optional[str] = None) -> logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase
+````{py:function} load_grid_base(indices: typing.Union[numpy.ndarray, typing.List[int]], area: typing.Optional[str] = None, data_dir: typing.Optional[str] = None) -> logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase
 :canonical: src.utils.data.loader.load_grid_base
 
 ```{autodoc2-docstring} src.utils.data.loader.load_grid_base

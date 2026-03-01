@@ -60,7 +60,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````{py:method} get_area_params(area: typing.Any, waste_type: typing.Any) -> typing.Tuple[float, float, float, float, float]
 :canonical: src.pipeline.simulations.repository.base.SimulationRepository.get_area_params
-:abstractmethod:
+:staticmethod:
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.base.SimulationRepository.get_area_params
 ```

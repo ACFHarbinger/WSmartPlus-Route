@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.core.reinforce.REINFORCE`
 ```{autodoc2-docstring} src.pipeline.rl.core.gdpo.GDPO.__init__
 ```
 
-````{py:method} calculate_loss(td: tensordict.TensorDict, out: dict, batch_idx: int, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None) -> torch.Tensor
+````{py:method} calculate_loss(td: tensordict.TensorDict, out: dict, batch_idx: int, env: typing.Optional[logic.src.interfaces.env.IEnv] = None) -> torch.Tensor
 :canonical: src.pipeline.rl.core.gdpo.GDPO.calculate_loss
 
 ```{autodoc2-docstring} src.pipeline.rl.core.gdpo.GDPO.calculate_loss

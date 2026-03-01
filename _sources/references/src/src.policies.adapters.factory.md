@@ -21,18 +21,6 @@
     ```
 ````
 
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`__getattr__ <src.policies.adapters.factory.__getattr__>`
-  - ```{autodoc2-docstring} src.policies.adapters.factory.__getattr__
-    :summary:
-    ```
-````
-
 ### Data
 
 ````{list-table}
@@ -63,6 +51,25 @@
 ```{autodoc2-docstring} src.policies.adapters.factory.PolicyFactory
 ```
 
+````{py:attribute} _registered
+:canonical: src.policies.adapters.factory.PolicyFactory._registered
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.adapters.factory.PolicyFactory._registered
+```
+
+````
+
+````{py:method} ensure_registered() -> None
+:canonical: src.policies.adapters.factory.PolicyFactory.ensure_registered
+:classmethod:
+
+```{autodoc2-docstring} src.policies.adapters.factory.PolicyFactory.ensure_registered
+```
+
+````
+
 ````{py:method} get_adapter(name: str, config: typing.Optional[dict] = None, engine: typing.Optional[str] = None, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> src.policies.adapters.factory.IPolicy
 :canonical: src.policies.adapters.factory.PolicyFactory.get_adapter
 :staticmethod:
@@ -73,10 +80,3 @@
 ````
 
 `````
-
-````{py:function} __getattr__(name: str) -> typing.Any
-:canonical: src.policies.adapters.factory.__getattr__
-
-```{autodoc2-docstring} src.policies.adapters.factory.__getattr__
-```
-````

@@ -54,14 +54,14 @@
 ```
 ````
 
-````{py:function} _get_strategy(cfg: typing.Any) -> typing.Optional[str]
+````{py:function} _get_strategy(cfg: object) -> typing.Optional[str]
 :canonical: src.models.policies.selection.factory._get_strategy
 
 ```{autodoc2-docstring} src.models.policies.selection.factory._get_strategy
 ```
 ````
 
-````{py:function} _get_params(cfg: typing.Any) -> dict
+````{py:function} _get_params(cfg: object) -> dict
 :canonical: src.models.policies.selection.factory._get_params
 
 ```{autodoc2-docstring} src.models.policies.selection.factory._get_params

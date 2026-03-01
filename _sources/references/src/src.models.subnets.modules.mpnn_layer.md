@@ -37,7 +37,7 @@ Bases: {py:obj}`torch_geometric.nn.MessagePassing`
 ```{autodoc2-docstring} src.models.subnets.modules.mpnn_layer.MessagePassingLayer.__init__
 ```
 
-````{py:method} forward(x: torch.Tensor, edge_index: torch.Tensor, edge_attr: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(*args: typing.Any, **kwargs: typing.Any) -> typing.Union[typing.Tuple[torch.Tensor, torch.Tensor], typing.Any]
 :canonical: src.models.subnets.modules.mpnn_layer.MessagePassingLayer.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.mpnn_layer.MessagePassingLayer.forward

@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:function} log_training(loss_keys: typing.List[str], table_df: pandas.DataFrame, cfg: logic.src.configs.Config) -> None
+````{py:function} log_training(loss_keys: typing.List[str], table_df: pandas.DataFrame, cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig]) -> None
 :canonical: src.tracking.logging.log_visualization.log_training
 
 ```{autodoc2-docstring} src.tracking.logging.log_visualization.log_training

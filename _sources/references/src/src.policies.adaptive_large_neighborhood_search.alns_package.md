@@ -94,21 +94,21 @@
 
 `````
 
-````{py:function} alns_pkg_random_removal(state: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState, random_state: numpy.random.RandomState) -> src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
+````{py:function} alns_pkg_random_removal(state: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState, rng: numpy.random.Generator, **kwargs: typing.Any) -> src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
 :canonical: src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_random_removal
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_random_removal
 ```
 ````
 
-````{py:function} alns_pkg_worst_removal(state: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState, random_state: numpy.random.RandomState) -> src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
+````{py:function} alns_pkg_worst_removal(state: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState, rng: numpy.random.Generator, **kwargs: typing.Any) -> src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
 :canonical: src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_worst_removal
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_worst_removal
 ```
 ````
 
-````{py:function} alns_pkg_greedy_insertion(state: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState, random_state: numpy.random.RandomState) -> src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
+````{py:function} alns_pkg_greedy_insertion(state: src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState, rng: numpy.random.Generator, **kwargs: typing.Any) -> src.policies.adaptive_large_neighborhood_search.alns_package.ALNSState
 :canonical: src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_greedy_insertion
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns_package.alns_pkg_greedy_insertion

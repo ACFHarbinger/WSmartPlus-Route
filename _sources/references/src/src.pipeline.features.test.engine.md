@@ -27,10 +27,6 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.engine._resolve_data_size
     :summary:
     ```
-* - {py:obj}`_override_waste_filepath <src.pipeline.features.test.engine._override_waste_filepath>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.engine._override_waste_filepath
-    :summary:
-    ```
 * - {py:obj}`_ensure_directories <src.pipeline.features.test.engine._ensure_directories>`
   - ```{autodoc2-docstring} src.pipeline.features.test.engine._ensure_directories
     :summary:
@@ -87,13 +83,6 @@
 :canonical: src.pipeline.features.test.engine._resolve_data_size
 
 ```{autodoc2-docstring} src.pipeline.features.test.engine._resolve_data_size
-```
-````
-
-````{py:function} _override_waste_filepath(cfg: logic.src.configs.Config, load_dataset: str) -> None
-:canonical: src.pipeline.features.test.engine._override_waste_filepath
-
-```{autodoc2-docstring} src.pipeline.features.test.engine._override_waste_filepath
 ```
 ````
 

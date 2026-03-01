@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} _internal_safe_copy(obj, visited)
+````{py:function} _internal_safe_copy(obj: object, visited: set)
 :canonical: src.utils.data.rl_utils._internal_safe_copy
 
 ```{autodoc2-docstring} src.utils.data.rl_utils._internal_safe_copy
 ```
 ````
 
-````{py:function} safe_td_copy(td: typing.Any) -> typing.Any
+````{py:function} safe_td_copy(td: object) -> typing.Any
 :canonical: src.utils.data.rl_utils.safe_td_copy
 
 ```{autodoc2-docstring} src.utils.data.rl_utils.safe_td_copy

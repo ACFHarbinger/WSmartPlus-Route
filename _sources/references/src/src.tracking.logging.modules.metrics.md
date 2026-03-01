@@ -31,14 +31,14 @@
 
 ### API
 
-````{py:function} log_values(cost: torch.Tensor, grad_norms: typing.Tuple[torch.Tensor, ...], epoch: int, batch_id: int, step: int, l_dict: typing.Dict[str, torch.Tensor], tb_logger: typing.Any, cfg: logic.src.configs.Config) -> None
+````{py:function} log_values(cost: torch.Tensor, grad_norms: typing.Tuple[torch.Tensor, ...], epoch: int, batch_id: int, step: int, l_dict: typing.Dict[str, torch.Tensor], tb_logger: typing.Any, cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig]) -> None
 :canonical: src.tracking.logging.modules.metrics.log_values
 
 ```{autodoc2-docstring} src.tracking.logging.modules.metrics.log_values
 ```
 ````
 
-````{py:function} log_epoch(x_tup: typing.Tuple[str, int], loss_keys: typing.List[str], epoch_loss: typing.Dict[str, typing.List[torch.Tensor]], cfg: logic.src.configs.Config) -> None
+````{py:function} log_epoch(x_tup: typing.Tuple[str, int], loss_keys: typing.List[str], epoch_loss: typing.Dict[str, typing.List[torch.Tensor]], cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig]) -> None
 :canonical: src.tracking.logging.modules.metrics.log_epoch
 
 ```{autodoc2-docstring} src.tracking.logging.modules.metrics.log_epoch

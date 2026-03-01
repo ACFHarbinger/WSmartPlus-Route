@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:function} _add_bin_marker(m: folium.Map, point: typing.Dict[str, typing.Any], bin_id: int, bin_states: typing.Optional[typing.List[float]], collected_set: set, must_go_set: set, toured_ids: set) -> None
+````{py:function} _add_bin_marker(m: folium.Map, point: typing.Dict[str, typing.Any], bin_id: int, bin_states: typing.Optional[typing.List[float]], collected_set: set, must_go_set: set, toured_ids: set, dataset_id: typing.Optional[int] = None) -> None
 :canonical: src.ui.components.maps.simulation._add_bin_marker
 
 ```{autodoc2-docstring} src.ui.components.maps.simulation._add_bin_marker

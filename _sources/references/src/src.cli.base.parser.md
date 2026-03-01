@@ -69,7 +69,7 @@ Bases: {py:obj}`argparse.ArgumentParser`
 
 ````
 
-````{py:method} error_message(message: str, print_help: bool = True) -> None
+````{py:method} error_message(message: str, print_help: bool = True) -> typing.NoReturn
 :canonical: src.cli.base.parser.ConfigsParser.error_message
 
 ```{autodoc2-docstring} src.cli.base.parser.ConfigsParser.error_message

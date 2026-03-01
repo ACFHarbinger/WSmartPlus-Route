@@ -172,17 +172,6 @@
 
 ````
 
-````{py:attribute} waste_filepath
-:canonical: src.configs.tasks.sim.SimConfig.waste_filepath
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.waste_filepath
-```
-
-````
-
 ````{py:attribute} graph
 :canonical: src.configs.tasks.sim.SimConfig.graph
 :type: src.configs.envs.graph.GraphConfig

@@ -13,7 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.ui.pages.simulation.utils
 src.ui.pages.simulation.tour
 src.ui.pages.simulation.map
 src.ui.pages.simulation.charts

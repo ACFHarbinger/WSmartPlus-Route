@@ -37,6 +37,7 @@
 
 ````{py:data} td_kwargs
 :canonical: src.utils.data.td_utils.td_kwargs
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 

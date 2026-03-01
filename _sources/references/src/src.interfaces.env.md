@@ -42,11 +42,9 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:attribute} device
+````{py:property} device
 :canonical: src.interfaces.env.IEnv.device
 :type: torch.device
-:value: >
-   None
 
 ```{autodoc2-docstring} src.interfaces.env.IEnv.device
 ```
@@ -64,7 +62,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} reset(td: typing.Optional[tensordict.TensorDict] = None, batch_size: typing.Optional[list] = None) -> tensordict.TensorDict
+````{py:method} reset(tensordict: typing.Optional[tensordict.TensorDictBase] = None, **kwargs: typing.Any) -> tensordict.TensorDictBase
 :canonical: src.interfaces.env.IEnv.reset
 
 ```{autodoc2-docstring} src.interfaces.env.IEnv.reset
@@ -72,7 +70,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} step(td: tensordict.TensorDict) -> tensordict.TensorDict
+````{py:method} step(tensordict: tensordict.TensorDictBase) -> tensordict.TensorDictBase
 :canonical: src.interfaces.env.IEnv.step
 
 ```{autodoc2-docstring} src.interfaces.env.IEnv.step
@@ -80,7 +78,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} get_reward(td: tensordict.TensorDict, actions: torch.Tensor) -> tensordict.TensorDict
+````{py:method} get_reward(tensordict: tensordict.TensorDictBase, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.interfaces.env.IEnv.get_reward
 
 ```{autodoc2-docstring} src.interfaces.env.IEnv.get_reward
@@ -88,7 +86,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} get_action_mask(td: tensordict.TensorDict) -> torch.Tensor
+````{py:method} get_action_mask(tensordict: tensordict.TensorDictBase) -> torch.Tensor
 :canonical: src.interfaces.env.IEnv.get_action_mask
 
 ```{autodoc2-docstring} src.interfaces.env.IEnv.get_action_mask

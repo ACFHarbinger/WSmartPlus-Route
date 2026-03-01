@@ -16,10 +16,8 @@
 src.pipeline.simulations.actions
 src.pipeline.simulations.wsmart_bin_analysis
 src.pipeline.simulations.repository
-src.pipeline.simulations.network
 src.pipeline.simulations.checkpoints
 src.pipeline.simulations.states
-src.pipeline.simulations.processor
 src.pipeline.simulations.bins
 ```
 

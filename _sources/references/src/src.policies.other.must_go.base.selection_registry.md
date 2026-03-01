@@ -58,4 +58,13 @@
 
 ````
 
+````{py:method} list_strategies() -> list
+:canonical: src.policies.other.must_go.base.selection_registry.MustGoSelectionRegistry.list_strategies
+:classmethod:
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_registry.MustGoSelectionRegistry.list_strategies
+```
+
+````
+
 `````

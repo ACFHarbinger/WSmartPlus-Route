@@ -124,7 +124,7 @@
 ```
 ````
 
-````{py:function} single_simulation(cfg: logic.src.configs.Config, device: torch.device, indices: typing.Any, sample_id: int, pol_id: int, model_weights_path: str, n_cores: int) -> typing.Dict[str, typing.Any]
+````{py:function} single_simulation(cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig], device: torch.device, indices: typing.Any, sample_id: int, pol_id: int, model_weights_path: typing.Optional[str], n_cores: int) -> typing.Dict[str, typing.Any]
 :canonical: src.pipeline.simulations.simulator.single_simulation
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.single_simulation

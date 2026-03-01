@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NARGNN(embed_dim: int = 64, env_name: str = 'tsp', num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, baseline: str = 'rollout', **kwargs)
+`````{py:class} NARGNN(embed_dim: int = 64, env_name: str = 'tsp', num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, baseline: typing.Optional[str] = 'rollout', **kwargs)
 :canonical: src.models.core.nargnn.model.NARGNN
 
 Bases: {py:obj}`torch.nn.Module`

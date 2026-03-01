@@ -39,7 +39,7 @@ src.tracking.logging.visualization.heatmaps
 
 ### API
 
-````{py:function} visualize_epoch(model: typing.Any, problem: typing.Any, cfg: logic.src.configs.Config, epoch: int, tb_logger: typing.Any = None) -> None
+````{py:function} visualize_epoch(model: typing.Any, problem: typing.Any, cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig], epoch: int, tb_logger: typing.Any = None) -> None
 :canonical: src.tracking.logging.visualization.visualize_epoch
 
 ```{autodoc2-docstring} src.tracking.logging.visualization.visualize_epoch
