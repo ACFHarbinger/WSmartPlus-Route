@@ -5,13 +5,14 @@ WCVRP problem generator.
 from __future__ import annotations
 
 import math
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import numpy as np
 import torch
 from tensordict import TensorDict
 
 from logic.src.data.generators.waste import generate_waste
+from logic.src.utils.data.loader import load_grid_base
 
 from .base import Generator
 
@@ -38,8 +39,11 @@ class WCVRPGenerator(Generator):
         capacity: float = 100.0,
         cost_km: float = 1.0,
         revenue_kg: float = 0.1625,
-        depot_type: str = "center",
+        depot_type: str = "corner",
         device: Union[str, torch.device] = "cpu",
+        area: Optional[str] = None,
+        data_dir: Optional[str] = None,
+        indices: Optional[list[int]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -58,6 +62,9 @@ class WCVRPGenerator(Generator):
             revenue_kg: Revenue per kg collected.
             depot_type: Depot placement ("center", "corner", "random").
             device: Device to place tensors on.
+            area: Area for grid generation.
+            data_dir: Directory for grid data.
+            indices: Indices for grid generation.
             **kwargs: Additional keyword arguments.
         """
         super().__init__(num_loc, min_loc, max_loc, loc_distribution, device, **kwargs)
@@ -69,6 +76,10 @@ class WCVRPGenerator(Generator):
         self.cost_km = cost_km
         self.revenue_kg = revenue_kg
         self.depot_type = depot_type
+        self.data_dir = data_dir
+        self.area = area
+        self.indices = indices if indices is not None else list(range(0, num_loc))
+        self.grid = load_grid_base(self.indices, self.area, self.data_dir)
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate WCVRP instances."""
@@ -117,7 +128,7 @@ class WCVRPGenerator(Generator):
             self._generate_depot(batch_size).view(bs, 2),
             self._generate_locations(batch_size).view(bs, self.num_loc, 2),
         )
-        fill = generate_waste(self.num_loc, self.fill_distribution, coords, bs, bins=self.bins)
+        fill = generate_waste(self.num_loc, self.fill_distribution, coords, bs, grid=self.grid)
         if isinstance(fill, np.ndarray):
             fill = torch.from_numpy(fill).float()
         return fill.to(self.device).view(*batch_size, self.num_loc)

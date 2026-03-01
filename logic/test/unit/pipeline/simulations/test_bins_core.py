@@ -47,10 +47,10 @@ class TestBins:
         assert basic_bins.ndays == 1
 
     @pytest.mark.unit
-    def test_stochastic_filling_basic(self, basic_bins):
+    def test_load_filling_basic(self, basic_bins):
         """Test basic stochastic filling logic."""
-        basic_bins.setGammaDistribution(0) # Option 0 is valid
-        inoverflow, filling, current_levels, sum_lost = basic_bins.stochasticFilling()
+        basic_bins.set_gamma_distribution(0) # Option 0 is valid
+        inoverflow, filling, current_levels, sum_lost = basic_bins.load_filling()
 
         assert len(filling) == 10
         assert len(current_levels) == 10
@@ -60,7 +60,7 @@ class TestBins:
     @pytest.mark.unit
     def test_set_gamma_distribution(self, basic_bins):
         """Test setting gamma distribution parameters."""
-        basic_bins.setGammaDistribution(1) # Option 1 is valid
+        basic_bins.set_gamma_distribution(1) # Option 1 is valid
         assert basic_bins.distribution == "gamma"
         assert len(basic_bins.dist_param1) == 10
         assert len(basic_bins.dist_param2) == 10

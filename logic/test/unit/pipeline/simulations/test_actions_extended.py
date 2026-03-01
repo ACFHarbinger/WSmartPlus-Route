@@ -13,7 +13,7 @@ def mock_bins():
     bins = MagicMock()
     bins.collectlevl = 90.0
     bins.is_stochastic.return_value = True
-    bins.stochasticFilling.return_value = (1, np.ones(5)*10, np.ones(5)*50, 0.0)
+    bins.load_filling.return_value = (1, np.ones(5)*10, np.ones(5)*50, 0.0)
     bins.collect.return_value = ([2], 50.0, 1, 100.0)
     return bins
 

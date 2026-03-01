@@ -99,7 +99,7 @@ class TestDistributions:
         batch = 4
         num_loc = 10
         mock_grid = MagicMock()
-        # stochasticFilling returns np.ndarray in [0, 100]
+        # load_filling returns np.ndarray in [0, 100]
         mock_grid.sample.return_value = np.random.uniform(0, 100, (batch, num_loc))
 
         dist = Empirical(grid=mock_grid)

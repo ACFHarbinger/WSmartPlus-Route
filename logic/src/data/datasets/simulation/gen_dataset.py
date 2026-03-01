@@ -6,7 +6,7 @@ samples using distribution classes from ``logic.src.data.distributions``,
 without requiring pre-computed data files.
 """
 
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -42,7 +42,7 @@ class GenerativeDataset(SimulationDataset):
         noise_mean: Mean of Gaussian sensor noise.
         noise_variance: Variance of Gaussian sensor noise.
         max_waste: Maximum waste capacity (percentage).
-        base_seed: Base random seed for reproducibility.
+        grid: GridBase object for empirical sampling.
     """
 
     def __init__(
@@ -57,7 +57,7 @@ class GenerativeDataset(SimulationDataset):
         noise_mean: float = 0.0,
         noise_variance: float = 0.0,
         max_waste: float = MAX_CAPACITY_PERCENT,
-        base_seed: int = 0,
+        grid: Optional[Any] = None,
     ):
         self.data_dir = data_dir
         self.n_samples = n_samples
@@ -67,7 +67,7 @@ class GenerativeDataset(SimulationDataset):
         self.noise_mean = noise_mean
         self.noise_variance = noise_variance
         self.max_waste = max_waste
-        self.base_seed = base_seed
+        self.grid = grid
 
         # Default coordinates if not provided
         if depot is None:
@@ -76,11 +76,13 @@ class GenerativeDataset(SimulationDataset):
             self.depot = np.asarray(depot).squeeze()
 
         if locs is None:
-            rng = np.random.RandomState(base_seed)
-            self.locs = rng.uniform(size=(n_bins, 2))
+            self.locs = np.random.uniform(size=(n_bins, 2))
         else:
             locs_arr = np.asarray(locs)
             self.locs = locs_arr.squeeze(0) if locs_arr.ndim == 3 else locs_arr
+
+        self.waste_fills = self._generate_waste_days()
+        self.noisy_waste_fills = self._apply_noise(self.waste_fills)
 
     def __len__(self) -> int:
         return self.n_samples
@@ -89,25 +91,16 @@ class GenerativeDataset(SimulationDataset):
         """Generate a single simulation sample.
 
         Args:
-            index: Sample index (used with ``base_seed`` for reproducibility).
+            index: Sample index.
 
         Returns:
             Dict with keys: ``depot``, ``locs``, ``waste``, ``noisy_waste``, ``max_waste``.
         """
-        # Seed for reproducibility per sample
-        rng_state = np.random.get_state()
-        np.random.seed(self.base_seed + index)
-        try:
-            waste = self._generate_waste_days()
-            noisy_waste = self._apply_noise(waste)
-        finally:
-            np.random.set_state(rng_state)
-
         return {
             "depot": self.depot.copy(),
             "locs": self.locs.copy(),
-            "waste": waste,
-            "noisy_waste": noisy_waste,
+            "waste": self.waste_fills[index],
+            "noisy_waste": self.noisy_waste_fills[index],
             "max_waste": np.asarray(self.max_waste),
         }
 
@@ -123,14 +116,13 @@ class GenerativeDataset(SimulationDataset):
             self.locs[None, :, :],  # (1, n_bins, coord_dim)
         )
 
-        days = []
-        for _ in range(self.n_days):
-            # generate_waste with dataset_size=1 returns (n_bins,)
-            waste_day = generate_waste(self.n_bins, self.distribution, graph, dataset_size=1)
+        samples = []
+        for _ in range(self.n_samples):
+            waste_day = generate_waste(self.n_bins, self.distribution, graph, dataset_size=self.n_days, grid=self.grid)
             waste_day = np.clip(np.asarray(waste_day) * self.max_waste, 0, self.max_waste)
-            days.append(waste_day)
+            samples.append(waste_day)
 
-        return np.array(days)  # (n_days, n_bins)
+        return np.array(samples)  # (n_samples, n_days, n_bins)
 
     def _apply_noise(self, waste: np.ndarray) -> np.ndarray:
         """Apply Gaussian sensor noise to waste values.
