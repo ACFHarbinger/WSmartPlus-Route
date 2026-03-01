@@ -284,7 +284,7 @@ class InitializingState(SimState):
                 data_dist[:-1],
                 area=sim.graph.area,
                 waste_type=sim.graph.waste_type,
-                waste_file=sim.waste_filepath,
+                waste_file=getattr(ctx.cfg, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
                 n_days=sim.days,
@@ -295,7 +295,7 @@ class InitializingState(SimState):
                 gamma_option = int(data_dist[-1]) - 1
             except (ValueError, IndexError):
                 gamma_option = 0
-            ctx.bins.set_gamma_distribution(option=gamma_option)
+            ctx.bins.set_gamma_distribution(option=gamma_option)  # type: ignore[attr-defined]
         else:
             ctx.bins = Bins(
                 sim.graph.num_loc,
@@ -303,7 +303,7 @@ class InitializingState(SimState):
                 data_dist,
                 area=sim.graph.area,
                 waste_type=sim.graph.waste_type,
-                waste_file=sim.waste_filepath,
+                waste_file=getattr(ctx.cfg, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
                 n_days=sim.days,

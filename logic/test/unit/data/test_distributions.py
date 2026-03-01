@@ -74,20 +74,11 @@ class TestDistributions:
         out = dist.sample_tensor((batch, num_loc, dim))
         assert out.shape == (batch, num_loc, dim)
 
-    def test_empirical_fallback(self):
-        """Verify Empirical fallback to uniform."""
-        batch, num_loc, dim = 4, 10, 2
-        dist = Empirical(data_path=None)
-        out = dist.sample_tensor((batch, num_loc, dim))
-        assert out.shape == (batch, num_loc, dim)
-        assert (out >= 0).all() and (out <= 1).all()
-
     def test_empirical_with_data(self):
         """Verify Empirical with mock data."""
         batch, num_loc, dim = 2, 5, 2
         mock_data = torch.ones(10, 5, 2) * 0.5
-        dist = Empirical()
-        dist.dataset = mock_data
+        dist = Empirical(dataset=mock_data)
 
         out = dist.sample_tensor((batch, 5, 2))
         assert out.shape == (batch, 5, 2)

@@ -50,7 +50,8 @@ class TestBins:
     def test_load_filling_basic(self, basic_bins):
         """Test basic stochastic filling logic."""
         basic_bins.set_gamma_distribution(0) # Option 0 is valid
-        inoverflow, filling, current_levels, sum_lost = basic_bins.load_filling()
+        basic_bins.set_sample_waste(0)
+        inoverflow, filling, current_levels, sum_lost = basic_bins.load_filling(0)
 
         assert len(filling) == 10
         assert len(current_levels) == 10

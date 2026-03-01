@@ -104,7 +104,10 @@ class Bins:
         self.collectlevl = np.ones((n)) * 80
         self.data_dir = data_dir
         self.indices = np.array(indices) if indices is not None else np.arange(n)
-        self.grid = load_grid_base(self.indices, area, data_dir) if grid is None else grid
+        try:
+            self.grid = load_grid_base(self.indices, area, data_dir) if grid is None else grid
+        except FileNotFoundError:
+            self.grid = None
         if sample_dist == "emp":
             self.dist_param1 = self.grid.get_mean_rate()
             self.dist_param2 = self.grid.get_var_rate()
@@ -114,7 +117,7 @@ class Bins:
 
         self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
-            path = os.path.join(data_dir, waste_file)
+            path = os.path.join(data_dir, waste_file) if not os.path.isabs(waste_file) else waste_file
             if waste_file.endswith(".pkl"):
                 self.waste_dataset = NumpyPickleDataset.load(path)
             elif waste_file.endswith(".xlsx"):
@@ -360,10 +363,8 @@ class Bins:
             param_len = len(param)
             if self.n == param_len:
                 return param
-            param = param * math.ceil(self.n / param_len)
-            if self.n % param_len != 0:
-                param = param[: param_len - self.n % param_len]
-            return param
+            tiled = param * math.ceil(self.n / param_len)
+            return tiled[: self.n]
 
         self.distribution = "gamma"
         if option == 0:

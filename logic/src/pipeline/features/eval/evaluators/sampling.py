@@ -56,7 +56,8 @@ class SamplingEval(EvalBase):
                 from typing import cast as t_cast
 
                 locs_obj = t_cast(Any, batch_obj)
-                locs = locs_obj.get("locs") or locs_obj.get("loc")
+                locs_val = locs_obj.get("locs")
+                locs = locs_val if locs_val is not None else locs_obj.get("loc")
 
             if locs is None:
                 raise ValueError("Batch must contain 'locs' or 'loc' for sampling expansion.")
