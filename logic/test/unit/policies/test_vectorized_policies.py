@@ -7,12 +7,12 @@ import torch
 from logic.src.models.policies.adaptive_large_neighborhood_search import (
     VectorizedALNS,
 )
+from logic.src.models.policies.hgs_core.evaluation import calc_broken_pairs_distance
 from logic.src.models.policies.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
     vectorized_ordered_crossover,
 )
-from logic.src.models.policies.hgs_core.evaluation import calc_broken_pairs_distance
 from logic.src.models.policies.operators import (
     vectorized_relocate,
     vectorized_swap,
@@ -214,25 +214,26 @@ class TestVectorizedPolicies:
         for b in range(batch_size):
             route = routes_list[b]
             # Routes from split usually start and end with 0 and contain all nodes
-            nodes_visited = set(node for node in route if node != 0)
+            nodes_visited = set(int(n) for n in route if int(n) != 0)
             assert len(nodes_visited) == num_nodes - 1, f"Batch {b} missing nodes"
 
             # Check capacity constraints (optional but good)
-            curr_load = 0
-            for node in route:
-                if node == 0:
+            curr_load = 0.0
+            for node_val in route:
+                node_idx = int(node_val)
+                if node_idx == 0:
                     assert curr_load <= capacity[b].item() + 1e-5
-                    curr_load = 0
+                    curr_load = 0.0
                 else:
-                    curr_load += wastes[b, node].item()
+                    curr_load += wastes[b, node_idx].item()
 
     @pytest.mark.unit
     def test_alns_policy_forward(self):
         """Test the ALNSPolicy wrapper forward function."""
+        import torch.nn as nn
         from logic.src.models.policies.adaptive_large_neighborhood_search import (
             VectorizedALNS,
         )
-        import torch.nn as nn
 
         class ALNSPolicyWrapper(nn.Module):
             def __init__(self, env_name="cvrpp", time_limit=1.0, max_iterations=100):

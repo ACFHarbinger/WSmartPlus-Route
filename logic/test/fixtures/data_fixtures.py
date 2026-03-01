@@ -14,7 +14,7 @@ def gen_data_opts():
     return {
         "name": "test_suite",
         "problem": "vrpp",
-        "dataset_size": 100,
+        "n_samples": 100,
         "graph_sizes": [20],
         "data_distributions": ["all"],
         "area": "SomeArea",

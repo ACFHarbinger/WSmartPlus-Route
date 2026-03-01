@@ -83,10 +83,10 @@ def temp_eval_setup(tmp_path):
     torch.save(save_dict, checkpoint_path)
 
     # 3. Generate and save synthetic dataset
-    dataset_size = 5
+    n_samples = 5
     graph_size = 10
     dataset = []
-    for _ in range(dataset_size):
+    for _ in range(n_samples):
         # depot: (2), loc: (N, 2), waste: (N), capacity: 1.0 (normalized)
         depot = np.random.rand(2).astype(np.float32)
         loc = np.random.rand(graph_size, 2).astype(np.float32)
@@ -112,8 +112,8 @@ class ListDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, idx):
-        return self.data[idx]
+    def __getitem__(self, index):
+        return self.data[index]
 
 
 @pytest.fixture(autouse=True)
@@ -159,11 +159,11 @@ def test_eval_dataset_integration(temp_eval_setup):
     # Options dict mimicking what argparse would produce
     opts = Config()
     opts.env.name = "vrpp"
-    opts.eval.policy.load_path = setup["model_path"]
+    opts.eval.policy.model.load_path = setup["model_path"]
     opts.eval.val_size = 5
     opts.eval.offset = 0
     opts.eval.data_distribution = "uniform"
-    opts.env.graph_size = setup["graph_size"]
+    opts.env.num_loc = setup["graph_size"]
     opts.eval.decoding.strategy = "greedy"
     opts.eval.results_dir = setup["dir"]
     opts.eval.overwrite = True
@@ -185,15 +185,6 @@ def test_eval_dataset_integration(temp_eval_setup):
     assert all(isinstance(c, float) for c in costs), "Costs should be floats"
     assert all(isinstance(d, float) for d in durations), "Durations should be floats"
 
-    # Check if results directory was created and populated
-    # The eval function creates a directory structure: {results_dir}/{problem_name}/{dataset_basename}/...
-    # We need to check if *some* file exists there.
-    # Since we don't know the exact filename timestamp/naming easily without regex, we just check dir existence.
-    # But we can verify if save_dataset was called successfully implies it finished.
-    # Actually opts["output_filename"] is None, so it auto-generates.
-
-    # Basic check for returned values is good enough for integration.
-
 
 @pytest.mark.integration
 def test_eval_dataset_sampling_integration(temp_eval_setup):
@@ -204,11 +195,11 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
 
     opts = Config()
     opts.env.name = "vrpp"
-    opts.eval.policy.load_path = setup["model_path"]
+    opts.eval.policy.model.load_path = setup["model_path"]
     opts.eval.val_size = 2
     opts.eval.offset = 0
     opts.eval.data_distribution = "uniform"
-    opts.env.graph_size = setup["graph_size"]
+    opts.env.num_loc = setup["graph_size"]
     opts.eval.decoding.strategy = "sample"
     opts.eval.decoding.beam_width = 2
     opts.eval.results_dir = setup["dir"]

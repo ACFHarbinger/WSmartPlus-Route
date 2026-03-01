@@ -20,7 +20,6 @@ class DataConfig:
         mu: Mean of Gaussian noise (implies Gaussian noise generation if set).
         sigma: Variance of Gaussian noise.
         data_distributions: Distributions to generate for problems.
-        dataset_size: Size of the dataset.
         num_locs: Sizes of problem instances.
         penalty_factor: Penalty factor for problems.
         overwrite: Set true to overwrite.
@@ -38,7 +37,6 @@ class DataConfig:
     mu: Optional[List[float]] = None
     sigma: Any = 0.6
     data_distributions: List[str] = field(default_factory=lambda: ["all"])
-    dataset_size: int = 128_000
     penalty_factor: float = 3.0
     overwrite: bool = False
     seed: int = 42

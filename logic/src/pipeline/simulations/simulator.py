@@ -36,6 +36,7 @@ import traceback
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import torch
+from omegaconf import DictConfig
 from tqdm import tqdm
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
@@ -187,12 +188,12 @@ def display_log_metrics(
 
 
 def single_simulation(
-    cfg: Config,
+    cfg: Union[Config, DictConfig],
     device: torch.device,
     indices: Any,
     sample_id: int,
     pol_id: int,
-    model_weights_path: str,
+    model_weights_path: Optional[str],
     n_cores: int,
 ) -> Dict[str, Any]:
     """

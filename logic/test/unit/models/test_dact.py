@@ -16,8 +16,8 @@ def test_tsp_kopt_env():
     env = TSPkoptEnv(num_loc=20)
     td = env.reset(batch_size=[2])
 
-    assert "locs" in td.keys()
-    assert "solution" in td.keys()
+    assert "locs" in td.keys()  # type: ignore[not-iterable]
+    assert "solution" in td.keys()  # type: ignore[not-iterable]
     assert td["solution"].shape == (2, 21)  # 20 customers + 1 depot
 
     # Initial reward
@@ -30,10 +30,7 @@ def test_tsp_kopt_env():
     td = env.step(td)
 
     # Check solution changed
-    assert "solution" in td.keys()
-    reward_new = env.get_reward(td)
-    # Reward might change or stay same if it's a zero-improvement move,
-    # but the mechanics should work.
+    assert "solution" in td.keys()  # type: ignore[not-iterable]
 
 
 def test_dact_policy_forward():

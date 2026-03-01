@@ -413,7 +413,6 @@ class DataConfig:
         mu: Mean for Gaussian coordinate noise.
         sigma: Std dev for Gaussian coordinate noise.
         data_distributions: List of distributions ('uniform', 'cluster', 'all').
-        dataset_size: Number of instances to generate.
         num_locs: Problem sizes to generate.
         penalty_factor: Penalty weight for uncollected waste (VRPP).
         overwrite: Overwrite existing files.
@@ -432,7 +431,6 @@ class DataConfig:
     mu: Optional[List[float]] = None
     sigma: Any = 0.6
     data_distributions: List[str] = field(default_factory=lambda: ["all"])
-    dataset_size: int = 128_000
     num_locs: List[int] = field(default_factory=lambda: [20, 50, 100])
     penalty_factor: float = 3.0
     overwrite: bool = False
@@ -450,7 +448,6 @@ class DataConfig:
 data_config = DataConfig(
     name="train_vrpp",
     problem="vrpp",
-    dataset_size=100_000,
     num_locs=[20, 50, 100],
     data_distributions=["uniform", "cluster"]
 )
@@ -459,7 +456,6 @@ data_config = DataConfig(
 data_config = DataConfig(
     name="val_wcvrp",
     dataset_type="val",
-    dataset_size=10_000,
     seed=1234,
     overwrite=False
 )

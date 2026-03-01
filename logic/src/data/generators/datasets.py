@@ -58,8 +58,7 @@ def generate_datasets(cfg: Config) -> None:
         run.log_params(
             {
                 "gen/problem": data.problem,
-                "gen/dataset_type": data.dataset_type or "train",
-                "gen/dataset_size": data.dataset_size,
+                "gen/dataset_type": data.dataset_type,
                 "gen/seed": data.seed,
                 "gen/n_epochs": data.n_epochs,
                 "gen/overwrite": data.overwrite,
@@ -160,13 +159,11 @@ def _process_instance_generation(
     area = graph_cfg.area
     waste_type = graph_cfg.waste_type
     vertex_method = graph_cfg.vertex_method
-    focus_size = graph_cfg.focus_size if graph_cfg.focus_size is not None else 31
+    focus_size = graph_cfg.focus_size if graph_cfg.focus_size is not None else 0
     n_days = graph_cfg.n_days if graph_cfg.n_days is not None else max(data.n_epochs - data.epoch_start, 1)
-    n_samples = graph_cfg.n_samples if graph_cfg.n_samples is not None else data.dataset_size
-
-    # dataset_type == "train" implies 0 days in legacy logic
+    n_samples = graph_cfg.n_samples if graph_cfg.n_samples is not None else 1
     if data.dataset_type == "train":
-        n_days = 0
+        n_days = 1
 
     if graph is not None and not os.path.isfile(graph):
         sim_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
@@ -184,7 +181,7 @@ def _process_instance_generation(
     logger.info(
         "Generating '{}{}' ({}) dataset for {} with {} locations [dist={}]".format(
             name,
-            n_days if n_days > 0 else "",
+            n_days if data.dataset_type != "train" else "",
             data.dataset_type or "train",
             problem.upper(),
             size,
@@ -208,10 +205,11 @@ def _process_instance_generation(
     t0 = time.perf_counter()
 
     builder = VRPInstanceBuilder()
-    effective_focus_size = n_samples if data.dataset_type == "test_simulator" else focus_size
     builder.set_dataset_size(n_samples).set_problem_size(size).set_waste_type(waste_type).set_distribution(
         dist or "empty"
-    ).set_area(area).set_focus_graph(graph, effective_focus_size).set_method(vertex_method).set_problem_name(problem)
+    ).set_area(area).set_focus_graph(graph, focus_size).set_method(vertex_method).set_problem_name(
+        problem
+    ).set_num_days(n_days)
 
     _apply_noise_config(builder, problem, data)
 
@@ -267,7 +265,6 @@ def _generate_test_simulator_data(
         Number of files generated.
     """
     name = data.name or "dataset"
-    builder.set_num_days(n_days)
     if data.filename is None:
         filename = os.path.join(
             datadir,
@@ -297,7 +294,6 @@ def _generate_train_time_data(
         Number of files generated.
     """
     name = data.name or "dataset"
-    builder.set_num_days(data.n_epochs)
     if data.filename is None:
         ext = ".td"
         if data.mu is not None:
@@ -346,7 +342,6 @@ def _generate_train_data(
         Number of files generated.
     """
     name = data.name or "dataset"
-    builder.set_num_days(1)
     for epoch in range(data.epoch_start, data.n_epochs):
         print("- Generating epoch {} data".format(epoch))
         if data.filename is None:

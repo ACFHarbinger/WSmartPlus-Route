@@ -1,8 +1,10 @@
 """Tests for RewardScaler."""
 
+
+import pytest
 import torch
-from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler
 from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
+from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler
 
 
 def test_reward_scaler_norm():
@@ -12,14 +14,14 @@ def test_reward_scaler_norm():
 
     # Update and check mean
     scaler.update(data)
-    assert abs(scaler.mean - 2.0) < 1e-6
+    assert scaler.mean == pytest.approx(2.0, abs=1e-6)
     # Population variance: ((1-2)^2 + (2-2)^2 + (3-2)^2)/3 = 2/3
-    assert abs(scaler.variance - 2 / 3) < 1e-6
+    assert scaler.variance == pytest.approx(2 / 3, abs=1e-6)
 
     scaled = scaler(data, update=False)
     # Mean of scaled should be 0, std should be 1
-    assert abs(scaled.mean().item()) < 1e-6
-    assert abs(scaled.std(correction=0).item() - 1.0) < 1e-6
+    assert scaled.mean().item() == pytest.approx(0.0, abs=1e-6)
+    assert scaled.std(correction=0).item() == pytest.approx(1.0, abs=1e-6)
 
 
 def test_reward_scaler_ema():
@@ -42,5 +44,5 @@ def test_batch_reward_scaler():
     data = torch.tensor([10.0, 20.0, 30.0])
     scaled = scaler(data)
 
-    assert abs(scaled.mean().item()) < 1e-6
-    assert abs(scaled.std(correction=0).item() - 1.0) < 1e-6
+    assert scaled.mean().item() == pytest.approx(0.0, abs=1e-6)
+    assert scaled.std(correction=0).item() == pytest.approx(1.0, abs=1e-6)

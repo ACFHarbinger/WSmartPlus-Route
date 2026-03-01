@@ -1,12 +1,11 @@
-from unittest.mock import MagicMock, patch
+from typing import Any, cast
+from unittest.mock import MagicMock
 
 import pytest
 import torch
-
+from logic.src.models.core.matnet.policy import MatNetPolicy
 from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
 from logic.src.models.subnets.modules.matnet_attention import MixedScoreMHA
-from logic.src.models.core.matnet.policy import MatNetPolicy
-from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoder
 
 
 class TestMatNetParity:
@@ -37,7 +36,6 @@ class TestMatNetParity:
 
     def test_matnet_encoder_layer(self, matrix_input):
         from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoderLayer
-        embed_dim = 128
         row_emb = torch.rand(2, 5, 128)
         col_emb = torch.rand(2, 5, 128)
 
@@ -77,7 +75,7 @@ class TestMatNetParity:
         # Mock _get_log_p to avoid GlimpseDecoder internals failing on mocks
         log_p_mock = torch.rand(2, 1, 5)
         mask_mock = torch.zeros(2, 1, 5, dtype=torch.bool)
-        policy.decoder._get_log_p = MagicMock(return_value=(log_p_mock, mask_mock))
+        cast(Any, policy.decoder)._get_log_p = MagicMock(return_value=(log_p_mock, mask_mock))
 
         input_data = {"dist": matrix_input}
         out = policy(input_data)
@@ -90,4 +88,4 @@ class TestMatNetParity:
         assert log_p.shape[0] == 2
         assert log_p.shape[2] == 5
         assert actions.dtype == torch.long
-        assert policy.decoder._get_log_p.called
+        assert cast(Any, policy.decoder)._get_log_p.called

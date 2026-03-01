@@ -148,7 +148,7 @@ def rwo_setup():
     initial_weights = {"w1": 1.0, "w2": 1.0}
 
     optimizer = RewardWeightOptimizer(
-        model_class=MockModel,
+        model_class=MockModel,              # type: ignore[bad-argument-type]
         initial_weights=initial_weights,
         history_length=5,
         hidden_size=10,

@@ -4,18 +4,19 @@ Separated from log_utils to isolate heavy plotting dependencies (matplotlib).
 """
 
 import os
-from typing import Any, List
+from typing import Any, List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wandb
+from omegaconf import DictConfig
 
 import logic.src.constants as udef
 from logic.src.configs import Config
 
 
-def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Config) -> None:
+def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config, DictConfig]) -> None:
     """
     Logs comprehensive training history to Parquet, WandB, and generates Plots.
 

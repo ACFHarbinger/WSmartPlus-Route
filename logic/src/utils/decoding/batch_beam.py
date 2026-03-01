@@ -2,7 +2,7 @@
 BatchBeam class for beam search tracking.
 """
 
-from typing import Any, NamedTuple, Optional
+from typing import Any, NamedTuple, Optional, cast
 
 import torch
 
@@ -14,7 +14,7 @@ class BatchBeam(NamedTuple):
     Class that keeps track of a beam for beam search in batch mode.
     """
 
-    score: torch.Tensor  # Current heuristic score of each entry in beam
+    score: Optional[torch.Tensor]  # Current heuristic score of each entry in beam
     state: Any  # To track the state
     parent: Optional[torch.Tensor]
     action: Optional[torch.Tensor]
@@ -70,7 +70,7 @@ class BatchBeam(NamedTuple):
 
     def topk(self, k):
         """Selects the top-k beam candidates per batch."""
-        idx_topk = segment_topk_idx(self.score, k, self.ids)
+        idx_topk = segment_topk_idx(cast(torch.Tensor, self.score), k, self.ids)
         return self[idx_topk]
 
     def all_finished(self):

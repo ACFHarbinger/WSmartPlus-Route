@@ -11,11 +11,12 @@ from __future__ import annotations
 
 import os
 import threading
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import torch
+from omegaconf import DictConfig
 
 from logic.src.constants import (
     ROOT_DIR,
@@ -60,12 +61,12 @@ class SimulationContext:
 
     def __init__(
         self,
-        cfg: Config,
+        cfg: Union[Config, DictConfig],
         device: torch.device,
         indices: List[int],
         sample_id: int,
         pol_id: int,
-        model_weights_path: str,
+        model_weights_path: Optional[str],
         variables_dict: Dict[str, Any],
     ):
         """Initialize Class.
@@ -76,7 +77,7 @@ class SimulationContext:
             indices (List[int]): Description of indices.
             sample_id (int): Description of sample_id.
             pol_id (int): Description of pol_id.
-            model_weights_path (str): Description of model_weights_path.
+            model_weights_path (Optional[str]): Description of model_weights_path.
             variables_dict (Dict[str, Any]): Description of variables_dict.
         """
         self.cfg = cfg

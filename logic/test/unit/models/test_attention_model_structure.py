@@ -1,3 +1,4 @@
+from typing import Any, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -57,7 +58,7 @@ class TestAttentionModelStructure:
         log_p = torch.rand(1, 10)
         pi = torch.randint(0, 10, (1, 10))
         # Return expected cost 10.0
-        model.decoder.return_value = (log_p, pi, torch.tensor([10.0]))
+        cast(Any, model.decoder).return_value = (log_p, pi, torch.tensor([10.0]))
         # Mock calc_log_likelihood attached to decoder
         model.decoder._calc_log_likelihood.return_value = (torch.tensor(0.0), torch.tensor(0.0))
 
