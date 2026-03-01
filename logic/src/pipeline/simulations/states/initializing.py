@@ -295,7 +295,7 @@ class InitializingState(SimState):
                 gamma_option = int(data_dist[-1]) - 1
             except (ValueError, IndexError):
                 gamma_option = 0
-            ctx.bins.setGammaDistribution(option=gamma_option)
+            ctx.bins.set_gamma_distribution(option=gamma_option)
         else:
             ctx.bins = Bins(
                 sim.graph.num_loc,

@@ -15,7 +15,7 @@ from logic.src.constants import MAX_WASTE
 from logic.src.constants.routing import MAX_CAPACITY_PERCENT
 from logic.src.data.generators.waste import generate_waste
 from logic.src.data.processor import process_coordinates
-from logic.src.utils.data.loader import load_focus_coords
+from logic.src.utils.data.loader import load_focus_coords, load_grid_base
 from logic.src.utils.functions import get_path_until_string
 
 
@@ -131,14 +131,14 @@ class VRPInstanceBuilder:
                 - 'noisy_waste': np.ndarray of same shape as waste (equals waste when not SWCVRP)
                 - 'max_waste': np.ndarray of shape (dataset_size,)
         """
-        depot, loc, bins, idx = self._prepare_coordinates()
+        depot, loc, grid, idx = self._prepare_coordinates()
 
         # Generate waste/fill values over days
         fill_values = []
         coords = (depot, loc)
 
         for _ in range(self._num_days):
-            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, bins)
+            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, grid)
             if self._dataset_size == 1 and len(waste.shape) == 1:
                 waste = waste[None, :]
             fill_values.append(waste)
@@ -172,12 +172,12 @@ class VRPInstanceBuilder:
         Returns:
             TensorDict: A TensorDict with keys matching environment expectations.
         """
-        depot, loc, bins, idx = self._prepare_coordinates()
+        depot, loc, grid, idx = self._prepare_coordinates()
 
         fill_values = []
         coords = (depot, loc)
         for _ in range(self._num_days):
-            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, bins)
+            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, grid)
             if self._dataset_size == 1 and len(waste.shape) == 1:
                 waste = waste[None, :]
             fill_values.append(waste)
@@ -253,24 +253,14 @@ class VRPInstanceBuilder:
                 depots, locs = process_coordinates(random_coords, self._method, col_names=None)
                 depot = np.concatenate((depot, depots))  # type ignore[assignment]
                 loc = np.concatenate((loc, locs))  # type: ignore[assignment]
-            bins = None
+            grid = None
             if self._distribution == "emp":
-                from logic.src.pipeline.simulations.bins import Bins
-
                 data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")
-                bins = Bins(
-                    self._problem_size,
-                    data_dir,  # type: ignore[arg-type]
-                    sample_dist=self._distribution,
-                    area=self._area,
-                    indices=idx[0],  # type: ignore[arg-type]
-                    grid=None,
-                    waste_type=self._waste_type,
-                )
+                grid = load_grid_base(idx, self._area, data_dir)
         else:
-            bins = None
+            grid = None
             idx = np.array(range(self._problem_size))
             coord_size = 2 if self._method != "triple" else 3
             depot = np.random.uniform(size=(self._dataset_size, coord_size))
             loc = np.random.uniform(size=(self._dataset_size, self._problem_size, coord_size))
-        return depot, loc, bins, idx
+        return depot, loc, grid, idx

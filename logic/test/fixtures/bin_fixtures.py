@@ -30,7 +30,7 @@ def mock_bins_instance(mocker):
     mock_bins.n = 2
     mock_bins.profit = 100.0
     mock_bins.get_fill_history.return_value = np.array([[10, 20], [30, 40]])
-    mock_bins.stochasticFilling.return_value = (
+    mock_bins.load_filling.return_value = (
         0,
         np.zeros(2),
         np.zeros(2),

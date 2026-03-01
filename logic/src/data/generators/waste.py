@@ -18,7 +18,7 @@ def generate_waste(
     distribution: str,
     graph: Tuple[Any, Any],
     dataset_size: int = 1,
-    bins: Optional[Any] = None,
+    grid: Optional[Any] = None,
     **kwargs: Any,
 ) -> Union[np.ndarray, Any]:
     """
@@ -32,7 +32,7 @@ def generate_waste(
         distribution: Distribution type ('empty', 'const', 'unif', 'gammaX', 'emp', 'dist', 'beta').
         graph: (depot, loc) coordinates.
         dataset_size: Number of datasets to generate. Defaults to 1.
-        bins: Bins object for empirical sampling.
+        grid: GridBase object for empirical sampling.
         **kwargs: Additional parameters (e.g., alpha, beta for beta distribution).
 
     Returns:
@@ -57,9 +57,11 @@ def generate_waste(
         beta_p = kwargs.get("beta", 0.5)
         wp = Beta(alpha=alpha, beta=beta_p).sample_array(size)
     elif "emp" in distribution:
-        if bins is None:
-            raise ValueError("bins must be provided for empirical distribution")
-        wp = bins.stochasticFilling(n_samples=dataset_size, only_fill=True) / 100.0
+        if grid is None:
+            raise ValueError("grid must be provided for empirical distribution")
+        sampled_value = grid.sample(n_samples=dataset_size)
+        todaysfilling = np.maximum(sampled_value, 0)
+        wp = np.minimum(todaysfilling, 100.0)
     else:
         assert distribution == "dist"
         wp = Distance(graph).sample_array()

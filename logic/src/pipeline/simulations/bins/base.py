@@ -92,8 +92,6 @@ class Bins:
 
         self.lost = np.zeros((n))
         self.distribution = sample_dist
-        self.dist_param1 = np.ones((n)) * 10
-        self.dist_param2 = np.ones((n)) * 10
         self.inoverflow = np.zeros((n))
         self.collected = np.zeros((n))
         self.ncollections = np.zeros((n))
@@ -106,7 +104,13 @@ class Bins:
         self.collectlevl = np.ones((n)) * 80
         self.data_dir = data_dir
         self.indices = np.array(indices) if indices is not None else np.arange(n)
-        self.grid = load_grid_base(data_dir, self.indices, area) if grid is None else grid
+        self.grid = load_grid_base(self.indices, area, data_dir) if grid is None else grid
+        if sample_dist == "emp":
+            self.dist_param1 = self.grid.get_mean_rate()
+            self.dist_param2 = self.grid.get_var_rate()
+        else:
+            self.dist_param1 = np.ones((n)) * 10
+            self.dist_param2 = np.ones((n)) * 10
 
         self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
@@ -128,10 +132,9 @@ class Bins:
                 distribution=sample_dist,
                 noise_mean=noise_mean,
                 noise_variance=noise_variance,
+                grid=self.grid,
             )
 
-        self.waste_fills: Optional[np.ndarray] = None
-        self.noisy_waste_fills: Optional[np.ndarray] = None
         with contextlib.suppress(Exception):
             from logic.src.tracking.core.run import get_active_run
 
@@ -210,7 +213,7 @@ class Bins:
             return torch.tensor(np.array(self.level_history), dtype=torch.float, device=device) / 100.0
         return np.array(self.level_history)
 
-    def predictdaystooverflow(self, cl: float) -> np.ndarray:
+    def predict_days_to_overflow(self, cl: float) -> np.ndarray:
         """Predicts days to overflow based on statistics."""
         return predict_days_to_overflow(self.means, self.std, self.c, cl)
 
@@ -222,12 +225,11 @@ class Bins:
             self.indices = np.array(range(self.n))
 
     def set_sample_waste(self, sample_id: int) -> None:
-        """Sets current waste profile from pre-recorded data."""
+        """Sets current waste profile from dataset."""
         assert self.waste_dataset is not None
         sample = self.waste_dataset[sample_id]
         self.waste_fills = sample["waste"]
         self.noisy_waste_fills = sample["noisy_waste"]
-
         if self.start_with_fill:
             self.real_c = self.waste_fills[0].copy()
             self.c = self.noisy_waste_fills[0].copy()
@@ -322,43 +324,13 @@ class Bins:
             float(np.sum(todays_lost)),
         )
 
-    def stochasticFilling(
-        self, n_samples: int = 1, only_fill: bool = False
-    ) -> Union[np.ndarray, Tuple[int, np.ndarray, np.ndarray, float]]:
-        """Generates fills by sampling from distributions."""
-        todaysfilling = np.zeros(self.n)
-        if isinstance(self.waste_dataset, GenerativeDataset) and self.waste_fills is not None:
-            # Use pre-generated waste data from the GenerativeDataset
-            day_idx = self.day_count + (1 if self.start_with_fill else 0)
-            todaysfilling = self.waste_fills[day_idx]
-            noisyfilling = None
-            if self.noisy_waste_fills is not None:
-                noisyfilling = self.noisy_waste_fills[day_idx]
-            else:
-                noisyfilling = todaysfilling.copy()
-            if only_fill:
-                return np.minimum(todaysfilling, MAX_CAPACITY_PERCENT)
-            return self._process_filling(todaysfilling, noisyfilling)
-        elif self.distribution == "gamma":
-            todaysfilling = np.random.gamma(self.dist_param1, self.dist_param2, size=(n_samples, self.n))
-            if n_samples <= 1:
-                todaysfilling = todaysfilling.squeeze(0)
-        elif self.distribution == "emp":
-            sampled_value = self.grid.sample(n_samples=n_samples)
-            todaysfilling = np.maximum(sampled_value, 0)
-
-        if only_fill:
-            return np.minimum(todaysfilling, MAX_CAPACITY_PERCENT)
-        return self._process_filling(todaysfilling)
-
-    def deterministicFilling(self, date):
+    def deterministic_filling(self, date):
         """Loads deterministic fill levels from historical data."""
         todaysfilling = self.grid.get_values_by_date(date, sample=True)
         return self._process_filling(todaysfilling)
 
-    def loadFilling(self, day: int) -> Tuple[int, np.ndarray, np.ndarray, float]:
+    def load_filling(self, day: int) -> Tuple[int, np.ndarray, np.ndarray, float]:
         """Loads deterministic waste fills from pre-recorded data."""
-        assert self.waste_fills is not None and self.noisy_waste_fills is not None
         todaysfilling = self.waste_fills[day] if self.start_with_fill else self.waste_fills[day - 1]
         noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day - 1]
         return self._process_filling(todaysfilling, noisyfilling)
@@ -371,9 +343,9 @@ class Bins:
         else:
             self.dist_param1 = param1
             self.dist_param2 = param2
-        self.setCollectionLvlandFreq()
+        self.set_collection_level_and_freq()
 
-    def setGammaDistribution(self, option=0):
+    def set_gamma_distribution(self, option=0):
         """Configures bins with predefined Gamma distribution profiles."""
 
         def __set_param(param):
@@ -421,12 +393,14 @@ class Bins:
                     }
                 )
 
-    def setCollectionLvlandFreq(self, cf=0.9):
+    def set_collection_level_and_freq(self, cf=0.9):
         """Sets visit frequency and level thresholds."""
         for ii in range(0, self.n):
             f2, lv2 = calculate_frequency_and_level(
-                self.dist_param1[ii] * self.dist_param2[ii],
-                self.dist_param1[ii] * self.dist_param2[ii] ** 2,
+                self.dist_param1[ii] * self.dist_param2[ii] if self.distribution == "gamma" else self.dist_param1[ii],
+                self.dist_param1[ii] * self.dist_param2[ii] ** 2
+                if self.distribution == "gamma"
+                else self.dist_param2[ii],
                 cf,
             )
             self.collectdays[ii] = f2
