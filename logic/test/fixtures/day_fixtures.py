@@ -21,8 +21,8 @@ def mock_run_day_deps(mocker):
     # Mock Bins object with real arrays
     mock_bins = MagicMock()
     mock_bins.is_stochastic.return_value = False
-    mock_bins.loadFilling.return_value = (0, np.zeros(n_nodes), np.zeros(n_nodes), 0)
-    mock_bins.stochasticFilling.return_value = (
+    mock_bins.load_filling.return_value = (0, np.zeros(n_nodes), np.zeros(n_nodes), 0)
+    mock_bins.load_filling.return_value = (
         0,
         np.zeros(n_nodes),
         np.zeros(n_nodes),

@@ -20,10 +20,7 @@ class FillAction(SimulationAction):
         bins = context["bins"]
         day = context["day"]
 
-        if bins.is_stochastic():
-            new_overflows, fill, total_fill, sum_lost = bins.stochasticFilling()
-        else:
-            new_overflows, fill, total_fill, sum_lost = bins.loadFilling(day)
+        new_overflows, fill, total_fill, sum_lost = bins.load_filling(day)
         context["new_overflows"] = new_overflows
         context["fill"] = fill
         context["total_fill"] = total_fill

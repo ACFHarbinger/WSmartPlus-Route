@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import os
 import pickle
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -20,6 +20,7 @@ import torch
 import torch.utils.data
 from tensordict import TensorDict
 
+import logic.src.constants as udef
 from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 from logic.src.utils.functions import get_path_until_string
 
@@ -208,7 +209,14 @@ def load_simulation_dataset(filename: str) -> Dict[str, np.ndarray]:
     return dict(data)
 
 
-def load_grid_base(data_dir: str, indices: np.ndarray, area: Optional[str] = None) -> GridBase:
+def load_grid_base(
+    indices: Union[np.ndarray, List[int]],
+    area: Optional[str] = None,
+    data_dir: Optional[str] = None,
+) -> GridBase:
+    if data_dir is None:
+        data_dir = os.path.join(udef.ROOT_DIR, "data", "wsr_simulator")
+
     src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
     waste_csv = f"out_rate_crude[{src_area}].csv"
     info_csv = f"out_info[{src_area}].csv"
