@@ -27,11 +27,9 @@ marker := "fast"
 strategy := "greedy"
 distribution := "emp"
 n_cores := "20"
+policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr,ahvpl"
 
-#policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr,ahvpl"
-
-policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,hmm_gd"
-
+#policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,hmm_gd"
 # --- Setup & Environment ---
 
 # Sync dependencies using uv

@@ -156,15 +156,23 @@ def find_routes_ortools(
     # Create sub-matrices and cast to int for OR-Tools/compute_cost
     distancesC = dist_mat[np.ix_(subset_indices, subset_indices)].astype(int)
 
+    # Scale capacities/wastes to preserve float precision (OR-Tools requires ints)
+    SCALE = 10000
+
     # wastes: map node idx to waste index (idx-1)
     sub_wastes = [0]  # Depot
     for idx in subset_indices[1:]:
-        d = int(wastes[idx - 1])
+        d = int(float(wastes[idx - 1]) * SCALE)
         sub_wastes.append(d)
 
     # Unlimited logic
     if n_vehicles == 0:
         n_vehicles = len(to_collect)
+
+    with open("/tmp/cvrp_debug.txt", "a") as f:
+        f.write(
+            f"CVRP ORTOOLS START: n_vehicles={n_vehicles}, max_caps={max_caps}, len(to_collect)={len(to_collect)}, max(sub_wastes)={max(sub_wastes)} sub_wastes[:5]={sub_wastes[:5]}\n"
+        )
 
     manager = pywrapcp.RoutingIndexManager(len(distancesC), n_vehicles, 0)
     routing = pywrapcp.RoutingModel(manager)
@@ -191,7 +199,7 @@ def find_routes_ortools(
     routing.AddDimensionWithVehicleCapacity(
         waste_callback_index,
         0,  # null capacity slack
-        [int(max_caps)] * n_vehicles,
+        [int(float(max_caps) * SCALE)] * n_vehicles,
         True,  # start cumul to zero
         "Capacity",
     )
