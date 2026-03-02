@@ -117,7 +117,16 @@ class Bins:
 
         self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
-            path = os.path.join(data_dir, waste_file) if not os.path.isabs(waste_file) else waste_file
+            from logic.src.constants import ROOT_DIR
+
+            if os.path.isabs(waste_file):
+                path = waste_file
+            elif waste_file.startswith("data/"):
+                path = os.path.join(ROOT_DIR, waste_file)
+            else:
+                path = os.path.join(data_dir, waste_file)
+
+            print(f"Loading data from {path}...")
             if waste_file.endswith(".pkl"):
                 self.waste_dataset = NumpyPickleDataset.load(path)
             elif waste_file.endswith(".xlsx"):
@@ -127,6 +136,7 @@ class Bins:
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
         else:
+            print("Generating data...")
             self.waste_dataset = GenerativeDataset(
                 data_dir=data_dir,
                 n_samples=n_samples,
@@ -165,7 +175,16 @@ class Bins:
 
     def set_statistics(self, stats_file: str) -> None:
         """Loads pre-computed fill statistics."""
-        data = pandas.read_csv(os.path.join(self.data_dir, stats_file))
+        from logic.src.constants import ROOT_DIR
+
+        if os.path.isabs(stats_file):
+            path = stats_file
+        elif stats_file.startswith("data/"):
+            path = os.path.join(ROOT_DIR, stats_file)
+        else:
+            path = os.path.join(self.data_dir, stats_file)
+
+        data = pandas.read_csv(path)
         if "ID" in data.columns:
             data = data[data["ID"] != 0].reset_index(drop=True)
 
