@@ -47,8 +47,8 @@ def _flatten_config(cfg: Any) -> dict:
             break
         curr = curr[key]
 
-    # Handle list of dicts
-    if isinstance(curr, (list, tuple)):
+    # Handle list of dicts (including OmegaConf ListConfig)
+    if isinstance(curr, (list, tuple)) or (not isinstance(curr, (str, dict, Mapping)) and hasattr(curr, "__iter__")):
         merged: Dict[str, Any] = {}
         for item in curr:
             if isinstance(item, Mapping):

@@ -42,6 +42,7 @@ class SISRSolver(PolicyVizMixin):
         R: float,
         C: float,
         params: SISRParams,
+        mandatory_nodes: Optional[List[int]] = None,
     ):
         """
         Initialize SISR Solver.
@@ -55,6 +56,7 @@ class SISRSolver(PolicyVizMixin):
         self.R = R
         self.C = C
         self.params = params
+        self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """
@@ -150,7 +152,7 @@ class SISRSolver(PolicyVizMixin):
 
         routes = build_nn_routes(
             nodes=list(self.wastes.keys()),
-            mandatory_nodes=[],  # SISR doesn't use mandatory_nodes parameter
+            mandatory_nodes=self.mandatory_nodes,
             wastes=self.wastes,
             capacity=self.capacity,
             dist_matrix=self.dist_matrix,

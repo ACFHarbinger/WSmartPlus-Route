@@ -77,6 +77,8 @@ class SISRPolicy(BaseRoutingPolicy):
                 destroy_ratio=values.get("destroy_ratio", 0.2),
             )
 
-        solver = SISRSolver(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params)
+        solver = SISRSolver(
+            sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params, mandatory_nodes=mandatory_nodes
+        )
         routes, profit, cost = solver.solve()
         return routes, profit, cost
