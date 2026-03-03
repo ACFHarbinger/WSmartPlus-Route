@@ -11,8 +11,7 @@ import numpy as np
 import torch
 from tensordict import TensorDict
 
-from logic.src.constants import MAX_WASTE
-from logic.src.constants.routing import MAX_CAPACITY_PERCENT
+from logic.src.constants import MAX_CAPACITY_PERCENT, MAX_WASTE
 from logic.src.data.generators.waste import generate_waste
 from logic.src.data.processor import process_coordinates
 from logic.src.utils.data.loader import load_focus_coords, load_grid_base

@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
-from logic.src.constants.routing import MAX_CAPACITY_PERCENT
+from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.data.generators.waste import generate_waste
 
 from .sim_dataset import SimulationDataset

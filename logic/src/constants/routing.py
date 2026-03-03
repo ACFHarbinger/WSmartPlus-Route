@@ -53,10 +53,9 @@ PENALTY_MUST_GO_MISSED = 10000.0  # cost units (high penalty)
 
 # Capacity Constraints
 # --------------------
-# Maximum bin fill level as percentage (100% = full capacity)
-# Used in: Overflow detection, capacity feasibility checks
-# Note: This duplicates simulation.MAX_WASTE (1.0) in different units. Consider consolidating.
-MAX_CAPACITY_PERCENT = 100.0  # percent (0-100 range)
+# Maximum bin fill level (1.0 = full capacity)
+# Used in: Overflow detection, capacity feasibility checks.
+MAX_WASTE: float = 1.0  # [0.0, 1.0] capacity range (bins can exceed this, triggering overflow penalty)
 
 # Gurobi MIP Solver Parameters
 # -----------------------------

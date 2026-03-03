@@ -17,7 +17,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 
-from logic.src.constants.routing import MAX_CAPACITY_PERCENT
+from logic.src.constants import MAX_CAPACITY_PERCENT
 
 from .sim_dataset import SimulationDataset
 

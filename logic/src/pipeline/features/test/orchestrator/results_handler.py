@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import logic.src.constants as udef
 from logic.src.configs import Config
+from logic.src.pipeline.simulations.simulator import get_pol_name
 from logic.src.tracking.logging.log_utils import output_stats
 
 
@@ -40,6 +41,7 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
     """
     sim = cfg.sim
     policies = sim.full_policies
+    policy_names = [get_pol_name(p) for p in policies]
 
     if sim.n_samples > 1:
         if sim.resume:
@@ -51,7 +53,7 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
                 output_dir=sim.output_dir,
                 area=sim.graph.area,
                 nsamples=sim.n_samples,
-                policies=policies,
+                policies=policy_names,
                 keys=udef.SIM_METRICS,
                 lock=lock,
             )
@@ -66,13 +68,15 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
                 if isinstance(val_obj, list):
                     log_full[key].extend(val_obj)
 
-            for pol in policies:
-                if log_full[pol]:
-                    log[pol] = [statistics.mean(v) for v in zip(*log_full[pol])]
-                    log_std[pol] = [statistics.stdev(v) if len(log_full[pol]) > 1 else 0.0 for v in zip(*log_full[pol])]
+            for pol_name in policy_names:
+                if log_full[pol_name]:
+                    log[pol_name] = [statistics.mean(v) for v in zip(*log_full[pol_name])]
+                    log_std[pol_name] = [
+                        statistics.stdev(v) if len(log_full[pol_name]) > 1 else 0.0 for v in zip(*log_full[pol_name])
+                    ]
                 else:
-                    log[pol] = [0.0] * len(udef.SIM_METRICS)
-                    log_std[pol] = [0.0] * len(udef.SIM_METRICS)
+                    log[pol_name] = [0.0] * len(udef.SIM_METRICS)
+                    log_std[pol_name] = [0.0] * len(udef.SIM_METRICS)
 
             _log_sim_metrics(log, log_std)
             return log, log_std
