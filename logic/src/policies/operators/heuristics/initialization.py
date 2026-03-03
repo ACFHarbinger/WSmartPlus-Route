@@ -2,8 +2,8 @@
 Common initialization heuristic for building geographically compact routes.
 """
 
-import random
-from typing import Dict, List, Optional, cast
+from random import Random
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -16,7 +16,7 @@ def build_nn_routes(
     dist_matrix: np.ndarray,
     R: float,
     C: float,
-    rng: Optional[random.Random] = None,
+    rng: Optional[Random] = None,
 ) -> List[List[int]]:
     """
     Build geographically compact routes using a Nearest Neighbor logic.
@@ -39,7 +39,7 @@ def build_nn_routes(
         List of generated routes.
     """
     if rng is None:
-        rng = cast(random.Random, random)
+        rng = Random()
 
     mandatory_set = set(mandatory_nodes)
 

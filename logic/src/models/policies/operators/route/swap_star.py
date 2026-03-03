@@ -7,7 +7,7 @@ import torch
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
+def vectorized_swap_star(tours, dist_matrix, max_iterations=100, generator=None):
     """
     Vectorized Swap* operator.
     Exchanges u and v between different routes, re-inserting them at best positions.
@@ -17,6 +17,7 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
         tours (torch.Tensor): Current tours (B, max_len).
         dist_matrix (torch.Tensor): Distance matrix.
         max_iterations (int): Number of attempts.
+        generator (torch.Generator, optional): Random generator.
 
     Returns:
         torch.Tensor: Updated tours.
@@ -34,7 +35,7 @@ def vectorized_swap_star(tours, dist_matrix, max_iterations=100):
 
     for _ in range(max_iterations):
         # 1. Sample u (i) and v (j)
-        idx = torch.randint(1, max_len - 1, (B, 2), device=device)
+        idx = torch.randint(1, max_len - 1, (B, 2), device=device, generator=generator)
         i, j = idx[:, 0:1], idx[:, 1:2]
 
         node_i, node_j = torch.gather(tours, 1, i), torch.gather(tours, 1, j)

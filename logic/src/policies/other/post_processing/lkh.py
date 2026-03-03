@@ -22,15 +22,6 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
     with LKH (2-opt / 3-opt + double-bridge kicks), and reconstructs.
     """
 
-    def __init__(self, max_iterations: int = 50):
-        """
-        Initialize the LKH post-processor.
-
-        Args:
-            max_iterations: Max LKH improvement iterations per sub-tour.
-        """
-        self.max_iterations = max_iterations
-
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """
         Apply LKH refinement to each sub-tour.
@@ -81,8 +72,6 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
         if not trips:
             return tour
 
-        max_iter = kwargs.get("n_iterations", self.max_iterations)
-
         refined_tour = [0]
         for trip in trips:
             if len(trip) > 2:
@@ -91,9 +80,10 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
                 optimized, _ = solve_lkh(
                     distance_matrix,
                     initial_tour=sub_tour,
-                    max_iterations=max_iter,
+                    max_iterations=kwargs.get("n_iterations", self.max_iterations),
                     waste=waste_arr,
                     capacity=capacity,
+                    np_rng=np.random.RandomState(kwargs.get("seed", 42)),
                 )
                 # Strip depot from result
                 refined_tour.extend([n for n in optimized if n != 0])

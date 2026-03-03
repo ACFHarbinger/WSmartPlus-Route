@@ -7,7 +7,7 @@ import torch
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_three_opt(tours, dist_matrix, max_iterations=100):
+def vectorized_three_opt(tours, dist_matrix, max_iterations=100, generator=None):
     """
     Vectorized 3-opt local search using sampling for high efficiency.
     Evaluates multiple reconnection ways for 3-edge removals in parallel.
@@ -16,6 +16,7 @@ def vectorized_three_opt(tours, dist_matrix, max_iterations=100):
         tours (torch.Tensor): Current tours (B, max_len).
         dist_matrix (torch.Tensor): Distance matrix (B, N, N) or compatible.
         max_iterations (int): Number of sampling iterations.
+        generator (torch.Generator, optional): Random generator.
 
     Returns:
         torch.Tensor: Updated tours.
@@ -35,7 +36,7 @@ def vectorized_three_opt(tours, dist_matrix, max_iterations=100):
 
     for _ in range(max_iterations):
         # 1. Sample 3 indices i < j < k
-        idx = torch.sort(torch.randint(1, max_len - 1, (B, 3), device=device), dim=1).values
+        idx = torch.sort(torch.randint(1, max_len - 1, (B, 3), device=device, generator=generator), dim=1).values
         i, j, k = idx[:, 0:1], idx[:, 1:2], idx[:, 2:3]
 
         mask = (torch.gather(tours, 1, i) != 0) & (torch.gather(tours, 1, j) != 0) & (torch.gather(tours, 1, k) != 0)

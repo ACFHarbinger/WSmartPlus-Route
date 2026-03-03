@@ -7,7 +7,7 @@ import torch
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_swap(tours, dist_matrix, max_iterations=200):
+def vectorized_swap(tours, dist_matrix, max_iterations=200, generator=None):
     """
     Vectorized Swap operator.
     Exchanges two nodes within the same route for multiple batch items simultaneously.
@@ -16,6 +16,7 @@ def vectorized_swap(tours, dist_matrix, max_iterations=200):
         tours (torch.Tensor): Current tours (B, max_len).
         dist_matrix (torch.Tensor): Distance matrix.
         max_iterations (int): Number of random swap attempts.
+        generator (torch.Generator, optional): Random generator.
 
     Returns:
         torch.Tensor: Updated tours.
@@ -38,7 +39,7 @@ def vectorized_swap(tours, dist_matrix, max_iterations=200):
 
     for _ in range(max_iterations):
         # 1. Sample indices i, j
-        idx = torch.randint(1, max_len - 1, (B, 2), device=device)
+        idx = torch.randint(1, max_len - 1, (B, 2), device=device, generator=generator)
         i = torch.min(idx, dim=1)[0].view(B, 1)
         j = torch.max(idx, dim=1)[0].view(B, 1)
 

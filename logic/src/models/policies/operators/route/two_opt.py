@@ -7,7 +7,7 @@ import torch
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_two_opt(tours, distance_matrix, max_iterations=200):
+def vectorized_two_opt(tours, distance_matrix, max_iterations=200, generator=None):
     """
     Vectorized 2-opt local search across a batch of tours using PyTorch.
 
@@ -22,6 +22,7 @@ def vectorized_two_opt(tours, distance_matrix, max_iterations=200):
         tours: Batch of tours [B, N]
         distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1]
         max_iterations: Maximum number of improvement iterations (default: 200)
+        generator (torch.Generator, optional): Random generator.
 
     Returns:
         torch.Tensor: Improved tours [B, N]
