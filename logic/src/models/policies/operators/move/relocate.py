@@ -7,7 +7,7 @@ import torch
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_relocate(tours, dist_matrix, max_iterations=200):
+def vectorized_relocate(tours, dist_matrix, max_iterations=200, generator=None):
     """
     Vectorized Relocate operator. Moves a node to a new position.
     Removes a node from its current position and re-inserts it elsewhere if it yields an improvement.
@@ -16,6 +16,7 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200):
         tours (torch.Tensor): Current tours (B, max_len).
         dist_matrix (torch.Tensor): Distance matrix.
         max_iterations (int): Number of attempts.
+        generator (torch.Generator, optional): Random generator.
 
     Returns:
         torch.Tensor: Updated tours.
@@ -32,7 +33,7 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200):
 
     for _ in range(max_iterations):
         # 1. Sample indices i (to move) and j (insert after)
-        idx = torch.randint(1, max_len - 1, (B, 2), device=device)
+        idx = torch.randint(1, max_len - 1, (B, 2), device=device, generator=generator)
         i, j = idx[:, 0:1], idx[:, 1:2]
 
         node_i = torch.gather(tours, 1, i)

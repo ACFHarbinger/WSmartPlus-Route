@@ -145,7 +145,7 @@ def apply_3opt_move(tour: List[int], i: int, j: int, k: int, case: int) -> List[
     return new_tour
 
 
-def double_bridge_kick(tour: List[int]) -> List[int]:
+def double_bridge_kick(tour: List[int], np_rng: np.random.Generator) -> List[int]:
     """
     Apply a Double Bridge kick (random 4-opt move).
     Breaks 4 edges and reconnects to create a major perturbation.
@@ -154,7 +154,7 @@ def double_bridge_kick(tour: List[int]) -> List[int]:
     if n < 8:
         return tour  # Too small
 
-    pos = sorted(np.random.choice(range(1, n - 1), 4, replace=False))
+    pos = sorted(np_rng.choice(range(1, n - 1), 4, replace=False))
     a, b, c, d = pos
     # Segments: [0..a], [a+1..b], [b+1..c], [c+1..d], [d+1..end]
     # Reconnect: [0..a] -> [c+1..d] -> [b+1..c] -> [a+1..b] -> [d+1..end]
@@ -334,6 +334,7 @@ def solve_lkh(
     waste: Optional[np.ndarray] = None,
     capacity: Optional[float] = None,
     recorder: Optional[PolicyStateRecorder] = None,
+    np_rng: Optional[np.random.Generator] = None,
 ) -> Tuple[List[int], float]:
     """
     Solve TSP/VRP using refined Lin-Kernighan heuristics.
@@ -344,6 +345,7 @@ def solve_lkh(
         max_iterations: Max improvements/kicks.
         waste: Node weights.
         capacity: Vehicle capacity.
+        np_rng: Numpy random number generator.
 
     Returns:
         (best_tour, best_cost)
@@ -389,7 +391,7 @@ def solve_lkh(
             recorder.record(restart=_restart, best_cost=best_cost, curr_cost=curr_cost, best_penalty=best_pen)
 
         # Perturbation (Kick)
-        curr_tour = double_bridge_kick(best_tour)
+        curr_tour = double_bridge_kick(best_tour, np_rng)
         curr_pen, curr_cost = get_score(curr_tour, distance_matrix, waste, capacity)
 
     return best_tour, best_cost

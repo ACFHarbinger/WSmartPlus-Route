@@ -13,7 +13,7 @@ Example:
     >>> routes, removed = string_removal(routes, n_remove=5, ...)
 """
 
-import random
+from random import Random
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -25,7 +25,7 @@ def string_removal(
     dist_matrix: np.ndarray,
     max_string_len: int = 4,
     avg_string_len: float = 3.0,
-    rng: Optional[random.Random] = None,
+    rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Remove contiguous strings of customers to induce spatial slack.
@@ -40,6 +40,7 @@ def string_removal(
         dist_matrix: Distance matrix (used for propagation).
         max_string_len: Maximum length of a string to remove.
         avg_string_len: Average string length (unused, kept for API compatibility).
+        rng: Random number generator.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
@@ -52,7 +53,7 @@ def string_removal(
     iterations = 0
 
     if rng is None:
-        rng = random.Random()
+        rng = Random()
 
     while len(removed) < n_remove and iterations < max_iter:
         iterations += 1

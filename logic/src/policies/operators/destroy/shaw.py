@@ -12,7 +12,7 @@ Example:
     >>> routes, removed = shaw_removal(routes, n_remove=5, dist_matrix=d, ...)
 """
 
-import random
+from random import Random
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -31,7 +31,7 @@ def shaw_removal(  # noqa: C901
     phi: float = 9.0,
     chi: float = 3.0,
     psi: float = 2.0,
-    rng: Optional[random.Random] = None,
+    rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Shaw Removal: Remove related customers based on multi-criteria similarity.
@@ -54,6 +54,7 @@ def shaw_removal(  # noqa: C901
         phi: Distance weight in relatedness.
         chi: Time window weight in relatedness.
         psi: waste weight in relatedness.
+        rng: Random number generator.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Modified routes and removed nodes.
@@ -76,7 +77,7 @@ def shaw_removal(  # noqa: C901
         return routes, []
 
     if rng is None:
-        rng = random.Random()
+        rng = Random()
 
     # Pick random seed
     seed: int = rng.choice(all_nodes)

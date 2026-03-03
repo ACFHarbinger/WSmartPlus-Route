@@ -7,7 +7,7 @@ import torch
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
+def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200, generator=None):
     """
     Vectorized 2-opt* operator. (Tail Swap).
     Exchanges tails of two different routes. Useful for improving solutions by reconnecting routes.
@@ -16,6 +16,7 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
         tours (torch.Tensor): Current tours (B, max_len).
         dist_matrix (torch.Tensor): Distance matrix.
         max_iterations (int): Number of attempts.
+        generator (torch.Generator, optional): Random generator.
 
     Returns:
         torch.Tensor: Updated tours.
@@ -33,7 +34,7 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200):
 
     for _ in range(max_iterations):
         # 1. Sample indices i, j
-        idx = torch.randint(1, max_len - 1, (B, 2), device=device)
+        idx = torch.randint(1, max_len - 1, (B, 2), device=device, generator=generator)
         i, j = idx[:, 0:1], idx[:, 1:2]
 
         node_i, node_j = torch.gather(tours, 1, i), torch.gather(tours, 1, j)

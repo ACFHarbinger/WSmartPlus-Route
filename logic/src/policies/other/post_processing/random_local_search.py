@@ -75,12 +75,13 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
         probs = probs / (probs.sum() + 1e-10)
 
         iter_count = int(n_iterations) if n_iterations is not None else 50
+        generator = torch.Generator(device=device).manual_seed(kwargs.get("seed", 42))
         try:
-            op_indices = torch.multinomial(probs, iter_count, replacement=True).tolist()
+            op_indices = torch.multinomial(probs, iter_count, replacement=True, generator=generator).tolist()
             for op_idx in op_indices:
                 op_name = ops_sorted[op_idx]
                 op_func = op_map[op_name]
-                current_routes = op_func(current_routes, dm_tensor, max_iterations=1)
+                current_routes = op_func(current_routes, dm_tensor, max_iterations=1, generator=generator)
 
             return current_routes.squeeze(0).cpu().tolist()
         except Exception:

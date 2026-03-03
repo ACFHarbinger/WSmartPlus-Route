@@ -12,7 +12,7 @@ Example:
     >>> routes, removed = cluster_removal(routes, n_remove=5, dist_matrix=d, nodes=all_nodes)
 """
 
-import random
+from random import Random
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -25,7 +25,7 @@ def cluster_removal(
     n_remove: int,
     dist_matrix: np.ndarray,
     nodes: List[int],
-    rng: Optional[random.Random] = None,
+    rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Remove a cluster of nodes based on spatial proximity (Shaw Removal variant).
@@ -35,6 +35,7 @@ def cluster_removal(
         n_remove (int): Number of nodes to remove.
         dist_matrix (np.ndarray): Distance matrix.
         nodes (List[int]): List of all node IDs.
+        rng (Optional[Random]): Random number generator.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
@@ -44,7 +45,7 @@ def cluster_removal(
         return routes, []
 
     if rng is None:
-        rng = random.Random()
+        rng = Random()
 
     # Pick seed
     seed_route_idx = rng.randint(0, len(routes) - 1)
