@@ -6,6 +6,7 @@ compatible with OR-Tools' routing solver.
 """
 
 import numpy as np
+from google.protobuf.duration_pb2 import Duration
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 
@@ -13,6 +14,8 @@ def run_alns_ortools(dist_matrix, wastes, capacity, R, C, values):
     """
     Run ALNS using Google OR-Tools with Guided Local Search.
     """
+    seed = values.get("seed", 42)
+
     # 1. Identify active nodes (Depot + keys in wastes)
     active_nodes = [0] + sorted(list(wastes.keys()))
     compact_to_global = {c: g for c, g in enumerate(active_nodes)}
@@ -68,9 +71,11 @@ def run_alns_ortools(dist_matrix, wastes, capacity, R, C, values):
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     search_parameters.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-
     time_limit_sec = values.get("time_limit", 10)
-    search_parameters.time_limit.FromSeconds(int(time_limit_sec))
+    duration = Duration()
+    duration.FromSeconds(int(time_limit_sec))
+    search_parameters.time_limit.CopyFrom(duration)
+    routing.solver().ReSeed(seed)
 
     solution = routing.SolveWithParameters(search_parameters)
 
