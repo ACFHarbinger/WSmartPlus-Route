@@ -12,11 +12,11 @@ Example:
     >>> changed = perturb(context, k=5)
 """
 
-import random
+from random import Random
 from typing import Any
 
 
-def perturb(ctx: Any, k: int = 3) -> bool:
+def perturb(ctx: Any, k: int = 3, rng: Random = None) -> bool:
     """
     Perturbation operator: perform k random swaps to escape local optima.
 
@@ -26,6 +26,7 @@ def perturb(ctx: Any, k: int = 3) -> bool:
     Args:
         ctx: Context object with routes, node_map, wastes, capacity, etc.
         k: Number of swaps to perform (default: 3).
+        rng: Random number generator.
 
     Returns:
         bool: True if any swap was performed, False otherwise.
@@ -38,7 +39,7 @@ def perturb(ctx: Any, k: int = 3) -> bool:
     for _ in range(k):
         if len(all_nodes) < 2:
             break
-        u, v = random.sample(all_nodes, 2)
+        u, v = rng.sample(all_nodes, 2)
         u_loc = ctx.node_map.get(u)
         v_loc = ctx.node_map.get(v)
         if not u_loc or not v_loc:

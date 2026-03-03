@@ -159,7 +159,7 @@ class LocalSearch(PolicyVizMixin, ABC):
             else:
                 if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
                     return True
-                if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v):
+                if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
                     return True
 
         return False
@@ -182,8 +182,8 @@ class LocalSearch(PolicyVizMixin, ABC):
     def _move_swap_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return move_swap_star(self, u, v, r_u, p_u, r_v, p_v)
 
-    def _move_3opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        return move_3opt_intra(self, u, v, r_u, p_u, r_v, p_v)
+    def _move_3opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: random.Random) -> bool:
+        return move_3opt_intra(self, u, v, r_u, p_u, r_v, p_v, rng)
 
     def _move_2opt_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return move_2opt_star(self, u, v, r_u, p_u, r_v, p_v)

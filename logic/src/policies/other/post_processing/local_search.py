@@ -19,16 +19,6 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
     logic/src/models/policies/classical/local_search.py
     """
 
-    def __init__(self, operator_name: str = "2opt"):
-        """
-        Initialize the classical local search processor.
-
-        Args:
-            operator_name: The name of the local search operator to use
-                (e.g., '2opt', 'swap', 'relocate'). Defaults to '2opt'.
-        """
-        self.operator_name = operator_name
-
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """
         Apply vectorized local search to the tour.
@@ -79,10 +69,10 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
             "three_opt": vectorized_three_opt,
         }
 
-        op_fn = ops.get(self.operator_name, vectorized_two_opt)
-
+        op_fn = ops.get(kwargs.get("operator_name", "2opt"), vectorized_two_opt)
+        generator = torch.Generator(device=device).manual_seed(kwargs.get("seed", 42))
         try:
-            refined_tensor = op_fn(tour_tensor, dm_tensor, max_iterations=max_iter)
+            refined_tensor = op_fn(tour_tensor, dm_tensor, max_iterations=max_iter, generator=generator)
             return refined_tensor.squeeze(0).cpu().tolist()
         except Exception:
             return tour

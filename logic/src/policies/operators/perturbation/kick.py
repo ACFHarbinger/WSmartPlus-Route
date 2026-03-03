@@ -13,11 +13,11 @@ Example:
     >>> modified = kick(context, destroy_ratio=0.3)
 """
 
-import random
+from random import Random
 from typing import Any
 
 
-def kick(ctx: Any, destroy_ratio: float = 0.2) -> bool:
+def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Random = None) -> bool:
     """
     Kick operator: destroy a portion of the solution and repair.
 
@@ -26,6 +26,7 @@ def kick(ctx: Any, destroy_ratio: float = 0.2) -> bool:
     Args:
         ctx: Context object with routes, node_map, wastes, capacity, etc.
         destroy_ratio: Fraction of nodes to remove (default: 0.2).
+        rng: Random number generator.
 
     Returns:
         bool: True if the operation was performed, False otherwise.
@@ -36,7 +37,7 @@ def kick(ctx: Any, destroy_ratio: float = 0.2) -> bool:
         return False
 
     # Select nodes to remove
-    removed_nodes = random.sample(all_nodes, min(n_remove, len(all_nodes)))
+    removed_nodes = rng.sample(all_nodes, min(n_remove, len(all_nodes)))
 
     # Remove nodes from routes
     for node in removed_nodes:

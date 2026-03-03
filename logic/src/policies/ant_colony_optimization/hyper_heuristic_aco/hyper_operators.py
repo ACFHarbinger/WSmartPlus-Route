@@ -70,7 +70,7 @@ class HyperOperatorContext:
         self.route_loads: List[float] = []
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}
-        self.rng = random or random.Random()
+        self.rng = rng or random.Random()
 
         self._build_structures()
 
@@ -161,7 +161,7 @@ def apply_3opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
             if not v_loc:
                 continue
             r_v, p_v = v_loc
-            if r_u == r_v and move_3opt_intra(ctx, u, v, r_u, p_u, r_v, p_v):
+            if r_u == r_v and move_3opt_intra(ctx, u, v, r_u, p_u, r_v, p_v, ctx.rng):
                 improved = True
                 break
         if improved:

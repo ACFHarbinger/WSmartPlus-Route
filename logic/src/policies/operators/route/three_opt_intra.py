@@ -13,10 +13,10 @@ Example:
     >>> improved = move_3opt_intra(ls, u, v, r_u, p_u, r_v, p_v)
 """
 
-import random
+from random import Random
 
 
-def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: Random) -> bool:
     """
     3-opt intra-route operator: reconnect three segments within a route.
 
@@ -31,6 +31,7 @@ def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) 
         p_u: Position of u in the route.
         r_v: Index of the route (unused but required for signature).
         p_v: Position of v in the route.
+        rng: Random number generator.
 
     Returns:
         bool: True if a 3-opt move was applied (improving), False otherwise.
@@ -43,7 +44,7 @@ def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) 
         u, v = v, u
 
     for _ in range(5):
-        p_w = random.randint(0, len(route) - 1)
+        p_w = rng.randint(0, len(route) - 1)
         if p_w in {p_u, p_v, p_u + 1, p_v + 1, p_u - 1, p_v - 1}:
             continue
 
