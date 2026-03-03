@@ -10,9 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies import HGSALNSConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.hgs_alns import HGSALNSSolver
-from logic.src.policies.hybrid_genetic_search.params import HGSParams
+from logic.src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search import (
+    HGSALNSParams,
+    HGSALNSSolver,
+)
 
+from ..adaptive_large_neighborhood_search.params import ALNSParams
+from ..hybrid_genetic_search.params import HGSParams
 from .factory import PolicyRegistry
 
 
@@ -58,24 +62,38 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             Tuple of (routes, profit, solver_cost)
         """
         cfg = self._config
-        if cfg is not None:
-            params = HGSParams(
-                time_limit=cfg.time_limit,
-                population_size=cfg.population_size,
-                elite_size=cfg.elite_size,
-                mutation_rate=cfg.mutation_rate,
-                max_vehicles=cfg.max_vehicles,
-            )
-            alns_iter = cfg.alns_education_iterations
-        else:
-            params = HGSParams(
-                time_limit=values.get("time_limit", 10),
-                population_size=values.get("population_size", 50),
-                elite_size=values.get("elite_size", 10),
-                mutation_rate=values.get("mutation_rate", 0.2),
-                max_vehicles=values.get("max_vehicles", 0),
-            )
-            alns_iter = values.get("alns_education_iterations", 50)
+
+        # Build Params from nested config
+        alns_params = ALNSParams(
+            max_iterations=values.get("alns_iterations", 100),
+            start_temp=values.get("alns_start_temp", 100.0),
+            cooling_rate=values.get("alns_cooling_rate", 0.95),
+            reaction_factor=values.get("alns_reaction_factor", 0.1),
+            min_removal=values.get("alns_min_removal", 1),
+            max_removal_pct=values.get("alns_max_removal_pct", 0.2),
+            time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+        )
+
+        hgs_params = HGSParams(
+            time_limit=values.get("hgs_time_limit", values.get("time_limit", 60.0)),
+            population_size=values.get("hgs_population_size", 50),
+            elite_size=values.get("hgs_elite_size", 5),
+            mutation_rate=values.get("hgs_mutation_rate", 0.2),
+            crossover_rate=values.get("hgs_crossover_rate", 0.7),
+            n_generations=values.get("hgs_n_generations", 100),
+            alpha_diversity=values.get("hgs_alpha_diversity", 0.1),
+            local_search_iterations=values.get("hgs_local_search_iterations", 100),
+            max_vehicles=values.get("hgs_max_vehicles", 0),
+        )
+
+        # Create HGSALNSParams
+        params = HGSALNSParams(
+            alns_education_iterations=cfg.alns_education_iterations,
+            hgs_max_iter=cfg.hgs_max_iter,
+            time_limit=values.get("time_limit", 60.0),
+            hgs_params=hgs_params,
+            alns_params=alns_params,
+        )
 
         solver = HGSALNSSolver(
             dist_matrix=sub_dist_matrix,
@@ -84,7 +102,6 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             R=revenue,
             C=cost_unit,
             params=params,
-            alns_education_iterations=alns_iter,
             mandatory_nodes=mandatory_nodes,
             seed=values.get("seed"),
         )

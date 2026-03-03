@@ -18,6 +18,7 @@ class HMMGDConfig:
         learning_rate: Online HMM transition probability update step.
         n_removal: Nodes removed per destroy step.
         n_llh: LLH pool size (fixed at 5).
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
         vrpp: If True, solver operates in full VRPP mode.
         must_go: Must-go selection strategy config list.
@@ -31,6 +32,7 @@ class HMMGDConfig:
     learning_rate: float = 0.1
     n_removal: int = 2
     n_llh: int = 5
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True

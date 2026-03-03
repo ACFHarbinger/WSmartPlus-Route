@@ -19,6 +19,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..operators.destroy_operators import worst_removal
@@ -183,8 +184,6 @@ class PSOMAsSolver(PolicyVizMixin):
             routes = self._random_relocate(routes)
 
         # 2-opt local search after every position update
-        from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
         ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
         return ls.optimize(routes)
 
@@ -274,8 +273,6 @@ class PSOMAsSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
             ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
             return ls.optimize(repaired)
         except Exception:

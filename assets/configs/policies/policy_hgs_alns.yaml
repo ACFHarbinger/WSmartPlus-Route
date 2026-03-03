@@ -39,40 +39,76 @@ hgs_alns:
       # Note: Shared between HGS phase and ALNS education phase
 
     # ---------------------------------------------------------------------
-    # HGS Population Management
+    # HGS Parameters (Diversity Management & Crossover)
     # ---------------------------------------------------------------------
-    - population_size: 50
-      # Total individuals in genetic pool
+    - hgs_time_limit: 60
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
+
+    - hgs_n_generations: 100
+      # Number of generations for HGS
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+
+    - hgs_elite_size: 5
+      # Number of elite solutions for biased fitness ranking
+      # Range: 3-15 (typically ~50% of n_teams)
+      # Elite solutions get higher diversity preservation
+
+    - hgs_mutation_rate: 0.2
+      # Probability of HGS local search mutation after ALNS coaching
+      # Range: 0.0-0.5 (0.0 = no mutation, 0.3 = frequent)
+
+    - hgs_crossover_rate: 0.7
+      # Probability of applying OX crossover per generation
+      # Range: 0.0-1.0 (0.0 = clone parent, 1.0 = always crossover)
+
+    - hgs_alpha_diversity: 0.1
+      # Weight of diversity in fitness calculation
+      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+
+    - hgs_max_vehicles: 0
+      # Maximum vehicles allowed (0 = unlimited, determined by problem)
+      # Set >0 to constrain fleet size
+
+    - hgs_population_size: 50
+      # HGS internal population size for diversity management
       # Range: 25-100
-      # Same recommendations as pure HGS (see policy_hgs.yaml)
 
-    - elite_size: 10
-      # Number of solutions to "educate" with ALNS
-      # Range: 5-25 (typically 20% of population_size)
-      # Only elite solutions undergo ALNS refinement (computational efficiency)
+    - hgs_local_search_iterations: 100
+      # Number of local search iterations per generation
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
     # ---------------------------------------------------------------------
-    # Genetic Operators
+    # ALNS Parameters (Coaching & Deep Local Search)
     # ---------------------------------------------------------------------
-    - mutation_rate: 0.2
-      # Probability of mutation after crossover in HGS phase
-      # Range: 0.0-0.5
-      # Same recommendations as pure HGS
+    - alns_iterations: 100
+      # Number of destroy-repair cycles per coaching session
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
-    # ---------------------------------------------------------------------
-    # ALNS Education Phase
-    # ---------------------------------------------------------------------
-    - alns_education_iterations: 50
-      # Number of destroy-repair cycles applied to each elite solution
-      # Range: 10-200 (10 = light polish, 100 = deep search, 200 = thorough)
-      # Higher values → better solutions but longer runtime
-      # Recommendation: 50 for 60s budget, 100 for 300s budget
+    - alns_start_temp: 100.0
+      # Initial simulated annealing temperature
+      # Range: 50-500
 
-    # ALNS parameters (implicit, from policy_alns.yaml):
-    #   - max_removal_pct: 0.3 (remove up to 30% of nodes)
-    #   - start_temp: 100, cooling_rate: 0.995
-    #   - Destroy operators: Random, Worst, Shaw, String
-    #   - Repair operators: Greedy, Regret-2, Regret-3
+    - alns_cooling_rate: 0.95
+      # Temperature decay per iteration
+      # Range: 0.90-0.99
+
+    - alns_reaction_factor: 0.1
+      # Reaction factor for simulated annealing
+      # Range: 0.05-0.3
+
+    - alns_min_removal: 1
+      # Minimum number of nodes to remove in destroy phase
+      # Range: 1-10
+
+    - alns_max_removal_pct: 0.2
+      # Maximum fraction of nodes to remove in destroy phase
+      # Range: 0.1-0.4
+
+    - alns_time_limit: 60
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
+
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------

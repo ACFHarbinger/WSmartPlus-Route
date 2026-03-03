@@ -64,17 +64,57 @@ hvpl:
       # Number of ants for solution construction
       # Range: 5-30 (10 = balanced for initialization phase)
 
-    - aco_iterations: 1
-      # ACO iterations per construction call
-      # Range: 1-5 (1 = single pass, used for fast initialization)
-
     - aco_k_sparse: 10
       # Number of nearest neighbors in sparse ACO graph
       # Range: 5-20
 
+    - aco_alpha: 1.0
+      # Weight of pheromone in path selection
+      # Range: 0.0-5.0 (1.0 = balanced)
+
+    - aco_beta: 2.0
+      # Weight of heuristic information in path selection
+      # Range: 0.0-5.0 (2.0 = balanced)
+
     - aco_rho: 0.1
       # Pheromone evaporation rate
       # Range: 0.05-0.3
+
+    - aco_q0: 0.9
+      # Probability of choosing the best edge in path selection
+      # Range: 0.0-1.0 (0.9 = balanced)
+
+    - aco_tau_0: 0.1
+      # Initial pheromone level
+      # Range: 0.001-1.0 (0.1 = balanced)
+
+    - aco_tau_min: 0.001
+      # Minimum pheromone level
+      # Range: 0.0001-0.1 (0.001 = balanced)
+
+    - aco_tau_max: 10.0
+      # Maximum pheromone level
+      # Range: 1.0-100.0 (10.0 = balanced)
+
+    - aco_iterations: 1
+      # ACO iterations per construction call
+      # Range: 1-5 (1 = single pass, used for fast initialization)
+
+    - aco_local_search: False
+      # Whether to perform local search within ACO
+      # Range: True/False (False = use ALNS for local search)
+
+    - aco_local_search_iterations: 0
+      # Number of local search iterations per ACO construction
+      # Range: 0-100 (0 = no local search)
+
+    - aco_elitist_weight: 1.0
+      # Weight of elitist ant in pheromone update
+      # Range: 0.0-5.0 (1.0 = balanced)
+
+    - aco_time_limit: 30
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
 
     # ---------------------------------------------------------------------
     # ALNS Parameters (Coaching Phase)
@@ -90,6 +130,14 @@ hvpl:
     - alns_cooling_rate: 0.95
       # Temperature decay per iteration
       # Range: 0.90-0.99
+
+    - alns_reaction_factor: 0.5
+      # Weight of reaction factor in simulated annealing
+      # Range: 0.1-2.0 (0.5 = balanced)
+
+    - alns_min_removal: 1
+      # Minimum number of nodes to remove in destroy phase
+      # Range: 1-10
 
     - alns_max_removal_pct: 0.2
       # Maximum fraction of nodes to remove in destroy phase

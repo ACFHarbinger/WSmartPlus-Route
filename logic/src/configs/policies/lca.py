@@ -17,6 +17,7 @@ class LCAConfig:
         tolerance_pct: Infeasibility tolerance fraction for match decisions.
         crossover_prob: Probability of OX crossover vs. perturbation after loss.
         n_removal: Nodes removed per perturbation step.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
         vrpp: If True, solver operates in full VRPP mode.
         must_go: Must-go selection strategy config list.
@@ -29,6 +30,7 @@ class LCAConfig:
     tolerance_pct: float = 0.05
     crossover_prob: float = 0.6
     n_removal: int = 2
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True

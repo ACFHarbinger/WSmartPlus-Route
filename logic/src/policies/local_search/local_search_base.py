@@ -108,10 +108,9 @@ class LocalSearch(PolicyVizMixin, ABC):
                 self.node_map[node] = (ri, pi)
 
         improved = True
-        limit = 500  # Safety cap
         it = 0
         t_start = time.process_time()
-        while improved and it < limit:
+        while improved and it < self.params.local_search_iterations:
             if self.params.time_limit > 0 and time.process_time() - t_start > self.params.time_limit:
                 break
 

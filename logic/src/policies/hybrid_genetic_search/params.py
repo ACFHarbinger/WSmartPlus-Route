@@ -22,6 +22,9 @@ class HGSParams:
         elite_size: Number of elite individuals for survivor selection.
         mutation_rate: Probability of applying local search improvement.
         max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
+        n_generations: Number of generations to run the algorithm.
+        alpha_diversity: Weight for diversity in fitness evaluation.
+        local_search_iterations: Number of iterations to run local search.
     """
 
     time_limit: float = 60.0
@@ -30,6 +33,8 @@ class HGSParams:
     mutation_rate: float = 0.2
     crossover_rate: float = 0.7
     n_generations: int = 100
+    alpha_diversity: float = 0.5
+    local_search_iterations: int = 100
     max_vehicles: int = 0
 
     @classmethod
@@ -50,4 +55,6 @@ class HGSParams:
             crossover_rate=config.crossover_rate,
             n_generations=config.n_generations,
             max_vehicles=config.max_vehicles,
+            alpha_diversity=config.alpha_diversity,
+            local_search_iterations=config.local_search_iterations,
         )
