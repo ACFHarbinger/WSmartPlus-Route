@@ -92,7 +92,7 @@ class VNSSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
         k_max = min(self.params.k_max, len(self._neighborhoods))
 
         routes = self._build_initial_solution()
@@ -101,12 +101,12 @@ class VNSSolver(PolicyVizMixin):
         best_profit = profit
 
         for iteration in range(self.params.max_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             k = 0  # 0-based index into self._neighborhoods
             while k < k_max:
-                if time.time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                     break
 
                 # === Shaking phase ===
@@ -230,7 +230,7 @@ class VNSSolver(PolicyVizMixin):
         profit = self._evaluate(routes)
 
         for _ in range(self.params.local_search_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             llh_idx = self.random.randint(0, self.params.n_llh - 1)

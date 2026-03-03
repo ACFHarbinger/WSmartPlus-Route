@@ -15,7 +15,7 @@ ils:
     - perturbation_strength: 0.25
     - n_removal: 3
     - n_llh: 5
-    - time_limit: 120.0
+    - time_limit: 60.0
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

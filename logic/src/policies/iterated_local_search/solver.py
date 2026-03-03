@@ -74,7 +74,7 @@ class ILSSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         # Initial solution
         routes = self._build_initial_solution()
@@ -83,14 +83,14 @@ class ILSSolver(PolicyVizMixin):
         best_profit = profit
 
         for restart in range(self.params.n_restarts):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # === Descent phase ===
             improved = True
             inner_count = 0
             while improved and inner_count < self.params.inner_iterations:
-                if time.time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                     break
                 improved = False
                 inner_count += 1

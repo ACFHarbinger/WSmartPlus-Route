@@ -104,9 +104,9 @@ class HyperHeuristicACO(PolicyVizMixin):
         best_routes = copy.deepcopy(self.initial_solution)
         best_cost = self._calculate_cost(best_routes)
 
-        start_time = time.time()
+        start_time = time.process_time()
         for _it in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
             ant_solutions = []

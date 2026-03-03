@@ -66,7 +66,7 @@ class SCASolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
         T = self.params.max_iterations
 
         # Initialise population in continuous space
@@ -81,7 +81,7 @@ class SCASolver(PolicyVizMixin):
         best_cost = self._cost(best_routes)
 
         for t in range(T):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # Control parameter decays from a_max → 0

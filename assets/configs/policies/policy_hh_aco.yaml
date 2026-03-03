@@ -78,7 +78,7 @@ hh_aco:
       # Maximum ACO cycles (each cycle = n_ants sequences evaluated)
       # Range: 10-200 (10 = quick test, 100 = thorough)
 
-    - time_limit: 30.0
+    - time_limit: 60.0
       # Maximum wall-clock seconds
       # Range: 10-300 (30s = production, 120s = benchmark)
       # Usually reached before max_iterations

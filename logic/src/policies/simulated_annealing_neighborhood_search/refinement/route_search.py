@@ -41,6 +41,7 @@ def find_solutions(
     Returns:
         List[List[int]]: Optimized routing solution.
     """
+    p_iterations = chosen_combination[0]
     p_vehicle = chosen_combination[3]
     p_load = chosen_combination[4]
     p_route_difference = chosen_combination[5]
@@ -98,7 +99,7 @@ def find_solutions(
         points,
         distance_matrix,
         values,
-        iterations=5,
+        iterations=p_iterations,
     )
 
     # 4. Rebalancing Phase (Remove/Insert iterative loops)
@@ -115,7 +116,7 @@ def find_solutions(
         must_go_bins,
         distance_matrix,
         values,
-        iterations=10,
+        iterations=p_iterations,
     )
 
     return final_routes, final_profit, final_removed_bins

@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import networkx as nx
 import numpy as np
 from vrpy import VehicleRoutingProblem
+from vrpy.hyper_heuristic import _HyperHeuristic
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -77,11 +78,11 @@ def run_bcp_vrpy(
             if i != j:
                 G.add_edge(i, j, cost=float(dist_matrix[i][j] * C))
 
-    prob = VehicleRoutingProblem(G, load_capacity=capacity)
+    prob = VehicleRoutingProblem(G, load_capacity=capacity, pricing_strategy="Hyper")
+    prob.hyper_heuristic = _HyperHeuristic(seed=values.get("seed", 42))
 
     time_limit = values.get("time_limit", 30)
     prob.solve(time_limit=time_limit)
-
     if prob.best_routes:
         # VRPy best_routes is a list of paths (each path is a list of nodes)
         routes = []

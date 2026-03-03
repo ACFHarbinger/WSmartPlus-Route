@@ -83,10 +83,10 @@ class HGSALNSSolver(HGSSolver):
 
         update_biased_fitness(population, self.params.elite_size)
 
-        start_time = time.time()
+        start_time = time.process_time()
         it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
-        while time.time() - start_time < self.params.time_limit:
+        while self.params.time_limit > 0 and time.process_time() - start_time < self.params.time_limit:
             it += 1
             # 2. Selection & Crossover
             p1, p2 = self._select_parents(population)

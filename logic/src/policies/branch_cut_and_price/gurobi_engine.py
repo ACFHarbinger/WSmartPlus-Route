@@ -15,6 +15,7 @@ def _setup_model(values: Dict[str, Any], env: Optional[gp.Env]) -> gp.Model:
     model = gp.Model("CVRP", env=env) if env else gp.Model("CVRP")
     model.setParam("TimeLimit", values.get("time_limit", 30))
     model.setParam("MIPGap", 0.05)
+    model.setParam("Seed", values.get("seed", 42))
     return model
 
 

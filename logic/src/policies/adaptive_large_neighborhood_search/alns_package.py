@@ -263,7 +263,8 @@ def run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: Opti
     initial_routes = [[i] for i in nodes]
     init_state = ALNSState(initial_routes, [], dist_matrix, wastes, capacity, R, C, values)
 
-    alns = ALNS(np.random.default_rng(42))
+    seed = values.get("seed", 42)
+    alns = ALNS(np.random.default_rng(seed))
     alns.add_destroy_operator(alns_pkg_random_removal)  # pyrefly: ignore[bad-argument-type]
     alns.add_destroy_operator(alns_pkg_worst_removal)  # pyrefly: ignore[bad-argument-type]
     alns.add_repair_operator(alns_pkg_greedy_insertion)  # pyrefly: ignore[bad-argument-type]
