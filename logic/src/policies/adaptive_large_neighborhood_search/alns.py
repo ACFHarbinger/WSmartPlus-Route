@@ -102,14 +102,19 @@ class ALNSSolver(PolicyVizMixin):
         destroy_op = self.destroy_ops[d_idx]
         repair_op = self.repair_ops[r_idx]
 
-        n_remove = random.randint(
-            self.params.min_removal,
-            max(
-                self.params.min_removal,
-                int(self.n_nodes * self.params.max_removal_pct),
-            ),
-        )
+        current_n_nodes = sum(len(route) for route in current_routes)
 
+        if current_n_nodes == 0:
+            n_remove = 0
+        else:
+            # Scale removal percentage but ensure a minimum of 2 nodes if available
+            # to allow meaningful resequencing.
+            lower_bound = min(current_n_nodes, 2)
+            max_pct_remove = int(current_n_nodes * self.params.max_removal_pct)
+            upper_bound = max(lower_bound + 1, max_pct_remove)
+            upper_bound = min(upper_bound, current_n_nodes)
+
+            n_remove = random.randint(lower_bound, upper_bound)
         partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
         new_routes = repair_op(partial_routes, removed)
 

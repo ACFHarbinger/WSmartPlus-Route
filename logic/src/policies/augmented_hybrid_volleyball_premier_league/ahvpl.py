@@ -119,16 +119,29 @@ class AHVPLSolver(PolicyVizMixin):
                     break
                 p1, p2 = self._select_parents(population)
                 child = self._active_crossover(p1, p2)
+
+                # 2.5 Mutation: SWAP on giant tour
+                if random.random() < self.params.hgs_params.mutation_rate:
+                    self._mutate(child)
+
                 evaluate(child, self.split_manager)
                 population.append(child)
                 n_children += 1
 
             # 3. Population-wide ALNS Coaching (on full pop including children)
+            # Elite Re-coaching: Always coach the top solutions for continuous improvement.
+            # We sort by profit to identify the currently best teams.
+            population.sort(key=lambda x: x.profit_score, reverse=True)
             for i, ind in enumerate(population):
                 if time.time() - start_time > self.params.time_limit:
                     break
-                if ind.routes:
-                    population[i] = self._alns_coaching(ind)
+
+                is_elite = i < self.params.hgs_params.elite_size
+                # SMART COACHING: Skip if already coached, unless it's a top elite.
+                if ind.is_coached and not is_elite:
+                    continue
+
+                population[i] = self._alns_coaching(ind)
 
             # 4. Survivor Selection — trim by biased fitness
             update_biased_fitness(population, self.params.hgs_params.elite_size)
@@ -154,7 +167,8 @@ class AHVPLSolver(PolicyVizMixin):
                 n_children=n_children,
             )
 
-            # 7. VPL Substitution — replace worst teams with fresh ACO solutions
+            # 7. VPL Substitution — replace worst teams (by profit) with fresh ACO solutions
+            population.sort(key=lambda x: x.profit_score, reverse=True)
             n_sub = max(1, int(self.params.n_teams * self.params.sub_rate))
             for i in range(len(population) - n_sub, len(population)):
                 new_ind = self._construct_individual()
@@ -242,6 +256,15 @@ class AHVPLSolver(PolicyVizMixin):
 
         return child
 
+    def _mutate(self, ind: Individual) -> None:
+        """Apply SWAP mutation to giant tour."""
+        size = len(ind.giant_tour)
+        if size < 2:
+            return
+        idx1, idx2 = random.sample(range(size), 2)
+        ind.giant_tour[idx1], ind.giant_tour[idx2] = ind.giant_tour[idx2], ind.giant_tour[idx1]
+        ind.is_coached = False
+
     def _alns_coaching(self, ind: Individual) -> Individual:
         """
         Apply ALNS deep local search to an individual's routes.
@@ -263,6 +286,8 @@ class AHVPLSolver(PolicyVizMixin):
             # Re-evaluate through LinearSplit for consistent metrics
             evaluate(ind, self.split_manager)
 
+        # Mark as coached to skip in future iterations unless modified
+        ind.is_coached = True
         return ind
 
     # ── ACO Pheromone Management ─────────────────────────────────────

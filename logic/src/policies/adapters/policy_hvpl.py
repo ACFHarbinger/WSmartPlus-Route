@@ -62,23 +62,20 @@ class HVPLPolicy(BaseRoutingPolicy):
         # Extract sub-params for ACO and ALNS
         # 'values' contains the flattened config
 
-        aco_cfg = values.get("aco", {})
-        alns_cfg = values.get("alns", {})
-
         aco_params = ACOParams(
-            n_ants=aco_cfg.get("n_ants", 10),
-            max_iterations=aco_cfg.get("max_iterations", 1),
-            k_sparse=aco_cfg.get("k_sparse", 10),
-            rho=aco_cfg.get("rho", 0.1),
-            local_search=aco_cfg.get("local_search", False),
+            n_ants=values.get("aco_n_ants", 10),
+            max_iterations=values.get("aco_iterations", 1),
+            k_sparse=values.get("aco_k_sparse", 10),
+            rho=values.get("aco_rho", 0.1),
+            local_search=values.get("aco_local_search", False),
         )
 
         alns_params = ALNSParams(
-            max_iterations=alns_cfg.get("max_iterations", 100),
-            start_temp=alns_cfg.get("start_temp", 100.0),
-            cooling_rate=alns_cfg.get("cooling_rate", 0.95),
-            min_removal=alns_cfg.get("min_removal", 1),
-            max_removal_pct=alns_cfg.get("max_removal_pct", 0.2),
+            max_iterations=values.get("alns_iterations", 100),
+            start_temp=values.get("alns_start_temp", 100.0),
+            cooling_rate=values.get("alns_cooling_rate", 0.95),
+            min_removal=values.get("alns_min_removal", 1),
+            max_removal_pct=values.get("alns_max_removal_pct", 0.2),
         )
 
         params = HVPLParams(
