@@ -21,6 +21,7 @@ def vectorized_shaw_removal(
     chi: float = 3.0,
     psi: float = 2.0,
     randomization_factor: float = 2.0,
+    generator: Optional[torch.Generator] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Vectorized Shaw removal across a batch of tours using PyTorch.
@@ -53,6 +54,7 @@ def vectorized_shaw_removal(
         psi: Weight for waste component (default: 2.0)
         randomization_factor: Power for randomized selection (default: 2.0)
             Higher values = more randomness
+        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
 
     Returns:
         Tuple[torch.Tensor, torch.Tensor]:
@@ -84,7 +86,7 @@ def vectorized_shaw_removal(
     valid_counts = valid_mask.sum(dim=1)
 
     # Random seed selection
-    _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device)
+    _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device, generator)
 
     # Iteratively select related nodes
     for _step in range(1, n_remove):
@@ -122,6 +124,7 @@ def vectorized_shaw_removal(
             valid_mask,
             valid_counts,
             device,
+            generator,
         )
 
     # Create modified tours with removed nodes marked as -1
@@ -149,12 +152,12 @@ def _prepare_shaw_inputs(tours, distance_matrix, wastes, time_windows):
     return tours, distance_matrix, wastes, time_windows, is_batch
 
 
-def _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device):
+def _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device, generator):
     """Selects a random seed node for each tour."""
     for b in range(B):
         if valid_counts[b] > 0:
             valid_indices = torch.where(valid_mask[b])[0]
-            seed_idx = valid_indices[torch.randint(len(valid_indices), (1,), device=device)]
+            seed_idx = valid_indices[torch.randint(len(valid_indices), (1,), device=device, generator=generator)]
             removed_mask[b, seed_idx] = True
             removed_list[b, 0] = seed_idx
             removed_count[b] = 1
@@ -220,6 +223,7 @@ def _select_next_removal_batch(
     valid_mask,
     valid_counts,
     device,
+    generator,
 ):
     """Selects the next node to remove using randomized power law."""
     for b in range(B):
@@ -240,7 +244,7 @@ def _select_next_removal_batch(
         sorted_candidates = candidate_indices[sorted_indices]
 
         # Randomized selection using power law
-        y = torch.rand(1, device=device).item()
+        y = torch.rand(1, device=device, generator=generator).item()
         idx = int((y**randomization_factor) * len(sorted_candidates))
         idx = min(idx, len(sorted_candidates) - 1)
 

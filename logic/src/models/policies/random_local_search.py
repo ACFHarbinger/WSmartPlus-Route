@@ -37,6 +37,8 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         env_name: str,
         n_iterations: int = 100,
         op_probs: dict[str, float] | None = None,
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """
@@ -48,9 +50,11 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             op_probs: Dictionary mapping operator names to selection probabilities.
                      Normalized internally if they don't sum to 1.
                      Supported keys: 'two_opt', 'swap', 'relocate', 'two_opt_star', 'swap_star', 'three_opt'.
+            seed: Random seed for reproducibility.
+            device: Device to use for computation.
             **kwargs: Additional arguments for ConstructivePolicy.
         """
-        super().__init__(env_name=env_name, **kwargs)
+        super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.n_iterations = n_iterations
 
         # Default probabilities (weighted towards more powerful or faster operators)
@@ -115,7 +119,9 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         if kwargs.get("initial_solution") is not None:
             solutions = kwargs["initial_solution"].clone().to(device)
         else:
-            solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+            solutions = torch.stack(
+                [torch.randperm(num_nodes - 1, device=device, generator=self.generator) + 1 for _ in range(batch_size)]
+            )
 
         # Convert to routed format initially
         routes_list, _ = vectorized_linear_split(solutions, dist_matrix, waste, capacity)
@@ -129,7 +135,9 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
         # 3. Iterative Stochastic Local Search
         # Pre-sample operators for all iterations
-        op_indices = torch.multinomial(self.probs, self.n_iterations, replacement=True).tolist()
+        op_indices = torch.multinomial(
+            self.probs, self.n_iterations, replacement=True, generator=self.generator
+        ).tolist()
 
         for _rls_iter, op_idx in enumerate(op_indices):
             op_name = self.ops[op_idx]
@@ -137,21 +145,11 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
             # Apply operator
             # We set max_iterations=1 to ensure we respect our n_iterations and stochasticity
-            current_routes = op_func(current_routes, dist_matrix, max_iterations=1)
+            current_routes = op_func(current_routes, dist_matrix, max_iterations=1, generator=self.generator)
 
             self._viz_record(iteration=_rls_iter, op_name=op_name)
 
         # 4. Final Evaluation and Output
-        # Re-split to ensure nodes that might have been "lost" (though LS operators should maintain them)
-        # are handled or to get final reward.
-        # LS operators in local_search.py generally maintain the set of nodes for intra-route moves.
-        # Inter-route moves (tail swap, swap*) also maintain nodes.
-
-        # To get giant tour for return (if needed) or just return routes
-        # We re-calculate the cost using simple edge summation since split is expensive
-        # and we want to return what LS produced.
-
-        # Final cost calculation
         from_n = current_routes[:, :-1]
         to_n = current_routes[:, 1:]
 

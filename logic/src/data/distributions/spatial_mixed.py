@@ -7,7 +7,7 @@ Example:
     >>> import spatial_mixed
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -25,21 +25,29 @@ class Mixed:
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
-    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
             size (Tuple[int, int, int]): Description of size.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Any: Description of return value.
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
+
         batch_size, num_loc, _ = size
 
-        center = self.lower + (self.upper - self.lower) * torch.rand(batch_size, self.n_cluster_mix * 2)
+        center = self.lower + (self.upper - self.lower) * torch.rand(
+            batch_size, self.n_cluster_mix * 2, generator=generator
+        )
 
         coords = torch.FloatTensor(batch_size, num_loc, 2).uniform_(0, 1)
-        mutate_idx = torch.stack([torch.randperm(num_loc)[: num_loc // 2] for _ in range(batch_size)])
+        mutate_idx = torch.stack(
+            [torch.randperm(num_loc, generator=generator)[: num_loc // 2] for _ in range(batch_size)]
+        )
 
         segment_size = num_loc // (2 * self.n_cluster_mix)
         remaining = num_loc // 2 - segment_size * (self.n_cluster_mix - 1)
@@ -53,8 +61,8 @@ class Mixed:
 
             new_points = torch.stack(
                 [
-                    torch.normal(means_x, self.std),
-                    torch.normal(means_y, self.std),
+                    torch.normal(means_x, self.std, generator=generator),
+                    torch.normal(means_y, self.std, generator=generator),
                 ],
                 dim=2,
             )

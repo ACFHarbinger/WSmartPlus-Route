@@ -20,6 +20,7 @@ def vectorized_cross_exchange(
     wastes: Optional[torch.Tensor] = None,
     max_segment_len: int = 3,
     max_iterations: int = 50,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized cross-exchange local search across a batch of tours using PyTorch.
@@ -59,6 +60,7 @@ def vectorized_cross_exchange(
         wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
         max_segment_len: Maximum segment length to consider (default: 3)
         max_iterations: Maximum number of improvement iterations (default: 50)
+        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
 
     Returns:
         torch.Tensor: Improved tours [B, N] with same shape as input

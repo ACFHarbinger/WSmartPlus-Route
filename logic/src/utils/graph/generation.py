@@ -16,10 +16,14 @@ def generate_adj_matrix(
     undirected: bool = False,
     add_depot: bool = True,
     negative: bool = False,
+    np_rng: np.random.Generator = None,
 ) -> np.ndarray:
     """
     Generates a random adjacency matrix.
     """
+    if np_rng is None:
+        np_rng = np.random.RandomState()
+
     # If `num_edges` is a percentage, convert to int
     if isinstance(num_edges, float):
         num_edges = int(num_edges * (size * (size - 1)) / 2) if undirected else int(num_edges * size * (size - 1))
@@ -32,7 +36,7 @@ def generate_adj_matrix(
         if undirected:
             possible_edges = [(i, j) for i, j in possible_edges if i < j]
 
-        selected = np.random.choice(len(possible_edges), num_edges, replace=False)
+        selected = np_rng.choice(len(possible_edges), num_edges, replace=False)
         for edge_index in selected:
             i, j = possible_edges[edge_index]
             adj_matrix[i, j] = 1

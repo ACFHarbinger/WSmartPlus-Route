@@ -7,10 +7,12 @@ Example:
     >>> import cluster_removal
 """
 
+from typing import Optional
+
 import torch
 
 
-def vectorized_cluster_removal(tours, dist_matrix, n_remove):
+def vectorized_cluster_removal(tours, dist_matrix, n_remove, generator: Optional[torch.Generator] = None):
     """
     Removes a cluster of spatially related nodes.
     """
@@ -18,7 +20,7 @@ def vectorized_cluster_removal(tours, dist_matrix, n_remove):
     device = tours.device
 
     # 1. Pick a random seed node for each batch
-    seed_idx = torch.randint(0, N, (B,), device=device)
+    seed_idx = torch.randint(0, N, (B,), device=device, generator=generator)
     seed_nodes = torch.gather(tours, 1, seed_idx.unsqueeze(1)).squeeze(1)
 
     # 2. Find distances from seed nodes to all other nodes

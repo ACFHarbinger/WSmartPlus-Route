@@ -40,6 +40,8 @@ class ImitationLearning(RL4COLitModule):
         policy_config: Any,  # Expert policy configuration (HGSConfig, ALNSConfig, etc.)
         env_name: str,
         loss_fn: str = "nll",
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """
@@ -60,7 +62,7 @@ class ImitationLearning(RL4COLitModule):
         super().__init__(**kwargs)
 
         # Create expert policy from config
-        self.expert_policy = self._create_expert_policy(policy_config, env_name)
+        self.expert_policy = self._create_expert_policy(policy_config, env_name, seed, device)
         self.expert_name = type(policy_config).__name__.replace("Config", "").lower()
 
         # Map loss functions
@@ -74,12 +76,14 @@ class ImitationLearning(RL4COLitModule):
         self.loss_fn_name = loss_fn
         self.loss_fn = self._loss_map.get(loss_fn, nll_loss)
 
-    def _create_expert_policy(self, policy_config: Any, env_name: str) -> Any:
+    def _create_expert_policy(self, policy_config: Any, env_name: str, seed: int, device: str) -> Any:
         """Create expert policy from configuration.
 
         Args:
             policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
             env_name: Environment name for the policy.
+            seed: Random seed for reproducibility.
+            device: Device to run the policy on.
 
         Returns:
             Initialized expert policy instance.
@@ -120,6 +124,8 @@ class ImitationLearning(RL4COLitModule):
         # Convert config to dict and add env_name
         config_dict = asdict(policy_config)
         config_dict["env_name"] = env_name
+        config_dict["device"] = device
+        config_dict["seed"] = seed
 
         # Create and return the policy
         return policy_cls(**config_dict)

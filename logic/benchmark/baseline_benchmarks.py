@@ -22,22 +22,24 @@ from logic.src.policies.cvrp import find_routes, find_routes_ortools
 def benchmark_random_local_search(
     batch_size: int = 128,
     num_nodes: int = 50,
-    iterations: int = 100
+    iterations: int = 100,
+    seed: int = 42,
 ) -> Dict[str, float]:
     """Benchmark the Random Local Search policy."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[*] Benchmarking Random LS on {device} (batch={batch_size}, nodes={num_nodes}, iters={iterations})...")
 
+    generator = torch.Generator(device=device).manual_seed(seed)
     td = TensorDict(
         {
-            "locs": torch.rand(batch_size, num_nodes, 2, device=device),
-            "waste": torch.rand(batch_size, num_nodes, device=device),
+            "locs": torch.rand(batch_size, num_nodes, 2, generator=generator, device=device),
+            "waste": torch.rand(batch_size, num_nodes, generator=generator, device=device),
             "capacity": torch.ones(batch_size, device=device),
         },
         batch_size=[batch_size],
     )
 
-    policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=iterations).to(device)
+    policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=iterations, seed=seed).to(device)
 
     class MockEnv:
         waste_weight = 1.0
@@ -81,13 +83,14 @@ def benchmark_random_local_search(
     }
 
 
-def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2) -> Dict[str, Any]:
+def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2, seed: int = 42) -> Dict[str, Any]:
     """Benchmark Gurobi vs Hexaly on VRPP."""
     print(f"[*] Benchmarking VRPP Solvers (nodes={num_nodes}, limit={time_limit}s)...")
 
     # Generate random instance
-    bins = np.random.rand(num_nodes) * 100
-    dist_mat = np.random.rand(num_nodes + 1, num_nodes + 1).tolist()
+    np_rng = np.random.RandomState(seed)
+    bins = np_rng.rand(num_nodes) * 100
+    dist_mat = np_rng.rand(num_nodes + 1, num_nodes + 1).tolist()
     binsids = list(range(num_nodes + 1))
     must_go = list(range(1, num_nodes // 5))  # 20% critical
 
@@ -134,13 +137,14 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2) -> Dict[str
     return results
 
 
-def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5) -> Dict[str, Any]:
+def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5, seed: int = 42) -> Dict[str, Any]:
     """Benchmark PyVRP vs OR-Tools."""
     print(f"[*] Benchmarking CVRP Solvers (nodes={num_nodes}, vehicles={n_vehicles})...")
 
-    dist_mat = np.random.randint(10, 100, size=(num_nodes + 1, num_nodes + 1))
+    np_rng = np.random.RandomState(seed)
+    dist_mat = np_rng.randint(10, 100, size=(num_nodes + 1, num_nodes + 1))
     np.fill_diagonal(dist_mat, 0)
-    wastes = np.random.randint(5, 20, size=num_nodes)
+    wastes = np_rng.randint(5, 20, size=num_nodes)
     max_caps = 100
     to_collect = list(range(1, num_nodes + 1))
 

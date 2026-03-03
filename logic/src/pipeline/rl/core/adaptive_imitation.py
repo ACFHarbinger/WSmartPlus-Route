@@ -43,6 +43,8 @@ class AdaptiveImitation(REINFORCE):
         decay_step: int = 1,
         epsilon: float = 1e-5,
         loss_fn: str = "weighted_nll",
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """
@@ -58,6 +60,7 @@ class AdaptiveImitation(REINFORCE):
             decay_step: Number of epochs to decay IL weight.
             epsilon: Epsilon for improvement detection.
             loss_fn: Name of loss function to use ('weighted_nll', 'nll', etc.).
+            seed: Random seed for reproducibility.
             **kwargs: Arguments passed to REINFORCE.
         """
         # Exclude non-serializable objects from hyperparameters
@@ -85,7 +88,7 @@ class AdaptiveImitation(REINFORCE):
         super().__init__(**kwargs)
 
         # Create expert policy from config
-        self.expert_policy = self._create_expert_policy(policy_config, env_name)
+        self.expert_policy = self._create_expert_policy(policy_config, env_name, seed, device)
         self.il_weight = il_weight
         self.initial_il_weight = il_weight
         self.il_decay = il_decay
@@ -110,12 +113,14 @@ class AdaptiveImitation(REINFORCE):
         self.best_reward = float("-inf")
         self.current_il_weight = il_weight
 
-    def _create_expert_policy(self, policy_config: Any, env_name: str) -> Any:
+    def _create_expert_policy(self, policy_config: Any, env_name: str, seed: int, device: str) -> Any:
         """Create expert policy from configuration.
 
         Args:
             policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
             env_name: Environment name for the policy.
+            seed: Random seed for reproducibility.
+            device: Device to run the policy on.
 
         Returns:
             Initialized expert policy instance.
@@ -156,6 +161,8 @@ class AdaptiveImitation(REINFORCE):
         # Convert config to dict and add env_name
         config_dict = asdict(policy_config)
         config_dict["env_name"] = env_name
+        config_dict["device"] = device
+        config_dict["seed"] = seed
 
         # Create and return the policy
         return policy_cls(**config_dict)

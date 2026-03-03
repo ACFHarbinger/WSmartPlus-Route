@@ -52,21 +52,24 @@ class Gamma:
         tiled = param * math.ceil(size / param_len)
         return tiled[:size]
 
-    def sample_tensor(self, size: Tuple[int, ...]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from Gamma distribution.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc))
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             torch.Tensor: Sampled values
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
         if self.option is not None:
             # Use per-node heterogeneous params; fall back to numpy then convert
             return torch.from_numpy(self.sample_array(size)).float()
 
         m = torch.distributions.Gamma(self.alpha, 1 / self.theta)
-        return m.sample(torch.Size(size))
+        return m.sample(torch.Size(size), generator=generator)
 
     def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Gamma distribution.

@@ -2,6 +2,8 @@
 Type III Unstringing Operator (vectorized).
 """
 
+from typing import Optional
+
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
@@ -12,6 +14,7 @@ def vectorized_type_iii_unstringing(
     distance_matrix: torch.Tensor,
     max_iterations: int = 50,
     sample_size: int = 50,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized Type III Unstringing local search across a batch of tours using PyTorch.
@@ -44,7 +47,7 @@ def vectorized_type_iii_unstringing(
             if len(valid_indices) < 6:
                 continue
 
-            best_delta, best_move = _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device)
+            best_delta, best_move = _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device, generator)
 
             if best_move is not None:
                 i, k, j, l = best_move
@@ -57,7 +60,9 @@ def vectorized_type_iii_unstringing(
     return tours if is_batch else tours.squeeze(0)
 
 
-def _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device):
+def _find_best_type_iii_move(
+    tour, dist, valid_indices, sample_size, device, generator: Optional[torch.Generator] = None
+):
     """Finds the best Type III unstringing move for a single tour."""
     N = len(tour)
     best_delta = 0.0
@@ -70,9 +75,9 @@ def _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device):
         # Sample or enumerate (k, j, l)
         if sample_size > 0:
             n_samples = min(sample_size, n_valid**3)
-            k_s = torch.randint(0, n_valid, (n_samples,))
-            j_s = torch.randint(0, n_valid, (n_samples,))
-            l_s = torch.randint(0, n_valid, (n_samples,))
+            k_s = torch.randint(0, n_valid, (n_samples,), generator=generator)
+            j_s = torch.randint(0, n_valid, (n_samples,), generator=generator)
+            l_s = torch.randint(0, n_valid, (n_samples,), generator=generator)
             # Valid Type III: usually i < k < j < l in circular order
             valid = (k_s > i_idx) & (j_s > k_s) & (l_s > j_s)
             k_s, j_s, l_s = k_s[valid], j_s[valid], l_s[valid]

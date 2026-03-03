@@ -7,7 +7,7 @@ Example:
     >>> import spatial_mix_multi
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -39,18 +39,22 @@ class Mix_Multi_Distributions:
             (Mixed, {"n_cluster_mix": 4}),
         ]
 
-    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
             size (Tuple[int, int, int]): Description of size.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Any: Description of return value.
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
+
         batch_size, num_loc, _ = size
         coords = torch.zeros(batch_size, num_loc, 2)
-        dist_indices = torch.randint(0, len(self.distributions), (batch_size,))
+        dist_indices = torch.randint(0, len(self.distributions), (batch_size,), generator=generator)
 
         for i, (cls, kwargs) in enumerate(self.distributions):
             mask = dist_indices == i
@@ -59,9 +63,9 @@ class Mix_Multi_Distributions:
                 continue
 
             if cls is None:
-                coords[mask] = torch.rand(n_samples, num_loc, 2)
+                coords[mask] = torch.rand(n_samples, num_loc, 2, generator=generator)
             else:
                 dist = cls(**kwargs)
-                coords[mask] = dist.sample_tensor((n_samples, num_loc, 2))
+                coords[mask] = dist.sample_tensor((n_samples, num_loc, 2), generator=generator)
 
         return coords.clamp_(0, 1)

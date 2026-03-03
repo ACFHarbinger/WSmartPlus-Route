@@ -34,8 +34,9 @@ class VectorizedHGS(PolicyVizMixin):
         dist_matrix (torch.Tensor): Distance matrix.
         wastes (torch.Tensor): Wastes tensor.
         vehicle_capacity (float/torch.Tensor): Vehicle capacity.
+        max_iterations (int): Maximum number of iterations for local search.
         time_limit (float): Time limit for the search in seconds.
-        device: Torch device.
+        generator: Torch generator for reproducibility.
     """
 
     def __init__(
@@ -43,8 +44,12 @@ class VectorizedHGS(PolicyVizMixin):
         dist_matrix: torch.Tensor,
         wastes: torch.Tensor,
         vehicle_capacity: Any,
+        max_iterations: int = 50,
+        alpha_diversity: float = 0.5,
         time_limit: float = 1.0,
         device: str = "cuda",
+        generator: Optional[torch.Generator] = None,
+        rng: Optional[random.Random] = None,
     ):
         """
         Initialize the HGS solver.
@@ -52,8 +57,12 @@ class VectorizedHGS(PolicyVizMixin):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.vehicle_capacity = vehicle_capacity
+        self.max_iterations = max_iterations
+        self.alpha_diversity = alpha_diversity
         self.time_limit = time_limit
         self.device = torch.device(device)
+        self.generator = generator
+        self.rng = rng
 
     def solve(
         self,
@@ -92,7 +101,7 @@ class VectorizedHGS(PolicyVizMixin):
             max_vehicles=max_vehicles,
         )
 
-        pop = VectorizedPopulation(population_size, self.device)
+        pop = VectorizedPopulation(population_size, self.device, self.alpha_diversity, self.generator)
         # 1. Initialization: Create the initial population from guest solutions (Expert Imitation).
         # In HGS, the population is split into feasible and infeasible sub-populations.
         pop.initialize(initial_solutions, costs)
@@ -115,7 +124,11 @@ class VectorizedHGS(PolicyVizMixin):
             # 4. Crossover: Ordered Crossover (OX) for giant tours
             # Combines segments from parents while maintaining relative order of cities.
             # With probability (1 - crossover_rate), skip crossover and clone parent.
-            offspring_giant = vectorized_ordered_crossover(p1, p2) if random.random() < crossover_rate else p1.clone()
+            offspring_giant = (
+                vectorized_ordered_crossover(p1, p2, self.device, self.generator)
+                if self.rng.random() < crossover_rate
+                else p1.clone()
+            )
 
             # 5. Evaluation & Splitting:
             # Convert the giant tour offspring into actual routes using a linear split algorithm.
@@ -176,7 +189,7 @@ class VectorizedHGS(PolicyVizMixin):
                 new_pop = torch.zeros((B, n_rest, N), dtype=torch.long, device=self.device)
                 for b in range(B):
                     for i in range(n_rest):
-                        new_pop[b, i] = torch.randperm(N, device=self.device) + 1
+                        new_pop[b, i] = torch.randperm(N, device=self.device, generator=self.generator) + 1
 
                 # Evaluate new population...
                 b_sz, n_rst, n_nds = new_pop.shape
@@ -240,12 +253,24 @@ class VectorizedHGS(PolicyVizMixin):
 
         if max_l > 2:
             # Apply various local search moves iteratively
-            improved_routes = vectorized_two_opt(offspring_routes, self.dist_matrix, max_iterations=50)
-            improved_routes = vectorized_three_opt(improved_routes, self.dist_matrix, max_iterations=20)
-            improved_routes = vectorized_swap(improved_routes, self.dist_matrix, max_iterations=50)
-            improved_routes = vectorized_relocate(improved_routes, self.dist_matrix, max_iterations=50)
-            improved_routes = vectorized_two_opt_star(improved_routes, self.dist_matrix, max_iterations=50)
-            improved_routes = vectorized_swap_star(improved_routes, self.dist_matrix, max_iterations=50)
+            improved_routes = vectorized_two_opt(
+                offspring_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+            )
+            improved_routes = vectorized_three_opt(
+                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+            )
+            improved_routes = vectorized_swap(
+                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+            )
+            improved_routes = vectorized_relocate(
+                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+            )
+            improved_routes = vectorized_two_opt_star(
+                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+            )
+            improved_routes = vectorized_swap_star(
+                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+            )
 
             # Re-calculate costs after local search optimization
             from_n = improved_routes[:, :-1]

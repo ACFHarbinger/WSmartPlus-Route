@@ -2,7 +2,7 @@
 HGS Population Management.
 """
 
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import torch
 
@@ -23,9 +23,12 @@ class VectorizedPopulation:
         size (int): Maximum population size.
         device: Torch device.
         alpha_diversity (float): Weight for diversity in biased fitness calculation.
+        generator (Optional[torch.Generator]): Torch random number generator.
     """
 
-    def __init__(self, size: int, device: Any, alpha_diversity: float = 0.5):
+    def __init__(
+        self, size: int, device: Any, alpha_diversity: float = 0.0, generator: Optional[torch.Generator] = None
+    ):
         """
         Initialize the population.
 
@@ -33,10 +36,12 @@ class VectorizedPopulation:
             size (int): Max population size.
             device: Computing device.
             alpha_diversity (float): Diversity weight.
+            generator (Optional[torch.Generator]): Torch random number generator.
         """
         self.max_size = size
         self.device = device
         self.alpha_diversity = alpha_diversity
+        self.generator = generator
         self.population: torch.Tensor = torch.empty(0)  # (B, P, N)
         self.costs: torch.Tensor = torch.empty(0)  # (B, P)
         self.biased_fitness: torch.Tensor = torch.empty(0)  # (B, P)
@@ -153,8 +158,8 @@ class VectorizedPopulation:
 
         def tournament():
             """Selects indices using binary tournament."""
-            idx_a = torch.randint(0, P, (B, n_offspring), device=self.device)
-            idx_b = torch.randint(0, P, (B, n_offspring), device=self.device)
+            idx_a = torch.randint(0, P, (B, n_offspring), device=self.device, generator=self.generator)
+            idx_b = torch.randint(0, P, (B, n_offspring), device=self.device, generator=self.generator)
             fit_a = torch.gather(self.biased_fitness, 1, idx_a)
             fit_b = torch.gather(self.biased_fitness, 1, idx_b)
             return torch.where(fit_a < fit_b, idx_a, idx_b)

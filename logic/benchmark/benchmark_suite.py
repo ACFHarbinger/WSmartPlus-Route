@@ -26,18 +26,18 @@ def get_dummy_model(device="cpu"):
     return model
 
 
-def benchmark_neural_latency(device="cpu"):
+def benchmark_neural_latency(device="cpu", seed=42):
     print(f"\n--- Neural Model Latency (Device: {device}) ---")
     model = get_dummy_model(device)
     batch_sizes = [1, 64, 256]
     n_nodes = 50
-
+    generator = torch.Generator(device=device).manual_seed(seed)
     for bs in batch_sizes:
         td = TensorDict(
             {
-                "locs": torch.rand(bs, n_nodes, 2, device=device),
-                "depot": torch.rand(bs, 2, device=device),
-                "waste": torch.rand(bs, n_nodes, device=device),
+                "locs": torch.rand(bs, n_nodes, 2, generator=generator, device=device),
+                "depot": torch.rand(bs, 2, generator=generator, device=device),
+                "waste": torch.rand(bs, n_nodes, generator=generator, device=device),
                 "capacity": torch.ones(bs, device=device),
                 "max_waste": torch.ones(bs, device=device),
             },
@@ -64,11 +64,12 @@ def benchmark_neural_latency(device="cpu"):
         print(f"Batch Size {bs:3d} | Latency: {avg_time*1000:7.2f} ms | Throughput: {bs/avg_time:10.2f} inst/s")
 
 
-def benchmark_solvers():
+def benchmark_solvers(seed=42):
     print("\n--- OR Solver Performance (N=20) ---")
     n_bins = 20
-    dist_matrix = np.random.rand(n_bins + 1, n_bins + 1).tolist()
-    bins = np.random.rand(n_bins) * 100
+    np_rng = np.random.RandomState(seed)
+    dist_matrix = np_rng.rand(n_bins + 1, n_bins + 1).tolist()
+    bins = np_rng.rand(n_bins) * 100
     values = {"Q": 100.0, "R": 1.0, "B": 1.0, "C": 0.1, "V": 1.0, "Omega": 0.1, "delta": 0.0, "psi": 0.8}
     binsids = list(range(n_bins + 1))
     must_go = [5, 10, 15]
@@ -86,25 +87,27 @@ def benchmark_solvers():
             must_go=must_go,
             optimizer=backend,
             time_limit=10,
+            seed=seed,
         )
         end = time.time()
         print(f"{backend:8s} | Solve Time: {end - start:7.4f} s")
 
 
-def benchmark_ls_throughput(device="cpu"):
+def benchmark_ls_throughput(device="cpu", seed=42):
     print(f"\n--- Local Search Throughput (Device: {device}) ---")
     bs = 512
     n_nodes = 50
+    generator = torch.Generator(device=device).manual_seed(seed)
     td = TensorDict(
         {
-            "locs": torch.rand(bs, n_nodes, 2, device=device),
-            "waste": torch.rand(bs, n_nodes, device=device),
+            "locs": torch.rand(bs, n_nodes, 2, generator=generator, device=device),
+            "waste": torch.rand(bs, n_nodes, generator=generator, device=device),
             "capacity": torch.ones(bs, device=device),
         },
         batch_size=[bs],
     )
 
-    policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=100).to(device)
+    policy = RandomLocalSearchPolicy(env_name="cvrpp", n_iterations=100, seed=seed).to(device)
 
     class MockEnv:
         waste_weight = 1.0

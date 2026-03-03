@@ -24,6 +24,7 @@ def select_action(
     probs: torch.Tensor,
     mask: Optional[torch.Tensor] = None,
     strategy: str = "greedy",
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Select action from probability distribution using greedy or sampling strategy.
@@ -45,6 +46,8 @@ def select_action(
         Selection strategy:
         - "greedy": Select action with highest probability (argmax)
         - "sampling": Sample action from probability distribution (multinomial)
+    generator : Optional[torch.Generator], default=None
+        Generator for sampling. If provided, used for sampling.
 
     Returns
     -------
@@ -103,7 +106,7 @@ def select_action(
         # Sampling: Sample from probability distribution
         # Clamp to prevent numerical issues in multinomial
         probs = probs.clamp(min=NUMERICAL_EPSILON)
-        return torch.multinomial(probs, num_samples=1).squeeze(-1)
+        return torch.multinomial(probs, num_samples=1, generator=generator).squeeze(-1)
 
 
 def select_action_log_prob(

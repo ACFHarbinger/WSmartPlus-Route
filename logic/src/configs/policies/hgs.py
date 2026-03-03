@@ -19,6 +19,7 @@ class HGSConfig:
         elite_size: Number of elite individuals to preserve.
         mutation_rate: Probability of mutation.
         n_generations: Number of generations to evolve.
+        alpha_diversity: Alpha diversity parameter for population management.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
         engine: Solver engine to use ('custom', 'pyvrp').
         must_go: List of must-go strategy config files.
@@ -32,6 +33,7 @@ class HGSConfig:
     mutation_rate: float = 0.2
     crossover_rate: float = 0.7
     n_generations: int = 100
+    alpha_diversity: float = 0.5
     max_vehicles: int = 0
     engine: str = "custom"
     vrpp: bool = True

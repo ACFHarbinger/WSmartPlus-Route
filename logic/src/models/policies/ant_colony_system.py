@@ -38,6 +38,8 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         elitism: int = 1,  # Number of best ants to use for pheromone update
         q0: float = 0.9,  # Probability of exploiting best edge (ACS)
         min_pheromone: float = 0.01,
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """Initialize Class.
@@ -52,9 +54,11 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
             elitism (int): Description of elitism.
             q0 (float): Description of q0.
             min_pheromone (float): Description of min_pheromone.
+            seed (int): Description of seed.
+            device (str): Description of device.
             kwargs (Any): Description of kwargs.
         """
-        super().__init__(env_name=env_name, **kwargs)
+        super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.n_ants = n_ants
         self.n_iterations = n_iterations
         self.alpha = alpha
@@ -175,7 +179,7 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
             # Selection
             probs = scores / (scores.sum(dim=-1, keepdim=True) + 1e-10)
 
-            rand_val = torch.rand((batch_size, n_ants), device=device)
+            rand_val = torch.rand((batch_size, n_ants), generator=self.generator, device=device)
             greedy_mask = rand_val < self.q0
             greedy_action = probs.argmax(dim=-1)
             sample_probs = probs + 1e-10

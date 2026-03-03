@@ -19,11 +19,12 @@ class Constant:
         """
         self.value = value
 
-    def sample_tensor(self, size: Tuple[int, ...]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Return constant tensor.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             torch.Tensor: Constant values
