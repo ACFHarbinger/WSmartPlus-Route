@@ -27,6 +27,7 @@ class LogAction(SimulationAction):
         coords = context["coords"]
         day = context["day"]
         sum_lost = context["sum_lost"]
+        time = context["time"]
 
         dlog = get_daily_results(
             total_collected,
@@ -38,6 +39,7 @@ class LogAction(SimulationAction):
             sum_lost,
             coords,
             profit,
+            time,
         )
 
         context["daily_log"] = dlog
@@ -69,5 +71,6 @@ class LogAction(SimulationAction):
                     "kg": total_collected,
                     "overflows": new_overflows,
                     "kg_lost": sum_lost,
+                    "time": time,
                 },
             )

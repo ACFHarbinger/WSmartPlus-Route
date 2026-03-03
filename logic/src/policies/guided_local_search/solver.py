@@ -79,7 +79,7 @@ class GLSSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         routes = self._build_initial_solution()
         profit = self._evaluate(routes)
@@ -87,12 +87,12 @@ class GLSSolver(PolicyVizMixin):
         best_profit = profit
 
         for restart in range(self.params.max_restarts):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # Inner local search loop using augmented objective
             for _ in range(self.params.inner_iterations):
-                if time.time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                     break
 
                 llh_idx = self.random.randint(0, self.params.n_llh - 1)

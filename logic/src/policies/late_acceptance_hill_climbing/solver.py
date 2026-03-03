@@ -73,7 +73,7 @@ class LAHCSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         # Initial solution via nearest-neighbour construction
         routes = self._build_initial_solution()
@@ -87,7 +87,7 @@ class LAHCSolver(PolicyVizMixin):
         queue: List[float] = [profit] * L
 
         for iteration in range(self.params.max_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # Select and apply a random LLH

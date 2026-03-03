@@ -60,7 +60,7 @@ class HVPLSolver(PolicyVizMixin):
         """
         Run the HVPL algorithm.
         """
-        start_time = time.time()
+        start_time = time.process_time()
 
         # 1. Initialization: Create the initial population (Teams)
         population: List[Tuple[List[List[int]], float, float]] = []
@@ -77,7 +77,7 @@ class HVPLSolver(PolicyVizMixin):
 
         # 2. League Season Iterations
         for _iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
             # 3. Coaching Phase: Apply ALNS to each team

@@ -77,13 +77,13 @@ METRICS: List[str] = [
     "kg/km",  # Efficiency ratio (maximize)
     "cost",  # Operational cost (minimize)
     "profit",  # Net profit (maximize, primary objective)
+    "time",  # Elapsed time for policy execution (minimize)
 ]
 
 # Extended simulation metrics (add temporal metadata)
 # Additional fields:
 # - days: integer (simulation duration, e.g., 31 for monthly simulation)
-# - time: float (wall-clock seconds for simulation execution)
-SIM_METRICS: List[str] = METRICS + ["days", "time"]
+SIM_METRICS: List[str] = METRICS + ["days"]
 
 # Daily log metrics (add day identifier and tour)
 # Additional fields:

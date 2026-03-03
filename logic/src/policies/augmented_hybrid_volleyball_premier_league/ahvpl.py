@@ -130,7 +130,7 @@ class AHVPLSolver(PolicyVizMixin):
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
-        start_time = time.time()
+        start_time = time.process_time()
 
         # ── Phase 1: ACO-Driven Heuristic Initialization ──
         population = self._initialize_population()
@@ -145,7 +145,7 @@ class AHVPLSolver(PolicyVizMixin):
 
         # ── Phase 2+3: VPL + HGS + ALNS Main Loop ──
         for _iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
             # 1. Bi-criteria fitness for parent selection
@@ -155,7 +155,7 @@ class AHVPLSolver(PolicyVizMixin):
             n_crossovers = max(1, int(len(population) * self.params.hgs_params.crossover_rate))
             n_children = 0
             for _ in range(n_crossovers):
-                if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                     break
                 p1, p2 = self._select_parents(population)
                 child = self._active_crossover(p1, p2)
@@ -171,7 +171,7 @@ class AHVPLSolver(PolicyVizMixin):
             # 3. Population-wide ALNS Coaching
             population.sort(key=lambda x: (x.profit_score, tuple(tuple(r) for r in x.routes)), reverse=True)
             for i, ind in enumerate(population):
-                if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                     break
 
                 if i == 0:

@@ -121,6 +121,10 @@ class BaseRoutingPolicy(IPolicyAdapter):
         # Flatten nested structures (custom lists, engine dicts)
         flat = _flatten_raw_config(policy_section)
 
+        # Ensure seed from the root config reaches flat if missing
+        if "seed" not in flat and "seed" in raw_config:
+            flat["seed"] = raw_config["seed"]
+
         # Filter to only fields the dataclass accepts
         valid_fields = {f.name for f in fields(config_cls)}
         # Explicitly allow 'seed' even if not in the dataclass
@@ -182,7 +186,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
                     _flatten_raw_config(runtime_overrides) if hasattr(runtime_overrides, "items") else {}
                 )
             policy_config = {**asdict(self._config), **runtime_overrides}
-            if self._seed is not None and "seed" not in policy_config:
+            if self._seed is not None and policy_config.get("seed") is None:
                 policy_config["seed"] = self._seed
         else:
             # Legacy path: extract from raw config dict
@@ -194,7 +198,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
                 else {}
             )
             # Ensure seed from context also makes it into legacy path if missing
-            if "seed" not in policy_config and "seed" in config:
+            if policy_config.get("seed") is None and config.get("seed") is not None:
                 policy_config["seed"] = config["seed"]
 
         capacity = policy_config.get("capacity", Q)
@@ -216,6 +220,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
         }
         # Merge all policy config params into values for solver consumption
         values.update(policy_config)
+
         return capacity, revenue_scaled, cost_unit, values
 
     def _create_subset_problem(

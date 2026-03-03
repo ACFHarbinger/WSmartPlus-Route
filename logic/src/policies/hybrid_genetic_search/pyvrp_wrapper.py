@@ -51,7 +51,7 @@ def solve_pyvrp(dist_matrix, wastes, capacity, R, C, values):
 
     # 4. Solve
     time_limit = float(values.get("time_limit", 10.0))
-    res = pyvrp.solve(data, stop=MaxRuntime(time_limit), seed=42)
+    res = pyvrp.solve(data, stop=MaxRuntime(time_limit), seed=values.get("seed", 42))
 
     # 5. Parse Result
     routes = []

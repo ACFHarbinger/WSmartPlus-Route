@@ -3,10 +3,12 @@ Action for routing policy execution.
 """
 
 import random
+import time
 from typing import Any, Dict
 
 import numpy as np
 import torch
+from omegaconf import DictConfig, OmegaConf
 
 from logic.src.policies import PolicyFactory
 
@@ -34,18 +36,19 @@ class PolicyExecutionAction(SimulationAction):
         # 2b. INJECT SIMULATION SEED INTO POLICY CONFIG
         # This ensures that both global and explicit seeding are available
         sim_cfg = getattr(context.get("cfg"), "sim", None)
-        base_seed = getattr(sim_cfg, "seed", 42) if sim_cfg else 42
+        seed = getattr(sim_cfg, "seed", 42) if sim_cfg else 42
 
-        # INJECT seed into raw config so BaseRoutingPolicy passes it to solvers
-        if "seed" not in raw_cfg:
-            raw_cfg["seed"] = base_seed
+        # Convert to a standard dict to ensure mutability
+        if isinstance(raw_cfg, DictConfig):
+            raw_cfg = OmegaConf.to_container(raw_cfg, resolve=True)
+            context["config"] = raw_cfg
+
+        raw_cfg["seed"] = seed
 
         # RE-SEED GLOBAL STATE BEFORE EXECUTION
-        # This guarantees that even if a worker was "dirtied" by a previous run,
-        # each day's execution starts from a deterministic state.
-        random.seed(base_seed)
-        np.random.seed(base_seed)
-        torch.manual_seed(base_seed)
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
         flat_cfg = _flatten_config(raw_cfg)
 
@@ -90,11 +93,15 @@ class PolicyExecutionAction(SimulationAction):
 
         try:
             adapter = PolicyFactory.get_adapter(solver_key, config=raw_cfg)
+
+            start_time = time.process_time()
             tour, cost, extra_output = adapter.execute(**context)
+            elapsed_time = time.process_time() - start_time
 
             context["tour"] = tour
             context["cost"] = cost
             context["extra_output"] = extra_output
+            context["time"] = elapsed_time
 
             # Legacy caching for regular selection
             if "regular" in full_policy:

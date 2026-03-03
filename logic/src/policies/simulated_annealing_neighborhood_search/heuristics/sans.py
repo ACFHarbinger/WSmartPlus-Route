@@ -119,7 +119,7 @@ def improved_simulated_annealing(  # noqa: C901
     """
     Refine routing solutions using a multi-neighborhood Simulated Annealing algorithm.
     """
-    start_time = time.time()
+    start_time = time.process_time()
 
     # --- 1. ROBUST INITIALIZATION ---
     removed_bins = set() if removed_bins is None else set(removed_bins)
@@ -155,14 +155,14 @@ def improved_simulated_annealing(  # noqa: C901
 
     # --- 2. MAIN SIMULATED ANNEALING LOOP ---
     while T_min < T:
-        if time.time() - start_time > time_limit:
+        if time.process_time() - start_time > time_limit:
             if verbose:
                 print("[DEBUG] Time limit reached.")
             break
 
         # Inner Loop
         for _ in range(iterations_per_T):
-            if time.time() - start_time > time_limit:
+            if time.process_time() - start_time > time_limit:
                 break
 
             # --- 3. NEIGHBOR SELECTION ---

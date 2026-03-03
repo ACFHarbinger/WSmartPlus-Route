@@ -98,7 +98,7 @@ class HMMGDSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         # Initial solution
         routes = self._build_random_solution()
@@ -118,7 +118,7 @@ class HMMGDSolver(PolicyVizMixin):
         stagnation_count = 0
 
         for iteration in range(self.params.max_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # Select LLH from HMM transition probabilities for current state
