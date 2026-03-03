@@ -29,6 +29,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         num_weight_configs: int = 10,
         weight_ranges: Optional[Dict[str, Tuple[float, float]]] = None,
         window_size: int = 20,
+        seed: int = 42,
         **kwargs,
     ):
         """
@@ -44,6 +45,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
             num_weight_configs: Number of weight configurations to generate.
             weight_ranges: Dict mapping weight names to (min, max) ranges.
             window_size: Sliding window size for reward tracking.
+            seed: Random seed for reproducibility.
             **kwargs: Additional keyword arguments.
         """
         self.num_days = num_days
@@ -67,6 +69,10 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         # Reward tracking
         self.rewards: Dict[Any, List[float]] = defaultdict(list)
         self.window_size = window_size
+
+        self.seed = seed
+        self.rng = random.Random(seed)
+        self.np_rng = np.random.default_rng(seed)
 
         self.current_config_idx = 0
         self.current_config = self.weight_configs[0]
@@ -191,7 +197,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         if self.weight_ranges:
             components = list(self.weight_ranges.keys())
             while len(configs) < num_configs:
-                config = {c: random.uniform(self.weight_ranges[c][0], self.weight_ranges[c][1]) for c in components}
+                config = {c: self.rng.uniform(self.weight_ranges[c][0], self.weight_ranges[c][1]) for c in components}
                 configs.append(config)
         return configs if configs else [initial_weights]
 
@@ -217,7 +223,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
             Any: Description of return value.
         """
         if self.total_trials == 0:
-            return random.randint(0, self.num_configs - 1)
+            return self.rng.randint(0, self.num_configs - 1)
 
         scores = np.zeros(self.num_configs)
         for i in range(self.num_configs):
@@ -236,7 +242,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         Returns:
             Any: Description of return value.
         """
-        samples = [np.random.beta(self.alpha[i], self.beta[i]) for i in range(self.num_configs)]
+        samples = [self.np_rng.beta(self.alpha[i], self.beta[i]) for i in range(self.num_configs)]
         return np.argmax(samples)
 
     def _select_epsilon_greedy(self, context_key):
@@ -248,8 +254,8 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         Returns:
             Any: Description of return value.
         """
-        if random.random() < self.exploration_factor:
-            return random.randint(0, self.num_configs - 1)
+        if self.rng.random() < self.exploration_factor:
+            return self.rng.randint(0, self.num_configs - 1)
 
         scores = [
             (np.mean(self.context_rewards[context_key][i]) if self.context_rewards[context_key][i] else -1e6)

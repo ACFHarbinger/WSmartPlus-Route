@@ -7,7 +7,7 @@ Example:
     >>> import spatial_mix
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -28,28 +28,32 @@ class Mix_Distribution:
         self.Mixed = Mixed(n_cluster_mix=n_cluster_mix)
         self.Cluster = Cluster(n_cluster=n_cluster)
 
-    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
             size (Tuple[int, int, int]): Description of size.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Any: Description of return value.
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
+
         batch_size, num_loc, _ = size
         coords = torch.FloatTensor(batch_size, num_loc, 2).uniform_(0, 1)
 
-        p = torch.rand(batch_size)
+        p = torch.rand(batch_size, generator=generator)
 
         mask = p <= 0.33
         n_mixed = int(mask.sum().item())
         if n_mixed > 0:
-            coords[mask] = self.Mixed.sample_tensor((n_mixed, num_loc, 2))
+            coords[mask] = self.Mixed.sample_tensor((n_mixed, num_loc, 2), generator=generator)
 
         mask = (p > 0.33) & (p <= 0.66)
         n_cluster = int(mask.sum().item())
         if n_cluster > 0:
-            coords[mask] = self.Cluster.sample_tensor((n_cluster, num_loc, 2))
+            coords[mask] = self.Cluster.sample_tensor((n_cluster, num_loc, 2), generator=generator)
 
         return coords

@@ -9,6 +9,7 @@ Example:
 
 from __future__ import annotations
 
+import random
 from abc import ABC
 from typing import Any, Dict, Optional
 
@@ -36,6 +37,8 @@ class ImprovementPolicy(nn.Module, ABC):
         decoder: Optional[ImprovementDecoder] = None,
         env_name: Optional[str] = None,
         embed_dim: int = 128,
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """Initialize ImprovementPolicy."""
@@ -44,6 +47,10 @@ class ImprovementPolicy(nn.Module, ABC):
         self.decoder = decoder
         self.env_name = env_name
         self.embed_dim = embed_dim
+        self.seed = seed
+        self.device = torch.device(device)
+        self.generator = torch.Generator(device=device).manual_seed(seed)
+        self.rng = random.Random(seed) if seed is not None else random.Random()
 
     def forward(
         self,

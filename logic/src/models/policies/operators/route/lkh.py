@@ -29,6 +29,7 @@ def vectorized_lkh(
     max_candidates: int = 5,
     use_3opt: bool = True,
     perturbation_interval: int = 10,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized Lin-Kernighan-Helsgaun local search across a batch of tours using PyTorch.
@@ -48,7 +49,7 @@ def vectorized_lkh(
         max_candidates: Number of candidate edges per node (default: 5)
         use_3opt: Whether to use 3-opt extensions
         perturbation_interval: Apply kicks every N iterations
-
+        generator: Random generator for reproducibility
     Returns:
         torch.Tensor: Improved tours [B, N]
     """
@@ -98,7 +99,7 @@ def vectorized_lkh(
 
         if (iteration + 1) % perturbation_interval == 0 and iteration < max_iterations - 1:
             for b in range(B):
-                tours[b] = _double_bridge_kick(tours[b])
+                tours[b] = _double_bridge_kick(tours[b], generator)
 
     return tours if is_batch else tours.squeeze(0)
 
@@ -239,12 +240,12 @@ def _apply_3opt(tour: torch.Tensor, i: int, j: int, k: int) -> torch.Tensor:
     return new_tour
 
 
-def _double_bridge_kick(tour: torch.Tensor) -> torch.Tensor:
+def _double_bridge_kick(tour: torch.Tensor, generator: Optional[torch.Generator] = None) -> torch.Tensor:
     """Apply double bridge perturbation (4-opt move)."""
     n = len(tour) - 1
     if n < 8:
         return tour
-    positions = torch.randperm(n - 2) + 1
+    positions = torch.randperm(n - 2, generator=generator) + 1
     positions = positions[:4].sort()[0]
     a, b, c, d = positions.tolist()
     tour_list = tour.tolist()

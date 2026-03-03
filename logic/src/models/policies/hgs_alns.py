@@ -4,6 +4,7 @@ Vectorized HGS-ALNS Hybrid Policy for RL.
 
 from __future__ import annotations
 
+import random
 from typing import Any, Dict, Optional, Tuple
 
 import torch
@@ -27,11 +28,18 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
         wastes: torch.Tensor,
         vehicle_capacity: Any,
         time_limit: float = 1.0,
-        device: str = "cuda",
+        device: str = "cpu",
+        rng: Optional[random.Random] = None,
+        generator: Optional[torch.Generator] = None,
         alns_education_iterations: int = 50,
+        alns_start_temp: float = 0.5,
+        alns_cooling_rate: float = 0.9995,
+        hgs_max_iter: int = 100,
     ):
-        super().__init__(dist_matrix, wastes, vehicle_capacity, time_limit, device)
+        super().__init__(dist_matrix, wastes, vehicle_capacity, hgs_max_iter, time_limit, device, generator, rng)
         self.alns_education_iterations = alns_education_iterations
+        self.alns_start_temp = alns_start_temp
+        self.alns_cooling_rate = alns_cooling_rate
         self.alns_engine = VectorizedALNS(
             dist_matrix=dist_matrix,
             wastes=wastes,
@@ -70,6 +78,8 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
             initial_solutions=initial_solutions,
             n_iterations=self.alns_education_iterations,
             max_vehicles=max_vehicles,
+            start_temp=self.alns_start_temp,
+            cooling_rate=self.alns_cooling_rate,
         )
 
         # 3. Format as padded routes tensor (required by HGS loop)
@@ -94,8 +104,14 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         population_size: int = 20,
         n_generations: int = 10,
         elite_size: int = 5,
+        crossover_rate: float = 0.5,
         max_vehicles: int = 0,
         alns_education_iterations: int = 50,
+        alns_start_temp: float = 0.5,
+        alns_cooling_rate: float = 0.9995,
+        hgs_max_iter: int = 100,
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         super().__init__(
@@ -105,9 +121,15 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
             n_generations=n_generations,
             elite_size=elite_size,
             max_vehicles=max_vehicles,
+            max_iterations=hgs_max_iter,
+            crossover_rate=crossover_rate,
+            seed=seed,
+            device=device,
             **kwargs,
         )
         self.alns_education_iterations = alns_education_iterations
+        self.alns_start_temp = alns_start_temp
+        self.alns_cooling_rate = alns_cooling_rate
 
     def forward(
         self,
@@ -142,7 +164,9 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
             capacity = capacity.expand(batch_size)
 
         # 2. Initialization: Random permutations
-        initial_solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+        initial_solutions = torch.stack(
+            [torch.randperm(num_nodes - 1, device=device, generator=self.generator) + 1 for _ in range(batch_size)]
+        )
 
         # 3. Solver Execution using HGS-ALNS Engine
         solver = VectorizedHGSALNSEngine(
@@ -151,7 +175,13 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
             device=str(device),
+            rng=self.rng,
+            generator=self.generator,
             alns_education_iterations=self.alns_education_iterations,
+            alns_start_temp=self.alns_start_temp,
+            alns_cooling_rate=self.alns_cooling_rate,
+            hgs_max_iter=self.hgs_max_iter,
+            crossover_rate=self.crossover_rate,
         )
 
         best_routes_list, costs = solver.solve(
@@ -176,9 +206,7 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         )
 
         # Compute reward using the same cost function as the model
-        from logic.src.models.policies.hgs import VectorizedHGS
-
-        reward = VectorizedHGS._compute_reward(td, env, padded_actions)
+        reward = VectorizedHGSPolicy._compute_reward(td, env, padded_actions)
 
         return {
             "actions": padded_actions,

@@ -54,6 +54,7 @@ def export_encoder_to_onnx(
     opset_version: int = 17,
     simplify: bool = False,
     verbose: bool = False,
+    generator: Optional[torch.Generator] = None,
 ) -> str:
     """
     Trace and export a single encoder ``nn.Module`` to ONNX format.
@@ -75,6 +76,7 @@ def export_encoder_to_onnx(
         simplify: If True, run ``onnxsim.simplify`` for a cleaner Netron graph.
             Requires ``pip install onnxsim``.
         verbose: Enable verbose ONNX export logging.
+        generator: Optional PyTorch generator for reproducible random inputs.
 
     Returns:
         Absolute path to the written ``.onnx`` file.
@@ -88,7 +90,10 @@ def export_encoder_to_onnx(
 
     encoder.eval()
     device = _infer_device(encoder)
-    dummy_input = torch.randn(batch_size, n_nodes, embed_dim, device=device)
+    if generator is None:
+        generator = torch.Generator(device=device).manual_seed(42)
+
+    dummy_input = torch.randn(batch_size, n_nodes, embed_dim, device=device, generator=generator)
 
     dynamic_axes: Dict[str, Dict[int, str]] = {
         "node_embeddings": {0: "batch_size", 1: "n_nodes"},

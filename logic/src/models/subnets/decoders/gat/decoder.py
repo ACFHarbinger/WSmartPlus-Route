@@ -33,6 +33,7 @@ class DeepGATDecoder(nn.Module):
         mask_graph: bool = False,
         mask_logits: bool = True,
         tanh_clipping: float = 10.0,
+        seed: int = 42,
         temp: float = 1.0,
         **kwargs,
     ):
@@ -44,6 +45,8 @@ class DeepGATDecoder(nn.Module):
         self.mask_graph = mask_graph
         self.mask_logits = mask_logits
         self.tanh_clipping = tanh_clipping
+        self.seed = seed
+        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
         self.temp = temp
 
         self.decoder = GraphAttentionDecoder(
@@ -148,7 +151,7 @@ class DeepGATDecoder(nn.Module):
         if strategy == "greedy":
             _, selected = probs.max(1)
         elif strategy == "sampling":
-            selected = torch.multinomial(probs, 1).squeeze(1)
+            selected = torch.multinomial(probs, 1, generator=self.generator).squeeze(1)
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
         return selected

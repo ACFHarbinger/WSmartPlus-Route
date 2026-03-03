@@ -84,10 +84,18 @@ def symmetric_transform(x: torch.Tensor, y: torch.Tensor, phi: torch.Tensor, off
     return xy + offset
 
 
-def symmetric_augmentation(xy: torch.Tensor, num_augment: int = 8, first_augment: bool = False, **kwargs):
+def symmetric_augmentation(
+    xy: torch.Tensor,
+    num_augment: int = 8,
+    first_augment: bool = False,
+    generator: Optional[torch.Generator] = None,
+    **kwargs,
+):
     """Augment xy data by `num_augment` times via symmetric transform."""
+    if generator is None:
+        generator = torch.Generator(device=xy.device).manual_seed(42)
     total_batch = xy.shape[0]
-    phi = torch.rand(total_batch, device=xy.device) * 4 * math.pi
+    phi = torch.rand(total_batch, device=xy.device, generator=generator) * 4 * math.pi
     if first_augment:
         # Identity for the first augmentation of each sample
         # Assuming batchify was used: [S0_A0, S0_A1, ..., S0_AN, S1_A0, ...]

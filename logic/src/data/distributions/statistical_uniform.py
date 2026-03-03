@@ -21,16 +21,19 @@ class Uniform:
         self.low = low
         self.high = high
 
-    def sample_tensor(self, size: Tuple[int, ...]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from discrete uniform distribution.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             torch.Tensor: Sampled values in range [0.01, 1.0].
         """
-        res = torch.randint(self.low, self.high, size)
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
+        res = torch.randint(self.low, self.high, size, generator=generator)
         return res.float() / 100.0
 
     def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:

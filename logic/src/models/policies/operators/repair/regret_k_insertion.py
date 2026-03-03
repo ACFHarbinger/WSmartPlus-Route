@@ -2,11 +2,15 @@
 Regret-K insertion repair operator (vectorized).
 """
 
+from typing import Optional
+
 import torch
 from torch import Tensor
 
 
-def vectorized_regret_k_insertion(tours: Tensor, removed_nodes: Tensor, dist_matrix: Tensor, k: int = 2) -> Tensor:
+def vectorized_regret_k_insertion(
+    tours: Tensor, removed_nodes: Tensor, dist_matrix: Tensor, k: int = 2, generator: Optional[torch.Generator] = None
+) -> Tensor:
     """
     Vectorized Regret-K insertion.
     Inserts removed nodes into best positions based on the regret criterion.

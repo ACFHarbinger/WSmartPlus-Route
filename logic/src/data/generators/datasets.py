@@ -204,12 +204,12 @@ def _process_instance_generation(
 
     t0 = time.perf_counter()
 
-    builder = VRPInstanceBuilder()
+    builder = VRPInstanceBuilder(device="cuda" if torch.cuda.is_available() else "cpu")
     builder.set_dataset_size(n_samples).set_problem_size(size).set_waste_type(waste_type).set_distribution(
         dist or "empty"
     ).set_area(area).set_focus_graph(graph, focus_size).set_method(vertex_method).set_problem_name(
         problem
-    ).set_num_days(n_days)
+    ).set_num_days(n_days).set_seed(data.seed)
 
     _apply_noise_config(builder, problem, data)
 

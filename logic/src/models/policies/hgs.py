@@ -29,16 +29,22 @@ class VectorizedHGS(AutoregressivePolicy):
         elite_size: int = 10,
         max_vehicles: int = 0,
         crossover_rate: float = 0.7,
+        max_iterations: int = 50,
+        seed: int = 42,
+        device: str = "cpu",
+        alpha_diversity: float = 0.5,
         **kwargs,
     ):
         """Initialize HGSPolicy with vectorized solver."""
-        super().__init__(env_name=env_name, **kwargs)
+        super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.time_limit = time_limit
         self.population_size = population_size
         self.n_generations = n_generations
         self.elite_size = elite_size
         self.max_vehicles = max_vehicles
         self.crossover_rate = crossover_rate
+        self.max_iterations = max_iterations
+        self.alpha_diversity = alpha_diversity
 
     def forward(
         self,
@@ -73,15 +79,21 @@ class VectorizedHGS(AutoregressivePolicy):
             capacity = capacity.expand(batch_size)
 
         # 2. Initialization: Random permutations
-        initial_solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+        initial_solutions = torch.stack(
+            [torch.randperm(num_nodes - 1, device=device, generator=self.generator) + 1 for _ in range(batch_size)]
+        )
 
         # 3. Solver Execution
         solver = VectorizedHGSEngine(
             dist_matrix=dist_matrix,
             wastes=waste,
             vehicle_capacity=capacity,
+            max_iterations=self.max_iterations,
             time_limit=self.time_limit,
             device=str(device),
+            generator=self.generator,
+            alpha_diversity=self.alpha_diversity,
+            rng=self.rng,
         )
 
         best_routes_list, costs = solver.solve(

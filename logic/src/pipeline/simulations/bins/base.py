@@ -52,6 +52,9 @@ class Bins:
         waste_file (Optional[str], optional): Path to waste file. Defaults to None.
         noise_mean (float, optional): Noise mean. Defaults to 0.0.
         noise_variance (float, optional): Noise variance. Defaults to 0.0.
+        n_days (int, optional): Number of days to simulate. Defaults to 31.
+        n_samples (int, optional): Number of samples to generate. Defaults to 1.
+        seed (Optional[int], optional): Random seed. Defaults to None.
     """
 
     def __init__(

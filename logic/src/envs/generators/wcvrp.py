@@ -44,6 +44,7 @@ class WCVRPGenerator(Generator):
         area: Optional[str] = None,
         data_dir: Optional[str] = None,
         indices: Optional[list[int]] = None,
+        generator: Optional[torch.Generator] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -65,9 +66,10 @@ class WCVRPGenerator(Generator):
             area: Area for grid generation.
             data_dir: Directory for grid data.
             indices: Indices for grid generation.
+            generator: Generator for random number generation.
             **kwargs: Additional keyword arguments.
         """
-        super().__init__(num_loc, min_loc, max_loc, loc_distribution, device, **kwargs)
+        super().__init__(num_loc, min_loc, max_loc, loc_distribution, device, generator, **kwargs)
 
         self.min_fill = min_fill
         self.max_fill = max_fill

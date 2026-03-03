@@ -2,16 +2,22 @@
 Genetic Crossover Operators for HGS.
 """
 
+from typing import Any, Optional
+
 import torch
 
 
-def vectorized_ordered_crossover(parent1: torch.Tensor, parent2: torch.Tensor) -> torch.Tensor:
+def vectorized_ordered_crossover(
+    parent1: torch.Tensor, parent2: torch.Tensor, device: Any, generator: Optional[torch.Generator] = None
+) -> torch.Tensor:
     """
     Vectorized Ordered Crossover (OX1) with shared cuts across batch.
 
     Args:
         parent1: (B, N)
         parent2: (B, N)
+        device: Torch device.
+        generator (Optional[torch.Generator]): Torch random number generator.
 
     Returns:
         offspring: (B, N)
@@ -20,7 +26,7 @@ def vectorized_ordered_crossover(parent1: torch.Tensor, parent2: torch.Tensor) -
     device = parent1.device
 
     # 1. Generate shared cut points
-    idx1, idx2 = torch.randint(0, N, (2,)).tolist()
+    idx1, idx2 = torch.randint(0, N, (2,), device=device, generator=generator).tolist()
     start = min(idx1, idx2)
     end = max(idx1, idx2)
 
@@ -48,12 +54,6 @@ def vectorized_ordered_crossover(parent1: torch.Tensor, parent2: torch.Tensor) -
     roll_idx = torch.arange(N, device=device)
     roll_idx = (roll_idx + end) % N
     p2_rolled = parent2[:, roll_idx]  # (B, N) sorted by fill order
-
-    # Identification of valid elements
-    # Since values are 1..N (or 0..N-1), we can use a mask.
-    # Naive check: (B, N, 1) == (B, 1, num_seg) -> any(dim=2)
-    # segment: (B, num_seg)
-    # p2_rolled: (B, N)
 
     # Efficient exclusion check:
     # (B, N, 1) == (B, 1, num_seg) -> (B, N, num_seg) -> sum/any -> (B, N) mask

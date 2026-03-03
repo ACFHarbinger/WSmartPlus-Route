@@ -21,17 +21,21 @@ class Beta:
         self.alpha = alpha
         self.beta = beta
 
-    def sample_tensor(self, size: Tuple[int, ...]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from Beta distribution.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             torch.Tensor: Sampled values
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
+
         m = torch.distributions.Beta(self.alpha, self.beta)
-        return m.sample(torch.Size(size))
+        return m.sample(torch.Size(size), generator=generator)
 
     def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Beta distribution.

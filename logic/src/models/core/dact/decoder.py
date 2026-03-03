@@ -27,10 +27,12 @@ class DACTDecoder(ImprovementDecoder):
     A 2-opt move is defined by two indices (i, j) in the solution.
     """
 
-    def __init__(self, embed_dim: int = 128, num_heads: int = 8, **kwargs):
+    def __init__(self, embed_dim: int = 128, num_heads: int = 8, seed: int = 42, **kwargs):
         """Initialize DACTDecoder."""
         super().__init__(embed_dim)
         self.num_heads = num_heads
+        self.seed = seed
+        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
         # Query/Key/Value projections for selecting i and j
         self.project_q = nn.Linear(embed_dim, embed_dim)
@@ -77,7 +79,7 @@ class DACTDecoder(ImprovementDecoder):
             action_indices = logits.argmax(dim=-1)
         else:
             probs = F.softmax(logits, dim=-1)
-            action_indices = torch.multinomial(probs, 1).squeeze(-1)
+            action_indices = torch.multinomial(probs, 1, generator=self.generator).squeeze(-1)
 
         # Convert flattened index back to (i, j)
         idx_i = action_indices // n

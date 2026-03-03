@@ -26,6 +26,7 @@ class Generator(ABC):
         max_loc: float = 1.0,
         loc_distribution: Union[str, Callable] = "uniform",
         device: Union[str, torch.device] = "cpu",
+        generator: Optional[torch.Generator] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -47,6 +48,7 @@ class Generator(ABC):
         self.device = torch.device(device)
         self.bins = kwargs.get("bins")
         self._kwargs = kwargs
+        self.generator = generator if generator is not None else torch.Generator(device=device).manual_seed(42)
 
     @property
     def kwargs(self) -> dict[str, Any]:
@@ -174,13 +176,17 @@ class Generator(ABC):
 
     def _uniform_locations(self, batch_size: tuple[int, ...], num_loc: int) -> torch.Tensor:
         """Generate uniformly distributed locations."""
-        return torch.rand(*batch_size, num_loc, 2, device=self.device) * (self.max_loc - self.min_loc) + self.min_loc
+        return (
+            torch.rand(*batch_size, num_loc, 2, device=self.device, generator=self.generator)
+            * (self.max_loc - self.min_loc)
+            + self.min_loc
+        )
 
     def _normal_locations(self, batch_size: tuple[int, ...], num_loc: int) -> torch.Tensor:
         """Generate normally distributed locations (clipped to bounds)."""
         center = (self.max_loc + self.min_loc) / 2
         std = (self.max_loc - self.min_loc) / 6  # ~99.7% within bounds
-        locs = torch.randn(*batch_size, num_loc, 2, device=self.device) * std + center
+        locs = torch.randn(*batch_size, num_loc, 2, device=self.device, generator=self.generator) * std + center
         return torch.clamp(locs, self.min_loc, self.max_loc)
 
     def _clustered_locations(self, batch_size: tuple[int, ...], num_loc: int, num_clusters: int = 3) -> torch.Tensor:
@@ -191,11 +197,13 @@ class Generator(ABC):
         centers = self._uniform_locations(batch_size, num_clusters)
 
         # Assign points to clusters
-        cluster_assignments = torch.randint(0, num_clusters, (*batch_size, num_loc), device=self.device)
+        cluster_assignments = torch.randint(
+            0, num_clusters, (*batch_size, num_loc), device=self.device, generator=self.generator
+        )
 
         # Generate points around cluster centers
         std = (self.max_loc - self.min_loc) / 10
-        offsets = torch.randn(*batch_size, num_loc, 2, device=self.device) * std
+        offsets = torch.randn(*batch_size, num_loc, 2, device=self.device, generator=self.generator) * std
 
         # Get assigned cluster centers
         indices = cluster_assignments.unsqueeze(-1).expand(*batch_size, num_loc, 2)
