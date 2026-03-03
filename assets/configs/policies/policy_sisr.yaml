@@ -38,7 +38,7 @@ sisr:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - time_limit: 10.0
+    - time_limit: 60.0
       # Maximum wall-clock seconds
       # Range: 5-60 (10s = quick test, 30s = production, 60s = thorough)
       # Note: Shorter than other policies due to slower iteration speed

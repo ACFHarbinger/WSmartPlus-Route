@@ -94,7 +94,7 @@ class GPHHSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         # Initial solution
         init_routes = self._build_random_solution()
@@ -111,7 +111,7 @@ class GPHHSolver(PolicyVizMixin):
 
         # GP evolution loop
         for gen in range(self.params.max_gp_generations):
-            if time.time() - start > self.params.time_limit * 0.6:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit * 0.6:
                 break
 
             new_pop: List[GPNode] = []

@@ -68,7 +68,7 @@ class HGSSolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
 
         self.split_manager = LinearSplit(dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes)
-        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params)
+        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params, seed=seed)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -89,11 +89,11 @@ class HGSSolver(PolicyVizMixin):
 
         update_biased_fitness(population, self.params.elite_size)
 
-        start_time = time.time()
+        start_time = time.process_time()
         it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
         while it < self.params.n_generations:
-            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
             it += 1
             # 2. Selection & Crossover

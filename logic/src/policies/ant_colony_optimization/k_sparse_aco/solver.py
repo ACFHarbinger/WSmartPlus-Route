@@ -157,10 +157,9 @@ class KSparseACOSolver(PolicyVizMixin):
         """
         best_routes: List[List[int]] = []
         best_cost = float("inf")
-        start_time = time.time()
-
+        start_time = time.process_time()
         for _iteration in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
             iteration_best_routes: List[List[int]] = []

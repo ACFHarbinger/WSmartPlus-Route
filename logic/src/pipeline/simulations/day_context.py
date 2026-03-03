@@ -77,6 +77,7 @@ class SimulationDayContext(Mapping):
         total_fill: Total fill levels.
         extra_output: Any extra output from policy.
         must_go: List of must-go bins.
+        time: Elapsed time for policy execution.
     """
 
     # Required/Core Fields
@@ -129,6 +130,7 @@ class SimulationDayContext(Mapping):
     total_fill: Optional[np.ndarray] = None
     extra_output: Any = None
     must_go: Optional[List[int]] = None
+    time: float = 0.0
 
     @property
     def field_names(self):
@@ -197,12 +199,14 @@ def get_daily_results(
     sum_lost: float,
     coordinates: pd.DataFrame,
     profit: float,
+    time: float,
 ) -> Dict[str, Union[int, float, List[Union[int, str]]]]:
     """Formats raw simulation outputs into structured daily log dictionary."""
     dlog: Dict[str, Any] = {key: 0 for key in DAY_METRICS}
     dlog["day"] = day
     dlog["overflows"] = new_overflows
     dlog["kg_lost"] = sum_lost
+    dlog["time"] = time
     if tour and len(tour) > 2:
         rl_cost = new_overflows - total_collected + cost
         dlog["kg"] = total_collected

@@ -64,7 +64,7 @@ class QDESolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
         pop_size = self.params.pop_size
 
         # Initialise population: amplitude vectors ∈ [0,1]^N
@@ -78,7 +78,7 @@ class QDESolver(PolicyVizMixin):
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             for i in range(pop_size):

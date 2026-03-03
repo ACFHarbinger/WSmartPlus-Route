@@ -72,7 +72,7 @@ class SLCSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         # Initialise teams: list of lists of (routes, profit)
         teams: List[List[Tuple[List[List[int]], float]]] = [self._new_team() for _ in range(self.params.n_teams)]
@@ -84,7 +84,7 @@ class SLCSolver(PolicyVizMixin):
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # --- Intra-team competition: local perturbation ---

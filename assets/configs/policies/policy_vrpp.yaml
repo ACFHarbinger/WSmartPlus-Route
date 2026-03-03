@@ -84,7 +84,7 @@ vrpp:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - time_limit: 600
+    - time_limit: 60
       # Maximum wall-clock seconds before termination
       # Range: 60-3600 (60s = quick, 600s = thorough, 3600s = deep search)
       # Gurobi returns best solution found if time limit reached

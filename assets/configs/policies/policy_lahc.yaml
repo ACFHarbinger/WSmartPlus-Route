@@ -61,7 +61,7 @@ lahc:
       # Total LLH application cycles
       # Range: 100-100000
 
-    - time_limit: 120.0
+    - time_limit: 60.0
       # Maximum wall-clock seconds
       # Range: 10-300
 

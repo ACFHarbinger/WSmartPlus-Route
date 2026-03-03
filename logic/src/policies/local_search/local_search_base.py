@@ -110,9 +110,9 @@ class LocalSearch(PolicyVizMixin, ABC):
         improved = True
         limit = 500  # Safety cap
         it = 0
-        t_start = time.time()
+        t_start = time.process_time()
         while improved and it < limit:
-            if self.params.time_limit > 0 and time.time() - t_start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - t_start > self.params.time_limit:
                 break
 
             improved = False

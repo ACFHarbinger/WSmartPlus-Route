@@ -40,6 +40,7 @@ class ABCSolver(PolicyVizMixin):
         C: float,
         params: ABCParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -50,6 +51,7 @@ class ABCSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.rng = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -65,7 +67,7 @@ class ABCSolver(PolicyVizMixin):
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.time()
+        start = time.process_time()
 
         # Initialise food sources (employed bees)
         sources = [self._new_source() for _ in range(self.params.n_sources)]
@@ -78,13 +80,13 @@ class ABCSolver(PolicyVizMixin):
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_iterations):
-            if time.time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             # --- Employed bee phase ---
             for i in range(self.params.n_sources):
                 # Select a random peer to guide the interpolation
-                peer_idx = random.choice([x for x in range(self.params.n_sources) if x != i])
+                peer_idx = self.rng.choice([x for x in range(self.params.n_sources) if x != i])
                 neighbour = self._perturb(sources[i], sources[peer_idx])
                 nb_profit = self._evaluate(neighbour)
 
@@ -103,8 +105,8 @@ class ABCSolver(PolicyVizMixin):
             probs = [s / total for s in shifted]
 
             for _ in range(self.params.n_sources):
-                i = self._roulette(probs)
-                peer_idx = random.choice([x for x in range(self.params.n_sources) if x != i])
+                i = self._roulette(probs, self.rng)
+                peer_idx = self.rng.choice([x for x in range(self.params.n_sources) if x != i])
                 neighbour = self._perturb(sources[i], sources[peer_idx])
                 nb_profit = self._evaluate(neighbour)
 
@@ -125,7 +127,7 @@ class ABCSolver(PolicyVizMixin):
             # --- Scout bee phase ---
             for i in range(self.params.n_sources):
                 if trials[i] > self.params.limit:
-                    sources[i] = self._new_source()
+                    sources[i] = self._build_random_solution()
                     profits[i] = self._evaluate(sources[i])
                     trials[i] = 0
 
@@ -142,10 +144,6 @@ class ABCSolver(PolicyVizMixin):
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _new_source(self) -> List[List[int]]:
-        """Generate a new random feasible food source."""
-        return self._build_random_solution()
-
     def _build_random_solution(self) -> List[List[int]]:
         """
         Builds a random initial solution applying nearest neighbor ordering.
@@ -160,6 +158,7 @@ class ABCSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.rng,
         )
         return routes
 
@@ -178,7 +177,7 @@ class ABCSolver(PolicyVizMixin):
             return copy.deepcopy(current)
 
         # Take a random subset of nodes from peer
-        selected_peer_nodes = random.sample(peer_nodes, min(n, len(peer_nodes)))
+        selected_peer_nodes = self.rng.sample(peer_nodes, min(n, len(peer_nodes)))
 
         current_copy = copy.deepcopy(current)
         # Remove these nodes from current
@@ -191,7 +190,7 @@ class ABCSolver(PolicyVizMixin):
 
         # Also randomly remove some additional nodes for diversity
         try:
-            partial, additional_removed = random_removal(current_copy, n)
+            partial, additional_removed = random_removal(current_copy, n, rng=self.rng)
             to_insert = sorted(list(set(selected_peer_nodes + additional_removed)))
 
             repaired = greedy_insertion(
@@ -212,11 +211,11 @@ class ABCSolver(PolicyVizMixin):
             return copy.deepcopy(current)
 
     @staticmethod
-    def _roulette(probs: List[float]) -> int:
+    def _roulette(probs: List[float], rng: random.Random) -> int:
         """
         Roulette-wheel selection.
         """
-        r = random.random()
+        r = rng.random()
         cumulative = 0.0
         for i, p in enumerate(probs):
             cumulative += p
