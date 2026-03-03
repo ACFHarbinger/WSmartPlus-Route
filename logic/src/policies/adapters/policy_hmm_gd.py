@@ -67,6 +67,7 @@ class HMMGDPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
+            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

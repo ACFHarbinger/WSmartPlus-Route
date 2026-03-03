@@ -45,6 +45,7 @@ class SLCSolver(PolicyVizMixin):
         C: float,
         params: SLCParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -55,6 +56,7 @@ class SLCSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -96,7 +98,7 @@ class SLCSolver(PolicyVizMixin):
 
             # --- Inter-team competition: probabilistic match ---
             team_indices = list(range(self.params.n_teams))
-            random.shuffle(team_indices)
+            self.random.shuffle(team_indices)
             for k in range(0, len(team_indices) - 1, 2):
                 a_idx = team_indices[k]
                 b_idx = team_indices[k + 1]
@@ -107,7 +109,7 @@ class SLCSolver(PolicyVizMixin):
                 total = abs(fit_a) + abs(fit_b) + 1e-9
                 p_win_a = (fit_a - min(fit_a, fit_b) + 1e-9) / total
 
-                if random.random() < p_win_a:
+                if self.random.random() < p_win_a:
                     winner, loser = a_idx, b_idx
                 else:
                     winner, loser = b_idx, a_idx
@@ -156,14 +158,10 @@ class SLCSolver(PolicyVizMixin):
         """Create a fresh team of `team_size` random players."""
         team = []
         for _ in range(self.params.team_size):
-            routes = self._random_solution()
+            routes = self._build_random_solution()
             profit = self._evaluate(routes)
             team.append((routes, profit))
         return team
-
-    def _random_solution(self) -> List[List[int]]:
-        """Generate a random feasible routing solution."""
-        return self._build_random_solution()
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style)."""
@@ -177,6 +175,7 @@ class SLCSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return optimized_routes
 
@@ -192,7 +191,7 @@ class SLCSolver(PolicyVizMixin):
         """
         n = max(3, self.params.n_removal)
         try:
-            partial, removed = random_removal(routes, n)
+            partial, removed = random_removal(routes, n, self.random)
             repaired = greedy_insertion(
                 partial,
                 removed,
@@ -231,8 +230,8 @@ class SLCSolver(PolicyVizMixin):
             return copy.deepcopy(loser_routes)
 
         # Extract a random segment from the winner
-        a = random.randint(0, len(winner_flat) - 1)
-        b = random.randint(a, min(a + max(1, len(winner_flat) // 3), len(winner_flat)))
+        a = self.random.randint(0, len(winner_flat) - 1)
+        b = self.random.randint(a, min(a + max(1, len(winner_flat) // 3), len(winner_flat)))
         segment = winner_flat[a:b]
         segment_set = set(segment)
 

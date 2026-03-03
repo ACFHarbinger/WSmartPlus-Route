@@ -14,7 +14,7 @@ Example:
 """
 
 import random
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -26,6 +26,7 @@ def greedy_insertion_with_blinks(
     wastes: Dict[int, float],
     capacity: float,
     blink_rate: float = 0.1,
+    rng: Optional[random.Random] = None,
 ) -> List[List[int]]:
     """
     Greedy insertion with randomized skips ('blinks').
@@ -49,8 +50,11 @@ def greedy_insertion_with_blinks(
     for route in routes:
         loads.append(sum(wastes.get(n, 0) for n in route))
 
+    if rng is None:
+        rng = random.Random()
+
     # Reinsert in random order
-    random.shuffle(removed_nodes)
+    rng.shuffle(removed_nodes)
 
     for node in removed_nodes:
         waste = wastes.get(node, 0)
@@ -65,7 +69,7 @@ def greedy_insertion_with_blinks(
 
             for pos in range(len(route) + 1):
                 # Blink check
-                if random.random() < blink_rate:
+                if rng.random() < blink_rate:
                     continue
 
                 prev = 0 if pos == 0 else route[pos - 1]

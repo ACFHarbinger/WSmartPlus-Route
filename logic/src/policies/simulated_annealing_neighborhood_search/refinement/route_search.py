@@ -19,6 +19,8 @@ def find_solutions(
     n_bins,
     points,
     time_limit,
+    rng,
+    np_rng,
 ):
     """
     Find high-quality routing solutions using a randomized local search procedure.
@@ -33,6 +35,8 @@ def find_solutions(
         n_bins (int): Problem size.
         points (Dict): Coordinates map.
         time_limit (float): Max execution time.
+        rng (random.Random): Random number generator.
+        np_rng (np.random.RandomState): Numpy random number generator.
 
     Returns:
         List[List[int]]: Optimized routing solution.
@@ -51,6 +55,7 @@ def find_solutions(
         values["vehicle_capacity"],
         values["E"],
         values["B"],
+        rng,
     )
     initial_solution, _, _ = uncross_arcs_in_routes(
         initial_solution,
@@ -76,6 +81,8 @@ def find_solutions(
         n_bins,
         chosen_combination,
         time_limit,
+        rng,
+        np_rng,
     )
 
     # 3. Refinement Phase (LS/Uncross iterative loops)

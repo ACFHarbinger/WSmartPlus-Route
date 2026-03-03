@@ -68,6 +68,7 @@ class Bins:
         noise_variance: float = 0.0,
         n_days: int = 31,
         n_samples: int = 1,
+        seed: Optional[int] = None,
     ):
         """
         Initializes the bin population with area-specific parameters.
@@ -76,6 +77,7 @@ class Bins:
         self.n = n
         self.noise_mean = noise_mean
         self.noise_variance = noise_variance
+        self.rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
         _, revenue, density, expenses, bin_volume = load_area_and_waste_type_params(area, waste_type)
         self.revenue = revenue
         self.density = density
@@ -126,7 +128,7 @@ class Bins:
             else:
                 path = os.path.join(data_dir, waste_file)
 
-            print(f"Loading data from {path}...")
+            print(f"[INFO] Loading data from '{path}'...")
             if waste_file.endswith(".pkl"):
                 self.waste_dataset = NumpyPickleDataset.load(path)
             elif waste_file.endswith(".xlsx"):
@@ -136,7 +138,7 @@ class Bins:
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
         else:
-            print("Generating data...")
+            print("[INFO] Generating data...")
             self.waste_dataset = GenerativeDataset(
                 data_dir=data_dir,
                 n_samples=n_samples,
@@ -146,6 +148,7 @@ class Bins:
                 noise_mean=noise_mean,
                 noise_variance=noise_variance,
                 grid=self.grid,
+                seed=seed,
             )
 
         with contextlib.suppress(Exception):
@@ -330,7 +333,7 @@ class Bins:
         if noisyfilling is not None:
             self.c = np.minimum(self.c + noisyfilling, MAX_CAPACITY_PERCENT)
         elif self.noise_variance > 0:
-            noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n)
+            noise = self.rng.normal(self.noise_mean, np.sqrt(self.noise_variance), self.n)
             self.c = np.clip(self.real_c + noise, 0, MAX_CAPACITY_PERCENT)
         else:
             self.c = self.real_c.copy()

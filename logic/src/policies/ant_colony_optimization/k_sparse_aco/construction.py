@@ -43,6 +43,7 @@ class SolutionConstructor:
         R: float = 0.0,
         C: float = 1.0,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize Solution Constructor.
@@ -60,6 +61,7 @@ class SolutionConstructor:
             R: Revenue multiplier.
             C: Cost multiplier.
             mandatory_nodes: List of mandatory node indices.
+            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -73,6 +75,7 @@ class SolutionConstructor:
         self.R = R
         self.C = C
         self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     def construct(self) -> List[List[int]]:
         """
@@ -93,7 +96,7 @@ class SolutionConstructor:
                 # For ACS, we usually continue until a termination condition.
                 # Here we check if any remaining node is profitable.
                 has_profitable = False
-                for j in unvisited:
+                for j in sorted(unvisited):
                     revenue = self.wastes.get(j, 0) * self.R
                     # Heuristic check: is revenue > cost to depot and back?
                     if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
@@ -109,7 +112,7 @@ class SolutionConstructor:
             while unvisited:
                 # Find feasible next nodes
                 feasible = []
-                for j in unvisited:
+                for j in sorted(unvisited):
                     if load + self.wastes.get(j, 0) <= self.capacity:
                         # VRPP Logic: Only consider j if mandatory or potentially profitable
                         if j in mandatory_unvisited:
@@ -129,7 +132,7 @@ class SolutionConstructor:
                     break
 
                 # Select next node
-                next_node = self._select_next_node(current, feasible)
+                next_node = self._select_next_node(current, sorted(feasible))
 
                 # Local pheromone update (ACS rule)
                 self._local_pheromone_update(current, next_node)
@@ -153,7 +156,7 @@ class SolutionConstructor:
         With probability q0, select best node (exploitation).
         Otherwise, use roulette wheel selection (exploration).
         """
-        if random.random() < self.params.q0:
+        if self.random.random() < self.params.q0:
             # Exploitation: select best
             best_node = max(
                 feasible,
@@ -176,9 +179,9 @@ class SolutionConstructor:
 
             total = sum(probs)
             if total <= 0:
-                return random.choice(selection_pool)
+                return self.random.choice(selection_pool)
 
-            r = random.uniform(0, total)
+            r = self.random.uniform(0, total)
             cumsum = 0.0
             for idx, p in enumerate(probs):
                 cumsum += p

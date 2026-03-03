@@ -29,6 +29,7 @@ class QDEConfig:
     CR: float = 0.7
     max_iterations: int = 200
     time_limit: float = 60.0
+    seed: Optional[int] = None
     n_removal: int = 2
     vrpp: bool = True
     must_go: Optional[List[Any]] = field(default_factory=list)

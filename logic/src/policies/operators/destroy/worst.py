@@ -53,7 +53,8 @@ def worst_removal(routes: List[List[int]], n_remove: int, dist_matrix: np.ndarra
             savings = saved - added
             costs.append((r_idx, i, node, savings))
 
-    costs.sort(key=lambda x: x[3], reverse=True)  # Highest savings first
+    # Highest savings first, then tie-break by node ID
+    costs.sort(key=lambda x: (x[3], x[2]), reverse=True)
     removed = []
 
     # One-shot greedy:

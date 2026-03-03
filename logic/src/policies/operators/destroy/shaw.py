@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 
-def shaw_removal(
+def shaw_removal(  # noqa: C901
     routes: List[List[int]],
     n_remove: int,
     dist_matrix: np.ndarray,
@@ -31,6 +31,7 @@ def shaw_removal(
     phi: float = 9.0,
     chi: float = 3.0,
     psi: float = 2.0,
+    rng: Optional[random.Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Shaw Removal: Remove related customers based on multi-criteria similarity.
@@ -74,8 +75,11 @@ def shaw_removal(
     if not all_nodes:
         return routes, []
 
+    if rng is None:
+        rng = random.Random()
+
     # Pick random seed
-    seed: int = random.choice(all_nodes)
+    seed: int = rng.choice(all_nodes)
     removed: List[int] = [seed]
 
     # Normalize distance for relatedness calculation
@@ -121,12 +125,12 @@ def shaw_removal(
         if not relatedness_scores:
             break
 
-        # Sort by relatedness (lower = more related)
-        relatedness_scores.sort(key=lambda x: x[1])
+        # Sort by relatedness (lower = more related), then node ID for deterministic tie-breaking
+        relatedness_scores.sort(key=lambda x: (x[1], x[0]))
 
         # Randomized selection using power law
         # y^p where y is uniform [0,1], p is randomization_factor
-        y = random.random()
+        y = rng.random()
         idx = int((y**randomization_factor) * len(relatedness_scores))
         idx = min(idx, len(relatedness_scores) - 1)
         selected_node = relatedness_scores[idx][0]

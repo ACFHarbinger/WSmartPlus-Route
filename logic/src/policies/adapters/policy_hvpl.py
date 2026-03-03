@@ -95,6 +95,7 @@ class HVPLPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
+            seed=values.get("seed"),
         )
 
         routes, profit, solver_cost = solver.solve()

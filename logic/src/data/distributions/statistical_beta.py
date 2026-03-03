@@ -2,7 +2,7 @@
 Statistical sampling distributions - Beta.
 """
 
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union, cast
 
 import numpy as np
 import torch
@@ -33,13 +33,16 @@ class Beta:
         m = torch.distributions.Beta(self.alpha, self.beta)
         return m.sample(torch.Size(size))
 
-    def sample_array(self, size: Tuple[int, ...]) -> np.ndarray:
+    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Beta distribution.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
+            rng: Optional numpy RandomState for reproducibility.
 
         Returns:
             np.ndarray: Sampled values
         """
-        return np.random.beta(self.alpha, self.beta, size=size)
+        if rng is None:
+            rng = cast(np.random.RandomState, np.random)
+        return rng.beta(self.alpha, self.beta, size=size)

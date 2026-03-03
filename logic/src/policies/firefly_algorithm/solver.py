@@ -39,6 +39,7 @@ class FASolver(PolicyVizMixin):
         C: float,
         params: FAParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -49,6 +50,7 @@ class FASolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -66,7 +68,7 @@ class FASolver(PolicyVizMixin):
 
         start = time.time()
 
-        population = [self._new_firefly() for _ in range(self.params.pop_size)]
+        population = [self._build_random_solution() for _ in range(self.params.pop_size)]
         profits = [self._evaluate(f) for f in population]
 
         best_idx = int(np.argmax(profits))
@@ -88,7 +90,7 @@ class FASolver(PolicyVizMixin):
                     d = self._swap_distance(population[i], population[j])
                     beta = self.params.beta0 * np.exp(-self.params.gamma * d * d)
 
-                    if random.random() < beta:
+                    if self.random.random() < beta:
                         new_routes = self._attract(population[i], population[j])
                         new_profit = self._evaluate(new_routes)
                         if new_profit > profits[i]:
@@ -97,7 +99,7 @@ class FASolver(PolicyVizMixin):
                             moved = True
 
                 # Random walk if not attracted or by chance
-                if not moved or random.random() < self.params.alpha_rnd:
+                if not moved or self.random.random() < self.params.alpha_rnd:
                     rw = self._random_walk(population[i])
                     rw_profit = self._evaluate(rw)
                     if rw_profit > profits[i]:
@@ -123,10 +125,6 @@ class FASolver(PolicyVizMixin):
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _new_firefly(self) -> List[List[int]]:
-        """Generate a random feasible routing solution."""
-        return self._build_random_solution()
-
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style).
 
@@ -144,6 +142,7 @@ class FASolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return optimized_routes
 
@@ -272,7 +271,7 @@ class FASolver(PolicyVizMixin):
         """
         try:
             n_rem = max(3, self.params.n_removal)
-            partial, removed = random_removal(routes, n_rem)
+            partial, removed = random_removal(routes, n_rem, self.random)
             repaired = greedy_insertion(
                 partial,
                 removed,

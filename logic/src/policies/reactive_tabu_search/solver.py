@@ -40,6 +40,7 @@ class RTSSolver(PolicyVizMixin):
         C: float,
         params: RTSParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -50,6 +51,7 @@ class RTSSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         self._llh_pool = [
             self._llh0,
@@ -117,7 +119,7 @@ class RTSSolver(PolicyVizMixin):
 
             if best_candidate is None:
                 # All moves tabu — force a random one
-                llh_idx = random.randint(0, self.params.n_llh - 1)
+                llh_idx = self.random.randint(0, self.params.n_llh - 1)
                 try:
                     best_candidate = self._llh_pool[llh_idx](copy.deepcopy(routes), self.params.n_removal)
                     best_cand_profit = self._evaluate(best_candidate)
@@ -176,7 +178,7 @@ class RTSSolver(PolicyVizMixin):
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -224,7 +226,7 @@ class RTSSolver(PolicyVizMixin):
         )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return regret_2_insertion(
             partial,
             removed,

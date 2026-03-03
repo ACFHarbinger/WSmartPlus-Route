@@ -38,6 +38,7 @@ class LAHCSolver(PolicyVizMixin):
         C: float,
         params: LAHCParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -48,6 +49,7 @@ class LAHCSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         self._llh_pool = [
             self._llh0,
@@ -89,7 +91,7 @@ class LAHCSolver(PolicyVizMixin):
                 break
 
             # Select and apply a random LLH
-            llh_idx = random.randint(0, self.params.n_llh - 1)
+            llh_idx = self.random.randint(0, self.params.n_llh - 1)
             llh = self._llh_pool[llh_idx]
 
             try:
@@ -128,7 +130,7 @@ class LAHCSolver(PolicyVizMixin):
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L0: random_removal + greedy_insertion."""
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -180,7 +182,7 @@ class LAHCSolver(PolicyVizMixin):
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L4: random_removal + regret_2_insertion."""
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return regret_2_insertion(
             partial,
             removed,

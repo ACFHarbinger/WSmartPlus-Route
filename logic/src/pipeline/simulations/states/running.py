@@ -143,6 +143,7 @@ class RunningState(SimState):
             overflow_penalty=sim.policy_configs.get("overflow_penalty", 1.0),
             engine=sim.policy_configs.get("engine"),
             threshold=sim.policy_configs.get("threshold"),
+            seed=sim.seed,
         )
 
     def _update_ctx_from_day_context(self, ctx, day_context):

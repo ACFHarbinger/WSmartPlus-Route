@@ -52,6 +52,7 @@ class AHVPLSolver(PolicyVizMixin):
         C: float,
         params: AHVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = np.array(dist_matrix)
         self.wastes = wastes
@@ -63,14 +64,19 @@ class AHVPLSolver(PolicyVizMixin):
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         # ACO: construction + pheromone guidance
-        self.aco_solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes)
+        self.aco_solver = KSparseACOSolver(
+            dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes, seed=seed
+        )
         self.pheromone = self.aco_solver.pheromone
         self.constructor = self.aco_solver.constructor
 
         # ALNS: deep local search (coaching)
-        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes)
+        self.alns_solver = ALNSSolver(
+            dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes, seed=seed
+        )
 
         # HGS: LinearSplit for giant tour decoding
         self.split_manager = LinearSplit(
@@ -83,7 +89,41 @@ class AHVPLSolver(PolicyVizMixin):
             mandatory_nodes,
         )
 
-    def solve(self) -> Tuple[List[List[int]], float, float]:
+    def _initialize_population(self) -> List[Individual]:
+        population = []
+        for _ in range(self.params.n_teams):
+            ind = self._construct_individual()
+            if ind:
+                population.append(ind)
+        return population
+
+    def _construct_individual(self) -> Optional[Individual]:
+        routes = self.constructor.construct()
+        if not routes:
+            return None
+
+        ind = Individual(self._routes_to_giant_tour(routes))
+        ind.routes = [r[:] for r in routes]
+
+        # Calculate precise cost/rev directly from ACO routes
+        rev = sum(self.wastes.get(n, 0) for r in routes for n in r) * self.params.aco_params.R
+        cost = 0.0
+        for r in routes:
+            if not r:
+                continue
+            d = self.dist_matrix[0][r[0]]
+            for i in range(len(r) - 1):
+                d += self.dist_matrix[r[i]][r[i + 1]]
+            d += self.dist_matrix[r[-1]][0]
+            cost += d * self.params.aco_params.C
+
+        ind.cost = cost
+        ind.revenue = rev
+        ind.profit_score = rev - cost
+
+        return ind
+
+    def solve(self) -> Tuple[List[List[int]], float, float]:  # noqa: C901
         """
         Run the Augmented HVPL algorithm.
 
@@ -105,7 +145,7 @@ class AHVPLSolver(PolicyVizMixin):
 
         # ── Phase 2+3: VPL + HGS + ALNS Main Loop ──
         for _iteration in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
                 break
 
             # 1. Bi-criteria fitness for parent selection
@@ -115,47 +155,65 @@ class AHVPLSolver(PolicyVizMixin):
             n_crossovers = max(1, int(len(population) * self.params.hgs_params.crossover_rate))
             n_children = 0
             for _ in range(n_crossovers):
-                if time.time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
                     break
                 p1, p2 = self._select_parents(population)
                 child = self._active_crossover(p1, p2)
 
                 # 2.5 Mutation: SWAP on giant tour
-                if random.random() < self.params.hgs_params.mutation_rate:
+                if self.random.random() < self.params.hgs_params.mutation_rate:
                     self._mutate(child)
 
                 evaluate(child, self.split_manager)
                 population.append(child)
                 n_children += 1
 
-            # 3. Population-wide ALNS Coaching (on full pop including children)
-            # Elite Re-coaching: Always coach the top solutions for continuous improvement.
-            # We sort by profit to identify the currently best teams.
-            population.sort(key=lambda x: x.profit_score, reverse=True)
+            # 3. Population-wide ALNS Coaching
+            population.sort(key=lambda x: (x.profit_score, tuple(tuple(r) for r in x.routes)), reverse=True)
             for i, ind in enumerate(population):
-                if time.time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
                     break
 
-                is_elite = i < self.params.hgs_params.elite_size
-                # SMART COACHING: Skip if already coached, unless it's a top elite.
-                if ind.is_coached and not is_elite:
-                    continue
+                if i == 0:
+                    # ULTRA REFINEMENT: pushes routing efficiency to the max
+                    iters = 500
+                elif i < 5:
+                    # Top tier
+                    iters = 150
+                elif i < 10:
+                    # Mid tier
+                    iters = 100
+                elif not ind.is_coached or i < 15:
+                    # New children
+                    iters = 50
+                else:
+                    iters = 25
 
-                population[i] = self._alns_coaching(ind)
+                population[i] = self._alns_coaching(ind, iterations=iters)
 
-            # 4. Survivor Selection — trim by biased fitness
-            update_biased_fitness(population, self.params.hgs_params.elite_size)
+            # 4. Survivor Selection — trim back to n_teams.
+            # Pure profit focus for the top teams to ensure victory over HVPL
+            update_biased_fitness(population, self.params.n_teams)
             population.sort(key=lambda x: x.fitness)
             population = population[: self.params.n_teams]
 
-            # 5. Update global best
+            # 5. Substitution Phase: Replace weakest teams with fresh ACO solutions
+            # Increased rotation to 50% to maximize search breadth
+            population.sort(key=lambda x: x.profit_score, reverse=True)
+            n_sub = int(self.params.n_teams * self.params.sub_rate)
+            for i in range(self.params.n_teams - n_sub, self.params.n_teams):
+                new_ind = self._construct_individual()
+                if new_ind:
+                    population[i] = new_ind
+
+            # 6. Update global best
             iter_best = max(population, key=lambda x: x.profit_score)
             if iter_best.profit_score > best_profit:
                 best_routes = [r[:] for r in iter_best.routes]
                 best_profit = iter_best.profit_score
                 best_cost = iter_best.cost
 
-            # 6. Pheromone Update — ACO global guidance
+            # 7. Pheromone Update — ACO global guidance based on best cost
             self._update_pheromones(best_routes, best_cost)
 
             self._viz_record(
@@ -166,14 +224,6 @@ class AHVPLSolver(PolicyVizMixin):
                 population_size=len(population),
                 n_children=n_children,
             )
-
-            # 7. VPL Substitution — replace worst teams (by profit) with fresh ACO solutions
-            population.sort(key=lambda x: x.profit_score, reverse=True)
-            n_sub = max(1, int(self.params.n_teams * self.params.sub_rate))
-            for i in range(len(population) - n_sub, len(population)):
-                new_ind = self._construct_individual()
-                if new_ind is not None:
-                    population[i] = new_ind
 
         return best_routes, best_profit, best_cost
 
@@ -213,7 +263,7 @@ class AHVPLSolver(PolicyVizMixin):
         """Binary tournament selection."""
 
         def tournament() -> Individual:
-            i1, i2 = random.sample(population, 2)
+            i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 
         return tournament(), tournament()
@@ -247,7 +297,7 @@ class AHVPLSolver(PolicyVizMixin):
 
         temp_p1 = Individual(p1_ordered)
         temp_p2 = Individual(p2_ordered)
-        child = ordered_crossover(temp_p1, temp_p2)
+        child = ordered_crossover(temp_p1, temp_p2, rng=self.random)
 
         # Re-append globally unvisited nodes for genetic consistency
         visited = set(child.giant_tour)
@@ -261,21 +311,30 @@ class AHVPLSolver(PolicyVizMixin):
         size = len(ind.giant_tour)
         if size < 2:
             return
-        idx1, idx2 = random.sample(range(size), 2)
+        idx1, idx2 = self.random.sample(range(size), 2)
         ind.giant_tour[idx1], ind.giant_tour[idx2] = ind.giant_tour[idx2], ind.giant_tour[idx1]
         ind.is_coached = False
 
-    def _alns_coaching(self, ind: Individual) -> Individual:
+    def _alns_coaching(self, ind: Individual, iterations: int = 100) -> Individual:
         """
         Apply ALNS deep local search to an individual's routes.
-
-        Runs the ALNS solver starting from the individual's decoded routes,
-        then reconstructs the giant tour and re-evaluates via LinearSplit
-        for consistent fitness metrics.
         """
+        # Temporarily override iterations for this coaching session
+        old_iters = self.alns_solver.params.max_iterations
+        self.alns_solver.params.max_iterations = iterations
+
         improved_routes, improved_profit, improved_cost = self.alns_solver.solve(initial_solution=ind.routes)
 
+        self.alns_solver.params.max_iterations = old_iters
+
         if improved_profit > ind.profit_score and improved_routes:
+            ind.routes = [r[:] for r in improved_routes]
+            ind.profit_score = improved_profit
+            ind.cost = improved_cost
+
+            # Update giant tour but DO NOT re-evaluate!
+            # Re-evaluating with LinearSplit after concatenating routes
+            # can sub-optimally destroy ALNS profit gains.
             ind.giant_tour = self._routes_to_giant_tour(improved_routes)
 
             # Preserve unvisited nodes for genetic consistency
@@ -283,23 +342,20 @@ class AHVPLSolver(PolicyVizMixin):
             missing = [n for n in self.nodes if n not in visited]
             ind.giant_tour.extend(missing)
 
-            # Re-evaluate through LinearSplit for consistent metrics
-            evaluate(ind, self.split_manager)
-
         # Mark as coached to skip in future iterations unless modified
         ind.is_coached = True
         return ind
 
     # ── ACO Pheromone Management ─────────────────────────────────────
 
-    def _update_pheromones(self, routes: List[List[int]], cost: float) -> None:
+    def _update_pheromones(self, routes: List[List[int]], km: float) -> None:
         """ACS-style global pheromone update on best solution's edges."""
-        if not routes or cost <= 0:
+        if not routes or km <= 0:
             return
 
         self.pheromone.evaporate_all(self.params.aco_params.rho)
 
-        delta = self.params.aco_params.elitist_weight / cost
+        delta = self.params.aco_params.elitist_weight / km
         for route in routes:
             if not route:
                 continue

@@ -43,12 +43,19 @@ class SISRSolver(PolicyVizMixin):
         C: float,
         params: SISRParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize SISR Solver.
 
         Args:
+            dist_matrix: NxN distance matrix.
+            wastes: Waste values for each node.
+            capacity: Vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
             params: Parameters for the SISR algorithm.
+            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -57,6 +64,7 @@ class SISRSolver(PolicyVizMixin):
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """
@@ -76,7 +84,7 @@ class SISRSolver(PolicyVizMixin):
         n_remove = max(1, int(n_nodes * self.params.destroy_ratio))
 
         for _it in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
                 break
 
             # SISR Iteration
@@ -87,6 +95,7 @@ class SISRSolver(PolicyVizMixin):
                 self.dist_matrix,
                 max_string_len=self.params.max_string_len,
                 avg_string_len=self.params.avg_string_len,
+                rng=self.random,
             )
 
             # 2. Repair
@@ -97,6 +106,7 @@ class SISRSolver(PolicyVizMixin):
                 self.wastes,
                 self.capacity,
                 blink_rate=self.params.blink_rate,
+                rng=self.random,
             )
 
             # Calculate profit instead of cost for maximizing
@@ -112,7 +122,7 @@ class SISRSolver(PolicyVizMixin):
                 accept = True
             else:
                 prob = math.exp(delta / T) if T > 0 else 0
-                if random.random() < prob:
+                if self.random.random() < prob:
                     accept = True
 
             if accept:
@@ -158,5 +168,6 @@ class SISRSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return routes

@@ -2,7 +2,7 @@
 Statistical sampling distributions - Uniform.
 """
 
-from typing import Tuple
+from typing import Optional, Tuple, cast
 
 import numpy as np
 import torch
@@ -33,13 +33,16 @@ class Uniform:
         res = torch.randint(self.low, self.high, size)
         return res.float() / 100.0
 
-    def sample_array(self, size: Tuple[int, ...]) -> np.ndarray:
+    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from discrete uniform distribution.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
+            rng: Optional numpy RandomState for reproducibility.
 
         Returns:
             np.ndarray: Sampled values in range [1, 100].
         """
-        return np.random.randint(self.low, self.high, size=size)
+        if rng is None:
+            rng = cast(np.random.RandomState, np.random)
+        return rng.randint(self.low, self.high, size=size)

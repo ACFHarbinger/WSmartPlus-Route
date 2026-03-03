@@ -43,6 +43,7 @@ class ACOConfig:
     tau_max: float = 10.0
     max_iterations: int = 50
     time_limit: float = 30.0
+    seed: Optional[int] = None
     q0: float = 0.9
     k_sparse: int = 15
     sequence_length: int = 5

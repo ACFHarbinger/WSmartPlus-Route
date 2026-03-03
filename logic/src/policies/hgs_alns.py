@@ -12,7 +12,6 @@ Example:
     >>> result = solve_hgs_alns(problem_instance, config)
 """
 
-import random
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -40,6 +39,7 @@ class HGSALNSSolver(HGSSolver):
         params: HGSParams,
         alns_education_iterations: int = 50,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize the hybrid HGS-ALNS solver.
@@ -54,15 +54,15 @@ class HGSALNSSolver(HGSSolver):
             alns_education_iterations: Number of ALNS iterations used during education.
             mandatory_nodes: Optional list of mandatory node indices.
         """
-        super().__init__(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+        super().__init__(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed)
         self.alns_iter = alns_education_iterations
 
         # Initialize ALNS solver with limited iterations for intensive education
         alns_params = ALNSParams(
             max_iterations=self.alns_iter,
-            time_limit=max(1, params.time_limit // 10),  # Heuristic limit
+            time_limit=max(1, params.time_limit),  # Heuristic limit
         )
-        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, alns_params)
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, alns_params, seed=seed)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -76,7 +76,7 @@ class HGSALNSSolver(HGSSolver):
         # 1. Initial Population
         for _ in range(self.params.population_size):
             gt = self.nodes[:]
-            random.shuffle(gt)
+            self.random.shuffle(gt)
             ind = Individual(gt)
             evaluate(ind, self.split_manager)
             population.append(ind)
@@ -93,7 +93,7 @@ class HGSALNSSolver(HGSSolver):
             child = ordered_crossover(p1, p2)
 
             # 3. Hybrid Education (Mutation with ALNS)
-            if random.random() < self.params.mutation_rate:
+            if self.random.random() < self.params.mutation_rate:
                 # Need to have routes assigned before ALNS
                 evaluate(child, self.split_manager)
                 if child.routes:

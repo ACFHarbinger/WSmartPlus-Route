@@ -27,6 +27,7 @@ class VRPPConfig:
     delta: float = 0.0
     psi: float = 1.0
     time_limit: float = 600.0
+    seed: Optional[int] = None
     engine: str = "gurobi"
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

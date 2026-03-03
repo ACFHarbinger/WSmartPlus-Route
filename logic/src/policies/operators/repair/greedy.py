@@ -59,9 +59,9 @@ def greedy_insertion(
     if expand_pool:
         # All unvisited nodes (including those previously removed) are candidates
         n_nodes = len(dist_matrix) - 1
-        unassigned = list(set(range(1, n_nodes + 1)) - visited)
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
     else:
-        unassigned = list(removed_nodes)
+        unassigned = sorted(list(removed_nodes))  # Sort for deterministic ties
 
     while unassigned:
         best_cost = float("inf")

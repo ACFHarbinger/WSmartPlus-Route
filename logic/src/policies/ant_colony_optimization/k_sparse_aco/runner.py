@@ -63,5 +63,5 @@ def run_k_sparse_aco(
         elitist_weight=values.get("elitist_weight", 1.0),
     )
 
-    solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+    solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
     return solver.solve()

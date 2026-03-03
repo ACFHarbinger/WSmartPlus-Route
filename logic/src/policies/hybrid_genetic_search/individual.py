@@ -1,3 +1,5 @@
+from typing import List
+
 """
 HGS Individual Module.
 
@@ -19,7 +21,7 @@ class Individual:
     Individual solution representation for genetic algorithm.
     """
 
-    def __init__(self, giant_tour: list[int]):
+    def __init__(self, giant_tour: List[int]):
         """
         Initialize an individual with a giant tour.
 
@@ -27,7 +29,7 @@ class Individual:
             giant_tour: A list representing the visit order of all clients.
         """
         self.giant_tour = giant_tour
-        self.routes: list[list[int]] = []
+        self.routes: List[List[int]] = []
         self.fitness = -float("inf")
         self.profit_score = -float("inf")
         self.cost = 0.0

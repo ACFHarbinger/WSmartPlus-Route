@@ -72,7 +72,9 @@ def run_hyper_heuristic_aco(
         # Build a simple greedy construction if none provided
         initial_routes = _build_greedy_solution(list(wastes.keys()), dist_matrix, wastes, capacity)
 
-    solver = HyperHeuristicACO(dist_matrix, wastes, capacity, R, C, params, initial_routes, mandatory_nodes)
+    solver = HyperHeuristicACO(
+        dist_matrix, wastes, capacity, R, C, params, initial_routes, mandatory_nodes, seed=values.get("seed")
+    )
     return solver.solve()
 
 

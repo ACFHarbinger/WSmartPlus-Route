@@ -77,9 +77,10 @@ class BaseRoutingPolicy(IPolicyAdapter):
                     typed dataclass automatically.
         """
         if config is not None and isinstance(config, dict):
-            self._config = self._build_config(config)
+            self._config, self._seed = self._build_config(config)
         else:
             self._config = config
+            self._seed = getattr(config, "seed", 42) if config is not None else 42
 
     @property
     def config(self) -> Any:
@@ -107,11 +108,11 @@ class BaseRoutingPolicy(IPolicyAdapter):
             raw_config: Raw config dict (may be nested with policy key at top level).
 
         Returns:
-            Typed config dataclass, or None if no config class is defined.
+            Tuple of (Typed config dataclass, seed) or (None, None).
         """
         config_cls = cls._config_class()
         if config_cls is None:
-            return None
+            return None, None
 
         # Extract policy-specific section
         config_key = cls._get_config_key(cls)  # type: ignore[arg-type]
@@ -122,9 +123,11 @@ class BaseRoutingPolicy(IPolicyAdapter):
 
         # Filter to only fields the dataclass accepts
         valid_fields = {f.name for f in fields(config_cls)}
+        # Explicitly allow 'seed' even if not in the dataclass
+        valid_fields.add("seed")
         filtered = {k: v for k, v in flat.items() if k in valid_fields}
 
-        return config_cls(**filtered)
+        return config_cls(**{k: v for k, v in filtered.items() if k != "seed"}), filtered.get("seed")
 
     def _get_config_key(self) -> str:
         """
@@ -173,12 +176,14 @@ class BaseRoutingPolicy(IPolicyAdapter):
         if self._config is not None and is_dataclass(self._config):
             # Typed config takes priority, then overlay any runtime overrides
             config_key = self._get_config_key()
-            runtime_overrides = config.get(config_key, {})
+            runtime_overrides = config.get(config_key, config)  # Handle case where config IS the policy section
             if not isinstance(runtime_overrides, dict):
                 runtime_overrides = (
                     _flatten_raw_config(runtime_overrides) if hasattr(runtime_overrides, "items") else {}
                 )
             policy_config = {**asdict(self._config), **runtime_overrides}
+            if self._seed is not None and "seed" not in policy_config:
+                policy_config["seed"] = self._seed
         else:
             # Legacy path: extract from raw config dict
             config_key = self._get_config_key()
@@ -188,6 +193,9 @@ class BaseRoutingPolicy(IPolicyAdapter):
                 if hasattr(policy_section, "items") or isinstance(policy_section, list)
                 else {}
             )
+            # Ensure seed from context also makes it into legacy path if missing
+            if "seed" not in policy_config and "seed" in config:
+                policy_config["seed"] = config["seed"]
 
         capacity = policy_config.get("capacity", Q)
         revenue_kg = policy_config.get("revenue", R)
@@ -234,7 +242,7 @@ class BaseRoutingPolicy(IPolicyAdapter):
                 - mandatory_nodes: List of local indices that MUST be visited.
         """
         if use_all_bins:
-            # Include ALL bins in the solver problem (VRPP model)
+            # Include ALL bins in the solver problem (VRPP mode)
             n_bins = len(bins.c)
             subset_indices = [0] + list(range(1, n_bins + 1))
             # In VRPP mode, mandatory nodes are those in the must_go list.

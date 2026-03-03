@@ -120,3 +120,6 @@ DEFAULT_EVAL_BATCH_SIZE: int = 1024  # instances per batch (HRL manager default)
 # Smaller than eval batch size because rollouts compute full episodes.
 # 64 balances memory and baseline quality; increase for more samples.
 DEFAULT_ROLLOUT_BATCH_SIZE: int = 64  # episodes per rollout (baseline computation default)
+
+# TSP and CVRP distance matrix scaling factor
+SCALE = 10000

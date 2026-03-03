@@ -28,6 +28,7 @@ class SISRConfig:
     """
 
     time_limit: float = 10.0
+    seed: Optional[int] = None
     max_iterations: int = 1000
     start_temp: float = 100.0
     cooling_rate: float = 0.995

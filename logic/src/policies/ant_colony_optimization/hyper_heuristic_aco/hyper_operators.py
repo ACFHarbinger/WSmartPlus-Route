@@ -46,6 +46,7 @@ class HyperOperatorContext:
         R: float,
         C: float,
         mandatory_nodes: Optional[List[int]] = None,
+        rng: Optional[random.Random] = None,
     ):
         """
         Initialize HyperOperatorContext.
@@ -69,6 +70,7 @@ class HyperOperatorContext:
         self.route_loads: List[float] = []
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}
+        self.rng = random or random.Random()
 
         self._build_structures()
 
@@ -122,7 +124,7 @@ def apply_2opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
-        u = random.choice(nodes)
+        u = ctx.rng.choice(nodes)
         u_loc = ctx.node_map.get(u)
         if not u_loc:
             continue
@@ -148,7 +150,7 @@ def apply_3opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
-        u = random.choice(nodes)
+        u = ctx.rng.choice(nodes)
         u_loc = ctx.node_map.get(u)
         if not u_loc:
             continue
@@ -174,7 +176,7 @@ def apply_2opt_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
-        u = random.choice(nodes)
+        u = ctx.rng.choice(nodes)
         u_loc = ctx.node_map.get(u)
         if not u_loc:
             continue
@@ -200,7 +202,7 @@ def apply_swap(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
-        u = random.choice(nodes)
+        u = ctx.rng.choice(nodes)
         u_loc = ctx.node_map.get(u)
         if not u_loc:
             continue
@@ -226,7 +228,7 @@ def apply_swap_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
-        u = random.choice(nodes)
+        u = ctx.rng.choice(nodes)
         u_loc = ctx.node_map.get(u)
         if not u_loc:
             continue
@@ -252,7 +254,7 @@ def apply_relocate(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
         if not nodes:
             break
-        u = random.choice(nodes)
+        u = ctx.rng.choice(nodes)
         u_loc = ctx.node_map.get(u)
         if not u_loc:
             continue

@@ -100,6 +100,7 @@ class CVRPPolicy(BaseRoutingPolicy):
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
+            seed = kwargs.get("seed") if kwargs.get("seed") is not None else 42
             solver_fn = find_routes_ortools if engine == "ortools" else find_routes
             tour = solver_fn(
                 distancesC,
@@ -109,6 +110,7 @@ class CVRPPolicy(BaseRoutingPolicy):
                 n_vehicles,
                 coords,
                 time_limit=time_limit,
+                seed=seed,
             )
         # Ensure list format
         if hasattr(tour, "tolist"):
