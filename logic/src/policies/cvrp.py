@@ -24,6 +24,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pyvrp
+from google.protobuf.duration_pb2 import Duration
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
 
@@ -205,8 +206,10 @@ def find_routes_ortools(
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     search_parameters.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-    search_parameters.time_limit.FromSeconds(int(time_limit))
-    search_parameters.random_seed = seed
+    duration = Duration()
+    duration.FromSeconds(int(time_limit))
+    search_parameters.time_limit.CopyFrom(duration)
+    routing.solver().ReSeed(seed)
 
     solution = routing.SolveWithParameters(search_parameters)
 

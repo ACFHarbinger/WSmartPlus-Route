@@ -5,6 +5,7 @@ OR-Tools engine for Branch-Cut-and-Price module.
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+from google.protobuf.duration_pb2 import Duration
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
@@ -38,6 +39,7 @@ def run_bcp_ortools(
 
     # 3. Solve
     search_parameters = _get_search_parameters(values)
+    routing.solver().ReSeed(values.get("seed", 42))
     solution = routing.SolveWithParameters(search_parameters)
 
     # 4. Parse Result
@@ -111,10 +113,12 @@ def _add_waste_collecting_penalties(
 def _get_search_parameters(values: Dict[str, Any]) -> Any:
     """Configure search parameters."""
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    time_limit_sec = values.get("time_limit", 30)
-    search_parameters.time_limit.seconds = int(time_limit_sec)
     search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     search_parameters.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
+    time_limit_sec = values.get("time_limit", 30)
+    duration = Duration()
+    duration.FromSeconds(int(time_limit_sec))
+    search_parameters.time_limit.CopyFrom(duration)
     return search_parameters
 
 

@@ -52,7 +52,7 @@ def find_route(C, to_collect, time_limit=2.0, seed=42):
     tmpC = C[to_collect_tmp, :][:, to_collect_tmp]
     # fast_tsp requires integer distance matrix
     tmpC_int = np.round(tmpC * SCALE).astype(int)
-    tour = fast_tsp.find_tour(tmpC_int, duration_seconds=time_limit, seed=seed)
+    tour = fast_tsp.find_tour(tmpC_int, duration_seconds=time_limit)
     zero_index = tour.index(0)
     tour = tour[zero_index:] + tour[:zero_index]
     # cost = fast_tsp.compute_cost(tour, tmpC)
