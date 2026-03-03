@@ -26,6 +26,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         gamma (float): Discount factor for future rewards.
         epsilon (float): Exploration rate for epsilon-greedy policy.
         n_bins (int): Number of bins for discretizing weights.
+        seed (int): Random seed for reproducibility.
     """
 
     def __init__(
@@ -36,6 +37,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         epsilon: float = 0.1,
         n_bins: int = 20,
         weight_bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+        seed: int = 42,
         **kwargs,
     ):
         """Initialize TDLearningWeightOptimizer."""
@@ -91,6 +93,9 @@ class CostWeightManager(WeightAdjustmentStrategy):
         # History for logging
         self.history: List[Dict[str, Any]] = []
 
+        self.seed = seed
+        self.rng = random.Random(seed)
+
     def get_current_weights(self) -> Dict[str, float]:
         """Return the current continuous weights."""
         return self.weights.copy()
@@ -104,9 +109,11 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self._discretize(self.weights)
 
         # Exploration: Random perturbation
-        if random.random() < self.epsilon:
-            action_key = random.choice(list(self.weights.keys()))
-            delta = random.choice([-0.1, 0.1]) * (self.weight_bounds[action_key][1] - self.weight_bounds[action_key][0])
+        if self.rng.random() < self.epsilon:
+            action_key = self.rng.choice(list(self.weights.keys()))
+            delta = self.rng.choice([-0.1, 0.1]) * (
+                self.weight_bounds[action_key][1] - self.weight_bounds[action_key][0]
+            )
             self._apply_change(action_key, delta)
         else:
             # Exploitation: Greedy hill-climbing on V(s)?

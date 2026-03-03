@@ -18,6 +18,7 @@ def vectorized_ejection_chain(
     wastes: Optional[torch.Tensor] = None,
     max_depth: int = 5,
     target_route_reduction: Optional[int] = None,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized ejection chain operator for fleet minimization using PyTorch.
@@ -53,6 +54,7 @@ def vectorized_ejection_chain(
         max_depth: Maximum recursion depth for ejection chain (default: 5)
             Higher values find more solutions but slower
         target_route_reduction: Number of routes to try eliminating (default: None = all)
+        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
 
     Returns:
         torch.Tensor: Modified tours [B, N] with potentially fewer routes

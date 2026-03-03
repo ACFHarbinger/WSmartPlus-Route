@@ -264,7 +264,7 @@ class RayTuneHPO(BaseHPO):
             with contextlib.suppress(ImportError):
                 from ray.tune.search.bohb import TuneBOHB
 
-                return TuneBOHB()
+                return TuneBOHB(seed=self.cfg.seed)
         return None
 
     # ------------------------------------------------------------------

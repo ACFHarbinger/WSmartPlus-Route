@@ -2,6 +2,8 @@
 Type II Unstringing Operator (vectorized).
 """
 
+from typing import Optional
+
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
@@ -12,6 +14,7 @@ def vectorized_type_ii_unstringing(
     distance_matrix: torch.Tensor,
     max_iterations: int = 50,
     sample_size: int = 100,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized Type II Unstringing local search across a batch of tours using PyTorch.
@@ -44,7 +47,7 @@ def vectorized_type_ii_unstringing(
             if len(valid_indices) < 5:
                 continue
 
-            best_delta, best_move = _find_best_type_ii_move(tour, dist, valid_indices, sample_size, device)
+            best_delta, best_move = _find_best_type_ii_move(tour, dist, valid_indices, sample_size, device, generator)
 
             if best_move is not None:
                 i, j, k = best_move
@@ -57,7 +60,9 @@ def vectorized_type_ii_unstringing(
     return tours if is_batch else tours.squeeze(0)
 
 
-def _find_best_type_ii_move(tour, dist, valid_indices, sample_size, device):
+def _find_best_type_ii_move(
+    tour, dist, valid_indices, sample_size, device, generator: Optional[torch.Generator] = None
+):
     """Finds the best Type II unstringing move for a single tour."""
     N = len(tour)
     best_delta = 0.0
@@ -70,8 +75,8 @@ def _find_best_type_ii_move(tour, dist, valid_indices, sample_size, device):
         # Determine (j, k) pairs
         if sample_size > 0:
             n_samples = min(sample_size, (n_valid - 2) * (n_valid - 3) // 2)
-            k_samples = torch.randint(i_idx + 2, n_valid, (n_samples,))
-            j_samples = torch.randint(0, n_valid, (n_samples,))
+            k_samples = torch.randint(i_idx + 2, n_valid, (n_samples,), generator=generator)
+            j_samples = torch.randint(0, n_valid, (n_samples,), generator=generator)
             # For Type II: i < j < k in circular order usually,
             # but the pattern can vary. Let's stick to the original logic's pairs.
             valid_pairs = k_samples > (j_samples + 1)  # simple constraint
@@ -108,15 +113,6 @@ def _evaluate_type_ii_move(tour, dist, i, j, k, N):
     v_k, v_kn = tour[k].item(), tour[(k + 1) % N].item()
 
     # Pattern II: v_{i-1}->v_k, v_{j+1}->v_i, v_{i+1}->v_j, v_{k+1}->v_{jn} ?
-    # Let's check original logic or standard definition.
-    # Usually: removed (vi-1, vi), (vi, vi+1), (vj, vj+1), (vk, vk+1)
-    # inserted (vi-1, vk), (vj+1, vi), (vi+1, vj), (vk+1, vjn) ... wait.
-
-    # Re-checking the original file's logic for Type II:
-    # Removed arcs: (V_{i-1}, V_i), (V_i, V_{i+1}), (V_j, V_{j+1}), (V_k, V_{k+1})
-    # Inserted arcs: (V_{i-1}, V_k), (V_{j+1}, V_{i+1}), (V_j, V_{k+1})
-    # Wait, the node V_i is removed.
-
     removed = dist[v_ip, v_i] + dist[v_i, v_in] + dist[v_j, v_jn] + dist[v_k, v_kn]
     inserted = dist[v_ip, v_k] + dist[v_jn, v_in] + dist[v_j, v_kn]
     return (inserted - removed).item()

@@ -14,6 +14,7 @@ def vectorized_greedy_insertion(
     dist_matrix: Tensor,
     wastes: Optional[Tensor] = None,
     capacity: Optional[float] = None,
+    generator: Optional[torch.Generator] = None,
 ) -> Tensor:
     """
     Vectorized greedy insertion.
@@ -25,6 +26,7 @@ def vectorized_greedy_insertion(
         dist_matrix: (B, N_all, N_all)
         wastes: (N_all) or (B, N_all)
         capacity: float
+        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
 
     Returns:
         tours: (B, N_curr + N_rem)

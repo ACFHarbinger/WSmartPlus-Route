@@ -48,13 +48,17 @@ class TSPkoptEnv(ImprovementEnvBase):
         num_nodes = td["locs"].shape[-2] + 1
         return torch.ones(*bs, num_nodes, dtype=torch.bool, device=self.device)
 
-    def _get_initial_solution(self, td: TensorDict) -> torch.Tensor:
+    def _get_initial_solution(self, td: TensorDict, generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Generate random initial tour starting at depot."""
+        if generator is None:
+            generator = torch.Generator(device=self.device).manual_seed(42)
         bs = td.batch_size[0]
         num_nodes = td["locs"].shape[-2] + 1
 
         # Shuffle nodes 1 to N
-        tour = torch.stack([torch.randperm(num_nodes - 1, device=self.device) + 1 for _ in range(bs)])
+        tour = torch.stack(
+            [torch.randperm(num_nodes - 1, device=self.device, generator=generator) + 1 for _ in range(bs)]
+        )
 
         # Prepend depot (0)
         depot = torch.zeros(bs, 1, dtype=torch.long, device=self.device)

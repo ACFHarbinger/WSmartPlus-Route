@@ -7,7 +7,7 @@ Example:
     >>> import spatial_gaussian_mixture
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -25,29 +25,35 @@ class Gaussian_Mixture:
         self.num_modes = num_modes
         self.cdist = cdist
 
-    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
             size (Tuple[int, int, int]): Description of size.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Any: Description of return value.
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
+
         batch_size, num_loc, _ = size
-
         if self.num_modes == 0:
-            return torch.rand((batch_size, num_loc, 2))
+            return torch.rand((batch_size, num_loc, 2), generator=generator)
         elif self.num_modes == 1 and self.cdist == 1:
-            return self._generate_gaussian(batch_size, num_loc)
+            return self._generate_gaussian(batch_size, num_loc, generator=generator)
         else:
-            return torch.stack([self._generate_gaussian_mixture(num_loc) for _ in range(batch_size)])
+            return torch.stack(
+                [self._generate_gaussian_mixture(num_loc, generator=generator) for _ in range(batch_size)]
+            )
 
-    def _generate_gaussian_mixture(self, num_loc: int) -> torch.Tensor:
+    def _generate_gaussian_mixture(self, num_loc: int, generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """generate gaussian mixture.
 
         Args:
             num_loc (int): Description of num_loc.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Any: Description of return value.
@@ -56,6 +62,7 @@ class Gaussian_Mixture:
             input=torch.ones(self.num_modes) / self.num_modes,
             num_samples=num_loc,
             replacement=True,
+            generator=generator,
         )
 
         coords = torch.empty((0, 2))
@@ -63,35 +70,38 @@ class Gaussian_Mixture:
         for i in range(self.num_modes):
             num = int((nums == i).sum().item())
             if num > 0:
-                center = torch.rand((1, 2)) * self.cdist
+                center = torch.rand((1, 2), generator=generator) * self.cdist
                 cov = torch.eye(2)
                 nxy = torch.distributions.MultivariateNormal(center.squeeze(), covariance_matrix=cov).sample(
-                    torch.Size([num])
+                    torch.Size([num]), generator=generator
                 )
                 coords = torch.cat((coords, nxy), dim=0)
 
         return self._global_min_max_scaling(coords)
 
-    def _generate_gaussian(self, batch_size: int, num_loc: int) -> torch.Tensor:
+    def _generate_gaussian(
+        self, batch_size: int, num_loc: int, generator: Optional[torch.Generator] = None
+    ) -> torch.Tensor:
         """generate gaussian.
 
         Args:
             batch_size (int): Description of batch_size.
             num_loc (int): Description of num_loc.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Any: Description of return value.
         """
         mean = torch.full((batch_size, num_loc, 2), 0.5)
-        covs = torch.rand(batch_size)
+        covs = torch.rand(batch_size, generator=generator)
 
         coords = torch.zeros((batch_size, num_loc, 2))
         for i in range(batch_size):
             cov_matrix = torch.tensor([[1.0, covs[i]], [covs[i], 1.0]])
             m = torch.distributions.MultivariateNormal(mean[i], covariance_matrix=cov_matrix)
-            coords[i] = m.sample()
+            coords[i] = m.sample(torch.Size([num_loc]), generator=generator)
 
-        indices = torch.randperm(coords.size(0))
+        indices = torch.randperm(coords.size(0), generator=generator)
         coords = coords[indices]
 
         return self._batch_normalize_and_center(coords)

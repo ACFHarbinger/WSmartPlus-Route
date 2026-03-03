@@ -2,6 +2,8 @@
 Type I Unstringing Operator (vectorized).
 """
 
+from typing import Optional
+
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
@@ -12,6 +14,7 @@ def vectorized_type_i_unstringing(
     distance_matrix: torch.Tensor,
     max_iterations: int = 50,
     sample_size: int = 100,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized Type I Unstringing local search across a batch of tours using PyTorch.
@@ -44,7 +47,7 @@ def vectorized_type_i_unstringing(
             if len(valid_indices) < 5:
                 continue
 
-            best_delta, best_move = _find_best_type_i_move(tour, dist, valid_indices, sample_size, device)
+            best_delta, best_move = _find_best_type_i_move(tour, dist, valid_indices, sample_size, device, generator)
 
             if best_move is not None:
                 i, j, k = best_move
@@ -57,7 +60,7 @@ def vectorized_type_i_unstringing(
     return tours if is_batch else tours.squeeze(0)
 
 
-def _find_best_type_i_move(tour, dist, valid_indices, sample_size, device):
+def _find_best_type_i_move(tour, dist, valid_indices, sample_size, device, generator: Optional[torch.Generator] = None):
     """Finds the best Type I unstringing move for a single tour."""
     N = len(tour)
     best_delta = 0.0
@@ -70,8 +73,8 @@ def _find_best_type_i_move(tour, dist, valid_indices, sample_size, device):
         # Determine (j, k) pairs
         if sample_size > 0:
             n_samples = min(sample_size, (n_valid - 2) * (n_valid - 3) // 2)
-            k_samples = torch.randint(i_idx + 2, n_valid - 1, (n_samples,))
-            j_samples = torch.randint(0, n_valid, (n_samples,))
+            k_samples = torch.randint(i_idx + 2, n_valid - 1, (n_samples,), generator=generator)
+            j_samples = torch.randint(0, n_valid, (n_samples,), generator=generator)
             valid_pairs = j_samples > k_samples
             k_samples, j_samples = k_samples[valid_pairs], j_samples[valid_pairs]
         else:

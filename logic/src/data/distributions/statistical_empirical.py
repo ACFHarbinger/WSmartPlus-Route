@@ -56,19 +56,22 @@ class Empirical:
                 raise ValueError("Data path must be a directory or a pkl/csv/xlsx/npz file.")
         assert self.grid is not None or self.dataset is not None
 
-    def sample_tensor(self, size: Tuple[int, ...]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from empirical dataset.
 
         Args:
             size: Sampling shape. First dimension is assumed to be batch size.
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             torch.Tensor: Sampled values
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
         batch_size = size[0]
         if self.dataset is not None:
             if isinstance(self.dataset, pandas.DataFrame):
-                vals = self.dataset.sample(n=batch_size).values
+                vals = self.dataset.sample(n=batch_size, generator=generator).values
                 vals_tensor = torch.tensor(vals).float() / 100.0
             elif isinstance(self.dataset, np.ndarray):
                 vals = self.dataset[np.random.choice(len(self.dataset), batch_size)]
@@ -81,7 +84,7 @@ class Empirical:
             else:
                 raise ValueError("Dataset must be a pandas DataFrame, numpy array, dictionary, or torch Tensor.")
         elif self.grid is not None:
-            vals = self.grid.sample(n_samples=batch_size)
+            vals = self.grid.sample(n_samples=batch_size, rng=np.random.RandomState(generator.initial_seed()))
             vals_tensor = torch.from_numpy(vals).float() / 100.0
         else:
             raise ValueError("No grid or dataset found.")

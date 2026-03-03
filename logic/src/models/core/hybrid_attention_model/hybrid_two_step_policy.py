@@ -32,11 +32,14 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         n_encode_layers: int = 3,
         n_heads: int = 8,
         refine_steps: int = 10,
+        seed: int = 42,
         **kwargs,
     ):
         super().__init__(env_name=env_name, embed_dim=embed_dim)
 
         self.refine_steps = refine_steps
+        self.seed = seed
+        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
         self.init_embedding = get_init_embedding(env_name, embed_dim)
         self.encoder = GraphAttentionEncoder(
@@ -132,7 +135,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             init_choice_idx = init_logits.argmax(dim=-1)
         else:
             probs = torch.softmax(init_logits, dim=-1)
-            init_choice_idx = torch.multinomial(probs, 1).squeeze(-1)
+            init_choice_idx = torch.multinomial(probs, 1, generator=self.generator).squeeze(-1)
 
         tours = torch.zeros(batch_size, td["locs"].size(1), dtype=torch.long, device=device)
 
@@ -187,7 +190,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             op_idx = op_logits.argmax(dim=-1)
         else:
             probs = torch.softmax(op_logits, dim=-1)
-            op_idx = torch.multinomial(probs, 1).squeeze(-1)
+            op_idx = torch.multinomial(probs, 1, generator=self.generator).squeeze(-1)
             log_p = torch.log(probs.gather(1, op_idx.unsqueeze(-1)) + 1e-10).squeeze(-1)
 
         next_tours = current_tours.clone()

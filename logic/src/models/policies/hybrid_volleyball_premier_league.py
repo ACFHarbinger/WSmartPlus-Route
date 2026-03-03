@@ -4,6 +4,7 @@ Vectorized Hybrid Volleyball Premier League (HVPL) Policy.
 
 from __future__ import annotations
 
+import random
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -34,9 +35,12 @@ class VectorizedHVPL(AutoregressivePolicy):
         time_limit: float = 60.0,
         aco_iterations: int = 1,
         alns_iterations: int = 100,
+        device: str = "cuda",
+        generator: Optional[torch.Generator] = None,
+        rng: Optional[random.Random] = None,
         **kwargs,
     ):
-        super().__init__(env_name=env_name, **kwargs)
+        super().__init__(env_name=env_name, device=device, generator=generator, rng=rng, **kwargs)
         self.n_teams = n_teams
         self.max_iterations = max_iterations
         self.sub_rate = sub_rate
@@ -255,7 +259,9 @@ class VectorizedHVPL(AutoregressivePolicy):
             scores.masked_fill_(visited, 0)
 
             probs = scores / (scores.sum(dim=-1, keepdim=True) + 1e-10)
-            next_node = torch.multinomial(probs.view(-1, num_nodes), 1).view(batch_size, n_ants_per_instance)
+            next_node = torch.multinomial(
+                probs.view(-1, num_nodes), 1, device=self.device, generator=self.generator
+            ).view(batch_size, n_ants_per_instance)
 
             current_node = next_node
             visited.scatter_(2, current_node.unsqueeze(2), 1)

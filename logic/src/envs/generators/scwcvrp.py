@@ -70,6 +70,7 @@ class SCWCVRPGenerator(WCVRPGenerator):
                 std=self.noise_variance**0.5,
                 size=real_waste.size(),
                 device=self.device,
+                generator=self.generator,
             )
             noisy_waste = (real_waste + noise).clamp(min=0.0, max=1.0)
         else:

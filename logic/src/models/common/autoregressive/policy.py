@@ -32,6 +32,8 @@ class AutoregressivePolicy(ConstructivePolicy):
         decoder: Optional[AutoregressiveDecoder] = None,
         env_name: Optional[str] = None,
         embed_dim: int = 128,
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """Initialize AutoregressivePolicy."""
@@ -41,6 +43,8 @@ class AutoregressivePolicy(ConstructivePolicy):
             decoder=decoder,
             env_name=env_name,
             embed_dim=embed_dim,
+            seed=seed,
+            device=device,
             **kwargs,
         )
 

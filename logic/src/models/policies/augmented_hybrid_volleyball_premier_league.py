@@ -4,6 +4,7 @@ Vectorized Augmented Hybrid Volleyball Premier League (AHVPL) Policy.
 
 from __future__ import annotations
 
+import random
 import time
 from typing import Any, Dict, Optional
 
@@ -37,6 +38,9 @@ class VectorizedAHVPL(VectorizedHVPL):
         crossover_rate: float = 0.7,
         alpha_diversity: float = 0.5,
         elite_size: int = 5,
+        device: str = "cuda",
+        generator: Optional[torch.Generator] = None,
+        rng: Optional[random.Random] = None,
         **kwargs,
     ):
         super().__init__(
@@ -47,6 +51,9 @@ class VectorizedAHVPL(VectorizedHVPL):
             time_limit=time_limit,
             aco_iterations=aco_iterations,
             alns_iterations=alns_iterations,
+            device=device,
+            generator=generator,
+            rng=rng,
             **kwargs,
         )
         self.crossover_rate = crossover_rate
@@ -88,7 +95,7 @@ class VectorizedAHVPL(VectorizedHVPL):
         expanded_capacity = capacity.repeat_interleave(self.n_teams, dim=0)
 
         # Initialize Population Manager (HGS Core)
-        pop_manager = VectorizedPopulation(self.n_teams, device, alpha_diversity=self.alpha_diversity)
+        pop_manager = VectorizedPopulation(self.n_teams, device, self.alpha_diversity, self.generator)
 
         # Initial costs (required for population management)
         # Flatten to (batch_size * n_teams, num_nodes-1)
@@ -109,7 +116,7 @@ class VectorizedAHVPL(VectorizedHVPL):
             p1, p2 = pop_manager.get_parents(n_offspring=self.n_teams)
 
             # Crossover logic
-            if torch.rand(1).item() < self.crossover_rate:
+            if torch.rand(1, generator=self.generator).item() < self.crossover_rate:
                 offspring_giant = vectorized_ordered_crossover(
                     p1.view(batch_size * self.n_teams, -1), p2.view(batch_size * self.n_teams, -1)
                 ).view(batch_size, self.n_teams, -1)

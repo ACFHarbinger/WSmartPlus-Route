@@ -34,6 +34,7 @@ def generate_waste(
         graph: (depot, loc) coordinates.
         dataset_size: Number of datasets to generate. Defaults to 1.
         grid: GridBase object for empirical sampling.
+        rng: Random number generator.
         **kwargs: Additional parameters (e.g., alpha, beta for beta distribution).
 
     Returns:

@@ -30,6 +30,7 @@ class ACODecoder(NonAutoregressiveDecoder):
         beta: float = 2.0,
         rho: float = 0.1,
         use_local_search: bool = True,
+        seed: int = 42,
         **kwargs,
     ):
         """
@@ -50,6 +51,8 @@ class ACODecoder(NonAutoregressiveDecoder):
         self.beta = beta
         self.rho = rho
         self.use_local_search = use_local_search
+        self.seed = seed
+        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
     def forward(
         self,
@@ -232,7 +235,7 @@ class ACODecoder(NonAutoregressiveDecoder):
             probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
             # Sample next node
-            next_node = torch.multinomial(probs, 1).squeeze(-1)
+            next_node = torch.multinomial(probs, 1, generator=self.generator).squeeze(-1)
 
             # Record
             tour.append(next_node)

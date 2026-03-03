@@ -139,9 +139,12 @@ def _get_next_day_waste(
     batch_size: int,
     device: torch.device,
     key: str = "waste",
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """Determine the next day's waste from pre-generated data or on-the-fly generation."""
     next_day_waste = torch.zeros_like(current_fill)
+    if generator is None:
+        generator = torch.Generator(device=device).manual_seed(42)
 
     full_key = f"_{key}_full"
     if full_key in td.keys() and td[full_key].dim() == 3:
@@ -169,7 +172,11 @@ def _get_next_day_waste(
             noise_mean = getattr(gen, "noise_mean", 0.0)
             if has_noise:
                 noise = torch.normal(
-                    mean=float(noise_mean), std=float(noise_variance) ** 0.5, size=fresh_fill.size(), device=device
+                    mean=float(noise_mean),
+                    std=float(noise_variance) ** 0.5,
+                    size=fresh_fill.size(),
+                    device=device,
+                    generator=generator,
                 )
                 noisy_waste = (fresh_fill + noise).clamp(min=0.0, max=float(getattr(gen, "capacity", 1.0)))
                 next_day_waste = noisy_waste

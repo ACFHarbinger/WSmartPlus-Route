@@ -39,6 +39,8 @@ def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.Lightn
         policy_config=policy_config,
         env_name=cfg.env.name,
         loss_fn=cfg.rl.imitation.loss_fn,
+        seed=cfg.seed,
+        device=cfg.device,
         # RL4COLitModule parameters
         env=kw["env"],
         policy=kw["policy"],
@@ -94,6 +96,7 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
         decay_step=cfg.rl.adaptive_imitation.decay_step,
         epsilon=cfg.rl.adaptive_imitation.epsilon,
         loss_fn=cfg.rl.adaptive_imitation.loss_fn,
+        seed=cfg.seed,
         # REINFORCE parameters
         entropy_weight=kw.get("entropy_weight", 0.0),
         max_grad_norm=kw.get("max_grad_norm", 1.0),

@@ -7,7 +7,6 @@ to escape local minima. Useful for imitation learning and as a strong baseline.
 
 from __future__ import annotations
 
-import random as py_random
 from typing import Any, Dict, List, Optional, Union
 
 import torch
@@ -50,6 +49,8 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         n_restarts: int = 5,
         ls_iterations: int = 50,
         perturbation_strength: float = 0.2,
+        seed: int = 42,
+        device: str = "cpu",
         **kwargs,
     ):
         """
@@ -64,7 +65,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             perturbation_strength: Fraction of tour to perturb (for shuffle/swap).
             **kwargs: Additional arguments for AutoregressivePolicy.
         """
-        super().__init__(env_name=env_name, **kwargs)
+        super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.ls_operator = ls_operator
         self.perturbation_type = perturbation_type
         self.n_restarts = n_restarts
@@ -129,7 +130,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
                 # Double-bridge move: break tour into 4 segments and reconnect
                 if n < 8:
                     continue
-                positions = sorted(py_random.sample(range(1, n - 1), 3))
+                positions = sorted(self.rng.sample(range(1, n - 1), 3))
                 p1, p2, p3 = positions
                 new_list = t_list[:p1] + t_list[p2:p3] + t_list[p1:p2] + t_list[p3:]
                 result[b, : len(new_list)] = torch.tensor(new_list, device=device)
@@ -138,9 +139,9 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
                 seg_len = max(2, int(n * self.perturbation_strength))
                 if n - seg_len - 1 <= 1:
                     continue
-                start = py_random.randint(1, n - seg_len - 1)
+                start = self.rng.randint(1, n - seg_len - 1)
                 segment = t_list[start : start + seg_len]
-                py_random.shuffle(segment)
+                self.rng.shuffle(segment)
                 new_list = t_list[:start] + segment + t_list[start + seg_len :]
                 result[b, : len(new_list)] = torch.tensor(new_list, device=device)
 
@@ -150,7 +151,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
                 for _ in range(n_swaps):
                     if n < 3:
                         break
-                    i, j = py_random.sample(range(1, n - 1), 2)
+                    i, j = self.rng.sample(range(1, n - 1), 2)
                     new_list[i], new_list[j] = new_list[j], new_list[i]
                 result[b, : len(new_list)] = torch.tensor(new_list, device=device)
 
@@ -204,7 +205,12 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         if kwargs.get("initial_solution") is not None:
             solutions = kwargs["initial_solution"].clone().to(device)
         else:
-            solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+            solutions = torch.stack(
+                [
+                    torch.randperm(num_nodes - 1, device=self.device, generator=self.generator) + 1
+                    for _ in range(batch_size)
+                ]
+            )
 
         # Convert to routed format initially
         routes_list, _ = vectorized_linear_split(solutions, dist_matrix, waste, capacity)
@@ -245,13 +251,15 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
         # 4. Initial local search
         if op_probs_dict:
-            initial_op = py_random.choices(ops_sorted, weights=op_weights)[0]
+            initial_op = self.rng.choices(ops_sorted, weights=op_weights)[0]
             ls_func = self.op_map.get(initial_op, vectorized_two_opt)
         else:
             op_name = self.ls_operator if isinstance(self.ls_operator, str) else "two_opt"
             ls_func = self.op_map.get(op_name, vectorized_two_opt)
 
-        current_routes = ls_func(current_routes, dist_matrix, max_iterations=self.ls_iterations)
+        current_routes = ls_func(
+            current_routes, dist_matrix, max_iterations=self.ls_iterations, generator=self.generator
+        )
         best_routes = current_routes.clone()
         best_costs = self._compute_costs(best_routes, dist_matrix)
 
@@ -259,7 +267,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         for _restart_idx in range(self.n_restarts):
             # Sample perturbation mode
             if p_probs_dict:
-                p_mode = py_random.choices(p_modes_sorted, weights=p_weights)[0]
+                p_mode = self.rng.choices(p_modes_sorted, weights=p_weights)[0]
             else:
                 p_mode = self.perturbation_type if isinstance(self.perturbation_type, str) else "double_bridge"
 
@@ -268,13 +276,13 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
             # Sample LS operator for this restart
             if op_probs_dict:
-                iter_op = py_random.choices(ops_sorted, weights=op_weights)[0]
+                iter_op = self.rng.choices(ops_sorted, weights=op_weights)[0]
                 iter_ls_func = self.op_map.get(iter_op, vectorized_two_opt)
             else:
                 iter_ls_func = ls_func if ls_func is not None else vectorized_two_opt
 
             # Local search on perturbed solution
-            refined = iter_ls_func(perturbed, dist_matrix, max_iterations=self.ls_iterations)
+            refined = iter_ls_func(perturbed, dist_matrix, max_iterations=self.ls_iterations, generator=self.generator)
             refined_costs = self._compute_costs(refined, dist_matrix)
 
             # Accept if improving

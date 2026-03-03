@@ -35,6 +35,7 @@ class GlimpseDecoder(nn.Module):
         spatial_bias: bool = False,
         spatial_bias_scale: float = 1.0,
         strategy: Optional[str] = None,
+        seed: int = 42,
         **kwargs,
     ):
         """Initialize Class.
@@ -53,6 +54,7 @@ class GlimpseDecoder(nn.Module):
             spatial_bias (bool): Description of spatial_bias.
             spatial_bias_scale (float): Description of spatial_bias_scale.
             strategy (Optional[str]): Description of strategy.
+            seed (int): Description of seed.
             kwargs (Any): Description of kwargs.
         """
         super().__init__()
@@ -68,6 +70,8 @@ class GlimpseDecoder(nn.Module):
         self.spatial_bias = spatial_bias
         self.spatial_bias_scale = spatial_bias_scale
         self.strategy = strategy
+        self.seed = seed
+        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
         # Project node embeddings to MHA heads
         self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
@@ -198,7 +202,7 @@ class GlimpseDecoder(nn.Module):
                     curr_mask = curr_mask.squeeze(1)
                 assert not curr_mask.gather(1, selected.unsqueeze(-1)).any(), "Selected masked node"
         elif strategy == "sampling":
-            selected = torch.multinomial(probs, 1).squeeze(1)
+            selected = torch.multinomial(probs, 1, generator=self.generator).squeeze(1)
 
             # Mask handling for sampling loop check
             curr_mask = mask  # type: ignore[assignment]
@@ -207,7 +211,7 @@ class GlimpseDecoder(nn.Module):
 
             if curr_mask is not None:
                 while curr_mask.gather(1, selected.unsqueeze(-1)).any():
-                    selected = torch.multinomial(probs, 1).squeeze(1)
+                    selected = torch.multinomial(probs, 1, generator=self.generator).squeeze(1)
         else:
             raise ValueError(f"Unknown decoding strategy: {strategy}")
 

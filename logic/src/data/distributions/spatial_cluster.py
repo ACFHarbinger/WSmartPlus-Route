@@ -7,7 +7,7 @@ Example:
     >>> import spatial_cluster
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 
@@ -25,18 +25,23 @@ class Cluster:
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
-    def sample_tensor(self, size: Tuple[int, int, int]) -> torch.Tensor:
+    def sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample clustered locations.
 
         Args:
             size: (batch_size, num_loc, 2)
+            generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
             Tensor of shape (batch_size, num_loc, 2)
         """
+        if generator is None:
+            generator = torch.Generator().manual_seed(42)
         batch_size, num_loc, _ = size
 
-        center = self.lower + (self.upper - self.lower) * torch.rand(batch_size, self.n_cluster * 2)
+        center = self.lower + (self.upper - self.lower) * torch.rand(
+            batch_size, self.n_cluster * 2, generator=generator
+        )
 
         coords = torch.zeros(batch_size, num_loc, 2)
         cluster_sizes = [num_loc // self.n_cluster] * self.n_cluster
@@ -50,6 +55,7 @@ class Cluster:
             points = torch.normal(
                 means.unsqueeze(1).expand(-1, cluster_sizes[i], -1),
                 stds.unsqueeze(1).expand(-1, cluster_sizes[i], -1),
+                generator=generator,
             )
             coords[:, current_index : (current_index + cluster_sizes[i]), :] = points
             current_index += cluster_sizes[i]

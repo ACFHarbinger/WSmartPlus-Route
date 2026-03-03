@@ -7,19 +7,22 @@ Example:
     >>> import random_removal
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 from torch import Tensor
 
 
-def vectorized_random_removal(tours: Tensor, n_remove: int) -> Tuple[Tensor, Tensor]:
+def vectorized_random_removal(
+    tours: Tensor, n_remove: int, generator: Optional[torch.Generator] = None
+) -> Tuple[Tensor, Tensor]:
     """
     Vectorized random removal of nodes from tours.
 
     Args:
         tours (Tensor): Batch of tours (B, N).
         n_remove (int): Number of nodes to remove.
+        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
 
     Returns:
         Tuple[Tensor, Tensor]:
@@ -33,7 +36,7 @@ def vectorized_random_removal(tours: Tensor, n_remove: int) -> Tuple[Tensor, Ten
     customers_mask = tours > 0
 
     # Create random scores for sorting
-    scores = torch.rand((B, N), device=device)
+    scores = torch.rand((B, N), device=device, generator=generator)
     scores[~customers_mask] = -1.0  # Depots/Padding have low score
 
     # Get indices of top k scores

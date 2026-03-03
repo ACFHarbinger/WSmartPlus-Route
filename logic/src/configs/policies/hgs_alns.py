@@ -19,7 +19,11 @@ class HGSALNSConfig:
         elite_size: Number of elite individuals to preserve.
         mutation_rate: Probability of mutation.
         alns_education_iterations: Number of ALNS iterations for education phase.
+        alns_start_temp: Starting temperature for ALNS.
+        alns_cooling_rate: Cooling rate for ALNS.
+        hgs_max_iter: Number of HGS iterations for routing phase.
         n_generations: Number of generations to evolve.
+        crossover_rate: Probability of crossover.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
         engine: Solver engine to use.
         must_go: List of must-go strategy config files.
@@ -31,7 +35,11 @@ class HGSALNSConfig:
     elite_size: int = 10
     mutation_rate: float = 0.2
     alns_education_iterations: int = 50
+    alns_start_temp: float = 0.5
+    alns_cooling_rate: float = 0.9995
+    hgs_max_iter: int = 100
     n_generations: int = 100
+    crossover_rate: float = 0.5
     max_vehicles: int = 0
     seed: Optional[int] = None
     engine: str = "hgs_alns"

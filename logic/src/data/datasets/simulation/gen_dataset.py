@@ -43,6 +43,7 @@ class GenerativeDataset(SimulationDataset):
         noise_variance: Variance of Gaussian sensor noise.
         max_waste: Maximum waste capacity (percentage).
         grid: GridBase object for empirical sampling.
+        seed: Random seed.
     """
 
     def __init__(

@@ -20,6 +20,7 @@ def vectorized_lambda_interchange(
     wastes: Optional[torch.Tensor] = None,
     lambda_max: int = 2,
     max_iterations: int = 50,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized λ-interchange local search across a batch of tours using PyTorch.
@@ -52,6 +53,7 @@ def vectorized_lambda_interchange(
         lambda_max: Maximum segment length to consider (default: 2)
             Higher values = larger neighborhood but slower
         max_iterations: Maximum number of full neighborhood sweeps (default: 50)
+        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
 
     Returns:
         torch.Tensor: Improved tours [B, N] with same shape as input

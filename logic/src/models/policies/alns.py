@@ -12,6 +12,7 @@ from tensordict import TensorDict
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
+from logic.src.models.policies.hgs import VectorizedHGS
 
 from .adaptive_large_neighborhood_search import VectorizedALNS as VectorizedALNSEngine
 
@@ -27,13 +28,19 @@ class VectorizedALNS(AutoregressivePolicy):
         time_limit: float = 5.0,
         max_iterations: int = 500,
         max_vehicles: int = 0,
+        start_temp: float = 0.5,
+        cooling_rate: float = 0.9995,
+        device: str = "cpu",
+        seed: int = 42,
         **kwargs,
     ):
         """Initialize ALNSPolicy."""
-        super().__init__(env_name=env_name, **kwargs)
+        super().__init__(env_name=env_name, device=device, seed=seed, **kwargs)
         self.time_limit = time_limit
         self.max_iterations = max_iterations
         self.max_vehicles = max_vehicles
+        self.start_temp = start_temp
+        self.cooling_rate = cooling_rate
 
     def forward(
         self,
@@ -79,7 +86,9 @@ class VectorizedALNS(AutoregressivePolicy):
             capacity = capacity.expand(batch_size)
 
         # Create initial solutions (random permutations)
-        initial_solutions = torch.stack([torch.randperm(num_nodes - 1, device=device) + 1 for _ in range(batch_size)])
+        initial_solutions = torch.stack(
+            [torch.randperm(num_nodes - 1, device=device, generator=self.generator) + 1 for _ in range(batch_size)]
+        )
 
         solver = VectorizedALNSEngine(
             dist_matrix=dist_matrix,
@@ -87,6 +96,7 @@ class VectorizedALNS(AutoregressivePolicy):
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
             device=device,
+            generator=self.generator,
         )
 
         routes_list, costs = solver.solve(
@@ -94,6 +104,8 @@ class VectorizedALNS(AutoregressivePolicy):
             n_iterations=self.max_iterations,
             time_limit=self.time_limit,
             max_vehicles=kwargs.get("max_vehicles", self.max_vehicles),
+            start_temp=self.start_temp,
+            cooling_rate=self.cooling_rate,
         )
 
         # Convert routes to actions (padded tensor)
@@ -118,8 +130,6 @@ class VectorizedALNS(AutoregressivePolicy):
         )
 
         # Compute reward using the same cost function as the model
-        from logic.src.models.policies.hgs import VectorizedHGS
-
         reward = VectorizedHGS._compute_reward(td, env, padded_actions)
 
         return {

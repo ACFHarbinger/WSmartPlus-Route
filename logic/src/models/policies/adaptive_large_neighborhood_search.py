@@ -32,7 +32,15 @@ class VectorizedALNS(PolicyVizMixin):
     Vectorized Adaptive Large Neighborhood Search Solver.
     """
 
-    def __init__(self, dist_matrix, wastes, vehicle_capacity, time_limit=1.0, device="cuda"):
+    def __init__(
+        self,
+        dist_matrix,
+        wastes,
+        vehicle_capacity,
+        time_limit=1.0,
+        device: str = "cuda",
+        generator: Optional[torch.Generator] = None,
+    ):
         """
         Initialize the Vectorized ALNS solver.
 
@@ -42,12 +50,15 @@ class VectorizedALNS(PolicyVizMixin):
             vehicle_capacity: Vehicle capacity constraint.
             time_limit: Time limit for solving in seconds.
             device: Computation device ('cpu' or 'cuda').
+            generator: PyTorch generator for random number generation.
+            rng: Python random number generator.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.vehicle_capacity = vehicle_capacity
         self.time_limit = time_limit
-        self.device = device
+        self.device = torch.device(device)
+        self.generator = generator
 
         self.destroy_ops = [vectorized_random_removal, vectorized_worst_removal, vectorized_cluster_removal]
         self.repair_ops = [vectorized_greedy_insertion, vectorized_regret_k_insertion]
@@ -99,23 +110,33 @@ class VectorizedALNS(PolicyVizMixin):
             destroy_op = self.destroy_ops[d_idx]
             repair_op = self.repair_ops[r_idx]
 
-            n_remove = torch.randint(max(1, int(N * 0.1)), max(2, int(N * 0.4) + 1), (1,)).item()
+            n_remove = torch.randint(
+                max(1, int(N * 0.1)), max(2, int(N * 0.4) + 1), (1,), generator=self.generator
+            ).item()
 
             # 2. Destroy & Repair (Fast TSP operators)
             if destroy_op == vectorized_random_removal:
-                partial, removed = destroy_op(current_solutions, n_remove)  # type: ignore[operator]
+                partial, removed = destroy_op(current_solutions, n_remove, generator=self.generator)  # type: ignore[operator]
             else:
-                partial, removed = destroy_op(current_solutions, self.dist_matrix, n_remove)  # type: ignore[operator]
+                partial, removed = destroy_op(current_solutions, self.dist_matrix, n_remove, generator=self.generator)  # type: ignore[operator]
 
             candidate_solutions = repair_op(partial, removed, self.dist_matrix)  # type: ignore[operator]
 
             # 3. Fast Education (TSP Local Search)
             if i % 20 == 0:
-                candidate_solutions = vectorized_two_opt(candidate_solutions, self.dist_matrix, max_iterations=20)
-                candidate_solutions = vectorized_relocate(candidate_solutions, self.dist_matrix, max_iterations=10)
-                candidate_solutions = vectorized_swap(candidate_solutions, self.dist_matrix, max_iterations=10)
+                candidate_solutions = vectorized_two_opt(
+                    candidate_solutions, self.dist_matrix, max_iterations=20, generator=self.generator
+                )
+                candidate_solutions = vectorized_relocate(
+                    candidate_solutions, self.dist_matrix, max_iterations=10, generator=self.generator
+                )
+                candidate_solutions = vectorized_swap(
+                    candidate_solutions, self.dist_matrix, max_iterations=10, generator=self.generator
+                )
                 if N > 40 and i % 100 == 0:
-                    candidate_solutions = vectorized_three_opt(candidate_solutions, self.dist_matrix, max_iterations=5)
+                    candidate_solutions = vectorized_three_opt(
+                        candidate_solutions, self.dist_matrix, max_iterations=5, generator=self.generator
+                    )
 
             # 3b. Advanced Inter-Route Education (Periodic)
             if i > 0 and i % 100 == 0:
@@ -136,8 +157,12 @@ class VectorizedALNS(PolicyVizMixin):
                     routes_tensor[b_idx, : len(r_nodes)] = r_nodes
 
                 # 3. Apply inter-route operators
-                routes_tensor = vectorized_two_opt_star(routes_tensor, self.dist_matrix, max_iterations=10)
-                routes_tensor = vectorized_swap_star(routes_tensor, self.dist_matrix, max_iterations=10)
+                routes_tensor = vectorized_two_opt_star(
+                    routes_tensor, self.dist_matrix, max_iterations=10, generator=self.generator
+                )
+                routes_tensor = vectorized_swap_star(
+                    routes_tensor, self.dist_matrix, max_iterations=10, generator=self.generator
+                )
 
                 # 4. Flatten back to giant tour
                 flattened = []
@@ -169,7 +194,7 @@ class VectorizedALNS(PolicyVizMixin):
 
             # 5. Accept/Reject (SA)
             prob = torch.exp(-delta / T).clamp(max=1.0)
-            accept = (delta <= 0) | (torch.rand(B, device=device) < prob)
+            accept = (delta <= 0) | (torch.rand(B, device=device, generator=self.generator) < prob)
 
             current_solutions[accept] = candidate_solutions[accept]
             current_costs[accept] = candidate_costs[accept]

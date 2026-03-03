@@ -25,7 +25,7 @@ class NeuOptDecoder(ImprovementDecoder):
     NeuOpt Decoder: Guided move selection.
     """
 
-    def __init__(self, embed_dim: int = 128, **kwargs):
+    def __init__(self, embed_dim: int = 128, seed: int = 42, **kwargs):
         """Initialize Class.
 
         Args:
@@ -36,6 +36,8 @@ class NeuOptDecoder(ImprovementDecoder):
         self.project_q = nn.Linear(embed_dim, embed_dim)
         self.project_k = nn.Linear(embed_dim, embed_dim)
         self.scale = embed_dim**-0.5
+        self.seed = kwargs.get("seed", 42)
+        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
     def forward(
         self,
@@ -67,7 +69,7 @@ class NeuOptDecoder(ImprovementDecoder):
             action_indices = logits.argmax(dim=-1)
         else:
             probs = F.softmax(logits, dim=-1)
-            action_indices = torch.multinomial(probs, 1).squeeze(-1)
+            action_indices = torch.multinomial(probs, 1, generator=self.generator).squeeze(-1)
 
         # Convert flat index back to (i, j)
         idx1 = torch.div(action_indices, n, rounding_mode="floor")

@@ -35,6 +35,7 @@ class VRPInstanceBuilder:
         customers=None,
         dimension=0,
         coords=None,
+        device="cpu",
     ):
         """
         Initialize the VRPInstanceBuilder.
@@ -46,6 +47,7 @@ class VRPInstanceBuilder:
             customers: List of customer node indices.
             dimension (int): Total number of nodes (including depot).
             coords: Coordinate data (list or array).
+            device (str): Device for random number generation.
         """
         self.data_dict = data
         self.depot_idx = depot_idx
@@ -66,6 +68,17 @@ class VRPInstanceBuilder:
         self._problem_name = None
         self._noise_mean = 0.0
         self._noise_variance = 0.0
+        self._device = torch.device(device)
+        self._seed = None
+        self.np_rng = np.random.RandomState()
+        self.generator = torch.Generator(device=self._device)
+
+    def set_seed(self, seed: int):
+        """Sets the random seed for reproducibility."""
+        self._seed = seed
+        self.np_rng.seed(seed)
+        self.generator.manual_seed(seed)
+        return self
 
     def set_dataset_size(self, size: int):
         """Sets the number of instances to generate."""

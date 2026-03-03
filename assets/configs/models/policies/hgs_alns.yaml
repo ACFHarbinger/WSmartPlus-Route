@@ -19,6 +19,16 @@ time_limit: 30.0
 # Range: 20-60 (20s = fast, 30s = balanced, 60s = high quality)
 # Note: Shared between HGS phase and ALNS education phase
 
+# HGS
+hgs_max_iter: 100
+# Maximum number of HGS iterations
+# Range: 50-200
+
+# Evolution Control
+n_generations: 100
+# Maximum number of HGS generations
+# Range: 50-200
+
 # HGS Population Management
 population_size: 50
 # Total individuals in genetic pool
@@ -45,10 +55,13 @@ alns_education_iterations: 50
 # Range: 10-200 (10 = light polish, 50 = balanced, 100 = deep search)
 # Higher values → better solutions but slower training
 
-# Evolution Control
-n_generations: 100
-# Maximum number of HGS generations
-# Range: 50-200
+alns_start_temp: 0.5
+# Starting temperature for ALNS
+# Range: 0.1-1.0 (0.1 = slow cooling, 1.0 = fast cooling)
+
+alns_cooling_rate: 0.9995
+# Cooling rate for ALNS
+# Range: 0.99-0.9999 (0.99 = slow cooling, 0.9999 = fast cooling)
 
 # Vehicle Constraints
 max_vehicles: 0
