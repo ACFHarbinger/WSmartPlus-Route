@@ -40,6 +40,7 @@ class HGSSolver(PolicyVizMixin):
         C: float,
         params: HGSParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize the HGS solver.
@@ -52,6 +53,7 @@ class HGSSolver(PolicyVizMixin):
             C: Cost multiplier.
             params: Detailed HGS parameters.
             mandatory_nodes: List of local node indices that MUST be visited.
+            seed: Random seed for reproducibility.
         """
         self.d = dist_matrix
         self.wastes = wastes
@@ -60,6 +62,7 @@ class HGSSolver(PolicyVizMixin):
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -79,7 +82,7 @@ class HGSSolver(PolicyVizMixin):
         # 1. Initial Population
         for _ in range(self.params.population_size):
             gt = self.nodes[:]
-            random.shuffle(gt)
+            self.random.shuffle(gt)
             ind = Individual(gt)
             evaluate(ind, self.split_manager)
             population.append(ind)
@@ -89,14 +92,16 @@ class HGSSolver(PolicyVizMixin):
         start_time = time.time()
         it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
-        while time.time() - start_time < self.params.time_limit:
+        while it < self.params.n_generations:
+            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
+                break
             it += 1
             # 2. Selection & Crossover
             p1, p2 = self._select_parents(population)
-            child = ordered_crossover(p1, p2)
+            child = ordered_crossover(p1, p2, rng=self.random)
 
             # 3. Local Search (Mutation)
-            if random.random() < self.params.mutation_rate:
+            if self.random.random() < self.params.mutation_rate:
                 evaluate(child, self.split_manager)
                 child = self.ls.optimize(child)
 
@@ -129,7 +134,7 @@ class HGSSolver(PolicyVizMixin):
         # Binary Tournament
         def tournament():
             """Perform a binary tournament selection."""
-            i1, i2 = random.sample(population, 2)
+            i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 
         return tournament(), tournament()
@@ -177,5 +182,5 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         n_generations=values.get("n_generations", 100),
         max_vehicles=values.get("max_vehicles", 0),
     )
-    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
     return solver.solve()

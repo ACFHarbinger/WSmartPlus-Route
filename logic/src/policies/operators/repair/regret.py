@@ -102,7 +102,7 @@ def regret_k_insertion(  # noqa: C901
 
     # All unvisited nodes (including those previously removed) are candidates
     n_nodes = len(dist_matrix) - 1
-    unassigned = list(set(range(1, n_nodes + 1)) - visited)
+    unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
 
     while unassigned:
         all_candidates = []
@@ -126,8 +126,8 @@ def regret_k_insertion(  # noqa: C901
             new_cost = dist_matrix[0][node] + dist_matrix[node][0]
             node_options.append((new_cost, len(routes), 0))
 
-            # Sort options by cost
-            node_options.sort(key=lambda x: x[0])
+            # Sort options by cost, then r_idx, then pos for deterministic tie-breaking
+            node_options.sort(key=lambda x: (x[0], x[1], x[2]))
 
             # VRPP Logic
             best_cost = node_options[0][0]
@@ -168,8 +168,8 @@ def regret_k_insertion(  # noqa: C901
             else:
                 break
 
-        # Pick node with max regret
-        all_candidates.sort(key=lambda x: x[0], reverse=True)
+        # Pick node with max regret, tie-break by node ID
+        all_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
         _, best_node, (cost, r_idx, pos) = all_candidates[0]
 
         if r_idx == -1:

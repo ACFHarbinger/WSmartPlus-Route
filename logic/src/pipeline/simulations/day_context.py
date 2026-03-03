@@ -7,6 +7,7 @@ the execution of a single simulation day using the Command Pattern.
 
 from __future__ import annotations
 
+import random
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
 from multiprocessing.synchronize import Lock
@@ -59,6 +60,7 @@ class SimulationDayContext(Mapping):
         overflow_penalty: Weight for overflows.
         engine: Policy engine.
         threshold: Decision threshold.
+        seed: Base seed for the simulation.
 
         # Mutable attributes added during run_day
         daily_log: Dictionary for daily logs.
@@ -110,6 +112,7 @@ class SimulationDayContext(Mapping):
     overflow_penalty: float = 1.0
     engine: Optional[str] = None
     threshold: Optional[float] = None
+    seed: int = 42
 
     # Optional/Mutable Fields
     daily_log: Optional[Dict[str, Any]] = None
@@ -223,6 +226,10 @@ def get_daily_results(
 
 def run_day(context: SimulationDayContext) -> SimulationDayContext:
     """Orchestrates a single simulation day using the Command Pattern."""
+    random.seed(context.seed)
+    np.random.seed(context.seed)
+    torch.manual_seed(context.seed)
+
     from logic.src.pipeline.simulations.actions import (
         CollectAction,
         FillAction,

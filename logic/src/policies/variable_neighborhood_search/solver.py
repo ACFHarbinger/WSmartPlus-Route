@@ -47,6 +47,7 @@ class VNSSolver(PolicyVizMixin):
         C: float,
         params: VNSParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -57,6 +58,7 @@ class VNSSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         # Shaking neighborhoods N_1 ... N_{k_max} ordered by increasing severity
         self._neighborhoods = [
@@ -156,7 +158,7 @@ class VNSSolver(PolicyVizMixin):
 
     def _shake_n2(self, routes: List[List[int]]) -> List[List[int]]:
         """N_2: Remove 2 nodes randomly, greedy reinsert."""
-        partial, removed = random_removal(routes, 2)
+        partial, removed = random_removal(routes, 2, self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -182,7 +184,7 @@ class VNSSolver(PolicyVizMixin):
 
     def _shake_n4(self, routes: List[List[int]]) -> List[List[int]]:
         """N_4: Cluster removal of 3 nodes, greedy reinsert."""
-        partial, removed = cluster_removal(routes, 3, self.dist_matrix, self.nodes)
+        partial, removed = cluster_removal(routes, 3, self.dist_matrix, self.nodes, self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -195,7 +197,7 @@ class VNSSolver(PolicyVizMixin):
 
     def _shake_n5(self, routes: List[List[int]]) -> List[List[int]]:
         """N_5: Remove 3 nodes randomly, regret-2 reinsert."""
-        partial, removed = random_removal(routes, 3)
+        partial, removed = random_removal(routes, 3, self.random)
         return regret_2_insertion(
             partial,
             removed,
@@ -231,7 +233,7 @@ class VNSSolver(PolicyVizMixin):
             if time.time() - start > self.params.time_limit:
                 break
 
-            llh_idx = random.randint(0, self.params.n_llh - 1)
+            llh_idx = self.random.randint(0, self.params.n_llh - 1)
             llh = self._llh_pool[llh_idx]
 
             try:
@@ -251,7 +253,7 @@ class VNSSolver(PolicyVizMixin):
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return greedy_insertion(
             partial,
             removed,

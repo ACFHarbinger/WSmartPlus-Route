@@ -7,6 +7,7 @@ Supports two engines:
   - 'og': Original look-ahead algorithm for collection (LAC)
 """
 
+import random
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -146,6 +147,7 @@ class SANSPolicy(BaseRoutingPolicy):
 
         # Get SA parameters from typed config or raw config
         cfg = self._config
+        rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random()
         if cfg is not None:
             sa_params = (cfg.T_init, cfg.iterations_per_T, cfg.alpha, cfg.T_min)
             time_limit = cfg.time_limit
@@ -178,6 +180,7 @@ class SANSPolicy(BaseRoutingPolicy):
             volume=V,
             density_val=B,
             max_vehicles=1,
+            rng=rng,
         )
 
         tour = optimized_routes[0] if optimized_routes else [0, 0]
@@ -243,6 +246,10 @@ class SANSPolicy(BaseRoutingPolicy):
         )
         og_time_limit = cfg.time_limit if cfg is not None else lac_config.get("time_limit", DEFAULT_TIME_LIMIT)
 
+        rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random()
+        np_rng = (
+            np.random.RandomState(kwargs.get("seed")) if kwargs.get("seed") is not None else np.random.RandomState()
+        )
         try:
             res, _, _ = find_solutions(
                 new_data,
@@ -254,6 +261,8 @@ class SANSPolicy(BaseRoutingPolicy):
                 bins.n,
                 points,
                 time_limit=og_time_limit,
+                rng=rng,
+                np_rng=np_rng,
             )
         except Exception:
             return [0, 0], 0.0, None

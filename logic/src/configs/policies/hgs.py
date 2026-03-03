@@ -26,6 +26,7 @@ class HGSConfig:
     """
 
     time_limit: float = 60.0
+    seed: Optional[int] = None
     population_size: int = 50
     elite_size: int = 10
     mutation_rate: float = 0.2

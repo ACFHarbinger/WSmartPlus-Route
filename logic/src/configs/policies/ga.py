@@ -18,6 +18,7 @@ class GAConfig:
     tournament_size: int = 3
     n_removal: int = 2
     time_limit: float = 60.0
+    seed: Optional[int] = None
     vrpp: bool = True
     must_go: Optional[List[Any]] = field(default_factory=list)
     post_processing: Optional[List[Any]] = field(default_factory=list)

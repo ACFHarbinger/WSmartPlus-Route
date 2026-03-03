@@ -18,7 +18,7 @@ from __future__ import annotations
 import random
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -48,6 +48,7 @@ class LocalSearch(PolicyVizMixin, ABC):
         R: float,
         C: float,
         params: Any,
+        seed: Optional[int] = None,
     ):
         """
         Initialize Local Search base class.
@@ -67,6 +68,7 @@ class LocalSearch(PolicyVizMixin, ABC):
         self.R = R
         self.C = C
         self.params = params
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         # Common initialization for neighbors (used by all LS)
         n_nodes = len(dist_matrix)
@@ -109,15 +111,15 @@ class LocalSearch(PolicyVizMixin, ABC):
         limit = 500  # Safety cap
         it = 0
         t_start = time.time()
-
         while improved and it < limit:
-            improved = False
-            it += 1
-            if it % 50 == 0 and (time.time() - t_start > self.params.time_limit):
+            if self.params.time_limit > 0 and time.time() - t_start > self.params.time_limit:
                 break
 
+            improved = False
+            it += 1
+
             nodes = [n for n in self.neighbors if n in self.node_map]
-            random.shuffle(nodes)
+            self.random.shuffle(nodes)
 
             for u in nodes:
                 if self._process_node(u):

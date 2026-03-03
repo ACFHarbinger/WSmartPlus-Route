@@ -6,7 +6,7 @@ logic for maintaining and improving the HGS population.
 """
 
 import random
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
@@ -14,12 +14,14 @@ from .individual import Individual
 from .split import LinearSplit
 
 
-def ordered_crossover(p1: Individual, p2: Individual) -> Individual:
+def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:
     """
     Apply Ordered Crossover (OX) to giant tours.
     """
+    if rng is None:
+        rng = random.Random()
     size = len(p1.giant_tour)
-    a, b = sorted(random.sample(range(size), 2))
+    a, b = sorted(rng.sample(range(size), 2))
 
     child_gt = [0] * size
     child_gt[a : b + 1] = p1.giant_tour[a : b + 1]

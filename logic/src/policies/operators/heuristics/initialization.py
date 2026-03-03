@@ -3,7 +3,7 @@ Common initialization heuristic for building geographically compact routes.
 """
 
 import random
-from typing import Dict, List
+from typing import Dict, List, Optional, cast
 
 import numpy as np
 
@@ -16,6 +16,7 @@ def build_nn_routes(
     dist_matrix: np.ndarray,
     R: float,
     C: float,
+    rng: Optional[random.Random] = None,
 ) -> List[List[int]]:
     """
     Build geographically compact routes using a Nearest Neighbor logic.
@@ -32,15 +33,19 @@ def build_nn_routes(
         dist_matrix: Distance matrix.
         R: Revenue multiplier.
         C: Cost multiplier.
+        rng: Optional random number generator.
 
     Returns:
         List of generated routes.
     """
+    if rng is None:
+        rng = cast(random.Random, random)
+
     mandatory_set = set(mandatory_nodes)
 
     # Filter profitable nodes + mandatory
     valid_nodes = []
-    for node in nodes:
+    for node in sorted(nodes):
         if node in mandatory_set:
             valid_nodes.append(node)
         else:
@@ -53,7 +58,7 @@ def build_nn_routes(
 
     while remaining:
         # Start a new route with a random available node to maintain diversity
-        seed = random.choice(list(remaining))
+        seed = rng.choice(sorted(list(remaining)))
         remaining.remove(seed)
 
         curr_route = [seed]
@@ -65,7 +70,7 @@ def build_nn_routes(
             best_n = None
             best_dist = float("inf")
 
-            for n in remaining:
+            for n in sorted(list(remaining)):
                 w = wastes.get(n, 0.0)
                 if load + w <= capacity:
                     d = dist_matrix[curr_node][n]

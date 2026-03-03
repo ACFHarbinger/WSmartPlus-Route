@@ -53,6 +53,7 @@ class HMMGDSolver(PolicyVizMixin):
         C: float,
         params: HMMGDParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -64,6 +65,7 @@ class HMMGDSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.n_llh = params.n_llh
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         # LLH pool
         self._llh_pool = [
@@ -99,7 +101,7 @@ class HMMGDSolver(PolicyVizMixin):
         start = time.time()
 
         # Initial solution
-        routes = self._random_solution()
+        routes = self._build_random_solution()
         profit = self._evaluate(routes)
         best_routes = copy.deepcopy(routes)
         best_profit = profit
@@ -203,7 +205,7 @@ class HMMGDSolver(PolicyVizMixin):
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L0: random_removal + greedy_insertion."""
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -255,7 +257,7 @@ class HMMGDSolver(PolicyVizMixin):
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L4: random_removal + regret_2_insertion."""
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return regret_2_insertion(
             partial,
             removed,
@@ -270,20 +272,15 @@ class HMMGDSolver(PolicyVizMixin):
     # Helpers
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _sample_llh(probs: np.ndarray) -> int:
+    def _sample_llh(self, probs: np.ndarray) -> int:
         """Sample an LLH index from the probability distribution."""
-        r = random.random()
+        r = self.random.random()
         cumulative = 0.0
         for i, p in enumerate(probs):
             cumulative += p
             if r <= cumulative:
                 return i
         return len(probs) - 1
-
-    def _random_solution(self) -> List[List[int]]:
-        """Generate a random feasible routing solution."""
-        return self._build_random_solution()
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style).

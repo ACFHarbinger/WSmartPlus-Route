@@ -3,7 +3,7 @@ AHVPL (Augmented Hybrid Volleyball Premier League) configuration for Hydra.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Optional
 
 from .aco import ACOConfig
 from .alns import ALNSConfig
@@ -26,6 +26,7 @@ class AHVPLConfig:
     max_iterations: int = 50
     sub_rate: float = 0.2
     time_limit: float = 60.0
+    seed: Optional[int] = None
 
     # Nested component configs
     hgs: HGSConfig = field(default_factory=HGSConfig)

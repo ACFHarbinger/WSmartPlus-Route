@@ -18,7 +18,6 @@ from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
 from logic.src.policies.adapters.policy_alns import run_alns, ALNSPolicy
 from logic.src.policies.adapters.policy_bcp import run_bcp, BCPPolicy
 from logic.src.policies.adapters.policy_hgs import HGSPolicy
-from logic.src.policies.adapters.policy_lkh import LKHPolicy
 
 
 class MockBins:

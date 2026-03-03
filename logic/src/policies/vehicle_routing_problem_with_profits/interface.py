@@ -27,6 +27,7 @@ def run_vrpp_optimizer(
     number_vehicles: int = 1,
     time_limit: int = 60,
     optimizer: str = "gurobi",
+    seed: int = 42,
     max_iter_no_improv: int = 10,
 ):
     """
@@ -45,6 +46,7 @@ def run_vrpp_optimizer(
             must_go,
             number_vehicles,
             time_limit,
+            seed,
         )
     elif optimizer == "hexaly":
         return _run_hexaly_optimizer(
@@ -57,6 +59,7 @@ def run_vrpp_optimizer(
             must_go,
             number_vehicles,
             time_limit,
+            seed,
             max_iter_no_improv,
         )
     else:

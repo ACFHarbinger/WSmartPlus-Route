@@ -7,7 +7,7 @@ return modified copies of the input routes to support probabilistic acceptance l
 """
 
 import copy
-import random
+from random import Random
 
 __all__ = [
     "get_neighbors",
@@ -65,12 +65,13 @@ def get_2opt_neighbors(route: list) -> list:
     return neighbors
 
 
-def relocate_within_route(route: list) -> list:
+def relocate_within_route(route: list, rng: Random) -> list:
     """
     Relocate a random bin to a different position in the same route.
 
     Args:
         route: Node sequence.
+        rng: Random number generator.
 
     Returns:
         Mutated route.
@@ -78,18 +79,19 @@ def relocate_within_route(route: list) -> list:
     if len(route) <= 3:
         return route[:]
     new_route = route[:]
-    i, j = sorted(random.sample(range(1, len(route) - 1), 2))
+    i, j = sorted(rng.sample(range(1, len(route) - 1), 2))
     bin_moved = new_route.pop(i)
     new_route.insert(j, bin_moved)
     return new_route
 
 
-def cross_exchange(routes: list) -> list:
+def cross_exchange(routes: list, rng: Random) -> list:
     """
     Exchange segments between two different routes.
 
     Args:
         routes: Set of routes.
+        rng: Random number generator.
 
     Returns:
         Mutated solution.
@@ -98,13 +100,13 @@ def cross_exchange(routes: list) -> list:
         return [r[:] for r in routes]
 
     new_routes = copy.deepcopy(routes)
-    r1, r2 = random.sample(range(len(new_routes)), 2)
+    r1, r2 = rng.sample(range(len(new_routes)), 2)
     route1, route2 = new_routes[r1], new_routes[r2]
     if len(route1) <= 3 or len(route2) <= 3:
         return new_routes
 
-    i1 = random.randint(1, len(route1) - 2)
-    i2 = random.randint(1, len(route2) - 2)
+    i1 = rng.randint(1, len(route1) - 2)
+    i2 = rng.randint(1, len(route2) - 2)
 
     new_route1 = route1[:i1] + route2[i2:-1] + [0]
     new_route2 = route2[:i2] + route1[i1:-1] + [0]
@@ -114,12 +116,13 @@ def cross_exchange(routes: list) -> list:
     return new_routes
 
 
-def or_opt_move(route: list) -> list:
+def or_opt_move(route: list, rng: Random) -> list:
     """
     Apply Or-opt operator (move a segment of 1-2 nodes) within a route.
 
     Args:
         route: Node sequence.
+        rng: Random number generator.
 
     Returns:
         Mutated route.
@@ -128,17 +131,17 @@ def or_opt_move(route: list) -> list:
         return route[:]
 
     new_route = route[:]
-    k = random.choice([1, 2])
-    start = random.randint(1, len(route) - k - 1)
+    k = rng.choice([1, 2])
+    start = rng.randint(1, len(route) - k - 1)
     segment = new_route[start : start + k]
     del new_route[start : start + k]
 
-    insert_pos = random.randint(1, len(new_route) - 1)
+    insert_pos = rng.randint(1, len(new_route) - 1)
     new_route = new_route[:insert_pos] + segment + new_route[insert_pos:]
     return new_route
 
 
-def move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index: dict) -> list:
+def move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index: dict, rng: Random) -> list:
     """
     Move a random bin from one route to another, respecting capacity constraints.
 
@@ -147,6 +150,7 @@ def move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index
         data: Bin weights data.
         vehicle_capacity: Tanker capacity.
         id_to_index: Mapping.
+        rng: Random number generator.
 
     Returns:
         List of mutated solution candidates.
@@ -172,7 +176,7 @@ def move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index
                     continue
                 new_routes = copy.deepcopy(routes)
                 new_routes[i].pop(idx)
-                insert_pos = random.randint(1, len(new_routes[j]) - 1)
+                insert_pos = rng.randint(1, len(new_routes[j]) - 1)
                 new_routes[j].insert(insert_pos, bin_to_move)
                 moves.append(new_routes)
     return moves
@@ -219,12 +223,13 @@ def insert_bin_in_route(route: list, bin_id: int, id_to_index: dict, distance_ma
     return best_route
 
 
-def mutate_route_by_swapping_bins(route: list, num_bins: int = 1) -> list:
+def mutate_route_by_swapping_bins(route: list, rng: Random, num_bins: int = 1) -> list:
     """
     Swap random nodes within a route.
 
     Args:
         route: Route to mutate.
+        rng: Random number generator.
         num_bins: Number of swap operations to perform.
 
     Returns:
@@ -236,6 +241,6 @@ def mutate_route_by_swapping_bins(route: list, num_bins: int = 1) -> list:
     new_route = route[:]
     for _ in range(num_bins):
         if len(new_route) > 3:
-            i, j = random.sample(range(1, len(new_route) - 1), 2)
+            i, j = rng.sample(range(1, len(new_route) - 1), 2)
             new_route[i], new_route[j] = new_route[j], new_route[i]
     return new_route

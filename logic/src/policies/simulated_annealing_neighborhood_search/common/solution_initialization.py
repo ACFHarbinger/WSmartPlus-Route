@@ -52,7 +52,7 @@ def _find_closest_valid_bin(current_bin, potential_bins_in_zone, available_bins,
 
 
 def find_initial_solution(  # noqa: C901
-    data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B
+    data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B, rng
 ):
     """
     Construct a feasible initial solution for the routing problem.
@@ -67,6 +67,7 @@ def find_initial_solution(  # noqa: C901
         vehicle_capacity (float): Max tanker capacity.
         E (float): Bin volume.
         B (float): Bin density.
+        rng (Random): Random number generator.
 
     Returns:
         List[List[int]]: Constructed routes.
@@ -149,9 +150,9 @@ def find_initial_solution(  # noqa: C901
         if len(current_route) <= 2 and bins:
             # Force pick one if stuck? Or logic handles it?
             # If stuck, pick first available
-            random_bin = bins[0]
+            random_bin = rng.choice(bins)
             routes_list[-1].insert(1, random_bin)
-            bins.pop(0)
+            bins.remove(random_bin)
             # Remove from zones
             for z in zones.values():
                 if random_bin in z:

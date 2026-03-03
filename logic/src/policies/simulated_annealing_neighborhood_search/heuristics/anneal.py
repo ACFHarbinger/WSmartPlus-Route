@@ -3,6 +3,7 @@ Simulated Annealing loop for the Look-Ahead policy.
 """
 
 import math
+import random
 import time
 from copy import deepcopy
 from typing import Dict, List, Tuple
@@ -27,6 +28,8 @@ def run_annealing_loop(
     n_bins: int,
     chosen_combination: Tuple,
     time_limit: float,
+    rng: random.Random,
+    np_rng: np.random.RandomState,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Execute the simulated annealing loop to find an improved solution.
@@ -40,6 +43,8 @@ def run_annealing_loop(
         n_bins: Problem size.
         chosen_combination: SA parameters.
         time_limit: Max runtime.
+        rng: Random number generator.
+        np_rng: Numpy random number generator.
 
     Returns:
         Tuple of (optimized_solution, removed_bins).
@@ -80,7 +85,7 @@ def run_annealing_loop(
             bins_to_add_consecutive,
             bins_random,
             bins_consecutive,
-        ) = local_search(routes_list, removed_bins, distance_matrix, must_go_bins)
+        ) = local_search(routes_list, removed_bins, distance_matrix, must_go_bins, rng, np_rng)
 
         # Compute profit
         current_sol_profit = compute_profit(

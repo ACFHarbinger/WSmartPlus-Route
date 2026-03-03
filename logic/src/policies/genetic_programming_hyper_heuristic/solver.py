@@ -58,6 +58,7 @@ class GPHHSolver(PolicyVizMixin):
         C: float,
         params: GPHHParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -68,6 +69,7 @@ class GPHHSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         # LLH pool (each is a callable: routes, n_remove → routes)
         self._llh_pool: List[Callable] = [
@@ -95,10 +97,12 @@ class GPHHSolver(PolicyVizMixin):
         start = time.time()
 
         # Initial solution
-        init_routes = self._random_solution()
+        init_routes = self._build_random_solution()
 
         # Initialise GP population
-        gp_pop = [_random_tree(self.params.tree_depth, self.params.n_llh) for _ in range(self.params.gp_pop_size)]
+        gp_pop = [
+            _random_tree(self.params.tree_depth, self.params.n_llh, self.random) for _ in range(self.params.gp_pop_size)
+        ]
         gp_fitness = [self._evaluate_tree(tree, init_routes, self.params.eval_steps) for tree in gp_pop]
 
         best_tree_idx = int(np.argmax(gp_fitness))
@@ -119,13 +123,13 @@ class GPHHSolver(PolicyVizMixin):
                 p2 = self._tournament(gp_pop, gp_fitness)
 
                 # Crossover
-                c1, c2 = _subtree_crossover(p1.copy(), p2.copy())
+                c1, c2 = _subtree_crossover(p1.copy(), p2.copy(), self.random)
 
                 # Mutation
-                if random.random() < 0.3:
-                    c1 = _mutate(c1, self.params.tree_depth, self.params.n_llh)
-                if random.random() < 0.3:
-                    c2 = _mutate(c2, self.params.tree_depth, self.params.n_llh)
+                if self.random.random() < 0.3:
+                    c1 = _mutate(c1, self.params.tree_depth, self.params.n_llh, self.random)
+                if self.random.random() < 0.3:
+                    c2 = _mutate(c2, self.params.tree_depth, self.params.n_llh, self.random)
 
                 f1 = self._evaluate_tree(c1, init_routes, self.params.eval_steps)
                 f2 = self._evaluate_tree(c2, init_routes, self.params.eval_steps)
@@ -247,7 +251,7 @@ class GPHHSolver(PolicyVizMixin):
     def _tournament(self, pop: List[GPNode], fitness: List[float]) -> GPNode:
         """Tournament selection from the GP population."""
         k = min(self.params.tournament_size, len(pop))
-        candidates = random.sample(range(len(pop)), k)
+        candidates = self.random.sample(range(len(pop)), k)
         best = max(candidates, key=lambda i: fitness[i])
         return pop[best]
 
@@ -257,7 +261,7 @@ class GPHHSolver(PolicyVizMixin):
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L0: random_removal + greedy_insertion."""
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -309,7 +313,7 @@ class GPHHSolver(PolicyVizMixin):
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L4: random_removal + regret_2_insertion."""
-        partial, removed = random_removal(routes, n)
+        partial, removed = random_removal(routes, n, self.random)
         return regret_2_insertion(
             partial,
             removed,
@@ -323,10 +327,6 @@ class GPHHSolver(PolicyVizMixin):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
-
-    def _random_solution(self) -> List[List[int]]:
-        """Generate a random feasible routing solution."""
-        return self._build_random_solution()
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style).
@@ -345,6 +345,7 @@ class GPHHSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return optimized_routes
 

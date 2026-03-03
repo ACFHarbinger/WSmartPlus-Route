@@ -7,7 +7,7 @@ destroy and repair heuristics (add/remove bins) and multi-node relocations
 """
 
 import copy
-import random
+from random import Random
 
 from .sans_neighborhoods import insert_bin_in_route
 
@@ -26,12 +26,14 @@ __all__ = [
 ]
 
 
-def remove_bins_from_route(route: list, num_bins: int = 1) -> list:
+def remove_bins_from_route(route: list, bins_cannot_removed: set, rng: Random, num_bins: int = 1) -> list:
     """
     Remove random bins from a single route.
 
     Args:
         route: Route to mutate.
+        bins_cannot_removed: Bins that cannot be removed.
+        rng: Random number generator.
         num_bins: Number of bins to remove.
 
     Returns:
@@ -40,19 +42,24 @@ def remove_bins_from_route(route: list, num_bins: int = 1) -> list:
     if len(route) <= 2:
         return route[:]
     new_route = route[:]
-    num_to_remove = min(num_bins, len(new_route) - 2)
-    indices = random.sample(range(1, len(new_route) - 1), num_to_remove)
+    valid_indices = [i for i in range(1, len(new_route) - 1) if new_route[i] not in bins_cannot_removed]
+    num_to_remove = min(num_bins, len(valid_indices))
+    if num_to_remove <= 0:
+        return new_route
+
+    indices = rng.sample(valid_indices, num_to_remove)
     for idx in sorted(indices, reverse=True):
         new_route.pop(idx)
     return new_route
 
 
-def move_n_route_random(routes_list: list, n: int = 2) -> list:
+def move_n_route_random(routes_list: list, rng: Random, n: int = 2) -> list:
     """
     Move n random bins from one route to another.
 
     Args:
         routes_list: Current routing solution.
+        rng: Random number generator.
         n: Number of nodes to move.
 
     Returns:
@@ -63,31 +70,32 @@ def move_n_route_random(routes_list: list, n: int = 2) -> list:
     if not non_empty:
         return new_routes
 
-    donor_route = random.choice(non_empty)
+    donor_route = rng.choice(non_empty)
     if len(donor_route) < n + 2:
         return new_routes
 
-    nodes_to_move = random.sample(donor_route[1:-1], n)
+    nodes_to_move = rng.sample(donor_route[1:-1], n)
     # Filter donor route
     donor_idx = new_routes.index(donor_route)
     new_routes[donor_idx] = [x for x in donor_route if x not in nodes_to_move]
 
     # Receptor route
-    receptor_route = random.choice([r for r in new_routes if len(r) >= 2])
+    receptor_route = rng.choice([r for r in new_routes if len(r) >= 2])
     receptor_idx = new_routes.index(receptor_route)
-    insert_pos = random.randint(1, max(1, len(receptor_route) - 1))
+    insert_pos = rng.randint(1, max(1, len(receptor_route) - 1))
 
     # Insert nodes (in order)
     new_routes[receptor_idx] = receptor_route[:insert_pos] + nodes_to_move + receptor_route[insert_pos:]
     return new_routes
 
 
-def swap_n_route_random(routes_list: list, n: int = 2) -> list:
+def swap_n_route_random(routes_list: list, rng: Random, n: int = 2) -> list:
     """
     Swap n random bins between two distinct routes.
 
     Args:
         routes_list: Current routing solution.
+        rng: Random number generator.
         n: Number of nodes to swap.
 
     Returns:
@@ -97,14 +105,14 @@ def swap_n_route_random(routes_list: list, n: int = 2) -> list:
         return copy.deepcopy(routes_list)
 
     new_routes = copy.deepcopy(routes_list)
-    r1_idx, r2_idx = random.sample(range(len(new_routes)), 2)
+    r1_idx, r2_idx = rng.sample(range(len(new_routes)), 2)
     route1, route2 = new_routes[r1_idx], new_routes[r2_idx]
 
     if len(route1) < n + 2 or len(route2) < n + 2:
         return new_routes
 
-    nodes1 = random.sample(route1[1:-1], n)
-    nodes2 = random.sample(route2[1:-1], n)
+    nodes1 = rng.sample(route1[1:-1], n)
+    nodes2 = rng.sample(route2[1:-1], n)
 
     # Perform swap
     new_routes[r1_idx] = [x for x in route1 if x not in nodes1] + nodes2
@@ -117,7 +125,9 @@ def swap_n_route_random(routes_list: list, n: int = 2) -> list:
     return new_routes
 
 
-def remove_n_bins_random(routes_list: list, removed_bins: set, bins_cannot_removed: set, n: int = 2) -> list:
+def remove_n_bins_random(
+    routes_list: list, removed_bins: set, bins_cannot_removed: set, rng: Random, n: int = 2
+) -> list:
     """
     Remove n random bins from routes and add them to the removed pool.
 
@@ -125,6 +135,7 @@ def remove_n_bins_random(routes_list: list, removed_bins: set, bins_cannot_remov
         routes_list: Current routes.
         removed_bins: Set of removed bins to update.
         bins_cannot_removed: Bins that must stay in routes.
+        rng: Random number generator.
         n: Number of bins to remove.
 
     Returns:
@@ -140,7 +151,7 @@ def remove_n_bins_random(routes_list: list, removed_bins: set, bins_cannot_remov
     if not all_removable:
         return new_routes
 
-    to_remove = random.sample(all_removable, min(n, len(all_removable)))
+    to_remove = rng.sample(all_removable, min(n, len(all_removable)))
     for b in to_remove:
         removed_bins.add(b)
         for _i, r in enumerate(new_routes):
@@ -157,6 +168,7 @@ def add_n_bins_random(
     vehicle_capacity: float,
     id_to_index: dict,
     distance_matrix,
+    rng: Random,
     n: int = 2,
 ) -> list:
     """
@@ -166,10 +178,10 @@ def add_n_bins_random(
     if not new_routes or not removed_bins:
         return new_routes
 
-    bins_to_add = random.sample(list(removed_bins), min(n, len(removed_bins)))
+    bins_to_add = rng.sample(sorted(list(removed_bins)), min(n, len(removed_bins)))
     for b in bins_to_add:
         # Try a random route
-        r_idx = random.randint(0, len(new_routes) - 1)
+        r_idx = rng.randint(0, len(new_routes) - 1)
         route = new_routes[r_idx]
         load = sum(stocks.get(x, 0) for x in route if x != 0)
         if load + stocks.get(b, 0) <= vehicle_capacity:
@@ -179,7 +191,7 @@ def add_n_bins_random(
 
 
 def add_route_with_removed_bins_random(
-    routes_list: list, removed_bins: set, stocks: dict, vehicle_capacity: float
+    routes_list: list, removed_bins: set, stocks: dict, vehicle_capacity: float, rng: Random
 ) -> list:
     """
     Create a new route from random bins in the removed pool.
@@ -191,8 +203,8 @@ def add_route_with_removed_bins_random(
     new_route = [0]
     current_load = 0
 
-    available = list(removed_bins)
-    random.shuffle(available)
+    available = sorted(list(removed_bins))
+    rng.shuffle(available)
 
     for b in available:
         b_weight = stocks.get(b, 0)
@@ -208,7 +220,7 @@ def add_route_with_removed_bins_random(
     return new_routes
 
 
-def move_n_route_consecutive(routes_list: list, n: int = 2) -> list:
+def move_n_route_consecutive(routes_list: list, rng: Random, n: int = 2) -> list:
     """
     Move a sequence of consecutive bins from one route to another.
     """
@@ -217,9 +229,9 @@ def move_n_route_consecutive(routes_list: list, n: int = 2) -> list:
     if not non_empty:
         return new_routes
 
-    donor_route = random.choice(non_empty)
+    donor_route = rng.choice(non_empty)
     donor_idx = new_routes.index(donor_route)
-    start_idx = random.randint(1, len(donor_route) - n - 1)
+    start_idx = rng.randint(1, len(donor_route) - n - 1)
     segment = donor_route[start_idx : start_idx + n]
 
     # Remove from donor
@@ -227,15 +239,15 @@ def move_n_route_consecutive(routes_list: list, n: int = 2) -> list:
     new_routes[donor_idx] = new_donor
 
     # Receptor
-    receptor_route = random.choice(new_routes)
+    receptor_route = rng.choice(new_routes)
     receptor_idx = new_routes.index(receptor_route)
-    insert_pos = random.randint(1, max(1, len(receptor_route) - 1))
+    insert_pos = rng.randint(1, max(1, len(receptor_route) - 1))
     new_routes[receptor_idx] = receptor_route[:insert_pos] + segment + receptor_route[insert_pos:]
 
     return new_routes
 
 
-def swap_n_route_consecutive(routes_list: list, n: int = 2) -> list:
+def swap_n_route_consecutive(routes_list: list, rng: Random, n: int = 2) -> list:
     """
     Swap consecutive segments between two routes.
     """
@@ -243,14 +255,14 @@ def swap_n_route_consecutive(routes_list: list, n: int = 2) -> list:
         return copy.deepcopy(routes_list)
 
     new_routes = copy.deepcopy(routes_list)
-    r1_idx, r2_idx = random.sample(range(len(new_routes)), 2)
+    r1_idx, r2_idx = rng.sample(range(len(new_routes)), 2)
     route1, route2 = new_routes[r1_idx], new_routes[r2_idx]
 
     if len(route1) < n + 2 or len(route2) < n + 2:
         return new_routes
 
-    s1 = random.randint(1, len(route1) - n - 1)
-    s2 = random.randint(1, len(route2) - n - 1)
+    s1 = rng.randint(1, len(route1) - n - 1)
+    s2 = rng.randint(1, len(route2) - n - 1)
 
     seg1 = route1[s1 : s1 + n]
     seg2 = route2[s2 : s2 + n]
@@ -261,7 +273,9 @@ def swap_n_route_consecutive(routes_list: list, n: int = 2) -> list:
     return new_routes
 
 
-def remove_n_bins_consecutive(routes_list: list, removed_bins: set, bins_cannot_removed: set, n: int = 2) -> list:
+def remove_n_bins_consecutive(
+    routes_list: list, removed_bins: set, bins_cannot_removed: set, rng: Random, n: int = 2
+) -> list:
     """
     Remove a consecutive sequence of bins from a route.
     """
@@ -270,12 +284,12 @@ def remove_n_bins_consecutive(routes_list: list, removed_bins: set, bins_cannot_
     if not valid_routes:
         return new_routes
 
-    r_idx = random.choice(valid_routes)
+    r_idx = rng.choice(valid_routes)
     route = new_routes[r_idx]
 
     # Try to find a segment without 'must-go' bins
     start_indices = list(range(1, len(route) - n))
-    random.shuffle(start_indices)
+    rng.shuffle(start_indices)
 
     for start in start_indices:
         segment = route[start : start + n]
@@ -295,6 +309,7 @@ def add_n_bins_consecutive(
     vehicle_capacity: float,
     id_to_index: dict,
     distance_matrix,
+    rng: Random,
     n: int = 2,
 ) -> list:
     """
@@ -304,16 +319,16 @@ def add_n_bins_consecutive(
     if len(removed_bins) < n or not new_routes:
         return new_routes
 
-    bins_to_add = random.sample(list(removed_bins), n)
+    bins_to_add = rng.sample(sorted(list(removed_bins)), n)
     total_weight = sum(stocks.get(b, 0) for b in bins_to_add)
 
-    r_idx = random.randint(0, len(new_routes) - 1)
+    r_idx = rng.randint(0, len(new_routes) - 1)
     route = new_routes[r_idx]
     load = sum(stocks.get(x, 0) for x in route if x != 0)
 
     if load + total_weight <= vehicle_capacity:
         # Insert them consecutively at a random position
-        pos = random.randint(1, len(route) - 1)
+        pos = rng.randint(1, len(route) - 1)
         new_routes[r_idx] = route[:pos] + bins_to_add + route[pos:]
         for b in bins_to_add:
             removed_bins.discard(b)
@@ -322,10 +337,10 @@ def add_n_bins_consecutive(
 
 
 def add_route_with_removed_bins_consecutive(
-    routes_list: list, removed_bins: set, stocks: dict, vehicle_capacity: float
+    routes_list: list, removed_bins: set, stocks: dict, vehicle_capacity: float, rng: Random
 ) -> list:
     """
     Alias for random version as 'consecutive' doesn't strictly apply to a sequence
     created from a pool, but we maintain the interface.
     """
-    return add_route_with_removed_bins_random(routes_list, removed_bins, stocks, vehicle_capacity)
+    return add_route_with_removed_bins_random(routes_list, removed_bins, stocks, vehicle_capacity, rng)

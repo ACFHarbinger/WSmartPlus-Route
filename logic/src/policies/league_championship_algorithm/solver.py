@@ -45,6 +45,7 @@ class LCASolver(PolicyVizMixin):
         C: float,
         params: LCAParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -56,6 +57,7 @@ class LCASolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.mandatory_set = set(self.mandatory_nodes)
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -74,7 +76,7 @@ class LCASolver(PolicyVizMixin):
         start = time.time()
 
         # Initialise teams (routing solutions)
-        teams: List[List[List[int]]] = [self._random_solution() for _ in range(self.params.n_teams)]
+        teams: List[List[List[int]]] = [self._build_random_solution() for _ in range(self.params.n_teams)]
         profits: List[float] = [self._evaluate(t) for t in teams]
 
         best_idx = int(np.argmax(profits))
@@ -88,7 +90,7 @@ class LCASolver(PolicyVizMixin):
 
             # Random round-robin schedule for this week
             order = list(range(self.params.n_teams))
-            random.shuffle(order)
+            self.random.shuffle(order)
 
             for k in range(0, len(order) - 1, 2):
                 a_idx = order[k]
@@ -105,14 +107,14 @@ class LCASolver(PolicyVizMixin):
 
                 if delta <= tolerance:
                     # Close match — random winner
-                    winner, loser = (a_idx, b_idx) if random.random() < 0.5 else (b_idx, a_idx)
+                    winner, loser = (a_idx, b_idx) if self.random.random() < 0.5 else (b_idx, a_idx)
                 elif pa >= pb:
                     winner, loser = a_idx, b_idx
                 else:
                     winner, loser = b_idx, a_idx
 
                 # Loser generates new formation
-                if random.random() < self.params.crossover_prob:
+                if self.random.random() < self.params.crossover_prob:
                     new_team = self._crossover(teams[loser], teams[winner])
                 else:
                     new_team = self._perturb(teams[loser])
@@ -142,10 +144,6 @@ class LCASolver(PolicyVizMixin):
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _random_solution(self) -> List[List[int]]:
-        """Generate a random feasible routing solution."""
-        return self._build_random_solution()
-
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style).
 
@@ -163,6 +161,7 @@ class LCASolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return optimized_routes
 
@@ -218,7 +217,7 @@ class LCASolver(PolicyVizMixin):
             return self._perturb(loser_routes)
 
         seg_len = max(1, len(winner_flat) // 4)
-        start_idx = random.randint(0, max(0, len(winner_flat) - seg_len))
+        start_idx = self.random.randint(0, max(0, len(winner_flat) - seg_len))
         segment = winner_flat[start_idx : start_idx + seg_len]
         new_nodes = [n for n in segment if n not in loser_visited]
 

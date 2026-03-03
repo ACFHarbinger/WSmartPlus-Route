@@ -86,6 +86,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             params=params,
             alns_education_iterations=alns_iter,
             mandatory_nodes=mandatory_nodes,
+            seed=values.get("seed"),
         )
 
         routes, profit, solver_cost = solver.solve()

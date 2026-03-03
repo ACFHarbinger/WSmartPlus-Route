@@ -63,8 +63,8 @@ class SparsePheromoneTau:
         if j in self._pheromone[i] or len(self._pheromone[i]) < self.k:
             self._pheromone[i][j] = value
         else:
-            # Find minimum value in current storage
-            min_neighbor = min(self._pheromone[i], key=lambda n: self._pheromone[i][n])
+            # Find minimum value in current storage, use neighbor ID as tie-breaker
+            min_neighbor = min(self._pheromone[i].keys(), key=lambda n: (self._pheromone[i][n], n))
             if value > self._pheromone[i][min_neighbor]:
                 del self._pheromone[i][min_neighbor]
                 self._pheromone[i][j] = value

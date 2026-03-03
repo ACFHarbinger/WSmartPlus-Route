@@ -26,6 +26,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     must_go: List[int],
     number_vehicles: int = 1,
     time_limit: int = 60,
+    seed: int = 42,
 ):
     """Solve the Vehicle Routing Problem with Profits."""
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
@@ -48,6 +49,7 @@ def _run_gurobi_optimizer(  # noqa: C901
 
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
     mdl.Params.LogToConsole = 0
+    mdl.Params.Seed = seed
 
     x = mdl.addVars(pares_viaveis, vtype=GRB.BINARY, name="x")
     y = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y")

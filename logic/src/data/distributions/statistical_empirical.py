@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 import pickle
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Tuple, cast
 
 import numpy as np
 import pandas
@@ -87,27 +87,33 @@ class Empirical:
             raise ValueError("No grid or dataset found.")
         return torch.clip(vals_tensor, 0, 1)
 
-    def sample_array(self, size: Tuple[int, ...]) -> np.ndarray:
+    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from empirical dataset.
 
         Args:
             size: Sampling shape. First dimension is assumed to be batch size.
+            rng: Optional numpy RandomState for reproducibility.
 
         Returns:
             np.ndarray: Sampled values
         """
+        if rng is None:
+            rng = cast(np.random.RandomState, np.random)
+
         n_samples = size[0]
         if self.dataset is not None:
             if isinstance(self.dataset, pandas.DataFrame):
-                sampled = self.dataset.sample(n=n_samples).values
+                sampled = self.dataset.sample(n=n_samples, random_state=rng).values
             elif isinstance(self.dataset, (np.ndarray, dict)):
-                sampled = self.dataset[np.random.choice(len(self.dataset), n_samples)]
+                indices = rng.choice(len(self.dataset), n_samples)
+                sampled = self.dataset[indices]
             elif isinstance(self.dataset, torch.Tensor):
-                sampled = self.dataset[np.random.choice(len(self.dataset), n_samples)].cpu().numpy()
+                indices = rng.choice(len(self.dataset), n_samples)
+                sampled = self.dataset[indices].cpu().numpy()
             else:
                 raise ValueError("Dataset must be a pandas DataFrame, numpy array, dictionary, or torch Tensor.")
         elif self.grid is not None:
-            sampled = self.grid.sample(n_samples=n_samples)
+            sampled = self.grid.sample(n_samples=n_samples, rng=rng)
         else:
             raise ValueError("No grid or dataset found.")
         return np.clip(sampled, 0, 100)

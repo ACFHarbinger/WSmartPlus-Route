@@ -10,9 +10,12 @@ Example:
 from __future__ import annotations
 
 import os
+import random
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import numpy as np
+import torch
 from loguru import logger
 
 from logic.src.constants import DAY_METRICS, ROOT_DIR
@@ -41,6 +44,12 @@ class InitializingState(SimState):
 
     def handle(self, ctx: SimulationContext) -> None:
         """Handle initialization of simulation state."""
+        # Seeding for reproducibility (covers both sequential and parallel runs)
+        seed = ctx.cfg.sim.seed + ctx.sample_id
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
         sim = ctx.cfg.sim
 
         self._setup_logging_and_dirs(ctx)
@@ -289,6 +298,7 @@ class InitializingState(SimState):
                 noise_variance=sim.noise_variance,
                 n_days=sim.days,
                 n_samples=sim.n_samples,
+                seed=ctx.cfg.sim.seed + ctx.sample_id,
             )
             # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
             try:
@@ -308,4 +318,5 @@ class InitializingState(SimState):
                 noise_variance=sim.noise_variance,
                 n_days=sim.days,
                 n_samples=sim.n_samples,
+                seed=ctx.cfg.sim.seed + ctx.sample_id,
             )

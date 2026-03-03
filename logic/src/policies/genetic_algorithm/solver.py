@@ -37,6 +37,7 @@ class GASolver(PolicyVizMixin):
         C: float,
         params: GAParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -47,6 +48,7 @@ class GASolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -87,10 +89,12 @@ class GASolver(PolicyVizMixin):
                 p2 = self._tournament_select(population, fitnesses)
 
                 # Crossover
-                child = self._crossover(p1, p2) if random.random() < self.params.crossover_rate else copy.deepcopy(p1)
+                child = (
+                    self._crossover(p1, p2) if self.random.random() < self.params.crossover_rate else copy.deepcopy(p1)
+                )
 
                 # Mutation
-                if random.random() < self.params.mutation_rate:
+                if self.random.random() < self.params.mutation_rate:
                     child = self._mutate(child)
 
                 new_population.append(child)
@@ -125,7 +129,7 @@ class GASolver(PolicyVizMixin):
         for _ in range(self.params.pop_size):
             # Shuffle node order for diversity
             nodes_shuffled = self.nodes[:]
-            random.shuffle(nodes_shuffled)
+            self.random.shuffle(nodes_shuffled)
             routes = build_nn_routes(
                 nodes=nodes_shuffled,
                 mandatory_nodes=self.mandatory_nodes,
@@ -134,6 +138,7 @@ class GASolver(PolicyVizMixin):
                 dist_matrix=self.dist_matrix,
                 R=self.R,
                 C=self.C,
+                rng=self.random,
             )
             population.append(routes)
         return population
@@ -144,7 +149,7 @@ class GASolver(PolicyVizMixin):
         fitnesses: List[float],
     ) -> List[List[int]]:
         """Select individual via tournament selection."""
-        indices = random.sample(
+        indices = self.random.sample(
             range(len(population)),
             min(self.params.tournament_size, len(population)),
         )
@@ -163,8 +168,8 @@ class GASolver(PolicyVizMixin):
         if len(p2_flat) < 2:
             return copy.deepcopy(parent1)
 
-        a = random.randint(0, len(p2_flat) - 1)
-        b = random.randint(a, min(a + max(1, len(p2_flat) // 3), len(p2_flat)))
+        a = self.random.randint(0, len(p2_flat) - 1)
+        b = self.random.randint(a, min(a + max(1, len(p2_flat) // 3), len(p2_flat)))
         segment = p2_flat[a:b]
         segment_set = set(segment)
 
@@ -202,7 +207,7 @@ class GASolver(PolicyVizMixin):
         flat = [n for r in routes for n in r]
         if not flat:
             return routes
-        node = random.choice(flat)
+        node = self.random.choice(flat)
         new_routes = [[n for n in r if n != node] for r in routes]
         new_routes = [r for r in new_routes if r]
         with contextlib.suppress(Exception):
