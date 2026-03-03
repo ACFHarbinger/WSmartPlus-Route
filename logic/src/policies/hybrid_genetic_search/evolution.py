@@ -54,15 +54,15 @@ def update_biased_fitness(population: List[Individual], nb_elite: int):
     for i, ind in enumerate(population):
         ind.rank_profit = i + 1
 
-    # Diversity: Average distance to closest individuals
+    # Diversity: Average distance to closest individuals based on VISITED node sets
     for i, ind1 in enumerate(population):
         dists = []
-        s1 = set(ind1.giant_tour)
+        s1 = set(n for r in ind1.routes for n in r)
         for j, ind2 in enumerate(population):
             if i == j:
                 continue
-            s2 = set(ind2.giant_tour)
-            # Hamming-like distance on set
+            s2 = set(n for r in ind2.routes for n in r)
+            # Hamming-like distance on set of visited nodes
             dist = len(s1.symmetric_difference(s2))
             dists.append(dist)
         dists.sort()
@@ -75,9 +75,16 @@ def update_biased_fitness(population: List[Individual], nb_elite: int):
         ind.rank_diversity = i + 1
 
     # Biased Fitness = Rank(Profit) + (1 - Elite/Size) * Rank(Diversity)
+    # ELITE PROTECTION: Ensure top nb_elite profit solutions always survive.
+    # Their fitness is bounded by [1, nb_elite], while others are >= nb_elite + 1.
     factor = 1.0 - (float(nb_elite) / pop_size)
     for ind in population:
-        ind.fitness = ind.rank_profit + factor * ind.rank_diversity
+        if ind.rank_profit <= nb_elite:
+            # Pure profit ranking for top elites ensures their survival in trim
+            ind.fitness = float(ind.rank_profit)
+        else:
+            # Biased fitness for the rest to maintain diversity
+            ind.fitness = ind.rank_profit + factor * ind.rank_diversity
 
 
 def evaluate(ind: Individual, split_manager: LinearSplit):

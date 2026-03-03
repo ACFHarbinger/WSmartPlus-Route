@@ -36,6 +36,7 @@ class Individual:
         self.dist_to_parents = 0.0
         self.rank_profit = 0
         self.rank_diversity = 0
+        self.is_coached = False
 
     def __lt__(self, other: "Individual") -> bool:
         """Comparison based on biased fitness (used for sorting)."""
