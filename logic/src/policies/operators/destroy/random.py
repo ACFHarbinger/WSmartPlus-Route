@@ -13,10 +13,12 @@ Example:
 """
 
 import random
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 
-def random_removal(routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
+def random_removal(
+    routes: List[List[int]], n_remove: int, rng: Optional[random.Random] = None
+) -> Tuple[List[List[int]], List[int]]:
     """
     Remove nodes randomly from the solution.
 
@@ -41,7 +43,9 @@ def random_removal(routes: List[List[int]], n_remove: int) -> Tuple[List[List[in
     if n_remove >= len(all_nodes):
         return [[]], [n for _, _, n in all_nodes]
 
-    targets = random.sample(all_nodes, n_remove)
+    if rng is None:
+        rng = random.Random()
+    targets = rng.sample(all_nodes, n_remove)
 
     # Sort targets by r_idx, n_idx desc to pop safely
     targets.sort(key=lambda x: (x[0], x[1]), reverse=True)

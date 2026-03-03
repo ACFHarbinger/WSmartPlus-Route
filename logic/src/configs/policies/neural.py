@@ -27,3 +27,4 @@ class NeuralConfig:
     reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
+    seed: Optional[int] = None

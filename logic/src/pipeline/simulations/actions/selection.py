@@ -127,7 +127,7 @@ class MustGoSelectionAction(SimulationAction):
 
             final_must_go.update(res)
 
-        context["must_go"] = list(final_must_go)
+        context["must_go"] = sorted(list(final_must_go))
 
     def _gather_strategies(self, context: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Gather all strategies from configuration."""

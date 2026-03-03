@@ -77,6 +77,7 @@ class VRPPPolicy(BaseRoutingPolicy):
 
         # 4. Get solver parameters from typed config or values dict
         cfg = self._config
+        seed = kwargs.get("seed") if kwargs.get("seed") is not None else 42
         time_limit = int(cfg.time_limit) if cfg is not None else int(values.get("time_limit", 60))
         optimizer = cfg.engine if cfg is not None else values.get("engine", "gurobi")
 
@@ -93,6 +94,7 @@ class VRPPPolicy(BaseRoutingPolicy):
             number_vehicles=kwargs.get("number_vehicles", 1),
             time_limit=time_limit,
             optimizer=optimizer,
+            seed=seed,
         )
 
         return route, cost, {"profit": profit}

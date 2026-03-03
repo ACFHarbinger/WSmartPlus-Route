@@ -41,6 +41,7 @@ class PSOMAsSolver(PolicyVizMixin):
         C: float,
         params: PSOMAParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -51,6 +52,7 @@ class PSOMAsSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -148,6 +150,7 @@ class PSOMAsSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return optimized_routes
 
@@ -168,15 +171,15 @@ class PSOMAsSolver(PolicyVizMixin):
         routes = copy.deepcopy(current)
 
         # Cognitive component: crossover with pbest
-        if random.random() < self.params.c1 * random.random() and pbest:
+        if self.random.random() < self.params.c1 * self.random.random() and pbest:
             routes = self._crossover(routes, pbest)
 
         # Social component: crossover with gbest
-        if random.random() < self.params.c2 * random.random() and gbest:
+        if self.random.random() < self.params.c2 * self.random.random() and gbest:
             routes = self._crossover(routes, gbest)
 
         # Inertia: with prob (1-omega) randomly relocate one node
-        if random.random() > self.params.omega:
+        if self.random.random() > self.params.omega:
             routes = self._random_relocate(routes)
 
         # 2-opt local search after every position update
@@ -195,8 +198,8 @@ class PSOMAsSolver(PolicyVizMixin):
         if len(winner_flat) < 2:
             return copy.deepcopy(base_routes)
 
-        a = random.randint(0, len(winner_flat) - 1)
-        b = random.randint(a, min(a + max(1, len(winner_flat) // 3), len(winner_flat)))
+        a = self.random.randint(0, len(winner_flat) - 1)
+        b = self.random.randint(a, min(a + max(1, len(winner_flat) // 3), len(winner_flat)))
         segment = winner_flat[a:b]
         segment_set = set(segment)
 
@@ -240,7 +243,7 @@ class PSOMAsSolver(PolicyVizMixin):
         flat = [n for r in routes for n in r]
         if not flat:
             return routes
-        node = random.choice(flat)
+        node = self.random.choice(flat)
         new_routes = [[n for n in r if n != node] for r in routes]
         new_routes = [r for r in new_routes if r]
         with contextlib.suppress(Exception):

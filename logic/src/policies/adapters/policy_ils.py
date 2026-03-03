@@ -56,6 +56,7 @@ class ILSPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
+            seed=values.get("seed"),
         )
 
         return solver.solve()

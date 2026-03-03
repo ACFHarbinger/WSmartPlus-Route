@@ -44,6 +44,7 @@ class KSparseACOSolver(PolicyVizMixin):
         C: float,
         params: ACOParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize the K-Sparse ACO solver.
@@ -56,6 +57,7 @@ class KSparseACOSolver(PolicyVizMixin):
             C: Cost multiplier.
             params: ACO hyperparameters.
             mandatory_nodes: List of mandatory node indices.
+            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -90,7 +92,7 @@ class KSparseACOSolver(PolicyVizMixin):
         )
 
         # Initialize Local Search
-        self.ls = ACOLocalSearch(dist_matrix, wastes, capacity, R, C, params)
+        self.ls = ACOLocalSearch(dist_matrix, wastes, capacity, R, C, params, seed=seed)
 
         # Build candidate lists (k-nearest neighbors for each node)
         self.candidate_lists = self._build_candidate_lists()
@@ -109,6 +111,7 @@ class KSparseACOSolver(PolicyVizMixin):
             R=self.R,
             C=self.C,
             mandatory_nodes=self.mandatory_nodes,
+            seed=seed,
         )
 
     def _nearest_neighbor_cost(self) -> float:

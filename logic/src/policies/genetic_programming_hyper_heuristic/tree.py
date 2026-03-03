@@ -54,43 +54,43 @@ _TERMINALS = ["avg_node_profit", "load_factor", "route_count", "iter_progress"]
 _FUNCTIONS = ["IF_GT", "MAX_LLH"]
 
 
-def _random_tree(depth: int, n_llh: int) -> GPNode:
+def _random_tree(depth: int, n_llh: int, rng: random.Random) -> GPNode:
     """Generate a random GP tree of at most `depth` levels."""
-    if depth == 0 or random.random() < 0.4:
-        return TerminalNode(random.choice(_TERMINALS))
-    fn = random.choice(_FUNCTIONS)
+    if depth == 0 or rng.random() < 0.4:
+        return TerminalNode(rng.choice(_TERMINALS))
+    fn = rng.choice(_FUNCTIONS)
     return FunctionNode(
         fn,
-        _random_tree(depth - 1, n_llh),
-        _random_tree(depth - 1, n_llh),
-        random.randint(0, n_llh - 1),
-        random.randint(0, n_llh - 1),
+        _random_tree(depth - 1, n_llh, rng),
+        _random_tree(depth - 1, n_llh, rng),
+        rng.randint(0, n_llh - 1),
+        rng.randint(0, n_llh - 1),
     )
 
 
-def _subtree_crossover(t1: GPNode, t2: GPNode) -> Tuple[GPNode, GPNode]:
+def _subtree_crossover(t1: GPNode, t2: GPNode, rng: random.Random) -> Tuple[GPNode, GPNode]:
     """Single-point subtree swap crossover between two GP trees."""
     c1 = t1.copy()
     c2 = t2.copy()
 
     # Simple implementation: if both are function nodes, swap left/right sub-trees
     if isinstance(c1, FunctionNode) and isinstance(c2, FunctionNode):
-        if random.random() < 0.5:
+        if rng.random() < 0.5:
             c1.left, c2.left = c2.left, c1.left
         else:
             c1.right, c2.right = c2.right, c1.right
     return c1, c2
 
 
-def _mutate(tree: GPNode, depth: int, n_llh: int) -> GPNode:
+def _mutate(tree: GPNode, depth: int, n_llh: int, rng: random.Random) -> GPNode:
     """Replace a random sub-tree with a new random tree."""
-    if isinstance(tree, FunctionNode) and random.random() < 0.5:
-        if random.random() < 0.5:
-            tree.left = _random_tree(depth - 1, n_llh)
+    if isinstance(tree, FunctionNode) and rng.random() < 0.5:
+        if rng.random() < 0.5:
+            tree.left = _random_tree(depth - 1, n_llh, rng)
         else:
-            tree.right = _random_tree(depth - 1, n_llh)
-        if random.random() < 0.2:
-            tree.llh_true = random.randint(0, n_llh - 1)
-            tree.llh_false = random.randint(0, n_llh - 1)
+            tree.right = _random_tree(depth - 1, n_llh, rng)
+        if rng.random() < 0.2:
+            tree.llh_true = rng.randint(0, n_llh - 1)
+            tree.llh_false = rng.randint(0, n_llh - 1)
         return tree
-    return _random_tree(depth, n_llh)
+    return _random_tree(depth, n_llh, rng)

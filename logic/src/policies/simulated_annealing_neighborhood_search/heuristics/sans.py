@@ -35,7 +35,7 @@ def _initialize_solution_state(routes, id_to_index, distance_matrix, data):
 
 
 def _select_neighbor(
-    solution, removed_bins, data, vehicle_capacity, id_to_index, stocks, must_go_bins, distance_matrix
+    solution, removed_bins, data, vehicle_capacity, id_to_index, stocks, must_go_bins, distance_matrix, rng
 ):
     """Select and apply a neighbor operator."""
     route_ops = [
@@ -70,7 +70,7 @@ def _select_neighbor(
     if not valid_ops:
         return None, None
 
-    op = random.choice(valid_ops)
+    op = rng.choice(valid_ops)
 
     new_solution = apply_operator(
         op,
@@ -82,6 +82,7 @@ def _select_neighbor(
         stocks,
         must_go_bins,
         distance_matrix,
+        rng=rng,
     )
 
     # Filter out empty routes
@@ -113,6 +114,7 @@ def improved_simulated_annealing(  # noqa: C901
     density_val=20,
     max_vehicles=None,
     recorder: Optional[PolicyStateRecorder] = None,
+    rng: Optional[random.Random] = None,
 ):
     """
     Refine routing solutions using a multi-neighborhood Simulated Annealing algorithm.
@@ -174,38 +176,13 @@ def improved_simulated_annealing(  # noqa: C901
                 stocks,
                 must_go_bins,
                 distance_matrix,
+                rng=rng,
             )
 
             if new_solution is None:
                 continue
 
             # --- 4. EVALUATION ---
-            # Ideally apply_operator should return the modified removed_bins too.
-            # But the current signature operates on mutable removed_bins copy.
-            # We need to capture that change.
-            # Refactoring note: apply_operator modifies removed_bins in place.
-            # So we need to pass a fresh copy to _select_neighbor or rely on it returning the modified set.
-            # Current implementation of _select_neighbor passes copy.deepcopy(removed_bins).
-            # But we lose the reference to the modified set unless we return it.
-            # Ah, `new_solution` is returned. But `removed_bins` changes are lost in my helper above!
-            # I must fix _select_neighbor to return candidate_removed_bins.
-
-            # Re-implementing _select_neighbor logic inline correctly or fixing signature
-            # Let's do it inline to ensure correctness with state variables, or fix helper.
-            # Fixing helper is better.
-
-            # Wait, `apply_operator` signature:
-            # apply_operator(op, new_solution, candidate_removed_bins, ...)
-            # It modifies candidate_removed_bins in place.
-
-            # Let's refine helper:
-            # candidate_removed_bins = copy.deepcopy(removed_bins)
-            # new_solution = ...
-            # return new_solution, candidate_removed_bins
-
-            # Actually, to avoid complexity in this step (replacing file content),
-            # I will inline the helper logic with slight cleanup.
-
             candidate_removed_bins = copy.deepcopy(removed_bins)
             # ... neighbor selection logic ...
             route_ops = [
@@ -235,7 +212,7 @@ def improved_simulated_annealing(  # noqa: C901
             if not valid_ops:
                 continue
 
-            op = random.choice(valid_ops)
+            op = rng.choice(valid_ops)
             new_solution = apply_operator(
                 op,
                 copy.deepcopy(current_solution),
@@ -246,6 +223,7 @@ def improved_simulated_annealing(  # noqa: C901
                 stocks,
                 must_go_bins,
                 distance_matrix,
+                rng=rng,
             )
             new_solution = [r for r in new_solution if len(r) > 2]
 
@@ -273,7 +251,7 @@ def improved_simulated_annealing(  # noqa: C901
                     p = math.exp(delta / T)
                 except OverflowError:
                     p = 0
-                accept = random.random() < p
+                accept = rng.random() < p
 
             if accept:
                 current_solution = new_solution

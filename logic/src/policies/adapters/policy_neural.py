@@ -55,7 +55,7 @@ class NeuralPolicy(IPolicy):
         dm_tensor = kwargs["dm_tensor"]
         hrl_manager = kwargs.get("hrl_manager")
 
-        agent = NeuralAgent(model_env)
+        agent = NeuralAgent(model_env, seed=kwargs.get("seed"))
         model_data, graph, profit_vars = model_ls
 
         # Construct cost weights

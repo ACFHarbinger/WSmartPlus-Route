@@ -40,6 +40,7 @@ class ALNSSolver(PolicyVizMixin):
         C: float,
         params: ALNSParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize the ALNS solver.
@@ -52,6 +53,7 @@ class ALNSSolver(PolicyVizMixin):
             C: Cost multiplier.
             params: Detailed ALNS parameters.
             mandatory_nodes: List of mandatory node indices.
+            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -60,22 +62,37 @@ class ALNSSolver(PolicyVizMixin):
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
         # Operator registry
         self.destroy_ops = [
-            lambda r, n: random_removal(r, n),
+            lambda r, n: random_removal(r, n, rng=self.random),
             lambda r, n: worst_removal(r, n, self.dist_matrix),
-            lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes),
+            lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
         ]
         self.repair_ops = [
             lambda r, n: greedy_insertion(
-                r, n, self.dist_matrix, self.wastes, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
+                r,
+                n,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                R=self.R,
+                mandatory_nodes=self.mandatory_nodes,
+                cost_unit=self.C,
             ),
             lambda r, n: regret_2_insertion(
-                r, n, self.dist_matrix, self.wastes, self.capacity, R=self.R, mandatory_nodes=self.mandatory_nodes
+                r,
+                n,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                R=self.R,
+                mandatory_nodes=self.mandatory_nodes,
+                cost_unit=self.C,
             ),
         ]
 
@@ -114,7 +131,7 @@ class ALNSSolver(PolicyVizMixin):
             upper_bound = max(lower_bound + 1, max_pct_remove)
             upper_bound = min(upper_bound, current_n_nodes)
 
-            n_remove = random.randint(lower_bound, upper_bound)
+            n_remove = self.random.randint(lower_bound, upper_bound)
         partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
         new_routes = repair_op(partial_routes, removed)
 
@@ -127,7 +144,7 @@ class ALNSSolver(PolicyVizMixin):
             return True
         else:
             prob = math.exp(-delta / T) if T > 0 else 0
-            return random.random() < prob
+            return self.random.random() < prob
 
     def _update_weights(self, d_idx, r_idx, score):
         """Update the weights of the used operators."""
@@ -157,7 +174,7 @@ class ALNSSolver(PolicyVizMixin):
         start_time = time.time()
 
         for _it in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
                 break
 
             new_routes, d_idx, r_idx = self._select_and_apply_operators(current_routes)
@@ -208,7 +225,7 @@ class ALNSSolver(PolicyVizMixin):
             int: Index of the selected operator.
         """
         total = sum(weights)
-        r = random.uniform(0, total)
+        r = self.random.uniform(0, total)
         curr = 0.0
         for i, w in enumerate(weights):
             curr += w
@@ -246,7 +263,7 @@ class ALNSSolver(PolicyVizMixin):
             List[List[int]]: Initial routes.
         """
         nodes = self.nodes[:]
-        random.shuffle(nodes)
+        self.random.shuffle(nodes)
         routes = []
         curr_route = []
         load = 0.0
@@ -309,5 +326,5 @@ def run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, 
         min_removal=values.get("min_removal", 1),
         max_removal_pct=values.get("max_removal_pct", 0.3),
     )
-    solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+    solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
     return solver.solve()

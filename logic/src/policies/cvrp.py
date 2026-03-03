@@ -27,6 +27,7 @@ import pyvrp
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
 
+from logic.src.constants.routing import SCALE
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
@@ -39,6 +40,7 @@ def find_routes(
     coords=None,
     depot=0,
     time_limit=2.0,
+    seed=42,
     recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
@@ -55,6 +57,8 @@ def find_routes(
         n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
         coords (pd.DataFrame, optional): Node coordinates (unused in PyVRP variant)
         depot (int): Depot node ID. Default: 0
+        time_limit (float): Maximum time in seconds for the solver
+        seed (int): Random seed for reproducibility. Default: 42
 
     Returns:
         List[int]: Flattened tour with depot separators. Format: [0, route1..., 0, route2..., 0]
@@ -96,7 +100,7 @@ def find_routes(
 
     # Solve
     # Seed is optional but good for determinism.
-    res = pyvrp.solve(data, stop=MaxRuntime(time_limit), seed=42)
+    res = pyvrp.solve(data, stop=MaxRuntime(time_limit), seed=seed)
 
     tour_flat = []  # type: ignore[var-annotated]
 
@@ -130,6 +134,7 @@ def find_routes_ortools(
     coords=None,
     depot=0,
     time_limit=2,
+    seed=42,
     recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
@@ -146,7 +151,8 @@ def find_routes_ortools(
         n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
         coords (pd.DataFrame, optional): Node coordinates (unused)
         depot (int): Depot node ID. Default: 0
-
+        time_limit (float): Maximum time in seconds for the solver
+        seed (int): Random seed for reproducibility. Default: 42
     Returns:
         List[int]: Flattened tour with depot separators
     """
@@ -155,9 +161,6 @@ def find_routes_ortools(
 
     # Create sub-matrices and cast to int for OR-Tools/compute_cost
     distancesC = dist_mat[np.ix_(subset_indices, subset_indices)].astype(int)
-
-    # Scale capacities/wastes to preserve float precision (OR-Tools requires ints)
-    SCALE = 10000
 
     # wastes: map node idx to waste index (idx-1)
     sub_wastes = [0]  # Depot
@@ -168,11 +171,6 @@ def find_routes_ortools(
     # Unlimited logic
     if n_vehicles == 0:
         n_vehicles = len(to_collect)
-
-    with open("/tmp/cvrp_debug.txt", "a") as f:
-        f.write(
-            f"CVRP ORTOOLS START: n_vehicles={n_vehicles}, max_caps={max_caps}, len(to_collect)={len(to_collect)}, max(sub_wastes)={max(sub_wastes)} sub_wastes[:5]={sub_wastes[:5]}\n"
-        )
 
     manager = pywrapcp.RoutingIndexManager(len(distancesC), n_vehicles, 0)
     routing = pywrapcp.RoutingModel(manager)
@@ -208,6 +206,7 @@ def find_routes_ortools(
     search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     search_parameters.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
     search_parameters.time_limit.FromSeconds(int(time_limit))
+    search_parameters.random_seed = seed
 
     solution = routing.SolveWithParameters(search_parameters)
 

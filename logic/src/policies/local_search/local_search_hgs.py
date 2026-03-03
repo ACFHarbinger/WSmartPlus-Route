@@ -15,7 +15,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
 
@@ -38,6 +38,7 @@ class HGSLocalSearch(LocalSearch):
         R: float,
         C: float,
         params: "HGSParams",
+        seed: Optional[int] = None,
     ):
         """
         Initialize HGS Local Search.
@@ -50,7 +51,7 @@ class HGSLocalSearch(LocalSearch):
             C: Parameter C.
             params: HGS parameters.
         """
-        super().__init__(dist_matrix, waste, capacity, R, C, params)
+        super().__init__(dist_matrix, waste, capacity, R, C, params, seed)
 
     def optimize(self, solution: "Individual") -> "Individual":
         """

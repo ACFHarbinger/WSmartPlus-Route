@@ -2,7 +2,7 @@
 Statistical sampling distributions - Constant.
 """
 
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -32,11 +32,12 @@ class Constant:
             return self.value.expand(size)
         return torch.full(size, float(self.value))
 
-    def sample_array(self, size: Tuple[int, ...]) -> np.ndarray:
+    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Return constant array.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
+            rng: Optional numpy RandomState (ignored, for interface consistency).
 
         Returns:
             np.ndarray: Constant values

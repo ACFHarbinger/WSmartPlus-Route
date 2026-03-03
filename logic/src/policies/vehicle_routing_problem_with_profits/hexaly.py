@@ -25,6 +25,7 @@ def _run_hexaly_optimizer(  # noqa: C901
     must_go: List[int],
     number_vehicles: int = 1,
     time_limit: int = 60,
+    seed: int = 42,
     max_iter_no_improv: int = 10,
     recorder: Optional[PolicyStateRecorder] = None,
 ):
@@ -67,6 +68,7 @@ def _run_hexaly_optimizer(  # noqa: C901
     num_nodes = len(nodes)
     with hx.HexalyOptimizer() as optimizer:
         model = optimizer.model
+        optimizer.param.set_seed(seed)
 
         dist_array = model.array(dist_matrix_int)
         weights_array = model.array(pesos_reais_int)

@@ -29,8 +29,10 @@ import numpy as np
 import torch
 from networkx.algorithms.shortest_paths.weighted import dijkstra_path
 
+from logic.src.constants.routing import SCALE
 
-def find_route(C, to_collect, time_limit=2.0):
+
+def find_route(C, to_collect, time_limit=2.0, seed=42):
     """
     Solve TSP for a subset of nodes using the fast_tsp library.
 
@@ -40,6 +42,8 @@ def find_route(C, to_collect, time_limit=2.0):
     Args:
         C (np.ndarray): Distance matrix (N x N) with depot at index 0
         to_collect (array-like): Node IDs to visit (excluding depot)
+        time_limit (float): Maximum time in seconds for the solver
+        seed (int): Random seed for reproducibility
 
     Returns:
         List[int]: Tour starting and ending at depot. Format: [0, node1, node2, ..., 0]
@@ -47,8 +51,8 @@ def find_route(C, to_collect, time_limit=2.0):
     to_collect_tmp = [0] + list(to_collect)
     tmpC = C[to_collect_tmp, :][:, to_collect_tmp]
     # fast_tsp requires integer distance matrix
-    tmpC_int = np.round(tmpC * 100).astype(int)
-    tour = fast_tsp.find_tour(tmpC_int, duration_seconds=time_limit)
+    tmpC_int = np.round(tmpC * SCALE).astype(int)
+    tour = fast_tsp.find_tour(tmpC_int, duration_seconds=time_limit, seed=seed)
     zero_index = tour.index(0)
     tour = tour[zero_index:] + tour[:zero_index]
     # cost = fast_tsp.compute_cost(tour, tmpC)

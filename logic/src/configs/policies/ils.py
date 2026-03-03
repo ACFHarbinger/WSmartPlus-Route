@@ -17,6 +17,7 @@ class ILSConfig:
     n_llh: int = 5
     perturbation_strength: float = 0.15
     time_limit: float = 60.0
+    seed: Optional[int] = None
     vrpp: bool = True
     must_go: Optional[List[Any]] = field(default_factory=list)
     post_processing: Optional[List[Any]] = field(default_factory=list)

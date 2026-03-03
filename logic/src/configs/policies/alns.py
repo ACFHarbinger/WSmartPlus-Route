@@ -27,6 +27,7 @@ class ALNSConfig:
     """
 
     time_limit: float = 60.0
+    seed: Optional[int] = None
     max_iterations: int = 5000
     start_temp: float = 100.0
     cooling_rate: float = 0.995

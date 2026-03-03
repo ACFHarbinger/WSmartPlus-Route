@@ -58,6 +58,7 @@ class GenerativeDataset(SimulationDataset):
         noise_variance: float = 0.0,
         max_waste: float = MAX_CAPACITY_PERCENT,
         grid: Optional[Any] = None,
+        seed: Optional[int] = None,
     ):
         self.data_dir = data_dir
         self.n_samples = n_samples
@@ -68,6 +69,8 @@ class GenerativeDataset(SimulationDataset):
         self.noise_variance = noise_variance
         self.max_waste = max_waste
         self.grid = grid
+        self.seed = seed
+        self.rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
 
         # Default coordinates if not provided
         if depot is None:
@@ -76,7 +79,7 @@ class GenerativeDataset(SimulationDataset):
             self.depot = np.asarray(depot).squeeze()
 
         if locs is None:
-            self.locs = np.random.uniform(size=(n_bins, 2))
+            self.locs = self.rng.uniform(size=(n_bins, 2))
         else:
             locs_arr = np.asarray(locs)
             self.locs = locs_arr.squeeze(0) if locs_arr.ndim == 3 else locs_arr
@@ -118,7 +121,9 @@ class GenerativeDataset(SimulationDataset):
 
         samples = []
         for _ in range(self.n_samples):
-            waste_day = generate_waste(self.n_bins, self.distribution, graph, dataset_size=self.n_days, grid=self.grid)
+            waste_day = generate_waste(
+                self.n_bins, self.distribution, graph, dataset_size=self.n_days, grid=self.grid, rng=self.rng
+            )
             waste_day = np.clip(np.asarray(waste_day) * self.max_waste, 0, self.max_waste)
             samples.append(waste_day)
 
@@ -134,6 +139,6 @@ class GenerativeDataset(SimulationDataset):
             np.ndarray: Noisy waste array, same shape.
         """
         if self.noise_variance > 0:
-            noise = np.random.normal(self.noise_mean, np.sqrt(self.noise_variance), waste.shape)
+            noise = self.rng.normal(self.noise_mean, np.sqrt(self.noise_variance), waste.shape)
             return np.clip(waste + noise, 0, self.max_waste)
         return waste.copy()

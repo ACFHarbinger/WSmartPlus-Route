@@ -36,6 +36,7 @@ class QDESolver(PolicyVizMixin):
         C: float,
         params: QDEParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -46,6 +47,8 @@ class QDESolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1  # Exclude depot
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.np_rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -65,7 +68,7 @@ class QDESolver(PolicyVizMixin):
         pop_size = self.params.pop_size
 
         # Initialise population: amplitude vectors ∈ [0,1]^N
-        population = [np.random.uniform(0.0, 1.0, self.n_nodes) for _ in range(pop_size)]
+        population = [self.np_rng.uniform(0.0, 1.0, self.n_nodes) for _ in range(pop_size)]
         routes_pop = [self._collapse(amp) for amp in population]
         profits = [self._evaluate(r) for r in routes_pop]
 
@@ -81,7 +84,7 @@ class QDESolver(PolicyVizMixin):
             for i in range(pop_size):
                 # --- Mutation ---
                 candidates = [j for j in range(pop_size) if j != i]
-                r1, r2, r3 = random.sample(candidates, 3)
+                r1, r2, r3 = self.random.sample(candidates, 3)
                 mutant = np.clip(
                     population[r1] + self.params.F * (population[r2] - population[r3]),
                     0.0,
@@ -89,9 +92,10 @@ class QDESolver(PolicyVizMixin):
                 )
 
                 # --- Crossover (binomial) ---
-                j_rand = random.randint(0, self.n_nodes - 1)
+                j_rand = self.random.randint(0, self.n_nodes - 1)
                 trial = np.where(
-                    (np.random.uniform(0.0, 1.0, self.n_nodes) < self.params.CR) | (np.arange(self.n_nodes) == j_rand),
+                    (self.np_rng.uniform(0.0, 1.0, self.n_nodes) < self.params.CR)
+                    | (np.arange(self.n_nodes) == j_rand),
                     mutant,
                     population[i],
                 )

@@ -14,7 +14,7 @@ Example:
 """
 
 import random
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -25,6 +25,7 @@ def string_removal(
     dist_matrix: np.ndarray,
     max_string_len: int = 4,
     avg_string_len: float = 3.0,
+    rng: Optional[random.Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Remove contiguous strings of customers to induce spatial slack.
@@ -50,6 +51,9 @@ def string_removal(
     max_iter = n_remove * 3  # Prevent infinite loops
     iterations = 0
 
+    if rng is None:
+        rng = random.Random()
+
     while len(removed) < n_remove and iterations < max_iter:
         iterations += 1
 
@@ -58,12 +62,12 @@ def string_removal(
         if not available_routes:
             break
 
-        r_idx, route = random.choice(available_routes)
+        r_idx, route = rng.choice(available_routes)
         if not route:
             continue
 
         # Pick seed position
-        seed_pos = random.randint(0, len(route) - 1)
+        seed_pos = rng.randint(0, len(route) - 1)
         seed_node = route[seed_pos]
 
         if seed_node in removed:
@@ -72,7 +76,7 @@ def string_removal(
         # Determine string length (geometric-like distribution)
         # L ~ 1 + geometric(1/avg_string_len)
         string_len = 1
-        while string_len < max_string_len and random.random() < (1 - 1 / avg_string_len):
+        while string_len < max_string_len and rng.random() < (1 - 1 / avg_string_len):
             string_len += 1
 
         # Don't remove more than needed
@@ -123,8 +127,8 @@ def _propagate_string_removal(
             if node_id not in removed and node_id not in seed_nodes:
                 neighbor_candidates.append((node_id, distances[node_id]))
 
-    # Sort by distance
-    neighbor_candidates.sort(key=lambda x: x[1])
+    # Sort by distance, then node ID for deterministic tie-breaking
+    neighbor_candidates.sort(key=lambda x: (x[1], x[0]))
 
     # Take closest neighbors
     for neighbor, _ in neighbor_candidates[:3]:

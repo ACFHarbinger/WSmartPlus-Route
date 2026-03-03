@@ -4,6 +4,8 @@ Main Neural Agent class assembling mixins.
 
 from __future__ import annotations
 
+from typing import Optional
+
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .batch import BatchMixin
@@ -22,7 +24,7 @@ class NeuralAgent(PolicyVizMixin, BatchMixin, SimulationMixin):
         problem: Problem instance (VRPP, WCVRP, etc.) for cost calculation
     """
 
-    def __init__(self, model):
+    def __init__(self, model, seed: Optional[int] = None):
         """
         Initializes the NeuralAgent.
 
@@ -31,3 +33,4 @@ class NeuralAgent(PolicyVizMixin, BatchMixin, SimulationMixin):
         """
         self.model = model
         self.problem = model.problem
+        self.seed = seed if seed is not None else 42

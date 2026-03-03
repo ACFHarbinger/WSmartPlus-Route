@@ -41,6 +41,7 @@ class HSSolver(PolicyVizMixin):
         C: float,
         params: HSParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -51,6 +52,7 @@ class HSSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -69,7 +71,7 @@ class HSSolver(PolicyVizMixin):
         start = time.time()
 
         # Initialise Harmony Memory
-        hm: List[List[List[int]]] = [self._random_harmony() for _ in range(self.params.hm_size)]
+        hm: List[List[List[int]]] = [self._build_random_solution() for _ in range(self.params.hm_size)]
         hm_profits = [self._evaluate(h) for h in hm]
 
         best_idx = int(np.argmax(hm_profits))
@@ -109,10 +111,6 @@ class HSSolver(PolicyVizMixin):
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _random_harmony(self) -> List[List[int]]:
-        """Generate a random feasible routing solution."""
-        return self._build_random_solution()
-
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style).
 
@@ -130,6 +128,7 @@ class HSSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            rng=self.random,
         )
         return optimized_routes
 
@@ -160,23 +159,23 @@ class HSSolver(PolicyVizMixin):
             if not unvisited:
                 break
 
-            if random.random() < self.params.HMCR:
+            if self.random.random() < self.params.HMCR:
                 # Select from HM: pick a random harmony, take its node at this slot
-                src_flat = random.choice(hm_node_pool)
+                src_flat = self.random.choice(hm_node_pool)
                 if src_flat:
-                    hm_node = random.choice(src_flat)
-                    selected = hm_node if hm_node in unvisited else random.choice(list(unvisited))
+                    hm_node = self.random.choice(src_flat)
+                    selected = hm_node if hm_node in unvisited else self.random.choice(list(unvisited))
                 else:
-                    selected = random.choice(list(unvisited))
+                    selected = self.random.choice(list(unvisited))
 
                 # Pitch adjustment: swap with a random neighbour
-                if random.random() < self.params.PAR:
+                if self.random.random() < self.params.PAR:
                     neighbours = self._nearest_unvisited(selected, unvisited - {selected})
                     if neighbours:
                         selected = neighbours[0]
             else:
                 # Random selection
-                selected = random.choice(list(unvisited))
+                selected = self.random.choice(list(unvisited))
 
             candidate_nodes.append(selected)
             unvisited.discard(selected)

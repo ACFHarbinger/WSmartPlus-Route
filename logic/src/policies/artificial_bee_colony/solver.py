@@ -192,7 +192,7 @@ class ABCSolver(PolicyVizMixin):
         # Also randomly remove some additional nodes for diversity
         try:
             partial, additional_removed = random_removal(current_copy, n)
-            to_insert = list(set(selected_peer_nodes + additional_removed))
+            to_insert = sorted(list(set(selected_peer_nodes + additional_removed)))
 
             repaired = greedy_insertion(
                 partial,

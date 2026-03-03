@@ -33,6 +33,7 @@ class HVPLSolver(PolicyVizMixin):
         C: float,
         params: HVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -44,12 +45,16 @@ class HVPLSolver(PolicyVizMixin):
 
         # Initialize ACO components for constructor and pheromones
         # We reuse KSparseACOSolver initialization logic
-        self.aco_internal = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes)
+        self.aco_internal = KSparseACOSolver(
+            dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes, seed=seed
+        )
         self.pheromone = self.aco_internal.pheromone
         self.constructor = self.aco_internal.constructor
 
         # Initialize ALNS solver for the "Coaching" phase
-        self.coaching_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes)
+        self.coaching_solver = ALNSSolver(
+            dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes, seed=seed
+        )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -61,6 +66,7 @@ class HVPLSolver(PolicyVizMixin):
         population: List[Tuple[List[List[int]], float, float]] = []
         for _ in range(self.params.n_teams):
             routes = self.constructor.construct()
+            routes = self._canonicalize_routes(routes)
             cost = self._calculate_cost(routes)
             # Profit calculation
             rev = sum(self.wastes.get(n, 0) * self.R for r in routes for n in r)
@@ -71,7 +77,7 @@ class HVPLSolver(PolicyVizMixin):
 
         # 2. League Season Iterations
         for _iteration in range(self.params.max_iterations):
-            if time.time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.time() - start_time > self.params.time_limit:
                 break
 
             # 3. Coaching Phase: Apply ALNS to each team
@@ -79,6 +85,7 @@ class HVPLSolver(PolicyVizMixin):
             for routes, _profit, _cost in population:
                 # Coaching session (ALNS solve)
                 c_routes, c_profit, c_cost = self.coaching_solver.solve(initial_solution=routes)
+                c_routes = self._canonicalize_routes(c_routes)
                 new_population.append((c_routes, c_profit, c_cost))
 
             population = new_population
@@ -103,13 +110,14 @@ class HVPLSolver(PolicyVizMixin):
             )
 
             # 6. Substitution Phase: Replace weakest teams
-            # Sort by profit (higher is better)
-            population.sort(key=lambda x: x[1], reverse=True)
+            # Deterministic tie-breaking: profit (desc), then cost (asc), then route hash
+            population.sort(key=lambda x: (x[1], -x[2], self._hash_routes(x[0])), reverse=True)
             n_sub = int(self.params.n_teams * self.params.sub_rate)
 
             for i in range(self.params.n_teams - n_sub, self.params.n_teams):
                 # Replace with a new solution generated with updated pheromones
                 s_routes = self.constructor.construct()
+                s_routes = self._canonicalize_routes(s_routes)
                 s_cost = self._calculate_cost(s_routes)
                 s_rev = sum(self.wastes.get(n, 0) * self.R for r in s_routes for n in r)
                 s_profit = s_rev - s_cost * self.C
@@ -117,9 +125,19 @@ class HVPLSolver(PolicyVizMixin):
 
         return best_routes, best_profit, best_cost
 
+    def _canonicalize_routes(self, routes: List[List[int]]) -> List[List[int]]:
+        """Sort routes by their first node to ensure consistent ordering."""
+        return sorted([r for r in routes if r], key=lambda x: x[0] if x else 0)
+
+    def _hash_routes(self, routes: List[List[int]]) -> str:
+        # Sort routes by their first node to ensure consistent ordering for hashing
+        sorted_routes = sorted([r for r in routes if r], key=lambda x: x[0] if x else 0)
+        return "|".join(",".join(map(str, r)) for r in sorted_routes)
+
     def _get_best(self, population: List[Tuple[List[List[int]], float, float]]) -> Tuple[List[List[int]], float, float]:
-        """Get the highest-profit solution from the population."""
-        return max(population, key=lambda x: x[1])
+        """Get the highest-profit solution from the population with deterministic tie-break."""
+        # Use (profit, negative_cost, hash) for deterministic tie-breaking.
+        return max(population, key=lambda x: (x[1], -x[2], self._hash_routes(x[0])))
 
     def _update_pheromones(self, routes: List[List[int]], cost: float) -> None:
         """ACS style global pheromone update."""

@@ -28,6 +28,7 @@ class SANSConfig:
 
     engine: Literal["new", "og"] = "new"
     time_limit: float = 60.0
+    seed: Optional[int] = None
     perc_bins_can_overflow: float = 0.0
     T_min: float = 0.01
     T_init: float = 75.0

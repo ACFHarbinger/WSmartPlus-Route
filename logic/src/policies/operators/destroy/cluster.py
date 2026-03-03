@@ -13,7 +13,7 @@ Example:
 """
 
 import random
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -21,7 +21,11 @@ from .random import random_removal
 
 
 def cluster_removal(
-    routes: List[List[int]], n_remove: int, dist_matrix: np.ndarray, nodes: List[int]
+    routes: List[List[int]],
+    n_remove: int,
+    dist_matrix: np.ndarray,
+    nodes: List[int],
+    rng: Optional[random.Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Remove a cluster of nodes based on spatial proximity (Shaw Removal variant).
@@ -39,12 +43,15 @@ def cluster_removal(
     if not any(routes):
         return routes, []
 
-    # Pick seed
-    seed_route_idx = random.randint(0, len(routes) - 1)
-    if not routes[seed_route_idx]:
-        return random_removal(routes, n_remove)
+    if rng is None:
+        rng = random.Random()
 
-    seed_node = random.choice(routes[seed_route_idx])
+    # Pick seed
+    seed_route_idx = rng.randint(0, len(routes) - 1)
+    if not routes[seed_route_idx]:
+        return random_removal(routes, n_remove, rng=rng)
+
+    seed_node = rng.choice(routes[seed_route_idx])
 
     removed = [seed_node]
 
@@ -62,7 +69,8 @@ def cluster_removal(
         dist = dist_matrix[seed_node][v]
         candidates.append((v, dist))
 
-    candidates.sort(key=lambda x: x[1])
+    # Sort by distance, then node ID for deterministic tie-breaking
+    candidates.sort(key=lambda x: (x[1], x[0]))
 
     target_nodes = [x[0] for x in candidates[: n_remove - 1]]
     removed.extend(target_nodes)

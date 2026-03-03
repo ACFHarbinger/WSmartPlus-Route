@@ -21,6 +21,7 @@ Example:
 """
 
 import copy
+import random
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -53,6 +54,7 @@ class HyperHeuristicACO(PolicyVizMixin):
         params: Optional[HyperACOParams] = None,
         initial_solution: Optional[List[List[int]]] = None,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         """
         Initialize HyperHeuristicACO.
@@ -75,6 +77,8 @@ class HyperHeuristicACO(PolicyVizMixin):
         self.params = params or HyperACOParams()
         self.initial_solution = initial_solution or []
         self.mandatory_nodes = mandatory_nodes
+        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.np_rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
 
         self.operator_names = list(HYPER_OPERATORS.keys())
         self.n_operators = len(self.operator_names)
@@ -151,6 +155,7 @@ class HyperHeuristicACO(PolicyVizMixin):
             R=self.R,
             C=self.C,
             mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
         )
 
         for op_name in sequence:
@@ -174,7 +179,7 @@ class HyperHeuristicACO(PolicyVizMixin):
             probs = (self.tau[current_op_idx] ** self.params.alpha) * (self.eta**self.params.beta)
             probs /= np.sum(probs)
 
-            next_op_idx = np.random.choice(self.n_operators, p=probs)
+            next_op_idx = self.np_rng.choice(self.n_operators, p=probs)
             sequence.append(self.operator_names[next_op_idx])
             current_op_idx = next_op_idx
 

@@ -38,6 +38,7 @@ class SCASolver(PolicyVizMixin):
         C: float,
         params: SCAParams,
         mandatory_nodes: Optional[List[int]] = None,
+        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -48,6 +49,8 @@ class SCASolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
+        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.np_rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -67,7 +70,7 @@ class SCASolver(PolicyVizMixin):
         T = self.params.max_iterations
 
         # Initialise population in continuous space
-        X = np.random.uniform(-1.0, 1.0, (self.params.pop_size, self.n_nodes))
+        X = self.np_rng.uniform(-1.0, 1.0, (self.params.pop_size, self.n_nodes))
         routes_pop = [self._decode(x) for x in X]
         profits = [self._evaluate(r) for r in routes_pop]
 
@@ -85,10 +88,10 @@ class SCASolver(PolicyVizMixin):
             a = self.params.a_max * (1.0 - t / T)
 
             for i in range(self.params.pop_size):
-                r1 = random.uniform(0, a)
-                r2 = random.uniform(0, 2 * math.pi)
-                r3 = random.uniform(0, 2)
-                r4 = random.random()
+                r1 = self.random.uniform(0, a)
+                r2 = self.random.uniform(0, 2 * math.pi)
+                r3 = self.random.uniform(0, 2)
+                r4 = self.random.random()
 
                 diff = r3 * X_best - X[i]
 

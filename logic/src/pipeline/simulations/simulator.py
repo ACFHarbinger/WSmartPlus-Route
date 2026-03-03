@@ -30,11 +30,13 @@ from __future__ import annotations
 
 import contextlib
 import os
+import random
 import statistics
 import sys
 import traceback
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import torch
 from omegaconf import DictConfig
 from tqdm import tqdm
@@ -94,7 +96,12 @@ def init_single_sim_worker(
     global _shared_metrics
     _lock = lock_from_main
     _counter = counter_from_main
-    _shared_metrics = shared_metrics_from_main
+    # Seeding for reproducibility in parallel workers
+    if cfg is not None:
+        seed = cfg.sim.seed
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
     # Initialize simulation repository in the worker process
     if cfg is not None:

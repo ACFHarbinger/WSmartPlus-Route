@@ -78,7 +78,14 @@ class SISRPolicy(BaseRoutingPolicy):
             )
 
         solver = SISRSolver(
-            sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params, mandatory_nodes=mandatory_nodes
+            sub_dist_matrix,
+            sub_wastes,
+            capacity,
+            revenue,
+            cost_unit,
+            params,
+            mandatory_nodes=mandatory_nodes,
+            seed=values.get("seed"),
         )
         routes, profit, cost = solver.solve()
         return routes, profit, cost

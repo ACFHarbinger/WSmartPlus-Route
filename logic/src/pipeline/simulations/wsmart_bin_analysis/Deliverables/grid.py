@@ -3,7 +3,7 @@ GridBase manager for container ensembles.
 """
 
 import os
-from typing import Union, cast
+from typing import Optional, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -190,12 +190,13 @@ class GridBase:
         index = self.data.index
         return pd.Timestamp(index[0]), pd.Timestamp(index[-1])
 
-    def sample(self, n_samples=1) -> np.ndarray:
+    def sample(self, n_samples=1, rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """
         Sample N times from each bins' waste fill rate distribution.
 
         Args:
             n_samples: Number of samples to generate (default: 1)
+            rng: Optional numpy RandomState for reproducibility.
 
         Returns:
             np.ndarray: Array of shape (n_samples, n_columns) containing values sampled from each distribution
@@ -205,11 +206,14 @@ class GridBase:
             "Freq tables should be calculated before calling this method. Call self.calc_freq_tables()"
         )
 
+        if rng is None:
+            rng = cast(np.random.RandomState, np.random)
+
         index_values = np.array(self.__freq_table.index)
         freq_table = self.__freq_table.to_numpy()
 
         # Generate random values for all samples and columns
-        rand_vals = np.random.random(size=(n_samples, len(self.__freq_table.columns)))
+        rand_vals = rng.random(size=(n_samples, len(self.__freq_table.columns)))
 
         # Apply searchsorted column-wise to get indices
         indexes = np.zeros((n_samples, freq_table.shape[1]), dtype=int)

@@ -3,7 +3,7 @@ Statistical sampling distributions - Gamma.
 """
 
 import math
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 import torch
@@ -68,7 +68,7 @@ class Gamma:
         m = torch.distributions.Gamma(self.alpha, 1 / self.theta)
         return m.sample(torch.Size(size))
 
-    def sample_array(self, size: Tuple[int, ...]) -> np.ndarray:
+    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Gamma distribution.
 
         When ``option`` is set, uses per-node heterogeneous alpha/theta
@@ -76,15 +76,19 @@ class Gamma:
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc))
+            rng: Optional numpy RandomState for reproducibility.
 
         Returns:
             np.ndarray: Sampled values
         """
+        if rng is None:
+            rng = cast(np.random.RandomState, np.random)
+
         if self.option is not None:
             alpha_pattern, theta_pattern = GAMMA_PRESETS[self.option]
             problem_size = size[-1]
             k = self._tile_param(problem_size, alpha_pattern)
             th = self._tile_param(problem_size, theta_pattern)
-            return np.random.gamma(k, th, size=size) / 100.0
+            return rng.gamma(k, th, size=size) / 100.0
 
-        return np.random.gamma(self.alpha, self.theta, size=size) / 100.0
+        return rng.gamma(self.alpha, self.theta, size=size) / 100.0

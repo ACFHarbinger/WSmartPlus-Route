@@ -24,5 +24,6 @@ class CVRPConfig:
     cache: bool = False
     time_limit: float = 60.0
     engine: str = "ortools"
+    seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

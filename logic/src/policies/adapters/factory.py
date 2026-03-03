@@ -36,7 +36,6 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_cvrp as policy_cvrp  # noqa
         import logic.src.policies.adapters.policy_hgs as policy_hgs  # noqa
         import logic.src.policies.adapters.policy_hgs_alns as policy_hgs_alns  # noqa
-        import logic.src.policies.adapters.policy_lkh as policy_lkh  # noqa
         import logic.src.policies.adapters.policy_sans as policy_sans  # noqa
         import logic.src.policies.adapters.policy_tsp as policy_tsp  # noqa
         import logic.src.policies.adapters.policy_vrpp as policy_vrpp  # noqa

@@ -16,7 +16,6 @@ from .hmm_gd import HMMGDConfig
 from .hs import HSConfig
 from .hvpl import HVPLConfig
 from .lca import LCAConfig
-from .lkh import LKHConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
 from .psoma import PSOMAConfig

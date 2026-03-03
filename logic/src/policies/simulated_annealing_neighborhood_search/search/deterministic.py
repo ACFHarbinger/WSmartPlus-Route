@@ -96,14 +96,6 @@ def local_search_2(
     # Loop over routes
     for idx_route, _route in enumerate(previous_solution):
         # iterate current route bins (except last depot)
-        # original used: for _j, val in enumerate(i[0 : len(i) - 1]):
-        # i is route
-
-        # Note: iterating over 'previous_solution' (initial state of this pass)
-        # but applying changes to 'routes_list'.
-        # If a better move is found, previous_solution is UPDATED to match routes_list.
-
-        # So essentially this is a greedy improvement loop.
         current_route_data = previous_solution[idx_route]
         for val in current_route_data[:-1]:  # skip last depot
             position = current_route_data.index(val)
