@@ -271,19 +271,19 @@ clean:
 
 # Print an overview of experiments, runs, and record counts
 db-inspect:
-    uv run python -m logic.src.tracking.database.commands inspect
+    uv run python -m logic.src.tracking.database inspect
 
 # Delete all tracking data while preserving the schema
 db-clean:
-    uv run python -m logic.src.tracking.database.commands clean
+    uv run python -m logic.src.tracking.database clean
 
 # Integrity check, WAL checkpoint, and VACUUM
 db-compact:
-    uv run python -m logic.src.tracking.database.commands compact
+    uv run python -m logic.src.tracking.database compact
 
 # Remove stale runs  (override: just db-prune older_than=7 status=failed experiment=AM-VRPP-50)
 db-prune older_than="30" status="failed" experiment="" dry_run="":
-    uv run python -m logic.src.tracking.database.commands prune \
+    uv run python -m logic.src.tracking.database prune \
         --older-than {{ older_than }} \
         --status {{ status }} \
         {{ if experiment != "" { "--experiment " + experiment } else { "" } }} \
@@ -291,7 +291,7 @@ db-prune older_than="30" status="failed" experiment="" dry_run="":
 
 # Export a run to JSON  (override: just db-export run_id=a1b2c3d4 output=run.json)
 db-export run_id="" experiment="" output="" latest="":
-    uv run python -m logic.src.tracking.database.commands export \
+    uv run python -m logic.src.tracking.database export \
         {{ if run_id != "" { "--run-id " + run_id } else { "" } }} \
         {{ if experiment != "" { "--experiment " + experiment } else { "" } }} \
         {{ if output != "" { "--output " + output } else { "" } }} \
@@ -299,12 +299,12 @@ db-export run_id="" experiment="" output="" latest="":
 
 # Show comprehensive database statistics  (override: just db-stats experiment=AM-VRPP-50)
 db-stats experiment="":
-    uv run python -m logic.src.tracking.database.commands stats \
+    uv run python -m logic.src.tracking.database stats \
         {{ if experiment != "" { "--experiment " + experiment } else { "" } }}
 
 # Show per-metric statistics  (override: just db-metrics key=train/cost experiment=AM-VRPP-50)
 db-metrics key="" experiment="":
-    uv run python -m logic.src.tracking.database.commands metrics \
+    uv run python -m logic.src.tracking.database metrics \
         {{ if key != "" { "--key " + key } else { "" } }} \
         {{ if experiment != "" { "--experiment " + experiment } else { "" } }}
 
