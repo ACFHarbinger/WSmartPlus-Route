@@ -12,6 +12,7 @@ from logic.src.pipeline.features.test.orchestrator.monitor import (
 )
 from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
 from logic.src.pipeline.simulations.simulator import (
+    get_pol_name,
     init_single_sim_worker,
     single_simulation,
 )
@@ -106,16 +107,18 @@ def execute_and_monitor_tasks(
     """
     sim = cfg.sim
     policies = sim.full_policies
+    policy_names = [get_pol_name(p) for p in policies]
     no_pbar = cfg.tracking.no_progress_bar
-    display = initialize_simulation_display(policies, sim.n_samples, sim.days) if not no_pbar else None
+    display = initialize_simulation_display(policy_names, sim.n_samples, sim.days) if not no_pbar else None
 
     log_tmp = manager.dict()
     failed_log = manager.list()
-    for policy in policies:
-        log_tmp[policy] = manager.list()
+    for pol_name in policy_names:
+        log_tmp[pol_name] = manager.list()
 
     def _update_result(result: Dict[str, Any]) -> None:
-        success = result.pop("success")
+        success = result.pop("success", False)
+        sample_id = result.pop("sample_id", None)
         if not (isinstance(result, dict) and success):
             error_policy = result.get("policy", "unknown")
             error_sample = result.get("sample_id", "unknown")
@@ -123,7 +126,16 @@ def execute_and_monitor_tasks(
             print(f"Simulation failed: {error_policy} #{error_sample} - {error_msg}")
             failed_log.append(result)
             return
-        log_tmp[list(result.keys())[0]].append(list(result.values())[0])
+
+        pol_name = list(result.keys())[0]
+
+        # Clear from shared_metrics to avoid double counting, NOW safely after we have the final result
+        if shared_metrics is not None and sample_id is not None:
+            key = f"{pol_name}_{sample_id}"
+            if key in shared_metrics:
+                del shared_metrics[key]
+
+        log_tmp[pol_name].append(list(result.values())[0])
 
     tasks = []
     for arg_tup in args:
@@ -134,7 +146,7 @@ def execute_and_monitor_tasks(
         )
         tasks.append(task)
 
-    monitor_tasks_until_complete(tasks, display, policies, shared_metrics, counter, log_tmp)
+    monitor_tasks_until_complete(tasks, display, policy_names, shared_metrics, counter, log_tmp)
 
     if display:
         display.stop()

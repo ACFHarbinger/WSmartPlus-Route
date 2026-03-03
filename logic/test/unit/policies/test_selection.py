@@ -22,14 +22,14 @@ def base_context():
 class TestRegularSelection:
     def test_regular_selection_logic(self):
         strategy = RegularSelection()
-        # Case 1: (current_day % threshold) == 0 -> select all
-        # (6 % 3) == 0.
-        ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.zeros(2), current_day=6, threshold=3.0)
+        # Case 1: ((current_day - 1) % threshold) == 0 -> select all
+        # ((4 - 1) % 3) == 0.
+        ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.zeros(2), current_day=4, threshold=3.0)
         # Should return [1, 2] (indices 0, 1 mapped to IDs 1, 2)
         assert list(strategy.select_bins(ctx)) == [1, 2]
 
         # Case 2: skip
-        ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.zeros(2), current_day=4, threshold=3.0)
+        ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.zeros(2), current_day=5, threshold=3.0)
         assert list(strategy.select_bins(ctx)) == []
 
 class TestLastMinuteSelection:

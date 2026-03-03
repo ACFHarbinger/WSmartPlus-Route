@@ -103,10 +103,10 @@ LOSS_KEYS: List[str] = ["nll", "reinforce_loss", "baseline_loss"]
 # Physical and operational constraints for VRP variants.
 
 # Maximum bin fill level (normalized)
-# Range: [0.0, 1.0] where 1.0 = full capacity
-# Overflow occurs when fill > MAX_WASTE after waste generation
+# Range: [0.0, 100.0] where 100.0 = full capacity
+# Overflow occurs when fill > MAX_CAPACITY_PERCENT after waste generation
 # Used in: Bin state validation, overflow counting, reward penalty
-MAX_WASTE: float = 1.0  # 100% capacity (bins can exceed this, triggering overflow penalty)
+MAX_CAPACITY_PERCENT = 100.0  # percent (0-100 range)
 
 # Maximum route length constraints by problem size
 # Maps number of customer locations → max route length (hops, excluding depot returns)
