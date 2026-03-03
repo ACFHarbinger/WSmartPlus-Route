@@ -17,7 +17,7 @@ from typing import List
 
 import numpy as np
 
-from logic.src.constants.routing import MAX_CAPACITY_PERCENT
+from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
 from .base.selection_context import SelectionContext

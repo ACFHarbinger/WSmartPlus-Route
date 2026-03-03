@@ -8,7 +8,7 @@ from typing import Any, Dict, List, cast
 import numpy as np
 
 from logic.src.configs import MustGoConfig
-from logic.src.constants import ROOT_DIR
+from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
 from logic.src.interfaces import IBinContainer, ITraversable
 from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
@@ -81,15 +81,12 @@ class MustGoSelectionAction(SimulationAction):
                     # Fallback to context/global thresh if not in strategy params
                     else context.get("threshold")
                 )
-                mfill = s_params.get("max_fill")
             else:
                 # Fallback for simple string-based strategies
                 thresh = context.get("threshold")
-                mfill = context.get("max_fill")
 
             # Basic sanitization
             final_thresh = float(thresh) if thresh is not None else 0.0
-            final_mfill = float(mfill) if mfill is not None else 100.0
             sel_ctx = SelectionContext(
                 bin_ids=np.arange(0, n_bins, dtype="int32"),
                 current_fill=np.array(current_fill) if current_fill is not None else np.array([]),
@@ -104,7 +101,7 @@ class MustGoSelectionAction(SimulationAction):
                 revenue_kg=context.get("revenue_kg", 1.0),
                 bin_density=context.get("bin_density", 1.0),
                 bin_volume=context.get("bin_volume", 2.5),
-                max_fill=final_mfill,
+                max_fill=MAX_CAPACITY_PERCENT,
             )
 
             if "config" in strat_info:

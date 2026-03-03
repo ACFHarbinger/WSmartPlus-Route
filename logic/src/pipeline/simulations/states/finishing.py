@@ -125,12 +125,6 @@ class FinishingState(SimState):
         if ctx.checkpoint:
             ctx.checkpoint.clear()
 
-        # Clear shared metrics to prevent double counting in the progress bar
-        if ctx.shared_metrics is not None:
-            key = f"{ctx.pol_name}_{ctx.sample_id}"
-            if key in ctx.shared_metrics:
-                del ctx.shared_metrics[key]
-
         ctx.result = {ctx.pol_name: lg, "success": True}
 
         final_simulation_summary({ctx.pol_name: lg}, ctx.pol_name, sim.n_samples)

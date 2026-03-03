@@ -96,6 +96,7 @@ def init_single_sim_worker(
     global _shared_metrics
     _lock = lock_from_main
     _counter = counter_from_main
+    _shared_metrics = shared_metrics_from_main
     # Seeding for reproducibility in parallel workers
     if cfg is not None:
         seed = cfg.sim.seed
@@ -245,8 +246,9 @@ def single_simulation(
             # If successful, extract the policy name to return the correct dictionary key
             pol_name = get_pol_name(policies[pol_id])
             if pol_name in res:
-                return {pol_name: res[pol_name], "success": True}
+                return {pol_name: res[pol_name], "success": True, "sample_id": sample_id}
 
+        print(f"[INFO] Finished simulation for policy {pol_id} and sample {sample_id}")
         return res or {"error": "Unknown error", "policy": "unknown", "sample_id": sample_id, "success": False}
     except BaseException as e:
         # Report to redirected stderr so it's captured in simulation log files
@@ -336,6 +338,8 @@ def sequential_simulations(  # noqa: C901
                     variables_dict,
                 )
                 result_dict = context.run()
+
+                print(f"[INFO] Finished simulation for policy {pol_name} and sample {sample_id}")
 
                 # Aggregate execution result
                 if result_dict and "success" in result_dict and result_dict["success"]:
