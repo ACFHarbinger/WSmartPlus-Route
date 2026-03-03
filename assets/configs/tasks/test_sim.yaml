@@ -54,7 +54,7 @@ load_dataset: "data/wsr_simulator/datasets/april_2024_summary_with_coords.csv"
 sim:
   cpu_cores: 0
   n_vehicles: 0
-  days: 31
+  days: 30
   no_cuda: true
   n_samples: 1
   problem: "vrpp"

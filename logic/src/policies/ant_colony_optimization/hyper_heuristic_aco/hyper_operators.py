@@ -105,7 +105,7 @@ class HyperOperatorContext:
         return self.route_loads[ri]
 
     def _update_map(self, affected_indices: set):
-        for ri in affected_indices:
+        for ri in sorted(affected_indices):
             if ri < len(self.routes):
                 for pi, node in enumerate(self.routes[ri]):
                     self.node_map[node] = (ri, pi)
