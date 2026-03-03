@@ -202,6 +202,7 @@ exclude = [
     "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/Deliverables/Tutorials/",
+    "assets/",
 ]
 
 [tool.ruff.lint]

@@ -165,7 +165,7 @@ class LocalSearch(PolicyVizMixin, ABC):
         return False
 
     def _update_map(self, affected_indices: Set[int]):
-        for ri in affected_indices:
+        for ri in sorted(affected_indices):
             for pi, node in enumerate(self.routes[ri]):
                 self.node_map[node] = (ri, pi)
             self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])

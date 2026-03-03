@@ -45,7 +45,7 @@ class InitializingState(SimState):
     def handle(self, ctx: SimulationContext) -> None:
         """Handle initialization of simulation state."""
         # Seeding for reproducibility (covers both sequential and parallel runs)
-        seed = ctx.cfg.sim.seed + ctx.sample_id
+        seed = ctx.cfg.sim.seed
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
