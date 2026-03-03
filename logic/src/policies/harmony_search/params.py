@@ -22,6 +22,7 @@ class HSParams:
         HMCR: Harmony Memory Considering Rate ∈ [0, 1].
         PAR: Pitch Adjusting Rate ∈ [0, 1] (conditional on HMCR success).
         max_iterations: Total number of improvisation cycles.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -29,4 +30,5 @@ class HSParams:
     HMCR: float = 0.95
     PAR: float = 0.3
     max_iterations: int = 500
+    local_search_iterations: int = 100
     time_limit: float = 60.0

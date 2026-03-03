@@ -26,6 +26,7 @@ class LCAParams:
                        (teams within this band may still win a match).
         crossover_prob: Probability of OX crossover vs. perturbation after loss.
         n_removal: Nodes removed per perturbation step.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -34,4 +35,5 @@ class LCAParams:
     tolerance_pct: float = 0.05
     crossover_prob: float = 0.6
     n_removal: int = 2
+    local_search_iterations: int = 100
     time_limit: float = 60.0

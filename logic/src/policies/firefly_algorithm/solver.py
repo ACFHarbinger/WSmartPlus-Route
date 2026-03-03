@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..operators.destroy_operators import random_removal
@@ -229,8 +230,6 @@ class FASolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply comprehensive local search
-            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
             ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
             return ls.optimize(routes)
         return routes
@@ -282,8 +281,6 @@ class FASolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply comprehensive local search
-            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
-
             ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
             return ls.optimize(repaired)
         except Exception:

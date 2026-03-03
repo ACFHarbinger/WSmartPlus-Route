@@ -39,6 +39,7 @@ class ACOParams:
         max_iterations: Maximum number of iterations.
         time_limit: Maximum runtime in seconds.
         local_search: Whether to apply local search (2-opt) to solutions.
+        local_search_iterations: Number of iterations for local search.
         elitist_weight: Weight for best-so-far solution in pheromone update.
     """
 
@@ -54,6 +55,7 @@ class ACOParams:
     max_iterations: int = 100
     time_limit: float = 30.0
     local_search: bool = True
+    local_search_iterations: int = 100
     elitist_weight: float = 1.0
 
     def __post_init__(self) -> None:

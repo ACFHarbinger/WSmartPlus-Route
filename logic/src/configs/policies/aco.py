@@ -27,6 +27,7 @@ class ACOConfig:
         k_sparse: Number of nearest neighbors to consider (for k-sparse ACO).
         sequence_length: Length of operator sequence for hyper-heuristic ACO.
         local_search: Whether to apply local search after construction.
+        local_search_iterations: Number of local search iterations.
         elitist_weight: Weight for elitist pheromone update.
         operators: List of local search operators to use.
         engine: Solver engine to use.
@@ -48,6 +49,7 @@ class ACOConfig:
     k_sparse: int = 15
     sequence_length: int = 5
     local_search: bool = True
+    local_search_iterations: int = 500
     elitist_weight: float = 1.0
     operators: List[str] = field(default_factory=lambda: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"])
     engine: str = "custom"

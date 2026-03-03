@@ -100,6 +100,10 @@ ks_aco:
       # true = 2-opt + relocate after each ant (better quality, slower)
       # false = pure ACO construction (faster, lower quality)
 
+    - local_search_iterations: 500
+      # Number of local search iterations
+      # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
+
     - elitist_weight: 1.0
       # Weight for best-so-far solution in pheromone update
       # Range: 0.5-5.0 (higher = stronger elitism)

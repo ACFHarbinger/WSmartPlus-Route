@@ -16,6 +16,7 @@ class HSConfig:
         HMCR: Harmony Memory Considering Rate ∈ [0, 1].
         PAR: Pitch Adjusting Rate ∈ [0, 1].
         max_iterations: Total improvisation cycles.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
         vrpp: If True, solver operates in full VRPP mode.
         must_go: Must-go selection strategy config list.
@@ -27,6 +28,7 @@ class HSConfig:
     HMCR: float = 0.9
     PAR: float = 0.3
     max_iterations: int = 500
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True

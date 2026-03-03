@@ -39,6 +39,11 @@ hgs:
       # Range: 30-600 (30s = quick, 300s = thorough, 600s = benchmark)
       # Recommendation: 60s for production, 300s for best-known solutions
 
+    - local_search_iterations: 500
+      # Number of iterations to run local search
+      # Range: 50-500
+      # Recommendation: 100 for CVRP, 200 for VRPTW
+
     # ---------------------------------------------------------------------
     # Population Management
     # ---------------------------------------------------------------------
@@ -53,6 +58,10 @@ hgs:
       # Range: 5-25 (typically 20% of population_size)
       # Elite solutions drive intensification (exploitation)
 
+    - hgs_alpha_diversity: 0.1
+      # Weight of diversity in fitness calculation
+      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+
     # ---------------------------------------------------------------------
     # Genetic Operators
     # ---------------------------------------------------------------------
@@ -65,6 +74,11 @@ hgs:
       # Probability of applying crossover after mutation
       # Range: 0.0-1.0 (0.0 = pure mutation, 1.0 = pure crossover)
       # Recommendation: 0.7 for CVRP, 0.5 for VRPTW
+
+    - n_generations: 100
+      # Number of generations to run
+      # Range: 50-500
+      # Recommendation: 100 for CVRP, 200 for VRPTW
 
     # Crossover operator: Order Crossover (OX)
     #   - Preserves relative order from parents

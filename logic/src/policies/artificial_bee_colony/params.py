@@ -21,6 +21,7 @@ class ABCParams:
         limit: Trial counter threshold before a source is abandoned.
         max_iterations: Maximum ABC cycles.
         n_removal: Number of nodes removed per neighbourhood perturbation.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -28,4 +29,5 @@ class ABCParams:
     limit: int = 10
     max_iterations: int = 200
     n_removal: int = 1
+    local_search_iterations: int = 100
     time_limit: float = 60.0

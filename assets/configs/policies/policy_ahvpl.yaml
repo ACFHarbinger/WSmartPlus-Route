@@ -62,6 +62,14 @@ ahvpl:
     # ---------------------------------------------------------------------
     # HGS Parameters (Diversity Management & Crossover)
     # ---------------------------------------------------------------------
+    - hgs_time_limit: 60
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
+
+    - hgs_n_generations: 100
+      # Number of generations for HGS
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+
     - hgs_elite_size: 5
       # Number of elite solutions for biased fitness ranking
       # Range: 3-15 (typically ~50% of n_teams)
@@ -75,6 +83,10 @@ ahvpl:
       # Probability of applying OX crossover per generation
       # Range: 0.0-1.0 (0.0 = clone parent, 1.0 = always crossover)
 
+    - hgs_alpha_diversity: 0.1
+      # Weight of diversity in fitness calculation
+      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+
     - hgs_max_vehicles: 0
       # Maximum vehicles allowed (0 = unlimited, determined by problem)
       # Set >0 to constrain fleet size
@@ -83,6 +95,10 @@ ahvpl:
       # HGS internal population size for diversity management
       # Range: 25-100
 
+    - hgs_local_search_iterations: 100
+      # Number of local search iterations per generation
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+
     # ---------------------------------------------------------------------
     # ACO Parameters (Initialization & Substitution)
     # ---------------------------------------------------------------------
@@ -90,22 +106,62 @@ ahvpl:
       # Number of ants for solution construction
       # Range: 5-30
 
-    - aco_iterations: 1
-      # ACO iterations per construction call
-      # Range: 1-5 (1 = fast initialization)
-
     - aco_k_sparse: 10
       # Number of nearest neighbors in sparse ACO graph
       # Range: 5-20
+
+    - aco_alpha: 1.0
+      # Weight of pheromone trail
+      # Range: 0.0-5.0 (1.0 = balanced)
+
+    - aco_beta: 2.0
+      # Weight of heuristic information
+      # Range: 0.0-5.0 (2.0 = emphasizes shorter edges)
 
     - aco_rho: 0.1
       # Pheromone evaporation rate
       # Range: 0.05-0.3
 
+    - aco_q0: 0.9
+      # Probability of choosing the best edge in construction
+      # Range: 0.0-1.0 (0.9 = greedy with exploration)
+
+    - aco_tau_0: 0.1
+      # Initial pheromone level
+      # Range: 0.01-1.0 (0.1 = balanced)
+
+    - aco_tau_min: 0.001
+      # Minimum pheromone level
+      # Range: 0.0001-0.01
+
+    - aco_tau_max: 10.0
+      # Maximum pheromone level
+      # Range: 1.0-100.0
+
+    - aco_iterations: 1
+      # ACO iterations per construction call
+      # Range: 1-5 (1 = fast initialization)
+
+    - aco_local_search: False
+      # Whether to apply local search after ACO construction
+      # Range: True/False (False = fast initialization)
+
+    - aco_local_search_iterations: 0
+      # Number of local search iterations per construction call
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+
+    - aco_elitist_weight: 1.0
+      # Weight of elitist ant in pheromone update
+      # Range: 0.0-5.0 (1.0 = balanced)
+
+    - aco_time_limit: 30
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
+
     # ---------------------------------------------------------------------
     # ALNS Parameters (Coaching & Deep Local Search)
     # ---------------------------------------------------------------------
-    - alns_iterations: 100
+    - alns_iterations: 50
       # Number of destroy-repair cycles per coaching session
       # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
@@ -117,9 +173,29 @@ ahvpl:
       # Temperature decay per iteration
       # Range: 0.90-0.99
 
+    - alns_reaction_factor: 0.1
+      # Reaction factor for simulated annealing
+      # Range: 0.05-0.3
+
+    - alns_min_removal: 1
+      # Minimum number of nodes to remove in destroy phase
+      # Range: 1-10
+
     - alns_max_removal_pct: 0.2
       # Maximum fraction of nodes to remove in destroy phase
       # Range: 0.1-0.4
+
+    - alns_time_limit: 60
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
+
+    - alns_elite_iterations: 500
+      # Number of destroy-repair cycles for elite solutions provided by HGS
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+
+    - alns_not_coached_iterations: 100
+      # Number of destroy-repair cycles for non-elite solutions that have not yet been coached
+      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings

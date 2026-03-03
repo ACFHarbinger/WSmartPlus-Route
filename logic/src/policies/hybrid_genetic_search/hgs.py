@@ -87,7 +87,7 @@ class HGSSolver(PolicyVizMixin):
             evaluate(ind, self.split_manager)
             population.append(ind)
 
-        update_biased_fitness(population, self.params.elite_size)
+        update_biased_fitness(population, self.params.elite_size, self.params.alpha_diversity)
 
         start_time = time.process_time()
         it = 0
@@ -113,7 +113,7 @@ class HGSSolver(PolicyVizMixin):
 
             # 4. Survivor Selection
             if len(population) > self.params.population_size * 2:
-                update_biased_fitness(population, self.params.elite_size)
+                update_biased_fitness(population, self.params.elite_size, self.params.alpha_diversity)
                 population.sort(key=lambda x: x.fitness)
                 population = population[: self.params.population_size]
 
@@ -125,7 +125,7 @@ class HGSSolver(PolicyVizMixin):
                 population_size=len(population),
             )
 
-        update_biased_fitness(population, self.params.elite_size)
+        update_biased_fitness(population, self.params.elite_size, self.params.alpha_diversity)
         best_ind = min(population, key=lambda x: -x.profit_score)
 
         return best_ind.routes, best_ind.profit_score, best_ind.cost
@@ -181,6 +181,8 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         mutation_rate=values.get("mutation_rate", 0.2),
         n_generations=values.get("n_generations", 100),
         max_vehicles=values.get("max_vehicles", 0),
+        local_search_iterations=values.get("local_search_iterations", 500),
+        crossover_rate=values.get("crossover_rate", 0.7),
     )
     solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
     return solver.solve()

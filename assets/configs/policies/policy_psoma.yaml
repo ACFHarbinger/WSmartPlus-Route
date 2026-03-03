@@ -75,6 +75,10 @@ psoma:
       # Range: 5-50 (5 = frequent refinement, 20 = occasional, 50 = rare)
       # Lower frequency → higher quality per iteration but slower overall
 
+    - local_search_iterations: 500
+      # Number of local search iterations
+      # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
+
     # -------------------------------------------------------------------------
     # Runtime Control
     # -------------------------------------------------------------------------

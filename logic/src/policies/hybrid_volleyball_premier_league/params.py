@@ -24,10 +24,19 @@ class HVPLParams:
     aco_params: ACOParams = field(
         default_factory=lambda: ACOParams(
             n_ants=10,
-            max_iterations=1,  # Only one iteration per construction phase
             k_sparse=10,
+            alpha=1.0,
+            beta=2.0,
             rho=0.1,
+            q0=0.9,
+            tau_0=None,
+            tau_min=0.001,
+            tau_max=10.0,
+            max_iterations=1,  # Only one iteration per construction phase
+            time_limit=30,
             local_search=False,  # ALNS handles local search
+            local_search_iterations=0,
+            elitist_weight=1.0,
         )
     )
 
@@ -37,7 +46,9 @@ class HVPLParams:
             max_iterations=100,  # "Coaching session" length
             start_temp=100.0,
             cooling_rate=0.95,
+            reaction_factor=0.5,
             min_removal=1,
             max_removal_pct=0.2,
+            time_limit=30,
         )
     )
