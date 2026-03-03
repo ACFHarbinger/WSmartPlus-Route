@@ -19,6 +19,7 @@ class PSOMAConfig:
         max_iterations: Maximum PSO iterations.
         local_search_freq: Memetic local-search frequency (every N iterations).
         n_removal: Nodes removed per local-search step.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
         vrpp: If True, solver operates in full VRPP mode.
         must_go: Must-go selection strategy config list.
@@ -33,6 +34,7 @@ class PSOMAConfig:
     max_iterations: int = 200
     local_search_freq: int = 10
     n_removal: int = 2
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True

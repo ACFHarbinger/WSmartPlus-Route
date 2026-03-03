@@ -25,6 +25,8 @@ class AHVPLParams:
     n_teams: int = 10
     max_iterations: int = 50
     sub_rate: float = 0.2
+    elite_alns_iterations: int = 500
+    not_coached_alns_iterations: int = 100
     time_limit: float = 60.0
 
     # HGS Components (Diversity Management & Crossover)
@@ -35,6 +37,9 @@ class AHVPLParams:
             crossover_rate=0.7,
             max_vehicles=0,
             population_size=50,
+            n_generations=100,
+            local_search_iterations=100,
+            time_limit=30.0,
         )
     )
 
@@ -42,19 +47,30 @@ class AHVPLParams:
     aco_params: ACOParams = field(
         default_factory=lambda: ACOParams(
             n_ants=10,
-            max_iterations=1,
             k_sparse=10,
+            alpha=1.0,
+            beta=2.0,
             rho=0.1,
+            q0=0.9,
+            tau_0=None,
+            tau_min=0.001,
+            tau_max=10.0,
+            max_iterations=1,
+            time_limit=30.0,
             local_search=False,
+            local_search_iterations=0,
+            elitist_weight=1.0,
         )
     )
 
     # ALNS Components (Coaching & Deep Local Search)
     alns_params: ALNSParams = field(
         default_factory=lambda: ALNSParams(
+            time_limit=30.0,
             max_iterations=100,
             start_temp=100.0,
             cooling_rate=0.95,
+            reaction_factor=0.1,
             min_removal=1,
             max_removal_pct=0.2,
         )

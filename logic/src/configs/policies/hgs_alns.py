@@ -1,48 +1,33 @@
 """
-HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration.
+HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration for Hydra.
 """
 
-from dataclasses import dataclass
-from typing import List, Optional
+from dataclasses import dataclass, field
+from typing import Any, List
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .alns import ALNSConfig
+from .hgs import HGSConfig
 
 
 @dataclass
 class HGSALNSConfig:
-    """Configuration for Hybrid Genetic Search with Adaptive Large Neighborhood Search Education (HGS-ALNS) policy.
+    """
+    Configuration for Hybrid Genetic Search with Adaptive Large Neighborhood Search Education (HGS-ALNS) policy.
 
-    Attributes:
-        time_limit: Maximum time in seconds for the solver.
-        population_size: Size of the genetic population.
-        elite_size: Number of elite individuals to preserve.
-        mutation_rate: Probability of mutation.
-        alns_education_iterations: Number of ALNS iterations for education phase.
-        alns_start_temp: Starting temperature for ALNS.
-        alns_cooling_rate: Cooling rate for ALNS.
-        hgs_max_iter: Number of HGS iterations for routing phase.
-        n_generations: Number of generations to evolve.
-        crossover_rate: Probability of crossover.
-        max_vehicles: Maximum number of vehicles (0 for unlimited).
-        engine: Solver engine to use.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+    Uses ALNS for education phase and HGS for routing phase, combining the strengths
+    of both metaheuristics.
     """
 
-    time_limit: float = 60.0
-    population_size: int = 50
-    elite_size: int = 10
-    mutation_rate: float = 0.2
-    alns_education_iterations: int = 50
-    alns_start_temp: float = 0.5
-    alns_cooling_rate: float = 0.9995
-    hgs_max_iter: int = 100
-    n_generations: int = 100
-    crossover_rate: float = 0.5
-    max_vehicles: int = 0
-    seed: Optional[int] = None
     engine: str = "hgs_alns"
-    vrpp: bool = False
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+
+    # HGS-ALNS specific parameters
+    alns_education_iterations: int = 50
+    hgs_max_iter: int = 100
+
+    # Nested component configs
+    hgs: HGSConfig = field(default_factory=HGSConfig)
+    alns: ALNSConfig = field(default_factory=ALNSConfig)
+
+    # Common policy fields
+    must_go: List[str] = field(default_factory=list)
+    post_processing: List[Any] = field(default_factory=list)

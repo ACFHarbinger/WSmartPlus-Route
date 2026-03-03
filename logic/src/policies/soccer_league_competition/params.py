@@ -23,6 +23,7 @@ class SLCParams:
         max_iterations: Maximum number of seasons (outer loop).
         stagnation_limit: Seasons without improvement before team regeneration.
         n_removal: Nodes removed per intra-team perturbation step.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -31,4 +32,5 @@ class SLCParams:
     max_iterations: int = 50
     stagnation_limit: int = 5
     n_removal: int = 1
+    local_search_iterations: int = 100
     time_limit: float = 60.0

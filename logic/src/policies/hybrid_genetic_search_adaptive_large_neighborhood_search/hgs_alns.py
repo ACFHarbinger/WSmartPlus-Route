@@ -8,8 +8,8 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.hgs_alns import solve_hgs_alns
-    >>> result = solve_hgs_alns(problem_instance, config)
+    >>> from logic.src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search import HGSALNSSolver
+    >>> result = solver.solve()
 """
 
 import time
@@ -17,11 +17,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from .adaptive_large_neighborhood_search.alns import ALNSSolver
-from .adaptive_large_neighborhood_search.params import ALNSParams
-from .hybrid_genetic_search import HGSParams, Individual
-from .hybrid_genetic_search.evolution import evaluate, ordered_crossover, update_biased_fitness
-from .hybrid_genetic_search.hgs import HGSSolver
+from ..adaptive_large_neighborhood_search.alns import ALNSSolver
+from ..hybrid_genetic_search import Individual
+from ..hybrid_genetic_search.evolution import evaluate, ordered_crossover, update_biased_fitness
+from ..hybrid_genetic_search.hgs import HGSSolver
+from .params import HGSALNSParams
 
 
 class HGSALNSSolver(HGSSolver):
@@ -36,8 +36,7 @@ class HGSALNSSolver(HGSSolver):
         capacity: float,
         R: float,
         C: float,
-        params: HGSParams,
-        alns_education_iterations: int = 50,
+        params: HGSALNSParams,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):
@@ -50,19 +49,17 @@ class HGSALNSSolver(HGSSolver):
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
-            params: Detailed HGS parameters.
-            alns_education_iterations: Number of ALNS iterations used during education.
+            params: HGSALNSParams containing HGS and ALNS configurations.
             mandatory_nodes: Optional list of mandatory node indices.
+            seed: Random seed for reproducibility.
         """
-        super().__init__(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed)
-        self.alns_iter = alns_education_iterations
+        # Initialize parent HGSSolver with HGS params
+        super().__init__(dist_matrix, wastes, capacity, R, C, params.hgs_params, mandatory_nodes, seed)
 
-        # Initialize ALNS solver with limited iterations for intensive education
-        alns_params = ALNSParams(
-            max_iterations=self.alns_iter,
-            time_limit=max(1, params.time_limit),  # Heuristic limit
-        )
-        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, alns_params, seed=seed)
+        self.hgs_alns_params = params
+
+        # Initialize ALNS solver for education phase
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, seed=seed)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -74,26 +71,30 @@ class HGSALNSSolver(HGSSolver):
         population: List[Individual] = []
 
         # 1. Initial Population
-        for _ in range(self.params.population_size):
+        for _ in range(self.hgs_alns_params.hgs_params.population_size):
             gt = self.nodes[:]
             self.random.shuffle(gt)
             ind = Individual(gt)
             evaluate(ind, self.split_manager)
             population.append(ind)
 
-        update_biased_fitness(population, self.params.elite_size)
+        update_biased_fitness(
+            population, self.hgs_alns_params.hgs_params.elite_size, self.hgs_alns_params.hgs_params.alpha_diversity
+        )
 
         start_time = time.process_time()
         it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
-        while self.params.time_limit > 0 and time.process_time() - start_time < self.params.time_limit:
+        while (
+            self.hgs_alns_params.time_limit > 0 and time.process_time() - start_time < self.hgs_alns_params.time_limit
+        ):
             it += 1
             # 2. Selection & Crossover
             p1, p2 = self._select_parents(population)
             child = ordered_crossover(p1, p2)
 
             # 3. Hybrid Education (Mutation with ALNS)
-            if self.random.random() < self.params.mutation_rate:
+            if self.random.random() < self.hgs_alns_params.hgs_params.mutation_rate:
                 # Need to have routes assigned before ALNS
                 evaluate(child, self.split_manager)
                 if child.routes:
@@ -137,12 +138,18 @@ class HGSALNSSolver(HGSSolver):
             )
 
             # 4. Survivor Selection
-            if len(population) > self.params.population_size * 2:
-                update_biased_fitness(population, self.params.elite_size)
+            if len(population) > self.hgs_alns_params.hgs_params.population_size * 2:
+                update_biased_fitness(
+                    population,
+                    self.hgs_alns_params.hgs_params.elite_size,
+                    self.hgs_alns_params.hgs_params.alpha_diversity,
+                )
                 population.sort(key=lambda x: x.fitness)
-                population = population[: self.params.population_size]
+                population = population[: self.hgs_alns_params.hgs_params.population_size]
 
-        update_biased_fitness(population, self.params.elite_size)
+        update_biased_fitness(
+            population, self.hgs_alns_params.hgs_params.elite_size, self.hgs_alns_params.hgs_params.alpha_diversity
+        )
         best_ind = min(population, key=lambda x: -x.profit_score)
 
         return best_ind.routes, best_ind.profit_score, best_ind.cost

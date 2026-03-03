@@ -34,6 +34,7 @@ class HMMGDParams:
         learning_rate: Online HMM transition probability update step size.
         n_removal: Nodes removed per destroy step.
         n_llh: Number of LLHs in the pool (fixed at 5).
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -43,4 +44,5 @@ class HMMGDParams:
     learning_rate: float = 0.1
     n_removal: int = 2
     n_llh: int = 5
+    local_search_iterations: int = 100
     time_limit: float = 60.0

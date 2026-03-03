@@ -26,6 +26,7 @@ class FAParams:
         gamma_cost: Weight of insertion cost in favourability score (penalty).
         alpha_rnd: Probability of random-walk perturbation per firefly per iter.
         max_iterations: Maximum algorithm iterations.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -38,4 +39,5 @@ class FAParams:
     alpha_rnd: float = 0.2
     n_removal: int = 3
     max_iterations: int = 100
+    local_search_iterations: int = 100
     time_limit: float = 60.0

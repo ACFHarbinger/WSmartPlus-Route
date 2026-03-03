@@ -41,9 +41,14 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
     return Individual(child_gt)
 
 
-def update_biased_fitness(population: List[Individual], nb_elite: int):
+def update_biased_fitness(population: List[Individual], nb_elite: int, alpha_diversity: float = 0.5):
     """
     Update biased fitness based on profit rank and diversity rank.
+
+    Args:
+        population: List of individuals to update.
+        nb_elite: Number of elite individuals to protect.
+        alpha_diversity: Weight for diversity in fitness calculation (0.0 = pure profit, 1.0 = pure diversity).
     """
     if not population:
         return
@@ -76,17 +81,16 @@ def update_biased_fitness(population: List[Individual], nb_elite: int):
     for i, ind in enumerate(population):
         ind.rank_diversity = i + 1
 
-    # Biased Fitness = Rank(Profit) + (1 - Elite/Size) * Rank(Diversity)
+    # Biased Fitness = Rank(Profit) + alpha_diversity * Rank(Diversity)
     # ELITE PROTECTION: Ensure top nb_elite profit solutions always survive.
     # Their fitness is bounded by [1, nb_elite], while others are >= nb_elite + 1.
-    factor = 1.0 - (float(nb_elite) / pop_size)
     for ind in population:
         if ind.rank_profit <= nb_elite:
             # Pure profit ranking for top elites ensures their survival in trim
             ind.fitness = float(ind.rank_profit)
         else:
             # Biased fitness for the rest to maintain diversity
-            ind.fitness = ind.rank_profit + factor * ind.rank_diversity
+            ind.fitness = ind.rank_profit + alpha_diversity * ind.rank_diversity
 
 
 def evaluate(ind: Individual, split_manager: LinearSplit):

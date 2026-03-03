@@ -52,6 +52,7 @@ class HSPolicy(BaseRoutingPolicy):
             PAR=float(values.get("PAR", 0.3)),
             max_iterations=int(values.get("max_iterations", 500)),
             time_limit=float(values.get("time_limit", 60.0)),
+            local_search_iterations=int(values.get("local_search_iterations", 100)),
         )
 
         solver = HSSolver(

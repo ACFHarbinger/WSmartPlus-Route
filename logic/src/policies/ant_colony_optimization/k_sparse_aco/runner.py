@@ -60,6 +60,7 @@ def run_k_sparse_aco(
         max_iterations=values.get("max_iterations", 100),
         time_limit=values.get("time_limit", 30.0),
         local_search=values.get("local_search", True),
+        local_search_iterations=values.get("local_search_iterations", 100),
         elitist_weight=values.get("elitist_weight", 1.0),
     )
 

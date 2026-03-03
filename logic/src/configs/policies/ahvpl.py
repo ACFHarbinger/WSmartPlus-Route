@@ -26,6 +26,8 @@ class AHVPLConfig:
     max_iterations: int = 50
     sub_rate: float = 0.2
     time_limit: float = 60.0
+    alns_elite_iterations: int = 500
+    alns_not_coached_iterations: int = 100
     seed: Optional[int] = None
 
     # Nested component configs

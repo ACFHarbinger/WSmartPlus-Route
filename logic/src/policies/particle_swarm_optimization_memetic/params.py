@@ -24,6 +24,7 @@ class PSOMAParams:
         max_iterations: Maximum PSO iterations.
         local_search_freq: Every N iterations, apply local search to all particles.
         n_removal: Number of nodes removed per local-search step.
+        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
     """
 
@@ -34,4 +35,5 @@ class PSOMAParams:
     max_iterations: int = 200
     local_search_freq: int = 10
     n_removal: int = 2
+    local_search_iterations: int = 100
     time_limit: float = 60.0
