@@ -10,7 +10,8 @@
 
 gls:
   custom:
-    - lambda_param: 0.3
+    - lambda_param: 1.0
+    - alpha_param: 0.3
     - max_restarts: 500
     - inner_iterations: 60
     - n_removal: 3

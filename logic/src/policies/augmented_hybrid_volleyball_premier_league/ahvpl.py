@@ -144,6 +144,8 @@ class AHVPLSolver(PolicyVizMixin):
         best_cost = best_ind.cost
 
         # ── Phase 2+3: VPL + HGS + ALNS Main Loop ──
+        last_improvement_it = 0
+        current_alpha = self.params.hgs_params.alpha_diversity
         for _iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
@@ -152,7 +154,7 @@ class AHVPLSolver(PolicyVizMixin):
             update_biased_fitness(
                 population,
                 self.params.hgs_params.elite_size,
-                self.params.hgs_params.alpha_diversity,
+                current_alpha,
                 self.params.hgs_params.neighbor_list_size,
             )
 
@@ -194,7 +196,7 @@ class AHVPLSolver(PolicyVizMixin):
             update_biased_fitness(
                 population,
                 self.params.n_teams,
-                self.params.hgs_params.alpha_diversity,
+                current_alpha,
                 self.params.hgs_params.neighbor_list_size,
             )
             population.sort(key=lambda x: x.fitness)
@@ -215,9 +217,18 @@ class AHVPLSolver(PolicyVizMixin):
                 best_routes = [r[:] for r in iter_best.routes]
                 best_profit = iter_best.profit_score
                 best_cost = iter_best.cost
+                last_improvement_it = _iteration
+
+            # Adaptive alpha diversity
+            # Calculate current population diversity
+            avg_dist = np.mean([ind.dist_to_parents for ind in population])
+            if avg_dist < self.params.min_diversity_threshold:
+                current_alpha = min(1.0, current_alpha + self.params.diversity_change_rate)
+            elif _iteration - last_improvement_it > self.params.no_improvement_threshold:
+                current_alpha = max(0.0, current_alpha - self.params.diversity_change_rate)
 
             # 7. Pheromone Update — ACO global guidance based on best cost
-            self._update_pheromones(best_routes, best_cost)
+            self._update_pheromones(best_routes, best_profit, best_cost)
 
             self._viz_record(
                 iteration=_iteration,
@@ -226,6 +237,7 @@ class AHVPLSolver(PolicyVizMixin):
                 iter_best_profit=iter_best.profit_score,
                 population_size=len(population),
                 n_children=n_children,
+                alpha_diversity=current_alpha,
             )
 
         return best_routes, best_profit, best_cost
@@ -351,14 +363,14 @@ class AHVPLSolver(PolicyVizMixin):
 
     # ── ACO Pheromone Management ─────────────────────────────────────
 
-    def _update_pheromones(self, routes: List[List[int]], km: float) -> None:
-        """ACS-style global pheromone update on best solution's edges."""
-        if not routes or km <= 0:
+    def _update_pheromones(self, routes: List[List[int]], profit: float, cost: float) -> None:
+        if not routes or profit <= 0:
             return
 
         self.pheromone.evaporate_all(self.params.aco_params.rho)
 
-        delta = self.params.aco_params.elitist_weight / km
+        # Higher profit → stronger reinforcement
+        delta = self.params.aco_params.elitist_weight * profit / (cost + 1e-6)
         for route in routes:
             if not route:
                 continue

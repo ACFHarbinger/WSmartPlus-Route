@@ -40,7 +40,8 @@ class GLSPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         params = GLSParams(
-            lambda_param=float(values.get("lambda_param", 0.3)),
+            lambda_param=float(values.get("lambda_param", 1.0)),
+            alpha_param=float(values.get("alpha_param", 0.3)),
             max_restarts=int(values.get("max_restarts", 50)),
             n_removal=int(values.get("n_removal", 2)),
             n_llh=int(values.get("n_llh", 5)),

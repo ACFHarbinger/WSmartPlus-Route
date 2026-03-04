@@ -166,6 +166,7 @@ class GLSSolver(PolicyVizMixin):
         """Evaluate with penalty-augmented objective."""
         real = self._evaluate(routes)
         penalty = 0.0
+        dynamic_lambda = self.params.alpha_param * (abs(real) / max(1, self.n_nodes))
         for route in routes:
             if not route:
                 continue
@@ -173,7 +174,7 @@ class GLSSolver(PolicyVizMixin):
             for k in range(len(route) - 1):
                 penalty += self.penalties[route[k]][route[k + 1]]
             penalty += self.penalties[route[-1]][0]
-        return real - self.params.lambda_param * penalty
+        return real - self.params.lambda_param * dynamic_lambda * penalty
 
     # ------------------------------------------------------------------
     # LLH pool
