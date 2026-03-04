@@ -33,6 +33,7 @@ class HGSALNSParams:
             crossover_rate=0.7,
             n_generations=100,
             alpha_diversity=0.5,
+            neighbor_list_size=10,
             local_search_iterations=500,
             max_vehicles=0,
         )

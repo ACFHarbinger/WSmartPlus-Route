@@ -32,6 +32,10 @@ from ..operators import (
     move_swap,
     move_swap_star,
 )
+from ..operators.exchange.cross import cross_exchange
+from ..operators.exchange.ejection import ejection_chain
+from ..operators.exchange.lambda_interchange import lambda_interchange
+from ..operators.exchange.or_opt import move_or_opt
 
 
 class LocalSearch(PolicyVizMixin, ABC):
@@ -134,7 +138,7 @@ class LocalSearch(PolicyVizMixin, ABC):
     def _calc_load_fresh(self, r: List[int]) -> float:
         return sum(self.waste.get(x, 0) for x in r)
 
-    def _process_node(self, u: int) -> bool:
+    def _process_node(self, u: int) -> bool:  # noqa: C901
         u_loc = self.node_map.get(u)
         if not u_loc:
             return False
@@ -155,10 +159,22 @@ class LocalSearch(PolicyVizMixin, ABC):
                     return True
                 if self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
                     return True
+
+                # Advanced inter-route operators
+                if getattr(self.params, "use_cross_exchange", False) and self._try_cross_exchange(r_u, p_u, r_v, p_v):
+                    return True
+
+                if getattr(self.params, "use_lambda_interchange", False) and self._try_lambda_interchange(r_u, r_v):
+                    return True
+
+                if getattr(self.params, "use_ejection_chains", False) and self._try_ejection_chain(u, r_u, p_u):
+                    return True
             else:
                 if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
                     return True
                 if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
+                    return True
+                if self._move_or_opt(u, self.random.choice([1, 2, 3]), r_u, p_u):
                     return True
 
         return False
@@ -189,3 +205,15 @@ class LocalSearch(PolicyVizMixin, ABC):
 
     def _move_2opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return move_2opt_intra(self, u, v, r_u, p_u, r_v, p_v)
+
+    def _move_or_opt(self, u: int, chain_len: int, r_u: int, p_u: int) -> bool:
+        return move_or_opt(self, u, chain_len, r_u, p_u)
+
+    def _try_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        return cross_exchange(self, r_u, p_u, r_v, p_v)
+
+    def _try_lambda_interchange(self, r_u: int, r_v: int) -> bool:
+        return lambda_interchange(self, r_u, r_v, getattr(self.params, "lambda_max", 2))
+
+    def _try_ejection_chain(self, u: int, r_u: int, p_u: int) -> bool:
+        return ejection_chain(self, u, r_u, p_u)

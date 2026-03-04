@@ -41,7 +41,9 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
     return Individual(child_gt)
 
 
-def update_biased_fitness(population: List[Individual], nb_elite: int, alpha_diversity: float = 0.5):
+def update_biased_fitness(
+    population: List[Individual], nb_elite: int, alpha_diversity: float = 0.5, neighbor_size: int = 15
+):
     """
     Update biased fitness based on profit rank and diversity rank.
 
@@ -49,6 +51,7 @@ def update_biased_fitness(population: List[Individual], nb_elite: int, alpha_div
         population: List of individuals to update.
         nb_elite: Number of elite individuals to protect.
         alpha_diversity: Weight for diversity in fitness calculation (0.0 = pure profit, 1.0 = pure diversity).
+        neighbor_size: Number of nearest neighbors to consider.
     """
     if not population:
         return
@@ -73,8 +76,8 @@ def update_biased_fitness(population: List[Individual], nb_elite: int, alpha_div
             dist = len(s1.symmetric_difference(s2))
             dists.append(dist)
         dists.sort()
-        # Avg of closest 5
-        ind1.dist_to_parents = float(np.mean(dists[:5])) if dists else 0.0
+        # Avg of closest neighbor_size
+        ind1.dist_to_parents = float(np.mean(dists[:neighbor_size])) if dists else 0.0
 
     # Rank by Diversity
     population.sort(key=lambda x: x.dist_to_parents, reverse=True)
