@@ -306,6 +306,7 @@ class ALNSSARSASolver(PolicyVizMixin):
         rl_params: RLAHVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
+        evaluator=None,
     ):
         """Initialize enhanced ALNS-SARSA solver."""
         self.dist_matrix = dist_matrix
@@ -314,6 +315,7 @@ class ALNSSARSASolver(PolicyVizMixin):
         self.R = R
         self.C = C
         self.params = params
+        self.evaluator = evaluator
         self.epsilon_decay_step = rl_params.sarsa_epsilon_decay_step
         self.mandatory_nodes = mandatory_nodes or []
         self.improvement_thresholds = rl_params.sarsa_improvement_thresholds
@@ -379,11 +381,12 @@ class ALNSSARSASolver(PolicyVizMixin):
             self._repair_greedy,
             self._repair_regret2,
             # Advanced operators
-            self._repair_regretk,
+            lambda routes, removed: self._repair_regretk(routes, removed, k=3),
+            lambda routes, removed: self._repair_regretk(routes, removed, k=4),
             self._repair_greedy_blink,
         ]
 
-        self.repair_names = ["Greedy", "Regret-2", "Regret-k", "Greedy-Blink", "Regret-k-Insertion"]
+        self.repair_names = ["Greedy", "Regret-2", "Regret-3", "Regret-4", "Greedy-Blink"]
 
     def _init_unstring_operators(self):
         """Initialize all unstring operators."""
@@ -474,7 +477,6 @@ class ALNSSARSASolver(PolicyVizMixin):
             mandatory_nodes=self.mandatory_nodes,
             cost_unit=self.C,
             k=k,
-            rng=self.random,
         )
 
     def _repair_greedy_blink(
@@ -564,7 +566,7 @@ class ALNSSARSASolver(PolicyVizMixin):
 
     # ===== Main Solve Loop =====
 
-    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
+    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:  # noqa: C901
         """
         Run enhanced ALNS with SARSA operator selection.
 
@@ -574,6 +576,8 @@ class ALNSSARSASolver(PolicyVizMixin):
         # Initialize solution
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
+
+        current_eval_profit = self.evaluator(current_routes) if self.evaluator else current_profit
 
         # Simulated annealing temperature
         T = self.params.start_temp
@@ -593,6 +597,7 @@ class ALNSSARSASolver(PolicyVizMixin):
                 current_cost = self.calculate_cost(current_routes)
                 current_rev = sum(self.wastes.get(n, 0) * self.R for r in current_routes for n in r)
                 current_profit = current_rev - current_cost
+                current_eval_profit = self.evaluator(current_routes) if self.evaluator else current_profit
                 self.stagnation_count = 0
 
                 # Update best if perturbed route somehow magically improves it
@@ -619,8 +624,10 @@ class ALNSSARSASolver(PolicyVizMixin):
             new_rev = sum(self.wastes.get(n, 0) * self.R for r in new_routes for n in r)
             new_profit = new_rev - new_cost
 
+            new_eval_profit = self.evaluator(new_routes) if self.evaluator else new_profit
+
             # Acceptance criterion (simulated annealing)
-            delta = current_profit - new_profit
+            delta = current_eval_profit - new_eval_profit
             accept = False
             if delta < self.improvement_thresholds[0]:
                 accept = True
@@ -659,6 +666,7 @@ class ALNSSARSASolver(PolicyVizMixin):
             if accept:
                 current_routes = new_routes
                 current_profit = new_profit
+                current_eval_profit = new_eval_profit
 
                 if new_profit > best_profit + self.improvement_thresholds[1]:
                     best_routes = copy.deepcopy(new_routes)

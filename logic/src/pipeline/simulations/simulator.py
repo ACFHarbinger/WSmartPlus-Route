@@ -33,15 +33,19 @@ import os
 import random
 import statistics
 import sys
+import time
 import traceback
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
 from omegaconf import DictConfig
-from tqdm import tqdm
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
+from logic.src.pipeline.features.test.orchestrator.monitor import (
+    initialize_simulation_display,
+    process_display_updates,
+)
 from logic.src.tracking.logging.log_utils import log_to_json, output_stats
 
 from .checkpoints import CheckpointError
@@ -300,15 +304,38 @@ def sequential_simulations(  # noqa: C901
     log_std: Optional[Dict[str, Any]] = {}
     log_full: Dict[str, List[List[float]]] = {get_pol_name(policy): [] for policy in policies}
 
-    # Create overall progress bar FIRST with position=1
-    overall_progress = tqdm(
-        total=sum(len(sublist) for sublist in sample_idx_ls) * sim.days,
-        desc="Overall progress",
-        disable=cfg.tracking.no_progress_bar,
-        position=1,
-        leave=True,
+    # Internal counter for display
+    class SimpleCounter:
+        def __init__(self, val=0):
+            self.value = val
+
+        def update(self, n=1):
+            self.value += n
+
+    counter = SimpleCounter()
+    loop_tic = time.time()
+    last_reported_days = {p: 0 for p in policies}
+    log_tmp = {p: {} for p in policies}
+    policy_names = [get_pol_name(p) for p in policies]
+
+    display = (
+        initialize_simulation_display(policy_names, sim.n_samples, sim.days)
+        if not cfg.tracking.no_progress_bar
+        else None
     )
 
+    if shared_metrics is None:
+        shared_metrics = {}
+
+    # Progress bar wrapper to maintain compatibility with RunningState which calls .update(1)
+    class ProgressUpdater:
+        def update(self, n=1):
+            if display:
+                process_display_updates(
+                    display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter
+                )
+
+    overall_progress = ProgressUpdater()
     results_dir = os.path.join(
         ROOT_DIR,
         "assets",
@@ -325,7 +352,6 @@ def sequential_simulations(  # noqa: C901
                     "lock": lock,
                     "overall_progress": overall_progress,
                     "shared_metrics": shared_metrics,
-                    "tqdm_pos": 1,
                 }
 
                 context = SimulationContext(
@@ -348,6 +374,13 @@ def sequential_simulations(  # noqa: C901
                     # Always append to log_full to support uniform aggregation logic
                     log_full[pol_name].append(lg)
                     log[pol_name] = lg
+
+                # Final update for this sample
+                if display:
+                    process_display_updates(
+                        display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter
+                    )
+
             except BaseException as e:
                 # Report to redirected stderr so it's captured in simulation log files
                 print(
@@ -414,6 +447,4 @@ def sequential_simulations(  # noqa: C901
                         for metric_name, val in zip(SIM_METRICS, std_metrics):
                             run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
-    # Close overall progress bar
-    overall_progress.close()
     return log, log_std, failed_log

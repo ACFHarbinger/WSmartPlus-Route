@@ -20,7 +20,6 @@ from omegaconf import DictConfig
 
 from logic.src.constants import (
     ROOT_DIR,
-    TQDM_COLOURS,
 )
 
 from .base import SimState
@@ -44,8 +43,6 @@ class SimulationContext:
     counter: Optional[Any]
     overall_progress: Optional[Any]
     shared_metrics: Any = None
-    pbar: Optional[Any]
-    log_path: str = ""
     exec_time: Optional[float] = None
     start_time: Optional[float] = None
     end_time: Optional[float] = None
@@ -144,9 +141,6 @@ class SimulationContext:
         self.tic: float = 0
         self.config: Optional[Dict[str, Any]] = None
         self.vehicle_capacity: Optional[float] = None
-
-        self.tqdm_pos: int = variables_dict.get("tqdm_pos", 0)
-        self.colour: str = TQDM_COLOURS[pol_id % len(TQDM_COLOURS)]
 
         # Early import to avoid circular dependency
         from ..initializing import InitializingState

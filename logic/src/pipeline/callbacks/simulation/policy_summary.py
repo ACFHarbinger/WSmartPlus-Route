@@ -4,6 +4,7 @@ Policy Summary Callback.
 Display a summary of the policies that will be run in the simulation.
 """
 
+import sys
 from typing import Any, Dict, List
 
 from rich import box
@@ -13,6 +14,7 @@ from rich.table import Table
 from logic.src.configs import Config, MustGoConfig
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
+from logic.src.tracking.logging.logger_writer import LoggerWriter
 
 
 class PolicySummaryCallback:
@@ -28,7 +30,11 @@ class PolicySummaryCallback:
             cfg: Root Config with ``cfg.sim.full_policies`` and
                 ``cfg.sim.config_path``.
         """
-        console = Console()
+        main_console_out = sys.stdout
+        if isinstance(main_console_out, LoggerWriter):
+            main_console_out = main_console_out.terminal
+
+        console = Console(file=main_console_out)
         table = Table(
             show_header=True,
             header_style="bold magenta",

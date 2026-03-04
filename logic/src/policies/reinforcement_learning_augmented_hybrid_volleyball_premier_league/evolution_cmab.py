@@ -21,6 +21,8 @@ from typing import List, Optional
 
 import numpy as np
 
+from ..hybrid_genetic_search.individual import Individual
+from ..hybrid_genetic_search.split import LinearSplit
 from .contextual_mab import (
     ContextFeatureExtractor,
     EpsilonGreedyCrossoverSelector,
@@ -28,8 +30,6 @@ from .contextual_mab import (
     ThompsonSamplingCrossoverSelector,
 )
 from .crossover_operators import CROSSOVER_NAMES, CROSSOVER_OPERATORS
-from .individual import Individual
-from .split import LinearSplit
 
 
 class CMABEvolution:
@@ -87,6 +87,7 @@ class CMABEvolution:
                 alpha=kwargs.get("alpha", 1.0),
                 operator_reward_size=kwargs.get("operator_reward_size", 50),
                 operator_selection_threshold=kwargs.get("operator_selection_threshold", 1e-9),
+                improvement_threshold=kwargs.get("improvement_threshold", 1e-6),
             )
         elif bandit_algorithm == "thompson":
             self.bandit = ThompsonSamplingCrossoverSelector(

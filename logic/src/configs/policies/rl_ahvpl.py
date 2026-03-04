@@ -1,27 +1,26 @@
 """
-Hyperparameters for the Reinforcement Learning Augmented Hybrid Volleyball Premier League (RL-AHVPL) algorithm.
-
-Extends the base AHVPL framework with Reinforcement Learning (RL) integration
-for adaptive selection of crossover, local search, and ruin and repair operators.
+RL-AHVPL (Reinforcement Learning Augmented Hybrid Volleyball Premier League) configuration for Hydra.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
-from ..hybrid_genetic_search.params import HGSParams
-from ..reactive_tabu_search.params import RTSParams
+from .aco import ACOConfig
+from .alns import ALNSConfig
+from .hgs import HGSConfig
+from .rts import RTSConfig
 
 
 @dataclass
-class RLAHVPLParams:
+class RLAHVPLConfig:
     """
-    Parameters for the Reinforcement Learning Augmented Hybrid Volleyball Premier League metaheuristic.
+    Configuration for the Reinforcement Learning Augmented Hybrid Volleyball Premier League policy.
 
     Combines VPL population dynamics, ACO initialization, ALNS local search, and HGS diversity
     management / crossover, all using Reinforcement Learning (RL) for adaptive operator selection.
     """
+
+    engine: str = "rl_ahvpl"
 
     # General parameters
     n_teams: int = 10
@@ -31,20 +30,15 @@ class RLAHVPLParams:
     not_coached_max_iterations: int = 100
     coaching_acceptance_threshold: float = 1e-6
     sub_rate: float = 0.2
-    seed: Optional[int] = None
 
-    # ACO parameters
-    aco_params: ACOParams = field(default_factory=ACOParams)
-
-    # ALNS parameters
-    alns_params: ALNSParams = field(default_factory=ALNSParams)
-
-    # HGS parameters
-    hgs_params: HGSParams = field(default_factory=HGSParams)
+    # Nested component configs
+    aco: ACOConfig = field(default_factory=ACOConfig)
+    alns: ALNSConfig = field(default_factory=ALNSConfig)
+    hgs: HGSConfig = field(default_factory=HGSConfig)
+    rts: RTSConfig = field(default_factory=RTSConfig)
 
     # Tabu parameters
     tabu_no_repeat_threshold: int = 2
-    rts_params: RTSParams = field(default_factory=RTSParams)
 
     # GLS parameters
     gls_penalty_lambda: float = 1.0
@@ -102,3 +96,9 @@ class RLAHVPLParams:
     sarsa_operator_progress_thresholds: List[float] = field(default_factory=lambda: [0.33, 0.67])
     sarsa_operator_stagnation_thresholds: List[int] = field(default_factory=lambda: [10, 30])
     sarsa_operator_diversity_thresholds: List[float] = field(default_factory=lambda: [0.3, 0.7])
+
+    # Common policy fields
+    vrpp: bool = True
+    seed: Optional[int] = None
+    must_go: List[str] = field(default_factory=list)
+    post_processing: List[Any] = field(default_factory=list)

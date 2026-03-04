@@ -28,6 +28,7 @@ Reference:
     Gambardella & Dorigo, "Ant Colony System", IEEE Trans., 1997.
 """
 
+import random
 import time
 from collections import defaultdict, deque
 from typing import Any, Deque, Dict, List, Optional, Tuple
@@ -200,7 +201,7 @@ class LocalSearchManager:
         self.C = C
         self.improvement_threshold = improvement_threshold
         self.rng = np.random.default_rng(seed)
-        self.random_std = np.random.Random(seed)
+        self.random_std = random.Random(seed)
 
         # Routes interface for operators
         self.routes: List[List[int]] = []
