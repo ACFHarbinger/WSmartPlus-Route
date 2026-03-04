@@ -9,7 +9,7 @@ from .envs import EnvConfig, GraphConfig, ObjectiveConfig
 from .models import DecoderConfig, DecodingConfig, EncoderConfig, ModelConfig, OptimConfig
 from .policies.other import MustGoConfig, PostProcessingConfig
 from .rl import RLConfig
-from .tasks import DataConfig, EvalConfig, HPOConfig, MetaRLConfig, SimConfig, TrainConfig
+from .tasks import DataConfig, EvalConfig, HPOConfig, MetaRLConfig, SimConfig, SimHPOConfig, TrainConfig
 from .tracking import TrackingConfig
 
 
@@ -57,6 +57,7 @@ class Config:
     hpo: HPOConfig = field(default_factory=HPOConfig)
     eval: EvalConfig = field(default_factory=EvalConfig)
     sim: SimConfig = field(default_factory=SimConfig)
+    hpo_sim: SimHPOConfig = field(default_factory=SimHPOConfig)
     data: DataConfig = field(default_factory=DataConfig)
     tracking: TrackingConfig = field(default_factory=TrackingConfig)
     must_go: MustGoConfig = field(default_factory=MustGoConfig)
@@ -83,6 +84,7 @@ __all__ = [
     "HPOConfig",
     "EvalConfig",
     "SimConfig",
+    "SimHPOConfig",
     "DataConfig",
     "TrackingConfig",
     "MustGoConfig",

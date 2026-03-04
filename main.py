@@ -64,7 +64,7 @@ def main() -> None:
     # The sys.argv manipulation below converts user commands into Hydra-compatible
     # overrides (e.g., 'eval' -> 'task=eval').
     # ========================================================================
-    HYDRA_TASKS = {"train", "evaluation", "eval", "test_sim", "gen_data", "hpo", "meta_train"}
+    HYDRA_TASKS = {"train", "evaluation", "eval", "test_sim", "gen_data", "hpo", "meta_train", "hpo_sim"}
     if len(sys.argv) > 1 and sys.argv[1] in HYDRA_TASKS:
         task = sys.argv.pop(1)
         sys.argv.append(f"tasks={task}")

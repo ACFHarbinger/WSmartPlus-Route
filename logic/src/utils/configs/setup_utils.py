@@ -2,7 +2,7 @@
 Configuration and data sanitization utilities.
 """
 
-from typing import Any
+from typing import Any, Dict, Union
 
 import numpy as np
 import torch
@@ -48,3 +48,12 @@ def deep_sanitize(val: Any) -> Any:
         return [deep_sanitize(item) for item in val]
 
     return val
+
+
+def get_pol_name(pol_obj: Union[str, Dict[str, Any]]) -> str:
+    """Extract policy name from structured or string config."""
+    if isinstance(pol_obj, dict):
+        if len(pol_obj) == 1:
+            return list(pol_obj.keys())[0]
+        return "complex_policy"
+    return str(pol_obj)
