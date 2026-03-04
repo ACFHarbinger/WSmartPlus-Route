@@ -115,9 +115,9 @@ class InitializingState(SimState):
                 try:
                     loaded = path if hasattr(path, "items") else load_config(path)
                     ctx.config[key] = loaded
-                    print(f"[INFO] Loaded configuration for '{key}' from {path}")
+                    print(f"\n[INFO] Loaded configuration for '{key}' from {path}")
                 except (OSError, ValueError) as e:
-                    print(f"[Warning] Failed to load config file {path}: {e}")
+                    print(f"\n[Warning] Failed to load config file {path}: {e}")
 
         self._load_neural_configs(ctx)
 
@@ -144,9 +144,9 @@ class InitializingState(SimState):
                             ctx.config[pol_key] = pol_val
                     else:
                         ctx.config.update(neural_cfg)
-                print(f"[INFO] Loaded configuration from {neural_cfg_path}")
+                print(f"\n[INFO] Loaded configuration from {neural_cfg_path}")
             except (OSError, ValueError) as e:
-                print(f"[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
+                print(f"\n[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
 
     def _setup_capacities(self, ctx):
         from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params

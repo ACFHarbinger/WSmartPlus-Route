@@ -89,11 +89,11 @@ def apply_operator(
         "2opt": lambda sol: _handle_2opt(sol, rng),
         "move": lambda sol: _handle_move(sol, data, vehicle_capacity, id_to_index, rng),
         "swap": lambda sol: _handle_swap(sol, rng),
-        "remove": lambda sol: remove_bins_from_route(sol, must_go_bins, rng, n=1),
-        "move_n_random": lambda sol: move_n_route_random(sol, n=rng.randint(2, 5)),
-        "move_n_consec": lambda sol: move_n_route_consecutive(sol, n=rng.randint(2, 5)),
-        "swap_n_random": lambda sol: swap_n_route_random(sol, n=rng.randint(2, 5)),
-        "swap_n_consec": lambda sol: swap_n_route_consecutive(sol, n=rng.randint(2, 5)),
+        "remove": lambda sol: remove_bins_from_route(sol, must_go_bins, rng, num_bins=1),
+        "move_n_random": lambda sol: move_n_route_random(sol, rng, n=rng.randint(2, 5)),
+        "move_n_consec": lambda sol: move_n_route_consecutive(sol, rng, n=rng.randint(2, 5)),
+        "swap_n_random": lambda sol: swap_n_route_random(sol, rng, n=rng.randint(2, 5)),
+        "swap_n_consec": lambda sol: swap_n_route_consecutive(sol, rng, n=rng.randint(2, 5)),
         "remove_n_bins": lambda sol: remove_n_bins_random(
             sol, candidate_removed_bins, must_go_bins, rng, n=rng.randint(2, 5)
         ),

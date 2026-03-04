@@ -146,22 +146,14 @@ class SANSPolicy(BaseRoutingPolicy):
                 current_route.insert(1, b)
 
         # Get SA parameters from typed config or raw config
-        cfg = self._config
         rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random()
-        if cfg is not None:
-            sa_params = (cfg.T_init, cfg.iterations_per_T, cfg.alpha, cfg.T_min)
-            time_limit = cfg.time_limit
-            perc_overflow = cfg.perc_bins_can_overflow
-        else:
-            sans_config = config.get("sans", {})
-            sa_params = (
-                sans_config.get("T_init", 75),
-                sans_config.get("iterations_per_T", 5000),
-                sans_config.get("alpha", 0.95),
-                sans_config.get("T_min", 0.01),
-            )
-            time_limit = values.get("time_limit", 60)
-            perc_overflow = sans_config.get("perc_bins_can_overflow", 0.0)
+        sans_config = config.get("sans", {})
+        T_init = sans_config.get("T_init", 75)
+        iterations_per_T = sans_config.get("iterations_per_T", 5000)
+        alpha = sans_config.get("alpha", 0.95)
+        T_min = sans_config.get("T_min", 0.01)
+        time_limit = values.get("time_limit", 60)
+        perc_overflow = sans_config.get("perc_bins_can_overflow", 0.0)
 
         optimized_routes, best_profit, last_distance, _, _ = improved_simulated_annealing(
             [current_route],
@@ -170,7 +162,10 @@ class SANSPolicy(BaseRoutingPolicy):
             id_to_index,
             data,
             Q,
-            *sa_params,
+            T_init,
+            T_min,
+            alpha,
+            iterations_per_T,
             R,
             V,
             B,
