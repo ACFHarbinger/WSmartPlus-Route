@@ -42,26 +42,14 @@ import torch
 from omegaconf import DictConfig
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
-from logic.src.pipeline.features.test.orchestrator.monitor import (
-    initialize_simulation_display,
-    process_display_updates,
-)
 from logic.src.tracking.logging.log_utils import log_to_json, output_stats
+from logic.src.utils.configs.setup_utils import get_pol_name
 
 from .checkpoints import CheckpointError
 from .states import SimulationContext
 
 if TYPE_CHECKING:
     from logic.src.configs import Config
-
-
-def get_pol_name(pol_obj: Union[str, Dict[str, Any]]) -> str:
-    """Extract policy name from structured or string config."""
-    if isinstance(pol_obj, dict):
-        if len(pol_obj) == 1:
-            return list(pol_obj.keys())[0]
-        return "complex_policy"
-    return str(pol_obj)
 
 
 # Create global variables/placeholders for parallel workers
@@ -317,6 +305,11 @@ def sequential_simulations(  # noqa: C901
     last_reported_days = {p: 0 for p in policies}
     log_tmp = {p: {} for p in policies}
     policy_names = [get_pol_name(p) for p in policies]
+
+    from logic.src.pipeline.features.test.orchestrator.monitor import (
+        initialize_simulation_display,
+        process_display_updates,
+    )
 
     display = (
         initialize_simulation_display(policy_names, sim.n_samples, sim.days)

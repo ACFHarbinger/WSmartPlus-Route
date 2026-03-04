@@ -72,6 +72,14 @@ def _run_task(cfg: Config) -> float:
         run_wsr_simulator_test(cfg)
         return 0.0
 
+    if task == "hpo_sim":
+        from logic.src.policies.other.hpo.hpo_handler import run_hpo_sim
+
+        if cfg.tracking.verbose:
+            _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["hpo_sim"])  # type: ignore[arg-type]
+        run_hpo_sim(cfg)
+        return 0.0
+
     if task == "gen_data":
         import logic.src.tracking as wst
         from logic.src.data.generators import generate_datasets

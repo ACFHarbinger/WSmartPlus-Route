@@ -7,6 +7,7 @@ from .eval import EvalConfig
 from .hpo import HPOConfig
 from .meta_rl import MetaRLConfig
 from .sim import SimConfig
+from .sim_hpo import SimHPOConfig
 from .train import TrainConfig
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "HPOConfig",
     "MetaRLConfig",
     "SimConfig",
+    "SimHPOConfig",
     "TrainConfig",
 ]
