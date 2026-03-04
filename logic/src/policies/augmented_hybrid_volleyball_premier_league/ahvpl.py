@@ -222,10 +222,10 @@ class AHVPLSolver(PolicyVizMixin):
             # Adaptive alpha diversity
             # Calculate current population diversity
             avg_dist = np.mean([ind.dist_to_parents for ind in population])
-            if avg_dist < self.params.min_diversity_threshold:
-                current_alpha = min(1.0, current_alpha + self.params.diversity_change_rate)
-            elif _iteration - last_improvement_it > self.params.no_improvement_threshold:
-                current_alpha = max(0.0, current_alpha - self.params.diversity_change_rate)
+            if avg_dist < self.params.hgs_params.min_diversity_threshold:
+                current_alpha = min(1.0, current_alpha + self.params.hgs_params.diversity_change_rate)
+            elif _iteration - last_improvement_it > self.params.hgs_params.no_improvement_threshold:
+                current_alpha = max(0.0, current_alpha - self.params.hgs_params.diversity_change_rate)
 
             # 7. Pheromone Update — ACO global guidance based on best cost
             self._update_pheromones(best_routes, best_profit, best_cost)

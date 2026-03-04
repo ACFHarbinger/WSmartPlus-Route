@@ -94,9 +94,9 @@ class InitializingState(SimState):
         setup_logger_redirection(
             log_file=log_file,
             silent=True,
-            redirect_stdout=False,  # Keep stdout for terminal progress/output
+            redirect_stdout=True,  # Redirect stdout to ensure Bins prints etc. reach the log file
             redirect_stderr=True,
-            echo_to_terminal=True,  # Still echo errors to terminal
+            echo_to_terminal=True,  # Still echo to terminal for visibility
         )
 
         if not os.path.exists(ctx.results_dir):

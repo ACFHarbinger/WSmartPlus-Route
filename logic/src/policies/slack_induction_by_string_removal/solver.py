@@ -26,6 +26,12 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..operators.destroy_operators import string_removal
 from ..operators.repair_operators import greedy_insertion_with_blinks
+from ..operators.unstringing import (
+    apply_type_i_unstringing,
+    apply_type_ii_unstringing,
+    apply_type_iii_unstringing,
+    apply_type_iv_unstringing,
+)
 from .params import SISRParams
 
 
@@ -171,3 +177,260 @@ class SISRSolver(PolicyVizMixin):
             rng=self.random,
         )
         return routes
+
+    def _apply_unstringing_operators(self, routes: List[List[int]]) -> List[List[int]]:
+        """
+        Apply unstringing operators to improve the solution.
+
+        This method attempts all four types of unstringing operators on each route
+        and accepts improvements based on profit increase.
+
+        Args:
+            routes: Current solution routes.
+
+        Returns:
+            Improved routes after applying unstringing operators.
+        """
+        improved_routes = [r[:] for r in routes]
+        improved = True
+
+        while improved:
+            improved = False
+            current_profit = self._calculate_profit(improved_routes)
+
+            # Try unstringing on each route
+            for route_idx, route in enumerate(improved_routes):
+                if len(route) < 4:  # Need at least 4 nodes for unstringing
+                    continue
+
+                best_route, best_profit, route_improved = self._find_best_unstringing(
+                    route, improved_routes, route_idx, current_profit
+                )
+
+                # Apply best improvement found for this route
+                if route_improved:
+                    improved_routes[route_idx] = best_route
+                    current_profit = best_profit
+                    improved = True
+
+        return improved_routes
+
+    def _find_best_unstringing(
+        self, route: List[int], all_routes: List[List[int]], route_idx: int, current_profit: float
+    ) -> Tuple[List[int], float, bool]:
+        """
+        Find the best unstringing move for a single route.
+
+        Args:
+            route: Route to improve.
+            all_routes: All current routes.
+            route_idx: Index of the route in all_routes.
+            current_profit: Current total profit.
+
+        Returns:
+            Tuple of (best_route, best_profit, improved_flag).
+        """
+        best_route = route[:]
+        best_profit = current_profit
+        improved = False
+
+        # Try all four types of unstringing operators
+        best_route, best_profit, type1_improved = self._try_type_i_unstringing(
+            route, all_routes, route_idx, best_route, best_profit
+        )
+        improved = improved or type1_improved
+
+        best_route, best_profit, type2_improved = self._try_type_ii_unstringing(
+            route, all_routes, route_idx, best_route, best_profit
+        )
+        improved = improved or type2_improved
+
+        best_route, best_profit, type3_improved = self._try_type_iii_unstringing(
+            route, all_routes, route_idx, best_route, best_profit
+        )
+        improved = improved or type3_improved
+
+        best_route, best_profit, type4_improved = self._try_type_iv_unstringing(
+            route, all_routes, route_idx, best_route, best_profit
+        )
+        improved = improved or type4_improved
+
+        return best_route, best_profit, improved
+
+    def _try_type_i_unstringing(
+        self,
+        route: List[int],
+        all_routes: List[List[int]],
+        route_idx: int,
+        best_route: List[int],
+        best_profit: float,
+    ) -> Tuple[List[int], float, bool]:
+        """Try Type I unstringing: requires i, j, k."""
+        improved = False
+        for i in range(len(route)):
+            for j in range(len(route)):
+                for k in range(len(route)):
+                    if i in (j, k) or j == k:
+                        continue
+
+                    try:
+                        new_route = apply_type_i_unstringing(route[:], i, j, k)
+                        best_route, best_profit, move_improved = self._evaluate_unstringing_move(
+                            new_route, all_routes, route_idx, best_route, best_profit
+                        )
+                        improved = improved or move_improved
+                    except Exception:
+                        continue
+
+        return best_route, best_profit, improved
+
+    def _try_type_ii_unstringing(
+        self,
+        route: List[int],
+        all_routes: List[List[int]],
+        route_idx: int,
+        best_route: List[int],
+        best_profit: float,
+    ) -> Tuple[List[int], float, bool]:
+        """Try Type II unstringing: requires i, j, k where k > j."""
+        improved = False
+        for i in range(len(route)):
+            for j in range(len(route)):
+                for k in range(j + 1, len(route)):
+                    if i in (j, k):
+                        continue
+
+                    try:
+                        new_route = apply_type_ii_unstringing(route[:], i, j, k)
+                        best_route, best_profit, move_improved = self._evaluate_unstringing_move(
+                            new_route, all_routes, route_idx, best_route, best_profit
+                        )
+                        improved = improved or move_improved
+                    except Exception:
+                        continue
+
+        return best_route, best_profit, improved
+
+    def _try_type_iii_unstringing(
+        self,
+        route: List[int],
+        all_routes: List[List[int]],
+        route_idx: int,
+        best_route: List[int],
+        best_profit: float,
+    ) -> Tuple[List[int], float, bool]:
+        """Try Type III unstringing: requires i, j, k, l (all distinct)."""
+        improved = False
+        for i in range(len(route)):
+            for j in range(len(route)):
+                for k in range(len(route)):
+                    for l in range(len(route)):
+                        if len({i, j, k, l}) < 4:  # All must be distinct
+                            continue
+
+                        try:
+                            new_route = apply_type_iii_unstringing(route[:], i, j, k, l)
+                            best_route, best_profit, move_improved = self._evaluate_unstringing_move(
+                                new_route, all_routes, route_idx, best_route, best_profit
+                            )
+                            improved = improved or move_improved
+                        except Exception:
+                            continue
+
+        return best_route, best_profit, improved
+
+    def _try_type_iv_unstringing(
+        self,
+        route: List[int],
+        all_routes: List[List[int]],
+        route_idx: int,
+        best_route: List[int],
+        best_profit: float,
+    ) -> Tuple[List[int], float, bool]:
+        """Try Type IV unstringing: requires i, j, k, l (all distinct)."""
+        improved = False
+        for i in range(len(route)):
+            for j in range(len(route)):
+                for k in range(len(route)):
+                    for l in range(len(route)):
+                        if len({i, j, k, l}) < 4:  # All must be distinct
+                            continue
+
+                        try:
+                            new_route = apply_type_iv_unstringing(route[:], i, j, k, l)
+                            best_route, best_profit, move_improved = self._evaluate_unstringing_move(
+                                new_route, all_routes, route_idx, best_route, best_profit
+                            )
+                            improved = improved or move_improved
+                        except Exception:
+                            continue
+
+        return best_route, best_profit, improved
+
+    def _evaluate_unstringing_move(
+        self,
+        new_route: List[int],
+        all_routes: List[List[int]],
+        route_idx: int,
+        best_route: List[int],
+        best_profit: float,
+    ) -> Tuple[List[int], float, bool]:
+        """
+        Evaluate an unstringing move and return the best solution.
+
+        Args:
+            new_route: The new route after unstringing.
+            all_routes: All current routes.
+            route_idx: Index of the route being modified.
+            best_route: Current best route.
+            best_profit: Current best profit.
+
+        Returns:
+            Tuple of (best_route, best_profit, improved_flag).
+        """
+        if not self._is_valid_route(new_route):
+            return best_route, best_profit, False
+
+        test_routes = all_routes[:route_idx] + [new_route] + all_routes[route_idx + 1 :]
+        test_profit = self._calculate_profit(test_routes)
+
+        if test_profit > best_profit:
+            return new_route, test_profit, True
+
+        return best_route, best_profit, False
+
+    def _calculate_profit(self, routes: List[List[int]]) -> float:
+        """
+        Calculate total profit (revenue - cost) for routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Total profit.
+        """
+        collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in routes for node in route)
+        cost = self._calculate_cost(routes) * self.C
+        return collected_revenue - cost
+
+    def _is_valid_route(self, route: List[int]) -> bool:
+        """
+        Check if a route is valid (respects capacity constraints).
+
+        Args:
+            route: Route to validate.
+
+        Returns:
+            True if valid, False otherwise.
+        """
+        if not route:
+            return True
+
+        # Check capacity constraint
+        total_waste = sum(self.wastes.get(node, 0) for node in route)
+        if total_waste > self.capacity:
+            return False
+
+        # Check for duplicate nodes (except depot)
+        non_depot_nodes = [n for n in route if n != 0]
+        return len(non_depot_nodes) == len(set(non_depot_nodes))

@@ -24,6 +24,7 @@ Reference:
     Li et al., "A Contextual-Bandit Approach", WWW 2010.
 """
 
+import copy
 import random
 import time
 from collections import deque
@@ -77,7 +78,10 @@ class RLAHVPLSolver(PolicyVizMixin):
             seed: Random seed.
         """
         self.dist_matrix = np.array(dist_matrix)
-        self.wastes = wastes
+        self.wastes = wastes.copy()
+        if 0 not in self.wastes:
+            self.wastes[0] = 0.0
+
         self.capacity = capacity
         self.R = R
         self.C = C
@@ -90,20 +94,37 @@ class RLAHVPLSolver(PolicyVizMixin):
 
         # Enhanced ACO with Q-Learning
         self.aco_solver = KSparseACOQLSolver(
-            dist_matrix, wastes, capacity, R, C, params.aco_params, params, mandatory_nodes, seed=seed
+            dist_matrix,
+            self.wastes,
+            capacity,
+            R,
+            C,
+            params.aco_params,
+            rl_params=params,
+            mandatory_nodes=mandatory_nodes,
+            seed=seed,
         )
         self.pheromone = self.aco_solver.pheromone
         self.constructor = self.aco_solver.constructor
 
         # Enhanced ALNS with SARSA
         self.alns_solver = ALNSSARSASolver(
-            dist_matrix, wastes, capacity, R, C, params.alns_params, params, mandatory_nodes, seed=seed
+            dist_matrix,
+            self.wastes,
+            capacity,
+            R,
+            C,
+            params.alns_params,
+            params,
+            mandatory_nodes,
+            seed=seed,
+            evaluator=self._augmented_evaluate,
         )
 
         # HGS: LinearSplit for evaluation
         self.split_manager = LinearSplit(
             dist_matrix,
-            wastes,
+            self.wastes,
             capacity,
             R,
             C,
@@ -123,6 +144,7 @@ class RLAHVPLSolver(PolicyVizMixin):
             "diversity_history_size": self.params.cfe_diversity_history_size,
             "improvement_history_size": self.params.cfe_improvement_history_size,
             "operator_reward_size": self.params.cfe_operator_reward_size,
+            "improvement_threshold": self.params.cfe_improvement_threshold,
         }
 
         # CMAB Evolution with intelligent crossover selection
@@ -156,10 +178,20 @@ class RLAHVPLSolver(PolicyVizMixin):
     def _initialize_population(self) -> List[Individual]:
         """Generate initial population using enhanced ACO."""
         population: List[Individual] = []
+        # Target size is n_teams
         for _ in range(self.params.n_teams):
             ind = self._construct_individual()
             if ind is not None:
                 population.append(ind)
+
+        # Ensure minimum population size for evolution
+        if len(population) < 2:
+            # Fallback: add some simple randomized individuals if ACO fails to provide enough
+            while len(population) < min(2, self.params.n_teams):
+                shuffled = self.nodes[:]
+                self.random.shuffle(shuffled)
+                population.append(Individual(shuffled))
+
         return population
 
     def _construct_individual(self) -> Optional[Individual]:
@@ -263,7 +295,7 @@ class RLAHVPLSolver(PolicyVizMixin):
                     tenure = min(
                         self.params.rts_params.max_tenure, int(tenure * self.params.rts_params.tenure_increase)
                     )
-                    current_alpha = min(1.0, current_alpha + self.params.diversity_change_rate)
+                    current_alpha = min(1.0, current_alpha + self.params.hgs_params.diversity_change_rate)
                     no_repeat_count = 0
                 else:
                     no_repeat_count += 1
@@ -272,7 +304,7 @@ class RLAHVPLSolver(PolicyVizMixin):
                         tenure = max(
                             self.params.rts_params.min_tenure, int(tenure * self.params.rts_params.tenure_decrease)
                         )
-                        current_alpha = max(0.0, current_alpha - self.params.diversity_change_rate)
+                        current_alpha = max(0.0, current_alpha - self.params.hgs_params.diversity_change_rate)
                         no_repeat_count = 0
                     self.solution_history[child_hash] = iteration
 
@@ -288,14 +320,15 @@ class RLAHVPLSolver(PolicyVizMixin):
                     break
 
                 if i < self.params.hgs_params.elite_size:
-                    # Elite: intensive VND
-                    population[i] = self._vnd_coaching(ind, iterations=self.params.vns_max_iterations)
-                elif not ind.is_coached:
-                    # New children: ALNS-SARSA
-                    population[i] = self._alns_coaching(ind, iterations=self.params.not_coached_alns_iterations)
+                    # Elite -> Intensive ALNS
+                    new_ind = self._alns_coaching(ind, iterations=self.params.elite_coaching_max_iterations)
+                elif self.random.random() < self.params.gls_probability:
+                    # Others -> Quick GLS
+                    new_ind = self._gls_coaching(ind, iterations=self.params.not_coached_max_iterations)
                 else:
                     # Already coached: light refresh
-                    population[i] = self._alns_coaching(ind, iterations=self.params.alns_params.max_iterations)
+                    new_ind = self._alns_coaching(ind, iterations=self.params.alns_params.max_iterations)
+                population[i] = new_ind
 
             # 4. Survivor selection
             update_biased_fitness(
@@ -307,7 +340,7 @@ class RLAHVPLSolver(PolicyVizMixin):
             population.sort(key=lambda x: x.fitness)
             population = population[: self.params.n_teams]
 
-            # 5. Reduced substitution (10%)
+            # 5. Reduced substitution
             population.sort(key=lambda x: x.profit_score, reverse=True)
             n_sub = int(self.params.n_teams * self.params.sub_rate)
             for i in range(self.params.n_teams - n_sub, self.params.n_teams):
@@ -360,28 +393,56 @@ class RLAHVPLSolver(PolicyVizMixin):
 
     # ===== Coaching Methods =====
 
-    def _vnd_coaching(self, ind: Individual, iterations: int = 500) -> Individual:
-        """Variable Neighborhood Descent coaching."""
+    def _gls_coaching(self, ind: Individual, iterations: int = 100) -> Individual:
+        """Guided Local Search coaching using augmented objective."""
         routes = [r[:] for r in ind.routes]
+        best_routes = [r[:] for r in routes]
+
         profit = ind.profit_score
+        best_profit = profit
+        aug_profit = self._augmented_evaluate(routes)
 
-        # Simple VND neighborhoods (simplified for demonstration)
-        for _ in range(min(iterations, 100)):
-            # Apply ALNS shake
-            new_routes = self._alns_light(routes, n_remove=2)
-            new_profit = self._evaluate_routes(new_routes)
+        # Simplified GLS operators pool using existing ALNS operators
+        llhs = [
+            (self.alns_solver.destroy_ops[0], self.alns_solver.repair_ops[0]),  # random + greedy
+            (self.alns_solver.destroy_ops[1], self.alns_solver.repair_ops[1]),  # worst + regret2
+            (self.alns_solver.destroy_ops[2], self.alns_solver.repair_ops[0]),  # cluster + greedy
+            (self.alns_solver.destroy_ops[1], self.alns_solver.repair_ops[0]),  # worst + greedy
+            (self.alns_solver.destroy_ops[0], self.alns_solver.repair_ops[1]),  # random + regret2
+        ]
 
-            if new_profit > profit + 1e-6:
+        n_remove = max(1, int(self.n_nodes * self.params.alns_params.max_removal_pct))
+
+        for _ in range(iterations):
+            d_op, r_op = self.random.choice(llhs)
+
+            try:
+                partial_routes, removed = d_op(copy.deepcopy(routes), n_remove)
+                new_routes = r_op(partial_routes, removed)
+            except Exception:
+                continue
+
+            new_aug_profit = self._augmented_evaluate(new_routes)
+
+            if new_aug_profit >= aug_profit:
                 routes = new_routes
-                profit = new_profit
+                aug_profit = new_aug_profit
 
-        if profit > ind.profit_score:
-            ind.routes = routes
-            ind.profit_score = profit
-            ind.cost = self._calculate_cost(routes)
-            ind.revenue = sum(self.wastes.get(n, 0) * self.R for r in routes for n in r)
+                new_real_profit = self._evaluate_routes(routes)
+                if new_real_profit > best_profit:
+                    best_routes = [r[:] for r in routes]
+                    best_profit = new_real_profit
 
-            ind.giant_tour = self._routes_to_giant_tour(routes)
+        # At local optimum, penalize features
+        self._penalize_local_optimum_edges(routes)
+
+        if best_profit > ind.profit_score:
+            ind.routes = best_routes
+            ind.profit_score = best_profit
+            ind.cost = self._calculate_cost(best_routes)
+            ind.revenue = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r)
+
+            ind.giant_tour = self._routes_to_giant_tour(best_routes)
             visited = set(ind.giant_tour)
             missing = [n for n in self.nodes if n not in visited]
             ind.giant_tour.extend(missing)
@@ -398,7 +459,7 @@ class RLAHVPLSolver(PolicyVizMixin):
 
         self.alns_solver.params.max_iterations = old_iters
 
-        if improved_profit > ind.profit_score + 1e-6 and improved_routes:
+        if improved_profit > ind.profit_score + self.params.coaching_acceptance_threshold and improved_routes:
             ind.routes = [r[:] for r in improved_routes]
             ind.profit_score = improved_profit
             ind.cost = improved_cost
@@ -416,6 +477,10 @@ class RLAHVPLSolver(PolicyVizMixin):
 
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
         """Binary tournament selection."""
+        if len(population) < 2:
+            # This should not happen with current safeguards, but handle for safety
+            p = population[0] if population else Individual([])
+            return p, p
 
         def tournament() -> Individual:
             i1, i2 = self.random.sample(population, 2)
@@ -464,16 +529,16 @@ class RLAHVPLSolver(PolicyVizMixin):
 
     def _augmented_evaluate(self, routes: List[List[int]]) -> float:
         """Evaluate with penalty-augmented objective."""
-        real = self._evaluate(routes)
+        real = self._evaluate_routes(routes)
         penalty = 0.0
         dynamic_lambda = self.params.gls_penalty_lambda * (abs(real) / max(1, self.n_nodes))
         for route in routes:
             if not route:
                 continue
-            penalty += self.penalties[0][route[0]]
+            penalty += self.edge_penalties[0][route[0]]
             for k in range(len(route) - 1):
-                penalty += self.penalties[route[k]][route[k + 1]]
-            penalty += self.penalties[route[-1]][0]
+                penalty += self.edge_penalties[route[k]][route[k + 1]]
+            penalty += self.edge_penalties[route[-1]][0]
         return real - self.params.gls_penalty_lambda * dynamic_lambda * penalty
 
     def _update_pheromones_profit(self, routes: List[List[int]], profit: float, cost: float) -> None:
@@ -494,10 +559,14 @@ class RLAHVPLSolver(PolicyVizMixin):
 
     @staticmethod
     def _routes_to_giant_tour(routes: List[List[int]]) -> List[int]:
-        """Flatten routes."""
+        """Flatten routes, ensuring depot (0) is filtered and duplicates removed."""
         gt: List[int] = []
+        seen = {0}
         for route in routes:
-            gt.extend(route)
+            for node in route:
+                if node not in seen:
+                    gt.append(node)
+                    seen.add(node)
         return gt
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
@@ -517,19 +586,3 @@ class RLAHVPLSolver(PolicyVizMixin):
         cost = self._calculate_cost(routes)
         revenue = sum(self.wastes.get(n, 0) * self.R for r in routes for n in r)
         return revenue - cost
-
-    def _alns_light(self, routes: List[List[int]], n_remove: int = 2) -> List[List[int]]:
-        """Light ALNS shake."""
-        old_iters = self.alns_solver.params.max_iterations
-        self.alns_solver.params.max_iterations = 20
-        improved_routes, _, _ = self.alns_solver.solve(initial_solution=routes)
-        self.alns_solver.params.max_iterations = old_iters
-        return improved_routes if improved_routes else routes
-
-    def _alns_intensive(self, routes: List[List[int]], iterations: int = 100) -> List[List[int]]:
-        """Intensive ALNS refinement."""
-        old_iters = self.alns_solver.params.max_iterations
-        self.alns_solver.params.max_iterations = iterations
-        improved_routes, _, _ = self.alns_solver.solve(initial_solution=routes)
-        self.alns_solver.params.max_iterations = old_iters
-        return improved_routes if improved_routes else routes

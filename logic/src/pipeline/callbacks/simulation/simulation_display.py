@@ -28,8 +28,6 @@ from rich.progress import (
 from rich.table import Table
 from rich.text import Text
 
-# METRICS is now imported inside methods where needed to avoid unused import warning
-
 
 class SimulationDisplayCallback:
     """

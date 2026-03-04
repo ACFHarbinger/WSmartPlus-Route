@@ -33,28 +33,20 @@ class LoggerWriter:
         self.log = open(filename, "a", encoding="utf-8")  # noqa: SIM115
 
     def write(self, message):
-        """Write message to terminal and/or log file, filtering based on tags line-by-line."""
+        """Write message to terminal and/or log file, stripping ANSI and filtering progress bars."""
         if self.echo_to_terminal:
             self.terminal.write(message)
 
-        # Logic to filter based on tags: [INFO], [WARNING], [ERROR]
-        # Pattern matches:
-        # ^                 : Start of string
-        # (\x1b\[[0-9;]*m)* : Zero or more ANSI escape sequences
-        # \s*               : Optional whitespace
-        # \[(INFO|WARNING|ERROR)\] : The tag
-        tag_pattern = re.compile(r"^(\x1b\[[0-9;]*m)*\s*\[(INFO|WARNING|ERROR|DEBUG|CRITICAL)\]")
+        # Strip ANSI escape sequences for the log file
+        ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+        clean_message = ansi_escape.sub("", message)
 
-        # Pattern to match ANSI escape sequences (colors, styles, cursor control)
-        # matches \x1b[ (start), then 0-9; (params), then m, K, H, F (codes)
-        ansi_escape = re.compile(r"\x1b\[[0-9;]*[mKHF]")
-
-        # splitlines(True) keeps the line endings (\n)
-        for line in message.splitlines(keepends=True):
-            if tag_pattern.match(line) or ("\r" not in line and len(line.strip()) > 0):
-                # Strip ANSI codes before writing to log file
-                clean_line = ansi_escape.sub("", line)
-                self.log.write(clean_line)
+        # Skip lines containing carriage returns (progress bars)
+        # We split using keepends=True handled by splitlines to strictly evaluate line-by-line
+        # ensuring that logs don't merge even when mixed with progress updates.
+        for line in clean_message.splitlines(keepends=True):
+            if "\r" not in line:
+                self.log.write(line)
 
         self.log.flush()  # Ensure it writes immediately
 
@@ -110,16 +102,22 @@ def setup_logger_redirection(
 
     # Tee stdout and stderr based on flags
     if redirect_stdout:
-        sys.stdout = LoggerWriter(sys.stdout, log_file, echo_to_terminal=echo_to_terminal)
+        if not isinstance(sys.stdout, LoggerWriter):
+            sys.stdout = LoggerWriter(sys.stdout, log_file, echo_to_terminal=echo_to_terminal)
+        else:
+            sys.stdout.echo_to_terminal = echo_to_terminal
     if redirect_stderr:
-        sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=echo_to_terminal)
+        if not isinstance(sys.stderr, LoggerWriter):
+            sys.stderr = LoggerWriter(sys.stderr, log_file, echo_to_terminal=echo_to_terminal)
+        else:
+            sys.stderr.echo_to_terminal = echo_to_terminal
 
     # Reconfigure Loguru to use the redirected sys.stderr
     try:
         from loguru import logger
 
         logger.remove()
-        logger.add(sys.stderr, format="[{level}] {message}")
+        logger.add(sys.stderr, format="[{level}] {message}", colorize=False)
     except ImportError:
         pass
 

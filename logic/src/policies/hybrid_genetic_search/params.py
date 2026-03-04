@@ -26,6 +26,7 @@ class HGSParams:
         alpha_diversity: Weight for diversity in fitness evaluation.
         min_diversity: Minimum diversity threshold for triggering diversity maintenance.
         diversity_change_rate: Rate at which alpha diversity changes.
+        min_diversity_threshold: Threshold for minimum diversity.
         survivor_threshold: Threshold for survivor selection.
         no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
         neighbor_list_size: Number of nearest neighbors to consider.
@@ -43,6 +44,7 @@ class HGSParams:
     diversity_change_rate: float = 0.05
     survivor_threshold: int = 2
     no_improvement_threshold: int = 20
+    min_diversity_threshold: float = 0.2
     neighbor_list_size: int = 15
     local_search_iterations: int = 100
     max_vehicles: int = 0
