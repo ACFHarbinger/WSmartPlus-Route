@@ -62,7 +62,7 @@ class VectorizedHGS(PolicyVizMixin):
         self.time_limit = time_limit
         self.device = torch.device(device)
         self.generator = generator
-        self.rng = rng
+        self.rng = rng if rng is not None else random.Random()
 
     def solve(
         self,

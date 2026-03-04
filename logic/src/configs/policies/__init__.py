@@ -22,6 +22,7 @@ from .psoma import PSOMAConfig
 
 # Survey-derived metaheuristic and hyper-heuristic policies
 from .qde import QDEConfig
+from .rl_ahvpl import RLAHVPLConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
 from .sisr import SISRConfig
@@ -41,6 +42,7 @@ __all__ = [
     "HVPLConfig",
     "LKHConfig",
     "NeuralConfig",
+    "RLAHVPLConfig",
     "SANSConfig",
     "SISRConfig",
     "TSPConfig",

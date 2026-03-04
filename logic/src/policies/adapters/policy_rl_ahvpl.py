@@ -1,0 +1,195 @@
+"""
+RL-AHVPL Policy Adapter.
+
+Adapts the Reinforcement Learning Augmented Hybrid Volleyball Premier League
+(RL-AHVPL) logic to the agnostic policy interface.
+"""
+
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+import numpy as np
+
+from logic.src.configs.policies.rl_ahvpl import RLAHVPLConfig
+from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
+    RLAHVPLParams,
+)
+from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl import (
+    RLAHVPLSolver,
+)
+
+from ..adaptive_large_neighborhood_search.params import ALNSParams
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+from ..hybrid_genetic_search.params import HGSParams
+from ..reactive_tabu_search.params import RTSParams
+from .factory import PolicyRegistry
+
+
+@PolicyRegistry.register("rl_ahvpl")
+class RLAHVPLPolicy(BaseRoutingPolicy):
+    """
+    RL-AHVPL policy class.
+
+    Visits pre-selected 'must_go' bins using the Reinforcement Learning
+    augmented HVPL metaheuristic combining ACO, ALNS, HGS, and CMAB.
+    """
+
+    def __init__(self, config: Optional[Union[RLAHVPLConfig, Dict[str, Any]]] = None):
+        super().__init__(config)
+
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return RLAHVPLConfig
+
+    def _get_config_key(self) -> str:
+        return "rl_ahvpl"
+
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """
+        Run RL-AHVPL solver.
+
+        Returns:
+            Tuple of (routes, profit, solver_cost).
+        """
+        aco_params = ACOParams(
+            n_ants=values.get("aco_n_ants", 10),
+            k_sparse=values.get("aco_k_sparse", 10),
+            alpha=values.get("aco_alpha", 1.0),
+            beta=values.get("aco_beta", 2.0),
+            rho=values.get("aco_rho", 0.1),
+            q0=values.get("aco_q0", 0.9),
+            tau_0=values.get("aco_tau_0"),
+            tau_min=values.get("aco_tau_min", 0.001),
+            tau_max=values.get("aco_tau_max", 10.0),
+            max_iterations=values.get("aco_iterations", 1),
+            local_search=values.get("aco_local_search", False),
+            local_search_iterations=values.get("aco_local_search_iterations", 0),
+            elitist_weight=values.get("aco_elitist_weight", 1.0),
+            time_limit=values.get("aco_time_limit", values.get("time_limit", 60.0)),
+        )
+
+        alns_params = ALNSParams(
+            max_iterations=values.get("alns_iterations", 100),
+            start_temp=values.get("alns_start_temp", 100.0),
+            cooling_rate=values.get("alns_cooling_rate", 0.95),
+            reaction_factor=values.get("alns_reaction_factor", 0.1),
+            min_removal=values.get("alns_min_removal", 1),
+            max_removal_pct=values.get("alns_max_removal_pct", 0.2),
+            time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+        )
+
+        hgs_params = HGSParams(
+            time_limit=values.get("hgs_time_limit", values.get("time_limit", 60.0)),
+            population_size=values.get("hgs_population_size", 50),
+            elite_size=values.get("hgs_elite_size", 5),
+            mutation_rate=values.get("hgs_mutation_rate", 0.2),
+            crossover_rate=values.get("hgs_crossover_rate", 0.7),
+            n_generations=values.get("hgs_n_generations", 100),
+            alpha_diversity=values.get("hgs_alpha_diversity", 0.1),
+            min_diversity=values.get("hgs_min_diversity", 0.2),
+            diversity_change_rate=values.get("hgs_diversity_change_rate", 0.05),
+            no_improvement_threshold=values.get("hgs_no_improvement_threshold", 20),
+            survivor_threshold=values.get("hgs_survivor_threshold", 2),
+            neighbor_list_size=values.get("hgs_neighbor_list_size", 10),
+            local_search_iterations=values.get("hgs_local_search_iterations", 100),
+            max_vehicles=values.get("hgs_max_vehicles", 0),
+        )
+
+        rts_params = RTSParams(
+            initial_tenure=values.get("rts_initial_tenure", 7),
+            min_tenure=values.get("rts_min_tenure", 3),
+            max_tenure=values.get("rts_max_tenure", 20),
+            tenure_increase=values.get("rts_tenure_increase", 1.5),
+            tenure_decrease=values.get("rts_tenure_decrease", 0.9),
+            max_iterations=values.get("rts_max_iterations", 500),
+            n_removal=values.get("rts_n_removal", 2),
+            n_llh=values.get("rts_n_llh", 5),
+            time_limit=values.get("rts_time_limit", values.get("time_limit", 60.0)),
+        )
+
+        params = RLAHVPLParams(
+            n_teams=values.get("n_teams", 10),
+            max_iterations=values.get("max_iterations", 1000),
+            sub_rate=values.get("sub_rate", 0.2),
+            time_limit=values.get("time_limit", 60.0),
+            elite_coaching_max_iterations=values.get("alns_elite_iterations", 500),
+            not_coached_max_iterations=values.get("alns_not_coached_iterations", 100),
+            coaching_acceptance_threshold=values.get("coaching_acceptance_threshold", 1e-6),
+            gls_probability=values.get("gls_probability", 0.5),
+            seed=values.get("seed"),
+            hgs_params=hgs_params,
+            aco_params=aco_params,
+            alns_params=alns_params,
+            rts_params=rts_params,
+            tabu_no_repeat_threshold=values.get("tabu_no_repeat_threshold", 2),
+            gls_penalty_lambda=values.get("gls_penalty_lambda", 1.0),
+            gls_penalty_alpha=values.get("gls_penalty_alpha", 0.5),
+            gls_penalty_step=values.get("gls_penalty_step", 10),
+            bandit_algorithm=values.get("bandit_algorithm", "linucb"),
+            bandit_max_iterations=values.get("bandit_max_iterations", 1000),
+            bandit_quality_weight=values.get("bandit_quality_weight", 0.5),
+            bandit_improvement_weight=values.get("bandit_improvement_weight", 1.0),
+            bandit_diversity_weight=values.get("bandit_diversity_weight", 0.2),
+            bandit_novelty_weight=values.get("bandit_novelty_weight", 1.0),
+            bandit_reward_threshold=values.get("bandit_reward_threshold", 1e-6),
+            bandit_default_reward=values.get("bandit_default_reward", 5.0),
+            cfe_alpha=values.get("cfe_alpha", 0.1),
+            cfe_feature_dim=values.get("cfe_feature_dim", 8),
+            cfe_operator_selection_threshold=values.get("cfe_operator_selection_threshold", 1e-9),
+            cfe_lambda_prior=values.get("cfe_lambda_prior", 1.0),
+            cfe_noise_variance=values.get("cfe_noise_variance", 0.1),
+            cfe_epsilon=values.get("cfe_epsilon", 0.15),
+            cfe_epsilon_decay=values.get("cfe_epsilon_decay", 0.995),
+            cfe_epsilon_decay_step=values.get("cfe_epsilon_decay_step", 20),
+            cfe_epsilon_min=values.get("cfe_epsilon_min", 0.05),
+            cfe_diversity_history_size=values.get("cfe_diversity_history_size", 10),
+            cfe_improvement_history_size=values.get("cfe_improvement_history_size", 10),
+            cfe_operator_reward_size=values.get("cfe_operator_reward_size", 50),
+            cfe_improvement_threshold=values.get("cfe_improvement_threshold", 1e-6),
+            qlearning_alpha=values.get("qlearning_alpha", 0.1),
+            qlearning_gamma=values.get("qlearning_gamma", 0.9),
+            qlearning_epsilon=values.get("qlearning_epsilon", 0.1),
+            qlearning_epsilon_decay=values.get("qlearning_epsilon_decay", 0.99),
+            qlearning_epsilon_decay_step=values.get("qlearning_epsilon_decay_step", 10),
+            qlearning_epsilon_min=values.get("qlearning_epsilon_min", 0.05),
+            qlearning_history_size=values.get("qlearning_history_size", 10),
+            qlearning_rewards_size=values.get("qlearning_rewards_size", 20),
+            qlearning_improvement_thresholds=values.get("qlearning_improvement_thresholds", [1e-4, -1e-4]),
+            sarsa_alpha=values.get("sarsa_alpha", 0.1),
+            sarsa_gamma=values.get("sarsa_gamma", 0.95),
+            sarsa_epsilon=values.get("sarsa_epsilon", 0.15),
+            sarsa_epsilon_decay=values.get("sarsa_epsilon_decay", 0.995),
+            sarsa_epsilon_decay_step=values.get("sarsa_epsilon_decay_step", 50),
+            sarsa_epsilon_min=values.get("sarsa_epsilon_min", 0.05),
+            sarsa_diversity_size=values.get("sarsa_diversity_size", 10),
+            sarsa_scores_size=values.get("sarsa_scores_size", 50),
+            sarsa_qtable_size_rate=values.get("sarsa_qtable_size_rate", 0.5),
+            sarsa_improvement_thresholds=values.get("sarsa_improvement_thresholds", [-1e-6, 1e-6]),
+            sarsa_operator_progress_thresholds=values.get("sarsa_operator_progress_thresholds", [0.33, 0.67]),
+            sarsa_operator_stagnation_thresholds=values.get("sarsa_operator_stagnation_thresholds", [10, 30]),
+            sarsa_operator_diversity_thresholds=values.get("sarsa_operator_diversity_thresholds", [0.3, 0.7]),
+        )
+
+        solver = RLAHVPLSolver(
+            sub_dist_matrix,
+            sub_wastes,
+            capacity,
+            revenue,
+            cost_unit,
+            params,
+            mandatory_nodes,
+            seed=values.get("seed"),
+        )
+
+        routes, profit, solver_cost = solver.solve()
+        return routes, profit, solver_cost

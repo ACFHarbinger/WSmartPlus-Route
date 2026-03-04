@@ -35,7 +35,7 @@ from typing import Deque, Dict, List
 
 import numpy as np
 
-from .individual import Individual
+from ..hybrid_genetic_search.individual import Individual
 
 
 class ContextFeatureExtractor:
@@ -177,6 +177,7 @@ class LinUCBCrossoverSelector:
         alpha: float = 1.0,  # Exploration parameter
         operator_reward_size: int = 50,
         operator_selection_threshold: float = 1e-9,
+        improvement_threshold: float = 1e-6,
     ):
         """
         Initialize LinUCB selector.
@@ -187,11 +188,13 @@ class LinUCBCrossoverSelector:
             alpha: Exploration parameter (UCB width).
             operator_reward_size: Size of operator reward history.
             operator_selection_threshold: Threshold for operator selection.
+            improvement_threshold: Threshold for improvement detection.
         """
         self.n_operators = n_operators
         self.feature_dim = feature_dim
         self.alpha = alpha
         self.operator_selection_threshold = operator_selection_threshold
+        self.improvement_threshold = improvement_threshold
 
         # For each operator, maintain:
         # A: design matrix (feature outer products)

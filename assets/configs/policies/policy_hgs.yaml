@@ -86,6 +86,10 @@ hgs:
     - neighbor_list_size: 10
       # Number of nearest neighbors to consider
 
+    - min_diversity_threshold: 0.2
+      # Threshold for minimum diversity
+      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+
     # ---------------------------------------------------------------------
     # Genetic Operators
     # ---------------------------------------------------------------------

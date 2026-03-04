@@ -101,6 +101,10 @@ hgs_alns:
       # Number of local search iterations per generation
       # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
+    - hgs_min_diversity_threshold: 0.2
+      # Threshold for minimum diversity
+      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+
     # ---------------------------------------------------------------------
     # ALNS Parameters (Coaching & Deep Local Search)
     # ---------------------------------------------------------------------

@@ -1,44 +1,23 @@
 # Policy Configuration
 
 # =============================================================================
-# AHVPL (Augmented Hybrid Volleyball Premier League) Policy Configuration
+# RL-AHVPL (Reinforcement Learning Augmented Hybrid Volleyball Premier League)
 # =============================================================================
 # PURPOSE:
 #   Advanced metaheuristic integrating four optimization components into a
-#   unified engine: ACO (initialization), VPL (population management), HGS
-#   (diversity-driven crossover/mutation), and ALNS (deep local search).
+#   unified engine, heavily driven by Reinforcement Learning:
+#   ACO (initialization), VPL (population management), HGS (crossover),
+#   and ALNS (local search).
 #
-# ALGORITHM:
-#   1. ACO Initialization: Construct diverse initial solutions via pheromone
-#   2. Bi-Criteria Fitness: HGS ranks by profit AND diversity (symmetric diff)
-#   3. HGS Crossover: Ordered Crossover (OX) on giant tour representations
-#   4. ALNS Coaching: Destroy-repair local search on decoded routes
-#   5. HGS Mutation: Optional deeper local search via HGS operators
-#   6. Survivor Selection: Trim population by biased fitness
-#   7. Pheromone Update: Reinforce edges from best solutions
-#   8. Substitution: Replace weakest teams with fresh ACO solutions
-#
-# KEY UPGRADE OVER HVPL:
-#   HGS replaces the simplistic VPL coaching-only loop with:
-#   - Genetic crossover on giant tours for better exploration
-#   - Bi-criteria fitness (profit + diversity) to prevent premature convergence
-#   - HGS local search mutation for deeper intensification
-#
-# TYPICAL USE CASES:
-#   - Large or challenging instances where pure HVPL plateaus
-#   - Production routing where maximum solution quality is needed
-#   - Benchmarking against state-of-the-art metaheuristics
-#
-# PERFORMANCE EXPECTATIONS:
-#   - Better solution quality than HVPL due to HGS diversity management
-#   - Slightly higher runtime per iteration due to crossover + mutation
-#   - Best results with 60-120s time budget
-#
-# REFERENCE:
-#   Hybrid Volleyball Algorithm Research (reports/)
+# FULL COMPONENTS:
+#   1. Q-Learning sparse ACO logic for initialization
+#   2. ALNS enhanced with State-Action-Reward-State-Action (SARSA)
+#   3. Contextual Multi-Armed Bandits (CMAB) for operator selection
+#   4. Guided Local Search with penalties on edges
+#   5. Reactive Tabu Search
 # =============================================================================
 
-ahvpl:
+rl_ahvpl:
   custom:
     # ---------------------------------------------------------------------
     # VPL League Parameters
@@ -47,191 +26,224 @@ ahvpl:
       # Number of solutions (teams) in the league population
       # Range: 5-20 (5 = fast, 10 = balanced, 20 = thorough)
 
-    - max_iterations: 50
+    - max_iterations: 1000
       # Number of league seasons (main loop iterations)
-      # Range: 20-100 (usually time_limit is reached first)
 
     - sub_rate: 0.2
       # Fraction of weakest teams replaced per iteration
-      # Range: 0.1-0.5 (0.1 = conservative, 0.3 = aggressive)
 
     - time_limit: 60
       # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (60s = production, 120s = thorough)
 
     # ---------------------------------------------------------------------
     # HGS Parameters (Diversity Management & Crossover)
     # ---------------------------------------------------------------------
     - hgs_time_limit: 60
       # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (60s = production, 120s = thorough)
 
     - hgs_n_generations: 100
       # Number of generations for HGS
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
     - hgs_elite_size: 5
       # Number of elite solutions for biased fitness ranking
-      # Range: 3-15 (typically ~50% of n_teams)
-      # Elite solutions get higher diversity preservation
 
     - hgs_mutation_rate: 0.2
       # Probability of HGS local search mutation after ALNS coaching
-      # Range: 0.0-0.5 (0.0 = no mutation, 0.3 = frequent)
 
     - hgs_crossover_rate: 0.7
       # Probability of applying OX crossover per generation
-      # Range: 0.0-1.0 (0.0 = clone parent, 1.0 = always crossover)
 
     - hgs_alpha_diversity: 0.1
       # Weight of diversity in fitness calculation
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
 
     - hgs_min_diversity: 0.2
       # Minimum diversity threshold for triggering diversity maintenance
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
 
     - hgs_diversity_change_rate: 0.05
       # Rate at which alpha diversity changes
-      # Range: 0.01-0.1 (0.01 = conservative, 0.1 = aggressive)
 
     - hgs_no_improvement_threshold: 20
-      # Number of generations without improvement to trigger diversity maintenance
-      # Range: 10-50 (10 = conservative, 50 = aggressive)
+      # Number of generations without improvement
 
     - hgs_survivor_threshold: 2
       # Threshold for survivor selection
-      # Range: 1-10
-      # Recommendation: 2 for stable optimization (CONSERVATIVE)
 
     - hgs_neighbor_list_size: 10
       # Number of nearest neighbors to consider
 
     - hgs_max_vehicles: 0
       # Maximum vehicles allowed (0 = unlimited, determined by problem)
-      # Set >0 to constrain fleet size
 
     - hgs_population_size: 50
       # HGS internal population size for diversity management
-      # Range: 25-100
 
     - hgs_local_search_iterations: 100
       # Number of local search iterations per generation
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
-
-    - hgs_min_diversity_threshold: 0.2
-      # Threshold for minimum diversity
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
 
     # ---------------------------------------------------------------------
-    # ACO Parameters (Initialization & Substitution)
+    # ACO Parameters (Initialization)
     # ---------------------------------------------------------------------
     - aco_n_ants: 10
       # Number of ants for solution construction
-      # Range: 5-30
 
     - aco_k_sparse: 10
       # Number of nearest neighbors in sparse ACO graph
-      # Range: 5-20
 
     - aco_alpha: 1.0
       # Weight of pheromone trail
-      # Range: 0.0-5.0 (1.0 = balanced)
 
     - aco_beta: 2.0
       # Weight of heuristic information
-      # Range: 0.0-5.0 (2.0 = emphasizes shorter edges)
 
     - aco_rho: 0.1
       # Pheromone evaporation rate
-      # Range: 0.05-0.3
 
     - aco_q0: 0.9
       # Probability of choosing the best edge in construction
-      # Range: 0.0-1.0 (0.9 = greedy with exploration)
 
     - aco_tau_0: 0.1
       # Initial pheromone level
-      # Range: 0.01-1.0 (0.1 = balanced)
 
     - aco_tau_min: 0.001
       # Minimum pheromone level
-      # Range: 0.0001-0.01
 
     - aco_tau_max: 10.0
       # Maximum pheromone level
-      # Range: 1.0-100.0
 
     - aco_iterations: 1
       # ACO iterations per construction call
-      # Range: 1-5 (1 = fast initialization)
 
     - aco_local_search: False
       # Whether to apply local search after ACO construction
-      # Range: True/False (False = fast initialization)
 
     - aco_local_search_iterations: 0
       # Number of local search iterations per construction call
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
     - aco_elitist_weight: 1.0
       # Weight of elitist ant in pheromone update
-      # Range: 0.0-5.0 (1.0 = balanced)
 
     - aco_time_limit: 30
       # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (60s = production, 120s = thorough)
 
     # ---------------------------------------------------------------------
-    # ALNS Parameters (Coaching & Deep Local Search)
+    # ALNS Parameters (Local Search)
     # ---------------------------------------------------------------------
-    - alns_iterations: 50
+    - alns_iterations: 100
       # Number of destroy-repair cycles per coaching session
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
     - alns_start_temp: 100.0
       # Initial simulated annealing temperature
-      # Range: 50-500
 
     - alns_cooling_rate: 0.95
       # Temperature decay per iteration
-      # Range: 0.90-0.99
 
     - alns_reaction_factor: 0.1
       # Reaction factor for simulated annealing
-      # Range: 0.05-0.3
 
     - alns_min_removal: 1
       # Minimum number of nodes to remove in destroy phase
-      # Range: 1-10
 
     - alns_max_removal_pct: 0.2
       # Maximum fraction of nodes to remove in destroy phase
-      # Range: 0.1-0.4
 
     - alns_time_limit: 60
       # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (60s = production, 120s = thorough)
 
     - alns_elite_iterations: 500
       # Number of destroy-repair cycles for elite solutions provided by HGS
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
 
     - alns_not_coached_iterations: 100
-      # Number of destroy-repair cycles for non-elite solutions that have not yet been coached
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+      # Number of destroy-repair cycles for non-elite solutions
+
+    # ---------------------------------------------------------------------
+    # RTS Parameters (Reactive Tabu Search)
+    # ---------------------------------------------------------------------
+    - rts_initial_tenure: 7
+    - rts_min_tenure: 3
+    - rts_max_tenure: 20
+    - rts_tenure_increase: 1.5
+    - rts_tenure_decrease: 0.9
+    - rts_max_iterations: 500
+    - rts_n_removal: 2
+    - rts_n_llh: 5
+    - rts_time_limit: 60.0
+    - tabu_no_repeat_threshold: 2
+
+    # ---------------------------------------------------------------------
+    # GLS Parameters
+    # ---------------------------------------------------------------------
+    - gls_penalty_lambda: 1.0
+    - gls_penalty_alpha: 0.5
+    - gls_penalty_step: 10
+    - gls_probability: 0.5
+
+    # ---------------------------------------------------------------------
+    # CMAB Parameters (Contextual Multi-Armed Bandit)
+    # ---------------------------------------------------------------------
+    - bandit_algorithm: "linucb"
+    - bandit_max_iterations: 1000
+    - bandit_quality_weight: 0.5
+    - bandit_improvement_weight: 1.0
+    - bandit_diversity_weight: 0.2
+    - bandit_novelty_weight: 1.0
+    - bandit_reward_threshold: 1.0e-6
+    - bandit_default_reward: 5.0
+
+    # ---------------------------------------------------------------------
+    # CFE Parameters (Context Feature Extractor)
+    # ---------------------------------------------------------------------
+    - cfe_alpha: 0.1
+    - cfe_feature_dim: 8
+    - cfe_operator_selection_threshold: 1.0e-9
+    - cfe_lambda_prior: 1.0
+    - cfe_noise_variance: 0.1
+    - cfe_epsilon: 0.15
+    - cfe_epsilon_decay: 0.995
+    - cfe_epsilon_decay_step: 20
+    - cfe_epsilon_min: 0.05
+    - cfe_diversity_history_size: 10
+    - cfe_improvement_history_size: 10
+    - cfe_operator_reward_size: 50
+    - cfe_improvement_threshold: 1.0e-6
+
+    # ---------------------------------------------------------------------
+    # Q-Learning Parameters
+    # ---------------------------------------------------------------------
+    - qlearning_alpha: 0.1
+    - qlearning_gamma: 0.9
+    - qlearning_epsilon: 0.1
+    - qlearning_epsilon_decay: 0.99
+    - qlearning_epsilon_decay_step: 10
+    - qlearning_epsilon_min: 0.05
+    - qlearning_history_size: 10
+    - qlearning_rewards_size: 20
+    - qlearning_improvement_thresholds: [1.0e-4, -1.0e-4]
+
+    # ---------------------------------------------------------------------
+    # SARSA Parameters
+    # ---------------------------------------------------------------------
+    - sarsa_alpha: 0.1
+    - sarsa_gamma: 0.95
+    - sarsa_epsilon: 0.15
+    - sarsa_epsilon_decay: 0.995
+    - sarsa_epsilon_decay_step: 50
+    - sarsa_epsilon_min: 0.05
+    - sarsa_diversity_size: 10
+    - sarsa_scores_size: 50
+    - sarsa_qtable_size_rate: 0.5
+    - sarsa_improvement_thresholds: [-1.0e-6, 1.0e-6]
+    - sarsa_operator_progress_thresholds: [0.33, 0.67]
+    - sarsa_operator_stagnation_thresholds: [10, 30]
+    - sarsa_operator_diversity_thresholds: [0.3, 0.7]
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/augmented_hybrid_volleyball_premier_league/
+      # Execution backend: logic/src/policies/reinforcement_learning_augmented_hybrid_volleyball_premier_league/
 
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
 
     - post_processing: []
       # ALNS + HGS local search is comprehensive; no further refinement needed
-      # Empty = use AHVPL output directly
-# =============================================================================

@@ -88,10 +88,7 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
         "seed": str(sim.seed),
         "distribution": str(sim.data_distribution),
     }
-    # The run is entered as a context manager so get_active_run() is set for
-    # all code executing in this process (including sequential simulation workers).
-    # For parallel (spawned) workers the URI + run_id are threaded through
-    # initargs by the orchestrator, which reads them from the active tracker.
+
     run = tracker.start_run(experiment_name, run_type="simulation", tags=run_tags)
     run.__enter__()
 
