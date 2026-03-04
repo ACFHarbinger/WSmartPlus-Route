@@ -26,31 +26,37 @@ __all__ = [
 ]
 
 
-def remove_bins_from_route(route: list, bins_cannot_removed: set, rng: Random, num_bins: int = 1) -> list:
+def remove_bins_from_route(routes_list: list, bins_cannot_removed: set, rng: Random, num_bins: int = 1) -> list:
     """
     Remove random bins from a single route.
 
     Args:
-        route: Route to mutate.
+        routes_list: Solution routes list to mutate.
         bins_cannot_removed: Bins that cannot be removed.
         rng: Random number generator.
         num_bins: Number of bins to remove.
 
     Returns:
-        New route with bins removed.
+        New routes list with bins removed.
     """
-    if len(route) <= 2:
-        return route[:]
-    new_route = route[:]
-    valid_indices = [i for i in range(1, len(new_route) - 1) if new_route[i] not in bins_cannot_removed]
-    num_to_remove = min(num_bins, len(valid_indices))
-    if num_to_remove <= 0:
-        return new_route
+    new_routes = copy.deepcopy(routes_list)
+    valid_routes = [i for i, r in enumerate(new_routes) if len(r) > 2]
 
-    indices = rng.sample(valid_indices, num_to_remove)
-    for idx in sorted(indices, reverse=True):
-        new_route.pop(idx)
-    return new_route
+    if not valid_routes:
+        return new_routes
+
+    r_idx = rng.choice(valid_routes)
+    route = new_routes[r_idx]
+
+    valid_indices = [i for i in range(1, len(route) - 1) if route[i] not in bins_cannot_removed]
+    num_to_remove = min(num_bins, len(valid_indices))
+
+    if num_to_remove <= 0:
+        return new_routes
+
+    indices_to_remove = set(rng.sample(valid_indices, num_to_remove))
+    new_routes[r_idx] = [n for i, n in enumerate(route) if i not in indices_to_remove]
+    return new_routes
 
 
 def move_n_route_random(routes_list: list, rng: Random, n: int = 2) -> list:

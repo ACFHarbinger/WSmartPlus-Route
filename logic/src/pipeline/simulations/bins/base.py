@@ -131,7 +131,7 @@ class Bins:
             else:
                 path = os.path.join(data_dir, waste_file)
 
-            print(f"[INFO] Loading data from '{path}'...")
+            print(f"\n[INFO] Loading data from '{path}'...")
             if waste_file.endswith(".pkl"):
                 self.waste_dataset = NumpyPickleDataset.load(path)
             elif waste_file.endswith(".xlsx"):
@@ -141,7 +141,7 @@ class Bins:
             else:
                 self.waste_dataset = NumpyDictDataset.load(path)
         else:
-            print("[INFO] Generating data...")
+            print("\n[INFO] Generating data...")
             self.waste_dataset = GenerativeDataset(
                 data_dir=data_dir,
                 n_samples=n_samples,

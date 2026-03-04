@@ -285,7 +285,7 @@ def improved_simulated_annealing(  # noqa: C901
 
         if no_improvement_count > 500:
             if verbose:
-                print("[INFO] Rehearing temperature.")
+                print("\n[INFO] Rehearing temperature.")
             T = T_init
             no_improvement_count = 0
 

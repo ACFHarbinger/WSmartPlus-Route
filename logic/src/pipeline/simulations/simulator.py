@@ -248,7 +248,7 @@ def single_simulation(
             if pol_name in res:
                 return {pol_name: res[pol_name], "success": True, "sample_id": sample_id}
 
-        print(f"[INFO] Finished simulation for policy {pol_id} and sample {sample_id}")
+        print(f"\n[INFO] Finished simulation for policy {pol_id} and sample {sample_id}")
         return res or {"error": "Unknown error", "policy": "unknown", "sample_id": sample_id, "success": False}
     except BaseException as e:
         # Report to redirected stderr so it's captured in simulation log files
@@ -339,7 +339,7 @@ def sequential_simulations(  # noqa: C901
                 )
                 result_dict = context.run()
 
-                print(f"[INFO] Finished simulation for policy {pol_name} and sample {sample_id}")
+                print(f"\n[INFO] Finished simulation for policy {pol_name} and sample {sample_id}")
 
                 # Aggregate execution result
                 if result_dict and "success" in result_dict and result_dict["success"]:

@@ -44,7 +44,7 @@ class LogAction(SimulationAction):
 
         context["daily_log"] = dlog
         policy_name = context["policy_name"]
-        print(f"[INFO] Logging daily results for {policy_name} policy.")
+        print(f"\n[INFO] Logging daily results for {policy_name} policy.")
         send_daily_output_to_gui(
             dlog,
             policy_name,
