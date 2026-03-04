@@ -12,10 +12,10 @@ from logic.src.pipeline.features.test.orchestrator.monitor import (
 )
 from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
 from logic.src.pipeline.simulations.simulator import (
-    get_pol_name,
     init_single_sim_worker,
     single_simulation,
 )
+from logic.src.utils.configs.setup_utils import get_pol_name
 from logic.src.utils.tasks.simulation_utils import (
     prepare_parallel_task_args,
     print_execution_info,

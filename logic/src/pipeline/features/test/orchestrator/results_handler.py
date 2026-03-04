@@ -5,8 +5,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import logic.src.constants as udef
 from logic.src.configs import Config
-from logic.src.pipeline.simulations.simulator import get_pol_name
 from logic.src.tracking.logging.log_utils import output_stats
+from logic.src.utils.configs.setup_utils import get_pol_name
 
 
 def _log_sim_metrics(log: Dict[str, Any], log_std: Optional[Dict[str, Any]] = None) -> None:
