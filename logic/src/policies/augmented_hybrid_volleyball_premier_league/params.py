@@ -38,6 +38,8 @@ class AHVPLParams:
             max_vehicles=0,
             population_size=50,
             n_generations=100,
+            alpha_diversity=0.5,
+            neighbor_list_size=10,
             local_search_iterations=100,
             time_limit=30.0,
         )

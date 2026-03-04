@@ -82,6 +82,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             crossover_rate=values.get("hgs_crossover_rate", 0.7),
             n_generations=values.get("hgs_n_generations", 100),
             alpha_diversity=values.get("hgs_alpha_diversity", 0.1),
+            neighbor_list_size=values.get("hgs_neighbor_list_size", 10),
             local_search_iterations=values.get("hgs_local_search_iterations", 100),
             max_vehicles=values.get("hgs_max_vehicles", 0),
         )

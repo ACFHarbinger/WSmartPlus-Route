@@ -37,12 +37,12 @@ hgs:
     - time_limit: 60
       # Maximum wall-clock seconds for optimization
       # Range: 30-600 (30s = quick, 300s = thorough, 600s = benchmark)
-      # Recommendation: 60s for production, 300s for best-known solutions
+      # Recommendation: 60s for production (CONSERVATIVE)
 
     - local_search_iterations: 500
       # Number of iterations to run local search
-      # Range: 50-500
-      # Recommendation: 100 for CVRP, 200 for VRPTW
+      # Range: 50-2000
+      # Recommendation: 500 for stable optimization (CONSERVATIVE)
 
     # ---------------------------------------------------------------------
     # Population Management
@@ -51,16 +51,20 @@ hgs:
       # Total individuals in genetic pool (elite + diverse)
       # Range: 25-100
       # Larger populations → better diversity but slower iterations
-      # Recommendation: 50 for ≤150 nodes, 75 for 150-300 nodes
+      # Recommendation: 50 for stable optimization (CONSERVATIVE)
 
     - elite_size: 10
       # Number of top solutions preserved across generations
       # Range: 5-25 (typically 20% of population_size)
       # Elite solutions drive intensification (exploitation)
 
-    - hgs_alpha_diversity: 0.1
+    - alpha_diversity: 0.5
       # Weight of diversity in fitness calculation
       # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+      # Note: Uses adaptive_diversity=true for dynamic adjustment
+
+    - neighbor_list_size: 10
+      # Number of nearest neighbors to consider
 
     # ---------------------------------------------------------------------
     # Genetic Operators
@@ -68,7 +72,7 @@ hgs:
     - mutation_rate: 0.2
       # Probability of applying random swap/insert after crossover
       # Range: 0.0-0.5 (0.0 = pure crossover, 0.5 = high randomness)
-      # Recommendation: 0.1-0.2 for CVRP, 0.3-0.4 for VRPTW
+      # Recommendation: 0.2 for stable optimization (CONSERVATIVE)
 
     - crossover_rate: 0.7
       # Probability of applying crossover after mutation
@@ -78,17 +82,35 @@ hgs:
     - n_generations: 100
       # Number of generations to run
       # Range: 50-500
-      # Recommendation: 100 for CVRP, 200 for VRPTW
+      # Recommendation: 100 for stable optimization (CONSERVATIVE)
 
     # Crossover operator: Order Crossover (OX)
     #   - Preserves relative order from parents
     #   - Controlled by crossover_rate: 0.95 (hardcoded)
-    #
-    # Local Search (applied to all offspring):
-    #   - 2-opt intra-route
+    # ---------------------------------------------------------------------
+    # ENHANCED: Advanced Local Search Parameters (NEW)
+    # ---------------------------------------------------------------------
+    - use_cross_exchange: false
+      # Enable cross-exchange (segment swaps between routes)
+
+    - use_lambda_interchange: false
+      # Enable λ-interchange neighborhood search
+
+    - lambda_max: 2
+      # Maximum segment length for λ-interchange
+
+    - use_ejection_chains: false
+      # Enable ejection chain moves (route minimization)
+
+    # Local Search Operators (applied to all offspring):
+    #   - 2-opt intra-route & inter-route (2-opt*)
+    #   - 3-opt intra-route
     #   - Relocate inter-route
-    #   - Swap inter-route
-    #   - CROSS exchange (remove 2 edges, reconnect differently)
+    #   - Swap inter-route & swap*
+    #   - Or-opt (chains of 1-3 nodes)
+    #   - Cross-exchange (segment swaps)
+    #   - λ-interchange (systematic cross-exchange)
+    #   - Ejection chains (route minimization)
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
