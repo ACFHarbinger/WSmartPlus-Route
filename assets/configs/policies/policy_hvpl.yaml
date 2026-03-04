@@ -143,6 +143,10 @@ hvpl:
       # Maximum fraction of nodes to remove in destroy phase
       # Range: 0.1-0.4
 
+    - alns_time_limit: 60
+      # Maximum wall-clock seconds for the full algorithm
+      # Range: 30-300 (60s = production, 120s = thorough)
+
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------

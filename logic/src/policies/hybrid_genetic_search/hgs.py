@@ -87,12 +87,12 @@ class HGSSolver(PolicyVizMixin):
             evaluate(ind, self.split_manager)
             population.append(ind)
 
-        update_biased_fitness(
-            population, self.params.elite_size, self.params.alpha_diversity, self.params.neighbor_list_size
-        )
+        current_alpha = self.params.alpha_diversity
+        update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
 
         start_time = time.process_time()
         it = 0
+        last_improvement_it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
         while it < self.params.n_generations:
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
@@ -112,12 +112,19 @@ class HGSSolver(PolicyVizMixin):
 
             if child.profit_score > best_profit_so_far:
                 best_profit_so_far = child.profit_score
+                last_improvement_it = it
+
+            # Adaptive alpha diversity
+            # Calculate current population diversity
+            avg_dist = np.mean([ind.dist_to_parents for ind in population])
+            if avg_dist < self.params.min_diversity_threshold:
+                current_alpha = min(1.0, current_alpha + self.params.diversity_change_rate)
+            elif it - last_improvement_it > self.params.no_improvement_threshold:
+                current_alpha = max(0.0, current_alpha - self.params.diversity_change_rate)
 
             # 4. Survivor Selection
-            if len(population) > self.params.population_size * 2:
-                update_biased_fitness(
-                    population, self.params.elite_size, self.params.alpha_diversity, self.params.neighbor_list_size
-                )
+            if len(population) > self.params.population_size * self.params.survivor_threshold:
+                update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
                 population.sort(key=lambda x: x.fitness)
                 population = population[: self.params.population_size]
 
@@ -129,9 +136,7 @@ class HGSSolver(PolicyVizMixin):
                 population_size=len(population),
             )
 
-        update_biased_fitness(
-            population, self.params.elite_size, self.params.alpha_diversity, self.params.neighbor_list_size
-        )
+        update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
         best_ind = min(population, key=lambda x: -x.profit_score)
 
         return best_ind.routes, best_ind.profit_score, best_ind.cost
@@ -186,6 +191,11 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         elite_size=values.get("elite_size", 10),
         mutation_rate=values.get("mutation_rate", 0.2),
         n_generations=values.get("n_generations", 100),
+        alpha_diversity=values.get("alpha_diversity", 0.5),
+        min_diversity=values.get("min_diversity", 0.2),
+        diversity_change_rate=values.get("diversity_change_rate", 0.05),
+        no_improvement_threshold=values.get("no_improvement_threshold", 20),
+        survivor_threshold=values.get("survivor_threshold", 2),
         max_vehicles=values.get("max_vehicles", 0),
         local_search_iterations=values.get("local_search_iterations", 500),
         crossover_rate=values.get("crossover_rate", 0.7),

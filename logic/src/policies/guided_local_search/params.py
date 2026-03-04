@@ -18,6 +18,7 @@ class GLSParams:
 
     Attributes:
         lambda_param: Scaling coefficient for the penalty term.
+        alpha_param: Tuning parameter for the dynamic penalty term.
         max_restarts: Number of GLS restart cycles.
         n_removal: Nodes removed per LLH destroy step.
         n_llh: Number of LLHs in the pool.
@@ -26,6 +27,7 @@ class GLSParams:
     """
 
     lambda_param: float = 0.3
+    alpha_param: float = 0.5
     max_restarts: int = 50
     n_removal: int = 2
     n_llh: int = 5

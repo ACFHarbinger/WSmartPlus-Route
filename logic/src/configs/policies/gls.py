@@ -11,7 +11,8 @@ class GLSConfig:
     """Configuration for the Guided Local Search policy."""
 
     engine: str = "gls"
-    lambda_param: float = 0.3
+    lambda_param: float = 1.0
+    alpha_param: float = 0.3
     max_restarts: int = 50
     n_removal: int = 2
     n_llh: int = 5

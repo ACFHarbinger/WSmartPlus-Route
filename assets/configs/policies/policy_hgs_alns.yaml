@@ -66,6 +66,26 @@ hgs_alns:
       # Weight of diversity in fitness calculation
       # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
 
+    - hgs_min_diversity: 0.2
+      # Minimum diversity threshold for triggering diversity maintenance
+      # Range: 0.0-1.0
+      # Recommendation: 0.2 for stable optimization (CONSERVATIVE)
+
+    - hgs_diversity_change_rate: 0.05
+      # Rate at which alpha diversity changes
+      # Range: 0.01-0.1
+      # Recommendation: 0.05 for stable optimization (CONSERVATIVE)
+
+    - hgs_survivor_threshold: 2
+      # Threshold for survivor selection
+      # Range: 1-10
+      # Recommendation: 2 for stable optimization (CONSERVATIVE)
+
+    - hgs_no_improvement_threshold: 20
+      # Number of generations without improvement to trigger diversity maintenance
+      # Range: 10-50
+      # Recommendation: 20 for stable optimization (CONSERVATIVE)
+
     - hgs_neighbor_list_size: 10
       # Number of nearest neighbors to consider
 
