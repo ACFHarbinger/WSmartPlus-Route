@@ -149,7 +149,12 @@ class AHVPLSolver(PolicyVizMixin):
                 break
 
             # 1. Bi-criteria fitness for parent selection
-            update_biased_fitness(population, self.params.hgs_params.elite_size, self.params.hgs_params.alpha_diversity)
+            update_biased_fitness(
+                population,
+                self.params.hgs_params.elite_size,
+                self.params.hgs_params.alpha_diversity,
+                self.params.hgs_params.neighbor_list_size,
+            )
 
             # 2. HGS Crossover — generate children (cheap)
             n_crossovers = max(1, int(len(population) * self.params.hgs_params.crossover_rate))
@@ -186,7 +191,12 @@ class AHVPLSolver(PolicyVizMixin):
                 population[i] = self._alns_coaching(ind, iterations=iters)
 
             # 4. Survivor Selection — trim back to n_teams.
-            update_biased_fitness(population, self.params.n_teams, self.params.hgs_params.alpha_diversity)
+            update_biased_fitness(
+                population,
+                self.params.n_teams,
+                self.params.hgs_params.alpha_diversity,
+                self.params.hgs_params.neighbor_list_size,
+            )
             population.sort(key=lambda x: x.fitness)
             population = population[: self.params.n_teams]
 

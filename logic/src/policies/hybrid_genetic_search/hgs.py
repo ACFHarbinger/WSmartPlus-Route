@@ -87,7 +87,9 @@ class HGSSolver(PolicyVizMixin):
             evaluate(ind, self.split_manager)
             population.append(ind)
 
-        update_biased_fitness(population, self.params.elite_size, self.params.alpha_diversity)
+        update_biased_fitness(
+            population, self.params.elite_size, self.params.alpha_diversity, self.params.neighbor_list_size
+        )
 
         start_time = time.process_time()
         it = 0
@@ -113,7 +115,9 @@ class HGSSolver(PolicyVizMixin):
 
             # 4. Survivor Selection
             if len(population) > self.params.population_size * 2:
-                update_biased_fitness(population, self.params.elite_size, self.params.alpha_diversity)
+                update_biased_fitness(
+                    population, self.params.elite_size, self.params.alpha_diversity, self.params.neighbor_list_size
+                )
                 population.sort(key=lambda x: x.fitness)
                 population = population[: self.params.population_size]
 
@@ -125,7 +129,9 @@ class HGSSolver(PolicyVizMixin):
                 population_size=len(population),
             )
 
-        update_biased_fitness(population, self.params.elite_size, self.params.alpha_diversity)
+        update_biased_fitness(
+            population, self.params.elite_size, self.params.alpha_diversity, self.params.neighbor_list_size
+        )
         best_ind = min(population, key=lambda x: -x.profit_score)
 
         return best_ind.routes, best_ind.profit_score, best_ind.cost

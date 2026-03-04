@@ -87,6 +87,9 @@ ahvpl:
       # Weight of diversity in fitness calculation
       # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
 
+    - hgs_neighbor_list_size: 10
+      # Number of nearest neighbors to consider
+
     - hgs_max_vehicles: 0
       # Maximum vehicles allowed (0 = unlimited, determined by problem)
       # Set >0 to constrain fleet size
