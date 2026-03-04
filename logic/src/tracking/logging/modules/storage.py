@@ -154,7 +154,7 @@ def log_to_json(
             tmp_path = filename + timestamp + "_TMP" + file_ext
             with open(tmp_path, "w") as fp_temp:
                 json.dump(_convert_numpy(old), fp_temp, indent=True)
-            print(f"[WARNING] Failed to write to {json_path}. Saved to {tmp_path}. Error: {e}")
+            print(f"\n[WARNING] Failed to write to {json_path}. Saved to {tmp_path}. Error: {e}")
     finally:
         if lock is not None:
             lock.release()
@@ -213,7 +213,7 @@ def log_to_json2(
             temp_path = json_path + timestamp + "_TEMP.json"
             with open(temp_path, "w") as fp_temp:
                 json.dump(_convert_numpy(old), fp_temp, indent=True)
-            print(f"[ERROR] Failed to write to {json_path}. Saved to {temp_path}. Error: {e}")
+            print(f"\n[ERROR] Failed to write to {json_path}. Saved to {temp_path}. Error: {e}")
     finally:
         if lock is not None:
             lock.release()

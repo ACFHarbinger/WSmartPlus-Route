@@ -127,7 +127,7 @@ def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -
                 for graph_cfg in graphs:
                     file_count += _process_instance_generation(problem, dist, datadir, data, graph_cfg=graph_cfg)
             else:
-                print("[WARNING] No graphs provided for instance generation. Skipping.")
+                print("\n[WARNING] No graphs provided for instance generation. Skipping.")
     except Exception as e:
         has_dists = len(distributions) >= 1 and distributions[0] is not None
         raise Exception(
