@@ -24,6 +24,10 @@ class HGSParams:
         max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
         n_generations: Number of generations to run the algorithm.
         alpha_diversity: Weight for diversity in fitness evaluation.
+        min_diversity: Minimum diversity threshold for triggering diversity maintenance.
+        diversity_change_rate: Rate at which alpha diversity changes.
+        survivor_threshold: Threshold for survivor selection.
+        no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
         neighbor_list_size: Number of nearest neighbors to consider.
         local_search_iterations: Number of iterations to run local search.
     """
@@ -35,6 +39,10 @@ class HGSParams:
     crossover_rate: float = 0.7
     n_generations: int = 100
     alpha_diversity: float = 0.5
+    min_diversity: float = 0.2
+    diversity_change_rate: float = 0.05
+    survivor_threshold: int = 2
+    no_improvement_threshold: int = 20
     neighbor_list_size: int = 15
     local_search_iterations: int = 100
     max_vehicles: int = 0
@@ -58,6 +66,8 @@ class HGSParams:
             n_generations=config.n_generations,
             max_vehicles=config.max_vehicles,
             alpha_diversity=config.alpha_diversity,
+            min_diversity=config.min_diversity,
+            max_diversity=config.max_diversity,
             neighbor_list_size=config.neighbor_list_size,
             local_search_iterations=config.local_search_iterations,
         )

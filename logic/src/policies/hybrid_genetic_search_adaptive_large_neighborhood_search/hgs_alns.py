@@ -78,15 +78,17 @@ class HGSALNSSolver(HGSSolver):
             evaluate(ind, self.split_manager)
             population.append(ind)
 
+        current_alpha = self.hgs_alns_params.hgs_params.alpha_diversity
         update_biased_fitness(
             population,
             self.hgs_alns_params.hgs_params.elite_size,
-            self.hgs_alns_params.hgs_params.alpha_diversity,
+            current_alpha,
             self.hgs_alns_params.hgs_params.neighbor_list_size,
         )
 
         start_time = time.process_time()
         it = 0
+        last_improvement_it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
         while (
             self.hgs_alns_params.time_limit > 0 and time.process_time() - start_time < self.hgs_alns_params.time_limit
@@ -131,6 +133,15 @@ class HGSALNSSolver(HGSSolver):
 
             if child.profit_score > best_profit_so_far:
                 best_profit_so_far = child.profit_score
+                last_improvement_it = it
+
+            # Adaptive alpha diversity
+            # Calculate current population diversity
+            avg_dist = np.mean([ind.dist_to_parents for ind in population])
+            if avg_dist < self.hgs_alns_params.hgs_params.min_diversity_threshold:
+                current_alpha = min(1.0, current_alpha + self.hgs_alns_params.hgs_params.diversity_change_rate)
+            elif it - last_improvement_it > self.hgs_alns_params.hgs_params.no_improvement_threshold:
+                current_alpha = max(0.0, current_alpha - self.hgs_alns_params.hgs_params.diversity_change_rate)
 
             self._viz_record(
                 iteration=it,
@@ -138,6 +149,7 @@ class HGSALNSSolver(HGSSolver):
                 child_profit=child.profit_score,
                 child_cost=child.cost,
                 population_size=len(population),
+                diversity_pressure=current_alpha,
             )
 
             # 4. Survivor Selection
@@ -145,7 +157,7 @@ class HGSALNSSolver(HGSSolver):
                 update_biased_fitness(
                     population,
                     self.hgs_alns_params.hgs_params.elite_size,
-                    self.hgs_alns_params.hgs_params.alpha_diversity,
+                    current_alpha,
                     self.hgs_alns_params.hgs_params.neighbor_list_size,
                 )
                 population.sort(key=lambda x: x.fitness)
@@ -154,7 +166,7 @@ class HGSALNSSolver(HGSSolver):
         update_biased_fitness(
             population,
             self.hgs_alns_params.hgs_params.elite_size,
-            self.hgs_alns_params.hgs_params.alpha_diversity,
+            current_alpha,
             self.hgs_alns_params.hgs_params.neighbor_list_size,
         )
         best_ind = min(population, key=lambda x: -x.profit_score)

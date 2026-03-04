@@ -20,6 +20,10 @@ class HGSConfig:
         mutation_rate: Probability of mutation.
         n_generations: Number of generations to evolve.
         alpha_diversity: Alpha diversity parameter for population management.
+        min_diversity: Minimum diversity threshold for triggering diversity maintenance.
+        diversity_change_rate: Rate at which alpha diversity changes.
+        no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
+        survivor_threshold: Threshold for survivor selection.
         neighbor_list_size: Number of nearest neighbors to consider.
         local_search_iterations: Number of local search iterations.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
@@ -36,6 +40,10 @@ class HGSConfig:
     crossover_rate: float = 0.7
     n_generations: int = 100
     alpha_diversity: float = 0.5
+    min_diversity: float = 0.2
+    diversity_change_rate: float = 0.05
+    no_improvement_threshold: int = 20
+    survivor_threshold: int = 2
     neighbor_list_size: int = 15
     local_search_iterations: int = 500
     max_vehicles: int = 0
