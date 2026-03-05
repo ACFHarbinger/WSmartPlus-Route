@@ -15,8 +15,10 @@ import torch
 if TYPE_CHECKING:
     from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 
+from .base import BaseDistribution
 
-class Empirical:
+
+class Empirical(BaseDistribution):
     """Sampling from an empirical dataset (e.g. file or Bins object)."""
 
     def __init__(
@@ -56,7 +58,7 @@ class Empirical:
                 raise ValueError("Data path must be a directory or a pkl/csv/xlsx/npz file.")
         assert self.grid is not None or self.dataset is not None
 
-    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from empirical dataset.
 
         Args:
@@ -90,7 +92,7 @@ class Empirical:
             raise ValueError("No grid or dataset found.")
         return torch.clip(vals_tensor, 0, 1)
 
-    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from empirical dataset.
 
         Args:

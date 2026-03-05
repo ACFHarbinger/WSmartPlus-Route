@@ -9,7 +9,6 @@ Example:
 
 import os
 import random
-import time
 from typing import Any, Optional
 
 import numpy as np
@@ -21,14 +20,11 @@ from logic.src.configs.tasks.data import DataConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.data.generators.builders import VRPInstanceBuilder
 from logic.src.pipeline.simulations.repository import set_repository_from_path
-from logic.src.tracking.logging.pylogger import get_pylogger
 from logic.src.utils.data.loader import (
     check_extension,
     save_simulation_dataset,
     save_td_dataset,
 )
-
-logger = get_pylogger(__name__)
 
 
 def generate_datasets(cfg: Config) -> None:
@@ -40,9 +36,6 @@ def generate_datasets(cfg: Config) -> None:
             generation parameters.
     """
     from logic.src.data.generators.validators import validate_data_config
-    from logic.src.tracking.core.run import get_active_run
-
-    t0 = time.perf_counter()
 
     # Validate and sanitize config values
     validate_data_config(cfg)
@@ -51,20 +44,6 @@ def generate_datasets(cfg: Config) -> None:
     set_repository_from_path(str(ROOT_DIR))
 
     data = cfg.data
-
-    # --- Log config params to WSTracker ---
-    run = get_active_run()
-    if run is not None:
-        run.log_params(
-            {
-                "gen/problem": data.problem,
-                "gen/dataset_type": data.dataset_type,
-                "gen/seed": data.seed,
-                "gen/n_epochs": data.n_epochs,
-                "gen/overwrite": data.overwrite,
-            }
-        )
-        run.set_tag("task", "gen_data")
 
     # Set the random seed and execute the program
     random.seed(data.seed)
@@ -93,13 +72,6 @@ def generate_datasets(cfg: Config) -> None:
     files_generated = 0
     for problem, distributions in problems.items():
         files_generated += _generate_problem_data(problem, distributions, data)
-
-    # --- Log summary metrics ---
-    elapsed = time.perf_counter() - t0
-    if run is not None:
-        run.log_metric("gen/total_elapsed_s", round(elapsed, 3), step=0)
-        run.log_metric("gen/num_files_generated", files_generated, step=0)
-    logger.info(f"Data generation complete: {files_generated} files in {elapsed:.1f}s")
 
 
 def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -> int:
@@ -151,8 +123,6 @@ def _process_instance_generation(
     Returns:
         Number of files generated.
     """
-    from logic.src.tracking.core.run import get_active_run
-
     assert graph_cfg is not None, "graph_cfg must be provided"
     size = graph_cfg.num_loc
     graph = graph_cfg.focus_graph
@@ -176,34 +146,6 @@ def _process_instance_generation(
     assert waste_type is not None, "waste_type must be provided"
     assert area is not None, "area must be provided"
 
-    name = data.name or "dataset"
-    config_label = f"{problem}_{dist or 'none'}_{size}"
-    logger.info(
-        "Generating '{}{}' ({}) dataset for {} with {} locations [dist={}]".format(
-            name,
-            n_days if data.dataset_type != "train" else "",
-            data.dataset_type or "train",
-            problem.upper(),
-            size,
-            dist,
-        )
-    )
-
-    # --- Log per-config params ---
-    run = get_active_run()
-    if run is not None:
-        run.log_params(
-            {
-                f"gen/config/{config_label}/area": area,
-                f"gen/config/{config_label}/waste_type": waste_type,
-                f"gen/config/{config_label}/n_days": n_days,
-                f"gen/config/{config_label}/n_samples": n_samples,
-                f"gen/config/{config_label}/dataset_type": data.dataset_type or "train",
-            }
-        )
-
-    t0 = time.perf_counter()
-
     builder = VRPInstanceBuilder(device="cuda" if torch.cuda.is_available() else "cpu")
     builder.set_dataset_size(n_samples).set_problem_size(size).set_waste_type(waste_type).set_distribution(
         dist or "empty"
@@ -223,10 +165,6 @@ def _process_instance_generation(
     else:
         file_count = _generate_train_data(builder, problem, datadir, dist, size, data)
 
-    elapsed = time.perf_counter() - t0
-    if run is not None:
-        run.log_metric(f"gen/{config_label}/elapsed_s", round(elapsed, 3), step=0)
-    logger.debug(f"Config {config_label} generated {file_count} file(s) in {elapsed:.2f}s")
     return file_count
 
 
@@ -385,11 +323,6 @@ def _generate_train_data(
 
 def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfig, is_td: bool = False) -> None:
     """Verify file existence and save the dataset."""
-    import contextlib
-
-    from logic.src.tracking.core.run import get_active_run
-    from logic.src.tracking.integrations.data import RuntimeDataTracker
-
     ext = ".td" if is_td else ".npz"
     assert data.overwrite or not os.path.isfile(check_extension(filename, ext)), (
         f"File {filename} already exists! Try running with -f option to overwrite."
@@ -401,31 +334,3 @@ def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfi
     else:
         dataset = builder.build()
         save_simulation_dataset(dataset, filename)
-
-    # --- WSTracker: log artifact and dataset statistics ---
-    run = get_active_run()
-    if run is not None:
-        saved_path = check_extension(filename, ext)
-
-        # Log file as artifact
-        with contextlib.suppress(Exception):
-            file_size = os.path.getsize(saved_path) if os.path.exists(saved_path) else 0
-            run.log_artifact(
-                saved_path,
-                artifact_type="dataset",
-                metadata={"format": ext.lstrip("."), "file_size_bytes": file_size},
-            )
-            run.log_metric("gen/file_size_bytes", file_size, step=0)
-
-        # Snapshot tensor statistics via RuntimeDataTracker
-        with contextlib.suppress(Exception):
-            tracker = RuntimeDataTracker(run)
-            tracker.on_load(
-                dataset,
-                metadata={
-                    "filename": os.path.basename(saved_path),
-                    "variable_name": "dataset",
-                    "source_file": "generators/datasets.py",
-                    "source_line": 428,
-                },
-            )

@@ -10,7 +10,7 @@ from typing import Any, Optional, Tuple, Union
 
 import numpy as np
 
-from logic.src.data.distributions import Beta, Constant, Distance, Gamma, Uniform
+from logic.src.data.distributions import Beta, Constant, Distance, Empirical, Gamma, Uniform
 
 
 def generate_waste(
@@ -20,6 +20,7 @@ def generate_waste(
     dataset_size: int = 1,
     grid: Optional[Any] = None,
     rng: Optional[np.random.RandomState] = None,
+    sample_method: Optional[str] = "sample_array",
     **kwargs: Any,
 ) -> Union[np.ndarray, Any]:
     """
@@ -41,36 +42,33 @@ def generate_waste(
         Generated waste values.
     """
     size = (dataset_size, problem_size)
+    dist_obj = None
     if distribution == "empty":
-        wp: Any = Constant(value=0.0).sample_array(size, rng=rng)
+        dist_obj = Constant(value=0.0)
     elif distribution == "const":
-        wp = Constant(value=1.0).sample_array(size, rng=rng)
+        dist_obj = Constant(value=1.0)
     elif distribution in ["unif", "uniform"]:
-        wp = Uniform().sample_array(size, rng=rng)
+        low = kwargs.get("low", 0)
+        high = kwargs.get("high", 1)
+        dist_obj = Uniform(low=low, high=high)
     elif "gamma" in distribution:
         try:
             digit = "".join([c for c in distribution if c.isdigit()])
             gamma_option = int(digit) - 1 if digit else 0
         except ValueError:
             gamma_option = 0
-        wp = Gamma(option=gamma_option).sample_array(size, rng=rng)
+        dist_obj = Gamma(option=gamma_option)
     elif "beta" in distribution:
         alpha = kwargs.get("alpha", 0.5)
         beta_p = kwargs.get("beta", 0.5)
-        wp = Beta(alpha=alpha, beta=beta_p).sample_array(size, rng=rng)
+        dist_obj = Beta(alpha=alpha, beta=beta_p)
     elif "emp" in distribution:
         if grid is None:
             raise ValueError("grid must be provided for empirical distribution")
-        sampled_value = grid.sample(n_samples=dataset_size, rng=rng)
-        todaysfilling = np.maximum(sampled_value, 0)
-        wp = np.minimum(todaysfilling, 100.0)
+        grid = grid.sample(n_samples=dataset_size, rng=rng)
+        dist_obj = Empirical(grid)
     else:
         assert distribution == "dist"
-        wp = Distance(graph).sample_array()
-        if dataset_size == 1:
-            return wp[0] if wp.ndim > 1 else wp
-        return wp
+        dist_obj = Distance(graph)
 
-    if dataset_size == 1:
-        return wp[0]
-    return wp
+    return dist_obj.set_sampling_method(sample_method).sample(size, rng=rng)
