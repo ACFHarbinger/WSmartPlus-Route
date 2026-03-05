@@ -2,7 +2,7 @@
 Configuration and data sanitization utilities.
 """
 
-from typing import Any, Dict, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -50,10 +50,29 @@ def deep_sanitize(val: Any) -> Any:
     return val
 
 
-def get_pol_name(pol_obj: Union[str, Dict[str, Any]]) -> str:
-    """Extract policy name from structured or string config."""
-    if isinstance(pol_obj, dict):
-        if len(pol_obj) == 1:
-            return list(pol_obj.keys())[0]
-        return "complex_policy"
-    return str(pol_obj)
+def get_pol_name(pol_obj: Any) -> str:
+    """
+    Extract a concise policy name from a structured or string config.
+    Handles Hydra/OmegaConf objects, dicts, and strings.
+    """
+    try:
+        # Sanitize to plain Python types (handles DictConfig, Tensor, etc.)
+        sanitized = deep_sanitize(pol_obj)
+
+        if isinstance(sanitized, dict):
+            if len(sanitized) == 1:
+                # Return the top-level key (e.g., 'rl_alns')
+                return str(list(sanitized.keys())[0])
+            return "complex_policy"
+
+        if isinstance(sanitized, list):
+            return f"policy_list_{len(sanitized)}"
+
+        # If it's a string, or became one, ensure it's not a serialized dict/block
+        name = str(sanitized)
+        if "{" in name or "[" in name or len(name) > 64:
+            return "unnamed_policy"
+
+        return name
+    except Exception:
+        return "unknown_policy"

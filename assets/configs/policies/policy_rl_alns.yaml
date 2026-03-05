@@ -1,0 +1,44 @@
+# RL-ALNS (Reinforcement Learning-augmented Adaptive Large Neighborhood Search)
+# =============================================================================
+# This configuration defines a list-of-dicts structure expected by Hydra
+# for policy composition within the simulator.
+# =============================================================================
+
+rl_alns:
+  custom:
+    - time_limit: 60.0
+    - max_iterations: 5000
+    - start_temp: 100.0
+    - cooling_rate: 0.995
+    - min_removal: 1
+    - max_removal_pct: 0.3
+    - engine: "custom"
+
+    # Centralized RL Configuration
+    - rl_config:
+        _target_: logic.src.configs.policies.other.reinforcement_learning.RLConfig
+        agent_type: bandit
+
+        bandit:
+          algorithm: ucb1
+          c: 2.0
+          seed: 42
+
+        td_learning:
+          algorithm: q_learning
+          alpha: 0.1
+          gamma: 0.95
+          epsilon: 0.1
+          epsilon_decay: 0.995
+          epsilon_min: 0.05
+
+        reward:
+          best_reward: 10.0
+          local_reward: 5.0
+          accepted_reward: 1.0
+          rejected_reward: -1.0
+
+        features:
+          progress_thresholds: [0.33, 0.67]
+          stagnation_thresholds: [10, 30]
+          diversity_thresholds: [0.3, 0.7]

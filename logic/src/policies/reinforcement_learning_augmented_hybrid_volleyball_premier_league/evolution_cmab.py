@@ -21,14 +21,17 @@ from typing import List, Optional
 
 import numpy as np
 
+from logic.src.policies.reinforcement_learning.agents.bandits import (
+    EpsilonGreedyBandit,
+)
+from logic.src.policies.reinforcement_learning.agents.contextual_bandits import (
+    ContextualThompsonSamplingAgent,
+    LinUCBAgent,
+)
+from logic.src.policies.reinforcement_learning.features.context import ContextFeatureExtractor
+
 from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
-from .contextual_mab import (
-    ContextFeatureExtractor,
-    EpsilonGreedyCrossoverSelector,
-    LinUCBCrossoverSelector,
-    ThompsonSamplingCrossoverSelector,
-)
 from .crossover_operators import CROSSOVER_NAMES, CROSSOVER_OPERATORS
 
 
@@ -36,7 +39,10 @@ class CMABEvolution:
     """
     Contextual Multi-Armed Bandit based evolutionary operators.
 
-    Dynamically selects crossover operators based on population context.
+    This class orchestrates the dynamic selection of crossover operators using
+    contextual reinforcement learning. It extracts environment and population
+    features to form a 'context' vector, which is used by the bandit algorithm
+    to predict which operator will be most effective.
     """
 
     def __init__(
@@ -54,23 +60,25 @@ class CMABEvolution:
         **kwargs,
     ):
         """
-        Initialize CMAB evolution.
+        Initialize the CMAB evolution manager.
 
         Args:
-            split_manager: LinearSplit for evaluating individuals.
-            bandit_algorithm: Bandit algorithm to use.
-            max_iterations: Maximum number of iterations.
-            quality_weight: Weight for quality component.
-            improvement_weight: Weight for improvement component.
-            diversity_weight: Weight for diversity component.
-            novelty_weight: Weight for novelty component.
-            reward_threshold: Threshold for reward calculation.
-            default_reward: Default reward value.
-            rng: Random number generator.
-            **kwargs: Additional parameters for bandit algorithm.
+            split_manager: LinearSplit for evaluating individuals and splitting routes.
+            bandit_algorithm: The RL algorithm to use (linucb, thompson, epsilon_greedy).
+            max_iterations: Maximum search iterations for decay calculations.
+            quality_weight: Weight for the absolute quality of the offspring.
+            improvement_weight: Weight for the improvement relative to parents.
+            diversity_weight: Weight for the offspring's contribution to population diversity.
+            novelty_weight: Weight for penalizing stagnant (non-novel) solutions.
+            reward_threshold: Minimal improvement value to consider.
+            default_reward: Baseline reward multiplier.
+            rng: Random number generator instance.
+            **kwargs: Additional parameters like alpha (for LinUCB) or lambda_prior.
         """
         self.split_manager = split_manager
         self.rng = rng if rng is not None else random.Random()
+        # Seed for numpy generator used by new agents
+        self.np_rng = np.random.default_rng(self.rng.randint(0, 2**32 - 1))
 
         # Initialize feature extractor
         self.feature_extractor = ContextFeatureExtractor(
@@ -80,31 +88,27 @@ class CMABEvolution:
 
         # Initialize bandit selector
         n_operators = len(CROSSOVER_OPERATORS)
+        feature_dim = kwargs.get("feature_dim", 8)
+
         if bandit_algorithm == "linucb":
-            self.bandit = LinUCBCrossoverSelector(
+            self.bandit = LinUCBAgent(
                 n_operators,
-                feature_dim=kwargs.get("feature_dim", 8),
+                feature_dim=feature_dim,
                 alpha=kwargs.get("alpha", 1.0),
-                operator_reward_size=kwargs.get("operator_reward_size", 50),
-                operator_selection_threshold=kwargs.get("operator_selection_threshold", 1e-9),
-                improvement_threshold=kwargs.get("improvement_threshold", 1e-6),
             )
         elif bandit_algorithm == "thompson":
-            self.bandit = ThompsonSamplingCrossoverSelector(
+            self.bandit = ContextualThompsonSamplingAgent(
                 n_operators,
-                feature_dim=kwargs.get("feature_dim", 8),
+                feature_dim=feature_dim,
                 lambda_prior=kwargs.get("lambda_prior", 1.0),
                 noise_variance=kwargs.get("noise_variance", 0.1),
-                operator_reward_size=kwargs.get("operator_reward_size", 50),
             )
         elif bandit_algorithm == "epsilon_greedy":
-            self.bandit = EpsilonGreedyCrossoverSelector(
-                n_operators,
-                alpha=kwargs.get("alpha", 0.1),
+            self.bandit = EpsilonGreedyBandit(
+                n_arms=n_operators,
                 epsilon=kwargs.get("epsilon", 0.1),
                 epsilon_decay=kwargs.get("epsilon_decay", 0.999),
                 epsilon_min=kwargs.get("epsilon_min", 0.01),
-                operator_reward_size=kwargs.get("operator_reward_size", 50),
             )
         else:
             raise ValueError(f"Unknown bandit algorithm: {bandit_algorithm}")
@@ -130,42 +134,46 @@ class CMABEvolution:
         max_iterations: int,
     ) -> Individual:
         """
-        Perform crossover with CMAB operator selection.
+        Execute crossover by selecting the optimal operator via bandit.
 
         Args:
-            p1: First parent.
-            p2: Second parent.
-            population: Current population.
-            iteration: Current iteration number.
-            max_iterations: Maximum iterations.
+            p1 (Individual): First parent.
+            p2 (Individual): Second parent.
+            population (List[Individual]): Current population for context extraction.
+            iteration (int): Current global iteration.
+            max_iterations (int): Maximum convergence iterations.
 
         Returns:
-            Child individual.
+            Individual: The resulting offspring.
         """
         self.iteration = iteration
         self.max_iterations = max_iterations
 
-        # Extract context features
+        # Step 1: Extract context features (geographical, diversity, progress)
         context = self.feature_extractor.extract_features(p1, p2, population, iteration, max_iterations)
 
-        # Select crossover operator using bandit
-        op_idx = self.bandit.select_operator(context, self.rng)
+        # Step 2: Select action (crossover operator) using the bandit's upper confidence bound or sampling
+        op_idx = self.bandit.select_action(context, self.np_rng)
         operator_name = CROSSOVER_NAMES[op_idx]
         operator_func = CROSSOVER_OPERATORS[operator_name]
 
-        # Apply crossover
+        # Step 3: Apply the physical crossover operation
         child = operator_func(p1, p2, self.rng)
 
-        # Evaluate child
+        # Step 4: Map evaluation (SPLIT)
         self.evaluate(child)
 
-        # Calculate reward based on child quality
+        # Step 5: Reward Calculation (Multi-objective feedback)
         reward = self._calculate_reward(child, p1, p2, population)
 
-        # Update bandit
-        self.bandit.update(op_idx, context, reward)
+        # Step 6: Update bandit with the outcome
+        # If LinUCB: A = A + x*x.T, b = b + r*x
+        if isinstance(self.bandit, (LinUCBAgent, ContextualThompsonSamplingAgent)):
+            self.bandit.update(context, op_idx, reward)
+        else:
+            self.bandit.update(None, op_idx, reward, None, False)
 
-        # Store operator info for visualization
+        # Store metadata for performance tracking
         child.crossover_operator = operator_name
         child.crossover_reward = reward
 
@@ -179,22 +187,20 @@ class CMABEvolution:
         population: List[Individual],
     ) -> float:
         """
-        Calculate reward for the crossover operator.
+        Calculate a multi-objective reward signal for the crossover performance.
 
-        Reward combines:
-            1. Absolute quality (profit score)
-            2. Improvement over parents
-            3. Diversity contribution
-            4. Novelty contribution
+        The reward combines quality improvement, contribution to global progress,
+        novelty, and population diversity to guide the bandit towards effective
+        operator selection.
 
         Args:
-            child: Offspring individual.
-            p1: First parent.
-            p2: Second parent.
-            population: Current population.
+            child (Individual): The newly created offspring.
+            p1 (Individual): First parent.
+            p2 (Individual): Second parent.
+            population (List[Individual]): Current population for diversity measurement.
 
         Returns:
-            Reward value (higher is better).
+            float: A composite reward value scaled for the bandit update.
         """
         if not population:
             return self.default_reward
@@ -203,19 +209,18 @@ class CMABEvolution:
         # Reward based on how much the child improves over the BETTER parent.
         best_parent_profit = max(p1.profit_score, p2.profit_score)
 
-        # Normalized improvement
+        # Normalized improvement relative to parents
         improvement = (
             (child.profit_score - best_parent_profit) / abs(best_parent_profit)
             if abs(best_parent_profit) > self.reward_threshold
             else 0.0
         )
 
-        # Scale: Significant reward only for actual improvement
-        # We use a non-linear scaling here to heavily reward "Elite" discoveries
+        # Scale improvement non-linearly to emphasize "Elite" breakthroughs
         improvement_reward = np.sign(improvement) * np.log1p(abs(improvement * 100))
 
         # 2. Component: Global Progress
-        # How does this child compare to the current global best?
+        # Reward based on the child's rank relative to the entire population.
         global_best = max(ind.profit_score for ind in population)
         global_worst = min(ind.profit_score for ind in population)
 
@@ -227,11 +232,11 @@ class CMABEvolution:
         )
 
         # 3. Component: Diversity Credit
-        # Crucial for HGS to prevent "Inbreeding"
+        # Crucial for preventing premature convergence in genetic search.
         child_diversity = self.feature_extractor._individual_diversity(child, population)
 
         # 4. Component: Penalty for Stagnation
-        # If the child is exactly the same as a parent (no novelty), penalize.
+        # Discourage operators that simply replicate parent genotypes.
         novelty_penalty = 0.0
         if child.profit_score == p1.profit_score or child.profit_score == p2.profit_score:
             novelty_penalty = -self.default_reward / 10

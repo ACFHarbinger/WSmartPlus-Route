@@ -117,6 +117,121 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             time_limit=values.get("rts_time_limit", values.get("time_limit", 60.0)),
         )
 
+        from ....configs.policies.other import (
+            BanditConfig,
+            ContextFeatureExtractorConfig,
+            EvolutionaryCMABConfig,
+            FeatureExtractorConfig,
+            LinUCBConfig,
+            RewardShapingConfig,
+            RLConfig,
+            TDLearningConfig,
+        )
+
+        # Handle nested rl_config if present (from new Hydra structure)
+        rl_vals = values.get("rl_config")
+        if isinstance(rl_vals, dict):
+            # Safe way to convert nested dict to RLConfig
+            rl_config = RLConfig(
+                agent_type=rl_vals.get("agent_type", "bandit"),
+                bandit=BanditConfig(**{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"}),
+                td_learning=TDLearningConfig(
+                    **{k: v for k, v in rl_vals.get("td_learning", {}).items() if k != "_target_"}
+                ),
+                sarsa=TDLearningConfig(**{k: v for k, v in rl_vals.get("sarsa", {}).items() if k != "_target_"})
+                if rl_vals.get("sarsa")
+                else None,
+                contextual=LinUCBConfig(**{k: v for k, v in rl_vals.get("contextual", {}).items() if k != "_target_"}),
+                evolution_cmab=EvolutionaryCMABConfig(
+                    **{k: v for k, v in rl_vals.get("evolution_cmab", {}).items() if k != "_target_"}
+                ),
+                reward=RewardShapingConfig(**{k: v for k, v in rl_vals.get("reward", {}).items() if k != "_target_"}),
+                features=FeatureExtractorConfig(
+                    **{k: v for k, v in rl_vals.get("features", {}).items() if k != "_target_"}
+                ),
+                context_features=ContextFeatureExtractorConfig(
+                    **{k: v for k, v in rl_vals.get("context_features", {}).items() if k != "_target_"}
+                ),
+                params=rl_vals.get("params", {}),
+            )
+        else:
+            # Build from flat values (legacy/fallback)
+            rl_config = RLConfig(
+                agent_type=values.get("bandit_algorithm", "linucb"),
+                bandit=BanditConfig(
+                    algorithm=values.get("bandit_algorithm", "linucb"),
+                ),
+                td_learning=TDLearningConfig(
+                    alpha=values.get("qlearning_alpha", 0.1),
+                    gamma=values.get("qlearning_gamma", 0.9),
+                    epsilon=values.get("qlearning_epsilon", 0.1),
+                    epsilon_decay=values.get("qlearning_epsilon_decay", 0.99),
+                    epsilon_decay_step=values.get("qlearning_epsilon_decay_step", 10),
+                    epsilon_min=values.get("qlearning_epsilon_min", 0.05),
+                    history_size=values.get("qlearning_history_size", 10),
+                ),
+                sarsa=TDLearningConfig(
+                    alpha=values.get("sarsa_alpha", 0.1),
+                    gamma=values.get("sarsa_gamma", 0.95),
+                    epsilon=values.get("sarsa_epsilon", 0.15),
+                    epsilon_decay=values.get("sarsa_epsilon_decay", 0.995),
+                    epsilon_decay_step=values.get("sarsa_epsilon_decay_step", 50),
+                    epsilon_min=values.get("sarsa_epsilon_min", 0.05),
+                    history_size=values.get("sarsa_diversity_size", 10),
+                ),
+                contextual=LinUCBConfig(
+                    alpha=values.get("cfe_alpha", 0.1),
+                    feature_dim=values.get("cfe_feature_dim", 8),
+                    lambda_prior=values.get("cfe_lambda_prior", 1.0),
+                    noise_variance=values.get("cfe_noise_variance", 0.1),
+                    history_size=values.get("reward_history_size", 50),
+                ),
+                evolution_cmab=EvolutionaryCMABConfig(
+                    quality_weight=values.get("bandit_quality_weight", 0.5),
+                    improvement_weight=values.get("bandit_improvement_weight", 1.0),
+                    diversity_weight=values.get("bandit_diversity_weight", 0.2),
+                    novelty_weight=values.get("bandit_novelty_weight", 1.0),
+                    reward_threshold=values.get("bandit_reward_threshold", 1e-6),
+                    default_reward=values.get("bandit_default_reward", 5.0),
+                ),
+                context_features=ContextFeatureExtractorConfig(
+                    alpha=values.get("cfe_alpha", 0.1),
+                    feature_dim=values.get("cfe_feature_dim", 8),
+                    selection_threshold=values.get("cfe_operator_selection_threshold", 1e-9),
+                    lambda_prior=values.get("cfe_lambda_prior", 1.0),
+                    noise_variance=values.get("cfe_noise_variance", 0.1),
+                    epsilon=values.get("cfe_epsilon", 0.15),
+                    epsilon_decay=values.get("cfe_epsilon_decay", 0.995),
+                    epsilon_decay_step=values.get("cfe_epsilon_decay_step", 20),
+                    epsilon_min=values.get("cfe_epsilon_min", 0.05),
+                ),
+                features=FeatureExtractorConfig(
+                    diversity_history_size=values.get("cfe_diversity_history_size", 10),
+                    improvement_history_size=values.get("cfe_improvement_history_size", 10),
+                ),
+                reward=RewardShapingConfig(
+                    improvement_threshold=values.get("cfe_improvement_threshold", 1e-6),
+                ),
+                params={
+                    "bandit_max_iterations": values.get("bandit_max_iterations", 1000),
+                    "cfe_operator_reward_size": values.get("cfe_operator_reward_size", 50),
+                    "qlearning_rewards_size": values.get("qlearning_rewards_size", 20),
+                    "qlearning_improvement_thresholds": values.get("qlearning_improvement_thresholds", (1e-4, -1e-4)),
+                    "sarsa_scores_size": values.get("sarsa_scores_size", 50),
+                    "sarsa_qtable_size_rate": values.get("sarsa_qtable_size_rate", 0.5),
+                    "sarsa_improvement_thresholds": values.get("sarsa_improvement_thresholds", (-1e-6, 1e-6)),
+                    "sarsa_operator_progress_thresholds": values.get(
+                        "sarsa_operator_progress_thresholds", (0.33, 0.67)
+                    ),
+                    "sarsa_operator_stagnation_thresholds": values.get(
+                        "sarsa_operator_stagnation_thresholds", (10, 30)
+                    ),
+                    "sarsa_operator_diversity_thresholds": values.get(
+                        "sarsa_operator_diversity_thresholds", (0.3, 0.7)
+                    ),
+                },
+            )
+
         params = RLAHVPLParams(
             n_teams=values.get("n_teams", 10),
             max_iterations=values.get("max_iterations", 1000),
@@ -131,53 +246,11 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             aco_params=aco_params,
             alns_params=alns_params,
             rts_params=rts_params,
+            rl_config=rl_config,
             tabu_no_repeat_threshold=values.get("tabu_no_repeat_threshold", 2),
             gls_penalty_lambda=values.get("gls_penalty_lambda", 1.0),
             gls_penalty_alpha=values.get("gls_penalty_alpha", 0.5),
             gls_penalty_step=values.get("gls_penalty_step", 10),
-            bandit_algorithm=values.get("bandit_algorithm", "linucb"),
-            bandit_max_iterations=values.get("bandit_max_iterations", 1000),
-            bandit_quality_weight=values.get("bandit_quality_weight", 0.5),
-            bandit_improvement_weight=values.get("bandit_improvement_weight", 1.0),
-            bandit_diversity_weight=values.get("bandit_diversity_weight", 0.2),
-            bandit_novelty_weight=values.get("bandit_novelty_weight", 1.0),
-            bandit_reward_threshold=values.get("bandit_reward_threshold", 1e-6),
-            bandit_default_reward=values.get("bandit_default_reward", 5.0),
-            cfe_alpha=values.get("cfe_alpha", 0.1),
-            cfe_feature_dim=values.get("cfe_feature_dim", 8),
-            cfe_operator_selection_threshold=values.get("cfe_operator_selection_threshold", 1e-9),
-            cfe_lambda_prior=values.get("cfe_lambda_prior", 1.0),
-            cfe_noise_variance=values.get("cfe_noise_variance", 0.1),
-            cfe_epsilon=values.get("cfe_epsilon", 0.15),
-            cfe_epsilon_decay=values.get("cfe_epsilon_decay", 0.995),
-            cfe_epsilon_decay_step=values.get("cfe_epsilon_decay_step", 20),
-            cfe_epsilon_min=values.get("cfe_epsilon_min", 0.05),
-            cfe_diversity_history_size=values.get("cfe_diversity_history_size", 10),
-            cfe_improvement_history_size=values.get("cfe_improvement_history_size", 10),
-            cfe_operator_reward_size=values.get("cfe_operator_reward_size", 50),
-            cfe_improvement_threshold=values.get("cfe_improvement_threshold", 1e-6),
-            qlearning_alpha=values.get("qlearning_alpha", 0.1),
-            qlearning_gamma=values.get("qlearning_gamma", 0.9),
-            qlearning_epsilon=values.get("qlearning_epsilon", 0.1),
-            qlearning_epsilon_decay=values.get("qlearning_epsilon_decay", 0.99),
-            qlearning_epsilon_decay_step=values.get("qlearning_epsilon_decay_step", 10),
-            qlearning_epsilon_min=values.get("qlearning_epsilon_min", 0.05),
-            qlearning_history_size=values.get("qlearning_history_size", 10),
-            qlearning_rewards_size=values.get("qlearning_rewards_size", 20),
-            qlearning_improvement_thresholds=values.get("qlearning_improvement_thresholds", [1e-4, -1e-4]),
-            sarsa_alpha=values.get("sarsa_alpha", 0.1),
-            sarsa_gamma=values.get("sarsa_gamma", 0.95),
-            sarsa_epsilon=values.get("sarsa_epsilon", 0.15),
-            sarsa_epsilon_decay=values.get("sarsa_epsilon_decay", 0.995),
-            sarsa_epsilon_decay_step=values.get("sarsa_epsilon_decay_step", 50),
-            sarsa_epsilon_min=values.get("sarsa_epsilon_min", 0.05),
-            sarsa_diversity_size=values.get("sarsa_diversity_size", 10),
-            sarsa_scores_size=values.get("sarsa_scores_size", 50),
-            sarsa_qtable_size_rate=values.get("sarsa_qtable_size_rate", 0.5),
-            sarsa_improvement_thresholds=values.get("sarsa_improvement_thresholds", [-1e-6, 1e-6]),
-            sarsa_operator_progress_thresholds=values.get("sarsa_operator_progress_thresholds", [0.33, 0.67]),
-            sarsa_operator_stagnation_thresholds=values.get("sarsa_operator_stagnation_thresholds", [10, 30]),
-            sarsa_operator_diversity_thresholds=values.get("sarsa_operator_diversity_thresholds", [0.3, 0.7]),
         )
 
         solver = RLAHVPLSolver(

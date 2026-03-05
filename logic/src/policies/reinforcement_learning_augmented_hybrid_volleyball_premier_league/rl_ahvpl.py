@@ -38,7 +38,7 @@ from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
 from .alns_sarsa import ALNSSARSASolver
 from .evolution_cmab import CMABEvolution, update_biased_fitness
-from .ksaco_qlearning import KSparseACOQLSolver
+from .ks_aco_qlearning import KSparseACOQLSolver
 from .params import RLAHVPLParams
 
 

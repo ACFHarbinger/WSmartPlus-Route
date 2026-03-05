@@ -38,11 +38,13 @@ import copy
 import math
 import random
 import time
-from collections import defaultdict, deque
+from collections import deque
 from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.reinforcement_learning.agents.td_learning import SarsaAgent
+from logic.src.policies.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..operators.destroy import (
@@ -89,185 +91,25 @@ from ..operators.unstringing import (
 from .params import ALNSParams, RLAHVPLParams
 
 
-class SARSAOperatorSelector:
-    """
-    SARSA-based operator selection for ALNS.
-
-    Uses State-Action-Reward-State-Action temporal difference learning
-    to learn optimal destroy-repair operator combinations.
-    """
-
-    def __init__(
-        self,
-        n_destroy_ops: int,
-        n_repair_ops: int,
-        alpha: float = 0.1,  # Learning rate
-        gamma: float = 0.95,  # Discount factor
-        epsilon: float = 0.15,  # Exploration rate
-        epsilon_decay: float = 0.995,
-        epsilon_min: float = 0.05,
-        scores_size: int = 50,
-        qtable_size_rate: float = 0.5,
-        progress_thresholds: List[float] = None,
-        stagnation_thresholds: List[int] = None,
-        diversity_thresholds: List[float] = None,
-    ):
-        """Initialize SARSA Q-learning for operator selection."""
-        if progress_thresholds is None:
-            progress_thresholds = [0.33, 0.67]
-        if stagnation_thresholds is None:
-            stagnation_thresholds = [10, 30]
-        if diversity_thresholds is None:
-            diversity_thresholds = [0.3, 0.7]
-        self.n_destroy = n_destroy_ops
-        self.n_repair = n_repair_ops
-        self.alpha = alpha
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.epsilon_decay = epsilon_decay
-        self.epsilon_min = epsilon_min
-        self.progress_thresholds = progress_thresholds
-        self.stagnation_thresholds = stagnation_thresholds
-        self.diversity_thresholds = diversity_thresholds
-        # Q-table: Q[state][destroy_op][repair_op] = expected reward
-        # State discretization: (iteration_phase, stagnation_level, diversity_level)
-        self.q_table: Dict[Tuple[int, int, int], np.ndarray] = defaultdict(
-            lambda: np.ones((n_destroy_ops, n_repair_ops)) * qtable_size_rate
-        )
-
-        # Performance tracking
-        self.op_pair_counts: Dict[Tuple[int, int], int] = defaultdict(int)
-        self.op_pair_scores: Dict[Tuple[int, int], Deque[float]] = defaultdict(lambda: deque(maxlen=scores_size))
-
-        # SARSA state tracking
-        self.current_state: Optional[Tuple[int, int, int]] = None
-        self.current_action: Optional[Tuple[int, int]] = None
-
-    def discretize_state(
-        self, iteration: int, max_iterations: int, stagnation_count: int, diversity: float
-    ) -> Tuple[int, int, int]:
-        """
-        Discretize continuous state into bins for Q-table.
-
-        Args:
-            iteration: Current iteration number.
-            max_iterations: Maximum iterations.
-            stagnation_count: Number of iterations without improvement.
-            diversity: Population diversity measure (0-1).
-
-        Returns:
-            Tuple of (phase, stagnation_level, diversity_level).
-        """
-        # Phase: early (0), mid (1), late (2)
-        progress = iteration / max(max_iterations, 1)
-        phase = 0 if progress < self.progress_thresholds[0] else (1 if progress < self.progress_thresholds[1] else 2)
-
-        # Stagnation: low (0), medium (1), high (2)
-        stag_level = (
-            0
-            if stagnation_count < self.stagnation_thresholds[0]
-            else (1 if stagnation_count < self.stagnation_thresholds[1] else 2)
-        )
-
-        # Diversity: low (0), medium (1), high (2)
-        div_level = (
-            0 if diversity < self.diversity_thresholds[0] else (1 if diversity < self.diversity_thresholds[1] else 2)
-        )
-
-        return (phase, stag_level, div_level)
-
-    def select_operators(self, state: Tuple[int, int, int], rng: random.Random) -> Tuple[int, int]:
-        """
-        Select destroy/repair operator pair using ε-greedy SARSA policy.
-
-        Args:
-            state: Discretized state tuple.
-            rng: Random number generator.
-
-        Returns:
-            Tuple of (destroy_idx, repair_idx).
-        """
-        # ε-greedy exploration
-        if rng.random() < self.epsilon:
-            # Explore: random action
-            d_idx = rng.randint(0, self.n_destroy - 1)
-            r_idx = rng.randint(0, self.n_repair - 1)
-        else:
-            # Exploit: best action from Q-table
-            q_values = self.q_table[state]
-            best_value = np.max(q_values)
-
-            # Find all actions with best value (for tie-breaking)
-            best_actions = np.argwhere(q_values == best_value)
-            if len(best_actions) > 0:
-                choice = rng.choice(best_actions)
-                d_idx, r_idx = int(choice[0]), int(choice[1])
-            else:
-                d_idx = rng.randint(0, self.n_destroy - 1)
-                r_idx = rng.randint(0, self.n_repair - 1)
-
-        return d_idx, r_idx
-
-    def update_q_value(
-        self,
-        state: Tuple[int, int, int],
-        action: Tuple[int, int],
-        reward: float,
-        next_state: Tuple[int, int, int],
-        next_action: Tuple[int, int],
-    ):
-        """
-        Update Q-value using SARSA temporal difference update.
-
-        Q(s,a) ← Q(s,a) + α[r + γQ(s',a') - Q(s,a)]
-        """
-        d_idx, r_idx = action
-        next_d_idx, next_r_idx = next_action
-
-        current_q = self.q_table[state][d_idx, r_idx]
-        next_q = self.q_table[next_state][next_d_idx, next_r_idx]
-
-        # SARSA update
-        td_target = reward + self.gamma * next_q
-        td_error = td_target - current_q
-        new_q = current_q + self.alpha * td_error
-
-        self.q_table[state][d_idx, r_idx] = new_q
-
-        # Track performance
-        self.op_pair_counts[action] += 1
-        self.op_pair_scores[action].append(reward)
-
-    def decay_epsilon(self):
-        """Decay exploration rate over time."""
-        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
-
-    def get_statistics(self) -> Dict:
-        """Get operator selection statistics for visualization."""
-        stats = {
-            "epsilon": self.epsilon,
-            "q_table_size": len(self.q_table),
-            "total_actions": sum(self.op_pair_counts.values()),
-            "best_operators": [],
-        }
-
-        # Find best operator pairs
-        avg_scores = {}
-        for action, scores in self.op_pair_scores.items():
-            if scores:
-                avg_scores[action] = np.mean(scores)
-
-        if avg_scores:
-            sorted_pairs = sorted(avg_scores.items(), key=lambda x: x[1], reverse=True)
-            stats["best_operators"] = sorted_pairs[:5]
-
-        return stats
-
-
 class ALNSPerturbationContext:
-    """Context object required by perturbation operators."""
+    """
+    Context object required by perturbation operators.
+
+    This class serves as a state-carrier for the various perturbation
+    and destruction heuristics, providing a unified interface for
+    route data, waste demands, and distance matrices.
+    """
 
     def __init__(self, routes: List[List[int]], dist_matrix: np.ndarray, wastes: Dict[int, float], capacity: float):
+        """
+        Initialize the perturbation context.
+
+        Args:
+            routes (List[List[int]]): Current solution routes.
+            dist_matrix (np.ndarray): NxN distance matrix.
+            wastes (Dict[int, float]): Dictionary of node waste demands.
+            capacity (float): Maximum vehicle capacity.
+        """
         self.routes = copy.deepcopy(routes)
         self.dist_matrix = dist_matrix
         self.d = dist_matrix
@@ -275,16 +117,32 @@ class ALNSPerturbationContext:
         self.Q = capacity
         self._build_structures()
 
-    def _build_structures(self):
+    def _build_structures(self) -> None:
+        """Construct auxiliary structures like node_map for efficient lookup."""
         self.node_map = {}
         for r_idx, route in enumerate(self.routes):
             for pos, node in enumerate(route):
                 self.node_map[node] = (r_idx, pos)
 
-    def _update_map(self, changed_routes: set):
+    def _update_map(self, changed_routes: set) -> None:
+        """
+        Rebuild internal maps after modifications.
+
+        Args:
+            changed_routes (set): Indices of routes that were modified (for efficiency).
+        """
         self._build_structures()
 
     def _get_load_cached(self, ri: int) -> float:
+        """
+        Calculate total waste load of a specific route.
+
+        Args:
+            ri (int): Index of the route.
+
+        Returns:
+            float: Sum of waste for all nodes in the route.
+        """
         return sum(self.wastes.get(n, 0) for n in self.routes[ri])
 
 
@@ -334,21 +192,25 @@ class ALNSSARSASolver(PolicyVizMixin):
         self.destroy_ops.extend(self.unstring_ops)
         self.destroy_names.extend(self.unstring_names)
 
-        # Initialize SARSA selector
-        self.sarsa = SARSAOperatorSelector(
-            n_destroy_ops=len(self.destroy_ops),
-            n_repair_ops=len(self.repair_ops),
+        # Initialize RL components
+        self.feature_extractor = StateFeatureExtractor(
+            progress_thresholds=rl_params.sarsa_operator_progress_thresholds,
+            stagnation_thresholds=rl_params.sarsa_operator_stagnation_thresholds,
+            diversity_thresholds=rl_params.sarsa_operator_diversity_thresholds,
+        )
+        self.n_destroy = len(self.destroy_ops)
+        self.n_repair = len(self.repair_ops)
+        self.agent = SarsaAgent(
+            n_states=27,  # 3*3*3 discretized states
+            n_actions=self.n_destroy * self.n_repair,
             alpha=rl_params.sarsa_alpha,
             gamma=rl_params.sarsa_gamma,
             epsilon=rl_params.sarsa_epsilon,
             epsilon_decay=rl_params.sarsa_epsilon_decay,
             epsilon_min=rl_params.sarsa_epsilon_min,
-            scores_size=rl_params.sarsa_scores_size,
-            qtable_size_rate=rl_params.sarsa_qtable_size_rate,
-            progress_thresholds=rl_params.sarsa_operator_progress_thresholds,
-            stagnation_thresholds=rl_params.sarsa_operator_stagnation_thresholds,
-            diversity_thresholds=rl_params.sarsa_operator_diversity_thresholds,
         )
+        # Seeds for agent
+        self.agent_rng = np.random.default_rng(seed)
 
         # Tracking
         self.stagnation_count = 0
@@ -568,30 +430,43 @@ class ALNSSARSASolver(PolicyVizMixin):
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:  # noqa: C901
         """
-        Run enhanced ALNS with SARSA operator selection.
+        Run the enhanced ALNS search with SARSA operator selection.
+
+        The solver iteratively applies destroy-repair operators chosen by a SARSA
+        agent, adapting its strategy based on the search state (progress,
+        stagnation, and diversity).
+
+        Args:
+            initial_solution (Optional[List[List[int]]]): Starting solution.
 
         Returns:
-            Tuple of (best_routes, profit, cost).
+            Tuple[List[List[int]], float, float]: (best_routes, best_profit, best_cost).
         """
-        # Initialize solution
+        # Step 1: Initialize solution and search parameters
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
 
         current_eval_profit = self.evaluator(current_routes) if self.evaluator else current_profit
 
-        # Simulated annealing temperature
+        # Initialize Simulated Annealing temperature
         T = self.params.start_temp
         start_time = time.process_time()
 
-        # SARSA: Initialize state
-        state = self.sarsa.discretize_state(0, self.params.max_iterations, 0, 1.0)
+        # Step 2: SARSA Initialization - Start with an initial state
+        state_tuple = self.feature_extractor.discretize_state(0, self.params.max_iterations, 0, 1.0)
+        state = self.feature_extractor.state_to_index(state_tuple)
 
+        # Main ALNS Evolutionary loop
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
-            # Handle stagnation via perturbation
-            if self.stagnation_count >= self.sarsa.stagnation_thresholds[1]:
+            # Calculate current solution diversity to inform the state representation
+            diversity = self._calculate_diversity(current_routes)
+            self.diversity_history.append(diversity)
+
+            # Step 3: Handle stagnation - If search is stuck, apply a strong perturbation (kick)
+            if self.stagnation_count >= self.feature_extractor.stagnation_thresholds[1]:
                 p_idx = self.random.randint(0, len(self.perturbation_ops) - 1)
                 current_routes = self.perturbation_ops[p_idx](current_routes)
                 current_cost = self.calculate_cost(current_routes)
@@ -600,88 +475,100 @@ class ALNSSARSASolver(PolicyVizMixin):
                 current_eval_profit = self.evaluator(current_routes) if self.evaluator else current_profit
                 self.stagnation_count = 0
 
-                # Update best if perturbed route somehow magically improves it
+                # Re-discretize state after escaping local optimum via perturbation
+                state_tuple = self.feature_extractor.discretize_state(
+                    iteration, self.params.max_iterations, self.stagnation_count, diversity
+                )
+                state = self.feature_extractor.state_to_index(state_tuple)
+
+                # Record global best if perturbation accidentally found a better solution
                 if current_profit > best_profit:
                     best_profit = current_profit
                     best_routes = copy.deepcopy(current_routes)
                     best_cost = current_cost
 
-            # Calculate diversity (simple measure: variation in route sizes)
-            diversity = self._calculate_diversity(current_routes)
-            self.diversity_history.append(diversity)
+            # Step 4: SARSA - Select action (operator pair) from current state
+            # SARSA (State-Action-Reward-State-Action) is an on-policy TD control method.
+            action = self.agent.select_action(state, self.agent_rng)
+            d_idx = action // self.n_repair
+            r_idx = action % self.n_repair
 
-            # SARSA: Select action (operator pair) from current state
-            d_idx, r_idx = self.sarsa.select_operators(state, self.random)
-
-            # Apply destroy-repair
+            # Step 5: Applied ALNS Core - Perform actual solution modification
             new_routes, removed = self.destroy_ops[d_idx](
                 copy.deepcopy(current_routes), self._calc_removal_size(current_routes)
             )
             new_routes = self.repair_ops[r_idx](new_routes, removed)
 
-            # Evaluate new solution
+            # Evaluate the new candidate solution
             new_cost = self.calculate_cost(new_routes)
             new_rev = sum(self.wastes.get(n, 0) * self.R for r in new_routes for n in r)
             new_profit = new_rev - new_cost
 
             new_eval_profit = self.evaluator(new_routes) if self.evaluator else new_profit
 
-            # Acceptance criterion (simulated annealing)
+            # Step 6: Acceptance Criterion - decide whether to keep the new solution
+            # Uses Simulated Annealing to allow occasional deterioration for diversification.
             delta = current_eval_profit - new_eval_profit
             accept = False
             if delta < self.improvement_thresholds[0]:
                 accept = True
-                score = 3.0  # New best
+                score = 3.0  # High score for global/local improvement
             elif T > 0 and self.random.random() < math.exp(-delta / T):
                 accept = True
-                score = 1.0  # Accepted but not best
+                score = 1.0  # Medium score for accepted non-improving moves
             else:
-                score = 0.0  # Rejected
+                accept = False
+                score = 0.0  # Reject the move
 
-            # Calculate reward for SARSA
+            # Step 7: Reward Calculation - feedback for the SARSA agent
             if new_profit > best_profit + self.improvement_thresholds[1]:
-                reward = 10.0  # Global best
+                reward = 10.0  # Global improvement bonus
                 self.stagnation_count = 0
             elif new_profit > current_profit:
-                reward = 5.0  # Local improvement
+                reward = 5.0  # Local improvement bonus
                 self.stagnation_count = 0
             elif accept:
-                reward = 1.0  # Diversification
+                reward = 1.0  # Stability/Diversification bonus
                 self.stagnation_count += 1
             else:
-                reward = -1.0  # Rejection
+                reward = -1.0  # Rejection penalty
                 self.stagnation_count += 1
 
-            # SARSA: Observe next state and select next action
-            next_state = self.sarsa.discretize_state(
+            # Step 8: SARSA - Observe next state (S') and select next action (A')
+            next_state_tuple = self.feature_extractor.discretize_state(
                 iteration + 1, self.params.max_iterations, self.stagnation_count, diversity
             )
-            next_d_idx, next_r_idx = self.sarsa.select_operators(next_state, self.random)
-            next_action = (next_d_idx, next_r_idx)
+            next_state = self.feature_extractor.state_to_index(next_state_tuple)
+            next_action = self.agent.select_action(next_state, self.agent_rng)
 
-            # SARSA: Update Q-value
-            self.sarsa.update_q_value(state, (d_idx, r_idx), reward, next_state, next_action)
+            # Step 9: SARSA - Update Q-Value based on the actual observed outcome
+            # SARSA Update Rule: Q(S,A) = Q(S,A) + alpha * [R + gamma * Q(S',A') - Q(S,A)]
+            self.agent.update(state, action, reward, next_state, False, next_action)
 
-            # Update current solution if accepted
+            # Finalize transition for the next iteration
             if accept:
                 current_routes = new_routes
                 current_profit = new_profit
                 current_eval_profit = new_eval_profit
 
-                if new_profit > best_profit + self.improvement_thresholds[1]:
-                    best_routes = copy.deepcopy(new_routes)
-                    best_profit = new_profit
+                if current_profit > best_profit:
+                    best_profit = current_profit
+                    best_routes = copy.deepcopy(current_routes)
                     best_cost = new_cost
 
-            # SARSA: Transition to next state
+            # Step 10: Environmental Update - Cool temperature and decay exploration
             state = next_state
+            T *= self.params.cooling_rate
+            if iteration % self.epsilon_decay_step == 0:
+                self.agent.decay_epsilon()
+            action = next_action
 
             # Cool temperature
             T *= self.params.cooling_rate
 
             # Decay exploration
             if iteration % self.epsilon_decay_step == 0:
-                self.sarsa.decay_epsilon()
+                self.agent.decay_epsilon()
 
             # Visualization
             self._viz_record(
@@ -694,7 +581,7 @@ class ALNSSARSASolver(PolicyVizMixin):
                 accepted=int(accept),
                 score=score,
                 reward=reward,
-                epsilon=self.sarsa.epsilon,
+                epsilon=self.agent.epsilon,
                 stagnation=self.stagnation_count,
                 diversity=diversity,
             )

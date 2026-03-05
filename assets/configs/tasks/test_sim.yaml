@@ -40,6 +40,8 @@ defaults:
   - /policies@p.ga: policy_ga
   - /policies@p.sa: policy_sa
   - /policies@p.ils: policy_ils
+  - /policies@p.rl_ahvpl: policy_rl_ahvpl
+  - /policies@p.rl_alns: policy_rl_alns
   - /policies@p.vns: policy_vns
   - _self_
   - override /tracking: test_sim
@@ -106,3 +108,5 @@ sim:
     - sa: ${p.sa.sa}
     - ils: ${p.ils.ils}
     - vns: ${p.vns.vns}
+    - rl_alns: ${p.rl_alns.rl_alns}
+    - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
