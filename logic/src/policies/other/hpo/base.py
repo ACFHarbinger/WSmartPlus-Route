@@ -56,8 +56,8 @@ class PolicyHPOBase(ABC):
                     # Handle omegaconf ListConfig/DictConfig if needed
                     try:
                         target = target[part] if not part.isdigit() else target[int(part)]
-                    except (KeyError, IndexError, TypeError):
-                        raise AttributeError(f"Cannot find config path: {key}")
+                    except (KeyError, IndexError, TypeError) as err:
+                        raise AttributeError(f"Cannot find config path: {key}") from err
 
             last_part = parts[-1]
             if hasattr(target, last_part):
