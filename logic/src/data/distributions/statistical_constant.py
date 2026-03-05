@@ -7,8 +7,10 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import torch
 
+from .base import BaseDistribution
 
-class Constant:
+
+class Constant(BaseDistribution):
     """Constant value sampling."""
 
     def __init__(self, value: Union[float, torch.Tensor] = 1.0):
@@ -19,7 +21,7 @@ class Constant:
         """
         self.value = value
 
-    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Return constant tensor.
 
         Args:
@@ -33,7 +35,7 @@ class Constant:
             return self.value.expand(size)
         return torch.full(size, float(self.value))
 
-    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Return constant array.
 
         Args:

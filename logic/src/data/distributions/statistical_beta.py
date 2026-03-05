@@ -7,8 +7,10 @@ from typing import Optional, Tuple, Union, cast
 import numpy as np
 import torch
 
+from .base import BaseDistribution
 
-class Beta:
+
+class Beta(BaseDistribution):
     """Beta distribution sampling."""
 
     def __init__(self, alpha: Union[float, torch.Tensor] = 0.5, beta: Union[float, torch.Tensor] = 0.5):
@@ -21,7 +23,7 @@ class Beta:
         self.alpha = alpha
         self.beta = beta
 
-    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from Beta distribution.
 
         Args:
@@ -37,7 +39,7 @@ class Beta:
         m = torch.distributions.Beta(self.alpha, self.beta)
         return m.sample(torch.Size(size), generator=generator)
 
-    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Beta distribution.
 
         Args:

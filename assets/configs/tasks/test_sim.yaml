@@ -50,7 +50,7 @@ defaults:
 task: test_sim
 seed: 42
 #load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
-load_dataset: "data/wsr_simulator/datasets/april_2024_summary_with_coords.csv"
+load_dataset: "data/wsr_simulator/datasets/riomaior100_gamma1_wsr30_N1_seed42.npz"
 
 # Simulation Configuration
 sim:
@@ -64,7 +64,7 @@ sim:
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   data_distribution: "gamma1"
-  stats_filepath: "datasets/april_2024_summary_with_coords.csv"
+  #stats_filepath: "datasets/april_2024_summary_with_coords.csv"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
