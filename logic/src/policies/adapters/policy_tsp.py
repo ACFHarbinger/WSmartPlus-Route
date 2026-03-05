@@ -55,17 +55,15 @@ class TSPPolicy(BaseRoutingPolicy):
         """
         Run TSP solver with capacity-based splitting.
         """
-        n_nodes = len(sub_dist_matrix)
-        nodes_to_visit = list(range(1, n_nodes))
-
         # 1. Find a giant tour visiting all potential targets
         # Note: find_route expects global indices usually, but we pass local ones here.
         # It takes C (dist_matrix), to_collect, and time_limit.
         time_limit = values.get("time_limit", 2.0)
+        nodes_to_visit = mandatory_nodes
         tour = find_route(sub_dist_matrix, nodes_to_visit, time_limit=time_limit)
 
         # wastes_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
-        wastes_arr_bins = np.array([sub_wastes[i] for i in range(1, n_nodes)])
+        wastes_arr_bins = np.array([sub_wastes[i] for i in range(1, len(sub_dist_matrix))])
 
         # 2. Split the tour greedily based on capacity
         full_tour = get_multi_tour(tour, wastes_arr_bins, capacity, sub_dist_matrix)

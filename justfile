@@ -25,7 +25,7 @@ samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "gamma1"
+distribution := "gamma3"
 n_cores := "20"
 policies := "hgs,alns,sans,vrpp,cvrp,tsp,hh_aco,ks_aco,hvpl,sisr"
 
