@@ -168,7 +168,7 @@ class VRPInstanceBuilder:
             noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_arr.shape)
             noisy_fill_arr = np.clip(fill_arr + noise, 0, MAX_CAPACITY_PERCENT)
         else:
-            noisy_fill_arr = np.maximum(fill_arr, MAX_CAPACITY_PERCENT)
+            noisy_fill_arr = fill_arr.copy()
 
         return {
             "depot": np.flip(depot, axis=-1) if depot.shape[-1] == 2 else depot,
