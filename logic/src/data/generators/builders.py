@@ -150,7 +150,9 @@ class VRPInstanceBuilder:
         coords = (depot, loc)
 
         for _ in range(self._num_days):
-            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, grid)
+            waste = generate_waste(
+                self._problem_size, self._distribution, coords, self._dataset_size, grid, rng=self.np_rng
+            )
             if self._dataset_size == 1 and len(waste.shape) == 1:
                 waste = waste[None, :]
             fill_values.append(waste)
@@ -189,7 +191,9 @@ class VRPInstanceBuilder:
         fill_values = []
         coords = (depot, loc)
         for _ in range(self._num_days):
-            waste = generate_waste(self._problem_size, self._distribution, coords, self._dataset_size, grid)
+            waste = generate_waste(
+                self._problem_size, self._distribution, coords, self._dataset_size, grid, rng=self.generator
+            )
             if self._dataset_size == 1 and len(waste.shape) == 1:
                 waste = waste[None, :]
             fill_values.append(waste)

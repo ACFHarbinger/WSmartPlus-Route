@@ -7,8 +7,10 @@ from typing import Optional, Tuple, cast
 import numpy as np
 import torch
 
+from .base import BaseDistribution
 
-class Uniform:
+
+class Uniform(BaseDistribution):
     """Discrete uniform sampling distribution."""
 
     def __init__(self, low: int = 0, high: int = 100):
@@ -21,7 +23,7 @@ class Uniform:
         self.low = low
         self.high = high
 
-    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from discrete uniform distribution.
 
         Args:
@@ -36,7 +38,7 @@ class Uniform:
         res = torch.randint(self.low, self.high, size, generator=generator)
         return res.float() / 100.0
 
-    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from discrete uniform distribution.
 
         Args:

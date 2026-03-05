@@ -9,10 +9,13 @@ Example:
 
 from typing import Optional, Tuple
 
+import numpy as np
 import torch
 
+from .base import BaseDistribution
 
-class Mixed:
+
+class Mixed(BaseDistribution):
     """50% uniform + 50% Gaussian clusters."""
 
     def __init__(self, n_cluster_mix: int = 1):
@@ -25,7 +28,7 @@ class Mixed:
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
-    def sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
@@ -74,3 +77,51 @@ class Mixed:
             )
 
         return coords.clamp_(0, 1)
+
+    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+        """NumPy version of _sample_tensor."""
+        if rng is None:
+            rng = np.random.RandomState(42)
+
+        batch_size, num_loc, _ = size
+
+        # 1. Generate cluster centers
+        center = self.lower + (self.upper - self.lower) * rng.rand(batch_size, self.n_cluster_mix * 2)
+
+        # 2. Initialize coords with uniform distribution [0, 1)
+        coords = rng.rand(batch_size, num_loc, 2)
+
+        # 3. Create mutation indices (equivalent to torch.randperm)
+        # We generate a permutation for each batch and take the first half
+        mutate_idx = np.array([rng.permutation(num_loc)[: num_loc // 2] for _ in range(batch_size)])
+
+        # 4. Calculate segment sizes for clusters
+        segment_size = num_loc // (2 * self.n_cluster_mix)
+        remaining = num_loc // 2 - segment_size * (self.n_cluster_mix - 1)
+        sizes = [segment_size] * (self.n_cluster_mix - 1) + [remaining]
+
+        # 5. Apply Gaussian clusters to the selected indices
+        for i in range(self.n_cluster_mix):
+            start_idx = sum(sizes[:i])
+            end_idx = sum(sizes[: i + 1])
+
+            # Extract the specific indices for this cluster segment
+            current_indices = mutate_idx[:, start_idx:end_idx]  # (batch_size, segment)
+
+            # Prepare means
+            means_x = center[:, 2 * i, np.newaxis]
+            means_y = center[:, 2 * i + 1, np.newaxis]
+
+            # Sample from Normal distribution
+            # Size matches (batch_size, segment)
+            new_x = rng.normal(means_x, self.std, size=(batch_size, sizes[i]))
+            new_y = rng.normal(means_y, self.std, size=(batch_size, sizes[i]))
+
+            # 6. Advanced Indexing (NumPy's scatter_ equivalent)
+            # Create batch indices to align with current_indices
+            batch_indices = np.arange(batch_size)[:, np.newaxis]
+
+            coords[batch_indices, current_indices, 0] = new_x
+            coords[batch_indices, current_indices, 1] = new_y
+
+        return np.clip(coords, 0, 1)

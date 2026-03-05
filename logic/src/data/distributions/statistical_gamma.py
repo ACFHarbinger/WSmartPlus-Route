@@ -10,8 +10,10 @@ import torch
 
 from logic.src.constants.data import GAMMA_PRESETS
 
+from .base import BaseDistribution
 
-class Gamma:
+
+class Gamma(BaseDistribution):
     """Gamma distribution sampling with optional per-node preset parameters."""
 
     def __init__(
@@ -52,7 +54,7 @@ class Gamma:
         tiled = param * math.ceil(size / param_len)
         return tiled[:size]
 
-    def sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample from Gamma distribution.
 
         Args:
@@ -71,7 +73,7 @@ class Gamma:
         m = torch.distributions.Gamma(self.alpha, 1 / self.theta)
         return m.sample(torch.Size(size), generator=generator)
 
-    def sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Gamma distribution.
 
         When ``option`` is set, uses per-node heterogeneous alpha/theta
