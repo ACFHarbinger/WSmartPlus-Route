@@ -37,20 +37,20 @@ data:
 
   # Graphs Configuration
   graphs:
-    - num_loc: 20
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_20V_1N_plastic.json"
-      n_days: 30
-    - num_loc: 50
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_50V_1N_plastic.json"
-      n_days: 30
+    #- num_loc: 20
+    #  n_samples: 1
+    #  area: "riomaior"
+    #  waste_type: "plastic"
+    #  focus_size: 1
+    #  focus_graph: "graphs_20V_1N_plastic.json"
+    #  n_days: 30
+    #- num_loc: 50
+    #  n_samples: 1
+    #  area: "riomaior"
+    #  waste_type: "plastic"
+    #  focus_size: 1
+    #  focus_graph: "graphs_50V_1N_plastic.json"
+    #  n_days: 30
     - num_loc: 100
       n_samples: 1
       area: "riomaior"
@@ -58,10 +58,10 @@ data:
       focus_size: 1
       focus_graph: "graphs_100V_1N_plastic.json"
       n_days: 30
-    - num_loc: 170
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_170V_1N_plastic.json"
-      n_days: 30
+    #- num_loc: 170
+    #  n_samples: 1
+    #  area: "riomaior"
+    #  waste_type: "plastic"
+    #  focus_size: 1
+    #  focus_graph: "graphs_170V_1N_plastic.json"
+    #  n_days: 30
