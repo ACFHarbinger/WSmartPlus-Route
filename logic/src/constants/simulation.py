@@ -75,7 +75,7 @@ METRICS: List[str] = [
     "kg_lost",  # Overflow penalty (minimize to 0)
     "km",  # Distance traveled (minimize)
     "kg/km",  # Efficiency ratio (maximize)
-    "cost",  # Operational cost (minimize)
+    "reward",  # Reward function (maximize)
     "profit",  # Net profit (maximize, primary objective)
     "time",  # Elapsed time for policy execution (minimize)
 ]
