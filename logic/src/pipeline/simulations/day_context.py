@@ -208,12 +208,12 @@ def get_daily_results(
     dlog["kg_lost"] = sum_lost
     dlog["time"] = time
     if tour and len(tour) > 2:
-        rl_cost = new_overflows - total_collected + cost
+        reward = total_collected - new_overflows - cost
         dlog["kg"] = total_collected
         dlog["ncol"] = ncol
         dlog["km"] = cost
         dlog["kg/km"] = total_collected / cost if cost > 0 else 0
-        dlog["cost"] = rl_cost
+        dlog["reward"] = reward
         dlog["profit"] = profit
         ids = np.array([x for x in tour if x != 0])
         dlog["tour"] = [0] + coordinates.loc[ids, "ID"].tolist() + [0]
@@ -222,7 +222,7 @@ def get_daily_results(
         dlog["ncol"] = 0
         dlog["km"] = 0
         dlog["kg/km"] = 0
-        dlog["cost"] = new_overflows
+        dlog["reward"] = -new_overflows
         dlog["profit"] = 0
         dlog["tour"] = [0]
     return dlog
