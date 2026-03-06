@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.utils.configs.setup_utils.deep_sanitize
     :summary:
     ```
+* - {py:obj}`get_pol_name <src.utils.configs.setup_utils.get_pol_name>`
+  - ```{autodoc2-docstring} src.utils.configs.setup_utils.get_pol_name
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +31,12 @@
 :canonical: src.utils.configs.setup_utils.deep_sanitize
 
 ```{autodoc2-docstring} src.utils.configs.setup_utils.deep_sanitize
+```
+````
+
+````{py:function} get_pol_name(pol_obj: typing.Any) -> str
+:canonical: src.utils.configs.setup_utils.get_pol_name
+
+```{autodoc2-docstring} src.utils.configs.setup_utils.get_pol_name
 ```
 ````

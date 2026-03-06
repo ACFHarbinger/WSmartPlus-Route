@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} cluster_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, nodes: typing.List[int]) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+````{py:function} cluster_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, nodes: typing.List[int], rng: typing.Optional[random.Random] = None) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
 :canonical: src.policies.operators.destroy.cluster.cluster_removal
 
 ```{autodoc2-docstring} src.policies.operators.destroy.cluster.cluster_removal

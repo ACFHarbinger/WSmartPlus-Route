@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AHVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} AHVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -37,14 +37,6 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 ```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.__init__
 ```
 
-````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.solve
-
-```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.solve
-```
-
-````
-
 ````{py:method} _initialize_population() -> typing.List[src.policies.hybrid_genetic_search.individual.Individual]
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._initialize_population
 
@@ -57,6 +49,14 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._construct_individual
 
 ```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._construct_individual
+```
+
+````
+
+````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.solve
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.solve
 ```
 
 ````
@@ -77,7 +77,15 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````
 
-````{py:method} _alns_coaching(ind: src.policies.hybrid_genetic_search.individual.Individual) -> src.policies.hybrid_genetic_search.individual.Individual
+````{py:method} _mutate(ind: src.policies.hybrid_genetic_search.individual.Individual) -> None
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._mutate
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._mutate
+```
+
+````
+
+````{py:method} _alns_coaching(ind: src.policies.hybrid_genetic_search.individual.Individual, iterations: int = 100) -> src.policies.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching
 
 ```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching
@@ -85,7 +93,7 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````
 
-````{py:method} _update_pheromones(routes: typing.List[typing.List[int]], cost: float) -> None
+````{py:method} _update_pheromones(routes: typing.List[typing.List[int]], profit: float, cost: float) -> None
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._update_pheromones
 
 ```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._update_pheromones

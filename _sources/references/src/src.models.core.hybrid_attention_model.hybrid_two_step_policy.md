@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HybridTwoStagePolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_encode_layers: int = 3, n_heads: int = 8, refine_steps: int = 10, **kwargs)
+`````{py:class} HybridTwoStagePolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_encode_layers: int = 3, n_heads: int = 8, refine_steps: int = 10, seed: int = 42, **kwargs)
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`

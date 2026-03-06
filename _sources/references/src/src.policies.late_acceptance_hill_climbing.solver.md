@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LAHCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.late_acceptance_hill_climbing.params.LAHCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} LAHCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.late_acceptance_hill_climbing.params.LAHCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.late_acceptance_hill_climbing.solver.LAHCSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

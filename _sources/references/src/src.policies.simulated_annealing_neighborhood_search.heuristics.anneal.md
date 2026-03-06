@@ -31,7 +31,7 @@
 
 ### API
 
-````{py:function} run_annealing_loop(initial_solution: typing.List[typing.List[int]], data: pandas.DataFrame, distance_matrix: numpy.ndarray, must_go_bins: typing.List[int], values: typing.Dict, n_bins: int, chosen_combination: typing.Tuple, time_limit: float) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+````{py:function} run_annealing_loop(initial_solution: typing.List[typing.List[int]], data: pandas.DataFrame, distance_matrix: numpy.ndarray, must_go_bins: typing.List[int], values: typing.Dict, n_bins: int, chosen_combination: typing.Tuple, time_limit: float, rng: random.Random, np_rng: numpy.random.RandomState) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.anneal.run_annealing_loop
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.anneal.run_annealing_loop

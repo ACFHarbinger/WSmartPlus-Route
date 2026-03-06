@@ -35,14 +35,14 @@
 
 ### API
 
-````{py:function} vectorized_type_iii_unstringing(tours: torch.Tensor, distance_matrix: torch.Tensor, max_iterations: int = 50, sample_size: int = 50) -> torch.Tensor
+````{py:function} vectorized_type_iii_unstringing(tours: torch.Tensor, distance_matrix: torch.Tensor, max_iterations: int = 50, sample_size: int = 50, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.unstringing.type_iii.vectorized_type_iii_unstringing
 
 ```{autodoc2-docstring} src.models.policies.operators.unstringing.type_iii.vectorized_type_iii_unstringing
 ```
 ````
 
-````{py:function} _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device)
+````{py:function} _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device, generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.operators.unstringing.type_iii._find_best_type_iii_move
 
 ```{autodoc2-docstring} src.models.policies.operators.unstringing.type_iii._find_best_type_iii_move

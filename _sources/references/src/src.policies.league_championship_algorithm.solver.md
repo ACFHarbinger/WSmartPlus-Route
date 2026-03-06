@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LCASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.league_championship_algorithm.params.LCAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} LCASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.league_championship_algorithm.params.LCAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.league_championship_algorithm.solver.LCASolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -41,14 +41,6 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 :canonical: src.policies.league_championship_algorithm.solver.LCASolver.solve
 
 ```{autodoc2-docstring} src.policies.league_championship_algorithm.solver.LCASolver.solve
-```
-
-````
-
-````{py:method} _random_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.league_championship_algorithm.solver.LCASolver._random_solution
-
-```{autodoc2-docstring} src.policies.league_championship_algorithm.solver.LCASolver._random_solution
 ```
 
 ````

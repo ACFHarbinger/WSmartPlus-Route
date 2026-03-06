@@ -398,6 +398,17 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
+````{py:attribute} seed
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.seed
+```
+
+````
+
 ````{py:attribute} daily_log
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.daily_log
 :type: typing.Optional[typing.Dict[str, typing.Any]]
@@ -552,6 +563,17 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
+````{py:attribute} time
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.time
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.time
+```
+
+````
+
 ````{py:property} field_names
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.field_names
 
@@ -625,7 +647,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 ```
 ````
 
-````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
+````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
 :canonical: src.pipeline.simulations.day_context.get_daily_results
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_daily_results

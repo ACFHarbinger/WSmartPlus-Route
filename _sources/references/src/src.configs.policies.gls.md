@@ -44,9 +44,20 @@
 :canonical: src.configs.policies.gls.GLSConfig.lambda_param
 :type: float
 :value: >
-   0.3
+   1.0
 
 ```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.lambda_param
+```
+
+````
+
+````{py:attribute} alpha_param
+:canonical: src.configs.policies.gls.GLSConfig.alpha_param
+:type: float
+:value: >
+   0.3
+
+```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.alpha_param
 ```
 
 ````
@@ -102,6 +113,17 @@
    60.0
 
 ```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.time_limit
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.gls.GLSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.seed
 ```
 
 ````

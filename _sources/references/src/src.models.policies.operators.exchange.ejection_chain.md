@@ -39,7 +39,7 @@
 
 ### API
 
-````{py:function} vectorized_ejection_chain(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, max_depth: int = 5, target_route_reduction: typing.Optional[int] = None) -> torch.Tensor
+````{py:function} vectorized_ejection_chain(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, max_depth: int = 5, target_route_reduction: typing.Optional[int] = None, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.exchange.ejection_chain.vectorized_ejection_chain
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.ejection_chain.vectorized_ejection_chain

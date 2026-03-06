@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ACODecoder(n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, **kwargs)
+`````{py:class} ACODecoder(n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, seed: int = 42, **kwargs)
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder
 
 Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder`

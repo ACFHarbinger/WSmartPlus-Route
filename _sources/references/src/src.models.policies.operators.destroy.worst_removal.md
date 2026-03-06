@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} vectorized_worst_removal(tours: torch.Tensor, dist_matrix: torch.Tensor, n_remove: int) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:function} vectorized_worst_removal(tours: torch.Tensor, dist_matrix: torch.Tensor, n_remove: int, generator: typing.Optional[torch.Generator] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.operators.destroy.worst_removal.vectorized_worst_removal
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.worst_removal.vectorized_worst_removal

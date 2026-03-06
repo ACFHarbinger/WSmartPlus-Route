@@ -31,7 +31,7 @@
 
 ### API
 
-````{py:function} vectorized_greedy_insertion(tours: torch.Tensor, removed_nodes: torch.Tensor, dist_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor] = None, capacity: typing.Optional[float] = None) -> torch.Tensor
+````{py:function} vectorized_greedy_insertion(tours: torch.Tensor, removed_nodes: torch.Tensor, dist_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor] = None, capacity: typing.Optional[float] = None, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.repair.greedy_insertion.vectorized_greedy_insertion
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.greedy_insertion.vectorized_greedy_insertion

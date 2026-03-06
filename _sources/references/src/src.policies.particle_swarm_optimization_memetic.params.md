@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.particle_swarm_optimization_memetic.params.PSOMAParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic.params.PSOMAParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.particle_swarm_optimization_memetic.params.PSOMAParams.time_limit
 :type: float

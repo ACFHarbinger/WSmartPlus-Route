@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, must_go_bins, values, n_bins, points, time_limit)
+````{py:function} find_solutions(data, bins_coordinates, distance_matrix, chosen_combination, must_go_bins, values, n_bins, points, time_limit, rng, np_rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.refinement.route_search.find_solutions
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.refinement.route_search.find_solutions

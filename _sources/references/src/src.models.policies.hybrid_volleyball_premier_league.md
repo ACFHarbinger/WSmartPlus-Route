@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedHVPL(env_name: str, n_teams: int = 10, max_iterations: int = 20, sub_rate: float = 0.2, time_limit: float = 60.0, aco_iterations: int = 1, alns_iterations: int = 100, **kwargs)
+`````{py:class} VectorizedHVPL(env_name: str, n_teams: int = 10, max_iterations: int = 20, sub_rate: float = 0.2, time_limit: float = 60.0, aco_iterations: int = 1, alns_iterations: int = 100, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None, rng: typing.Optional[random.Random] = None, **kwargs)
 :canonical: src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`

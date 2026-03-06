@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GlimpseDecoder(embed_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int = 8, mask_inner: bool = True, mask_logits: bool = True, tanh_clipping: float = 10.0, mask_graph: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, strategy: typing.Optional[str] = None, **kwargs)
+`````{py:class} GlimpseDecoder(embed_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int = 8, mask_inner: bool = True, mask_logits: bool = True, tanh_clipping: float = 10.0, mask_graph: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, strategy: typing.Optional[str] = None, seed: int = 42, **kwargs)
 :canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder
 
 Bases: {py:obj}`torch.nn.Module`

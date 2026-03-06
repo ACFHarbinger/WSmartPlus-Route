@@ -15,9 +15,11 @@
 
 src.policies.augmented_hybrid_volleyball_premier_league
 src.policies.genetic_programming_hyper_heuristic
+src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search
 src.policies.branch_cut_and_price
 src.policies.ant_colony_optimization
 src.policies.local_search
+src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league
 src.policies.slack_induction_by_string_removal
 src.policies.variable_neighborhood_search
 src.policies.hidden_markov_model_great_deluge
@@ -34,6 +36,7 @@ src.policies.simulated_annealing_neighborhood_search
 src.policies.iterated_local_search
 src.policies.late_acceptance_hill_climbing
 src.policies.genetic_algorithm
+src.policies.reinforcement_learning_adaptive_large_neighborhood_search
 src.policies.league_championship_algorithm
 src.policies.firefly_algorithm
 src.policies.hybrid_genetic_search
@@ -56,7 +59,6 @@ src.policies.particle_swarm_optimization_memetic
 
 src.policies.tsp
 src.policies.cvrp
-src.policies.hgs_alns
 ```
 
 ## Package Contents

@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:function} vectorized_swap_star(tours, dist_matrix, max_iterations=100)
+````{py:function} vectorized_swap_star(tours, dist_matrix, max_iterations=100, generator=None)
 :canonical: src.models.policies.operators.route.swap_star.vectorized_swap_star
 
 ```{autodoc2-docstring} src.models.policies.operators.route.swap_star.vectorized_swap_star

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedALNS(env_name: str, time_limit: float = 5.0, max_iterations: int = 500, max_vehicles: int = 0, **kwargs)
+`````{py:class} VectorizedALNS(env_name: str, time_limit: float = 5.0, max_iterations: int = 500, max_vehicles: int = 0, start_temp: float = 0.5, cooling_rate: float = 0.9995, device: str = 'cpu', seed: int = 42, **kwargs)
 :canonical: src.models.policies.alns.VectorizedALNS
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`

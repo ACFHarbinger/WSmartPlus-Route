@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.sca.SCAConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.sca.SCAConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.sca.SCAConfig.vrpp
 :type: bool

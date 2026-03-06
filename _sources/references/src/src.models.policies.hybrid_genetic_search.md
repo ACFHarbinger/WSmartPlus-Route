@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedHGS(dist_matrix: torch.Tensor, wastes: torch.Tensor, vehicle_capacity: typing.Any, time_limit: float = 1.0, device: str = 'cuda')
+`````{py:class} VectorizedHGS(dist_matrix: torch.Tensor, wastes: torch.Tensor, vehicle_capacity: typing.Any, max_iterations: int = 50, alpha_diversity: float = 0.5, time_limit: float = 1.0, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None, rng: typing.Optional[random.Random] = None)
 :canonical: src.models.policies.hybrid_genetic_search.VectorizedHGS
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

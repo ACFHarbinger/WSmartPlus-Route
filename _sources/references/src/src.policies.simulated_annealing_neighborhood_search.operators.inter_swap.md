@@ -31,21 +31,21 @@
 
 ### API
 
-````{py:function} swap_2_routes(routes_list)
+````{py:function} swap_2_routes(routes_list: typing.List[typing.List[int]], rng: random.Random) -> None
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.inter_swap.swap_2_routes
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.inter_swap.swap_2_routes
 ```
 ````
 
-````{py:function} swap_n_2_routes_random(routes_list)
+````{py:function} swap_n_2_routes_random(routes_list: typing.List[typing.List[int]], rng: random.Random, n: typing.Optional[int] = None) -> typing.Optional[int]
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.inter_swap.swap_n_2_routes_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.inter_swap.swap_n_2_routes_random
 ```
 ````
 
-````{py:function} swap_n_2_routes_consecutive(routes_list)
+````{py:function} swap_n_2_routes_consecutive(routes_list: typing.List[typing.List[int]], rng: random.Random, n: typing.Optional[int] = None) -> typing.Optional[int]
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.inter_swap.swap_n_2_routes_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.inter_swap.swap_n_2_routes_consecutive

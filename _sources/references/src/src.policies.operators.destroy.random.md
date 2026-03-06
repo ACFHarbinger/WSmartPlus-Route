@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} random_removal(routes: typing.List[typing.List[int]], n_remove: int) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+````{py:function} random_removal(routes: typing.List[typing.List[int]], n_remove: int, rng: typing.Optional[random.Random] = None) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
 :canonical: src.policies.operators.destroy.random.random_removal
 
 ```{autodoc2-docstring} src.policies.operators.destroy.random.random_removal

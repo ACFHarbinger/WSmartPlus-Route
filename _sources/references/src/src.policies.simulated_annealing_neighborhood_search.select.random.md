@@ -43,42 +43,42 @@
 
 ### API
 
-````{py:function} remove_bin(routes_list, removed_bins, bins_cannot_removed)
+````{py:function} remove_bin(routes_list, removed_bins, bins_cannot_removed, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.random.remove_bin
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.random.remove_bin
 ```
 ````
 
-````{py:function} add_bin(routes_list, removed_bins)
+````{py:function} add_bin(routes_list, removed_bins, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.random.add_bin
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.random.add_bin
 ```
 ````
 
-````{py:function} remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed)
+````{py:function} remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.random.remove_n_bins_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.random.remove_n_bins_random
 ```
 ````
 
-````{py:function} add_n_bins_random(routes_list, removed_bins)
+````{py:function} add_n_bins_random(routes_list, removed_bins, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.random.add_n_bins_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.random.add_n_bins_random
 ```
 ````
 
-````{py:function} add_route_random(routes_list, distance_matrix)
+````{py:function} add_route_random(routes_list, distance_matrix, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.random.add_route_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.random.add_route_random
 ```
 ````
 
-````{py:function} add_route_with_removed_bins_random(routes_list, removed_bins, distance_matrix)
+````{py:function} add_route_with_removed_bins_random(routes_list, removed_bins, distance_matrix, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.random.add_route_with_removed_bins_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.random.add_route_with_removed_bins_random

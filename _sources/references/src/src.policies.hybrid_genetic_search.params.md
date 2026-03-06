@@ -95,6 +95,94 @@
 
 ````
 
+````{py:attribute} alpha_diversity
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity
+```
+
+````
+
+````{py:attribute} min_diversity
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.min_diversity
+:type: float
+:value: >
+   0.2
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.min_diversity
+```
+
+````
+
+````{py:attribute} diversity_change_rate
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate
+:type: float
+:value: >
+   0.05
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate
+```
+
+````
+
+````{py:attribute} survivor_threshold
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.survivor_threshold
+:type: int
+:value: >
+   2
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.survivor_threshold
+```
+
+````
+
+````{py:attribute} no_improvement_threshold
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold
+:type: int
+:value: >
+   20
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold
+```
+
+````
+
+````{py:attribute} min_diversity_threshold
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold
+:type: float
+:value: >
+   0.2
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold
+```
+
+````
+
+````{py:attribute} neighbor_list_size
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size
+:type: int
+:value: >
+   15
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size
+```
+
+````
+
+````{py:attribute} local_search_iterations
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} max_vehicles
 :canonical: src.policies.hybrid_genetic_search.params.HGSParams.max_vehicles
 :type: int

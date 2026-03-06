@@ -240,9 +240,11 @@
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hidden_markov_model_great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hidden_markov_model_great_deluge</span></code></a></li>
@@ -259,6 +261,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.late_acceptance_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.late_acceptance_hill_climbing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.league_championship_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.league_championship_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.firefly_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.firefly_algorithm</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
@@ -273,7 +276,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hgs_alns</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -497,6 +499,14 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.crossover_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.n_generations"><code class="docutils literal notranslate"><span class="pre">HGSParams.n_generations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSParams.alpha_diversity</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.diversity_change_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.survivor_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.survivor_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.no_improvement_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.neighbor_list_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSParams.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.from_config"><code class="docutils literal notranslate"><span class="pre">HGSParams.from_config()</span></code></a></li>
 </ul>
@@ -543,7 +553,16 @@ time_limit: Maximum search time in seconds.
 population_size: Target population size.
 elite_size: Number of elite individuals for survivor selection.
 mutation_rate: Probability of applying local search improvement.
-max_vehicles: Maximum number of vehicles allowed (0 = unlimited).</p>
+max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
+n_generations: Number of generations to run the algorithm.
+alpha_diversity: Weight for diversity in fitness evaluation.
+min_diversity: Minimum diversity threshold for triggering diversity maintenance.
+diversity_change_rate: Rate at which alpha diversity changes.
+min_diversity_threshold: Threshold for minimum diversity.
+survivor_threshold: Threshold for survivor selection.
+no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
+neighbor_list_size: Number of nearest neighbors to consider.
+local_search_iterations: Number of iterations to run local search.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.time_limit" title="Link to this definition">#</a></dt>
@@ -577,6 +596,54 @@ max_vehicles: Maximum number of vehicles allowed (0 = unlimited).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.n_generations">
 <span class="sig-name descname"><span class="pre">n_generations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.n_generations" title="Link to this definition">#</a></dt>
+<dd><p>100</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity">
+<span class="sig-name descname"><span class="pre">alpha_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.min_diversity">
+<span class="sig-name descname"><span class="pre">min_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity" title="Link to this definition">#</a></dt>
+<dd><p>0.2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate">
+<span class="sig-name descname"><span class="pre">diversity_change_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate" title="Link to this definition">#</a></dt>
+<dd><p>0.05</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.survivor_threshold">
+<span class="sig-name descname"><span class="pre">survivor_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.survivor_threshold" title="Link to this definition">#</a></dt>
+<dd><p>2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold">
+<span class="sig-name descname"><span class="pre">no_improvement_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold" title="Link to this definition">#</a></dt>
+<dd><p>20</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold">
+<span class="sig-name descname"><span class="pre">min_diversity_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size">
+<span class="sig-name descname"><span class="pre">neighbor_list_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size" title="Link to this definition">#</a></dt>
+<dd><p>15</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations">
+<span class="sig-name descname"><span class="pre">local_search_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations" title="Link to this definition">#</a></dt>
 <dd><p>100</p>
 </dd></dl>
 
@@ -657,6 +724,14 @@ HGSParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.crossover_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.n_generations"><code class="docutils literal notranslate"><span class="pre">HGSParams.n_generations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSParams.alpha_diversity</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.diversity_change_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.survivor_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.survivor_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.no_improvement_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.neighbor_list_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSParams.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.from_config"><code class="docutils literal notranslate"><span class="pre">HGSParams.from_config()</span></code></a></li>
 </ul>

@@ -39,10 +39,6 @@
   - ```{autodoc2-docstring} src.tracking.database.commands.export_run
     :summary:
     ```
-* - {py:obj}`main <src.tracking.database.commands.main>`
-  - ```{autodoc2-docstring} src.tracking.database.commands.main
-    :summary:
-    ```
 ````
 
 ### API
@@ -86,12 +82,5 @@
 :canonical: src.tracking.database.commands.export_run
 
 ```{autodoc2-docstring} src.tracking.database.commands.export_run
-```
-````
-
-````{py:function} main() -> None
-:canonical: src.tracking.database.commands.main
-
-```{autodoc2-docstring} src.tracking.database.commands.main
 ```
 ````

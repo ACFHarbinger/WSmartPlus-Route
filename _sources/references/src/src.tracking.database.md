@@ -16,6 +16,7 @@
 src.tracking.database.sql_loader
 src.tracking.database.shared
 src.tracking.database.commands
+src.tracking.database.__main__
 src.tracking.database.cmd_stats
 ```
 

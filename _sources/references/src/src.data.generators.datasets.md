@@ -49,29 +49,7 @@
     ```
 ````
 
-### Data
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`logger <src.data.generators.datasets.logger>`
-  - ```{autodoc2-docstring} src.data.generators.datasets.logger
-    :summary:
-    ```
-````
-
 ### API
-
-````{py:data} logger
-:canonical: src.data.generators.datasets.logger
-:value: >
-   'get_pylogger(...)'
-
-```{autodoc2-docstring} src.data.generators.datasets.logger
-```
-
-````
 
 ````{py:function} generate_datasets(cfg: logic.src.configs.Config) -> None
 :canonical: src.data.generators.datasets.generate_datasets

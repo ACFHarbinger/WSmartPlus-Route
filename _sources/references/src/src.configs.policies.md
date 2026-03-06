@@ -24,8 +24,10 @@ src.configs.policies.other
 
 src.configs.policies.fa
 src.configs.policies.tsp
+src.configs.policies.rl_ahvpl
 src.configs.policies.cvrp
 src.configs.policies.aco
+src.configs.policies.rl_alns
 src.configs.policies.lca
 src.configs.policies.gls
 src.configs.policies.ahvpl
@@ -40,7 +42,6 @@ src.configs.policies.rrt
 src.configs.policies.ils
 src.configs.policies.alns
 src.configs.policies.neural
-src.configs.policies.lkh
 src.configs.policies.gphh
 src.configs.policies.vns
 src.configs.policies.hgs_alns

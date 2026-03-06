@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed)
+````{py:function} local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed, rng, np_rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.search.random_search.local_search
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.search.random_search.local_search

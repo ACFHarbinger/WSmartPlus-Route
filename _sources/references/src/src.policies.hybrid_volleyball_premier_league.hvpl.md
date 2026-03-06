@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_volleyball_premier_league.params.HVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} HVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_volleyball_premier_league.params.HVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -41,6 +41,22 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 :canonical: src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver.solve
 
 ```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver.solve
+```
+
+````
+
+````{py:method} _canonicalize_routes(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._canonicalize_routes
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._canonicalize_routes
+```
+
+````
+
+````{py:method} _hash_routes(routes: typing.List[typing.List[int]]) -> str
+:canonical: src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._hash_routes
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.hvpl.HVPLSolver._hash_routes
 ```
 
 ````

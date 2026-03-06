@@ -117,6 +117,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.sa.SAConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.sa.SAConfig.vrpp
 :type: bool

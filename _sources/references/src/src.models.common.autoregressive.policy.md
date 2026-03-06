@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AutoregressivePolicy(encoder: typing.Optional[src.models.common.autoregressive.encoder.AutoregressiveEncoder] = None, decoder: typing.Optional[src.models.common.autoregressive.decoder.AutoregressiveDecoder] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, **kwargs)
+`````{py:class} AutoregressivePolicy(encoder: typing.Optional[src.models.common.autoregressive.encoder.AutoregressiveEncoder] = None, decoder: typing.Optional[src.models.common.autoregressive.decoder.AutoregressiveDecoder] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.models.common.autoregressive.policy.AutoregressivePolicy
 
 Bases: {py:obj}`src.models.common.autoregressive.constructive.ConstructivePolicy`

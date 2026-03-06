@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:function} vectorized_regret_k_insertion(tours: torch.Tensor, removed_nodes: torch.Tensor, dist_matrix: torch.Tensor, k: int = 2) -> torch.Tensor
+````{py:function} vectorized_regret_k_insertion(tours: torch.Tensor, removed_nodes: torch.Tensor, dist_matrix: torch.Tensor, k: int = 2, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.repair.regret_k_insertion.vectorized_regret_k_insertion
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.regret_k_insertion.vectorized_regret_k_insertion

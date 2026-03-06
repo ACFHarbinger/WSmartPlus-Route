@@ -15,6 +15,7 @@
 
 src.configs.tasks.eval
 src.configs.tasks.train
+src.configs.tasks.sim_hpo
 src.configs.tasks.hpo
 src.configs.tasks.data
 src.configs.tasks.sim
@@ -40,7 +41,7 @@ src.configs.tasks.meta_rl
 ````{py:data} __all__
 :canonical: src.configs.tasks.__all__
 :value: >
-   ['DataConfig', 'EvalConfig', 'HPOConfig', 'MetaRLConfig', 'SimConfig', 'TrainConfig']
+   ['DataConfig', 'EvalConfig', 'HPOConfig', 'MetaRLConfig', 'SimConfig', 'SimHPOConfig', 'TrainConfig'...
 
 ```{autodoc2-docstring} src.configs.tasks.__all__
 ```

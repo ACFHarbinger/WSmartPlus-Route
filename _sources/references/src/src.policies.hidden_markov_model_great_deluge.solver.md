@@ -87,7 +87,7 @@
 
 ````
 
-`````{py:class} HMMGDSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hidden_markov_model_great_deluge.params.HMMGDParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} HMMGDSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hidden_markov_model_great_deluge.params.HMMGDParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.hidden_markov_model_great_deluge.solver.HMMGDSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -151,17 +151,8 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````{py:method} _sample_llh(probs: numpy.ndarray) -> int
 :canonical: src.policies.hidden_markov_model_great_deluge.solver.HMMGDSolver._sample_llh
-:staticmethod:
 
 ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge.solver.HMMGDSolver._sample_llh
-```
-
-````
-
-````{py:method} _random_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.hidden_markov_model_great_deluge.solver.HMMGDSolver._random_solution
-
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge.solver.HMMGDSolver._random_solution
 ```
 
 ````

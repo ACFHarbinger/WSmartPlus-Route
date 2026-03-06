@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.hidden_markov_model_great_deluge.params.HMMGDParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge.params.HMMGDParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.hidden_markov_model_great_deluge.params.HMMGDParams.time_limit
 :type: float

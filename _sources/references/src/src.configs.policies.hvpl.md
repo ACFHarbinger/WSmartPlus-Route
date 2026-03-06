@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.hvpl.HVPLConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.seed
+```
+
+````
+
 ````{py:attribute} aco
 :canonical: src.configs.policies.hvpl.HVPLConfig.aco
 :type: src.configs.policies.aco.ACOConfig

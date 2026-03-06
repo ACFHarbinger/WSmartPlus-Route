@@ -31,7 +31,7 @@
 
 ### API
 
-````{py:function} vectorized_three_opt(tours, dist_matrix, max_iterations=100)
+````{py:function} vectorized_three_opt(tours, dist_matrix, max_iterations=100, generator=None)
 :canonical: src.models.policies.operators.route.three_opt.vectorized_three_opt
 
 ```{autodoc2-docstring} src.models.policies.operators.route.three_opt.vectorized_three_opt

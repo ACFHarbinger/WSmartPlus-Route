@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} RRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.record_to_record_travel.params.RRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} RRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.record_to_record_travel.params.RRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.record_to_record_travel.solver.RRSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

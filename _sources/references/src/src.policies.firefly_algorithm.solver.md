@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} FASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.firefly_algorithm.params.FAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} FASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.firefly_algorithm.params.FAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.firefly_algorithm.solver.FASolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -41,14 +41,6 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 :canonical: src.policies.firefly_algorithm.solver.FASolver.solve
 
 ```{autodoc2-docstring} src.policies.firefly_algorithm.solver.FASolver.solve
-```
-
-````
-
-````{py:method} _new_firefly() -> typing.List[typing.List[int]]
-:canonical: src.policies.firefly_algorithm.solver.FASolver._new_firefly
-
-```{autodoc2-docstring} src.policies.firefly_algorithm.solver.FASolver._new_firefly
 ```
 
 ````

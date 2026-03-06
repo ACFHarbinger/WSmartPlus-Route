@@ -39,8 +39,8 @@
   - ```{autodoc2-docstring} src.constants.simulation.LOSS_KEYS
     :summary:
     ```
-* - {py:obj}`MAX_WASTE <src.constants.simulation.MAX_WASTE>`
-  - ```{autodoc2-docstring} src.constants.simulation.MAX_WASTE
+* - {py:obj}`MAX_CAPACITY_PERCENT <src.constants.simulation.MAX_CAPACITY_PERCENT>`
+  - ```{autodoc2-docstring} src.constants.simulation.MAX_CAPACITY_PERCENT
     :summary:
     ```
 * - {py:obj}`MAX_LENGTHS <src.constants.simulation.MAX_LENGTHS>`
@@ -85,7 +85,7 @@
 :canonical: src.constants.simulation.METRICS
 :type: typing.List[str]
 :value: >
-   ['overflows', 'kg', 'ncol', 'kg_lost', 'km', 'kg/km', 'cost', 'profit']
+   ['overflows', 'kg', 'ncol', 'kg_lost', 'km', 'kg/km', 'reward', 'profit', 'time']
 
 ```{autodoc2-docstring} src.constants.simulation.METRICS
 ```
@@ -125,13 +125,12 @@
 
 ````
 
-````{py:data} MAX_WASTE
-:canonical: src.constants.simulation.MAX_WASTE
-:type: float
+````{py:data} MAX_CAPACITY_PERCENT
+:canonical: src.constants.simulation.MAX_CAPACITY_PERCENT
 :value: >
-   1.0
+   100.0
 
-```{autodoc2-docstring} src.constants.simulation.MAX_WASTE
+```{autodoc2-docstring} src.constants.simulation.MAX_CAPACITY_PERCENT
 ```
 
 ````

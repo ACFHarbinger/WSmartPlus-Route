@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ImitationLearning(policy_config: typing.Any, env_name: str, loss_fn: str = 'nll', **kwargs)
+`````{py:class} ImitationLearning(policy_config: typing.Any, env_name: str, loss_fn: str = 'nll', seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.pipeline.rl.core.imitation.ImitationLearning
 
 Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`
 ```{autodoc2-docstring} src.pipeline.rl.core.imitation.ImitationLearning.__init__
 ```
 
-````{py:method} _create_expert_policy(policy_config: typing.Any, env_name: str) -> typing.Any
+````{py:method} _create_expert_policy(policy_config: typing.Any, env_name: str, seed: int, device: str) -> typing.Any
 :canonical: src.pipeline.rl.core.imitation.ImitationLearning._create_expert_policy
 
 ```{autodoc2-docstring} src.pipeline.rl.core.imitation.ImitationLearning._create_expert_policy

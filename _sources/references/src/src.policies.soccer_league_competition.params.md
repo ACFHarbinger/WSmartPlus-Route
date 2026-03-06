@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.soccer_league_competition.params.SLCParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.params.SLCParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.soccer_league_competition.params.SLCParams.time_limit
 :type: float

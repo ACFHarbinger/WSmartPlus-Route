@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.lahc.LAHCConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.lahc.LAHCConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.lahc.LAHCConfig.vrpp
 :type: bool

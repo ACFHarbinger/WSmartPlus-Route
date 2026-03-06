@@ -29,46 +29,13 @@
 ```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig
 ```
 
-````{py:attribute} time_limit
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.time_limit
-:type: float
+````{py:attribute} engine
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.engine
+:type: str
 :value: >
-   60.0
+   'hgs_alns'
 
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.time_limit
-```
-
-````
-
-````{py:attribute} population_size
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.population_size
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.population_size
-```
-
-````
-
-````{py:attribute} elite_size
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.elite_size
-:type: int
-:value: >
-   10
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.elite_size
-```
-
-````
-
-````{py:attribute} mutation_rate
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.mutation_rate
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.mutation_rate
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.engine
 ```
 
 ````
@@ -84,55 +51,44 @@
 
 ````
 
-````{py:attribute} n_generations
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.n_generations
+````{py:attribute} hgs_max_iter
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.hgs_max_iter
 :type: int
 :value: >
    100
 
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.n_generations
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.hgs_max_iter
 ```
 
 ````
 
-````{py:attribute} max_vehicles
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.max_vehicles
-:type: int
+````{py:attribute} hgs
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.hgs
+:type: src.configs.policies.hgs.HGSConfig
 :value: >
-   0
+   'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.max_vehicles
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.hgs
 ```
 
 ````
 
-````{py:attribute} engine
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.engine
-:type: str
+````{py:attribute} alns
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.alns
+:type: src.configs.policies.alns.ALNSConfig
 :value: >
-   'hgs_alns'
+   'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.engine
-```
-
-````
-
-````{py:attribute} vrpp
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.alns
 ```
 
 ````
 
 ````{py:attribute} must_go
 :canonical: src.configs.policies.hgs_alns.HGSALNSConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+:type: typing.List[str]
 :value: >
-   None
+   'field(...)'
 
 ```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.must_go
 ```
@@ -141,9 +97,9 @@
 
 ````{py:attribute} post_processing
 :canonical: src.configs.policies.hgs_alns.HGSALNSConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+:type: typing.List[typing.Any]
 :value: >
-   None
+   'field(...)'
 
 ```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.post_processing
 ```

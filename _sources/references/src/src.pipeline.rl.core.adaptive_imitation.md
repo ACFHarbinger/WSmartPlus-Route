@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AdaptiveImitation(policy_config: typing.Any, env_name: str, il_weight: float = 1.0, il_decay: float = 0.95, patience: int = 5, threshold: float = 0.05, decay_step: int = 1, epsilon: float = 1e-05, loss_fn: str = 'weighted_nll', **kwargs)
+`````{py:class} AdaptiveImitation(policy_config: typing.Any, env_name: str, il_weight: float = 1.0, il_decay: float = 0.95, patience: int = 5, threshold: float = 0.05, decay_step: int = 1, epsilon: float = 1e-05, loss_fn: str = 'weighted_nll', seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation
 
 Bases: {py:obj}`logic.src.pipeline.rl.core.reinforce.REINFORCE`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.core.reinforce.REINFORCE`
 ```{autodoc2-docstring} src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation.__init__
 ```
 
-````{py:method} _create_expert_policy(policy_config: typing.Any, env_name: str) -> typing.Any
+````{py:method} _create_expert_policy(policy_config: typing.Any, env_name: str, seed: int, device: str) -> typing.Any
 :canonical: src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._create_expert_policy
 
 ```{autodoc2-docstring} src.pipeline.rl.core.adaptive_imitation.AdaptiveImitation._create_expert_policy

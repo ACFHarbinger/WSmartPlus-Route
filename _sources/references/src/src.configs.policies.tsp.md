@@ -51,6 +51,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.tsp.TSPConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.tsp.TSPConfig.seed
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.tsp.TSPConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

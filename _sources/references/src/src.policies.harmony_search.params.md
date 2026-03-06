@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.harmony_search.params.HSParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.harmony_search.params.HSParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.harmony_search.params.HSParams.time_limit
 :type: float

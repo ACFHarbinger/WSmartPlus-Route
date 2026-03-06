@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ImprovementPolicy(encoder: typing.Optional[src.models.common.improvement.encoder.ImprovementEncoder] = None, decoder: typing.Optional[src.models.common.improvement.decoder.ImprovementDecoder] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, **kwargs)
+`````{py:class} ImprovementPolicy(encoder: typing.Optional[src.models.common.improvement.encoder.ImprovementEncoder] = None, decoder: typing.Optional[src.models.common.improvement.decoder.ImprovementDecoder] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.models.common.improvement.policy.ImprovementPolicy
 
 Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`

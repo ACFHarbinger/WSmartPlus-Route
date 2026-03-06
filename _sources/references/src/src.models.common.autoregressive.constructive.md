@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ConstructivePolicy(encoder: typing.Optional[torch.nn.Module] = None, decoder: typing.Optional[torch.nn.Module] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, **kwargs)
+`````{py:class} ConstructivePolicy(encoder: typing.Optional[torch.nn.Module] = None, decoder: typing.Optional[torch.nn.Module] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy
 
 Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`

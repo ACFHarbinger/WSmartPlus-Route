@@ -161,6 +161,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} elitist_weight
 :canonical: src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams.elitist_weight
 :type: float

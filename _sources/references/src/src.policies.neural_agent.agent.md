@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} NeuralAgent(model)
+````{py:class} NeuralAgent(model, seed: typing.Optional[int] = None)
 :canonical: src.policies.neural_agent.agent.NeuralAgent
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`src.policies.neural_agent.batch.BatchMixin`, {py:obj}`src.policies.neural_agent.simulation.SimulationMixin`

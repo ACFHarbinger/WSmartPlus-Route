@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.artificial_bee_colony.params.ABCParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.artificial_bee_colony.params.ABCParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.artificial_bee_colony.params.ABCParams.time_limit
 :type: float

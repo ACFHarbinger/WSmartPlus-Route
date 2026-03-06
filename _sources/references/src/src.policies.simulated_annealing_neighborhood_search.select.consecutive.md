@@ -39,35 +39,35 @@
 
 ### API
 
-````{py:function} _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed)
+````{py:function} _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment
 ```
 ````
 
-````{py:function} remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed)
+````{py:function} remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive.remove_n_bins_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive.remove_n_bins_consecutive
 ```
 ````
 
-````{py:function} add_n_bins_consecutive(routes_list, removed_bins)
+````{py:function} add_n_bins_consecutive(routes_list, removed_bins, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive.add_n_bins_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive.add_n_bins_consecutive
 ```
 ````
 
-````{py:function} add_route_consecutive(routes_list, distance_matrix)
+````{py:function} add_route_consecutive(routes_list, distance_matrix, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive.add_route_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive.add_route_consecutive
 ```
 ````
 
-````{py:function} add_route_with_removed_bins_consecutive(routes_list, removed_bins, distance_matrix)
+````{py:function} add_route_with_removed_bins_consecutive(routes_list, removed_bins, distance_matrix, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.select.consecutive.add_route_with_removed_bins_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.select.consecutive.add_route_with_removed_bins_consecutive

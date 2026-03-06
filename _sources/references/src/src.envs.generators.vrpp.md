@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VRPPGenerator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', min_waste: float = 0.0, max_waste: float = 1.0, waste_distribution: str = 'uniform', capacity: float = 1.0, max_length: typing.Optional[float] = None, depot_type: str = 'corner', device: typing.Union[str, torch.device] = 'cpu', area: typing.Optional[str] = None, data_dir: typing.Optional[str] = None, indices: typing.Optional[list[int]] = None, **kwargs: typing.Any)
+`````{py:class} VRPPGenerator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', min_waste: float = 0.0, max_waste: float = 1.0, waste_distribution: str = 'uniform', capacity: float = 1.0, max_length: typing.Optional[float] = None, depot_type: str = 'corner', device: typing.Union[str, torch.device] = 'cpu', area: typing.Optional[str] = None, data_dir: typing.Optional[str] = None, indices: typing.Optional[list[int]] = None, generator: typing.Optional[torch.Generator] = None, **kwargs: typing.Any)
 :canonical: src.envs.generators.vrpp.VRPPGenerator
 
 Bases: {py:obj}`src.envs.generators.base.Generator`

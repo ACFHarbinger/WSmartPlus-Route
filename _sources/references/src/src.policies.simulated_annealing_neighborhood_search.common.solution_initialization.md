@@ -60,7 +60,7 @@
 ```
 ````
 
-````{py:function} find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B)
+````{py:function} find_initial_solution(data, bins_coordinates, distance_matrix, number_of_bins, vehicle_capacity, E, B, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.find_initial_solution
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.find_initial_solution

@@ -26,6 +26,8 @@
 `````{py:class} Distance(graph: typing.Tuple[typing.Any, typing.Any])
 :canonical: src.data.distributions.spatial_distance.Distance
 
+Bases: {py:obj}`src.data.distributions.base.BaseDistribution`
+
 ```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance
 ```
 
@@ -35,10 +37,18 @@
 ```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance.__init__
 ```
 
-````{py:method} sample_array() -> numpy.ndarray
-:canonical: src.data.distributions.spatial_distance.Distance.sample_array
+````{py:method} _sample_array(rng: typing.Optional[numpy.random.RandomState] = None) -> numpy.ndarray
+:canonical: src.data.distributions.spatial_distance.Distance._sample_array
 
-```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance.sample_array
+```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance._sample_array
+```
+
+````
+
+````{py:method} _sample_tensor(generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
+:canonical: src.data.distributions.spatial_distance.Distance._sample_tensor
+
+```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance._sample_tensor
 ```
 
 ````

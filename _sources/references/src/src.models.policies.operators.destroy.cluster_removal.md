@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} vectorized_cluster_removal(tours, dist_matrix, n_remove)
+````{py:function} vectorized_cluster_removal(tours, dist_matrix, n_remove, generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.operators.destroy.cluster_removal.vectorized_cluster_removal
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.cluster_removal.vectorized_cluster_removal

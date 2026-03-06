@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.cvrp.CVRPConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.cvrp.CVRPConfig.seed
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.cvrp.CVRPConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

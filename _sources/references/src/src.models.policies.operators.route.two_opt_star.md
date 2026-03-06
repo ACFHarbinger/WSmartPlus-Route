@@ -39,7 +39,7 @@
 
 ### API
 
-````{py:function} vectorized_two_opt_star(tours, dist_matrix, max_iterations=200)
+````{py:function} vectorized_two_opt_star(tours, dist_matrix, max_iterations=200, generator=None)
 :canonical: src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star
 
 ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star

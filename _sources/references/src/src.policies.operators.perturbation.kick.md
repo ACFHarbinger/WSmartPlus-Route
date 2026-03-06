@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} kick(ctx: typing.Any, destroy_ratio: float = 0.2) -> bool
+````{py:function} kick(ctx: typing.Any, destroy_ratio: float = 0.2, rng: random.Random = None) -> bool
 :canonical: src.policies.operators.perturbation.kick.kick
 
 ```{autodoc2-docstring} src.policies.operators.perturbation.kick.kick

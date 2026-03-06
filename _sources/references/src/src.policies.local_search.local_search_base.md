@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any)
+`````{py:class} LocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, seed: typing.Optional[int] = None)
 :canonical: src.policies.local_search.local_search_base.LocalSearch
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
@@ -110,7 +110,7 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _move_3opt_intra(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+````{py:method} _move_3opt_intra(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: random.Random) -> bool
 :canonical: src.policies.local_search.local_search_base.LocalSearch._move_3opt_intra
 
 ```{autodoc2-docstring} src.policies.local_search.local_search_base.LocalSearch._move_3opt_intra
@@ -130,6 +130,38 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
 :canonical: src.policies.local_search.local_search_base.LocalSearch._move_2opt_intra
 
 ```{autodoc2-docstring} src.policies.local_search.local_search_base.LocalSearch._move_2opt_intra
+```
+
+````
+
+````{py:method} _move_or_opt(u: int, chain_len: int, r_u: int, p_u: int) -> bool
+:canonical: src.policies.local_search.local_search_base.LocalSearch._move_or_opt
+
+```{autodoc2-docstring} src.policies.local_search.local_search_base.LocalSearch._move_or_opt
+```
+
+````
+
+````{py:method} _try_cross_exchange(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.local_search.local_search_base.LocalSearch._try_cross_exchange
+
+```{autodoc2-docstring} src.policies.local_search.local_search_base.LocalSearch._try_cross_exchange
+```
+
+````
+
+````{py:method} _try_lambda_interchange(r_u: int, r_v: int) -> bool
+:canonical: src.policies.local_search.local_search_base.LocalSearch._try_lambda_interchange
+
+```{autodoc2-docstring} src.policies.local_search.local_search_base.LocalSearch._try_lambda_interchange
+```
+
+````
+
+````{py:method} _try_ejection_chain(u: int, r_u: int, p_u: int) -> bool
+:canonical: src.policies.local_search.local_search_base.LocalSearch._try_ejection_chain
+
+```{autodoc2-docstring} src.policies.local_search.local_search_base.LocalSearch._try_ejection_chain
 ```
 
 ````

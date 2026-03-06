@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.configs.policies.other.reinforcement_learning
 src.configs.policies.other.must_go
 src.configs.policies.other.post_processing
 ```
@@ -36,7 +37,7 @@ src.configs.policies.other.post_processing
 ````{py:data} __all__
 :canonical: src.configs.policies.other.__all__
 :value: >
-   ['MustGoConfig', 'PostProcessingConfig']
+   ['BanditConfig', 'TDLearningConfig', 'LinUCBConfig', 'GPCMABConfig', 'EvolutionaryCMABConfig', 'Rewa...
 
 ```{autodoc2-docstring} src.configs.policies.other.__all__
 ```

@@ -31,7 +31,7 @@
 
 ### API
 
-````{py:function} vectorized_swap(tours, dist_matrix, max_iterations=200)
+````{py:function} vectorized_swap(tours, dist_matrix, max_iterations=200, generator=None)
 :canonical: src.models.policies.operators.move.swap.vectorized_swap
 
 ```{autodoc2-docstring} src.models.policies.operators.move.swap.vectorized_swap

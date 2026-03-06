@@ -15,7 +15,6 @@
 
 src.policies.adapters.policy_vrpp
 src.policies.adapters.policy_gls
-src.policies.adapters.policy_lkh
 src.policies.adapters.policy_sisr
 src.policies.adapters.policy_bcp
 src.policies.adapters.factory
@@ -29,6 +28,7 @@ src.policies.adapters.policy_lca
 src.policies.adapters.policy_abc
 src.policies.adapters.policy_cvrp
 src.policies.adapters.policy_oba
+src.policies.adapters.policy_rl_ahvpl
 src.policies.adapters.policy_fa
 src.policies.adapters.policy_hs
 src.policies.adapters.policy_slc
@@ -41,6 +41,7 @@ src.policies.adapters.policy_hmm_gd
 src.policies.adapters.policy_hh_aco
 src.policies.adapters.policy_hgs
 src.policies.adapters.policy_vns
+src.policies.adapters.policy_rl_alns
 src.policies.adapters.policy_sa
 src.policies.adapters.policy_sca
 src.policies.adapters.policy_ks_aco

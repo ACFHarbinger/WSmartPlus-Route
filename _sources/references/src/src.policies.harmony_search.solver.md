@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.harmony_search.params.HSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} HSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.harmony_search.params.HSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.harmony_search.solver.HSSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -41,14 +41,6 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 :canonical: src.policies.harmony_search.solver.HSSolver.solve
 
 ```{autodoc2-docstring} src.policies.harmony_search.solver.HSSolver.solve
-```
-
-````
-
-````{py:method} _random_harmony() -> typing.List[typing.List[int]]
-:canonical: src.policies.harmony_search.solver.HSSolver._random_harmony
-
-```{autodoc2-docstring} src.policies.harmony_search.solver.HSSolver._random_harmony
 ```
 
 ````

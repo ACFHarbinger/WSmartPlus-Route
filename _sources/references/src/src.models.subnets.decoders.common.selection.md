@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:function} select_action(probs: torch.Tensor, mask: typing.Optional[torch.Tensor] = None, strategy: str = 'greedy') -> torch.Tensor
+````{py:function} select_action(probs: torch.Tensor, mask: typing.Optional[torch.Tensor] = None, strategy: str = 'greedy', generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.subnets.decoders.common.selection.select_action
 
 ```{autodoc2-docstring} src.models.subnets.decoders.common.selection.select_action

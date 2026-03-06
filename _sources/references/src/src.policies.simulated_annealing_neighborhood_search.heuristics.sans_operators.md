@@ -39,35 +39,35 @@
 
 ### API
 
-````{py:function} _handle_2opt(solution)
+````{py:function} _handle_2opt(solution, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_2opt
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_2opt
 ```
 ````
 
-````{py:function} _handle_move(solution, data, vehicle_capacity, id_to_index)
+````{py:function} _handle_move(solution, data, vehicle_capacity, id_to_index, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_move
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_move
 ```
 ````
 
-````{py:function} _handle_swap(solution)
+````{py:function} _handle_swap(solution, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_swap
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_swap
 ```
 ````
 
-````{py:function} _handle_insert(solution, data, stocks, vehicle_capacity, id_to_index, distance_matrix, candidate_removed_bins)
+````{py:function} _handle_insert(solution, data, stocks, vehicle_capacity, id_to_index, distance_matrix, candidate_removed_bins, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_insert
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators._handle_insert
 ```
 ````
 
-````{py:function} apply_operator(op, new_solution, candidate_removed_bins, data, vehicle_capacity, id_to_index, stocks, must_go_bins, distance_matrix)
+````{py:function} apply_operator(op, new_solution, candidate_removed_bins, data, vehicle_capacity, id_to_index, stocks, must_go_bins, distance_matrix, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators.apply_operator
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_operators.apply_operator

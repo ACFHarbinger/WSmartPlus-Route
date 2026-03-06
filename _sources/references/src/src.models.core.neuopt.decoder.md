@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NeuOptDecoder(embed_dim: int = 128, **kwargs)
+`````{py:class} NeuOptDecoder(embed_dim: int = 128, seed: int = 42, **kwargs)
 :canonical: src.models.core.neuopt.decoder.NeuOptDecoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`

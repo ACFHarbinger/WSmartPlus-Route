@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} build_nn_routes(nodes: typing.List[int], mandatory_nodes: typing.List[int], wastes: typing.Dict[int, float], capacity: float, dist_matrix: numpy.ndarray, R: float, C: float) -> typing.List[typing.List[int]]
+````{py:function} build_nn_routes(nodes: typing.List[int], mandatory_nodes: typing.List[int], wastes: typing.Dict[int, float], capacity: float, dist_matrix: numpy.ndarray, R: float, C: float, rng: typing.Optional[random.Random] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.operators.heuristics.initialization.build_nn_routes
 
 ```{autodoc2-docstring} src.policies.operators.heuristics.initialization.build_nn_routes

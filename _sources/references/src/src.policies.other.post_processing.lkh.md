@@ -23,18 +23,12 @@
 
 ### API
 
-`````{py:class} LinKernighanHelsgaunPostProcessor(max_iterations: int = 50)
+`````{py:class} LinKernighanHelsgaunPostProcessor
 :canonical: src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor
 
 Bases: {py:obj}`logic.src.interfaces.IPostProcessor`
 
 ```{autodoc2-docstring} src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor.__init__
 ```
 
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ABCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.artificial_bee_colony.params.ABCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} ABCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.artificial_bee_colony.params.ABCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.artificial_bee_colony.solver.ABCSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -45,14 +45,6 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````
 
-````{py:method} _new_source() -> typing.List[typing.List[int]]
-:canonical: src.policies.artificial_bee_colony.solver.ABCSolver._new_source
-
-```{autodoc2-docstring} src.policies.artificial_bee_colony.solver.ABCSolver._new_source
-```
-
-````
-
 ````{py:method} _build_random_solution() -> typing.List[typing.List[int]]
 :canonical: src.policies.artificial_bee_colony.solver.ABCSolver._build_random_solution
 
@@ -69,7 +61,7 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````
 
-````{py:method} _roulette(probs: typing.List[float]) -> int
+````{py:method} _roulette(probs: typing.List[float], rng: random.Random) -> int
 :canonical: src.policies.artificial_bee_colony.solver.ABCSolver._roulette
 :staticmethod:
 

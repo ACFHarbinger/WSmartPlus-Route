@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.league_championship_algorithm.params.LCAParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.league_championship_algorithm.params.LCAParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.league_championship_algorithm.params.LCAParams.time_limit
 :type: float

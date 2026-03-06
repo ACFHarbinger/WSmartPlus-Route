@@ -120,7 +120,7 @@
 ```
 ````
 
-````{py:function} double_bridge_kick(tour: typing.List[int]) -> typing.List[int]
+````{py:function} double_bridge_kick(tour: typing.List[int], np_rng: numpy.random.Generator) -> typing.List[int]
 :canonical: src.policies.operators.heuristics.lin_kernighan_helsgaun.double_bridge_kick
 
 ```{autodoc2-docstring} src.policies.operators.heuristics.lin_kernighan_helsgaun.double_bridge_kick
@@ -155,7 +155,7 @@
 ```
 ````
 
-````{py:function} solve_lkh(distance_matrix: numpy.ndarray, initial_tour: typing.Optional[typing.List[int]] = None, max_iterations: int = 100, waste: typing.Optional[numpy.ndarray] = None, capacity: typing.Optional[float] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[int], float]
+````{py:function} solve_lkh(distance_matrix: numpy.ndarray, initial_tour: typing.Optional[typing.List[int]] = None, max_iterations: int = 100, waste: typing.Optional[numpy.ndarray] = None, capacity: typing.Optional[float] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None, np_rng: typing.Optional[numpy.random.Generator] = None) -> typing.Tuple[typing.List[int], float]
 :canonical: src.policies.operators.heuristics.lin_kernighan_helsgaun.solve_lkh
 
 ```{autodoc2-docstring} src.policies.operators.heuristics.lin_kernighan_helsgaun.solve_lkh

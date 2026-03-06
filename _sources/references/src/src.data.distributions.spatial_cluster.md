@@ -26,6 +26,8 @@
 `````{py:class} Cluster(n_cluster: int = 3)
 :canonical: src.data.distributions.spatial_cluster.Cluster
 
+Bases: {py:obj}`src.data.distributions.base.BaseDistribution`
+
 ```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster
 ```
 
@@ -35,10 +37,18 @@
 ```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster.__init__
 ```
 
-````{py:method} sample_tensor(size: typing.Tuple[int, int, int]) -> torch.Tensor
-:canonical: src.data.distributions.spatial_cluster.Cluster.sample_tensor
+````{py:method} _sample_tensor(size: typing.Tuple[int, int, int], generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
+:canonical: src.data.distributions.spatial_cluster.Cluster._sample_tensor
 
-```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster.sample_tensor
+```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster._sample_tensor
+```
+
+````
+
+````{py:method} _sample_array(size: typing.Tuple[int, int, int], rng: typing.Optional[numpy.random.RandomState] = None) -> numpy.ndarray
+:canonical: src.data.distributions.spatial_cluster.Cluster._sample_array
+
+```{autodoc2-docstring} src.data.distributions.spatial_cluster.Cluster._sample_array
 ```
 
 ````

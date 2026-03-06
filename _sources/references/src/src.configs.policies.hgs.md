@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.hgs.HGSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.seed
+```
+
+````
+
 ````{py:attribute} population_size
 :canonical: src.configs.policies.hgs.HGSConfig.population_size
 :type: int
@@ -91,6 +102,83 @@
    100
 
 ```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.n_generations
+```
+
+````
+
+````{py:attribute} alpha_diversity
+:canonical: src.configs.policies.hgs.HGSConfig.alpha_diversity
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.alpha_diversity
+```
+
+````
+
+````{py:attribute} min_diversity
+:canonical: src.configs.policies.hgs.HGSConfig.min_diversity
+:type: float
+:value: >
+   0.2
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.min_diversity
+```
+
+````
+
+````{py:attribute} diversity_change_rate
+:canonical: src.configs.policies.hgs.HGSConfig.diversity_change_rate
+:type: float
+:value: >
+   0.05
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.diversity_change_rate
+```
+
+````
+
+````{py:attribute} no_improvement_threshold
+:canonical: src.configs.policies.hgs.HGSConfig.no_improvement_threshold
+:type: int
+:value: >
+   20
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.no_improvement_threshold
+```
+
+````
+
+````{py:attribute} survivor_threshold
+:canonical: src.configs.policies.hgs.HGSConfig.survivor_threshold
+:type: int
+:value: >
+   2
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.survivor_threshold
+```
+
+````
+
+````{py:attribute} neighbor_list_size
+:canonical: src.configs.policies.hgs.HGSConfig.neighbor_list_size
+:type: int
+:value: >
+   15
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.neighbor_list_size
+```
+
+````
+
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.hgs.HGSConfig.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.local_search_iterations
 ```
 
 ````

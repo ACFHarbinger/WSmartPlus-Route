@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.rts.RTSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.rts.RTSConfig.vrpp
 :type: bool

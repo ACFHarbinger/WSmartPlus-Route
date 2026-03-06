@@ -137,7 +137,7 @@
 ```
 ````
 
-````{py:function} _get_next_day_waste(td: tensordict.TensorDict, current_fill: torch.Tensor, day: int, env: typing.Any, batch_size: int, device: torch.device, key: str = 'waste') -> torch.Tensor
+````{py:function} _get_next_day_waste(td: tensordict.TensorDict, current_fill: torch.Tensor, day: int, env: typing.Any, batch_size: int, device: torch.device, key: str = 'waste', generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.pipeline.rl.common.epoch._get_next_day_waste
 
 ```{autodoc2-docstring} src.pipeline.rl.common.epoch._get_next_day_waste

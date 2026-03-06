@@ -79,27 +79,6 @@
 
 ````
 
-````{py:attribute} pbar
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.pbar
-:type: typing.Optional[typing.Any]
-:value: >
-   None
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pbar
-```
-
-````
-
-````{py:attribute} log_path
-:canonical: src.pipeline.simulations.states.base.context.SimulationContext.log_path
-:type: str
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.log_path
-```
-
-````
-
 ````{py:attribute} exec_time
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext.exec_time
 :type: typing.Optional[float]

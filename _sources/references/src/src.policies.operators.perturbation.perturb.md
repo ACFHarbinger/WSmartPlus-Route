@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} perturb(ctx: typing.Any, k: int = 3) -> bool
+````{py:function} perturb(ctx: typing.Any, k: int = 3, rng: random.Random = None) -> bool
 :canonical: src.policies.operators.perturbation.perturb.perturb
 
 ```{autodoc2-docstring} src.policies.operators.perturbation.perturb.perturb

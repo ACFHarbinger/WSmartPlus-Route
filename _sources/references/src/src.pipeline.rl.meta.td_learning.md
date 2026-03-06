@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} CostWeightManager(initial_weights: typing.Optional[typing.Dict[str, float]] = None, learning_rate: float = 0.1, gamma: float = 0.9, epsilon: float = 0.1, n_bins: int = 20, weight_bounds: typing.Optional[typing.Dict[str, typing.Tuple[float, float]]] = None, **kwargs)
+`````{py:class} CostWeightManager(initial_weights: typing.Optional[typing.Dict[str, float]] = None, learning_rate: float = 0.1, gamma: float = 0.9, epsilon: float = 0.1, n_bins: int = 20, weight_bounds: typing.Optional[typing.Dict[str, typing.Tuple[float, float]]] = None, seed: int = 42, **kwargs)
 :canonical: src.pipeline.rl.meta.td_learning.CostWeightManager
 
 Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy`

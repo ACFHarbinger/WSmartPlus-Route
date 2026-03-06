@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.aco.ACOConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.aco.ACOConfig.seed
+```
+
+````
+
 ````{py:attribute} q0
 :canonical: src.configs.policies.aco.ACOConfig.q0
 :type: float
@@ -168,6 +179,17 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.aco.ACOConfig.local_search
+```
+
+````
+
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.aco.ACOConfig.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.aco.ACOConfig.local_search_iterations
 ```
 
 ````

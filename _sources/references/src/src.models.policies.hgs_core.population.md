@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedPopulation(size: int, device: typing.Any, alpha_diversity: float = 0.5)
+`````{py:class} VectorizedPopulation(size: int, device: typing.Any, alpha_diversity: float = 0.0, generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation

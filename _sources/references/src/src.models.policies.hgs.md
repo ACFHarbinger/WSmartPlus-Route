@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedHGS(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 10, max_vehicles: int = 0, crossover_rate: float = 0.7, **kwargs)
+`````{py:class} VectorizedHGS(env_name: str, time_limit: float = 5.0, population_size: int = 50, n_generations: int = 50, elite_size: int = 10, max_vehicles: int = 0, crossover_rate: float = 0.7, max_iterations: int = 50, seed: int = 42, device: str = 'cpu', alpha_diversity: float = 0.5, **kwargs)
 :canonical: src.models.policies.hgs.VectorizedHGS
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`

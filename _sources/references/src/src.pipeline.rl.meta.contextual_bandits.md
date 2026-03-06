@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} WeightContextualBandit(num_days: int = 10, initial_weights: typing.Optional[typing.Dict[str, float]] = None, context_features: typing.Optional[typing.List[str]] = None, features_aggregation: str = 'avg', exploration_strategy: str = 'ucb', exploration_factor: float = 0.5, num_weight_configs: int = 10, weight_ranges: typing.Optional[typing.Dict[str, typing.Tuple[float, float]]] = None, window_size: int = 20, **kwargs)
+`````{py:class} WeightContextualBandit(num_days: int = 10, initial_weights: typing.Optional[typing.Dict[str, float]] = None, context_features: typing.Optional[typing.List[str]] = None, features_aggregation: str = 'avg', exploration_strategy: str = 'ucb', exploration_factor: float = 0.5, num_weight_configs: int = 10, weight_ranges: typing.Optional[typing.Dict[str, typing.Tuple[float, float]]] = None, window_size: int = 20, seed: int = 42, **kwargs)
 :canonical: src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit
 
 Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy`

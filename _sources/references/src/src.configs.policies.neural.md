@@ -73,4 +73,15 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.neural.NeuralConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.seed
+```
+
+````
+
 `````

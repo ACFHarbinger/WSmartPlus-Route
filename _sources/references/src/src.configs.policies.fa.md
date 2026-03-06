@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.fa.FAConfig.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.fa.FAConfig.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.fa.FAConfig.time_limit
 :type: float
@@ -146,6 +157,17 @@
    60.0
 
 ```{autodoc2-docstring} src.configs.policies.fa.FAConfig.time_limit
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.fa.FAConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.fa.FAConfig.seed
 ```
 
 ````

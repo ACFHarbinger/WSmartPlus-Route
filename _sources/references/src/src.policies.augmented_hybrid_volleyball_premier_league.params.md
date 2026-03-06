@@ -62,6 +62,28 @@
 
 ````
 
+````{py:attribute} elite_alns_iterations
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.elite_alns_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.elite_alns_iterations
+```
+
+````
+
+````{py:attribute} not_coached_alns_iterations
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.not_coached_alns_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.not_coached_alns_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.time_limit
 :type: float

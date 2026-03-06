@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedALNS(dist_matrix, wastes, vehicle_capacity, time_limit=1.0, device='cuda')
+`````{py:class} VectorizedALNS(dist_matrix, wastes, vehicle_capacity, time_limit=1.0, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

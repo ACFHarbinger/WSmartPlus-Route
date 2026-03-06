@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} vectorized_cross_exchange(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, max_segment_len: int = 3, max_iterations: int = 50) -> torch.Tensor
+````{py:function} vectorized_cross_exchange(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, max_segment_len: int = 3, max_iterations: int = 50, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange

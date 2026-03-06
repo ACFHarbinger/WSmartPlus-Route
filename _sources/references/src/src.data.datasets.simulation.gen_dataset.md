@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GenerativeDataset(data_dir: str, n_samples: int, n_days: int, n_bins: int, distribution: str = 'gamma1', depot: typing.Optional[numpy.ndarray] = None, locs: typing.Optional[numpy.ndarray] = None, noise_mean: float = 0.0, noise_variance: float = 0.0, max_waste: float = MAX_CAPACITY_PERCENT, grid: typing.Optional[typing.Any] = None)
+`````{py:class} GenerativeDataset(data_dir: str, n_samples: int, n_days: int, n_bins: int, distribution: str = 'gamma1', depot: typing.Optional[numpy.ndarray] = None, locs: typing.Optional[numpy.ndarray] = None, noise_mean: float = 0.0, noise_variance: float = 0.0, max_waste: float = MAX_CAPACITY_PERCENT, grid: typing.Optional[typing.Any] = None, seed: typing.Optional[int] = None)
 :canonical: src.data.datasets.simulation.gen_dataset.GenerativeDataset
 
 Bases: {py:obj}`src.data.datasets.simulation.sim_dataset.SimulationDataset`

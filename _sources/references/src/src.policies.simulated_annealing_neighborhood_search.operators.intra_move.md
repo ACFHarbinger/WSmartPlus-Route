@@ -53,21 +53,21 @@
 
 ````
 
-````{py:function} move_1_route(routes_list: list) -> None
+````{py:function} move_1_route(routes_list: typing.List, rng: random.Random) -> None
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.intra_move.move_1_route
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.intra_move.move_1_route
 ```
 ````
 
-````{py:function} move_n_route_random(routes_list: list, n: typing.Optional[int] = None) -> typing.Optional[int]
+````{py:function} move_n_route_random(routes_list: list, rng: random.Random, n: typing.Optional[int] = None) -> typing.Optional[int]
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.intra_move.move_n_route_random
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.intra_move.move_n_route_random
 ```
 ````
 
-````{py:function} move_n_route_consecutive(routes_list: list, n: typing.Optional[int] = None) -> typing.Optional[int]
+````{py:function} move_n_route_consecutive(routes_list: list, rng: random.Random, n: typing.Optional[int] = None) -> typing.Optional[int]
 :canonical: src.policies.simulated_annealing_neighborhood_search.operators.intra_move.move_n_route_consecutive
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.operators.intra_move.move_n_route_consecutive

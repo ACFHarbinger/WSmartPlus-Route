@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.alns.ALNSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.seed
+```
+
+````
+
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.alns.ALNSConfig.max_iterations
 :type: int

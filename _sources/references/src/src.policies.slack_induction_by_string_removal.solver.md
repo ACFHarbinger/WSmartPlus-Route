@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SISRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.slack_induction_by_string_removal.params.SISRParams)
+`````{py:class} SISRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.slack_induction_by_string_removal.params.SISRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -57,6 +57,78 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 :canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._build_initial_solution
 
 ```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._build_initial_solution
+```
+
+````
+
+````{py:method} _apply_unstringing_operators(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._apply_unstringing_operators
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._apply_unstringing_operators
+```
+
+````
+
+````{py:method} _find_best_unstringing(route: typing.List[int], all_routes: typing.List[typing.List[int]], route_idx: int, current_profit: float) -> typing.Tuple[typing.List[int], float, bool]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._find_best_unstringing
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._find_best_unstringing
+```
+
+````
+
+````{py:method} _try_type_i_unstringing(route: typing.List[int], all_routes: typing.List[typing.List[int]], route_idx: int, best_route: typing.List[int], best_profit: float) -> typing.Tuple[typing.List[int], float, bool]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_i_unstringing
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_i_unstringing
+```
+
+````
+
+````{py:method} _try_type_ii_unstringing(route: typing.List[int], all_routes: typing.List[typing.List[int]], route_idx: int, best_route: typing.List[int], best_profit: float) -> typing.Tuple[typing.List[int], float, bool]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_ii_unstringing
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_ii_unstringing
+```
+
+````
+
+````{py:method} _try_type_iii_unstringing(route: typing.List[int], all_routes: typing.List[typing.List[int]], route_idx: int, best_route: typing.List[int], best_profit: float) -> typing.Tuple[typing.List[int], float, bool]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_iii_unstringing
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_iii_unstringing
+```
+
+````
+
+````{py:method} _try_type_iv_unstringing(route: typing.List[int], all_routes: typing.List[typing.List[int]], route_idx: int, best_route: typing.List[int], best_profit: float) -> typing.Tuple[typing.List[int], float, bool]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_iv_unstringing
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._try_type_iv_unstringing
+```
+
+````
+
+````{py:method} _evaluate_unstringing_move(new_route: typing.List[int], all_routes: typing.List[typing.List[int]], route_idx: int, best_route: typing.List[int], best_profit: float) -> typing.Tuple[typing.List[int], float, bool]
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._evaluate_unstringing_move
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._evaluate_unstringing_move
+```
+
+````
+
+````{py:method} _calculate_profit(routes: typing.List[typing.List[int]]) -> float
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._calculate_profit
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._calculate_profit
+```
+
+````
+
+````{py:method} _is_valid_route(route: typing.List[int]) -> bool
+:canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver._is_valid_route
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver._is_valid_route
 ```
 
 ````

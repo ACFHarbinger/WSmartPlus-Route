@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.slc.SLCConfig.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.slc.SLCConfig.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.slc.SLCConfig.time_limit
 :type: float
@@ -102,6 +113,17 @@
    60.0
 
 ```{autodoc2-docstring} src.configs.policies.slc.SLCConfig.time_limit
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.slc.SLCConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.slc.SLCConfig.seed
 ```
 
 ````

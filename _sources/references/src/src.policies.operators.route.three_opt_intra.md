@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+````{py:function} move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: random.Random) -> bool
 :canonical: src.policies.operators.route.three_opt_intra.move_3opt_intra
 
 ```{autodoc2-docstring} src.policies.operators.route.three_opt_intra.move_3opt_intra

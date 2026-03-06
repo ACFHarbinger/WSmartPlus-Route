@@ -56,7 +56,7 @@ Bases: {py:obj}`logic.src.envs.base.ImprovementEnvBase`
 
 ````
 
-````{py:method} _get_initial_solution(td: tensordict.TensorDict) -> torch.Tensor
+````{py:method} _get_initial_solution(td: tensordict.TensorDict, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution
 
 ```{autodoc2-docstring} src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution

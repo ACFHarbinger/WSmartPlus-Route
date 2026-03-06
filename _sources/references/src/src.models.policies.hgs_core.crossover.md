@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} vectorized_ordered_crossover(parent1: torch.Tensor, parent2: torch.Tensor) -> torch.Tensor
+````{py:function} vectorized_ordered_crossover(parent1: torch.Tensor, parent2: torch.Tensor, device: typing.Any, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.hgs_core.crossover.vectorized_ordered_crossover
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.crossover.vectorized_ordered_crossover

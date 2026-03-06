@@ -31,8 +31,8 @@
   - ```{autodoc2-docstring} src.constants.routing.PENALTY_MUST_GO_MISSED
     :summary:
     ```
-* - {py:obj}`MAX_CAPACITY_PERCENT <src.constants.routing.MAX_CAPACITY_PERCENT>`
-  - ```{autodoc2-docstring} src.constants.routing.MAX_CAPACITY_PERCENT
+* - {py:obj}`MAX_WASTE <src.constants.routing.MAX_WASTE>`
+  - ```{autodoc2-docstring} src.constants.routing.MAX_WASTE
     :summary:
     ```
 * - {py:obj}`MIP_GAP <src.constants.routing.MIP_GAP>`
@@ -73,6 +73,10 @@
     ```
 * - {py:obj}`DEFAULT_ROLLOUT_BATCH_SIZE <src.constants.routing.DEFAULT_ROLLOUT_BATCH_SIZE>`
   - ```{autodoc2-docstring} src.constants.routing.DEFAULT_ROLLOUT_BATCH_SIZE
+    :summary:
+    ```
+* - {py:obj}`SCALE <src.constants.routing.SCALE>`
+  - ```{autodoc2-docstring} src.constants.routing.SCALE
     :summary:
     ```
 ````
@@ -120,12 +124,13 @@
 
 ````
 
-````{py:data} MAX_CAPACITY_PERCENT
-:canonical: src.constants.routing.MAX_CAPACITY_PERCENT
+````{py:data} MAX_WASTE
+:canonical: src.constants.routing.MAX_WASTE
+:type: float
 :value: >
-   100.0
+   1.0
 
-```{autodoc2-docstring} src.constants.routing.MAX_CAPACITY_PERCENT
+```{autodoc2-docstring} src.constants.routing.MAX_WASTE
 ```
 
 ````
@@ -228,6 +233,16 @@
    64
 
 ```{autodoc2-docstring} src.constants.routing.DEFAULT_ROLLOUT_BATCH_SIZE
+```
+
+````
+
+````{py:data} SCALE
+:canonical: src.constants.routing.SCALE
+:value: >
+   10000
+
+```{autodoc2-docstring} src.constants.routing.SCALE
 ```
 
 ````

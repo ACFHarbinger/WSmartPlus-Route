@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} RandomLocalSearchPolicy(env_name: str, n_iterations: int = 100, op_probs: dict[str, float] | None = None, **kwargs)
+`````{py:class} RandomLocalSearchPolicy(env_name: str, n_iterations: int = 100, op_probs: dict[str, float] | None = None, seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.models.policies.random_local_search.RandomLocalSearchPolicy
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`, {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

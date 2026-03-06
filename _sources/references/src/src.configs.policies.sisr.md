@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.sisr.SISRConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.sisr.SISRConfig.seed
+```
+
+````
+
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.sisr.SISRConfig.max_iterations
 :type: int

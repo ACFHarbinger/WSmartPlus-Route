@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:function} generate_adj_matrix(size: int, num_edges: typing.Union[int, float], undirected: bool = False, add_depot: bool = True, negative: bool = False) -> numpy.ndarray
+````{py:function} generate_adj_matrix(size: int, num_edges: typing.Union[int, float], undirected: bool = False, add_depot: bool = True, negative: bool = False, np_rng: numpy.random.Generator = None) -> numpy.ndarray
 :canonical: src.utils.graph.generation.generate_adj_matrix
 
 ```{autodoc2-docstring} src.utils.graph.generation.generate_adj_matrix

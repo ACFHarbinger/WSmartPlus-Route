@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VRPInstanceBuilder(data=None, depot_idx=0, vehicle_cap=100.0, customers=None, dimension=0, coords=None)
+`````{py:class} VRPInstanceBuilder(data=None, depot_idx=0, vehicle_cap=100.0, customers=None, dimension=0, coords=None, device='cpu')
 :canonical: src.data.generators.builders.VRPInstanceBuilder
 
 ```{autodoc2-docstring} src.data.generators.builders.VRPInstanceBuilder
@@ -34,6 +34,14 @@
 
 ```{autodoc2-docstring} src.data.generators.builders.VRPInstanceBuilder.__init__
 ```
+
+````{py:method} set_seed(seed: int)
+:canonical: src.data.generators.builders.VRPInstanceBuilder.set_seed
+
+```{autodoc2-docstring} src.data.generators.builders.VRPInstanceBuilder.set_seed
+```
+
+````
 
 ````{py:method} set_dataset_size(size: int)
 :canonical: src.data.generators.builders.VRPInstanceBuilder.set_dataset_size

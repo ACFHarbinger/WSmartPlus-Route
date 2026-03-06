@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.firefly_algorithm.params.FAParams.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.firefly_algorithm.params.FAParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.firefly_algorithm.params.FAParams.time_limit
 :type: float

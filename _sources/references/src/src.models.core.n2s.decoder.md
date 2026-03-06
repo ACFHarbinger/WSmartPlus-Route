@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} N2SDecoder(embed_dim: int = 128, **kwargs)
+`````{py:class} N2SDecoder(embed_dim: int = 128, seed: int = 42, **kwargs)
 :canonical: src.models.core.n2s.decoder.N2SDecoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`

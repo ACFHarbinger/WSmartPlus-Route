@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} alpha_param
+:canonical: src.policies.guided_local_search.params.GLSParams.alpha_param
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.alpha_param
+```
+
+````
+
 ````{py:attribute} max_restarts
 :canonical: src.policies.guided_local_search.params.GLSParams.max_restarts
 :type: int

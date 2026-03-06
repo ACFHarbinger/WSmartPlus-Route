@@ -15,30 +15,40 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`Mix_Multi_Distributions <src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions>`
-  - ```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions
+* - {py:obj}`MixMultiDistributions <src.data.distributions.spatial_mix_multi.MixMultiDistributions>`
+  - ```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.MixMultiDistributions
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} Mix_Multi_Distributions()
-:canonical: src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions
+`````{py:class} MixMultiDistributions()
+:canonical: src.data.distributions.spatial_mix_multi.MixMultiDistributions
 
-```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions
+Bases: {py:obj}`src.data.distributions.base.BaseDistribution`
+
+```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.MixMultiDistributions
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions.__init__
+```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.MixMultiDistributions.__init__
 ```
 
-````{py:method} sample_tensor(size: typing.Tuple[int, int, int]) -> torch.Tensor
-:canonical: src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions.sample_tensor
+````{py:method} _sample_tensor(size: typing.Tuple[int, int, int], generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
+:canonical: src.data.distributions.spatial_mix_multi.MixMultiDistributions._sample_tensor
 
-```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.Mix_Multi_Distributions.sample_tensor
+```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.MixMultiDistributions._sample_tensor
+```
+
+````
+
+````{py:method} _sample_array(size: typing.Tuple[int, int, int], rng: typing.Optional[numpy.random.RandomState] = None) -> numpy.ndarray
+:canonical: src.data.distributions.spatial_mix_multi.MixMultiDistributions._sample_array
+
+```{autodoc2-docstring} src.data.distributions.spatial_mix_multi.MixMultiDistributions._sample_array
 ```
 
 ````

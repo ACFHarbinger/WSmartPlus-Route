@@ -59,7 +59,7 @@
 
 ### API
 
-````{py:function} vectorized_lkh(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, max_iterations: int = 100, max_candidates: int = 5, use_3opt: bool = True, perturbation_interval: int = 10) -> torch.Tensor
+````{py:function} vectorized_lkh(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, max_iterations: int = 100, max_candidates: int = 5, use_3opt: bool = True, perturbation_interval: int = 10, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.route.lkh.vectorized_lkh
 
 ```{autodoc2-docstring} src.models.policies.operators.route.lkh.vectorized_lkh
@@ -122,7 +122,7 @@
 ```
 ````
 
-````{py:function} _double_bridge_kick(tour: torch.Tensor) -> torch.Tensor
+````{py:function} _double_bridge_kick(tour: torch.Tensor, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.route.lkh._double_bridge_kick
 
 ```{autodoc2-docstring} src.models.policies.operators.route.lkh._double_bridge_kick

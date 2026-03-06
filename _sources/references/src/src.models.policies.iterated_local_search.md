@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} IteratedLocalSearchPolicy(env_name: str, ls_operator: typing.Union[str, dict[str, float]] = 'two_opt', perturbation_type: typing.Union[str, dict[str, float]] = 'double_bridge', n_restarts: int = 5, ls_iterations: int = 50, perturbation_strength: float = 0.2, **kwargs)
+`````{py:class} IteratedLocalSearchPolicy(env_name: str, ls_operator: typing.Union[str, dict[str, float]] = 'two_opt', perturbation_type: typing.Union[str, dict[str, float]] = 'double_bridge', n_restarts: int = 5, ls_iterations: int = 50, perturbation_strength: float = 0.2, seed: int = 42, device: str = 'cpu', **kwargs)
 :canonical: src.models.policies.iterated_local_search.IteratedLocalSearchPolicy
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`, {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`

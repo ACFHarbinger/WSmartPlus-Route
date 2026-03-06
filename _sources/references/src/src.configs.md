@@ -162,6 +162,17 @@ src.configs.tracking
 
 ````
 
+````{py:attribute} hpo_sim
+:canonical: src.configs.Config.hpo_sim
+:type: src.configs.tasks.SimHPOConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.hpo_sim
+```
+
+````
+
 ````{py:attribute} data
 :canonical: src.configs.Config.data
 :type: src.configs.tasks.DataConfig

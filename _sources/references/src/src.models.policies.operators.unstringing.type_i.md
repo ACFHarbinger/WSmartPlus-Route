@@ -35,14 +35,14 @@
 
 ### API
 
-````{py:function} vectorized_type_i_unstringing(tours: torch.Tensor, distance_matrix: torch.Tensor, max_iterations: int = 50, sample_size: int = 100) -> torch.Tensor
+````{py:function} vectorized_type_i_unstringing(tours: torch.Tensor, distance_matrix: torch.Tensor, max_iterations: int = 50, sample_size: int = 100, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.unstringing.type_i.vectorized_type_i_unstringing
 
 ```{autodoc2-docstring} src.models.policies.operators.unstringing.type_i.vectorized_type_i_unstringing
 ```
 ````
 
-````{py:function} _find_best_type_i_move(tour, dist, valid_indices, sample_size, device)
+````{py:function} _find_best_type_i_move(tour, dist, valid_indices, sample_size, device, generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.operators.unstringing.type_i._find_best_type_i_move
 
 ```{autodoc2-docstring} src.models.policies.operators.unstringing.type_i._find_best_type_i_move

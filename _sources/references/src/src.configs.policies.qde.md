@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.qde.QDEConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.qde.QDEConfig.seed
+```
+
+````
+
 ````{py:attribute} n_removal
 :canonical: src.configs.policies.qde.QDEConfig.n_removal
 :type: int

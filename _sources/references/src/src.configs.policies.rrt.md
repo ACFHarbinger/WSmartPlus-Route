@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.rrt.RRTConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.rrt.RRTConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.rrt.RRTConfig.vrpp
 :type: bool

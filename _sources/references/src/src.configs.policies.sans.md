@@ -51,6 +51,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.sans.SANSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.sans.SANSConfig.seed
+```
+
+````
+
 ````{py:attribute} perc_bins_can_overflow
 :canonical: src.configs.policies.sans.SANSConfig.perc_bins_can_overflow
 :type: float

@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.data.distributions.spatial_distance
+src.data.distributions.base
 src.data.distributions.statistical_beta
 src.data.distributions.statistical_constant
 src.data.distributions.statistical_uniform
@@ -60,7 +61,7 @@ src.data.distributions.spatial_gaussian_mixture
 ````{py:data} __all__
 :canonical: src.data.distributions.__all__
 :value: >
-   ['Cluster', 'Mixed', 'Gaussian_Mixture', 'Gamma', 'Empirical', 'Mix_Distribution', 'Mix_Multi_Distri...
+   ['Cluster', 'Mixed', 'Gaussian_Mixture', 'Gamma', 'Empirical', 'MixDistribution', 'MixMultiDistribut...
 
 ```{autodoc2-docstring} src.data.distributions.__all__
 ```

@@ -26,6 +26,8 @@
 `````{py:class} Gamma(alpha: typing.Union[float, torch.Tensor] = 2.0, theta: typing.Union[float, torch.Tensor] = 2.0, option: typing.Optional[int] = None)
 :canonical: src.data.distributions.statistical_gamma.Gamma
 
+Bases: {py:obj}`src.data.distributions.base.BaseDistribution`
+
 ```{autodoc2-docstring} src.data.distributions.statistical_gamma.Gamma
 ```
 
@@ -43,18 +45,18 @@
 
 ````
 
-````{py:method} sample_tensor(size: typing.Tuple[int, ...]) -> torch.Tensor
-:canonical: src.data.distributions.statistical_gamma.Gamma.sample_tensor
+````{py:method} _sample_tensor(size: typing.Tuple[int, ...], generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
+:canonical: src.data.distributions.statistical_gamma.Gamma._sample_tensor
 
-```{autodoc2-docstring} src.data.distributions.statistical_gamma.Gamma.sample_tensor
+```{autodoc2-docstring} src.data.distributions.statistical_gamma.Gamma._sample_tensor
 ```
 
 ````
 
-````{py:method} sample_array(size: typing.Tuple[int, ...]) -> numpy.ndarray
-:canonical: src.data.distributions.statistical_gamma.Gamma.sample_array
+````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[numpy.random.RandomState] = None) -> numpy.ndarray
+:canonical: src.data.distributions.statistical_gamma.Gamma._sample_array
 
-```{autodoc2-docstring} src.data.distributions.statistical_gamma.Gamma.sample_array
+```{autodoc2-docstring} src.data.distributions.statistical_gamma.Gamma._sample_array
 ```
 
 ````

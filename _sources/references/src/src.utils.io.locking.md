@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} read_output(json_path, policies, lock=None)
+````{py:function} read_output(json_path, policies, data_distribution, lock=None)
 :canonical: src.utils.io.locking.read_output
 
 ```{autodoc2-docstring} src.utils.io.locking.read_output

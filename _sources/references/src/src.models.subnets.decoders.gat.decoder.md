@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DeepGATDecoder(embed_dim: int, hidden_dim: int, n_heads: int, n_layers: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, dropout_rate: float = 0.1, aggregation_graph: str = 'avg', mask_graph: bool = False, mask_logits: bool = True, tanh_clipping: float = 10.0, temp: float = 1.0, **kwargs)
+`````{py:class} DeepGATDecoder(embed_dim: int, hidden_dim: int, n_heads: int, n_layers: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, dropout_rate: float = 0.1, aggregation_graph: str = 'avg', mask_graph: bool = False, mask_logits: bool = True, tanh_clipping: float = 10.0, seed: int = 42, temp: float = 1.0, **kwargs)
 :canonical: src.models.subnets.decoders.gat.decoder.DeepGATDecoder
 
 Bases: {py:obj}`torch.nn.Module`

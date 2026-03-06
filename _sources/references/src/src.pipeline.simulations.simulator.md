@@ -15,10 +15,6 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`get_pol_name <src.pipeline.simulations.simulator.get_pol_name>`
-  - ```{autodoc2-docstring} src.pipeline.simulations.simulator.get_pol_name
-    :summary:
-    ```
 * - {py:obj}`init_single_sim_worker <src.pipeline.simulations.simulator.init_single_sim_worker>`
   - ```{autodoc2-docstring} src.pipeline.simulations.simulator.init_single_sim_worker
     :summary:
@@ -62,13 +58,6 @@
 ````
 
 ### API
-
-````{py:function} get_pol_name(pol_obj: typing.Union[str, typing.Dict[str, typing.Any]]) -> str
-:canonical: src.pipeline.simulations.simulator.get_pol_name
-
-```{autodoc2-docstring} src.pipeline.simulations.simulator.get_pol_name
-```
-````
 
 ````{py:data} _lock
 :canonical: src.pipeline.simulations.simulator._lock

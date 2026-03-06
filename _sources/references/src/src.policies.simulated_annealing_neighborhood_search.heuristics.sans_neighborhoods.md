@@ -87,28 +87,28 @@
 ```
 ````
 
-````{py:function} relocate_within_route(route: list) -> list
+````{py:function} relocate_within_route(route: list, rng: random.Random) -> list
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.relocate_within_route
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.relocate_within_route
 ```
 ````
 
-````{py:function} cross_exchange(routes: list) -> list
+````{py:function} cross_exchange(routes: list, rng: random.Random) -> list
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.cross_exchange
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.cross_exchange
 ```
 ````
 
-````{py:function} or_opt_move(route: list) -> list
+````{py:function} or_opt_move(route: list, rng: random.Random) -> list
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.or_opt_move
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.or_opt_move
 ```
 ````
 
-````{py:function} move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index: dict) -> list
+````{py:function} move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index: dict, rng: random.Random) -> list
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.move_between_routes
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.move_between_routes
@@ -122,7 +122,7 @@
 ```
 ````
 
-````{py:function} mutate_route_by_swapping_bins(route: list, num_bins: int = 1) -> list
+````{py:function} mutate_route_by_swapping_bins(route: list, rng: random.Random, num_bins: int = 1) -> list
 :canonical: src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.mutate_route_by_swapping_bins
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.heuristics.sans_neighborhoods.mutate_route_by_swapping_bins

@@ -84,6 +84,39 @@
 
 ````
 
+````{py:attribute} alns_elite_iterations
+:canonical: src.configs.policies.ahvpl.AHVPLConfig.alns_elite_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.ahvpl.AHVPLConfig.alns_elite_iterations
+```
+
+````
+
+````{py:attribute} alns_not_coached_iterations
+:canonical: src.configs.policies.ahvpl.AHVPLConfig.alns_not_coached_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.configs.policies.ahvpl.AHVPLConfig.alns_not_coached_iterations
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.ahvpl.AHVPLConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.ahvpl.AHVPLConfig.seed
+```
+
+````
+
 ````{py:attribute} hgs
 :canonical: src.configs.policies.ahvpl.AHVPLConfig.hgs
 :type: src.configs.policies.hgs.HGSConfig

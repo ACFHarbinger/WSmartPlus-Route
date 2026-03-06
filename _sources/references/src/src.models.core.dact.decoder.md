@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DACTDecoder(embed_dim: int = 128, num_heads: int = 8, **kwargs)
+`````{py:class} DACTDecoder(embed_dim: int = 128, num_heads: int = 8, seed: int = 42, **kwargs)
 :canonical: src.models.core.dact.decoder.DACTDecoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementDecoder`

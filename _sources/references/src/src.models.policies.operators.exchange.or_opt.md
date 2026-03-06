@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:function} vectorized_or_opt(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, chain_lengths: tuple = (1, 2, 3), max_iterations: int = 100) -> torch.Tensor
+````{py:function} vectorized_or_opt(tours: torch.Tensor, distance_matrix: torch.Tensor, capacities: typing.Optional[torch.Tensor] = None, wastes: typing.Optional[torch.Tensor] = None, chain_lengths: tuple = (1, 2, 3), max_iterations: int = 100, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.exchange.or_opt.vectorized_or_opt
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.or_opt.vectorized_or_opt

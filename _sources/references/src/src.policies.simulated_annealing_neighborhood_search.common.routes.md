@@ -79,7 +79,7 @@
 ```
 ````
 
-````{py:function} rearrange_part_route(routes_list, distance_matrix)
+````{py:function} rearrange_part_route(routes_list, distance_matrix, rng)
 :canonical: src.policies.simulated_annealing_neighborhood_search.common.routes.rearrange_part_route
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.common.routes.rearrange_part_route

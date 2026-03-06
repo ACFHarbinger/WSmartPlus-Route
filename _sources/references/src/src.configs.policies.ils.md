@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.ils.ILSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.ils.ILSConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.ils.ILSConfig.vrpp
 :type: bool

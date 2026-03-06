@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.vns.VNSConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.vns.VNSConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.vns.VNSConfig.vrpp
 :type: bool

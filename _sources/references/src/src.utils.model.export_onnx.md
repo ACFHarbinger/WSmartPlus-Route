@@ -81,7 +81,7 @@
 
 ````
 
-````{py:function} export_encoder_to_onnx(encoder: torch.nn.Module, export_dir: str = 'assets/onnx', filename: typing.Optional[str] = None, n_nodes: int = 50, embed_dim: int = 128, batch_size: int = 1, opset_version: int = 17, simplify: bool = False, verbose: bool = False) -> str
+````{py:function} export_encoder_to_onnx(encoder: torch.nn.Module, export_dir: str = 'assets/onnx', filename: typing.Optional[str] = None, n_nodes: int = 50, embed_dim: int = 128, batch_size: int = 1, opset_version: int = 17, simplify: bool = False, verbose: bool = False, generator: typing.Optional[torch.Generator] = None) -> str
 :canonical: src.utils.model.export_onnx.export_encoder_to_onnx
 
 ```{autodoc2-docstring} src.utils.model.export_onnx.export_encoder_to_onnx

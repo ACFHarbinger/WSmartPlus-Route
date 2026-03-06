@@ -43,7 +43,7 @@
 
 ### API
 
-````{py:function} vectorized_shaw_removal(tours: torch.Tensor, distance_matrix: torch.Tensor, n_remove: int, wastes: typing.Optional[torch.Tensor] = None, time_windows: typing.Optional[torch.Tensor] = None, phi: float = 9.0, chi: float = 3.0, psi: float = 2.0, randomization_factor: float = 2.0) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:function} vectorized_shaw_removal(tours: torch.Tensor, distance_matrix: torch.Tensor, n_remove: int, wastes: typing.Optional[torch.Tensor] = None, time_windows: typing.Optional[torch.Tensor] = None, phi: float = 9.0, chi: float = 3.0, psi: float = 2.0, randomization_factor: float = 2.0, generator: typing.Optional[torch.Generator] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.operators.destroy.shaw_removal.vectorized_shaw_removal
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal.vectorized_shaw_removal
@@ -57,7 +57,7 @@
 ```
 ````
 
-````{py:function} _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device)
+````{py:function} _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device, generator)
 :canonical: src.models.policies.operators.destroy.shaw_removal._select_seed_nodes
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._select_seed_nodes
@@ -71,7 +71,7 @@
 ```
 ````
 
-````{py:function} _select_next_removal_batch(B, n_remove, randomization_factor, relatedness_scores, removed_mask, removed_list, removed_count, valid_mask, valid_counts, device)
+````{py:function} _select_next_removal_batch(B, n_remove, randomization_factor, relatedness_scores, removed_mask, removed_list, removed_count, valid_mask, valid_counts, device, generator)
 :canonical: src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch
