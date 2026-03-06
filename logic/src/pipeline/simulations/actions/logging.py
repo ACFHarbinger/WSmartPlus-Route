@@ -19,7 +19,7 @@ class LogAction(SimulationAction):
     def execute(self, context: Dict[str, Any]) -> None:
         """Log daily results and update GUI."""
         tour = context["tour"]
-        cost = context["cost"]
+        km = context["cost"]
         total_collected = context["total_collected"]
         ncol = context["ncol"]
         profit = context["profit"]
@@ -32,7 +32,7 @@ class LogAction(SimulationAction):
         dlog = get_daily_results(
             total_collected,
             ncol,
-            cost,
+            km,
             tour,
             day,
             new_overflows,
@@ -66,11 +66,12 @@ class LogAction(SimulationAction):
             sim_tracker.log_day(
                 day,
                 {
-                    "cost": cost,
+                    "reward": dlog["reward"],
                     "profit": profit,
                     "ncol": ncol,
                     "kg": total_collected,
                     "overflows": new_overflows,
+                    "km": km,
                     "kg_lost": sum_lost,
                     "time": time,
                 },
