@@ -3,8 +3,8 @@
 import pytest
 import numpy as np
 from unittest.mock import MagicMock
-from logic.src.policies.operators.move_operators import move_relocate, move_swap
-from logic.src.policies.operators.route_operators import (
+from logic.src.policies.other.operators.move_operators import move_relocate, move_swap
+from logic.src.policies.other.operators.route_operators import (
     move_2opt_intra,
     move_2opt_star,
     move_swap_star

@@ -6,7 +6,7 @@ from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSPar
 from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
 from logic.src.policies.augmented_hybrid_volleyball_premier_league.ahvpl import AHVPLSolver
 from logic.src.policies.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
-from logic.src.policies.hybrid_genetic_search.evolution import ordered_crossover
+from logic.src.policies.other.operators.crossover import ordered_crossover
 from logic.src.policies.hybrid_genetic_search.individual import Individual
 from logic.src.policies.hybrid_genetic_search.params import HGSParams
 

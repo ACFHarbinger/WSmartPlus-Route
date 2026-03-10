@@ -21,7 +21,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from logic.src.policies.operators.crossover import CROSSOVER_NAMES, CROSSOVER_OPERATORS
+from logic.src.policies.other.operators.crossover import CROSSOVER_NAMES, CROSSOVER_OPERATORS
 from logic.src.policies.reinforcement_learning.agents.bandits import (
     EpsilonGreedyBandit,
 )
