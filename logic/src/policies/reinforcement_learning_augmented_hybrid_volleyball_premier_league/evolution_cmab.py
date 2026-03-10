@@ -21,6 +21,7 @@ from typing import List, Optional
 
 import numpy as np
 
+from logic.src.policies.operators.crossover import CROSSOVER_NAMES, CROSSOVER_OPERATORS
 from logic.src.policies.reinforcement_learning.agents.bandits import (
     EpsilonGreedyBandit,
 )
@@ -32,7 +33,6 @@ from logic.src.policies.reinforcement_learning.features.context import ContextFe
 
 from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
-from .crossover_operators import CROSSOVER_NAMES, CROSSOVER_OPERATORS
 
 
 class CMABEvolution:

@@ -16,10 +16,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.operators.crossover import ordered_crossover
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..local_search.local_search_hgs import HGSLocalSearch
-from .evolution import evaluate, ordered_crossover, update_biased_fitness
+from .evolution import evaluate, update_biased_fitness
 from .individual import Individual
 from .params import HGSParams
 from .split import LinearSplit
