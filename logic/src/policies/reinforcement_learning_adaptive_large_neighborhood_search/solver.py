@@ -18,32 +18,32 @@ import numpy as np
 
 from logic.src.policies.other.operators.destroy_operators import cluster_removal, random_removal, worst_removal
 from logic.src.policies.other.operators.repair_operators import greedy_insertion, regret_2_insertion
-from logic.src.policies.reinforcement_learning.agents.bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     DiscountedUCBBandit as DiscountedUCBAgent,
 )
-from logic.src.policies.reinforcement_learning.agents.bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     EXP3Agent,
 )
-from logic.src.policies.reinforcement_learning.agents.bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     SlidingWindowUCBBandit as SlidingWindowUCBAgent,
 )
-from logic.src.policies.reinforcement_learning.agents.bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     ThompsonSamplingBandit as ThompsonSamplingAgent,
 )
-from logic.src.policies.reinforcement_learning.agents.bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     UCBBandit as UCB1Agent,
 )
-from logic.src.policies.reinforcement_learning.agents.td_learning import (
+from logic.src.policies.other.reinforcement_learning.agents.td_learning import (
     ExpectedSarsaAgent as ExpectedSARSAAgent,
 )
-from logic.src.policies.reinforcement_learning.agents.td_learning import (
+from logic.src.policies.other.reinforcement_learning.agents.td_learning import (
     QLearningAgent,
 )
-from logic.src.policies.reinforcement_learning.agents.td_learning import (
+from logic.src.policies.other.reinforcement_learning.agents.td_learning import (
     SarsaAgent as SARSAAgent,
 )
-from logic.src.policies.reinforcement_learning.features.state import StateFeatureExtractor
-from logic.src.policies.reinforcement_learning.reward.shaping import AdaptiveRewardShaper, RewardShaper
+from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
+from logic.src.policies.other.reinforcement_learning.reward.shaping import AdaptiveRewardShaper, RewardShaper
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .params import RLALNSParams
