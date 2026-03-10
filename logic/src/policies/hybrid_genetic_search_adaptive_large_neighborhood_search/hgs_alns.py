@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.operators.crossover import ordered_crossover
+from logic.src.policies.other.operators.crossover import ordered_crossover
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..hybrid_genetic_search import Individual

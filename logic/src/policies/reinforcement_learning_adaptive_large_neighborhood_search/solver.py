@@ -16,8 +16,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.operators.destroy_operators import cluster_removal, random_removal, worst_removal
-from logic.src.policies.operators.repair_operators import greedy_insertion, regret_2_insertion
+from logic.src.policies.other.operators.destroy_operators import cluster_removal, random_removal, worst_removal
+from logic.src.policies.other.operators.repair_operators import greedy_insertion, regret_2_insertion
 from logic.src.policies.reinforcement_learning.agents.bandits import (
     DiscountedUCBBandit as DiscountedUCBAgent,
 )
@@ -460,7 +460,7 @@ class RLALNSSolver(PolicyVizMixin):
         Returns:
             List[List[int]]: Initial set of routes.
         """
-        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
 
         routes = build_nn_routes(
             nodes=list(self.wastes.keys()),

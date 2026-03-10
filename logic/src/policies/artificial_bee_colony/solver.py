@@ -19,7 +19,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators import (
+from ..other.operators import (
     greedy_insertion,
     random_removal,
 )
@@ -148,7 +148,7 @@ class ABCSolver(PolicyVizMixin):
         """
         Builds a random initial solution applying nearest neighbor ordering.
         """
-        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
 
         routes = build_nn_routes(
             nodes=self.nodes,

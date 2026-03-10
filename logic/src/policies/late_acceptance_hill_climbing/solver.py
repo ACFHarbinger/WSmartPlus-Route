@@ -19,8 +19,8 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.destroy_operators import cluster_removal, random_removal, worst_removal
-from ..operators.repair_operators import greedy_insertion, regret_2_insertion
+from ..other.operators.destroy_operators import cluster_removal, random_removal, worst_removal
+from ..other.operators.repair_operators import greedy_insertion, regret_2_insertion
 from .params import LAHCParams
 
 
@@ -199,7 +199,7 @@ class LAHCSolver(PolicyVizMixin):
 
     def _build_initial_solution(self) -> List[List[int]]:
         """Build initial feasible solution via nearest-neighbour heuristic."""
-        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
 
         routes = build_nn_routes(
             nodes=self.nodes,

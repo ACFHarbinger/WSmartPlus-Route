@@ -47,45 +47,45 @@ from logic.src.policies.reinforcement_learning.agents.td_learning import SarsaAg
 from logic.src.policies.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.destroy import (
+from ..other.operators.destroy import (
     cluster_removal as cluster_removal_op,
 )
-from ..operators.destroy import (
+from ..other.operators.destroy import (
     random_removal as random_removal_op,
 )
-from ..operators.destroy import (
+from ..other.operators.destroy import (
     shaw_removal as shaw_removal_op,
 )
-from ..operators.destroy import (
+from ..other.operators.destroy import (
     string_removal as string_removal_op,
 )
-from ..operators.destroy import (
+from ..other.operators.destroy import (
     worst_removal as worst_removal_op,
 )
-from ..operators.perturbation import kick as kick_op
-from ..operators.perturbation import perturb as perturb_op
-from ..operators.repair import (
+from ..other.operators.perturbation import kick as kick_op
+from ..other.operators.perturbation import perturb as perturb_op
+from ..other.operators.repair import (
     greedy_insertion as greedy_insertion_op,
 )
-from ..operators.repair import (
+from ..other.operators.repair import (
     greedy_insertion_with_blinks as greedy_insertion_with_blinks_op,
 )
-from ..operators.repair import (
+from ..other.operators.repair import (
     regret_2_insertion as regret_2_insertion_op,
 )
-from ..operators.repair import (
+from ..other.operators.repair import (
     regret_k_insertion as regret_k_insertion_op,
 )
-from ..operators.unstringing import (
+from ..other.operators.unstringing import (
     apply_type_i_unstringing as type_i_removal_op,
 )
-from ..operators.unstringing import (
+from ..other.operators.unstringing import (
     apply_type_ii_unstringing as type_ii_removal_op,
 )
-from ..operators.unstringing import (
+from ..other.operators.unstringing import (
     apply_type_iii_unstringing as type_iii_removal_op,
 )
-from ..operators.unstringing import (
+from ..other.operators.unstringing import (
     apply_type_iv_unstringing as type_iv_removal_op,
 )
 from .params import ALNSParams, RLAHVPLParams

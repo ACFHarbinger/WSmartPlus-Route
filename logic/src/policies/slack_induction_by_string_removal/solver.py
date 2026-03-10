@@ -24,9 +24,9 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.destroy_operators import string_removal
-from ..operators.repair_operators import greedy_insertion_with_blinks
-from ..operators.unstringing import (
+from ..other.operators.destroy_operators import string_removal
+from ..other.operators.repair_operators import greedy_insertion_with_blinks
+from ..other.operators.unstringing import (
     apply_type_i_unstringing,
     apply_type_ii_unstringing,
     apply_type_iii_unstringing,
@@ -164,7 +164,7 @@ class SISRSolver(PolicyVizMixin):
 
     def _build_initial_solution(self) -> List[List[int]]:
         """Greedy constructive heuristic."""
-        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
 
         routes = build_nn_routes(
             nodes=list(self.wastes.keys()),

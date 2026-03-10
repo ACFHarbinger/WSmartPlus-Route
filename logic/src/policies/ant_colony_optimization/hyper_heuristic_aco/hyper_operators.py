@@ -19,7 +19,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ...operators import (
+from ...other.operators import (
     kick,
     move_2opt_intra,
     move_2opt_star,

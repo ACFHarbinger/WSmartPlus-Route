@@ -20,10 +20,11 @@ import pandas as pd
 import pytest
 
 # HGS and ALNS auxiliary imports
-from logic.src.policies.operators import destroy_operators, repair_operators
+from logic.src.policies.other.operators import destroy_operators, repair_operators
 from logic.src.policies.hybrid_genetic_search import evolution, params as hgs_params, individual
+from logic.src.policies.other.operators.crossover import ordered_crossover
 from logic.src.policies.hybrid_genetic_search import split as split_module
-from logic.src.policies.local_search import local_search_base
+from logic.src.policies.other.local_search import local_search_base
 
 # Look-ahead auxiliary imports
 from logic.src.policies.simulated_annealing_neighborhood_search.common.check import (
@@ -411,7 +412,7 @@ class TestHGSAux:
         """Test ordered crossover evolution operator."""
         p1 = individual.Individual([1, 2, 3, 4, 5])
         p2 = individual.Individual([5, 4, 3, 2, 1])
-        child = evolution.ordered_crossover(p1, p2)
+        child = ordered_crossover(p1, p2)
         assert len(child.giant_tour) == 5
         assert set(child.giant_tour) == {1, 2, 3, 4, 5}
 

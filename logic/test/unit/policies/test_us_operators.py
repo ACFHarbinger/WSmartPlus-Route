@@ -2,7 +2,7 @@
 Unit tests for Unstringing and Stringing (US) operators.
 """
 
-from logic.src.policies.operators.unstringing import (
+from logic.src.policies.other.operators.unstringing import (
     apply_type_i_unstringing,
     apply_type_ii_unstringing,
     apply_type_iii_unstringing,

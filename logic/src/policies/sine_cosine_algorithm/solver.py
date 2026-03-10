@@ -166,7 +166,7 @@ class SCASolver(PolicyVizMixin):
         if not selected_nodes:
             return []
 
-        from logic.src.policies.operators.repair.greedy import greedy_insertion
+        from logic.src.policies.other.operators.repair.greedy import greedy_insertion
 
         routes = greedy_insertion(
             [],

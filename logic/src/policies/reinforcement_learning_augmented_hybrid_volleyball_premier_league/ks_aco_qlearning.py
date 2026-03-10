@@ -22,7 +22,7 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 from ..ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
 from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..ant_colony_optimization.k_sparse_aco.pheromones import SparsePheromoneTau
-from ..operators.heuristics import build_nn_routes
+from ..other.operators.heuristics import build_nn_routes
 from .local_search_manager import LocalSearchManager
 from .params import RLAHVPLParams
 
