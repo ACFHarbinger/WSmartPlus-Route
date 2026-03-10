@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..operators.destroy_operators import worst_removal

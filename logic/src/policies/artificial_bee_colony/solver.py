@@ -203,7 +203,7 @@ class ABCSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply comprehensive local search
-            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
             ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
             return ls.optimize(repaired)

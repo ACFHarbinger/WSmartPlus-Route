@@ -31,9 +31,6 @@ from .cvrp import find_routes, find_routes_ortools
 from .guided_indicators_hyper_heuristic import run_gihh
 from .hybrid_genetic_search import run_hgs
 from .hybrid_genetic_search_ruin_recreate import run_hgsrr
-from .local_search.local_search_aco import ACOLocalSearch
-from .local_search.local_search_base import LocalSearch
-from .local_search.local_search_hgs import HGSLocalSearch
 from .neural_agent import NeuralAgent
 from .other import (
     MustGoSelectionFactory,
@@ -72,9 +69,6 @@ __all__ = [
     "run_hgsrr",
     "run_sisr",
     "run_vrpp_optimizer",
-    "ACOLocalSearch",
-    "HGSLocalSearch",
-    "LocalSearch",
     "MustGoSelectionFactory",
     "MustGoSelectionRegistry",
     "SelectionContext",

@@ -21,7 +21,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ...local_search.local_search_aco import ACOLocalSearch
+from ...other.local_search.local_search_aco import ACOLocalSearch
 from .construction import SolutionConstructor
 from .params import ACOParams
 from .pheromones import SparsePheromoneTau
