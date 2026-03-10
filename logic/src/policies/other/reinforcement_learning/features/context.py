@@ -33,7 +33,7 @@ from typing import Deque, List
 
 import numpy as np
 
-from ...hybrid_genetic_search.individual import Individual
+from ....hybrid_genetic_search.individual import Individual
 
 
 class ContextFeatureExtractor:

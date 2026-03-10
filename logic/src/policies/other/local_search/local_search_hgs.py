@@ -22,7 +22,7 @@ import numpy as np
 from .local_search_base import LocalSearch
 
 if TYPE_CHECKING:
-    from ..hybrid_genetic_search import HGSParams, Individual
+    from ...hybrid_genetic_search import HGSParams, Individual
 
 
 class HGSLocalSearch(LocalSearch):
