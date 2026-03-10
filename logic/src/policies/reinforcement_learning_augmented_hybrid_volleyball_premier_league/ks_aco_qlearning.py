@@ -15,8 +15,8 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.reinforcement_learning.agents.td_learning import QLearningAgent
-from logic.src.policies.reinforcement_learning.features.state import StateFeatureExtractor
+from logic.src.policies.other.reinforcement_learning.agents.td_learning import QLearningAgent
+from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor

@@ -22,14 +22,14 @@ from typing import List, Optional
 import numpy as np
 
 from logic.src.policies.other.operators.crossover import CROSSOVER_NAMES, CROSSOVER_OPERATORS
-from logic.src.policies.reinforcement_learning.agents.bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     EpsilonGreedyBandit,
 )
-from logic.src.policies.reinforcement_learning.agents.contextual_bandits import (
+from logic.src.policies.other.reinforcement_learning.agents.contextual_bandits import (
     ContextualThompsonSamplingAgent,
     LinUCBAgent,
 )
-from logic.src.policies.reinforcement_learning.features.context import ContextFeatureExtractor
+from logic.src.policies.other.reinforcement_learning.features.context import ContextFeatureExtractor
 
 from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
