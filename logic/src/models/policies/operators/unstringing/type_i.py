@@ -73,8 +73,8 @@ def _find_best_type_i_move(tour, dist, valid_indices, sample_size, device, gener
         # Determine (j, k) pairs
         if sample_size > 0:
             n_samples = min(sample_size, (n_valid - 2) * (n_valid - 3) // 2)
-            k_samples = torch.randint(i_idx + 2, n_valid - 1, (n_samples,), generator=generator)
-            j_samples = torch.randint(0, n_valid, (n_samples,), generator=generator)
+            k_samples = torch.randint(i_idx + 2, n_valid - 1, (n_samples,), device=device, generator=generator)
+            j_samples = torch.randint(0, n_valid, (n_samples,), device=device, generator=generator)
             valid_pairs = j_samples > k_samples
             k_samples, j_samples = k_samples[valid_pairs], j_samples[valid_pairs]
         else:

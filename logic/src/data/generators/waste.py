@@ -9,6 +9,7 @@ from ``logic.src.data.distributions``.
 from typing import Any, Optional, Tuple, Union
 
 import numpy as np
+import torch
 
 from logic.src.data.distributions import Beta, Constant, Distance, Empirical, Gamma, Uniform
 
@@ -19,7 +20,7 @@ def generate_waste(
     graph: Tuple[Any, Any],
     dataset_size: int = 1,
     grid: Optional[Any] = None,
-    rng: Optional[np.random.RandomState] = None,
+    rng: Optional[Union[torch.Generator, np.random.RandomState]] = None,
     sample_method: Optional[str] = "sample_array",
     **kwargs: Any,
 ) -> Union[np.ndarray, Any]:
@@ -65,8 +66,7 @@ def generate_waste(
     elif "emp" in distribution:
         if grid is None:
             raise ValueError("grid must be provided for empirical distribution")
-        grid = grid.sample(n_samples=dataset_size, rng=rng)
-        dist_obj = Empirical(grid)
+        dist_obj = Empirical(grid=grid)
     else:
         assert distribution == "dist"
         dist_obj = Distance(graph)

@@ -37,7 +37,29 @@ class NeuOptDecoder(ImprovementDecoder):
         self.project_k = nn.Linear(embed_dim, embed_dim)
         self.scale = embed_dim**-0.5
         self.seed = kwargs.get("seed", 42)
-        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
+        self.init_device = kwargs.get("device", "cpu")
+        self.generator = torch.Generator(device=self.init_device).manual_seed(self.seed)
+
+    @property
+    def device(self) -> torch.device:
+        """Get device of the model."""
+        return next(self.parameters()).device
+
+    def __getstate__(self):
+        """Prepare state for pickling (handle non-picklable Generator)."""
+        state = self.__dict__.copy()
+        state["generator_state"] = self.generator.get_state()
+        state["generator_device"] = str(self.generator.device)
+        del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state")
+        gen_device = state.pop("generator_device")
+        self.__dict__.update(state)
+        self.generator = torch.Generator(device=gen_device)
+        self.generator.set_state(gen_state)
 
     def forward(
         self,

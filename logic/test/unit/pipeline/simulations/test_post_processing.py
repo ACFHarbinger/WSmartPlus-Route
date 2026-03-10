@@ -46,8 +46,8 @@ class TestFastTSPPostProcessor:
 class TestClassicalLocalSearchPostProcessor:
     def test_2opt_refinement(self, sample_route_data):
         dist_matrix, tour = sample_route_data
-        processor = ClassicalLocalSearchPostProcessor(operator_name="2opt")
-        refined_tour = processor.process(tour, distance_matrix=dist_matrix)
+        processor = ClassicalLocalSearchPostProcessor()
+        refined_tour = processor.process(tour, distance_matrix=dist_matrix, operator_name="2opt")
         assert len(refined_tour) == len(tour)
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0

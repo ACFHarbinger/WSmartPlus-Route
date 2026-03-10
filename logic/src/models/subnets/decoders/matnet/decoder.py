@@ -54,6 +54,11 @@ class MatNetDecoder(GlimpseDecoder):
         self.strategy = "greedy"
         self.temp = 1.0
 
+    @property
+    def device(self) -> torch.device:
+        """Get device of the model."""
+        return next(self.parameters()).device
+
     def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> Any:
         """precompute.
 

@@ -93,9 +93,12 @@ class TestBinsFilling:
 
     def test_noisy_filling(self, bins, mocker, mock_bins_params_loader):
         """Verify that noise is added to observed levels (c) but not real levels (real_c)."""
-        # Mock numpy.random.normal to return fixed noise
-        mocker.patch("numpy.random.normal", return_value=np.ones(10) * 5.0)
+        # Mock bins.rng to return fixed noise
+        mock_rng = mocker.MagicMock()
+        mock_rng.normal.return_value = np.ones(10) * 5.0
+        bins.rng = mock_rng
 
+        bins.noise_variance = 1.0
         bins.real_c = np.zeros(10)
         bins.c = np.zeros(10)
 

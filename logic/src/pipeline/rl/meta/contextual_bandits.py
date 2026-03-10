@@ -48,6 +48,10 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
             seed: Random seed for reproducibility.
             **kwargs: Additional keyword arguments.
         """
+        self.seed = seed
+        self.rng = random.Random(seed)
+        self.np_rng = np.random.default_rng(seed)
+
         self.num_days = num_days
         self.weight_ranges = weight_ranges
         self.weight_configs = self._generate_weight_configs(initial_weights, num_weight_configs)
@@ -69,10 +73,6 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         # Reward tracking
         self.rewards: Dict[Any, List[float]] = defaultdict(list)
         self.window_size = window_size
-
-        self.seed = seed
-        self.rng = random.Random(seed)
-        self.np_rng = np.random.default_rng(seed)
 
         self.current_config_idx = 0
         self.current_config = self.weight_configs[0]

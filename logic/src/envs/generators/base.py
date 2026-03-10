@@ -7,6 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Optional, Union
 
+import numpy as np
 import torch
 from tensordict import TensorDict
 
@@ -26,6 +27,7 @@ class Generator(ABC):
         max_loc: float = 1.0,
         loc_distribution: Union[str, Callable] = "uniform",
         device: Union[str, torch.device] = "cpu",
+        rng: Optional[np.random.RandomState] = None,
         generator: Optional[torch.Generator] = None,
         **kwargs: Any,
     ) -> None:
@@ -39,6 +41,8 @@ class Generator(ABC):
             loc_distribution: Distribution for location generation.
                 Can be "uniform", "normal", "clustered", or a callable.
             device: Device to place tensors on.
+            rng: Random number generator for numpy operations.
+            generator: Random number generator for torch operations.
             **kwargs: Additional keyword arguments.
         """
         self.num_loc = num_loc
@@ -48,6 +52,7 @@ class Generator(ABC):
         self.device = torch.device(device)
         self.bins = kwargs.get("bins")
         self._kwargs = kwargs
+        self.rng = np.random.RandomState(42) if rng is None else rng
         self.generator = generator if generator is not None else torch.Generator(device=device).manual_seed(42)
 
     @property

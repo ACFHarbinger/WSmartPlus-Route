@@ -5,9 +5,9 @@ import pytest
 from logic.src.data.distributions import (
     Cluster,
     Mixed,
-    Gaussian_Mixture,
-    Mix_Distribution,
-    Mix_Multi_Distributions,
+    GaussianMixture,
+    MixDistribution,
+    MixMultiDistributions,
     Gamma,
     Empirical,
 )
@@ -21,8 +21,8 @@ class TestDistributions:
         """Verify Cluster data generation shape."""
         batch = 4
         num_loc = 20
-        dist = Cluster(n_cluster=3)
-        coords = dist.sample_tensor((batch, num_loc, 2))
+        dist = Cluster(n_cluster=3).set_sampling_method("sample_tensor")
+        coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
         assert (coords >= 0).all() and (coords <= 1).all()
 
@@ -30,57 +30,57 @@ class TestDistributions:
         """Verify Mixed data generation range."""
         batch = 4
         num_loc = 20
-        dist = Mixed(n_cluster_mix=1)
-        coords = dist.sample_tensor((batch, num_loc, 2))
+        dist = Mixed(n_cluster_mix=1).set_sampling_method("sample_tensor")
+        coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
         assert (coords >= 0).all() and (coords <= 1).all()
 
     def test_mix_distribution_coverage(self):
-        """Verify Mix_Distribution runs without error."""
+        """Verify MixDistribution runs without error."""
         batch = 10
         num_loc = 20
-        dist = Mix_Distribution()
-        coords = dist.sample_tensor((batch, num_loc, 2))
+        dist = MixDistribution().set_sampling_method("sample_tensor")
+        coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
 
     def test_gaussian_mixture(self):
-        """Verify Gaussian_Mixture generation."""
+        """Verify GaussianMixture generation."""
         batch = 4
         num_loc = 20
         # Mode 0 (Uniform)
-        dist = Gaussian_Mixture(num_modes=0)
-        coords = dist.sample_tensor((batch, num_loc, 2))
+        dist = GaussianMixture(num_modes=0).set_sampling_method("sample_tensor")
+        coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
 
         # Mode > 1
-        dist = Gaussian_Mixture(num_modes=3, cdist=10)
-        coords = dist.sample_tensor((batch, num_loc, 2))
+        dist = GaussianMixture(num_modes=3, cdist=10).set_sampling_method("sample_tensor")
+        coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
         assert (coords >= 0).all() and (coords <= 1).all()
 
     def test_mix_multi_distributions(self):
-        """Verify Mix_Multi_Distributions generation."""
+        """Verify MixMultiDistributions generation."""
         batch = 20  # Enough to likely hit multiple types
         num_loc = 20
-        dist = Mix_Multi_Distributions()
-        coords = dist.sample_tensor((batch, num_loc, 2))
+        dist = MixMultiDistributions().set_sampling_method("sample_tensor")
+        coords = dist.sample((batch, num_loc, 2))
         assert coords.shape == (batch, num_loc, 2)
         assert (coords >= 0).all() and (coords <= 1).all()
 
     def test_gamma_distribution(self):
         """Verify Gamma output shape."""
         batch, num_loc, dim = 4, 10, 2
-        dist = Gamma(alpha=2.0, theta=1/2.0)
-        out = dist.sample_tensor((batch, num_loc, dim))
+        dist = Gamma(alpha=2.0, theta=1/2.0).set_sampling_method("sample_tensor")
+        out = dist.sample((batch, num_loc, dim))
         assert out.shape == (batch, num_loc, dim)
 
     def test_empirical_with_data(self):
         """Verify Empirical with mock data."""
         batch, num_loc, dim = 2, 5, 2
         mock_data = torch.ones(10, 5, 2) * 0.5
-        dist = Empirical(dataset=mock_data)
+        dist = Empirical(dataset=mock_data).set_sampling_method("sample_tensor")
 
-        out = dist.sample_tensor((batch, 5, 2))
+        out = dist.sample((batch, 5, 2))
         assert out.shape == (batch, 5, 2)
         assert torch.allclose(out, torch.tensor(0.5))
 
@@ -93,19 +93,23 @@ class TestDistributions:
         # load_filling returns np.ndarray in [0, 100]
         mock_grid.sample.return_value = np.random.uniform(0, 100, (batch, num_loc))
 
-        dist = Empirical(grid=mock_grid)
-        out = dist.sample_tensor((batch, num_loc, 1))
+        dist = Empirical(grid=mock_grid).set_sampling_method("sample_tensor")
+        out = dist.sample((batch, num_loc, 1))
 
         assert out.shape == (batch, num_loc)
         assert (out >= 0).all() and (out <= 1).all()
-        mock_grid.sample.assert_called_with(n_samples=batch)
+        # BaseDistribution.sample passes an rng to _sample_tensor, which Empirical passes to grid.sample
+        mock_grid.sample.assert_called()
+        call_kwargs = mock_grid.sample.call_args[1]
+        assert call_kwargs["n_samples"] == batch
+        assert "rng" in call_kwargs
 
     def test_gamma_vectorized(self):
         """Verify vectorized Gamma parameters."""
         batch, num_loc = 2, 5
         alpha = torch.ones(num_loc) * 2.0
         beta = torch.ones(num_loc) * 5.0
-        dist = Gamma(alpha=alpha, theta=1/beta)
+        dist = Gamma(alpha=alpha, theta=1/beta).set_sampling_method("sample_tensor")
         # size matches batch, num_loc
-        out = dist.sample_tensor((batch,))
+        out = dist.sample((batch,))
         assert out.shape == (batch, num_loc)

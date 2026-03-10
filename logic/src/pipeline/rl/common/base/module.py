@@ -84,7 +84,9 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
         # Explicitly save hyperparameters to handle MRO/introspection issues
         params_to_save = {
-            k: v for k, v in locals().items() if k not in ["self", "__class__", "env", "policy", "must_go_selector"]
+            k: v
+            for k, v in locals().items()
+            if k not in ["self", "__class__", "env", "policy", "must_go_selector", "generator"]
         }
         # Avoid shadowing self.baseline (the object) with baseline (the string)
         if "baseline" in params_to_save:

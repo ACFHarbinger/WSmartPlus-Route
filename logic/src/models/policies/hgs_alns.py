@@ -36,7 +36,16 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
         alns_cooling_rate: float = 0.9995,
         hgs_max_iter: int = 100,
     ):
-        super().__init__(dist_matrix, wastes, vehicle_capacity, hgs_max_iter, time_limit, device, generator, rng)
+        super().__init__(
+            dist_matrix=dist_matrix,
+            wastes=wastes,
+            vehicle_capacity=vehicle_capacity,
+            max_iterations=hgs_max_iter,
+            time_limit=time_limit,
+            device=device,
+            generator=generator,
+            rng=rng,
+        )
         self.alns_education_iterations = alns_education_iterations
         self.alns_start_temp = alns_start_temp
         self.alns_cooling_rate = alns_cooling_rate
@@ -180,8 +189,7 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
             alns_education_iterations=self.alns_education_iterations,
             alns_start_temp=self.alns_start_temp,
             alns_cooling_rate=self.alns_cooling_rate,
-            hgs_max_iter=self.hgs_max_iter,
-            crossover_rate=self.crossover_rate,
+            hgs_max_iter=self.max_iterations,
         )
 
         best_routes_list, costs = solver.solve(
@@ -191,6 +199,7 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
             elite_size=self.elite_size,
             max_vehicles=self.max_vehicles,
             time_limit=self.time_limit,
+            crossover_rate=self.crossover_rate,
         )
 
         # 4. Format Actions

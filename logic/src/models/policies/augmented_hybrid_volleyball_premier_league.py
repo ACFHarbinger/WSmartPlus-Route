@@ -60,6 +60,28 @@ class VectorizedAHVPL(VectorizedHVPL):
         self.alpha_diversity = alpha_diversity
         self.elite_size = elite_size
 
+    def __getstate__(self) -> Dict[str, Any]:
+        """Return state for pickling."""
+        state = self.__dict__.copy()
+        # Handle torch.Generator which is not picklable
+        if "generator" in state:
+            gen = state["generator"]
+            state["generator_state"] = gen.get_state()
+            state["generator_device"] = str(gen.device)
+            del state["generator"]
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after pickling."""
+        if "generator_state" in state:
+            gen_state = state.pop("generator_state")
+            gen_device = state.pop("generator_device")
+            # Create a new generator on the same device
+            gen = torch.Generator(device=gen_device)
+            gen.set_state(gen_state)
+            state["generator"] = gen
+        self.__dict__.update(state)
+
     def forward(
         self,
         td: TensorDict,
@@ -116,9 +138,12 @@ class VectorizedAHVPL(VectorizedHVPL):
             p1, p2 = pop_manager.get_parents(n_offspring=self.n_teams)
 
             # Crossover logic
-            if torch.rand(1, generator=self.generator).item() < self.crossover_rate:
+            if torch.rand(1, device=device, generator=self.generator).item() < self.crossover_rate:
                 offspring_giant = vectorized_ordered_crossover(
-                    p1.view(batch_size * self.n_teams, -1), p2.view(batch_size * self.n_teams, -1)
+                    p1.view(batch_size * self.n_teams, -1),
+                    p2.view(batch_size * self.n_teams, -1),
+                    device=device,
+                    generator=self.generator,
                 ).view(batch_size, self.n_teams, -1)
             else:
                 offspring_giant = p1

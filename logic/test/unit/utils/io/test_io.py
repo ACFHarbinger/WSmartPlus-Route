@@ -85,8 +85,9 @@ class TestLocking:
                 json.dump(data, f)
 
             policies = ["policy1", "policy2"]
-            res = locking.read_output(json_path, policies)
+            res, res_dict = locking.read_output(json_path, policies, data_distribution="policy")
             assert res == [[10, 5], [20, 15], [30, 25]]
+            assert len(res_dict) == 2
 
 
 # ============================================================================

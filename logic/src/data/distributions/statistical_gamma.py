@@ -68,12 +68,14 @@ class Gamma(BaseDistribution):
             generator = torch.Generator().manual_seed(42)
         if self.option is not None:
             # Use per-node heterogeneous params; fall back to numpy then convert
-            return torch.from_numpy(self.sample_array(size)).float()
+            return torch.from_numpy(self._sample_array(size)).float()
 
         m = torch.distributions.Gamma(self.alpha, 1 / self.theta)
-        return m.sample(torch.Size(size), generator=generator)
+        return m.sample(torch.Size(size))
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.RandomState]] = None
+    ) -> np.ndarray:
         """Sample from Gamma distribution.
 
         When ``option`` is set, uses per-node heterogeneous alpha/theta

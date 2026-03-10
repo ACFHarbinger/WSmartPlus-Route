@@ -139,7 +139,15 @@ class VRPPGenerator(Generator):
             self._generate_depot(batch_size).view(bs, 2),
             self._generate_locations(batch_size).view(bs, self.num_loc, 2),
         )
-        waste = generate_waste(self.num_loc, self.waste_distribution, coords, bs, grid=self.grid, rng=self.generator)
+        waste = generate_waste(
+            self.num_loc,
+            self.waste_distribution,
+            coords,
+            bs,
+            grid=self.grid,
+            rng=self.rng,
+            sample_method="sample_array",
+        )
         if isinstance(waste, np.ndarray):
             waste = torch.from_numpy(waste).float()
         return waste.to(self.device).view(*batch_size, self.num_loc)

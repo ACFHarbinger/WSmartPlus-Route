@@ -8,7 +8,10 @@ import torch
 
 
 def vectorized_ordered_crossover(
-    parent1: torch.Tensor, parent2: torch.Tensor, device: Any, generator: Optional[torch.Generator] = None
+    parent1: torch.Tensor,
+    parent2: torch.Tensor,
+    device: Optional[Any] = None,
+    generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
     """
     Vectorized Ordered Crossover (OX1) with shared cuts across batch.
@@ -16,7 +19,7 @@ def vectorized_ordered_crossover(
     Args:
         parent1: (B, N)
         parent2: (B, N)
-        device: Torch device.
+        device (Optional[Any]): Torch device. If None, uses parent1.device.
         generator (Optional[torch.Generator]): Torch random number generator.
 
     Returns:

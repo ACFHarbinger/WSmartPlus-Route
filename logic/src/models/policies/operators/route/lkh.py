@@ -245,7 +245,8 @@ def _double_bridge_kick(tour: torch.Tensor, generator: Optional[torch.Generator]
     n = len(tour) - 1
     if n < 8:
         return tour
-    positions = torch.randperm(n - 2, generator=generator) + 1
+    device = tour.device
+    positions = torch.randperm(n - 2, device=device, generator=generator) + 1
     positions = positions[:4].sort()[0]
     a, b, c, d = positions.tolist()
     tour_list = tour.tolist()

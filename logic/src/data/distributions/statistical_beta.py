@@ -37,7 +37,7 @@ class Beta(BaseDistribution):
             generator = torch.Generator().manual_seed(42)
 
         m = torch.distributions.Beta(self.alpha, self.beta)
-        return m.sample(torch.Size(size), generator=generator)
+        return m.sample(torch.Size(size))
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
         """Sample from Beta distribution.

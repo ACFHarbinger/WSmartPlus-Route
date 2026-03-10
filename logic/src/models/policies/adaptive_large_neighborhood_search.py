@@ -39,6 +39,7 @@ class VectorizedALNS(PolicyVizMixin):
         vehicle_capacity,
         time_limit=1.0,
         device: str = "cuda",
+        seed: int = 42,
         generator: Optional[torch.Generator] = None,
     ):
         """
@@ -51,20 +52,43 @@ class VectorizedALNS(PolicyVizMixin):
             time_limit: Time limit for solving in seconds.
             device: Computation device ('cpu' or 'cuda').
             generator: PyTorch generator for random number generation.
-            rng: Python random number generator.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.vehicle_capacity = vehicle_capacity
         self.time_limit = time_limit
         self.device = torch.device(device)
-        self.generator = generator
+        self.seed = seed
+        if generator is not None:
+            self.generator = generator
+        else:
+            self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
         self.destroy_ops = [vectorized_random_removal, vectorized_worst_removal, vectorized_cluster_removal]
         self.repair_ops = [vectorized_greedy_insertion, vectorized_regret_k_insertion]
 
         self.d_weights = torch.ones(len(self.destroy_ops), device=device)
         self.r_weights = torch.ones(len(self.repair_ops), device=device)
+
+    def __getstate__(self):
+        """Prepare state for pickling."""
+        state = self.__dict__.copy()
+        if "generator" in state and state["generator"] is not None:
+            state["generator_state"] = state["generator"].get_state()
+            state["generator_device"] = str(state["generator"].device)
+            del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state", None)
+        gen_device = state.pop("generator_device", None)
+        self.__dict__.update(state)
+        if gen_state is not None:
+            self.generator = torch.Generator(device=gen_device)
+            self.generator.set_state(gen_state)
+        else:
+            self.generator = torch.Generator(device="cpu").manual_seed(42)
 
     def solve(
         self,
@@ -105,13 +129,13 @@ class VectorizedALNS(PolicyVizMixin):
                 break
 
             # 1. Select Operators
-            d_idx = int(torch.multinomial(self.d_weights, 1).item())
-            r_idx = int(torch.multinomial(self.r_weights, 1).item())
+            d_idx = int(torch.multinomial(self.d_weights, 1, generator=self.generator).item())
+            r_idx = int(torch.multinomial(self.r_weights, 1, generator=self.generator).item())
             destroy_op = self.destroy_ops[d_idx]
             repair_op = self.repair_ops[r_idx]
 
             n_remove = torch.randint(
-                max(1, int(N * 0.1)), max(2, int(N * 0.4) + 1), (1,), generator=self.generator
+                max(1, int(N * 0.1)), max(2, int(N * 0.4) + 1), (1,), device=device, generator=self.generator
             ).item()
 
             # 2. Destroy & Repair (Fast TSP operators)
