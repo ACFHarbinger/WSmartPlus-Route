@@ -158,7 +158,7 @@ class QDESolver(PolicyVizMixin):
         if not selected:
             return []
 
-        from logic.src.policies.operators.repair.greedy import greedy_insertion
+        from logic.src.policies.other.operators.repair.greedy import greedy_insertion
 
         routes = greedy_insertion(
             [],

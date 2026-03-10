@@ -27,8 +27,8 @@ import numpy as np
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators.destroy_operators import random_removal
-from ..operators.repair_operators import greedy_insertion
+from ..other.operators.destroy_operators import random_removal
+from ..other.operators.repair_operators import greedy_insertion
 from .params import SLCParams
 
 
@@ -166,7 +166,7 @@ class SLCSolver(PolicyVizMixin):
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style)."""
-        from logic.src.policies.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
 
         optimized_routes = build_nn_routes(
             nodes=self.nodes,

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from logic.src.interfaces import IPostProcessor
-from logic.src.policies.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
+from logic.src.policies.other.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 
 from .registry import PostProcessorRegistry
 
