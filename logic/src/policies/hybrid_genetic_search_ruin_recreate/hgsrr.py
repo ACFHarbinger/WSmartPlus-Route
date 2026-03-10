@@ -11,10 +11,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 from logic.src.policies.hybrid_genetic_search import Individual
 from logic.src.policies.hybrid_genetic_search.evolution import evaluate, ordered_crossover, update_biased_fitness
 from logic.src.policies.hybrid_genetic_search.split import LinearSplit
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .params import HGSRRParams
 from .ruin_recreate import AdaptiveOperatorManager, RuinRecreateOperator

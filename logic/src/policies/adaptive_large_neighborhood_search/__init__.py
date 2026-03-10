@@ -2,8 +2,8 @@
 Auxiliary modules for the Adaptive Large Neighborhood Search (ALNS) policy.
 """
 
-from .alns import run_alns
 from .alns_package import run_alns_package
+from .dispatcher import run_alns
 from .ortools_wrapper import run_alns_ortools
 from .params import ALNSParams
 
