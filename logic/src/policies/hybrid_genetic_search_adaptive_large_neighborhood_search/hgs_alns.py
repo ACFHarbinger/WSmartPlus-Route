@@ -17,9 +17,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.operators.crossover import ordered_crossover
+
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..hybrid_genetic_search import Individual
-from ..hybrid_genetic_search.evolution import evaluate, ordered_crossover, update_biased_fitness
+from ..hybrid_genetic_search.evolution import evaluate, update_biased_fitness
 from ..hybrid_genetic_search.hgs import HGSSolver
 from .params import HGSALNSParams
 

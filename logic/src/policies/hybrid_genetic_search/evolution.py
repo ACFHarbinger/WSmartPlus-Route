@@ -5,40 +5,12 @@ This module contains the crossover, evaluation, and fitness calculation
 logic for maintaining and improving the HGS population.
 """
 
-import random
-from typing import List, Optional
+from typing import List
 
 import numpy as np
 
 from .individual import Individual
 from .split import LinearSplit
-
-
-def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:
-    """
-    Apply Ordered Crossover (OX) to giant tours.
-    """
-    if rng is None:
-        rng = random.Random()
-    size = len(p1.giant_tour)
-    a, b = sorted(rng.sample(range(size), 2))
-
-    child_gt = [0] * size
-    child_gt[a : b + 1] = p1.giant_tour[a : b + 1]
-
-    fill_pos = (b + 1) % size
-    source_pos = (b + 1) % size
-
-    p1_set = set(p1.giant_tour[a : b + 1])
-
-    for _ in range(size):
-        node = p2.giant_tour[source_pos]
-        if node not in p1_set:
-            child_gt[fill_pos] = node
-            fill_pos = (fill_pos + 1) % size
-        source_pos = (source_pos + 1) % size
-
-    return Individual(child_gt)
 
 
 def update_biased_fitness(
