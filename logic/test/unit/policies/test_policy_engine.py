@@ -139,7 +139,7 @@ def test_alns_engine_override(mock_engine_data):
 
 def test_sans_execution(mock_engine_data):
     # Patch improved_simulated_annealing in its home module (or where it's used)
-    with patch("logic.src.policies.adapters.policy_sans.improved_simulated_annealing") as mock_sans, \
+    with patch("logic.src.policies.simulated_annealing_neighborhood_search.dispatcher.improved_simulated_annealing") as mock_sans, \
          patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
