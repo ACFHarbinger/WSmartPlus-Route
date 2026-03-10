@@ -31,6 +31,7 @@ class HGSParams:
         no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
         neighbor_list_size: Number of nearest neighbors to consider.
         local_search_iterations: Number of iterations to run local search.
+        max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
     """
 
     time_limit: float = 60.0
@@ -69,7 +70,6 @@ class HGSParams:
             max_vehicles=config.max_vehicles,
             alpha_diversity=config.alpha_diversity,
             min_diversity=config.min_diversity,
-            max_diversity=config.max_diversity,
             neighbor_list_size=config.neighbor_list_size,
             local_search_iterations=config.local_search_iterations,
         )

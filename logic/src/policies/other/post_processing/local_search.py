@@ -19,6 +19,10 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
     logic/src/models/policies/classical/local_search.py
     """
 
+    def __init__(self, **kwargs: Any):
+        """Initialize post-processor."""
+        self.config = kwargs
+
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """
         Apply vectorized local search to the tour.

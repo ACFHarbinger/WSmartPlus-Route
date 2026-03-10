@@ -50,7 +50,7 @@ class GSPO(PPO):
             **kwargs: Arguments passed to PPO.
         """
         super().__init__(**kwargs)
-        self.save_hyperparameters(ignore=["critic"])
+        self.save_hyperparameters(ignore=["critic", "env", "policy", "kwargs", "generator"])
         self.use_sequence_normalization = use_sequence_normalization
 
     def training_step(self, batch: TensorDict, batch_idx: int):  # noqa: ARG002

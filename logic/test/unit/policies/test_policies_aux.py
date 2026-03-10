@@ -12,6 +12,7 @@ from unittest.mock import patch
 from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
     find_initial_solution, compute_initial_solution
 )
+import random
 from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.sans import (
     improved_simulated_annealing,
 )
@@ -88,60 +89,65 @@ class TestLookAheadSelect:
     """Tests for look-ahead selection operations."""
 
     @pytest.fixture
+    def rng(self):
+        """Random number generator."""
+        return random.Random(42)
+
+    @pytest.fixture
     def sample_routes(self):
         """Fixture providing a sample set of routing results."""
         return [[0, 1, 2, 0], [0, 3, 4, 0]]
 
-    def test_remove_bin(self, sample_routes):
+    def test_remove_bin(self, sample_routes, rng):
         """Test bin removal from routes."""
         removed_bins = []
         cannot_remove = []
-        bin_rem = remove_bin(sample_routes, removed_bins, cannot_remove)
+        bin_rem = remove_bin(sample_routes, removed_bins, cannot_remove, rng)
         assert bin_rem is not None or len(sample_routes) == 0
 
-    def test_add_bin(self):
+    def test_add_bin(self, rng):
         """Test bin addition to routes."""
         removed_bins = [7]
         routes = [[0, 1, 2, 0]]
-        bin_add = add_bin(routes, removed_bins)
+        bin_add = add_bin(routes, removed_bins, rng)
         assert bin_add == 7 or bin_add is None
 
-    def test_remove_n_bins_random(self):
+    def test_remove_n_bins_random(self, rng):
         """Test random removal of multiple bins."""
         routes = [[0, 1, 2, 3, 4, 5, 0]]
         removed_bins = []
         bins_cannot_removed = []
 
-        # Actual signature: (routes_list, removed_bins, bins_cannot_removed)
+        # Actual signature: (routes_list, removed_bins, bins_cannot_removed, rng)
         # Returns (bins_to_remove_random, chosen_n)
-        result, n = remove_n_bins_random(routes, removed_bins, bins_cannot_removed)
+        result, n = remove_n_bins_random(routes, removed_bins, bins_cannot_removed, rng)
         assert isinstance(result, list)
         assert isinstance(n, int)
 
-    def test_add_n_bins_random(self):
+    def test_add_n_bins_random(self, rng):
         """Test random addition of multiple bins."""
         routes = [[0, 1, 2, 0]]
         removed_bins = [7, 8, 9]
-        added, n = add_n_bins_random(routes, removed_bins)
+        added, n = add_n_bins_random(routes, removed_bins, rng)
         assert isinstance(added, list)
 
-    def test_add_route_random(self):
+    def test_add_route_random(self, rng):
         """Test random route addition."""
         routes = [[0, 1, 2, 0]]
         dist_matrix = np.ones((10, 10))
         np.fill_diagonal(dist_matrix, 0)
 
-        add_route_random(routes, dist_matrix)
+        add_route_random(routes, dist_matrix, rng)
         assert len(routes) >= 1
 
-    def test_add_route_with_removed_bins_random(self):
+    def test_add_route_with_removed_bins_random(self, rng):
         """Test adding route with removed bins."""
         routes = [[0, 1, 2, 0]]
         removed_bins = [7, 8, 9]
         dist = np.ones((10, 10))
         np.fill_diagonal(dist, 0)
 
-        n, used = add_route_with_removed_bins_random(routes, removed_bins, dist)
+        n, used = add_route_with_removed_bins_random(routes, removed_bins, dist, rng)
         assert isinstance(used, list)
 
 
@@ -149,50 +155,45 @@ class TestLookAheadMove:
     """Tests for look-ahead move operations."""
 
     @pytest.fixture
+    def rng(self):
+        """Random number generator."""
+        return random.Random(42)
+
+    @pytest.fixture
     def sample_routes(self):
         """Fixture providing a sample set of routing results for move operations."""
         return [[0, 1, 2, 3, 0], [0, 4, 5, 0]]
 
-    def test_move_1_route(self, sample_routes):
+    def test_move_1_route(self, sample_routes, rng):
         """Test single route move operation."""
-        move_1_route(sample_routes)
+        move_1_route(sample_routes, rng)
         assert len(sample_routes) >= 1
 
-    def test_move_2_routes(self, sample_routes):
+    def test_move_2_routes(self, sample_routes, rng):
         """Test two-route move operation."""
-        move_2_routes(sample_routes)
+        move_2_routes(sample_routes, rng)
         assert len(sample_routes) >= 1
 
-    def test_move_n_route_random(self, sample_routes):
+    def test_move_n_route_random(self, sample_routes, rng):
         """Test random n-route move."""
-        with patch("random.sample") as mock_sample:
-
-            def side_eff(pop, k):
-                """Mock side effect for random sample."""
-                return [pop[0]] if k == 1 else pop[:k]
-
-            mock_sample.side_effect = side_eff
-
-            move_n_route_random(sample_routes, n=2)
-            assert isinstance(sample_routes, list)
-
-    def test_move_n_route_consecutive(self, sample_routes):
-        """Test consecutive n-route move."""
-        with patch("random.sample") as mock_sample:
-            mock_sample.side_effect = lambda pop, k: pop[:k]
-            move_n_route_consecutive(sample_routes, n=2)
-            assert isinstance(sample_routes, list)
-
-    def test_move_n_2_routes_random(self, sample_routes):
-        """Test random n-move between 2 routes."""
-        # Actual signature: (routes_list) - no n parameter, randomly chosen internally
-        move_n_2_routes_random(sample_routes)
+        move_n_route_random(sample_routes, rng, n=2)
         assert isinstance(sample_routes, list)
 
-    def test_move_n_2_routes_consecutive(self, sample_routes):
+    def test_move_n_route_consecutive(self, sample_routes, rng):
+        """Test consecutive n-route move."""
+        move_n_route_consecutive(sample_routes, rng, n=2)
+        assert isinstance(sample_routes, list)
+
+    def test_move_n_2_routes_random(self, sample_routes, rng):
+        """Test random n-move between 2 routes."""
+        # Actual signature: (routes_list, rng, n)
+        move_n_2_routes_random(sample_routes, rng)
+        assert isinstance(sample_routes, list)
+
+    def test_move_n_2_routes_consecutive(self, sample_routes, rng):
         """Test consecutive n-move between 2 routes."""
-        # Actual signature: (routes_list) - no n parameter, randomly chosen internally
-        move_n_2_routes_consecutive(sample_routes)
+        # Actual signature: (routes_list, rng, n)
+        move_n_2_routes_consecutive(sample_routes, rng)
         assert isinstance(sample_routes, list)
 
 
@@ -200,65 +201,53 @@ class TestLookAheadSwap:
     """Tests for look-ahead swap operations."""
 
     @pytest.fixture
+    def rng(self):
+        """Random number generator."""
+        return random.Random(42)
+
+    @pytest.fixture
     def sample_routes(self):
         """Fixture providing a sample set of routing results for swap operations."""
         return [[0, 1, 2, 3, 4, 0], [0, 5, 6, 7, 0]]
 
-    def test_swap_1_route(self, sample_routes):
+    def test_swap_1_route(self, sample_routes, rng):
         """Test single route swap operation."""
-        swap_1_route(sample_routes)
+        swap_1_route(sample_routes, rng)
         assert len(sample_routes) >= 1
 
-    def test_swap_2_routes(self, sample_routes):
+    def test_swap_2_routes(self, sample_routes, rng):
         """Test two-route swap operation."""
-        swap_2_routes(sample_routes)
+        swap_2_routes(sample_routes, rng)
         assert len(sample_routes) >= 1
 
-    def test_swap_n_route_random(self, sample_routes):
+    def test_swap_n_route_random(self, sample_routes, rng):
         """Test random n-swap within route."""
-
-        def run_with_n(n: int) -> None:
-            """Helper to run swap test with different n values."""
-            routes = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]]
-
-            with patch("random.sample") as mock_sample:
-
-                def side_eff(pop, k):
-                    """Mock side effect for random selection in swap."""
-                    if len(pop) < k:
-                        return pop
-                    return pop[:k]
-
-                mock_sample.side_effect = side_eff
-
-                swap_n_route_random(routes, n=n)
-                assert isinstance(routes, list)
-
-        run_with_n(2)
-        run_with_n(3)
-
-    def test_swap_n_route_consecutive(self, sample_routes):
-        """Test consecutive n-swap within route."""
-        with patch("random.sample") as mock_sample:
-            mock_sample.side_effect = lambda pop, k: pop[:k]
-            swap_n_route_consecutive(sample_routes, n=2)
-            assert isinstance(sample_routes, list)
-
-    def test_swap_n_2_routes_random(self, sample_routes):
-        """Test random n-swap between 2 routes."""
-        # Actual signature: (routes_list) - no n parameter, randomly chosen internally
-        swap_n_2_routes_random(sample_routes)
+        swap_n_route_random(sample_routes, rng, n=2)
         assert isinstance(sample_routes, list)
 
-    def test_swap_n_2_routes_consecutive(self, sample_routes):
+    def test_swap_n_route_consecutive(self, sample_routes, rng):
+        """Test consecutive n-swap within route."""
+        swap_n_route_consecutive(sample_routes, rng, n=2)
+        assert isinstance(sample_routes, list)
+
+    def test_swap_n_2_routes_random(self, sample_routes, rng):
+        """Test random n-swap between 2 routes."""
+        swap_n_2_routes_random(sample_routes, rng)
+        assert isinstance(sample_routes, list)
+
+    def test_swap_n_2_routes_consecutive(self, sample_routes, rng):
         """Test consecutive n-swap between 2 routes."""
-        # Actual signature: (routes_list) - no n parameter, randomly chosen internally
-        swap_n_2_routes_consecutive(sample_routes)
+        swap_n_2_routes_consecutive(sample_routes, rng)
         assert isinstance(sample_routes, list)
 
 
 class TestLookAheadSolutions:
     """Tests for look-ahead solution generation."""
+
+    @pytest.fixture
+    def rng(self):
+        """Random number generator."""
+        return random.Random(42)
 
     @pytest.fixture
     def sample_data(self):
@@ -288,9 +277,9 @@ class TestLookAheadSolutions:
         """Fixture providing a sample distance matrix."""
         return np.ones((7, 7))
 
-    def test_find_initial_solution(self, sample_data, bins_coord_df, dist_matrix):
+    def test_find_initial_solution(self, sample_data, bins_coord_df, dist_matrix, rng):
         """Test initial solution finding."""
-        res = find_initial_solution(sample_data, bins_coord_df, dist_matrix, 6, 2000.0, 0.5, 20.0)
+        res = find_initial_solution(sample_data, bins_coord_df, dist_matrix, 6, 2000.0, 0.5, 20.0, rng)
         assert isinstance(res, list)
 
     def test_compute_initial_solution(self, sample_data, bins_coord_dict, dist_matrix):
@@ -299,7 +288,7 @@ class TestLookAheadSolutions:
         res = compute_initial_solution(sample_data, bins_coord_dict, dist_matrix, 2000.0, id_to_index)
         assert isinstance(res, list)
 
-    def test_simulated_annealing_smoke(self, sample_data, bins_coord_dict, dist_matrix):
+    def test_simulated_annealing_smoke(self, sample_data, bins_coord_dict, dist_matrix, rng):
         """Test simulated annealing optimization."""
         routes = [[1, 2, 3], [4, 5, 6]]
         id_to_index = {i: i for i in range(7)}
@@ -311,6 +300,7 @@ class TestLookAheadSolutions:
             id_to_index=id_to_index,
             data=sample_data,
             vehicle_capacity=1000.0,
+            rng=rng,
         )
         assert isinstance(res, tuple)
         assert len(res) == 5

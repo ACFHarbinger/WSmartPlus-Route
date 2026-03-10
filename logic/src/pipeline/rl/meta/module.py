@@ -35,7 +35,7 @@ class MetaRLModule(pl.LightningModule):
     ):
         """Initialize MetaRLModule."""
         super().__init__()
-        self.save_hyperparameters(ignore=["agent"])
+        self.save_hyperparameters(ignore=["agent", "env", "kwargs", "generator"])
         self.agent = agent
 
         # Initial weights configuration

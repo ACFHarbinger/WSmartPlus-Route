@@ -68,7 +68,7 @@ class MixMultiDistributions(BaseDistribution):
                 coords[mask] = torch.rand(n_samples, num_loc, 2, generator=generator)
             else:
                 dist = cls(**kwargs)
-                coords[mask] = dist.sample_tensor((n_samples, num_loc, 2), generator=generator)
+                coords[mask] = dist._sample_tensor((n_samples, num_loc, 2), generator=generator)
 
         return coords.clamp_(0, 1)
 
@@ -98,7 +98,7 @@ class MixMultiDistributions(BaseDistribution):
             else:
                 # Instantiate the distribution class and call its array strategy
                 dist = cls(**kwargs)
-                # Ensure the class implements sample_array
-                coords[mask] = dist.sample_array((n_samples, num_loc, 2), rng=rng)
+                # Ensure the class implements _sample_array
+                coords[mask] = dist._sample_array((n_samples, num_loc, 2), rng=rng)
 
         return np.clip(coords, 0, 1)

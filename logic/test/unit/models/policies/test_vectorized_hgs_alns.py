@@ -21,7 +21,8 @@ def test_vectorized_hgs_alns():
         population_size=10,
         n_generations=2,
         elite_size=2,
-        alns_education_iterations=5
+        alns_education_iterations=5,
+        device=device
     ).to(device)
 
     out = policy(td)

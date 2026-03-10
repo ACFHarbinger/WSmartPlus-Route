@@ -73,7 +73,9 @@ class Empirical(BaseDistribution):
         batch_size = size[0]
         if self.dataset is not None:
             if isinstance(self.dataset, pandas.DataFrame):
-                vals = self.dataset.sample(n=batch_size, generator=generator).values
+                # Use generator seed for pandas reproducibility
+                rs = generator.initial_seed() if generator else 42
+                vals = self.dataset.sample(n=batch_size, random_state=rs).values
                 vals_tensor = torch.tensor(vals).float() / 100.0
             elif isinstance(self.dataset, np.ndarray):
                 vals = self.dataset[np.random.choice(len(self.dataset), batch_size)]

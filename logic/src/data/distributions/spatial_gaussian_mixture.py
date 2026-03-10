@@ -101,7 +101,7 @@ class GaussianMixture(BaseDistribution):
                 center = torch.rand((1, 2), generator=generator) * self.cdist
                 cov = torch.eye(2)
                 nxy = torch.distributions.MultivariateNormal(center.squeeze(), covariance_matrix=cov).sample(
-                    torch.Size([num]), generator=generator
+                    torch.Size([num])
                 )
                 coords = torch.cat((coords, nxy), dim=0)
 
@@ -127,7 +127,7 @@ class GaussianMixture(BaseDistribution):
         for i in range(batch_size):
             cov_matrix = torch.tensor([[1.0, covs[i]], [covs[i], 1.0]])
             m = torch.distributions.MultivariateNormal(mean[i], covariance_matrix=cov_matrix)
-            coords[i] = m.sample(torch.Size([num_loc]), generator=generator)
+            coords[i] = m.sample()
 
         indices = torch.randperm(coords.size(0), generator=generator)
         coords = coords[indices]

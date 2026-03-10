@@ -135,6 +135,8 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
         # 3. Iterative Stochastic Local Search
         # Pre-sample operators for all iterations
+        self.probs = self.probs.to(device)
+
         op_indices = torch.multinomial(
             self.probs, self.n_iterations, replacement=True, generator=self.generator
         ).tolist()
@@ -179,3 +181,19 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             "log_likelihood": torch.zeros(batch_size, device=device),
             "cost": costs,
         }
+
+    def __getstate__(self):
+        """Prepare state for pickling (handle non-picklable Generator)."""
+        state = self.__dict__.copy()
+        state["generator_state"] = self.generator.get_state()
+        state["generator_device"] = str(self.generator.device)
+        del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state")
+        gen_device = state.pop("generator_device")
+        self.__dict__.update(state)
+        self.generator = torch.Generator(device=gen_device)
+        self.generator.set_state(gen_state)

@@ -2,7 +2,7 @@
 Spatial sampling distributions - Distance-based.
 """
 
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -21,7 +21,9 @@ class Distance(BaseDistribution):
         """
         self.depot, self.loc = graph
 
-    def _sample_array(self, rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.RandomState]] = None
+    ) -> np.ndarray:
         """Sample from distance-based distribution.
 
         Returns:
@@ -31,36 +33,31 @@ class Distance(BaseDistribution):
             # Single instance: depot is [coords], loc is [num_loc, coords]
             # Reshape for broadcasting
             wp = np.linalg.norm(self.depot[None, :] - self.loc, axis=-1)
-            return (1 + (wp / wp.max() * 99).astype(int)) / 100.0
+            # Clip or repeat to match size if necessary, but usually size matches [num_loc]
+            res = (1 + (wp / wp.max() * 99).astype(int)) / 100.0
+            return np.broadcast_to(res, size)
         else:
             # Batch: depot is [batch_size, coords], loc is [batch_size, num_loc, coords]
-            # Matching generation.py's depot[:, None, :] - loc
             wp = np.linalg.norm(self.depot[:, None, :] - self.loc, axis=-1)
-            return (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.0
+            res = (1 + (wp / wp.max(axis=-1, keepdims=True) * 99).astype(int)) / 100.0
+            return np.broadcast_to(res, size)
 
-    def _sample_tensor(self, generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """PyTorch version of distance-based sampling."""
-        # Ensure inputs are tensors (standardizing in case they are still numpy)
+        # Ensure inputs are tensors
         depot = torch.as_tensor(self.depot).float()
         loc = torch.as_tensor(self.loc).float()
         if depot.ndim == 1:
-            # Single instance: depot [2], loc [num_loc, 2]
-            # Using [None, :] is equivalent to .unsqueeze(0)
             diff = depot[None, :] - loc
             wp = torch.linalg.vector_norm(diff, dim=-1)
-
-            # Logic: (1 + int(dist/max * 99)) / 100
-            # .to(torch.int) handles the floor truncation for positive numbers
             wp_max = wp.max()
             scaled = 1 + (wp / wp_max * 99).to(torch.int)
-            return scaled.float() / 100.0
+            res = scaled.float() / 100.0
+            return res.expand(size)
         else:
-            # Batch: depot [batch_size, 2], loc [batch_size, num_loc, 2]
-            # Broadcasts to [batch_size, num_loc, 2]
             diff = depot[:, None, :] - loc
             wp = torch.linalg.vector_norm(diff, dim=-1)
-
-            # Max along the location dimension (axis=-1)
             wp_max = wp.max(dim=-1, keepdim=True).values
             scaled = 1 + (wp / wp_max * 99).to(torch.int)
-            return scaled.float() / 100.0
+            res = scaled.float() / 100.0
+            return res.expand(size)

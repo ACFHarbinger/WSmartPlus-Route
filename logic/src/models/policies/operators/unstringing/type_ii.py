@@ -75,8 +75,8 @@ def _find_best_type_ii_move(
         # Determine (j, k) pairs
         if sample_size > 0:
             n_samples = min(sample_size, (n_valid - 2) * (n_valid - 3) // 2)
-            k_samples = torch.randint(i_idx + 2, n_valid, (n_samples,), generator=generator)
-            j_samples = torch.randint(0, n_valid, (n_samples,), generator=generator)
+            k_samples = torch.randint(i_idx + 2, n_valid, (n_samples,), device=device, generator=generator)
+            j_samples = torch.randint(0, n_valid, (n_samples,), device=device, generator=generator)
             # For Type II: i < j < k in circular order usually,
             # but the pattern can vary. Let's stick to the original logic's pairs.
             valid_pairs = k_samples > (j_samples + 1)  # simple constraint

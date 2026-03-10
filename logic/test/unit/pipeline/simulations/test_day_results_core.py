@@ -19,7 +19,8 @@ class TestDayResults:
             new_overflows=0,
             sum_lost=0.0,
             coordinates=coords,
-            profit=480.0
+            profit=480.0,
+            time=0.1
         )
         assert res["day"] == 1
         assert res["kg"] == 500.0
@@ -40,7 +41,8 @@ class TestDayResults:
             new_overflows=1,
             sum_lost=10.0,
             coordinates=coords,
-            profit=0.0
+            profit=0.0,
+            time=0.1
         )
         assert res["kg"] == 0
         assert res["km"] == 0

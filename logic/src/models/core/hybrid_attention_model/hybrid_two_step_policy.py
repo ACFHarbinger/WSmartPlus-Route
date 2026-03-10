@@ -118,6 +118,28 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
             embed_dim=embed_dim, n_operators=len(self.OPERATORS), hidden_dim=hidden_dim
         )
 
+    def __getstate__(self) -> Dict[str, Any]:
+        """Return state for pickling."""
+        state = self.__dict__.copy()
+        # Handle torch.Generator which is not picklable
+        if "generator" in state:
+            gen = state["generator"]
+            state["generator_state"] = gen.get_state()
+            state["generator_device"] = str(gen.device)
+            del state["generator"]
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after pickling."""
+        if "generator_state" in state:
+            gen_state = state.pop("generator_state")
+            gen_device = state.pop("generator_device")
+            # Create a new generator on the same device
+            gen = torch.Generator(device=gen_device)
+            gen.set_state(gen_state)
+            state["generator"] = gen
+        self.__dict__.update(state)
+
     def _initialize_tours(
         self, td: TensorDict, env: RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs
     ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -128,6 +150,7 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
 
         batch_size = td.size(0)
         device = td["locs"].device
+
         graph_context = embeddings.mean(dim=1)
         init_logits = self.init_router(graph_context)
 
