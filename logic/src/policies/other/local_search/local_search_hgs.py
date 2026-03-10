@@ -8,7 +8,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.local_search.local_search_hgs import HGSLocalSearch
+    >>> from logic.src.policies.other.local_search.local_search_hgs import HGSLocalSearch
     >>> ls = HGSLocalSearch(dist_matrix, waste, capacity, R, C, params)
     >>> improved_ind = ls.optimize(individual)
 """

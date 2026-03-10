@@ -131,7 +131,7 @@ class HMMGDSolver(PolicyVizMixin):
                 new_routes = llh(routes, self.params.n_removal)
 
                 # Apply 2-opt after each LLH application
-                from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+                from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
                 ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
                 new_routes = ls.optimize(new_routes)

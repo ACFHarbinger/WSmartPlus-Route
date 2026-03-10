@@ -198,7 +198,7 @@ class HSSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            from logic.src.policies.local_search.local_search_aco import ACOLocalSearch
+            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
             ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
             routes = ls.optimize(routes)
