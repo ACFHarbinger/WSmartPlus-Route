@@ -28,7 +28,9 @@ from .adaptive_large_neighborhood_search import (
 from .ant_colony_optimization import run_hyper_heuristic_aco, run_k_sparse_aco
 from .branch_cut_and_price import run_bcp
 from .cvrp import find_routes, find_routes_ortools
+from .guided_indicators_hyper_heuristic import run_gihh
 from .hybrid_genetic_search import run_hgs
+from .hybrid_genetic_search_ruin_recreate import run_hgsrr
 from .local_search.local_search_aco import ACOLocalSearch
 from .local_search.local_search_base import LocalSearch
 from .local_search.local_search_hgs import HGSLocalSearch
@@ -65,7 +67,9 @@ __all__ = [
     "run_hyper_heuristic_aco",
     "run_k_sparse_aco",
     "run_bcp",
+    "run_gihh",
     "run_hgs",
+    "run_hgsrr",
     "run_sisr",
     "run_vrpp_optimizer",
     "ACOLocalSearch",
