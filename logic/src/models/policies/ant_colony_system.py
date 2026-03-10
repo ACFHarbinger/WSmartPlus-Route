@@ -62,11 +62,34 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         self.n_ants = n_ants
         self.n_iterations = n_iterations
         self.alpha = alpha
+        self.seed = seed
         self.beta = beta
         self.decay = decay
         self.elitism = elitism
         self.q0 = q0
         self.min_pheromone = min_pheromone
+
+    def __getstate__(self) -> Dict[str, Any]:
+        """Return state for pickling."""
+        state = self.__dict__.copy()
+        # Handle torch.Generator which is not picklable
+        if "generator" in state:
+            gen = state["generator"]
+            state["generator_state"] = gen.get_state()
+            state["generator_device"] = str(gen.device)
+            del state["generator"]
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after pickling."""
+        if "generator_state" in state:
+            gen_state = state.pop("generator_state")
+            gen_device = state.pop("generator_device")
+            # Create a new generator on the same device
+            gen = torch.Generator(device=gen_device)
+            gen.set_state(gen_state)
+            state["generator"] = gen
+        self.__dict__.update(state)
 
     def _get_heuristic(self, dist_matrix: torch.Tensor) -> torch.Tensor:
         """Compute heuristic information (eta = 1 / distance)."""
@@ -183,7 +206,9 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
             greedy_mask = rand_val < self.q0
             greedy_action = probs.argmax(dim=-1)
             sample_probs = probs + 1e-10
-            sample_action = torch.multinomial(sample_probs.view(-1, num_nodes), 1).view(batch_size, n_ants)
+            sample_action = torch.multinomial(sample_probs.view(-1, num_nodes), 1, generator=self.generator).view(
+                batch_size, n_ants
+            )
 
             next_node = torch.where(greedy_mask, greedy_action, sample_action)
 

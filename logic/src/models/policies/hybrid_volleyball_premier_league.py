@@ -48,6 +48,28 @@ class VectorizedHVPL(AutoregressivePolicy):
         self.aco_iterations = aco_iterations
         self.alns_iterations = alns_iterations
 
+    def __getstate__(self) -> Dict[str, Any]:
+        """Return state for pickling."""
+        state = self.__dict__.copy()
+        # Handle torch.Generator which is not picklable
+        if "generator" in state:
+            gen = state["generator"]
+            state["generator_state"] = gen.get_state()
+            state["generator_device"] = str(gen.device)
+            del state["generator"]
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after pickling."""
+        if "generator_state" in state:
+            gen_state = state.pop("generator_state")
+            gen_device = state.pop("generator_device")
+            # Create a new generator on the same device
+            gen = torch.Generator(device=gen_device)
+            gen.set_state(gen_state)
+            state["generator"] = gen
+        self.__dict__.update(state)
+
     def forward(
         self,
         td: TensorDict,
@@ -135,7 +157,7 @@ class VectorizedHVPL(AutoregressivePolicy):
         batch_size = population_tours.shape[0]
         device = population_tours.device
 
-        alns_engine = VectorizedALNS(dist_matrix=dist, wastes=waste, vehicle_capacity=capacity, device=device)
+        alns_engine = VectorizedALNS(dist_matrix=dist, wastes=waste, vehicle_capacity=capacity, device=str(device))
 
         flat_tours = population_tours.view(batch_size * self.n_teams, -1)
         coached_routes_list, coached_costs = alns_engine.solve(
@@ -259,9 +281,9 @@ class VectorizedHVPL(AutoregressivePolicy):
             scores.masked_fill_(visited, 0)
 
             probs = scores / (scores.sum(dim=-1, keepdim=True) + 1e-10)
-            next_node = torch.multinomial(
-                probs.view(-1, num_nodes), 1, device=self.device, generator=self.generator
-            ).view(batch_size, n_ants_per_instance)
+            next_node = torch.multinomial(probs.view(-1, num_nodes), 1, generator=self.generator).view(
+                batch_size, n_ants_per_instance
+            )
 
             current_node = next_node
             visited.scatter_(2, current_node.unsqueeze(2), 1)

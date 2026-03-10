@@ -75,9 +75,9 @@ def _find_best_type_iii_move(
         # Sample or enumerate (k, j, l)
         if sample_size > 0:
             n_samples = min(sample_size, n_valid**3)
-            k_s = torch.randint(0, n_valid, (n_samples,), generator=generator)
-            j_s = torch.randint(0, n_valid, (n_samples,), generator=generator)
-            l_s = torch.randint(0, n_valid, (n_samples,), generator=generator)
+            k_s = torch.randint(0, n_valid, (n_samples,), device=device, generator=generator)
+            j_s = torch.randint(0, n_valid, (n_samples,), device=device, generator=generator)
+            l_s = torch.randint(0, n_valid, (n_samples,), device=device, generator=generator)
             # Valid Type III: usually i < k < j < l in circular order
             valid = (k_s > i_idx) & (j_s > k_s) & (l_s > j_s)
             k_s, j_s, l_s = k_s[valid], j_s[valid], l_s[valid]

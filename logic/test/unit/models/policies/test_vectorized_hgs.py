@@ -20,7 +20,8 @@ def test_vectorized_hgs():
         time_limit=0.5,
         population_size=10,
         n_generations=5,
-        elite_size=2
+        elite_size=2,
+        device=device
     ).to(device)
 
     out = policy(td)

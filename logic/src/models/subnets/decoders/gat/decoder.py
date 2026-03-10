@@ -46,7 +46,8 @@ class DeepGATDecoder(nn.Module):
         self.mask_logits = mask_logits
         self.tanh_clipping = tanh_clipping
         self.seed = seed
-        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
+        device = kwargs.get("device", "cpu")
+        self.generator = torch.Generator(device=device).manual_seed(self.seed)
         self.temp = temp
 
         self.decoder = GraphAttentionDecoder(
@@ -64,6 +65,11 @@ class DeepGATDecoder(nn.Module):
         # Input to project_fixed_context is graph_embed (embed_dim)
         self.project_fixed_context = nn.Linear(embed_dim, embed_dim, bias=False)
         self.project_step_context = nn.Linear(2 * embed_dim + 1, embed_dim, bias=False)
+
+    @property
+    def device(self) -> torch.device:
+        """Get device of the model."""
+        return next(self.parameters()).device
 
     def forward(
         self,
@@ -155,6 +161,22 @@ class DeepGATDecoder(nn.Module):
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
         return selected
+
+    def __getstate__(self):
+        """Prepare state for pickling (handle non-picklable Generator)."""
+        state = self.__dict__.copy()
+        state["generator_state"] = self.generator.get_state()
+        state["generator_device"] = str(self.generator.device)
+        del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state")
+        gen_device = state.pop("generator_device")
+        self.__dict__.update(state)
+        self.generator = torch.Generator(device=gen_device)
+        self.generator.set_state(gen_state)
 
     def _precompute(self, embeddings, num_steps=1):
         """Precompute fixed context for decoding."""

@@ -76,9 +76,9 @@ def _find_best_type_iv_move(
         if sample_size > 0:
             ns = min(sample_size, n_valid**3)
             j_s, l_s, k_s = (
-                torch.randint(0, n_valid, (ns,), generator=generator),
-                torch.randint(0, n_valid, (ns,), generator=generator),
-                torch.randint(0, n_valid, (ns,), generator=generator),
+                torch.randint(0, n_valid, (ns,), device=device, generator=generator),
+                torch.randint(0, n_valid, (ns,), device=device, generator=generator),
+                torch.randint(0, n_valid, (ns,), device=device, generator=generator),
             )
             # Valid Type IV: i < j < l < k
             valid = (j_s > i_idx) & (l_s > j_s) & (k_s > l_s)

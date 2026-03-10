@@ -60,7 +60,7 @@ class HRLModule(pl.LightningModule):
             **kwargs: Additional keyword arguments.
         """
         super().__init__()
-        self.save_hyperparameters(ignore=["manager", "worker", "env"])
+        self.save_hyperparameters(ignore=["manager", "worker", "env", "kwargs", "generator"])
         self.manager = manager
         self.worker = worker
         self.env = env

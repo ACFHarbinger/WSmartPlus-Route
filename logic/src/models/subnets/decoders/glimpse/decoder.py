@@ -71,7 +71,8 @@ class GlimpseDecoder(nn.Module):
         self.spatial_bias_scale = spatial_bias_scale
         self.strategy = strategy
         self.seed = seed
-        self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
+        device = kwargs.get("device", "cpu")
+        self.generator = torch.Generator(device=device).manual_seed(self.seed)
 
         # Project node embeddings to MHA heads
         self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
@@ -80,6 +81,11 @@ class GlimpseDecoder(nn.Module):
 
         # Step context dim can be overridden
         self.step_context_dim = embed_dim
+
+    @property
+    def device(self) -> torch.device:
+        """Get device of the model."""
+        return next(self.parameters()).device
 
     def set_step_context_dim(self, dim: int):
         """Sets the dimension of the step context projection."""
@@ -216,6 +222,24 @@ class GlimpseDecoder(nn.Module):
             raise ValueError(f"Unknown decoding strategy: {strategy}")
 
         return selected
+
+    def __getstate__(self):
+        """Prepare state for pickling (handle non-picklable Generator)."""
+        state = self.__dict__.copy()
+        # Generator is not picklable, save state as tensor
+        state["generator_state"] = self.generator.get_state()
+        state["generator_device"] = str(self.generator.device)
+        del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state")
+        gen_device = state.pop("generator_device")
+        self.__dict__.update(state)
+        # Restore generator
+        self.generator = torch.Generator(device=gen_device)
+        self.generator.set_state(gen_state)
 
     def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> AttentionDecoderCache:
         """Precompute K,V for the attention mechanism."""

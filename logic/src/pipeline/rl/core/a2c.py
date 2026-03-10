@@ -88,7 +88,7 @@ class A2C(RL4COLitModule):
         )
         self.automatic_optimization = False
 
-        self.save_hyperparameters(ignore=["env", "policy", "critic"])
+        self.save_hyperparameters(ignore=["env", "policy", "critic", "kwargs", "generator"])
 
         # Critic network
         if critic is None:

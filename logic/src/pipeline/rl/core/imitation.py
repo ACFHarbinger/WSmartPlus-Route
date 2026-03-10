@@ -57,7 +57,7 @@ class ImitationLearning(RL4COLitModule):
         kwargs["baseline"] = "none"
 
         # Exclude non-serializable objects from hyperparameters
-        self.save_hyperparameters(ignore=["policy_config", "env", "policy"])
+        self.save_hyperparameters(ignore=["policy_config", "env", "policy", "kwargs", "generator"])
 
         super().__init__(**kwargs)
 

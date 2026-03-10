@@ -64,7 +64,7 @@ class AdaptiveImitation(REINFORCE):
             **kwargs: Arguments passed to REINFORCE.
         """
         # Exclude non-serializable objects from hyperparameters
-        self.save_hyperparameters(ignore=["policy_config", "env", "policy"])
+        self.save_hyperparameters(ignore=["policy_config", "env", "policy", "generator"])
         if hasattr(self, "hparams"):
             keys_to_remove = []
             allowed_types = (int, float, str, bool, type(None), torch.Tensor)

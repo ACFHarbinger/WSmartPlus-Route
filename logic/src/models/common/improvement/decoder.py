@@ -29,6 +29,11 @@ class ImprovementDecoder(nn.Module, ABC):
         super().__init__()
         self.embed_dim = embed_dim
 
+    @property
+    def device(self) -> torch.device:
+        """Get device of the model."""
+        return next(self.parameters()).device
+
     @abstractmethod
     def forward(
         self,

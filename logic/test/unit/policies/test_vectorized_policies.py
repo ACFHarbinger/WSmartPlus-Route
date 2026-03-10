@@ -152,7 +152,7 @@ class TestVectorizedPolicies:
         B, N = 2, 5
         p1 = torch.stack([torch.randperm(N) + 1 for _ in range(B)]).to(v_device)
         p2 = torch.stack([torch.randperm(N) + 1 for _ in range(B)]).to(v_device)
-        offspring = vectorized_ordered_crossover(p1, p2, device=v_device)
+        offspring = vectorized_ordered_crossover(p1, p2, v_device, None)
         assert offspring.size() == (B, N)
         assert len(torch.unique(offspring[0])) == N
 

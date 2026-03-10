@@ -39,15 +39,14 @@ class BaseDistribution(ABC):
         Returns:
             Union[np.ndarray, torch.Tensor]: Sampled values.
         """
-        sampling_strategies = {
-            "sample_array": lambda s: np.clip(self._sample_array(s, rng=rng), 0, MAX_WASTE),
-            "sample_tensor": lambda s: torch.clamp(self._sample_tensor(s, generator=rng), min=0.0, max=MAX_WASTE),
-        }
-
-        if self._sampling_method not in sampling_strategies:
+        if self._sampling_method == "sample_array":
+            assert rng is None or isinstance(rng, np.random.RandomState)
+            return np.clip(self._sample_array(size, rng=rng), 0, MAX_WASTE)  # type: ignore[arg-type]
+        elif self._sampling_method == "sample_tensor":
+            assert rng is None or isinstance(rng, torch.Generator)
+            return torch.clamp(self._sample_tensor(size, generator=rng), min=0.0, max=MAX_WASTE)  # type: ignore[arg-type]
+        else:
             raise ValueError(f"Unsupported sample_method: {self._sampling_method}")
-
-        return sampling_strategies[self._sampling_method](size)
 
     @abstractmethod
     def _sample_array(

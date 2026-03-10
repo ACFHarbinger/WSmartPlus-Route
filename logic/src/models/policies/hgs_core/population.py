@@ -47,6 +47,26 @@ class VectorizedPopulation:
         self.biased_fitness: torch.Tensor = torch.empty(0)  # (B, P)
         self.diversity_scores: torch.Tensor = torch.empty(0)  # (B, P)
 
+    def __getstate__(self):
+        """Prepare state for pickling."""
+        state = self.__dict__.copy()
+        if "generator" in state and state["generator"] is not None:
+            state["generator_state"] = state["generator"].get_state()
+            state["generator_device"] = str(state["generator"].device)
+            del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state", None)
+        gen_device = state.pop("generator_device", None)
+        self.__dict__.update(state)
+        if gen_state is not None:
+            self.generator = torch.Generator(device=gen_device)
+            self.generator.set_state(gen_state)
+        else:
+            self.generator = torch.Generator(device="cpu").manual_seed(42)
+
     def initialize(self, initial_pop: torch.Tensor, initial_costs: torch.Tensor):
         """
         Initializes the population with a set of starting solutions.

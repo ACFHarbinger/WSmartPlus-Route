@@ -133,7 +133,15 @@ class WCVRPGenerator(Generator):
             self._generate_depot(batch_size).view(bs, 2),
             self._generate_locations(batch_size).view(bs, self.num_loc, 2),
         )
-        fill = generate_waste(self.num_loc, self.fill_distribution, coords, bs, grid=self.grid, rng=self.generator)
+        fill = generate_waste(
+            self.num_loc,
+            self.fill_distribution,
+            coords,
+            bs,
+            grid=self.grid,
+            rng=self.rng,
+            sample_method="sample_array",
+        )
         if isinstance(fill, np.ndarray):
             fill = torch.from_numpy(fill).float()
         return fill.to(self.device).view(*batch_size, self.num_loc)

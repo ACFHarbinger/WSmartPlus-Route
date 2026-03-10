@@ -45,6 +45,22 @@ class ConstructivePolicy(nn.Module, ABC):
         self.generator = torch.Generator(device=device).manual_seed(seed)
         self.rng = random.Random(seed) if seed is not None else random.Random()
 
+    def __getstate__(self):
+        """Prepare state for pickling (handle non-picklable Generator)."""
+        state = self.__dict__.copy()
+        state["generator_state"] = self.generator.get_state()
+        state["generator_device"] = str(self.generator.device)
+        del state["generator"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling."""
+        gen_state = state.pop("generator_state")
+        gen_device = state.pop("generator_device")
+        self.__dict__.update(state)
+        self.generator = torch.Generator(device=gen_device)
+        self.generator.set_state(gen_state)
+
     @abstractmethod
     def forward(
         self,
