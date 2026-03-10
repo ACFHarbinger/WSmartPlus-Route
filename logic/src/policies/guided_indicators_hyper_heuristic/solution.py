@@ -135,10 +135,7 @@ def create_initial_solution(
     nodes = list(range(1, n_nodes + 1))
 
     # Ensure mandatory nodes are visited
-    if mandatory_nodes:
-        unvisited = set(mandatory_nodes)
-    else:
-        unvisited = set(nodes)
+    unvisited = set(mandatory_nodes) if mandatory_nodes else set(nodes)
 
     routes: List[List[int]] = []
     current_route: List[int] = []
@@ -146,11 +143,7 @@ def create_initial_solution(
 
     # Greedy construction: nearest feasible node
     while unvisited:
-        if len(current_route) == 0:
-            # Start new route from depot
-            last_node = 0
-        else:
-            last_node = current_route[-1]
+        last_node = 0 if len(current_route) == 0 else current_route[-1]
 
         # Find nearest feasible node
         best_node = None

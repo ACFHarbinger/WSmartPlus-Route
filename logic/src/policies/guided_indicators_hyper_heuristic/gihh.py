@@ -8,12 +8,11 @@ the adaptive selection of low-level heuristics during local search.
 import random
 import time
 from collections import deque
-from typing import Any, Deque, Dict, List, Optional, Tuple
+from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
-from logic.src.policies.tsp import get_route_cost
 
 from .indicators import ImprovementRateIndicator, TimeBasedIndicator
 from .params import GIHHParams
@@ -247,21 +246,19 @@ class GIHHSolver(PolicyVizMixin):
                         elif "two_opt" in operator:
                             route[i : j + 1] = reversed(route[i : j + 1])
 
-            elif "inter" in operator:
-                # Inter-route move
-                if len(candidate.routes) >= 2:
-                    r1_idx, r2_idx = self.rng.sample(range(len(candidate.routes)), 2)
-                    r1, r2 = candidate.routes[r1_idx], candidate.routes[r2_idx]
-                    if len(r1) > 0 and len(r2) > 0:
-                        i = self.rng.randint(0, len(r1) - 1)
-                        j = self.rng.randint(0, len(r2) - 1)
-                        if "swap" in operator:
-                            r1[i], r2[j] = r2[j], r1[i]
-                        elif "relocate" in operator:
-                            node = r1.pop(i)
-                            r2.insert(j, node)
-                        elif "exchange" in operator:
-                            r1[i], r2[j] = r2[j], r1[i]
+            elif "inter" in operator and len(candidate.routes) >= 2:
+                r1_idx, r2_idx = self.rng.sample(range(len(candidate.routes)), 2)
+                r1, r2 = candidate.routes[r1_idx], candidate.routes[r2_idx]
+                if len(r1) > 0 and len(r2) > 0:
+                    i = self.rng.randint(0, len(r1) - 1)
+                    j = self.rng.randint(0, len(r2) - 1)
+                    if "swap" in operator:
+                        r1[i], r2[j] = r2[j], r1[i]
+                    elif "relocate" in operator:
+                        node = r1.pop(i)
+                        r2.insert(j, node)
+                    elif "exchange" in operator:
+                        r1[i], r2[j] = r2[j], r1[i]
 
             candidate.evaluate()
             # Only accept if feasible and better

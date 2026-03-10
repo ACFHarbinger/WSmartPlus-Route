@@ -11,7 +11,7 @@ import numpy as np
 from logic.src.configs.policies import VRPPConfig
 from logic.src.policies.adapters.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.adapters.factory import PolicyRegistry
-from logic.src.policies.vehicle_routing_problem_with_profits.interface import run_vrpp_optimizer
+from logic.src.policies.vehicle_routing_problem_with_profits.dispatcher import run_vrpp_optimizer
 
 
 @PolicyRegistry.register("vrpp")

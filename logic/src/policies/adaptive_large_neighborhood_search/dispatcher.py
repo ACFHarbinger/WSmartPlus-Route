@@ -1,0 +1,48 @@
+"""
+ALNS Dispatcher module.
+
+Dispatches to different ALNS implementations based on configuration.
+"""
+
+from .alns import ALNSSolver
+from .alns_package import run_alns_package
+from .ortools_wrapper import run_alns_ortools
+from .params import ALNSParams
+
+
+def run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
+    """
+    Main ALNS entry point with dispatching to different algorithm variants.
+
+    Args:
+        dist_matrix: Distance matrix.
+        wastes: Bin wastes.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Dictionary of parameters and config.
+        mandatory_nodes: List of mandatory node indices.
+        *args: Additional arguments (ignored or passed through).
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
+    """
+    variant = values.get("variant") or values.get("engine") or "custom"
+
+    if variant == "package":
+        return run_alns_package(dist_matrix, wastes, capacity, R, C, values)
+    elif variant == "ortools":
+        return run_alns_ortools(dist_matrix, wastes, capacity, R, C, values)
+
+    # Default: Custom internal ALNS solver
+    params = ALNSParams(
+        time_limit=values.get("time_limit", 10),
+        max_iterations=values.get("max_iterations", 2000),
+        start_temp=values.get("start_temp", 100.0),
+        cooling_rate=values.get("cooling_rate", 0.995),
+        reaction_factor=values.get("reaction_factor", 0.1),
+        min_removal=values.get("min_removal", 1),
+        max_removal_pct=values.get("max_removal_pct", 0.3),
+    )
+    solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
+    return solver.solve()
