@@ -9,9 +9,11 @@ from .alns import ALNSConfig
 from .bcp import BCPConfig
 from .cvrp import CVRPConfig
 from .fa import FAConfig
+from .gihh import GIHHConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
+from .hgsrr import HGSRRConfig
 from .hmm_gd import HMMGDConfig
 from .hs import HSConfig
 from .hvpl import HVPLConfig
@@ -38,8 +40,10 @@ __all__ = [
     "ALNSConfig",
     "BCPConfig",
     "CVRPConfig",
+    "GIHHConfig",
     "HGSConfig",
     "HGSALNSConfig",
+    "HGSRRConfig",
     "HVPLConfig",
     "LKHConfig",
     "NeuralConfig",
