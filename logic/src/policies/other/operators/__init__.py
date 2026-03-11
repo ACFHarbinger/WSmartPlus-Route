@@ -59,10 +59,6 @@ from .intra_route import (
 
 # Perturbation operators
 from .perturbation import (
-    apply_type_i_us,
-    apply_type_ii_us,
-    apply_type_iii_us,
-    apply_type_iv_us,
     kick,
     perturb,
 )
@@ -73,6 +69,18 @@ from .repair import (
     greedy_insertion_with_blinks,
     regret_2_insertion,
     regret_k_insertion,
+)
+
+# Unstringing and stringing (US)
+from .unstringing_stringing import (
+    apply_type_i_s,
+    apply_type_i_us,
+    apply_type_ii_s,
+    apply_type_ii_us,
+    apply_type_iii_s,
+    apply_type_iii_us,
+    apply_type_iv_s,
+    apply_type_iv_us,
 )
 
 __all__ = [
@@ -110,10 +118,15 @@ __all__ = [
     # Perturbation
     "perturb",
     "kick",
+    # Unstringing and stringing (US)
     "apply_type_i_us",
     "apply_type_ii_us",
     "apply_type_iii_us",
     "apply_type_iv_us",
+    "apply_type_i_s",
+    "apply_type_ii_s",
+    "apply_type_iii_s",
+    "apply_type_iv_s",
     # Heuristics
     "build_greedy_routes",
     "build_nn_routes",
