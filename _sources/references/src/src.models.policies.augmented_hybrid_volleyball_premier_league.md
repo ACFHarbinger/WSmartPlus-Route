@@ -37,6 +37,22 @@ Bases: {py:obj}`logic.src.models.policies.hybrid_volleyball_premier_league.Vecto
 ```{autodoc2-docstring} src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__init__
 ```
 
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
+:canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__getstate__
+
+```{autodoc2-docstring} src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
+:canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__setstate__
+
+```{autodoc2-docstring} src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__setstate__
+```
+
+````
+
 ````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.forward
 

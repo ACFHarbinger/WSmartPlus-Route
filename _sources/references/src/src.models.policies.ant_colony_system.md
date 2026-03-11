@@ -37,6 +37,22 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy.__init__
 ```
 
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
+:canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__
+
+```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
+:canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__
+
+```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__
+```
+
+````
+
 ````{py:method} _get_heuristic(dist_matrix: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic
 

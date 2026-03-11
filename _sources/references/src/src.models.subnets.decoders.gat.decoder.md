@@ -37,6 +37,15 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.gat.decoder.DeepGATDecoder.__init__
 ```
 
+````{py:property} device
+:canonical: src.models.subnets.decoders.gat.decoder.DeepGATDecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.subnets.decoders.gat.decoder.DeepGATDecoder.device
+```
+
+````
+
 ````{py:method} forward(input: torch.Tensor, embeddings: torch.Tensor, fixed_context: typing.Optional[torch.Tensor] = None, init_context: typing.Optional[torch.Tensor] = None, env: typing.Optional[typing.Any] = None, expert_pi: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any)
 :canonical: src.models.subnets.decoders.gat.decoder.DeepGATDecoder.forward
 
@@ -57,6 +66,22 @@ Bases: {py:obj}`torch.nn.Module`
 :canonical: src.models.subnets.decoders.gat.decoder.DeepGATDecoder._select_node
 
 ```{autodoc2-docstring} src.models.subnets.decoders.gat.decoder.DeepGATDecoder._select_node
+```
+
+````
+
+````{py:method} __getstate__()
+:canonical: src.models.subnets.decoders.gat.decoder.DeepGATDecoder.__getstate__
+
+```{autodoc2-docstring} src.models.subnets.decoders.gat.decoder.DeepGATDecoder.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.subnets.decoders.gat.decoder.DeepGATDecoder.__setstate__
+
+```{autodoc2-docstring} src.models.subnets.decoders.gat.decoder.DeepGATDecoder.__setstate__
 ```
 
 ````

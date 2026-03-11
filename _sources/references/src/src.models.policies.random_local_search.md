@@ -45,4 +45,20 @@ Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`, {
 
 ````
 
+````{py:method} __getstate__()
+:canonical: src.models.policies.random_local_search.RandomLocalSearchPolicy.__getstate__
+
+```{autodoc2-docstring} src.models.policies.random_local_search.RandomLocalSearchPolicy.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.policies.random_local_search.RandomLocalSearchPolicy.__setstate__
+
+```{autodoc2-docstring} src.models.policies.random_local_search.RandomLocalSearchPolicy.__setstate__
+```
+
+````
+
 `````

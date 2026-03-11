@@ -35,6 +35,22 @@
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.__init__
 ```
 
+````{py:method} __getstate__()
+:canonical: src.models.policies.hgs_core.population.VectorizedPopulation.__getstate__
+
+```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.policies.hgs_core.population.VectorizedPopulation.__setstate__
+
+```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.__setstate__
+```
+
+````
+
 ````{py:method} initialize(initial_pop: torch.Tensor, initial_costs: torch.Tensor)
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.initialize
 

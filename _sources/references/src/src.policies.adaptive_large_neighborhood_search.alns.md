@@ -21,18 +21,6 @@
     ```
 ````
 
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`run_alns <src.policies.adaptive_large_neighborhood_search.alns.run_alns>`
-  - ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.run_alns
-    :summary:
-    ```
-````
-
 ### API
 
 `````{py:class} ALNSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.adaptive_large_neighborhood_search.params.ALNSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
@@ -114,10 +102,3 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 ````
 
 `````
-
-````{py:function} run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args)
-:canonical: src.policies.adaptive_large_neighborhood_search.alns.run_alns
-
-```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.run_alns
-```
-````

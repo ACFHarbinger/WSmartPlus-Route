@@ -37,6 +37,22 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__init__
 ```
 
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
+:canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__getstate__
+
+```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
+:canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__setstate__
+
+```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__setstate__
+```
+
+````
+
 ````{py:method} _initialize_tours(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours
 

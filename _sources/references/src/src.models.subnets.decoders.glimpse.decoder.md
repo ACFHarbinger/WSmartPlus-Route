@@ -37,6 +37,15 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.__init__
 ```
 
+````{py:property} device
+:canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.device
+```
+
+````
+
 ````{py:method} set_step_context_dim(dim: int)
 :canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.set_step_context_dim
 
@@ -73,6 +82,22 @@ Bases: {py:obj}`torch.nn.Module`
 :canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._select_node
 
 ```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._select_node
+```
+
+````
+
+````{py:method} __getstate__()
+:canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.__getstate__
+
+```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.__setstate__
+
+```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.__setstate__
 ```
 
 ````

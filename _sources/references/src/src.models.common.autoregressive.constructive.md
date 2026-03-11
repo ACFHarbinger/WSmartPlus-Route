@@ -37,6 +37,22 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy.__init__
 ```
 
+````{py:method} __getstate__()
+:canonical: src.models.common.autoregressive.constructive.ConstructivePolicy.__getstate__
+
+```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.common.autoregressive.constructive.ConstructivePolicy.__setstate__
+
+```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy.__setstate__
+```
+
+````
+
 ````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> dict
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy.forward
 :abstractmethod:

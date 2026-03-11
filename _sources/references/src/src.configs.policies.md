@@ -46,6 +46,7 @@ src.configs.policies.gphh
 src.configs.policies.vns
 src.configs.policies.hgs_alns
 src.configs.policies.hmm_gd
+src.configs.policies.hgsrr
 src.configs.policies.oba
 src.configs.policies.hvpl
 src.configs.policies.sa
@@ -56,6 +57,7 @@ src.configs.policies.sans
 src.configs.policies.vrpp
 src.configs.policies.psoma
 src.configs.policies.abc
+src.configs.policies.gihh
 ```
 
 ## Package Contents
@@ -77,7 +79,7 @@ src.configs.policies.abc
 ````{py:data} __all__
 :canonical: src.configs.policies.__all__
 :value: >
-   ['ACOConfig', 'AHVPLConfig', 'ALNSConfig', 'BCPConfig', 'CVRPConfig', 'HGSConfig', 'HGSALNSConfig', ...
+   ['ACOConfig', 'AHVPLConfig', 'ALNSConfig', 'BCPConfig', 'CVRPConfig', 'GIHHConfig', 'HGSConfig', 'HG...
 
 ```{autodoc2-docstring} src.configs.policies.__all__
 ```

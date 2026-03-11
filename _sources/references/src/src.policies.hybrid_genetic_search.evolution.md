@@ -15,10 +15,6 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`ordered_crossover <src.policies.hybrid_genetic_search.evolution.ordered_crossover>`
-  - ```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.ordered_crossover
-    :summary:
-    ```
 * - {py:obj}`update_biased_fitness <src.policies.hybrid_genetic_search.evolution.update_biased_fitness>`
   - ```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.update_biased_fitness
     :summary:
@@ -30,13 +26,6 @@
 ````
 
 ### API
-
-````{py:function} ordered_crossover(p1: src.policies.hybrid_genetic_search.individual.Individual, p2: src.policies.hybrid_genetic_search.individual.Individual, rng: typing.Optional[random.Random] = None) -> src.policies.hybrid_genetic_search.individual.Individual
-:canonical: src.policies.hybrid_genetic_search.evolution.ordered_crossover
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.ordered_crossover
-```
-````
 
 ````{py:function} update_biased_fitness(population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, alpha_diversity: float = 0.5, neighbor_size: int = 15)
 :canonical: src.policies.hybrid_genetic_search.evolution.update_biased_fitness

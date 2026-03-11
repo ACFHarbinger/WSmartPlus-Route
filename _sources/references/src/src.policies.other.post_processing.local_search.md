@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} ClassicalLocalSearchPostProcessor
+`````{py:class} ClassicalLocalSearchPostProcessor(**kwargs: typing.Any)
 :canonical: src.policies.other.post_processing.local_search.ClassicalLocalSearchPostProcessor
 
 Bases: {py:obj}`logic.src.interfaces.IPostProcessor`
 
 ```{autodoc2-docstring} src.policies.other.post_processing.local_search.ClassicalLocalSearchPostProcessor
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.other.post_processing.local_search.ClassicalLocalSearchPostProcessor.__init__
 ```
 
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]

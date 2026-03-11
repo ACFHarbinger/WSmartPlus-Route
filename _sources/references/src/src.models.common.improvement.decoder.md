@@ -37,6 +37,15 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.improvement.decoder.ImprovementDecoder.__init__
 ```
 
+````{py:property} device
+:canonical: src.models.common.improvement.decoder.ImprovementDecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.common.improvement.decoder.ImprovementDecoder.device
+```
+
+````
+
 ````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.common.improvement.decoder.ImprovementDecoder.forward
 :abstractmethod:

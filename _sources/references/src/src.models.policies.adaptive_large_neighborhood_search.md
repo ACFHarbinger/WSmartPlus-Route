@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedALNS(dist_matrix, wastes, vehicle_capacity, time_limit=1.0, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None)
+`````{py:class} VectorizedALNS(dist_matrix, wastes, vehicle_capacity, time_limit=1.0, device: str = 'cuda', seed: int = 42, generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS
 
 Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -36,6 +36,22 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ```{autodoc2-docstring} src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.__init__
 ```
+
+````{py:method} __getstate__()
+:canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.__getstate__
+
+```{autodoc2-docstring} src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.__setstate__
+
+```{autodoc2-docstring} src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.__setstate__
+```
+
+````
 
 ````{py:method} solve(initial_solutions: torch.Tensor, n_iterations: int = 2000, time_limit: typing.Optional[float] = None, max_vehicles: int = 0, start_temp: float = 0.5, cooling_rate: float = 0.9995) -> typing.Tuple[typing.List[typing.List[int]], torch.Tensor]
 :canonical: src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.solve

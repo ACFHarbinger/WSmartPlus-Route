@@ -37,6 +37,31 @@ Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`
 ```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.__init__
 ```
 
+````{py:property} device
+:canonical: src.models.core.neuopt.decoder.NeuOptDecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.device
+```
+
+````
+
+````{py:method} __getstate__()
+:canonical: src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__
+
+```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__
+
+```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__
+```
+
+````
+
 ````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.neuopt.decoder.NeuOptDecoder.forward
 

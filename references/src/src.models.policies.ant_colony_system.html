@@ -239,11 +239,11 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_recreate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -252,7 +252,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
@@ -493,6 +493,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy.__getstate__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy.__setstate__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy._get_heuristic()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.forward"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy.forward()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy._construct_solutions()</span></code></a></li>
@@ -559,6 +561,18 @@ min_pheromone (float): Description of min_pheromone.
 seed (int): Description of seed.
 device (str): Description of device.
 kwargs (Any): Description of kwargs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__">
+<span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__" title="Link to this definition">#</a></dt>
+<dd><p>Return state for pickling.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__">
+<span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__" title="Link to this definition">#</a></dt>
+<dd><p>Restore state after pickling.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic">
 <span class="sig-name descname"><span class="pre">_get_heuristic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic" title="Link to this definition">#</a></dt>
@@ -644,6 +658,8 @@ kwargs (Any): Description of kwargs.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy.__getstate__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy.__setstate__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy._get_heuristic()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.forward"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy.forward()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions"><code class="docutils literal notranslate"><span class="pre">VectorizedACOPolicy._construct_solutions()</span></code></a></li>

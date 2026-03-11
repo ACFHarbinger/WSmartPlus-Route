@@ -19,6 +19,7 @@ src.policies.adapters.policy_sisr
 src.policies.adapters.policy_bcp
 src.policies.adapters.factory
 src.policies.adapters.policy_ils
+src.policies.adapters.policy_gihh
 src.policies.adapters.base_routing_policy
 src.policies.adapters.policy_hgs_alns
 src.policies.adapters.policy_hvpl
@@ -39,6 +40,7 @@ src.policies.adapters.policy_neural
 src.policies.adapters.policy_qde
 src.policies.adapters.policy_hmm_gd
 src.policies.adapters.policy_hh_aco
+src.policies.adapters.policy_hgsrr
 src.policies.adapters.policy_hgs
 src.policies.adapters.policy_vns
 src.policies.adapters.policy_rl_alns

@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.soccer_league_competition" href="src.policies.soccer_league_competition.html" />
-    <link rel="prev" title="src.policies.hybrid_genetic_search.split" href="src.policies.hybrid_genetic_search.split.html" />
+    <link rel="prev" title="src.policies.hybrid_genetic_search.dispatcher" href="src.policies.hybrid_genetic_search.dispatcher.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -239,11 +239,11 @@
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_recreate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -252,7 +252,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
@@ -492,7 +492,6 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.evolution.ordered_crossover"><code class="docutils literal notranslate"><span class="pre">ordered_crossover()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.evolution.update_biased_fitness"><code class="docutils literal notranslate"><span class="pre">update_biased_fitness()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.evolution.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
 </ul>
@@ -521,13 +520,10 @@ logic for maintaining and improving the HGS population.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hybrid_genetic_search.evolution.ordered_crossover" title="src.policies.hybrid_genetic_search.evolution.ordered_crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ordered_crossover</span></code></a></p></td>
-<td><p>Apply Ordered Crossover (OX) to giant tours.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.hybrid_genetic_search.evolution.update_biased_fitness" title="src.policies.hybrid_genetic_search.evolution.update_biased_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_biased_fitness</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hybrid_genetic_search.evolution.update_biased_fitness" title="src.policies.hybrid_genetic_search.evolution.update_biased_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_biased_fitness</span></code></a></p></td>
 <td><p>Update biased fitness based on profit rank and diversity rank.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hybrid_genetic_search.evolution.evaluate" title="src.policies.hybrid_genetic_search.evolution.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.hybrid_genetic_search.evolution.evaluate" title="src.policies.hybrid_genetic_search.evolution.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a></p></td>
 <td><p>Decode giant tour and calculate metrics.</p></td>
 </tr>
 </tbody>
@@ -536,12 +532,6 @@ logic for maintaining and improving the HGS population.</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.evolution.ordered_crossover">
-<span class="sig-prename descclassname"><span class="pre">src.policies.hybrid_genetic_search.evolution.</span></span><span class="sig-name descname"><span class="pre">ordered_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.hybrid_genetic_search.individual.html#src.policies.hybrid_genetic_search.individual.Individual" title="src.policies.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.hybrid_genetic_search.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.hybrid_genetic_search.individual.html#src.policies.hybrid_genetic_search.individual.Individual" title="src.policies.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.hybrid_genetic_search.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.hybrid_genetic_search.individual.html#src.policies.hybrid_genetic_search.individual.Individual" title="src.policies.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.hybrid_genetic_search.individual.Individual</span></a></span></span><a class="headerlink" href="#src.policies.hybrid_genetic_search.evolution.ordered_crossover" title="Link to this definition">#</a></dt>
-<dd><p>Apply Ordered Crossover (OX) to giant tours.</p>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.evolution.update_biased_fitness">
 <span class="sig-prename descclassname"><span class="pre">src.policies.hybrid_genetic_search.evolution.</span></span><span class="sig-name descname"><span class="pre">update_biased_fitness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.hybrid_genetic_search.individual.html#src.policies.hybrid_genetic_search.individual.Individual" title="src.policies.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_elite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_diversity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.hybrid_genetic_search.evolution.update_biased_fitness" title="Link to this definition">#</a></dt>
@@ -575,12 +565,12 @@ neighbor_size: Number of nearest neighbors to consider.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.hybrid_genetic_search.split.html"
+       href="src.policies.hybrid_genetic_search.dispatcher.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search.split</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search.dispatcher</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -611,7 +601,6 @@ neighbor_size: Number of nearest neighbors to consider.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.evolution.ordered_crossover"><code class="docutils literal notranslate"><span class="pre">ordered_crossover()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.evolution.update_biased_fitness"><code class="docutils literal notranslate"><span class="pre">update_biased_fitness()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.evolution.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
 </ul>

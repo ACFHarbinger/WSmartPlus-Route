@@ -37,6 +37,31 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.__init__
 ```
 
+````{py:method} __getstate__()
+:canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.__getstate__
+
+```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.__setstate__
+
+```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.__setstate__
+```
+
+````
+
+````{py:property} device
+:canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.device
+```
+
+````
+
 ````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.forward
 

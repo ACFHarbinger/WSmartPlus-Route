@@ -13,7 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.other.local_search
 src.policies.other.post_processing
+src.policies.other.operators
 src.policies.other.must_go
 ```
 

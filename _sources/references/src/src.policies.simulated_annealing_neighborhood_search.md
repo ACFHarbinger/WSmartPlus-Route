@@ -20,3 +20,12 @@ src.policies.simulated_annealing_neighborhood_search.refinement
 src.policies.simulated_annealing_neighborhood_search.search
 src.policies.simulated_annealing_neighborhood_search.select
 ```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.policies.simulated_annealing_neighborhood_search.dispatcher
+```

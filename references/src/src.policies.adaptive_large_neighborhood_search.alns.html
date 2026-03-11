@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.adaptive_large_neighborhood_search.alns';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.sine_cosine_algorithm" href="src.policies.sine_cosine_algorithm.html" />
+    <link rel="next" title="src.policies.adaptive_large_neighborhood_search.dispatcher" href="src.policies.adaptive_large_neighborhood_search.dispatcher.html" />
     <link rel="prev" title="src.policies.adaptive_large_neighborhood_search.params" href="src.policies.adaptive_large_neighborhood_search.params.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -239,11 +239,11 @@
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_recreate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_cut_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_cut_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -252,7 +252,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adapters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adapters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
@@ -491,7 +491,6 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver"><code class="docutils literal notranslate"><span class="pre">ALNSSolver</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._initialize_solve()</span></code></a></li>
@@ -504,7 +503,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.build_initial_solution()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.run_alns"><code class="docutils literal notranslate"><span class="pre">run_alns()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -536,17 +534,6 @@ Computers &amp; Operations Research, 34(8), 2403-2435.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver" title="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALNSSolver</span></code></a></p></td>
 <td><p>Custom implementation of Adaptive Large Neighborhood Search for CVRP.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.adaptive_large_neighborhood_search.alns.run_alns" title="src.policies.adaptive_large_neighborhood_search.alns.run_alns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_alns</span></code></a></p></td>
-<td><p>Main ALNS entry point with dispatching to different algorithm variants.</p></td>
 </tr>
 </tbody>
 </table>
@@ -635,23 +622,6 @@ List[List[int]]: Initial routes.</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.run_alns">
-<span class="sig-prename descclassname"><span class="pre">src.policies.adaptive_large_neighborhood_search.alns.</span></span><span class="sig-name descname"><span class="pre">run_alns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.run_alns" title="Link to this definition">#</a></dt>
-<dd><p>Main ALNS entry point with dispatching to different algorithm variants.</p>
-<p>Args:
-dist_matrix: Distance matrix.
-wastes: Bin wastes.
-capacity: Vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-values: Dictionary of parameters and config.
-mandatory_nodes: List of mandatory node indices.
-*args: Additional arguments (ignored or passed through).</p>
-<p>Returns:
-Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
-</dd></dl>
-
 </section>
 </section>
 </section>
@@ -677,11 +647,11 @@ Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.sine_cosine_algorithm.html"
+       href="src.policies.adaptive_large_neighborhood_search.dispatcher.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search.dispatcher</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -703,7 +673,6 @@ Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver"><code class="docutils literal notranslate"><span class="pre">ALNSSolver</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._initialize_solve()</span></code></a></li>
@@ -716,7 +685,6 @@ Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.build_initial_solution()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.run_alns"><code class="docutils literal notranslate"><span class="pre">run_alns()</span></code></a></li>
 </ul>
 </li>
 </ul>

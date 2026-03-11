@@ -37,6 +37,15 @@ Bases: {py:obj}`logic.src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder
 ```{autodoc2-docstring} src.models.subnets.decoders.matnet.decoder.MatNetDecoder.__init__
 ```
 
+````{py:property} device
+:canonical: src.models.subnets.decoders.matnet.decoder.MatNetDecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.subnets.decoders.matnet.decoder.MatNetDecoder.device
+```
+
+````
+
 ````{py:method} _precompute(embeddings: torch.Tensor, num_steps: int = 1) -> typing.Any
 :canonical: src.models.subnets.decoders.matnet.decoder.MatNetDecoder._precompute
 

@@ -37,6 +37,31 @@ Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementDecoder`
 ```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder.__init__
 ```
 
+````{py:property} device
+:canonical: src.models.core.dact.decoder.DACTDecoder.device
+:type: torch.device
+
+```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder.device
+```
+
+````
+
+````{py:method} __getstate__()
+:canonical: src.models.core.dact.decoder.DACTDecoder.__getstate__
+
+```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder.__getstate__
+```
+
+````
+
+````{py:method} __setstate__(state)
+:canonical: src.models.core.dact.decoder.DACTDecoder.__setstate__
+
+```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder.__setstate__
+```
+
+````
+
 ````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.dact.decoder.DACTDecoder.forward
 

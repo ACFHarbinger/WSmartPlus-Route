@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} generate_waste(problem_size: int, distribution: str, graph: typing.Tuple[typing.Any, typing.Any], dataset_size: int = 1, grid: typing.Optional[typing.Any] = None, rng: typing.Optional[numpy.random.RandomState] = None, sample_method: typing.Optional[str] = 'sample_array', **kwargs: typing.Any) -> typing.Union[numpy.ndarray, typing.Any]
+````{py:function} generate_waste(problem_size: int, distribution: str, graph: typing.Tuple[typing.Any, typing.Any], dataset_size: int = 1, grid: typing.Optional[typing.Any] = None, rng: typing.Optional[typing.Union[torch.Generator, numpy.random.RandomState]] = None, sample_method: typing.Optional[str] = 'sample_array', **kwargs: typing.Any) -> typing.Union[numpy.ndarray, typing.Any]
 :canonical: src.data.generators.waste.generate_waste
 
 ```{autodoc2-docstring} src.data.generators.waste.generate_waste

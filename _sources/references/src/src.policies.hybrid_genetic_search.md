@@ -18,6 +18,7 @@ src.policies.hybrid_genetic_search.params
 src.policies.hybrid_genetic_search.pyvrp_wrapper
 src.policies.hybrid_genetic_search.individual
 src.policies.hybrid_genetic_search.split
+src.policies.hybrid_genetic_search.dispatcher
 src.policies.hybrid_genetic_search.evolution
 ```
 

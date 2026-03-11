@@ -67,20 +67,4 @@ Bases: {py:obj}`logic.src.policies.adapters.base_routing_policy.BaseRoutingPolic
 
 ````
 
-````{py:method} _execute_new(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
-:canonical: src.policies.adapters.policy_sans.SANSPolicy._execute_new
-
-```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy._execute_new
-```
-
-````
-
-````{py:method} _execute_og(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
-:canonical: src.policies.adapters.policy_sans.SANSPolicy._execute_og
-
-```{autodoc2-docstring} src.policies.adapters.policy_sans.SANSPolicy._execute_og
-```
-
-````
-
 `````

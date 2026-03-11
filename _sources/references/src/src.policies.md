@@ -14,11 +14,11 @@
 :maxdepth: 3
 
 src.policies.augmented_hybrid_volleyball_premier_league
+src.policies.hybrid_genetic_search_ruin_recreate
 src.policies.genetic_programming_hyper_heuristic
 src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search
 src.policies.branch_cut_and_price
 src.policies.ant_colony_optimization
-src.policies.local_search
 src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league
 src.policies.slack_induction_by_string_removal
 src.policies.variable_neighborhood_search
@@ -27,7 +27,7 @@ src.policies.hybrid_volleyball_premier_league
 src.policies.artificial_bee_colony
 src.policies.reactive_tabu_search
 src.policies.other
-src.policies.operators
+src.policies.guided_indicators_hyper_heuristic
 src.policies.adapters
 src.policies.guided_local_search
 src.policies.quantum_differential_evolution
