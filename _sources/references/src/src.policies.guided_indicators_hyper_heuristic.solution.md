@@ -21,18 +21,6 @@
     ```
 ````
 
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`create_initial_solution <src.policies.guided_indicators_hyper_heuristic.solution.create_initial_solution>`
-  - ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.solution.create_initial_solution
-    :summary:
-    ```
-````
-
 ### API
 
 `````{py:class} Solution(routes: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float)
@@ -72,10 +60,3 @@
 ````
 
 `````
-
-````{py:function} create_initial_solution(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None) -> src.policies.guided_indicators_hyper_heuristic.solution.Solution
-:canonical: src.policies.guided_indicators_hyper_heuristic.solution.create_initial_solution
-
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.solution.create_initial_solution
-```
-````

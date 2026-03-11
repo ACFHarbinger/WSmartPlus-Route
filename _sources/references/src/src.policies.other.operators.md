@@ -14,29 +14,13 @@
 :maxdepth: 3
 
 src.policies.other.operators.heuristics
-src.policies.other.operators.move
+src.policies.other.operators.inter_route
+src.policies.other.operators.unstringing_stringing
 src.policies.other.operators.repair
 src.policies.other.operators.perturbation
-src.policies.other.operators.route
+src.policies.other.operators.intra_route
 src.policies.other.operators.destroy
-src.policies.other.operators.exchange
-src.policies.other.operators.unstringing
 src.policies.other.operators.crossover
-```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.policies.other.operators.exchange_operators
-src.policies.other.operators.destroy_operators
-src.policies.other.operators.unstringing_operators
-src.policies.other.operators.move_operators
-src.policies.other.operators.route_operators
-src.policies.other.operators.repair_operators
-src.policies.other.operators.perturbation_operators
 ```
 
 ## Package Contents
@@ -58,7 +42,7 @@ src.policies.other.operators.perturbation_operators
 ````{py:data} __all__
 :canonical: src.policies.other.operators.__all__
 :value: >
-   ['move_relocate', 'move_swap', 'move_2opt_intra', 'move_2opt_star', 'move_3opt_intra', 'move_swap_st...
+   ['CROSSOVER_NAMES', 'CROSSOVER_OPERATORS', 'edge_recombination_crossover', 'generalized_partition_cr...
 
 ```{autodoc2-docstring} src.policies.other.operators.__all__
 ```

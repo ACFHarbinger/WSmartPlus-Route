@@ -13,6 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.reinforcement_learning_hybrid_volleyball_premier_league
+src.policies.hulk_hyper_heuristic
 src.policies.augmented_hybrid_volleyball_premier_league
 src.policies.hybrid_genetic_search_ruin_recreate
 src.policies.genetic_programming_hyper_heuristic
@@ -27,6 +29,7 @@ src.policies.hybrid_volleyball_premier_league
 src.policies.artificial_bee_colony
 src.policies.reactive_tabu_search
 src.policies.other
+src.policies.knowledge_guided_local_search
 src.policies.guided_indicators_hyper_heuristic
 src.policies.adapters
 src.policies.guided_local_search
@@ -38,6 +41,7 @@ src.policies.late_acceptance_hill_climbing
 src.policies.genetic_algorithm
 src.policies.reinforcement_learning_adaptive_large_neighborhood_search
 src.policies.league_championship_algorithm
+src.policies.fast_iterative_localized_optimization
 src.policies.firefly_algorithm
 src.policies.hybrid_genetic_search
 src.policies.soccer_league_competition
@@ -45,6 +49,7 @@ src.policies.harmony_search
 src.policies.old_bachelor_acceptance
 src.policies.neural_agent
 src.policies.simulated_annealing
+src.policies.hybrid_iterated_local_search
 src.policies.record_to_record_travel
 src.policies.adaptive_large_neighborhood_search
 src.policies.sine_cosine_algorithm

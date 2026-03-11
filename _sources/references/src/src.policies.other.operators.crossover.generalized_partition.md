@@ -15,6 +15,14 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`get_edges <src.policies.other.operators.crossover.generalized_partition.get_edges>`
+  - ```{autodoc2-docstring} src.policies.other.operators.crossover.generalized_partition.get_edges
+    :summary:
+    ```
+* - {py:obj}`get_components <src.policies.other.operators.crossover.generalized_partition.get_components>`
+  - ```{autodoc2-docstring} src.policies.other.operators.crossover.generalized_partition.get_components
+    :summary:
+    ```
 * - {py:obj}`generalized_partition_crossover <src.policies.other.operators.crossover.generalized_partition.generalized_partition_crossover>`
   - ```{autodoc2-docstring} src.policies.other.operators.crossover.generalized_partition.generalized_partition_crossover
     :summary:
@@ -22,6 +30,20 @@
 ````
 
 ### API
+
+````{py:function} get_edges(tour: typing.List[int]) -> typing.Set[typing.Tuple[int, int]]
+:canonical: src.policies.other.operators.crossover.generalized_partition.get_edges
+
+```{autodoc2-docstring} src.policies.other.operators.crossover.generalized_partition.get_edges
+```
+````
+
+````{py:function} get_components(adj: typing.Dict[int, typing.List[int]], all_nodes: typing.Set[int]) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.crossover.generalized_partition.get_components
+
+```{autodoc2-docstring} src.policies.other.operators.crossover.generalized_partition.get_components
+```
+````
 
 ````{py:function} generalized_partition_crossover(p1: logic.src.policies.hybrid_genetic_search.individual.Individual, p2: logic.src.policies.hybrid_genetic_search.individual.Individual, rng: typing.Optional[random.Random] = None) -> logic.src.policies.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.other.operators.crossover.generalized_partition.generalized_partition_crossover

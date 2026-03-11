@@ -150,6 +150,14 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
 
 ````
 
+````{py:method} _try_improved_cross_exchange(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_improved_cross_exchange
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._try_improved_cross_exchange
+```
+
+````
+
 ````{py:method} _try_lambda_interchange(r_u: int, r_v: int) -> bool
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_lambda_interchange
 
@@ -158,10 +166,50 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _try_ejection_chain(u: int, r_u: int, p_u: int) -> bool
+````{py:method} _try_cyclic_transfer(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_cyclic_transfer
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._try_cyclic_transfer
+```
+
+````
+
+````{py:method} _try_exchange_chains(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_exchange_chains
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._try_exchange_chains
+```
+
+````
+
+````{py:method} _try_ejection_chain(r_u: int) -> bool
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_ejection_chain
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._try_ejection_chain
+```
+
+````
+
+````{py:method} _move_relocate_chain(u: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_relocate_chain
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_relocate_chain
+```
+
+````
+
+````{py:method} _move_three_permutation(u: int, r_u: int, p_u: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_three_permutation
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_three_permutation
+```
+
+````
+
+````{py:method} _try_geni_exchange(u: int, r_u: int, p_u: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_geni_exchange
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._try_geni_exchange
 ```
 
 ````

@@ -13,8 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.operators.heuristics.initialization
+src.policies.other.operators.heuristics.nn_initialization
 src.policies.other.operators.heuristics.lin_kernighan_helsgaun
+src.policies.other.operators.heuristics.greedy_initialization
 ```
 
 ## Package Contents
@@ -36,7 +37,7 @@ src.policies.other.operators.heuristics.lin_kernighan_helsgaun
 ````{py:data} __all__
 :canonical: src.policies.other.operators.heuristics.__all__
 :value: >
-   ['build_nn_routes', 'solve_lkh']
+   ['build_greedy_routes', 'build_nn_routes', 'solve_lkh']
 
 ```{autodoc2-docstring} src.policies.other.operators.heuristics.__all__
 ```

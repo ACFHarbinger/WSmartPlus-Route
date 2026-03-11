@@ -27,6 +27,8 @@ src.configs.policies.tsp
 src.configs.policies.rl_ahvpl
 src.configs.policies.cvrp
 src.configs.policies.aco
+src.configs.policies.kgls
+src.configs.policies.hulk
 src.configs.policies.rl_alns
 src.configs.policies.lca
 src.configs.policies.gls
@@ -41,7 +43,9 @@ src.configs.policies.ga
 src.configs.policies.rrt
 src.configs.policies.ils
 src.configs.policies.alns
+src.configs.policies.hils
 src.configs.policies.neural
+src.configs.policies.rl_hvpl
 src.configs.policies.gphh
 src.configs.policies.vns
 src.configs.policies.hgs_alns
@@ -55,6 +59,7 @@ src.configs.policies.qde
 src.configs.policies.slc
 src.configs.policies.sans
 src.configs.policies.vrpp
+src.configs.policies.filo
 src.configs.policies.psoma
 src.configs.policies.abc
 src.configs.policies.gihh
@@ -79,7 +84,7 @@ src.configs.policies.gihh
 ````{py:data} __all__
 :canonical: src.configs.policies.__all__
 :value: >
-   ['ACOConfig', 'AHVPLConfig', 'ALNSConfig', 'BCPConfig', 'CVRPConfig', 'GIHHConfig', 'HGSConfig', 'HG...
+   ['ACOConfig', 'AHVPLConfig', 'ALNSConfig', 'BCPConfig', 'CVRPConfig', 'FILOConfig', 'GIHHConfig', 'H...
 
 ```{autodoc2-docstring} src.configs.policies.__all__
 ```

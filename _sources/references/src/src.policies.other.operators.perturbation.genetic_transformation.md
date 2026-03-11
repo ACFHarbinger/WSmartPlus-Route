@@ -1,0 +1,42 @@
+# {py:mod}`src.policies.other.operators.perturbation.genetic_transformation`
+
+```{py:module} src.policies.other.operators.perturbation.genetic_transformation
+```
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.genetic_transformation
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`genetic_transformation <src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation
+    :summary:
+    ```
+* - {py:obj}`_extract_edges <src.policies.other.operators.perturbation.genetic_transformation._extract_edges>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.genetic_transformation._extract_edges
+    :summary:
+    ```
+````
+
+### API
+
+````{py:function} genetic_transformation(routes: typing.List[typing.List[int]], elite_solution: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, rng: typing.Optional[random.Random] = None) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation
+```
+````
+
+````{py:function} _extract_edges(solution: typing.List[typing.List[int]]) -> typing.Set[typing.Tuple[int, int]]
+:canonical: src.policies.other.operators.perturbation.genetic_transformation._extract_edges
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.genetic_transformation._extract_edges
+```
+````

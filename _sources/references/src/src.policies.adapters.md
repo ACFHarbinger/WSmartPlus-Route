@@ -14,15 +14,18 @@
 :maxdepth: 1
 
 src.policies.adapters.policy_vrpp
+src.policies.adapters.policy_kgls
 src.policies.adapters.policy_gls
 src.policies.adapters.policy_sisr
 src.policies.adapters.policy_bcp
 src.policies.adapters.factory
+src.policies.adapters.policy_hulk
 src.policies.adapters.policy_ils
 src.policies.adapters.policy_gihh
 src.policies.adapters.base_routing_policy
 src.policies.adapters.policy_hgs_alns
 src.policies.adapters.policy_hvpl
+src.policies.adapters.policy_hils
 src.policies.adapters.policy_ga
 src.policies.adapters.policy_gphh
 src.policies.adapters.policy_lca
@@ -38,6 +41,7 @@ src.policies.adapters.policy_rrt
 src.policies.adapters.policy_tsp
 src.policies.adapters.policy_neural
 src.policies.adapters.policy_qde
+src.policies.adapters.policy_filo
 src.policies.adapters.policy_hmm_gd
 src.policies.adapters.policy_hh_aco
 src.policies.adapters.policy_hgsrr
@@ -47,6 +51,7 @@ src.policies.adapters.policy_rl_alns
 src.policies.adapters.policy_sa
 src.policies.adapters.policy_sca
 src.policies.adapters.policy_ks_aco
+src.policies.adapters.policy_rl_hvpl
 src.policies.adapters.policy_rts
 src.policies.adapters.registry
 src.policies.adapters.policy_ahvpl

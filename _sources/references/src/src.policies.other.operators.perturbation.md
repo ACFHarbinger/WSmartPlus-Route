@@ -13,8 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.other.operators.perturbation.evolutionary
+src.policies.other.operators.perturbation.double_bridge
 src.policies.other.operators.perturbation.kick
 src.policies.other.operators.perturbation.perturb
+src.policies.other.operators.perturbation.genetic_transformation
 ```
 
 ## Package Contents
@@ -36,7 +39,7 @@ src.policies.other.operators.perturbation.perturb
 ````{py:data} __all__
 :canonical: src.policies.other.operators.perturbation.__all__
 :value: >
-   ['perturb', 'kick']
+   ['perturb', 'kick', 'double_bridge', 'genetic_transformation', 'evolutionary_perturbation']
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.__all__
 ```

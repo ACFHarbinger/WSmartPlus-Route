@@ -13,12 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.ks_aco_qlearning
 src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl
 src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params
-src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.alns_sarsa
-src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.local_search_manager
-src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.evolution_cmab
 ```
 
 ## Package Contents
