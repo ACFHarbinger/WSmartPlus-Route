@@ -41,70 +41,69 @@ import math
 import random
 import time
 from collections import deque
-from typing import Deque, Dict, List, Optional, Tuple
+from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from logic.src.policies.other.operators import build_greedy_routes
+from logic.src.policies.other.operators.destroy import (
+    cluster_removal as cluster_removal_op,
+)
+from logic.src.policies.other.operators.destroy import (
+    random_removal as random_removal_op,
+)
+from logic.src.policies.other.operators.destroy import (
+    shaw_removal as shaw_removal_op,
+)
+from logic.src.policies.other.operators.destroy import (
+    string_removal as string_removal_op,
+)
+from logic.src.policies.other.operators.destroy import (
+    worst_removal as worst_removal_op,
+)
+from logic.src.policies.other.operators.perturbation import kick as kick_op
+from logic.src.policies.other.operators.perturbation import perturb as perturb_op
+from logic.src.policies.other.operators.repair import (
+    greedy_insertion as greedy_insertion_op,
+)
+from logic.src.policies.other.operators.repair import (
+    greedy_insertion_with_blinks as greedy_insertion_with_blinks_op,
+)
+from logic.src.policies.other.operators.repair import (
+    regret_2_insertion as regret_2_insertion_op,
+)
+from logic.src.policies.other.operators.repair import (
+    regret_k_insertion as regret_k_insertion_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_i_s as type_i_insertion_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_i_us as type_i_removal_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_ii_s as type_ii_insertion_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_ii_us as type_ii_removal_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_iii_s as type_iii_insertion_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_iii_us as type_iii_removal_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_iv_s as type_iv_insertion_op,
+)
+from logic.src.policies.other.operators.unstringing_stringing import (
+    apply_type_iv_us as type_iv_removal_op,
+)
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import SarsaAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..other.operators.destroy import (
-    cluster_removal as cluster_removal_op,
-)
-from ..other.operators.destroy import (
-    random_removal as random_removal_op,
-)
-from ..other.operators.destroy import (
-    shaw_removal as shaw_removal_op,
-)
-from ..other.operators.destroy import (
-    string_removal as string_removal_op,
-)
-from ..other.operators.destroy import (
-    worst_removal as worst_removal_op,
-)
-from ..other.operators.perturbation import kick as kick_op
-from ..other.operators.perturbation import perturb as perturb_op
-from ..other.operators.repair import (
-    greedy_insertion as greedy_insertion_op,
-)
-from ..other.operators.repair import (
-    greedy_insertion_with_blinks as greedy_insertion_with_blinks_op,
-)
-from ..other.operators.repair import (
-    regret_2_insertion as regret_2_insertion_op,
-)
-from ..other.operators.repair import (
-    regret_k_insertion as regret_k_insertion_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_i_s as type_i_insertion_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_i_us as type_i_removal_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_ii_s as type_ii_insertion_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_ii_us as type_ii_removal_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_iii_s as type_iii_insertion_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_iii_us as type_iii_removal_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_iv_s as type_iv_insertion_op,
-)
-from ..other.operators.unstringing_stringing import (
-    apply_type_iv_us as type_iv_removal_op,
-)
 from .alns_perturbation_context import ALNSPerturbationContext
-from .params import ALNSParams, RLAHVPLParams
 
 
 class ALNSSARSASolver(PolicyVizMixin):
@@ -121,8 +120,8 @@ class ALNSSARSASolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: ALNSParams,
-        rl_params: RLAHVPLParams,
+        params: Any,
+        rl_params: Any,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
         evaluator=None,

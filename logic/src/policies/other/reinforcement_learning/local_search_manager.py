@@ -28,8 +28,8 @@ from typing import Dict, List, Optional
 import numpy as np
 
 # Import operators from their respective modules
-from ..other.operators.heuristics import solve_lkh
-from ..other.operators.inter_route import (
+from logic.src.policies.other.operators.heuristics import solve_lkh
+from logic.src.policies.other.operators.inter_route import (
     cross_exchange,
     ejection_chain,
     lambda_interchange,
@@ -38,7 +38,7 @@ from ..other.operators.inter_route import (
     move_kopt_star,
     move_swap_star,
 )
-from ..other.operators.intra_route import (
+from logic.src.policies.other.operators.intra_route import (
     move_2opt_intra,
     move_3opt_intra,
     move_kopt_intra,

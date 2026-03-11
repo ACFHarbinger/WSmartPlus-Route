@@ -11,20 +11,19 @@ Reference:
 
 import time
 from collections import deque
-from typing import Deque, Dict, List, Optional, Tuple
+from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
+from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+from logic.src.policies.ant_colony_optimization.k_sparse_aco.pheromones import SparsePheromoneTau
+from logic.src.policies.other.operators.heuristics import build_nn_routes
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import QLearningAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
-from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
-from ..ant_colony_optimization.k_sparse_aco.pheromones import SparsePheromoneTau
-from ..other.operators.heuristics import build_nn_routes
 from .local_search_manager import LocalSearchManager
-from .params import RLAHVPLParams
 
 
 class KSparseACOQLSolver(PolicyVizMixin):
@@ -40,7 +39,7 @@ class KSparseACOQLSolver(PolicyVizMixin):
         R: float,
         C: float,
         params: ACOParams,
-        rl_params: RLAHVPLParams,
+        rl_params: Any,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):

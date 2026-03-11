@@ -32,13 +32,13 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.reinforcement_learning.alns_sarsa import ALNSSARSASolver
+from logic.src.policies.other.reinforcement_learning.evolution_cmab import CMABEvolution, update_biased_fitness
+from logic.src.policies.other.reinforcement_learning.ks_aco_qlearning import KSparseACOQLSolver
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
-from .alns_sarsa import ALNSSARSASolver
-from .evolution_cmab import CMABEvolution, update_biased_fitness
-from .ks_aco_qlearning import KSparseACOQLSolver
 from .params import RLAHVPLParams
 
 
