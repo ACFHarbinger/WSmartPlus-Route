@@ -267,7 +267,7 @@ class VRPInstanceBuilder:
                     size=(remaining_coords_size, self._problem_size + 1, mm_arr.shape[-1]),  # type: ignore[union-attr]
                 )
                 depots, locs = process_coordinates(random_coords, self._method, col_names=None)
-                depot = np.concatenate((depot, depots))  # type ignore[assignment]
+                depot = np.concatenate((depot, depots))  # type: ignore[assignment]
                 loc = np.concatenate((loc, locs))  # type: ignore[assignment]
             grid = None
             if self._distribution == "emp":
