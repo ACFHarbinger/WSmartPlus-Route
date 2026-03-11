@@ -11,23 +11,25 @@ Destroy Operators:
     - Cluster removal
     - Shaw removal (relatedness-based)
     - String removal (contiguous segments)
+    - Unstringing Type I-IV (GENIUS removal)
 
 Repair Operators:
     - Greedy insertion
     - Regret-2 insertion
     - Regret-k insertion (extended)
     - Greedy blink insertion (randomized)
+    - Stringing Type I-IV (GENIUS reinsertion)
 
 Perturbation Operators:
     - Route shuffling
     - Node sequence reversal
     - Random restart from strong perturbation
 
-Unstringing Operators (SISR - Slack Induction by String Removal):
-    - Type I: Single string removal
-    - Type II: Multiple string removal
-    - Type III: Propagating string removal
-    - Type IV: Clustered string removal
+Unstringing and Stringing Operators (US):
+    - Type I: Single string removal/insertion
+    - Type II: Multiple string removal/insertion
+    - Type III: Propagating string removal/insertion
+    - Type IV: Clustered string removal/insertion
 
 Reference:
     Sutton & Barto, "Reinforcement Learning: An Introduction", 2nd Ed., 2018.
@@ -63,18 +65,6 @@ from ..other.operators.destroy import (
 from ..other.operators.destroy import (
     worst_removal as worst_removal_op,
 )
-from ..other.operators.perturbation import (
-    apply_type_i_us as type_i_removal_op,
-)
-from ..other.operators.perturbation import (
-    apply_type_ii_us as type_ii_removal_op,
-)
-from ..other.operators.perturbation import (
-    apply_type_iii_us as type_iii_removal_op,
-)
-from ..other.operators.perturbation import (
-    apply_type_iv_us as type_iv_removal_op,
-)
 from ..other.operators.perturbation import kick as kick_op
 from ..other.operators.perturbation import perturb as perturb_op
 from ..other.operators.repair import (
@@ -88,6 +78,30 @@ from ..other.operators.repair import (
 )
 from ..other.operators.repair import (
     regret_k_insertion as regret_k_insertion_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_i_s as type_i_insertion_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_i_us as type_i_removal_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_ii_s as type_ii_insertion_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_ii_us as type_ii_removal_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_iii_s as type_iii_insertion_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_iii_us as type_iii_removal_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_iv_s as type_iv_insertion_op,
+)
+from ..other.operators.unstringing_stringing import (
+    apply_type_iv_us as type_iv_removal_op,
 )
 from .alns_perturbation_context import ALNSPerturbationContext
 from .params import ALNSParams, RLAHVPLParams
@@ -132,12 +146,7 @@ class ALNSSARSASolver(PolicyVizMixin):
         # Initialize all operator pools
         self._init_destroy_operators()
         self._init_repair_operators()
-        self._init_unstring_operators()
         self._init_perturbation_operators()
-
-        # Add unstring operators to destroy options
-        self.destroy_ops.extend(self.unstring_ops)
-        self.destroy_names.extend(self.unstring_names)
 
         # Initialize RL components
         self.feature_extractor = StateFeatureExtractor(
@@ -173,6 +182,11 @@ class ALNSSARSASolver(PolicyVizMixin):
             # Advanced operators
             self._destroy_shaw,
             self._destroy_string,
+            # Unstringing operators
+            self._unstring_type_i,
+            self._unstring_type_ii,
+            self._unstring_type_iii,
+            self._unstring_type_iv,
         ]
 
         self.destroy_names = [
@@ -181,6 +195,10 @@ class ALNSSARSASolver(PolicyVizMixin):
             "Cluster",
             "Shaw",
             "String",
+            "Unstring-I",
+            "Unstring-II",
+            "Unstring-III",
+            "Unstring-IV",
         ]
 
     def _init_repair_operators(self):
@@ -193,20 +211,24 @@ class ALNSSARSASolver(PolicyVizMixin):
             lambda routes, removed: self._repair_regretk(routes, removed, k=3),
             lambda routes, removed: self._repair_regretk(routes, removed, k=4),
             self._repair_greedy_blink,
+            # Stringing operators
+            self._repair_string_type_i,
+            self._repair_string_type_ii,
+            self._repair_string_type_iii,
+            self._repair_string_type_iv,
         ]
 
-        self.repair_names = ["Greedy", "Regret-2", "Regret-3", "Regret-4", "Greedy-Blink"]
-
-    def _init_unstring_operators(self):
-        """Initialize all unstring operators."""
-        self.unstring_ops = [
-            self._unstring_type_i,
-            self._unstring_type_ii,
-            self._unstring_type_iii,
-            self._unstring_type_iv,
+        self.repair_names = [
+            "Greedy",
+            "Regret-2",
+            "Regret-3",
+            "Regret-4",
+            "Greedy-Blink",
+            "String-I",
+            "String-II",
+            "String-III",
+            "String-IV",
         ]
-
-        self.unstring_names = ["Type-I", "Type-II", "Type-III", "Type-IV"]
 
     def _init_perturbation_operators(self):
         """Initialize all perturbation operators."""
@@ -301,6 +323,135 @@ class ALNSSARSASolver(PolicyVizMixin):
             blink_rate=blink_rate,
             rng=self.random,
         )
+
+    # ===== Stringing Repair Operators =====
+
+    def _apply_stringing_op(self, route: List[int], node: int, op_type: int, params: Tuple) -> List[int]:
+        """Apply the specified stringing operation."""
+        if op_type == 1:
+            i, j, k = params
+            return type_i_insertion_op(route, node, i, j, k)
+        elif op_type == 2:
+            i, j, k, l = params
+            return type_ii_insertion_op(route, node, i, j, k, l)
+        elif op_type == 3:
+            i, j, k = params
+            return type_iii_insertion_op(route, node, i, j, k)
+        else:  # op_type == 4
+            i, j, k, l = params
+            return type_iv_insertion_op(route, node, i, j, k, l)
+
+    def _try_string_insertion(
+        self, routes: List[List[int]], node: int, r_idx: int, op_type: int
+    ) -> Optional[Tuple[List[List[int]], float]]:
+        """Try inserting a node using stringing operator, return best result."""
+        route = routes[r_idx]
+        if len(route) < 3:
+            return None
+
+        best_routes = None
+        best_profit = float("-inf")
+
+        # Try multiple random configurations
+        for _ in range(min(5, len(route))):
+            valid_positions = list(range(len(route)))
+            if len(valid_positions) < (4 if op_type in (2, 4) else 3):
+                continue
+
+            try:
+                # Sample required parameters
+                i = self.random.choice(valid_positions)
+                valid_j = [p for p in valid_positions if p != i]
+                if not valid_j:
+                    continue
+                j = self.random.choice(valid_j)
+                valid_k = [p for p in valid_positions if p not in (i, j)]
+                if not valid_k:
+                    continue
+                k = self.random.choice(valid_k)
+
+                # For Type II and IV, need additional parameter
+                if op_type in (2, 4):
+                    valid_l = [p for p in valid_positions if p not in (i, j, k)]
+                    if not valid_l:
+                        continue
+                    l = self.random.choice(valid_l)
+                    params = (i, j, k, l)
+                else:
+                    params = (i, j, k)
+
+                # Apply stringing operation
+                test_routes = [list(r) for r in routes]
+                new_route = self._apply_stringing_op(test_routes[r_idx], node, op_type, params)
+
+                # Validate insertion
+                if node not in new_route:
+                    continue
+                route_waste = sum(self.wastes.get(n, 0) for n in new_route)
+                if route_waste > self.capacity:
+                    continue
+
+                test_routes[r_idx] = new_route
+                cost = self.calculate_cost(test_routes)
+                rev = sum(self.wastes.get(n, 0) * self.R for r in test_routes for n in r)
+                profit = rev - cost
+
+                if profit > best_profit:
+                    best_profit = profit
+                    best_routes = test_routes
+
+            except Exception:
+                continue
+
+        return (best_routes, best_profit) if best_routes is not None else None
+
+    def _string_wrapper(self, routes: List[List[int]], removed: List[int], op_type: int) -> List[List[int]]:
+        """Wrapper to apply stringing moves as a repair operator."""
+        if not removed:
+            return routes
+
+        for node in removed:
+            best_routes = None
+            best_profit = float("-inf")
+
+            # Try inserting into each route
+            for r_idx in range(len(routes)):
+                result = self._try_string_insertion(routes, node, r_idx, op_type)
+                if result and result[1] > best_profit:
+                    best_routes, best_profit = result
+
+            # Apply best insertion or fallback to greedy
+            if best_routes is not None:
+                routes = best_routes
+            else:
+                routes = greedy_insertion_op(
+                    routes,
+                    [node],
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    R=self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                    cost_unit=self.C,
+                )
+
+        return routes
+
+    def _repair_string_type_i(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        """Type-I stringing repair."""
+        return self._string_wrapper(routes, removed, 1)
+
+    def _repair_string_type_ii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        """Type-II stringing repair."""
+        return self._string_wrapper(routes, removed, 2)
+
+    def _repair_string_type_iii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        """Type-III stringing repair."""
+        return self._string_wrapper(routes, removed, 3)
+
+    def _repair_string_type_iv(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        """Type-IV stringing repair."""
+        return self._string_wrapper(routes, removed, 4)
 
     # ===== Unstringing Operators =====
 
