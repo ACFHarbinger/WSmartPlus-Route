@@ -15,6 +15,7 @@ from .gphh import GPHHConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
 from .hgsrr import HGSRRConfig
+from .hils import HILSConfig
 from .hmm_gd import HMMGDConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
@@ -46,6 +47,7 @@ __all__ = [
     "HGSConfig",
     "HGSALNSConfig",
     "HGSRRConfig",
+    "HILSConfig",
     "HVPLConfig",
     "LKHConfig",
     "NeuralConfig",
