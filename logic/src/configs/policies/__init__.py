@@ -16,16 +16,16 @@ from .hgs_alns import HGSALNSConfig
 from .hgsrr import HGSRRConfig
 from .hmm_gd import HMMGDConfig
 from .hs import HSConfig
+from .hulk import HULKConfig
 from .hvpl import HVPLConfig
 from .lca import LCAConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
 from .psoma import PSOMAConfig
-
-# Survey-derived metaheuristic and hyper-heuristic policies
 from .qde import QDEConfig
 from .rl_ahvpl import RLAHVPLConfig
 from .rl_alns import RLALNSConfig
+from .rl_hvpl import RLHVPLConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
 from .sisr import SISRConfig
@@ -49,13 +49,14 @@ __all__ = [
     "NeuralConfig",
     "RLAHVPLConfig",
     "RLALNSConfig",
+    "RLHVPLConfig",
     "SANSConfig",
     "SISRConfig",
     "TSPConfig",
     "VRPPConfig",
     "MustGoConfig",
     "PostProcessingConfig",
-    # Survey-derived policies
+    "HULKConfig",
     "QDEConfig",
     "PSOMAConfig",
     "ABCConfig",

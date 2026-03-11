@@ -21,6 +21,8 @@ from typing import List, Optional
 
 import numpy as np
 
+from logic.src.policies.hybrid_genetic_search.individual import Individual
+from logic.src.policies.hybrid_genetic_search.split import LinearSplit
 from logic.src.policies.other.operators.crossover import CROSSOVER_NAMES, CROSSOVER_OPERATORS
 from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     EpsilonGreedyBandit,
@@ -30,9 +32,6 @@ from logic.src.policies.other.reinforcement_learning.agents.contextual_bandits i
     LinUCBAgent,
 )
 from logic.src.policies.other.reinforcement_learning.features.context import ContextFeatureExtractor
-
-from ..hybrid_genetic_search.individual import Individual
-from ..hybrid_genetic_search.split import LinearSplit
 
 
 class CMABEvolution:
