@@ -1,0 +1,203 @@
+# GIHH Policy Configuration
+
+# =============================================================================
+# GIHH (Guided Indicators Hyper-Heuristic) Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Adaptive hyper-heuristic that selects low-level operators using two
+#   guidance indicators: Improvement Rate Indicator (IRI) and Time-Based
+#   Indicator (TBI). Balances exploitation and exploration through learned
+#   operator selection.
+#
+# ALGORITHM:
+#   1. Maintain operator performance scores via IRI (improvement rate) and
+#      TBI (time since last use)
+#   2. Select operators using epsilon-greedy strategy with weighted indicators
+#   3. Apply move operators (intra/inter-route improvements)
+#   4. Apply perturbation operators when stuck in local optima
+#   5. Update indicator weights adaptively based on search progress
+#
+# PERFORMANCE:
+#   Excels on dynamic routing problems and scenarios requiring operator
+#   adaptation. Particularly effective when problem characteristics vary
+#   across instances or over time.
+#
+# REFERENCE:
+#   Adaptive operator selection using guidance indicators for VRP optimization.
+#   Combines ideas from adaptive large neighborhood search with hyper-heuristics.
+#
+# TYPICAL USE CASES:
+#   - Dynamic routing with changing traffic patterns
+#   - Multi-objective optimization (profit vs. cost)
+#   - Scenarios requiring algorithm portfolio management
+#   - Research on adaptive operator selection
+# =============================================================================
+
+gihh:
+  custom:
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
+    - time_limit: 60.0
+      # Maximum wall-clock seconds for optimization
+      # Range: 30-600 (30s = quick, 300s = thorough, 600s = benchmark)
+      # Recommendation: 60s for production (CONSERVATIVE)
+
+    - max_iterations: 1000
+      # Maximum number of iterations to run
+      # Range: 500-5000
+      # Recommendation: 1000 for stable optimization (CONSERVATIVE)
+
+    - seed: null
+      # Random seed for reproducibility
+      # null = use system time; integer = fixed seed
+
+    - vrpp: true
+      # Enable VRPP mode (visit subset profitably)
+      # true = only visit nodes where profit > cost
+      # false = visit all nodes (CVRP mode)
+
+    # ---------------------------------------------------------------------
+    # Operator Configuration
+    # ---------------------------------------------------------------------
+    - move_operators:
+        - swap_intra
+        - relocate_intra
+        - two_opt_intra
+        - swap_inter
+        - relocate_inter
+        - two_opt_star
+        - exchange_10
+        - exchange_11
+        - exchange_21
+      # Local search operators for route improvement
+      # Applied during intensification phase
+      # Order affects selection frequency in early iterations
+
+    - perturbation_operators:
+        - random_removal
+        - string_removal
+        - route_removal
+      # Diversification operators to escape local optima
+      # Applied when no improvement after N iterations
+      # Removes nodes for subsequent greedy reinsertion
+
+    # ---------------------------------------------------------------------
+    # Guidance Indicator Weights
+    # ---------------------------------------------------------------------
+    - iri_weight: 0.6
+      # Weight for Improvement Rate Indicator (IRI)
+      # Range: 0.0-1.0 (higher = favor recently successful operators)
+      # Measures: improvement_magnitude / time_spent
+      # Recommendation: 0.6 for exploitation-focused search
+
+    - tbi_weight: 0.4
+      # Weight for Time-Based Indicator (TBI)
+      # Range: 0.0-1.0 (higher = favor unused operators)
+      # Measures: time_since_last_use (promotes exploration)
+      # Recommendation: 0.4 for balanced exploration
+      # Note: iri_weight + tbi_weight should = 1.0
+
+    # ---------------------------------------------------------------------
+    # Learning & Adaptation Parameters
+    # ---------------------------------------------------------------------
+    - learning_rate: 0.1
+      # Rate of indicator updates after each operator application
+      # Range: 0.01-0.5 (higher = faster adaptation, higher variance)
+      # Recommendation: 0.1 for stable learning
+
+    - memory_size: 50
+      # Number of recent iterations tracked for normalization
+      # Range: 20-100 (higher = smoother scores, slower adaptation)
+      # Used for moving average calculations
+
+    - epsilon: 0.2
+      # Initial exploration rate for epsilon-greedy selection
+      # Range: 0.0-1.0 (0.0 = pure exploitation, 1.0 = random)
+      # Recommendation: 0.2 for balanced exploration
+
+    - epsilon_decay: 0.995
+      # Decay rate for epsilon over iterations
+      # Range: 0.9-0.999 (lower = faster decay to exploitation)
+      # epsilon_t = epsilon_0 * (epsilon_decay)^t
+      # Recommendation: 0.995 for gradual annealing
+
+    - min_epsilon: 0.01
+      # Minimum epsilon value (prevents pure exploitation)
+      # Range: 0.0-0.1
+      # Maintains minimal exploration throughout search
+
+    # ---------------------------------------------------------------------
+    # Acceptance Criteria
+    # ---------------------------------------------------------------------
+    - accept_equal: true
+      # Accept solutions with equal quality (enables plateau traversal)
+      # true = standard in VRP literature
+      # false = strict improvement only
+
+    - accept_worse_prob: 0.05
+      # Initial probability of accepting worse solutions
+      # Range: 0.0-0.3 (simulated annealing-style acceptance)
+      # Recommendation: 0.05 for conservative diversification
+
+    - acceptance_decay: 0.99
+      # Decay rate for acceptance probability
+      # Range: 0.9-0.999
+      # prob_t = accept_worse_prob * (acceptance_decay)^t
+
+    # ---------------------------------------------------------------------
+    # Normalization Parameters
+    # ---------------------------------------------------------------------
+    - iri_window: 20
+      # Window size for IRI normalization (moving statistics)
+      # Range: 10-50
+      # Smaller = more reactive to recent changes
+
+    - tbi_window: 20
+      # Window size for TBI normalization
+      # Range: 10-50
+      # Should match iri_window for balanced indicators
+
+    # ---------------------------------------------------------------------
+    # Multi-Start Configuration
+    # ---------------------------------------------------------------------
+    - restarts: 1
+      # Number of random restarts from different initial solutions
+      # Range: 1-10 (1 = single run, 5+ = portfolio approach)
+      # Recommendation: 1 for time_limit=60s (avoid fragmentation)
+
+    - restart_threshold: 100
+      # Iterations without improvement before triggering restart
+      # Range: 50-500
+      # Only applies if restarts > 1
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - must_go: ["other/mg_lookahead.yaml"]
+      # Node selection strategy for waste collection problems
+      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # See: docs/MUST_GO_STRATEGIES.md
+
+    - post_processing: []
+      # Optional post-processing operations
+      # Empty = use GIHH output directly
+      # Options: ["pp_two_opt.yaml", "pp_relocate.yaml"]
+
+# =============================================================================
+# PARAMETER TUNING RECOMMENDATIONS
+# =============================================================================
+# For faster convergence (time_limit < 30s):
+#   - iri_weight: 0.7, tbi_weight: 0.3 (exploit more)
+#   - epsilon: 0.1, epsilon_decay: 0.99 (faster annealing)
+#
+# For better solution quality (time_limit > 120s):
+#   - iri_weight: 0.5, tbi_weight: 0.5 (balanced)
+#   - epsilon: 0.3, epsilon_decay: 0.998 (longer exploration)
+#   - restarts: 3 (multi-start diversification)
+#
+# For dynamic/uncertain environments:
+#   - learning_rate: 0.2 (faster adaptation)
+#   - memory_size: 30 (shorter memory for non-stationary)
+#   - min_epsilon: 0.05 (maintain exploration)
+# =============================================================================
