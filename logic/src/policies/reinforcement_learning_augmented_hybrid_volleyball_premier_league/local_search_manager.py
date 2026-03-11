@@ -7,9 +7,12 @@ Local Search Operators:
 
     Route:
         - 2-opt* (inter-route tail exchange)
+        - 3-opt* (inter-route 3-route tail exchange)
+        - 4-opt* (inter-route 4-route tail exchange)
         - SWAP* (inter-route node swap)
         - 2-opt (intra-route reversal)
         - 3-opt (intra-route reconnection)
+        - 4-opt (intra-route segment permutation)
 
     Move:
         - Relocate single nodes
@@ -31,9 +34,18 @@ from ..other.operators.inter_route import (
     ejection_chain,
     lambda_interchange,
     move_2opt_star,
+    move_3opt_star,
+    move_kopt_star,
     move_swap_star,
 )
-from ..other.operators.intra_route import move_2opt_intra, move_3opt_intra, move_or_opt, move_relocate, move_swap
+from ..other.operators.intra_route import (
+    move_2opt_intra,
+    move_3opt_intra,
+    move_kopt_intra,
+    move_or_opt,
+    move_relocate,
+    move_swap,
+)
 
 
 class LocalSearchManager:
@@ -271,6 +283,86 @@ class LocalSearchManager:
                     v = route[p_v]
                     if move_3opt_intra(self, u, v, r_u, p_u, r_u, p_v, self.random_std):
                         return True
+        return False
+
+    def four_opt_intra(self) -> bool:
+        """4-opt intra-route: permute four segments within routes."""
+        for r_u in range(len(self.routes)):
+            route = self.routes[r_u]
+            if len(route) < 5:
+                continue
+
+            for p_u in range(len(route) - 2):
+                u = route[p_u]
+                for p_v in range(p_u + 2, len(route)):
+                    v = route[p_v]
+                    if move_kopt_intra(self, u, v, r_u, p_u, r_u, p_v, k=4, rng=self.random_std):
+                        return True
+        return False
+
+    def three_opt_star(self) -> bool:
+        """3-opt* inter-route: exchange tails among three routes."""
+        if len(self.routes) < 3:
+            return False
+
+        for r_u in range(len(self.routes)):
+            route_u = self.routes[r_u]
+            if not route_u:
+                continue
+            for r_v in range(r_u + 1, len(self.routes)):
+                route_v = self.routes[r_v]
+                if not route_v:
+                    continue
+                for r_w in range(r_v + 1, len(self.routes)):
+                    route_w = self.routes[r_w]
+                    if not route_w:
+                        continue
+
+                    for p_u in range(len(route_u)):
+                        u = route_u[p_u]
+                        for p_v in range(len(route_v)):
+                            v = route_v[p_v]
+                            for p_w in range(len(route_w)):
+                                w = route_w[p_w]
+                                if move_3opt_star(self, u, v, w, r_u, p_u, r_v, p_v, r_w, p_w):
+                                    return True
+        return False
+
+    def four_opt_star(self) -> bool:
+        """4-opt* inter-route: exchange tails among four routes."""
+        if len(self.routes) < 4:
+            return False
+
+        for r_u in range(len(self.routes)):
+            route_u = self.routes[r_u]
+            if not route_u:
+                continue
+            for r_v in range(r_u + 1, len(self.routes)):
+                route_v = self.routes[r_v]
+                if not route_v:
+                    continue
+                for r_w in range(r_v + 1, len(self.routes)):
+                    route_w = self.routes[r_w]
+                    if not route_w:
+                        continue
+                    for r_x in range(r_w + 1, len(self.routes)):
+                        route_x = self.routes[r_x]
+                        if not route_x:
+                            continue
+
+                        for p_u in range(len(route_u)):
+                            u = route_u[p_u]
+                            for p_v in range(len(route_v)):
+                                v = route_v[p_v]
+                                for p_w in range(len(route_w)):
+                                    w = route_w[p_w]
+                                    for p_x in range(len(route_x)):
+                                        x = route_x[p_x]
+                                        if move_kopt_star(
+                                            self,
+                                            [(u, r_u, p_u), (v, r_v, p_v), (w, r_w, p_w), (x, r_x, p_x)],
+                                        ):
+                                            return True
         return False
 
     # ===== Move Operators =====

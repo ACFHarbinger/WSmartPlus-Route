@@ -45,6 +45,8 @@ from .inter_route import (
     ejection_chain,
     lambda_interchange,
     move_2opt_star,
+    move_3opt_star,
+    move_kopt_star,
     move_swap_star,
 )
 
@@ -52,6 +54,7 @@ from .inter_route import (
 from .intra_route import (
     move_2opt_intra,
     move_3opt_intra,
+    move_kopt_intra,
     move_or_opt,
     move_relocate,
     move_swap,
@@ -108,10 +111,13 @@ __all__ = [
     "move_swap",
     "move_2opt_intra",
     "move_3opt_intra",
+    "move_kopt_intra",
     "move_or_opt",
     # Inter-route
     "move_swap_star",
     "move_2opt_star",
+    "move_3opt_star",
+    "move_kopt_star",
     "cross_exchange",
     "ejection_chain",
     "lambda_interchange",
