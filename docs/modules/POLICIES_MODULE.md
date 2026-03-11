@@ -938,6 +938,63 @@ reinforcement_learning_hybrid_volleyball_premier_league/
 └── rl_hvpl.py           # RLHVPLSolver main implementation
 ```
 
+### 5.6 FILO (Fast Iterative Localized Optimization)
+
+**Directory**: `fast_iterative_localized_optimization/`
+**Adapters**: `policy_filo.py`
+
+Fast Iterative Localized Optimization (FILO) is a scalable metaheuristic built specifically to solve large Capacitated Vehicle Routing Problems (CVRP). It introduces dynamic parameters to selectively evaluate the neighborhood space.
+
+#### Architecture
+
+```text
+FILO
+├── Ruin & Recreate (Shaking)
+│   └── Node extraction proportional to `omega` intensity bounds
+├── Fast Local Search
+│   └── Sparse exploration restricted by `gamma` activation rates
+└── Simulated Annealing
+    └── Acceptance criterion with dynamic cooling
+```
+
+#### Key Features
+
+- **Granular Shaking Intensity (`omega`)**: Each node dynamically calibrates its own degree of extraction during Ruin & Recreate, bounding the scope based on the current objective value and moving average route costs.
+- **Node-Level Activation Probability (`gamma`)**: To radically reduce iteration times, FILO tracks consecutive non-improving evaluations for each node and applies an activation probability (gamma) that drops the likelihood of computing unpromising neighbors.
+- **Dynamic Tuning**: At runtime, `shaking_lb` and `shaking_ub` intervals recalibrate themselves whenever a new global best is found.
+
+#### Usage Example
+
+```python
+from logic.src.policies.adapters import PolicyFactory
+
+filo_policy = PolicyFactory.get_adapter("filo")
+tour, cost, _ = filo_policy.execute(
+    must_go=must_go_bins,
+    bins=bins_state,
+    distance_matrix=dist_matrix,
+    config={
+        "filo": {
+            "time_limit": 60.0,
+            "max_iterations": 50000,
+            "initial_temperature_factor": 10.0,
+            "delta_gamma": 0.1
+        }
+    }
+)
+```
+
+#### Performance Characteristics
+
+Because FILO uses extreme sparsification, it is capable of performing tens of thousands of iterations in highly competitive time frames.
+
+- **Computational Complexity**: O(n_nodes) per iteration dynamically masked via `gamma`.
+- **Memory Usage**: O(N) where N is node dimension, meaning it completely out-scales full ant colony and path-relinking structures.
+
+#### References
+
+1. Accorsi & Vigo. "A Fast and Scalable Heuristic for the Solution of Large-Scale Capacitated Vehicle Routing Problems", _Transportation Science_, 2021.
+
 ---
 
 ## 6. Exact Optimization
