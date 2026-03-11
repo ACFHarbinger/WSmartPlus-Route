@@ -31,7 +31,11 @@ import numpy as np
 from logic.src.policies.other.operators.heuristics import solve_lkh
 from logic.src.policies.other.operators.inter_route import (
     cross_exchange,
+    cyclic_transfer,
     ejection_chain,
+    exchange_2_0,
+    exchange_2_1,
+    improved_cross_exchange,
     lambda_interchange,
     move_2opt_star,
     move_3opt_star,
@@ -39,12 +43,15 @@ from logic.src.policies.other.operators.inter_route import (
     move_swap_star,
 )
 from logic.src.policies.other.operators.intra_route import (
+    geni_insert,
     move_2opt_intra,
     move_3opt_intra,
     move_kopt_intra,
     move_or_opt,
     move_relocate,
     move_swap,
+    relocate_chain,
+    three_permutation,
 )
 
 
@@ -189,6 +196,28 @@ class LocalSearchManager:
                                     return True
         return False
 
+    def improved_cross_exchange_op(self, max_seg_len: int = 2) -> bool:
+        """
+        Improved Cross-exchange: swap segments between routes with optional internal reversal.
+        """
+        if len(self.routes) < 2:
+            return False
+
+        for r_a in range(len(self.routes)):
+            for r_b in range(r_a + 1, len(self.routes)):
+                for seg_a_len in range(max_seg_len + 1):
+                    for seg_b_len in range(max_seg_len + 1):
+                        if seg_a_len == 0 and seg_b_len == 0:
+                            continue
+
+                        for seg_a_start in range(len(self.routes[r_a]) - seg_a_len + 1):
+                            for seg_b_start in range(len(self.routes[r_b]) - seg_b_len + 1):
+                                if improved_cross_exchange(
+                                    self, r_a, seg_a_start, seg_a_len, r_b, seg_b_start, seg_b_len
+                                ):
+                                    return True
+        return False
+
     def lambda_interchange_op(self, lambda_max: int = 2) -> bool:
         """
         λ-interchange: generalized cross-exchange with segment lengths up to λ.
@@ -208,6 +237,55 @@ class LocalSearchManager:
 
         # Try ejection on up to 3 smallest routes
         return any(ejection_chain(self, r_idx, max_depth) for r_idx, _ in route_sizes[:3])
+
+    def cyclic_transfer_op(self) -> bool:
+        """
+        Cyclic transfer: 3-way cyclical node exchange.
+        """
+        if len(self.routes) < 3:
+            return False
+
+        # Attempt to find an improving 3-way cycle
+        for r_a in range(len(self.routes)):
+            if not self.routes[r_a]:
+                continue
+            for r_b in range(r_a + 1, len(self.routes)):
+                if not self.routes[r_b]:
+                    continue
+                for r_c in range(r_b + 1, len(self.routes)):
+                    if not self.routes[r_c]:
+                        continue
+
+                    for p_a in range(len(self.routes[r_a])):
+                        for p_b in range(len(self.routes[r_b])):
+                            for p_c in range(len(self.routes[r_c])):
+                                if cyclic_transfer(self, [(r_a, p_a), (r_b, p_b), (r_c, p_c)]):
+                                    return True
+        return False
+
+    def exchange_chain_op(self) -> bool:
+        """
+        Exchange chain: evaluate block transfers composed of exchange_2_0 and exchange_2_1.
+        """
+        if len(self.routes) < 2:
+            return False
+
+        for r_a in range(len(self.routes)):
+            for r_b in range(len(self.routes)):
+                if r_a == r_b:
+                    continue
+                # Try exchange (2, 0)
+                for p_a in range(len(self.routes[r_a]) - 1):
+                    for p_b in range(len(self.routes[r_b]) + 1):
+                        if exchange_2_0(self, r_a, p_a, r_b, p_b):
+                            return True
+
+                # Try exchange (2, 1) mutually
+                for p_a in range(len(self.routes[r_a]) - 1):
+                    for p_b in range(len(self.routes[r_b])):
+                        if exchange_2_1(self, r_a, p_a, r_b, p_b):
+                            return True
+        return False
 
     # ===== Route Operators =====
 
@@ -300,6 +378,39 @@ class LocalSearchManager:
                         return True
         return False
 
+    def three_permutation_op(self) -> bool:
+        """3-permutation intra-route: reorder 3 consecutive nodes."""
+        for r_u in range(len(self.routes)):
+            route = self.routes[r_u]
+            if len(route) < 3:
+                continue
+
+            for p_u in range(len(route) - 3 + 1):
+                if three_permutation(self, r_u, p_u):
+                    return True
+        return False
+
+    def geni_exchange_op(self) -> bool:
+        """GENI exchange intra-route: remove a node and reinsert optimally."""
+        for r_u in range(len(self.routes)):
+            route = self.routes[r_u].copy()
+            if len(route) < 4:
+                continue
+
+            for p_u, node in enumerate(route):
+                # Temporarily remove
+                self.routes[r_u].pop(p_u)
+                self._update_map({r_u})
+
+                # Check if reinserting via GENI yields a better configuration anywhere in the tour
+                if geni_insert(self, node, r_u):
+                    return True
+
+                # Revert if no GENI move was made
+                self.routes[r_u].insert(p_u, node)
+                self._update_map({r_u})
+        return False
+
     def three_opt_star(self) -> bool:
         """3-opt* inter-route: exchange tails among three routes."""
         if len(self.routes) < 3:
@@ -385,6 +496,26 @@ class LocalSearchManager:
                         v = route_v[p_v]
                         if move_relocate(self, u, v, r_u, p_u, r_v, p_v):
                             return True
+        return False
+
+    def relocate_chain_op(self, max_chain_len: int = 3) -> bool:
+        """
+        Relocate chain: move a chain of consecutive nodes to another position.
+        """
+        for r_u in range(len(self.routes)):
+            route_u = self.routes[r_u]
+            if not route_u:
+                continue
+
+            for chain_len in range(2, max_chain_len + 1):
+                if len(route_u) < chain_len:
+                    break
+                for p_u in range(len(route_u) - chain_len + 1):
+                    for r_v in range(len(self.routes)):
+                        route_v = self.routes[r_v]
+                        for p_v in range(len(route_v)):
+                            if relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=chain_len):
+                                return True
         return False
 
     def swap(self) -> bool:

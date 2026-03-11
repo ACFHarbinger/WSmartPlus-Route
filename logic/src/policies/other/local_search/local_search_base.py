@@ -28,16 +28,20 @@ from ..operators.inter_route import (
     move_2opt_star,
     move_swap_star,
 )
-from ..operators.inter_route.cross_exchange import cross_exchange
+from ..operators.inter_route.cross_exchange import cross_exchange, improved_cross_exchange, lambda_interchange
+from ..operators.inter_route.cyclic_transfer import cyclic_transfer
 from ..operators.inter_route.ejection_chain import ejection_chain
-from ..operators.inter_route.lambda_interchange import lambda_interchange
+from ..operators.inter_route.exchange_chain import exchange_2_0, exchange_2_1
 from ..operators.intra_route import (
     move_2opt_intra,
     move_3opt_intra,
     move_relocate,
     move_swap,
 )
+from ..operators.intra_route.geni import geni_insert
+from ..operators.intra_route.k_permutation import three_permutation
 from ..operators.intra_route.or_opt import move_or_opt
+from ..operators.intra_route.relocate import relocate_chain
 
 
 class LocalSearch(PolicyVizMixin, ABC):
@@ -156,6 +160,8 @@ class LocalSearch(PolicyVizMixin, ABC):
                 return True
             if self._move_swap(u, v, r_u, p_u, r_v, p_v):
                 return True
+            if getattr(self.params, "use_relocate_chain", False) and self._move_relocate_chain(u, r_u, p_u, r_v, p_v):
+                return True
             if r_u != r_v:
                 if self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
                     return True
@@ -166,10 +172,21 @@ class LocalSearch(PolicyVizMixin, ABC):
                 if getattr(self.params, "use_cross_exchange", False) and self._try_cross_exchange(r_u, p_u, r_v, p_v):
                     return True
 
+                if getattr(self.params, "use_improved_cross_exchange", False) and self._try_improved_cross_exchange(
+                    r_u, p_u, r_v, p_v
+                ):
+                    return True
+
                 if getattr(self.params, "use_lambda_interchange", False) and self._try_lambda_interchange(r_u, r_v):
                     return True
 
-                if getattr(self.params, "use_ejection_chains", False) and self._try_ejection_chain(u, r_u, p_u):
+                if getattr(self.params, "use_cyclic_transfer", False) and self._try_cyclic_transfer(r_u, p_u, r_v, p_v):
+                    return True
+
+                if getattr(self.params, "use_exchange_chains", False) and self._try_exchange_chains(r_u, p_u, r_v, p_v):
+                    return True
+
+                if getattr(self.params, "use_ejection_chains", False) and self._try_ejection_chain(r_u):
                     return True
             else:
                 if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
@@ -177,6 +194,10 @@ class LocalSearch(PolicyVizMixin, ABC):
                 if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
                     return True
                 if self._move_or_opt(u, self.random.choice([1, 2, 3]), r_u, p_u):
+                    return True
+                if getattr(self.params, "use_three_permutation", False) and self._move_three_permutation(u, r_u, p_u):
+                    return True
+                if getattr(self.params, "use_geni_exchange", False) and self._try_geni_exchange(u, r_u, p_u):
                     return True
 
         return False
@@ -212,10 +233,49 @@ class LocalSearch(PolicyVizMixin, ABC):
         return move_or_opt(self, u, chain_len, r_u, p_u)
 
     def _try_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        return cross_exchange(self, r_u, p_u, r_v, p_v)
+        return cross_exchange(self, r_u, p_u, 1, r_v, p_v, 1)
+
+    def _try_improved_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        return improved_cross_exchange(self, r_u, p_u, 1, r_v, p_v, 1)
 
     def _try_lambda_interchange(self, r_u: int, r_v: int) -> bool:
-        return lambda_interchange(self, r_u, r_v, getattr(self.params, "lambda_max", 2))
+        return lambda_interchange(self, getattr(self.params, "lambda_max", 2))
 
-    def _try_ejection_chain(self, u: int, r_u: int, p_u: int) -> bool:
-        return ejection_chain(self, u, r_u, p_u)
+    def _try_cyclic_transfer(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        if len(self.routes) < 3:
+            return False
+        candidates = [r for r in range(len(self.routes)) if r != r_u and r != r_v and self.routes[r]]
+        if not candidates:
+            return False
+        r_w = self.random.choice(candidates)
+        p_w = self.random.randint(0, len(self.routes[r_w]) - 1)
+        return cyclic_transfer(self, [(r_u, p_u), (r_v, p_v), (r_w, p_w)])
+
+    def _try_exchange_chains(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        if exchange_2_0(self, r_u, p_u, r_v, p_v):
+            return True
+        return bool(exchange_2_1(self, r_u, p_u, r_v, p_v))
+
+    def _try_ejection_chain(self, r_u: int) -> bool:
+        return ejection_chain(self, r_u)
+
+    def _move_relocate_chain(self, u: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        if relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=2):
+            return True
+        return bool(relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=3))
+
+    def _move_three_permutation(self, u: int, r_u: int, p_u: int) -> bool:
+        return three_permutation(self, r_u, p_u)
+
+    def _try_geni_exchange(self, u: int, r_u: int, p_u: int) -> bool:
+        if len(self.routes[r_u]) < 4:
+            return False
+        self.routes[r_u].pop(p_u)
+        self._update_map({r_u})
+
+        if geni_insert(self, u, r_u):
+            return True
+
+        self.routes[r_u].insert(p_u, u)
+        self._update_map({r_u})
+        return False

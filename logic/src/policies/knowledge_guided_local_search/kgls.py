@@ -12,10 +12,11 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+
 from logic.src.policies.knowledge_guided_local_search.cost_evaluator import CostEvaluator
 from logic.src.policies.knowledge_guided_local_search.params import KGLSParams
-from logic.src.policies.other.reinforcement_learning.local_search_manager import (
-    LocalSearchManager,
+from logic.src.policies.other.local_search.local_search_aco import (
+    ACOLocalSearch,
 )
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
@@ -116,36 +117,13 @@ class KGLSSolver(PolicyVizMixin):
         return routes
 
     def apply_local_search(
-        self, routes: List[List[int]], ls_manager: LocalSearchManager, targeted_nodes: Optional[List[int]] = None
+        self, routes: List[List[int]], ls_manager: ACOLocalSearch, targeted_nodes: Optional[List[int]] = None
     ) -> List[List[int]]:
         """
         Apply local search operators to improve the solution.
         If mapped to targeted nodes, search effort is computationally localized.
         """
-        ls_manager.set_routes(routes)
-
-        # We sequentially fire operators, keeping track of improvements
-        improvement_found = True
-        while improvement_found:
-            improvement_found = False
-
-            # Map operators
-            for move in self.params.moves:
-                if move == "two_opt":
-                    improved = ls_manager.two_opt_intra() or ls_manager.two_opt_star()
-                elif move == "swap":
-                    improved = ls_manager.swap() or ls_manager.swap_star()
-                elif move == "relocate":
-                    improved = ls_manager.relocate()
-                elif move == "cross_exchange":
-                    improved = ls_manager.cross_exchange_op()
-                else:
-                    improved = False
-
-                if improved:
-                    improvement_found = True
-
-        return ls_manager.get_routes()
+        return ls_manager.optimize(routes)
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """Main KGLS execution loop."""
@@ -154,13 +132,13 @@ class KGLSSolver(PolicyVizMixin):
         current_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
 
         # Run Initial Local Search without penalties
-        ls_manager = LocalSearchManager(
+        ls_manager = ACOLocalSearch(
             dist_matrix=self.evaluator.dist_matrix,
-            wastes=self.wastes,
+            waste=self.wastes,
             capacity=self.capacity,
             R=self.R,
             C=self.C,
-            improvement_threshold=1e-4,
+            params=self.params,
             seed=self.params.seed,
         )
         current_routes = self.apply_local_search(current_routes, ls_manager)
@@ -206,13 +184,13 @@ class KGLSSolver(PolicyVizMixin):
 
             # Run Local Search heavily restricted/targeted around the perturbed (penalized) matrix
             perturbed_matrix = self.evaluator.get_distance_matrix()
-            ls_manager_perturbed = LocalSearchManager(
+            ls_manager_perturbed = ACOLocalSearch(
                 dist_matrix=perturbed_matrix,
-                wastes=self.wastes,
+                waste=self.wastes,
                 capacity=self.capacity,
                 R=self.R,
                 C=self.C,
-                improvement_threshold=1e-4,
+                params=self.params,
                 seed=self.params.seed,
             )
             current_routes = self.apply_local_search(current_routes, ls_manager_perturbed, targeted_nodes)
@@ -220,7 +198,7 @@ class KGLSSolver(PolicyVizMixin):
             # --- Improvement Phase (True Descents) ---
             self.evaluator.disable_penalization()
 
-            ls_manager.set_routes(current_routes)  # reload state to true baseline matrix
+            # For ACOLocalSearch, optimize() re-initializes routes automatically
             current_routes = self.apply_local_search(current_routes, ls_manager)
 
             # Evaluate using True Distance baseline

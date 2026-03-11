@@ -8,7 +8,6 @@ or moves where the source and destination may be the same or different routes.
 from .geni import geni_insert
 from .k_opt import move_2opt_intra, move_3opt_intra, move_kopt_intra
 from .k_permutation import k_permutation, three_permutation
-from .link_swap import link_swap
 from .or_opt import move_or_opt
 from .relocate import move_relocate, relocate_chain
 from .swap import move_swap
@@ -23,6 +22,5 @@ __all__ = [
     "geni_insert",
     "k_permutation",
     "three_permutation",
-    "link_swap",
     "relocate_chain",
 ]
