@@ -1,0 +1,16 @@
+# @package rl
+# Fast Iterative Localized Optimization (FILO) Configuration
+
+type: python
+
+filo:
+  time_limit: 60.0
+  max_iterations: 50000
+  initial_temperature_factor: 10.0
+  final_temperature_factor: 100.0
+  shaking_lb_factor: 0.5
+  shaking_ub_factor: 2.0
+  delta_gamma: 0.1
+  gamma_base: 1.0
+  omega_base_multiplier: 1.0
+  seed: 42

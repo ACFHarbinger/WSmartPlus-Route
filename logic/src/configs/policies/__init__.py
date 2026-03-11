@@ -9,6 +9,7 @@ from .alns import ALNSConfig
 from .bcp import BCPConfig
 from .cvrp import CVRPConfig
 from .fa import FAConfig
+from .filo import FILOConfig
 from .gihh import GIHHConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
@@ -40,6 +41,7 @@ __all__ = [
     "ALNSConfig",
     "BCPConfig",
     "CVRPConfig",
+    "FILOConfig",
     "GIHHConfig",
     "HGSConfig",
     "HGSALNSConfig",
