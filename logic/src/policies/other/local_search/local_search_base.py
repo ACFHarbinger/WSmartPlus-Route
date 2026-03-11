@@ -24,18 +24,20 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..operators import (
-    move_2opt_intra,
+from ..operators.inter_route import (
     move_2opt_star,
+    move_swap_star,
+)
+from ..operators.inter_route.cross_exchange import cross_exchange
+from ..operators.inter_route.ejection_chain import ejection_chain
+from ..operators.inter_route.lambda_interchange import lambda_interchange
+from ..operators.intra_route import (
+    move_2opt_intra,
     move_3opt_intra,
     move_relocate,
     move_swap,
-    move_swap_star,
 )
-from ..operators.exchange.cross import cross_exchange
-from ..operators.exchange.ejection import ejection_chain
-from ..operators.exchange.lambda_interchange import lambda_interchange
-from ..operators.exchange.or_opt import move_or_opt
+from ..operators.intra_route.or_opt import move_or_opt
 
 
 class LocalSearch(PolicyVizMixin, ABC):

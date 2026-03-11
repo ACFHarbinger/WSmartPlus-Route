@@ -45,7 +45,8 @@ def random_removal(
         return [[]], [n for _, _, n in all_nodes]
 
     if rng is None:
-        rng = Random()
+        rng = Random(42)
+
     targets = rng.sample(all_nodes, n_remove)
 
     # Sort targets by r_idx, n_idx desc to pop safely

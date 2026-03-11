@@ -52,7 +52,7 @@ def greedy_insertion_with_blinks(
         loads.append(sum(wastes.get(n, 0) for n in route))
 
     if rng is None:
-        rng = Random()
+        rng = Random(42)
 
     # Reinsert in random order
     rng.shuffle(removed_nodes)

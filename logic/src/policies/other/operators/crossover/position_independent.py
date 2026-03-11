@@ -24,7 +24,7 @@ def position_independent_crossover(p1: Individual, p2: Individual, rng: Optional
         Child individual.
     """
     if rng is None:
-        rng = random.Random()
+        rng = random.Random(42)
 
     # Get all unique nodes from both parents
     all_nodes = set(p1.giant_tour) | set(p2.giant_tour)

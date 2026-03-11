@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -16,13 +16,13 @@ class StateFeatureExtractor:
 
     def __init__(
         self,
-        progress_thresholds: List[float] = None,
-        stagnation_thresholds: List[int] = None,
-        diversity_thresholds: List[float] = None,
+        progress_thresholds: Optional[Tuple[float, float]] = None,
+        stagnation_thresholds: Optional[Tuple[int, int]] = None,
+        diversity_thresholds: Optional[Tuple[float, float]] = None,
     ):
-        self.progress_thresholds = progress_thresholds or [0.33, 0.67]
-        self.stagnation_thresholds = stagnation_thresholds or [10, 30]
-        self.diversity_thresholds = diversity_thresholds or [0.3, 0.7]
+        self.progress_thresholds = progress_thresholds or (0.33, 0.67)
+        self.stagnation_thresholds = stagnation_thresholds or (10, 30)
+        self.diversity_thresholds = diversity_thresholds or (0.3, 0.7)
 
     def extract_features(
         self,

@@ -20,8 +20,13 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..other.operators.destroy_operators import cluster_removal, random_removal, worst_removal
-from ..other.operators.repair_operators import greedy_insertion, regret_2_insertion
+from ..other.operators import (
+    cluster_removal,
+    greedy_insertion,
+    random_removal,
+    regret_2_insertion,
+    worst_removal,
+)
 from .params import RRParams
 
 

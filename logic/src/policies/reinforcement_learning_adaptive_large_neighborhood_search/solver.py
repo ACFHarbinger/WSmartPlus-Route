@@ -16,8 +16,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.other.operators.destroy_operators import cluster_removal, random_removal, worst_removal
-from logic.src.policies.other.operators.repair_operators import greedy_insertion, regret_2_insertion
+from logic.src.policies.other.operators import (
+    cluster_removal,
+    greedy_insertion,
+    random_removal,
+    regret_2_insertion,
+    worst_removal,
+)
 from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     DiscountedUCBBandit as DiscountedUCBAgent,
 )

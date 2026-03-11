@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.other.operators.crossover import ordered_crossover
+from logic.src.policies.other.operators.crossover.ordered import ordered_crossover
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..other.local_search.local_search_hgs import HGSLocalSearch

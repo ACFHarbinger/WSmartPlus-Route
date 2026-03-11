@@ -7,7 +7,7 @@ Most complex US operator involving four neighbor nodes and multiple reversals.
 from typing import List
 
 
-def apply_type_iv_unstringing(route: List[int], i: int, j: int, k: int, l: int) -> List[int]:
+def apply_type_iv_us(route: List[int], i: int, j: int, k: int, l: int) -> List[int]:
     """
     Apply Type IV Unstringing move.
 

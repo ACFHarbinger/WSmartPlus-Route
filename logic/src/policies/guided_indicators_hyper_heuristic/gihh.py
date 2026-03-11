@@ -14,9 +14,10 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .indicators import ImprovementRateIndicator, TimeBasedIndicator
 from .params import GIHHParams
-from .solution import Solution, create_initial_solution
+from .solution import Solution
 
 
 class GIHHSolver(PolicyVizMixin):
@@ -96,15 +97,16 @@ class GIHHSolver(PolicyVizMixin):
 
         for restart in range(self.params.restarts):
             # Initialize solution
-            current = create_initial_solution(
+            routes = build_greedy_routes(
                 dist_matrix=self.d,
                 wastes=self.wastes,
                 capacity=self.Q,
-                revenue=self.R,
-                cost_unit=self.C,
+                R=self.R,
+                C=self.C,
                 mandatory_nodes=self.mandatory_nodes,
                 rng=self.rng,
             )
+            current = Solution(routes, self.d, self.wastes, self.Q, self.R, self.C)
 
             restart_best = current.copy()
             restart_best_profit = restart_best.profit

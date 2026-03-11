@@ -22,8 +22,7 @@ import numpy as np
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..other.operators.destroy_operators import worst_removal
-from ..other.operators.repair_operators import greedy_insertion
+from ..other.operators import greedy_insertion, worst_removal
 from .params import PSOMAParams
 from .particle import PSOMAParticle
 
