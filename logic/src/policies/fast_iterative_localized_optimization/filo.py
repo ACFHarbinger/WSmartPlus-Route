@@ -11,6 +11,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+
 from logic.src.policies.fast_iterative_localized_optimization.params import FILOParams
 from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate import (
     RuinAndRecreate,
