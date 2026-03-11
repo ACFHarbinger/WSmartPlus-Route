@@ -1,0 +1,94 @@
+"""
+Deep Insertion Operator Module.
+
+An intensive variant of greedy insertion that scores each candidate position
+not only by the immediate cost delta but also by the residual capacity
+utility of the receiving route.  This favours balanced loads and avoids
+overloading routes with high residual capacity.
+
+Score formula:
+    score = cost_delta - alpha * residual_capacity_utility
+
+where ``residual_capacity_utility = (capacity - load - node_demand) / capacity``.
+
+A lower ``alpha`` behaves like standard greedy; higher ``alpha`` biases
+toward more balanced solutions.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.other.operators.repair.deep import deep_insertion
+    >>> routes = deep_insertion(routes, removed, dist_matrix, wastes, capacity, alpha=0.3)
+"""
+
+from typing import Dict, List
+
+import numpy as np
+
+
+def deep_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    alpha: float = 0.3,
+) -> List[List[int]]:
+    """
+    Deep insertion: cost-delta minus capacity-utility scoring.
+
+    Args:
+        routes: Partial routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: Waste/demand look-up per node.
+        capacity: Vehicle capacity.
+        alpha: Weight for residual capacity penalty (>= 0).
+
+    Returns:
+        Updated routes with nodes inserted.
+    """
+    loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
+    unassigned = sorted(list(removed_nodes))
+
+    while unassigned:
+        best_score = float("inf")
+        best_node = -1
+        best_route = -1
+        best_pos = -1
+
+        for node in unassigned:
+            node_waste = wastes.get(node, 0)
+
+            for r_idx, route in enumerate(routes):
+                if loads[r_idx] + node_waste > capacity:
+                    continue
+
+                residual = (capacity - loads[r_idx] - node_waste) / max(capacity, 1e-9)
+
+                for pos in range(len(route) + 1):
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+
+                    cost_delta = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+
+                    score = cost_delta - alpha * residual
+
+                    if score < best_score:
+                        best_score = score
+                        best_node = node
+                        best_route = r_idx
+                        best_pos = pos
+
+        if best_node != -1:
+            routes[best_route].insert(best_pos, best_node)
+            loads[best_route] += wastes.get(best_node, 0)
+            unassigned.remove(best_node)
+        else:
+            for node in unassigned:
+                routes.append([node])
+                loads.append(wastes.get(node, 0))
+            break
+
+    return routes
