@@ -24,13 +24,12 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..other.operators.destroy_operators import string_removal
-from ..other.operators.repair_operators import greedy_insertion_with_blinks
-from ..other.operators.unstringing import (
-    apply_type_i_unstringing,
-    apply_type_ii_unstringing,
-    apply_type_iii_unstringing,
-    apply_type_iv_unstringing,
+from ..other.operators import greedy_insertion_with_blinks, string_removal
+from ..other.operators.perturbation import (
+    apply_type_i_us,
+    apply_type_ii_us,
+    apply_type_iii_us,
+    apply_type_iv_us,
 )
 from .params import SISRParams
 
@@ -274,7 +273,7 @@ class SISRSolver(PolicyVizMixin):
                         continue
 
                     try:
-                        new_route = apply_type_i_unstringing(route[:], i, j, k)
+                        new_route = apply_type_i_us(route[:], i, j, k)
                         best_route, best_profit, move_improved = self._evaluate_unstringing_move(
                             new_route, all_routes, route_idx, best_route, best_profit
                         )
@@ -301,7 +300,7 @@ class SISRSolver(PolicyVizMixin):
                         continue
 
                     try:
-                        new_route = apply_type_ii_unstringing(route[:], i, j, k)
+                        new_route = apply_type_ii_us(route[:], i, j, k)
                         best_route, best_profit, move_improved = self._evaluate_unstringing_move(
                             new_route, all_routes, route_idx, best_route, best_profit
                         )
@@ -329,7 +328,7 @@ class SISRSolver(PolicyVizMixin):
                             continue
 
                         try:
-                            new_route = apply_type_iii_unstringing(route[:], i, j, k, l)
+                            new_route = apply_type_iii_us(route[:], i, j, k, l)
                             best_route, best_profit, move_improved = self._evaluate_unstringing_move(
                                 new_route, all_routes, route_idx, best_route, best_profit
                             )
@@ -357,7 +356,7 @@ class SISRSolver(PolicyVizMixin):
                             continue
 
                         try:
-                            new_route = apply_type_iv_unstringing(route[:], i, j, k, l)
+                            new_route = apply_type_iv_us(route[:], i, j, k, l)
                             best_route, best_profit, move_improved = self._evaluate_unstringing_move(
                                 new_route, all_routes, route_idx, best_route, best_profit
                             )

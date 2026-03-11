@@ -2,11 +2,11 @@
 Unit tests for Unstringing and Stringing (US) operators.
 """
 
-from logic.src.policies.other.operators.unstringing import (
-    apply_type_i_unstringing,
-    apply_type_ii_unstringing,
-    apply_type_iii_unstringing,
-    apply_type_iv_unstringing,
+from logic.src.policies.other.operators.perturbation.unstringing import (
+    apply_type_i_us,
+    apply_type_ii_us,
+    apply_type_iii_us,
+    apply_type_iv_us,
 )
 
 
@@ -48,7 +48,7 @@ def test_type_i_unstringing():
     j = 7
     k = 5
 
-    new_route = apply_type_i_unstringing(route, i, j, k)
+    new_route = apply_type_i_us(route, i, j, k)
     expected = [0, 1, 2, 5, 4, 7, 6, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"
@@ -80,7 +80,7 @@ def test_type_ii_unstringing():
     j = 5
     k = 7
 
-    new_route = apply_type_ii_unstringing(route, i, j, k)
+    new_route = apply_type_ii_us(route, i, j, k)
     expected = [0, 1, 2, 7, 6, 5, 4, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"
@@ -112,7 +112,7 @@ def test_type_iii_unstringing():
     j = 7
     l = 8
 
-    new_route = apply_type_iii_unstringing(route, i, j, k, l)
+    new_route = apply_type_iii_us(route, i, j, k, l)
     expected = [0, 1, 2, 5, 4, 7, 6, 8, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"
@@ -152,7 +152,7 @@ def test_type_iv_unstringing():
     l = 5
     k = 7
 
-    new_route = apply_type_iv_unstringing(route, i, j, k, l)
+    new_route = apply_type_iv_us(route, i, j, k, l)
     expected = [0, 1, 5, 6, 7, 8, 4, 3, 2, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"

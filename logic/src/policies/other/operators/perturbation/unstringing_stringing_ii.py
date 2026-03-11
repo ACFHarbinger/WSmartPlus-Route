@@ -7,7 +7,7 @@ Removes node V_i and reconnects the route involving V_j and V_k where k > j.
 from typing import List
 
 
-def apply_type_ii_unstringing(route: List[int], i: int, j: int, k: int) -> List[int]:
+def apply_type_ii_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     """
     Apply Type II Unstringing move.
 

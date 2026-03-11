@@ -31,7 +31,6 @@ def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
     alpha = np.copy(distance_matrix)
     mst_mask = (mst > 0) | (mst.T > 0)
     alpha[mst_mask] = 0
-
     return alpha
 
 
@@ -105,13 +104,6 @@ def apply_2opt_move(tour: List[int], i: int, j: int) -> List[int]:
     Apply 2-opt move: reverse segment between i+1 and j.
     Indices refer to positions in the open tour (0 to n-1).
     """
-    # Create new tour
-    # tour is [0, A, B, ..., 0]
-    # We operate on the sequence of nodes.
-    # Standard 2-opt on indices i, j implies edge (i, i+1) and (j, j+1) are broken.
-    # New edges: (i, j) and (i+1, j+1).
-    # Segment reversed: i+1 to j.
-
     new_tour = tour[:]
     # Python slicing is [start : end] exclusive.
     # Reverse elements from i+1 up to j (inclusive)

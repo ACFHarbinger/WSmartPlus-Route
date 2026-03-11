@@ -28,7 +28,7 @@ def selective_route_exchange_crossover(
         Child individual.
     """
     if rng is None:
-        rng = random.Random()
+        rng = random.Random(42)
 
     if not p1.routes or not p2.routes:
         # Fallback to ordered crossover if routes not available

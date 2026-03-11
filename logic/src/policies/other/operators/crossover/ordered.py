@@ -22,7 +22,7 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
         Child individual.
     """
     if rng is None:
-        rng = random.Random()
+        rng = random.Random(42)
 
     size1 = len(p1.giant_tour)
     size2 = len(p2.giant_tour)

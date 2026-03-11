@@ -43,6 +43,7 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators import build_greedy_routes
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import SarsaAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
@@ -62,6 +63,18 @@ from ..other.operators.destroy import (
 from ..other.operators.destroy import (
     worst_removal as worst_removal_op,
 )
+from ..other.operators.perturbation import (
+    apply_type_i_us as type_i_removal_op,
+)
+from ..other.operators.perturbation import (
+    apply_type_ii_us as type_ii_removal_op,
+)
+from ..other.operators.perturbation import (
+    apply_type_iii_us as type_iii_removal_op,
+)
+from ..other.operators.perturbation import (
+    apply_type_iv_us as type_iv_removal_op,
+)
 from ..other.operators.perturbation import kick as kick_op
 from ..other.operators.perturbation import perturb as perturb_op
 from ..other.operators.repair import (
@@ -76,74 +89,8 @@ from ..other.operators.repair import (
 from ..other.operators.repair import (
     regret_k_insertion as regret_k_insertion_op,
 )
-from ..other.operators.unstringing import (
-    apply_type_i_unstringing as type_i_removal_op,
-)
-from ..other.operators.unstringing import (
-    apply_type_ii_unstringing as type_ii_removal_op,
-)
-from ..other.operators.unstringing import (
-    apply_type_iii_unstringing as type_iii_removal_op,
-)
-from ..other.operators.unstringing import (
-    apply_type_iv_unstringing as type_iv_removal_op,
-)
+from .alns_perturbation_context import ALNSPerturbationContext
 from .params import ALNSParams, RLAHVPLParams
-
-
-class ALNSPerturbationContext:
-    """
-    Context object required by perturbation operators.
-
-    This class serves as a state-carrier for the various perturbation
-    and destruction heuristics, providing a unified interface for
-    route data, waste demands, and distance matrices.
-    """
-
-    def __init__(self, routes: List[List[int]], dist_matrix: np.ndarray, wastes: Dict[int, float], capacity: float):
-        """
-        Initialize the perturbation context.
-
-        Args:
-            routes (List[List[int]]): Current solution routes.
-            dist_matrix (np.ndarray): NxN distance matrix.
-            wastes (Dict[int, float]): Dictionary of node waste demands.
-            capacity (float): Maximum vehicle capacity.
-        """
-        self.routes = copy.deepcopy(routes)
-        self.dist_matrix = dist_matrix
-        self.d = dist_matrix
-        self.wastes = wastes
-        self.Q = capacity
-        self._build_structures()
-
-    def _build_structures(self) -> None:
-        """Construct auxiliary structures like node_map for efficient lookup."""
-        self.node_map = {}
-        for r_idx, route in enumerate(self.routes):
-            for pos, node in enumerate(route):
-                self.node_map[node] = (r_idx, pos)
-
-    def _update_map(self, changed_routes: set) -> None:
-        """
-        Rebuild internal maps after modifications.
-
-        Args:
-            changed_routes (set): Indices of routes that were modified (for efficiency).
-        """
-        self._build_structures()
-
-    def _get_load_cached(self, ri: int) -> float:
-        """
-        Calculate total waste load of a specific route.
-
-        Args:
-            ri (int): Index of the route.
-
-        Returns:
-            float: Sum of waste for all nodes in the route.
-        """
-        return sum(self.wastes.get(n, 0) for n in self.routes[ri])
 
 
 class ALNSSARSASolver(PolicyVizMixin):
@@ -594,13 +541,20 @@ class ALNSSARSASolver(PolicyVizMixin):
         self, initial_solution: Optional[List[List[int]]]
     ) -> Tuple[List[List[int]], List[List[int]], float, float]:
         """Initialize solution and metrics."""
-        current_routes = initial_solution or self.build_initial_solution()
+        current_routes = initial_solution or build_greedy_routes(
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+        )
         best_routes = copy.deepcopy(current_routes)
 
         best_cost = self.calculate_cost(best_routes)
         best_rev = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r)
         best_profit = best_rev - best_cost
-
         return current_routes, best_routes, best_profit, best_cost
 
     def _calc_removal_size(self, routes: List[List[int]]) -> int:
@@ -650,34 +604,3 @@ class ALNSSARSASolver(PolicyVizMixin):
             dist += self.dist_matrix[route[-1]][0]
             total_dist += dist
         return total_dist * self.C
-
-    def build_initial_solution(self) -> List[List[int]]:
-        """Build initial feasible solution using greedy heuristic."""
-        nodes = self.nodes[:]
-        self.random.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
-        mandatory_set = set(self.mandatory_nodes)
-        for node in nodes:
-            waste = self.wastes.get(node, 0)
-            revenue = waste * self.R
-            is_mandatory = node in mandatory_set
-
-            # VRPP check: is node profitable?
-            if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
-                continue
-
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-
-        if curr_route:
-            routes.append(curr_route)
-
-        return routes

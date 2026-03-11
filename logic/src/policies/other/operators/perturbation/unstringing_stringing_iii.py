@@ -7,7 +7,7 @@ Involves three neighbor nodes (V_j, V_k, V_l) and complex reversals.
 from typing import List
 
 
-def apply_type_iii_unstringing(route: List[int], i: int, j: int, k: int, l: int) -> List[int]:
+def apply_type_iii_us(route: List[int], i: int, j: int, k: int, l: int) -> List[int]:
     """
     Apply Type III Unstringing move.
 

@@ -1,17 +1,30 @@
 """
 HGS Local Search operators package.
 
-This package provides a comprehensive suite of local search operators for VRP:
-- Move operators: relocate, swap
-- Route operators: 2-opt, 3-opt, 2-opt*, swap*
-- Perturbation operators: perturb, kick
-- Destroy operators: random, worst, cluster, shaw, string removal (SISR)
-- Repair operators: greedy, regret-2, regret-k, blink insertion (SISR)
-- Exchange operators: or-opt, cross-exchange, ejection chain, λ-interchange
+This package provides a comprehensive suite of local search operators for VRP,
+organized by category:
+- Crossover: GA evolution recombination operators.
+- Destroy: Removal heuristics (random, worst, cluster, shaw, string).
+- Repair: Insertion heuristics (greedy, regret-2, regret-k, blink).
+- Intra-route: Moves within a single route (relocate, swap, 2-opt, 3-opt, or-opt).
+- Inter-route: Moves between different routes (swap*, 2-opt*, cross, ejection, lambda).
+- Perturbation: Kick, random perturb, and unstringing operators.
+- Heuristics: Complex local search heuristics (initialization, LKH).
 """
 
+# Crossover operators
+from .crossover import (
+    CROSSOVER_NAMES,
+    CROSSOVER_OPERATORS,
+    edge_recombination_crossover,
+    generalized_partition_crossover,
+    ordered_crossover,
+    position_independent_crossover,
+    selective_route_exchange_crossover,
+)
+
 # Destroy operators
-from .destroy_operators import (
+from .destroy import (
     cluster_removal,
     random_removal,
     shaw_removal,
@@ -19,56 +32,58 @@ from .destroy_operators import (
     worst_removal,
 )
 
-# Exchange operators
-from .exchange_operators import (
+# Heuristics
+from .heuristics import (
+    build_greedy_routes,
+    build_nn_routes,
+    solve_lkh,
+)
+
+# Inter-route operators
+from .inter_route import (
     cross_exchange,
     ejection_chain,
     lambda_interchange,
-    move_or_opt,
+    move_2opt_star,
+    move_swap_star,
 )
 
-# Move operators
-from .move_operators import move_relocate, move_swap
+# Intra-route operators
+from .intra_route import (
+    move_2opt_intra,
+    move_3opt_intra,
+    move_or_opt,
+    move_relocate,
+    move_swap,
+)
 
 # Perturbation operators
-from .perturbation_operators import kick, perturb
+from .perturbation import (
+    apply_type_i_us,
+    apply_type_ii_us,
+    apply_type_iii_us,
+    apply_type_iv_us,
+    kick,
+    perturb,
+)
 
 # Repair operators
-from .repair_operators import (
+from .repair import (
     greedy_insertion,
     greedy_insertion_with_blinks,
     regret_2_insertion,
     regret_k_insertion,
 )
 
-# Route operators
-from .route_operators import (
-    move_2opt_intra,
-    move_2opt_star,
-    move_3opt_intra,
-    move_swap_star,
-)
-
-# Unstringing operators
-from .unstringing_operators import (
-    apply_type_i_unstringing,
-    apply_type_ii_unstringing,
-    apply_type_iii_unstringing,
-    apply_type_iv_unstringing,
-)
-
 __all__ = [
-    # Move
-    "move_relocate",
-    "move_swap",
-    # Route
-    "move_2opt_intra",
-    "move_2opt_star",
-    "move_3opt_intra",
-    "move_swap_star",
-    # Perturbation
-    "perturb",
-    "kick",
+    # Crossover
+    "CROSSOVER_NAMES",
+    "CROSSOVER_OPERATORS",
+    "edge_recombination_crossover",
+    "generalized_partition_crossover",
+    "ordered_crossover",
+    "position_independent_crossover",
+    "selective_route_exchange_crossover",
     # Destroy
     "random_removal",
     "worst_removal",
@@ -80,14 +95,27 @@ __all__ = [
     "regret_2_insertion",
     "regret_k_insertion",
     "greedy_insertion_with_blinks",
-    # Exchange
+    # Intra-route
+    "move_relocate",
+    "move_swap",
+    "move_2opt_intra",
+    "move_3opt_intra",
     "move_or_opt",
+    # Inter-route
+    "move_swap_star",
+    "move_2opt_star",
     "cross_exchange",
     "ejection_chain",
     "lambda_interchange",
-    # Unstringing
-    "apply_type_i_unstringing",
-    "apply_type_ii_unstringing",
-    "apply_type_iii_unstringing",
-    "apply_type_iv_unstringing",
+    # Perturbation
+    "perturb",
+    "kick",
+    "apply_type_i_us",
+    "apply_type_ii_us",
+    "apply_type_iii_us",
+    "apply_type_iv_us",
+    # Heuristics
+    "build_greedy_routes",
+    "build_nn_routes",
+    "solve_lkh",
 ]

@@ -45,7 +45,7 @@ def cluster_removal(
         return routes, []
 
     if rng is None:
-        rng = Random()
+        rng = Random(42)
 
     # Pick seed
     seed_route_idx = rng.randint(0, len(routes) - 1)

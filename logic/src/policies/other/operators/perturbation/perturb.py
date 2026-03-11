@@ -13,10 +13,10 @@ Example:
 """
 
 from random import Random
-from typing import Any
+from typing import Any, Optional
 
 
-def perturb(ctx: Any, k: int = 3, rng: Random = None) -> bool:
+def perturb(ctx: Any, k: int = 3, rng: Optional[Random] = None) -> bool:
     """
     Perturbation operator: perform k random swaps to escape local optima.
 
@@ -31,6 +31,9 @@ def perturb(ctx: Any, k: int = 3, rng: Random = None) -> bool:
     Returns:
         bool: True if any swap was performed, False otherwise.
     """
+    if rng is None:
+        rng = Random(42)
+
     all_nodes = list(ctx.node_map.keys())
     if len(all_nodes) < 2:
         return False

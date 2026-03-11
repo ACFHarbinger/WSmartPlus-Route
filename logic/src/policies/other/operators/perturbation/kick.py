@@ -14,10 +14,10 @@ Example:
 """
 
 from random import Random
-from typing import Any
+from typing import Any, Optional
 
 
-def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Random = None) -> bool:
+def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Optional[Random] = None) -> bool:
     """
     Kick operator: destroy a portion of the solution and repair.
 
@@ -31,6 +31,9 @@ def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Random = None) -> bool:
     Returns:
         bool: True if the operation was performed, False otherwise.
     """
+    if rng is None:
+        rng = Random(42)
+
     all_nodes = list(ctx.node_map.keys())
     n_remove = max(1, int(len(all_nodes) * destroy_ratio))
     if len(all_nodes) < 2:
