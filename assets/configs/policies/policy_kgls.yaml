@@ -1,0 +1,15 @@
+# @package _global_
+kgls:
+  time_limit: 60.0
+  num_perturbations: 3
+  neighborhood_size: 20
+  moves:
+    - relocate
+    - swap
+    - two_opt
+    - cross_exchange
+  penalization_cycle:
+    - width
+    - length
+    - width_length
+  seed: ${seed}

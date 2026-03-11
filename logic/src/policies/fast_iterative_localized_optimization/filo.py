@@ -160,6 +160,46 @@ class FILOSolver(PolicyVizMixin):
 
         return ls_manager.get_routes()
 
+    def _update_gamma(self, is_new_best: bool, max_non_improving: int) -> None:
+        """Update localized gamma parameters based on improvement."""
+        for node in range(1, self.n_nodes + 1):
+            if is_new_best:
+                self.gamma[node] = self.params.gamma_base
+                self.gamma_counter[node] = 0
+            else:
+                self.gamma_counter[node] += 1
+                if self.gamma_counter[node] >= max_non_improving:
+                    self.gamma[node] = min(self.gamma[node] * 2.0, 1.0)
+                    self.gamma_counter[node] = 0
+
+    def _update_omega(
+        self,
+        ruined: List[int],
+        walk_seed: int,
+        ls_cost: float,
+        current_cost: float,
+        shaking_lb: float,
+        shaking_ub: float,
+    ) -> None:
+        """Update dynamic shaking parameters (omega)."""
+        seed_shake_val = self.omega[walk_seed]
+        if ls_cost > current_cost + shaking_ub:
+            for customer in ruined:
+                if self.omega[customer] > seed_shake_val - 1:
+                    self.omega[customer] = max(1, self.omega[customer] - 1)
+        elif current_cost <= ls_cost < current_cost + shaking_lb:
+            for customer in ruined:
+                if self.omega[customer] < seed_shake_val + 1:
+                    self.omega[customer] += 1
+        else:
+            for customer in ruined:
+                if self.rng.random() < 0.5:
+                    if self.omega[customer] > seed_shake_val - 1:
+                        self.omega[customer] = max(1, self.omega[customer] - 1)
+                else:
+                    if self.omega[customer] < seed_shake_val + 1:
+                        self.omega[customer] += 1
+
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """Run the FILO algorithm main inner loop."""
 
@@ -205,39 +245,14 @@ class FILOSolver(PolicyVizMixin):
                 if self.rng.random() < prob:
                     accept = True
 
+            is_new_best = False
             if ls_cost < best_cost - 1e-6:
                 best_routes = copy.deepcopy(ls_routes)
                 best_cost = ls_cost
+                is_new_best = True
 
-                # Reset gamma
-                for node in range(1, self.n_nodes + 1):
-                    self.gamma[node] = self.params.gamma_base
-                    self.gamma_counter[node] = 0
-            else:
-                for node in range(1, self.n_nodes + 1):
-                    self.gamma_counter[node] += 1
-                    if self.gamma_counter[node] >= max_non_improving:
-                        self.gamma[node] = min(self.gamma[node] * 2.0, 1.0)
-                        self.gamma_counter[node] = 0
-
-            # Dynamic Shaking updates (Omega)
-            seed_shake_val = self.omega[walk_seed]
-            if ls_cost > current_cost + shaking_ub:
-                for customer in ruined:
-                    if self.omega[customer] > seed_shake_val - 1:
-                        self.omega[customer] = max(1, self.omega[customer] - 1)
-            elif current_cost <= ls_cost < current_cost + shaking_lb:
-                for customer in ruined:
-                    if self.omega[customer] < seed_shake_val + 1:
-                        self.omega[customer] += 1
-            else:
-                for customer in ruined:
-                    if self.rng.random() < 0.5:
-                        if self.omega[customer] > seed_shake_val - 1:
-                            self.omega[customer] = max(1, self.omega[customer] - 1)
-                    else:
-                        if self.omega[customer] < seed_shake_val + 1:
-                            self.omega[customer] += 1
+            self._update_gamma(is_new_best, max_non_improving)
+            self._update_omega(ruined, walk_seed, ls_cost, current_cost, shaking_lb, shaking_ub)
 
             if accept:
                 current_routes = ls_routes
