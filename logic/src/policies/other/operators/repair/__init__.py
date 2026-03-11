@@ -15,6 +15,7 @@ Example:
     >>> new_routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
+from ..unstringing_stringing import apply_type_i_s, apply_type_ii_s, apply_type_iii_s, apply_type_iv_s
 from .greedy import greedy_insertion
 from .greedy_blink import greedy_insertion_with_blinks
 from .regret import regret_2_insertion, regret_k_insertion
@@ -24,4 +25,9 @@ __all__ = [
     "regret_2_insertion",
     "regret_k_insertion",
     "greedy_insertion_with_blinks",
+    # Stringing repair
+    "apply_type_i_s",
+    "apply_type_ii_s",
+    "apply_type_iii_s",
+    "apply_type_iv_s",
 ]

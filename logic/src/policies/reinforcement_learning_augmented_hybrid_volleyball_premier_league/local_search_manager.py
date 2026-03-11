@@ -25,10 +25,15 @@ from typing import Dict, List, Optional
 import numpy as np
 
 # Import operators from their respective modules
-from ..other.operators.exchange import cross_exchange, ejection_chain, lambda_interchange, move_or_opt
 from ..other.operators.heuristics import solve_lkh
-from ..other.operators.inter_route import move_2opt_star, move_swap_star
-from ..other.operators.intra_route import move_2opt_intra, move_3opt_intra, move_relocate, move_swap
+from ..other.operators.inter_route import (
+    cross_exchange,
+    ejection_chain,
+    lambda_interchange,
+    move_2opt_star,
+    move_swap_star,
+)
+from ..other.operators.intra_route import move_2opt_intra, move_3opt_intra, move_or_opt, move_relocate, move_swap
 
 
 class LocalSearchManager:

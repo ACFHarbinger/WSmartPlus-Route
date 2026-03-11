@@ -16,6 +16,7 @@ Example:
     >>> routes, removed = random_removal(routes, n=5)
 """
 
+from ..unstringing_stringing import apply_type_i_us, apply_type_ii_us, apply_type_iii_us, apply_type_iv_us
 from .cluster import cluster_removal
 from .random import random_removal
 from .shaw import shaw_removal
@@ -28,4 +29,9 @@ __all__ = [
     "cluster_removal",
     "shaw_removal",
     "string_removal",
+    # Unstringing destroy
+    "apply_type_i_us",
+    "apply_type_ii_us",
+    "apply_type_iii_us",
+    "apply_type_iv_us",
 ]
