@@ -608,6 +608,336 @@ tour, cost, _ = sans_policy.execute(
 )
 ```
 
+### 5.5 RL-HVPL (Reinforcement Learning Hybrid Volleyball Premier League)
+
+**Directory**: `reinforcement_learning_hybrid_volleyball_premier_league/`
+**Adapters**: `policy_rl_hvpl.py`
+
+#### Overview
+
+The **Reinforcement Learning Hybrid Volleyball Premier League (RL-HVPL)** is a metaheuristic algorithm that combines:
+
+1. **Enhanced ACO with Q-Learning** for intelligent solution construction
+2. **Enhanced ALNS with SARSA** for adaptive destroy/repair operator selection
+3. **Population-based VPL framework** for global search and diversity management
+
+This implementation bridges the gap between:
+
+- **HVPL** (basic ACO + ALNS in population framework)
+- **RL-AHVPL** (advanced with HGS genetic operators, CMAB crossover selection, GLS, reactive tabu)
+
+RL-HVPL provides the benefits of reinforcement learning-enhanced operators **without** the complexity of genetic evolution.
+
+#### Architecture
+
+##### Core Components
+
+```text
+RL-HVPL
+├── ACO with Q-Learning (Construction)
+│   ├── K-Sparse pheromone matrix
+│   ├── Probabilistic ant construction
+│   └── Q-Learning for local search operator selection
+│
+├── ALNS with SARSA (Coaching/Improvement)
+│   ├── 9 Destroy operators (random, worst, cluster, shaw, string, unstring I-IV)
+│   ├── 9 Repair operators (greedy, regret-k, blink, string I-IV)
+│   ├── Perturbation operators (kick, random)
+│   └── SARSA for adaptive operator selection
+│
+└── VPL Framework (Population Management)
+    ├── Population (teams) of candidate solutions
+    ├── Coaching phase (ALNS-SARSA improvement)
+    ├── Competition (best solutions survive)
+    ├── Substitution (weak solutions replaced)
+    └── Pheromone updates (global guidance)
+```
+
+##### Algorithm Flow
+
+```text
+1. INITIALIZATION
+   ├── Create population using ACO-Q (n_teams solutions)
+   └── Track best solution globally
+
+2. MAIN LOOP (max_iterations)
+   ├── COACHING PHASE
+   │   ├── Elite teams → Intensive ALNS-SARSA (elite_coaching_iterations)
+   │   └── Regular teams → Light ALNS-SARSA (regular_coaching_iterations)
+   │
+   ├── COMPETITION
+   │   └── Update global best if improved
+   │
+   ├── PHEROMONE UPDATE
+   │   ├── Evaporate existing pheromones
+   │   └── Deposit on best solution edges (profit-based or cost-based)
+   │
+   └── SUBSTITUTION
+       └── Replace weakest teams with new ACO-Q solutions
+
+3. RETURN best solution found
+```
+
+#### Key Features
+
+##### 1. Reinforcement Learning Integration
+
+- **Q-Learning in ACO**: Dynamically selects the most effective local search operators during construction
+- **SARSA in ALNS**: Adaptively chooses destroy/repair operator pairs based on search state
+- **State Representation**: Progress, stagnation, and diversity features discretized into states
+- **Adaptive Exploration**: Epsilon-greedy with decay for exploration-exploitation balance
+
+##### 2. Pheromone Update Strategies
+
+**Profit-based (default):**
+
+```python
+delta = elitist_weight * profit_weight * profit / cost
+```
+
+- Reinforces high profit-to-cost ratio solutions
+- Better for profit-maximization problems (VRPP, WCVRP)
+
+**Cost-based (classic ACS):**
+
+```python
+delta = elitist_weight / cost
+```
+
+- Reinforces low-cost solutions
+- Better for pure distance minimization (TSP, CVRP)
+
+##### 3. Adaptive Coaching
+
+Elite teams (top `elite_size`) receive **intensive coaching** with more ALNS-SARSA iterations, while regular teams get **lighter coaching** to balance computational resources.
+
+#### Parameters
+
+##### Core Parameters
+
+| Parameter                     | Default | Description                               |
+| ----------------------------- | ------- | ----------------------------------------- |
+| `n_teams`                     | 10      | Population size                           |
+| `max_iterations`              | 100     | Number of league seasons                  |
+| `time_limit`                  | 60.0    | Time budget (seconds)                     |
+| `sub_rate`                    | 0.2     | Fraction of teams replaced each iteration |
+| `elite_size`                  | 3       | Number of teams receiving elite coaching  |
+| `elite_coaching_iterations`   | 300     | ALNS iterations for elite teams           |
+| `regular_coaching_iterations` | 100     | ALNS iterations for regular teams         |
+
+##### Pheromone Strategy
+
+| Parameter                   | Default    | Description                     |
+| --------------------------- | ---------- | ------------------------------- |
+| `pheromone_update_strategy` | `"profit"` | `"profit"` or `"cost"`          |
+| `profit_weight`             | 1.0        | Weight for profit-based updates |
+
+##### ACO Parameters
+
+Configured via `aco_params` (ACOParams):
+
+- `n_ants`: Number of ants per iteration (default: 10)
+- `k_sparse`: Sparse pheromone neighbors (default: 10)
+- `alpha`: Pheromone influence (default: 1.0)
+- `beta`: Heuristic influence (default: 2.0)
+- `rho`: Evaporation rate (default: 0.1)
+- `q0`: Exploitation probability (default: 0.9)
+- `local_search`: Enable local search (default: True)
+- `local_search_iterations`: Local search budget (default: 50)
+
+##### ALNS Parameters
+
+Configured via `alns_params` (ALNSParams):
+
+- `max_iterations`: ALNS iterations (default: 200)
+- `start_temp`: Initial temperature (default: 100.0)
+- `cooling_rate`: Temperature decay (default: 0.97)
+- `max_removal_pct`: Max fraction of nodes to remove (default: 0.3)
+- `perturb_k`: Perturbation strength (default: 3)
+
+##### RL Parameters
+
+Configured via `rl_config` (RLConfig):
+
+**Q-Learning (ACO):**
+
+- `alpha`: Learning rate (default: 0.1)
+- `gamma`: Discount factor (default: 0.9)
+- `epsilon`: Exploration rate (default: 0.2)
+- `epsilon_decay`: Decay multiplier (default: 0.995)
+- `epsilon_min`: Minimum epsilon (default: 0.01)
+
+**SARSA (ALNS):**
+
+- `alpha`: Learning rate (default: 0.1)
+- `gamma`: Discount factor (default: 0.9)
+- `epsilon`: Exploration rate (default: 0.3)
+- `epsilon_decay`: Decay multiplier (default: 0.99)
+- `epsilon_min`: Minimum epsilon (default: 0.05)
+
+#### Usage
+
+##### Basic Usage
+
+```python
+import numpy as np
+from logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league import (
+    RLHVPLSolver,
+    RLHVPLParams,
+)
+
+# Problem instance
+dist_matrix = np.array([[...]])  # Distance matrix (n+1 x n+1, depot at 0)
+wastes = {1: 10.0, 2: 15.0, ...}  # Node waste amounts
+capacity = 100.0  # Vehicle capacity
+R = 10.0  # Revenue per unit waste
+C = 1.0   # Cost per unit distance
+
+# Configure solver
+params = RLHVPLParams(
+    n_teams=10,
+    max_iterations=100,
+    time_limit=60.0,
+)
+
+# Solve
+solver = RLHVPLSolver(
+    dist_matrix=dist_matrix,
+    wastes=wastes,
+    capacity=capacity,
+    R=R,
+    C=C,
+    params=params,
+    seed=42,
+)
+
+routes, profit, cost = solver.solve()
+
+print(f"Profit: {profit:.2f}")
+print(f"Cost: {cost:.2f}")
+print(f"Routes: {routes}")
+```
+
+##### Advanced Configuration
+
+```python
+from logic.src.configs.policies.other import RLConfig
+from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
+
+# Custom RL configuration
+rl_config = RLConfig()
+rl_config.td_learning.alpha = 0.15
+rl_config.td_learning.gamma = 0.95
+rl_config.td_learning.epsilon = 0.25
+
+# Custom ACO parameters
+aco_params = ACOParams(
+    n_ants=15,
+    k_sparse=15,
+    alpha=1.2,
+    beta=2.5,
+    rho=0.15,
+    local_search_iterations=100,
+)
+
+# Custom ALNS parameters
+alns_params = ALNSParams(
+    max_iterations=300,
+    start_temp=150.0,
+    cooling_rate=0.98,
+    max_removal_pct=0.4,
+)
+
+# Create solver with custom parameters
+params = RLHVPLParams(
+    n_teams=15,
+    max_iterations=150,
+    elite_size=5,
+    elite_coaching_iterations=500,
+    regular_coaching_iterations=150,
+    pheromone_update_strategy="profit",
+    profit_weight=1.5,
+    rl_config=rl_config,
+    aco_params=aco_params,
+    alns_params=alns_params,
+)
+
+solver = RLHVPLSolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+routes, profit, cost = solver.solve()
+```
+
+##### Adapter Usage
+
+```python
+from logic.src.policies.adapters import PolicyFactory
+
+rl_hvpl_policy = PolicyFactory.get_adapter("rl_hvpl")
+tour, cost, _ = rl_hvpl_policy.execute(
+    must_go=must_go_bins,
+    bins=bins_state,
+    distance_matrix=dist_matrix,
+    config={
+        "rl_hvpl": {
+            "n_teams": 10,
+            "max_iterations": 100,
+            "time_limit": 60.0,
+            "elite_size": 3,
+            "pheromone_update_strategy": "profit"
+        }
+    }
+)
+```
+
+#### Performance Characteristics
+
+##### Computational Complexity
+
+- **Per iteration**: O(n_teams × (ACO_cost + ALNS_cost))
+- **ACO_cost**: O(n_ants × n² × k_sparse)
+- **ALNS_cost**: O(max_iterations × n²)
+
+##### Memory Usage
+
+- Pheromone matrix: O(n × k_sparse)
+- Population: O(n_teams × n)
+- RL Q-tables: O(n_states × n_actions)
+
+##### Scalability
+
+| Problem Size          | Recommended Settings           |
+| --------------------- | ------------------------------ |
+| Small (n < 50)        | n_teams=5, max_iterations=50   |
+| Medium (50 ≤ n < 100) | n_teams=10, max_iterations=100 |
+| Large (100 ≤ n < 200) | n_teams=15, max_iterations=150 |
+| Very Large (n ≥ 200)  | n_teams=20, max_iterations=200 |
+
+#### References
+
+1. **Volleyball Premier League Algorithm**
+   - Population-based metaheuristic framework
+
+2. **Ant Colony Optimization**
+   - Dorigo & Gambardella, "Ant Colony System", IEEE Trans., 1997
+
+3. **Adaptive Large Neighborhood Search**
+   - Pisinger & Ropke, "A general heuristic for VRP", Computers & OR, 2007
+
+4. **Q-Learning**
+   - Watkins & Dayan, "Q-Learning", Machine Learning, 1992
+
+5. **SARSA**
+   - Sutton & Barto, "Reinforcement Learning: An Introduction", 2018
+
+#### File Structure
+
+```text
+reinforcement_learning_hybrid_volleyball_premier_league/
+├── __init__.py          # Module exports
+├── params.py            # RLHVPLParams configuration
+└── rl_hvpl.py           # RLHVPLSolver main implementation
+```
+
 ---
 
 ## 6. Exact Optimization
