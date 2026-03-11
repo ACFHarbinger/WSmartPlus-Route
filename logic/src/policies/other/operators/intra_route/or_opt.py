@@ -2,7 +2,7 @@
 Or-opt Operator Module.
 
 This module implements the Or-opt operator for local search, which tries to
-relocate chains of 1 to 3 consecutive nodes to better positions in the solution.
+relocate chains of 1 to k consecutive nodes to better positions in the solution.
 
 Attributes:
     None
@@ -32,7 +32,7 @@ def move_or_opt(
     Args:
         ls: LocalSearch instance with routes, distance matrix, waste, etc.
         node: Starting node of the chain.
-        chain_len: Length of chain to move (1, 2, or 3).
+        chain_len: Length of chain to move.
         r_idx: Route index containing the chain.
         pos: Position of the starting node in the route.
 
