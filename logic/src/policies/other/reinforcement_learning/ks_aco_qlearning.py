@@ -18,12 +18,11 @@ import numpy as np
 from logic.src.policies.ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
 from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
 from logic.src.policies.ant_colony_optimization.k_sparse_aco.pheromones import SparsePheromoneTau
+from logic.src.policies.other.local_search.local_search_manager import LocalSearchManager
 from logic.src.policies.other.operators.heuristics import build_nn_routes
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import QLearningAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
-
-from .local_search_manager import LocalSearchManager
 
 
 class KSparseACOQLSolver(PolicyVizMixin):

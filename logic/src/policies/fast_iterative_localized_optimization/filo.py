@@ -16,8 +16,8 @@ from logic.src.policies.fast_iterative_localized_optimization.params import FILO
 from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate import (
     RuinAndRecreate,
 )
-from logic.src.policies.other.reinforcement_learning.local_search_manager import (
-    LocalSearchManager,
+from logic.src.policies.other.local_search.local_search_aco import (
+    ACOLocalSearch,
 )
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
@@ -131,34 +131,16 @@ class FILOSolver(PolicyVizMixin):
         """Apply a fast local search loop using standard operators."""
         # For simplicity in python we wrap the generic LS manager.
         # A fully optimized version would pass gamma into the C++ style RVND logic.
-        ls_manager = LocalSearchManager(
+        ls_manager = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
-            wastes=self.wastes,
+            waste=self.wastes,
             capacity=self.capacity,
             R=self.R,
             C=self.C,
-            improvement_threshold=1e-4,
+            params=self.params,
             seed=self.params.seed,
         )
-        ls_manager.set_routes(routes)
-
-        improved = True
-        iterations = 0
-        while improved and iterations < 10:
-            improved = False
-            if ls_manager.two_opt_intra():
-                improved = True
-            if not improved and ls_manager.relocate():
-                improved = True
-            if not improved and ls_manager.swap():
-                improved = True
-            if not improved and ls_manager.swap_star():
-                improved = True
-            if not improved and ls_manager.two_opt_star():
-                improved = True
-            iterations += 1
-
-        return ls_manager.get_routes()
+        return ls_manager.optimize(routes)
 
     def _update_gamma(self, is_new_best: bool, max_non_improving: int) -> None:
         """Update localized gamma parameters based on improvement."""

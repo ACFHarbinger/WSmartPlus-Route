@@ -67,7 +67,6 @@ from .inter_route import (
 from .intra_route import (
     geni_insert,
     k_permutation,
-    link_swap,
     move_2opt_intra,
     move_3opt_intra,
     move_kopt_intra,
@@ -144,7 +143,6 @@ __all__ = [
     "move_or_opt",
     "geni_insert",
     "k_permutation",
-    "link_swap",
     "relocate_chain",
     "three_permutation",
     # Inter-route

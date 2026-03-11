@@ -16,8 +16,8 @@ from gurobipy import GRB
 
 from logic.src.policies.hybrid_iterated_local_search.params import HILSParams
 from logic.src.policies.hybrid_iterated_local_search.rvnd import RVND
-from logic.src.policies.other.reinforcement_learning.local_search_manager import (
-    LocalSearchManager,
+from logic.src.policies.other.local_search.local_search_aco import (
+    ACOLocalSearch,
 )
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
@@ -260,13 +260,13 @@ class HILSSolver(PolicyVizMixin):
         current_profit = self.calculate_profit(current_routes)
         best_profit = current_profit
 
-        ls_manager = LocalSearchManager(
+        ls_manager = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
-            wastes=self.wastes,
+            waste=self.wastes,
             capacity=self.capacity,
             R=self.R,
             C=self.C,
-            improvement_threshold=1e-4,
+            params=self.params,
             seed=self.params.seed,
         )
         rvnd = RVND(ls_manager=ls_manager, rng=self.rng)
