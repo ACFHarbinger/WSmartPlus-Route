@@ -995,6 +995,59 @@ Because FILO uses extreme sparsification, it is capable of performing tens of th
 
 1. Accorsi & Vigo. "A Fast and Scalable Heuristic for the Solution of Large-Scale Capacitated Vehicle Routing Problems", _Transportation Science_, 2021.
 
+### 5.7 HILS (Hybrid Iterated Local Search)
+
+**Directory**: `hybrid_iterated_local_search/`
+**Adapters**: `policy_hils.py`
+
+Hybrid Iterated Local Search (HILS) combines the Iterated Local Search (ILS) metaheuristic with an exact algorithm approach, effectively marrying heuristics with Set Partitioning.
+
+#### Architecture
+
+```text
+HILS
+├── ILS Phase
+│   ├── Perturbation (random node extraction & greedy insertion)
+│   └── Randomized Variable Neighborhood Descent (RVND) Local Search
+├── Route Pool
+│   └── Global tracking of all active unique route structures
+└── Set Partitioning (SP) Phase
+    └── Gurobi MIP model resolving optimal combinations over the route pool
+```
+
+#### Key Features
+
+- **Randomized Variable Neighborhood Descent**: Local search operators (e.g., Relocate, Swap, 2-Opt) are dynamically shuffled and applied until full local optimums are found, preventing static cyclic traps.
+- **Route Pool Synergies**: Employs Iterated Local Search solely as a mass-route generator. The final solution is resolved purely mathematically through Set Partitioning, ensuring optimal exploitation of the explored sub-spaces.
+- **Exact-Heuristic Hybridity**: Takes advantage of Gurobi's commercial performance to find absolute guarantees over sub-domains identified by agile heuristic techniques.
+
+#### Usage Example
+
+```python
+from logic.src.policies.adapters import PolicyFactory
+
+hils_policy = PolicyFactory.get_adapter("hils")
+tour, cost, _ = hils_policy.execute(
+    must_go=must_go_bins,
+    bins=bins_state,
+    distance_matrix=dist_matrix,
+    config={
+        "hils": {
+            "max_iterations": 100,
+            "ils_iterations": 50,
+            "perturbation_size": 2,
+            "use_set_partitioning": True,
+            "sp_time_limit": 60.0,
+            "time_limit": 120.0
+        }
+    }
+)
+```
+
+#### References
+
+1. Subramanian et al. "A hybrid algorithm for a class of vehicle routing problems", _Computers & Operations Research_, 2013.
+
 ---
 
 ## 6. Exact Optimization
