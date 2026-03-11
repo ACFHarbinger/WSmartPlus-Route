@@ -41,7 +41,6 @@ from .other import (
 )
 from .simulated_annealing_neighborhood_search.common.routes import create_points
 from .simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
-from .slack_induction_by_string_removal import run_sisr
 from .tsp import find_route, get_route_cost
 
 __all__ = [
@@ -67,7 +66,6 @@ __all__ = [
     "run_gihh",
     "run_hgs",
     "run_hgsrr",
-    "run_sisr",
     "run_vrpp_optimizer",
     "MustGoSelectionFactory",
     "MustGoSelectionRegistry",

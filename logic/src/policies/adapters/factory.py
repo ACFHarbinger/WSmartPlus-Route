@@ -67,6 +67,7 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_vns as policy_vns  # noqa
         import logic.src.policies.adapters.policy_rl_ahvpl as policy_rl_ahvpl  # noqa
         import logic.src.policies.adapters.policy_rl_alns as policy_rl_alns  # noqa
+        import logic.src.policies.adapters.policy_hulk as policy_hulk  # noqa
 
         cls._registered = True
 
