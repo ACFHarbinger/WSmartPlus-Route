@@ -608,34 +608,6 @@ tour, cost, _ = sans_policy.execute(
 )
 ```
 
-### 5.5 SISR (Slack Induction by String Removal)
-
-**Directory**: `slack_induction_by_string_removal/`
-**Adapters**: `policy_sisr.py`
-
-Sophisticated destroy-repair with string removal patterns.
-
-```python
-from logic.src.policies import run_sisr
-
-routes, cost = run_sisr(
-    distance_matrix=dist_matrix,
-    wastes=wastes_dict,
-    capacity=200.0,
-    string_removal_max_len=10,
-    max_removal_pct=0.2,
-    blink_probability=0.01
-)
-
-# Via adapter
-sisr_policy = PolicyFactory.get_adapter("sisr")
-tour, cost, _ = sisr_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
-    distance_matrix=dist_matrix
-)
-```
-
 ---
 
 ## 6. Exact Optimization
@@ -1923,7 +1895,7 @@ from logic.src.policies.adapters import PolicyFactory, PolicyRegistry
 
 # Main policies
 from logic.src.policies import (
-    run_alns, run_hgs, run_bcp, run_sisr,
+    run_alns, run_hgs, run_bcp,
     run_k_sparse_aco, run_hyper_heuristic_aco,
     NeuralAgent
 )
