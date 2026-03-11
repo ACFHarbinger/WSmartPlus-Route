@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+
 from logic.src.policies.other.reinforcement_learning.local_search_manager import (
     LocalSearchManager,
 )

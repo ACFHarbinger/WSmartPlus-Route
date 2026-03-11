@@ -1048,6 +1048,61 @@ tour, cost, _ = hils_policy.execute(
 
 1. Subramanian et al. "A hybrid algorithm for a class of vehicle routing problems", _Computers & Operations Research_, 2013.
 
+### 5.8 KGLS (Knowledge-Guided Local Search)
+
+**Directory**: `knowledge_guided_local_search/`
+**Adapters**: `policy_kgls.py`
+
+Knowledge-Guided Local Search (KGLS) utilizes problem-specific domain logic—particularly spatial and geometric routing constraints—to perturb solutions dynamically, rather than purely mathematically or randomly tearing sub-graphs.
+
+#### Architecture
+
+```text
+KGLS
+├── Initial Construct
+├── Local Search Descent
+│   └── (Unpenalized baseline descent on valid configurations)
+└── KGLS Execution Loop
+    ├── Perturbation (Enable geometric evaluation matrices)
+    │   ├── Evaluate edge badness (Width, Length, or both)
+    │   ├── Inflate targeted true edge costs via Penalty Counters
+    │   └── Trigger strict Fast Local Search radiating out of penalized targets
+    └── Repair (Disable geometric matrices for absolute baseline descent)
+```
+
+#### Key Features
+
+- **Geometric Perturbation**: Evaluates continuous local sub-routes via width properties computed dynamically against the main depot, extracting connections that weave haphazardly globally.
+- **Inflated Cost Matrices**: Edge connections identified as geometrically suboptimal receive additive penalties (a fraction of network baseline scaled by their penalty count). Normal heuristic operators immediately snap/break these false edges simply by falling down the penalized gradient.
+- **Cycle Criteria**: KGLS systematically rotates its penalty scoring mechanisms (`width`, `length`, `width_length`), preventing repetitive exploitation traps.
+
+#### Usage Example
+
+```python
+from logic.src.policies.adapters import PolicyFactory
+
+# Requires positional arguments via the environment to compute widths
+kgls_policy = PolicyFactory.get_adapter("kgls")
+tour, cost, _ = kgls_policy.execute(
+    must_go=must_go_bins,
+    bins=bins_state,
+    distance_matrix=dist_matrix,
+    data_nodes={"depot": [0,0], "locs": [...]},
+    config={
+        "kgls": {
+            "time_limit": 60.0,
+            "num_perturbations": 3,
+            "neighborhood_size": 20,
+            "penalization_cycle": ["width", "length", "width_length"]
+        }
+    }
+)
+```
+
+#### References
+
+1. Arnold & Sörensen. "What makes a VRP solution good? The generation of problem-specific knowledge for heuristics", _Computers & Operations Research_, 2019.
+
 ---
 
 ## 6. Exact Optimization
