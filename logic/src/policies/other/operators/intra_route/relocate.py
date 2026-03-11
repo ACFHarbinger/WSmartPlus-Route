@@ -9,7 +9,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.move.relocate import move_relocate
+    >>> from logic.src.policies.other.operators.intra_route.relocate import move_relocate
     >>> improved = move_relocate(ls, u=1, v=2, r_u=0, p_u=1, r_v=0, p_v=5)
 """
 

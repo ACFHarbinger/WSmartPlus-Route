@@ -39,7 +39,7 @@ def build_nn_routes(
         List of generated routes.
     """
     if rng is None:
-        rng = Random()
+        rng = Random(42)
 
     mandatory_set = set(mandatory_nodes)
 
@@ -55,7 +55,6 @@ def build_nn_routes(
 
     remaining = set(valid_nodes)
     routes: List[List[int]] = []
-
     while remaining:
         # Start a new route with a random available node to maintain diversity
         seed = rng.choice(sorted(list(remaining)))
@@ -64,12 +63,10 @@ def build_nn_routes(
         curr_route = [seed]
         load = wastes.get(seed, 0.0)
         curr_node = seed
-
         while True:
             # Find the nearest neighbor that fits
             best_n = None
             best_dist = float("inf")
-
             for n in sorted(list(remaining)):
                 w = wastes.get(n, 0.0)
                 if load + w <= capacity:

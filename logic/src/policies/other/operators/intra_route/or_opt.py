@@ -8,7 +8,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.exchange.or_opt import move_or_opt
+    >>> from logic.src.policies.other.operators.intra_route.or_opt import move_or_opt
     >>> improved = move_or_opt(ls, node=5, chain_len=2, r_idx=0, pos=1)
 """
 

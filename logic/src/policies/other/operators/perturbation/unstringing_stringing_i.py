@@ -7,7 +7,7 @@ Removes node V_i and reconnects the route by reversing two sub-tours.
 from typing import List
 
 
-def apply_type_i_unstringing(route: List[int], i: int, j: int, k: int) -> List[int]:
+def apply_type_i_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     """
     Apply Type I Unstringing move.
 

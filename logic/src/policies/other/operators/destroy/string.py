@@ -53,7 +53,7 @@ def string_removal(
     iterations = 0
 
     if rng is None:
-        rng = Random()
+        rng = Random(42)
 
     while len(removed) < n_remove and iterations < max_iter:
         iterations += 1

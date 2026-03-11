@@ -5,7 +5,47 @@ from typing import Dict, List, Optional, Set, Tuple
 from logic.src.policies.hybrid_genetic_search.individual import Individual
 
 
-def generalized_partition_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:  # noqa: C901
+def get_edges(tour: List[int]) -> Set[Tuple[int, int]]:
+    """
+    Build edge sets from both parents (including depot connections).
+    """
+    edges: Set[Tuple[int, int]] = set()
+    if not tour:
+        return edges
+    # Depot to first node
+    edges.add((0, tour[0]))
+    # Tour edges
+    for i in range(len(tour) - 1):
+        edges.add((tour[i], tour[i + 1]))
+    # Last node to depot
+    edges.add((tour[-1], 0))
+    return edges
+
+
+def get_components(adj: Dict[int, List[int]], all_nodes: Set[int]) -> List[List[int]]:
+    """
+    Find connected components using Depth First Search.
+    """
+    visited: Set[int] = set([0])  # Mark depot as visited
+    components: List[List[int]] = []
+
+    def dfs(node: int, component: List[int]):
+        visited.add(node)
+        component.append(node)
+        for neighbor in adj[node]:
+            if neighbor not in visited:
+                dfs(neighbor, component)
+
+    for node in all_nodes:
+        if node not in visited and node != 0:
+            component: List[int] = []
+            dfs(node, component)
+            if component:
+                components.append(component)
+    return components
+
+
+def generalized_partition_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:
     """
     Generalized Partition Crossover (GPX): Graph-based recombination.
 
@@ -26,21 +66,7 @@ def generalized_partition_crossover(p1: Individual, p2: Individual, rng: Optiona
         Child individual.
     """
     if rng is None:
-        rng = random.Random()
-
-    # Build edge sets from both parents (including depot connections)
-    def get_edges(tour: List[int]) -> Set[Tuple[int, int]]:
-        edges = set()
-        if not tour:
-            return edges
-        # Depot to first node
-        edges.add((0, tour[0]))
-        # Tour edges
-        for i in range(len(tour) - 1):
-            edges.add((tour[i], tour[i + 1]))
-        # Last node to depot
-        edges.add((tour[-1], 0))
-        return edges
+        rng = random.Random(42)
 
     p1_edges = get_edges(p1.giant_tour)
     p2_edges = get_edges(p2.giant_tour)
@@ -57,22 +83,7 @@ def generalized_partition_crossover(p1: Individual, p2: Individual, rng: Optiona
 
     # Find connected components using DFS
     all_nodes = set(p1.giant_tour) | set(p2.giant_tour)
-    visited = set([0])  # Mark depot as visited
-    components = []
-
-    def dfs(node: int, component: List[int]):
-        visited.add(node)
-        component.append(node)
-        for neighbor in adj[node]:
-            if neighbor not in visited:
-                dfs(neighbor, component)
-
-    for node in all_nodes:
-        if node not in visited and node != 0:
-            component = []
-            dfs(node, component)
-            if component:
-                components.append(component)
+    components = get_components(adj, all_nodes)
 
     # Randomly select parent to determine component order
     if rng.random() < 0.5:

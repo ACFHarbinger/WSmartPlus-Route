@@ -8,7 +8,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.route.two_opt_intra import move_2opt_intra
+    >>> from logic.src.policies.other.operators.intra_route.two_opt import move_2opt_intra
     >>> improved = move_2opt_intra(ls, u, v, r_u, p_u, r_v, p_v)
 """
 

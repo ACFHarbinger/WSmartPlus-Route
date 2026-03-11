@@ -26,7 +26,7 @@ def edge_recombination_crossover(p1: Individual, p2: Individual, rng: Optional[r
         Child individual.
     """
     if rng is None:
-        rng = random.Random()
+        rng = random.Random(42)
 
     # Build edge adjacency table
     adj_table: Dict[int, Set[int]] = defaultdict(set)

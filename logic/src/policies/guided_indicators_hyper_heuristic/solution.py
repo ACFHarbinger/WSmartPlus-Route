@@ -4,8 +4,7 @@ Solution representation for GIHH.
 This module defines the Solution class used by the GIHH algorithm.
 """
 
-import random
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 
@@ -102,81 +101,3 @@ class Solution:
             if route_load > self.capacity:
                 return False
         return True
-
-
-def create_initial_solution(
-    dist_matrix: np.ndarray,
-    wastes: Dict[int, float],
-    capacity: float,
-    revenue: float,
-    cost_unit: float,
-    mandatory_nodes: Optional[List[int]] = None,
-    rng: Optional[random.Random] = None,
-) -> Solution:
-    """
-    Create an initial solution using a simple greedy heuristic.
-
-    Args:
-        dist_matrix: Distance matrix.
-        wastes: Waste dictionary.
-        capacity: Vehicle capacity.
-        revenue: Revenue per unit.
-        cost_unit: Cost per distance unit.
-        mandatory_nodes: List of nodes that MUST be visited.
-        rng: Random number generator.
-
-    Returns:
-        Initial solution.
-    """
-    if rng is None:
-        rng = random.Random()
-
-    n_nodes = len(dist_matrix) - 1
-    nodes = list(range(1, n_nodes + 1))
-
-    # Ensure mandatory nodes are visited
-    unvisited = set(mandatory_nodes) if mandatory_nodes else set(nodes)
-
-    routes: List[List[int]] = []
-    current_route: List[int] = []
-    current_load = 0.0
-
-    # Greedy construction: nearest feasible node
-    while unvisited:
-        last_node = 0 if len(current_route) == 0 else current_route[-1]
-
-        # Find nearest feasible node
-        best_node = None
-        best_distance = float("inf")
-
-        for node in unvisited:
-            node_waste = wastes.get(node, 0.0)
-            if current_load + node_waste <= capacity:
-                distance = dist_matrix[last_node, node]
-                if distance < best_distance:
-                    best_distance = distance
-                    best_node = node
-
-        if best_node is not None:
-            # Add node to current route
-            current_route.append(best_node)
-            current_load += wastes.get(best_node, 0.0)
-            unvisited.remove(best_node)
-        else:
-            # Cannot add any more nodes to current route
-            if len(current_route) > 0:
-                routes.append(current_route)
-            current_route = []
-            current_load = 0.0
-
-            # If still have unvisited nodes, start new route
-            if unvisited:
-                continue
-            else:
-                break
-
-    # Add last route if not empty
-    if len(current_route) > 0:
-        routes.append(current_route)
-
-    return Solution(routes, dist_matrix, wastes, capacity, revenue, cost_unit)

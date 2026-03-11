@@ -23,7 +23,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..other.operators.repair_operators import greedy_insertion
+from ..other.operators import greedy_insertion
 from .params import HSParams
 
 

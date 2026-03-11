@@ -9,13 +9,13 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.exchange.lambda_interchange import lambda_interchange
+    >>> from logic.src.policies.other.operators.inter_route.lambda_interchange import lambda_interchange
     >>> improved = lambda_interchange(ls, lambda_max=2)
 """
 
 from typing import Any
 
-from .cross import cross_exchange
+from .cross_exchange import cross_exchange
 
 
 def lambda_interchange(

@@ -9,7 +9,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.exchange.ejection import ejection_chain
+    >>> from logic.src.policies.other.operators.inter_route.ejection_chain import ejection_chain
     >>> success = ejection_chain(ls, source_route=0, max_depth=5)
 """
 

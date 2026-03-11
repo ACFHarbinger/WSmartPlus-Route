@@ -9,7 +9,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.exchange.cross import cross_exchange
+    >>> from logic.src.policies.other.operators.inter_route.cross_exchange import cross_exchange
     >>> improved = cross_exchange(ls, r_a=0, seg_a_start=1, seg_a_len=2, ...)
 """
 
