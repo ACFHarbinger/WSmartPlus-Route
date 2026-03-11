@@ -1,0 +1,73 @@
+# @package _global_
+
+# HULK Hyper-Heuristic Configuration
+# Hyper-heuristic Using unstringing/stringing with Local search and K-opt
+#
+# Reference:
+#   Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO
+#   and Local Search for Dynamic Optimization Problems."
+#   Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
+
+defaults:
+  - /policies@_here_: hulk
+
+# Override with environment-specific settings
+policies:
+  # Search parameters
+  max_iterations: 1000
+  time_limit: 300.0  # 5 minutes
+  restarts: 3
+  restart_threshold: 100
+
+  # Exploration/exploitation
+  epsilon: 0.3
+  epsilon_decay: 0.995
+  min_epsilon: 0.05
+
+  # Operator performance tracking
+  memory_size: 50
+
+  # Acceptance criteria
+  accept_worse_prob: 0.1
+  acceptance_decay: 0.99
+
+  # Simulated annealing
+  start_temp: 100.0
+  cooling_rate: 0.99
+  min_temp: 0.01
+
+  # Destruction/reconstruction
+  min_destroy_size: 2
+  max_destroy_pct: 0.3
+
+  # Local search
+  local_search_iterations: 10
+  local_search_operators:
+    - "2-opt"
+    - "3-opt"
+    - "swap"
+    - "relocate"
+
+  # Unstringing operators (destruction)
+  unstring_operators:
+    - "type_i"
+    - "type_ii"
+    - "type_iii"
+    - "type_iv"
+
+  # Stringing operators (reconstruction)
+  string_operators:
+    - "type_i"
+    - "type_ii"
+    - "type_iii"
+    - "type_iv"
+
+  # Performance scoring
+  score_improvement: 10.0
+  score_accept: 5.0
+  score_reject: -1.0
+  score_best: 20.0
+
+  # Adaptive weight learning
+  weight_learning_rate: 0.1
+  weight_decay: 0.95
