@@ -20,6 +20,7 @@ from .hmm_gd import HMMGDConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
+from .kgls import KGLSConfig
 from .lca import LCAConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
@@ -49,6 +50,7 @@ __all__ = [
     "HGSRRConfig",
     "HILSConfig",
     "HVPLConfig",
+    "KGLSConfig",
     "LKHConfig",
     "NeuralConfig",
     "RLAHVPLConfig",
