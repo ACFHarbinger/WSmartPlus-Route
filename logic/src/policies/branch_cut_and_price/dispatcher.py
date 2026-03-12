@@ -1,5 +1,9 @@
 """
 Branch-Cut-and-Price (BCP) solver dispatcher.
+
+Reference:
+    Laporte, G., Hane, C. A., & Vance, P. H. "USING BRANCH-AND-PRICE-AND-CUT
+    TO SOLVE ORIGIN-DESTINATION INTEGER MULTICOMMODITY FLOW PROBLEMS.", 1998.
 """
 
 from typing import Optional

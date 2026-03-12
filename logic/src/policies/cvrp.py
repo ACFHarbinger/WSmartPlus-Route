@@ -18,6 +18,13 @@ Attributes:
 Example:
     >>> from logic.src.policies.cvrp import find_routes
     >>> routes = find_routes(dist_matrix, wastes, capacity, num_vehicles)
+
+Reference:
+    Wouda, N. A., Lan, L., & Kool, W.
+    "PyVRP: a high-performance VRP solver package", 2023.
+    Cuvelier, T., Didier, F., Furnon., V., Gay, S., Mohajeri, S., & Perron, L.
+    "OR-Tools Vehicle Routing Solver: a Generic Constraint-Programming Solver
+    with Heuristic Search for Routing Problems", 2023.
 """
 
 from typing import List, Optional, Tuple

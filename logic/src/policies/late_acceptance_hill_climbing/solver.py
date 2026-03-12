@@ -7,7 +7,7 @@ in a circular queue.  This deferred comparison induces a dynamic cooling
 effect without requiring explicit temperature scheduling.
 
 Reference:
-    Burke & Bykov, "The Late Acceptance Hill-Climbing Heuristic", 2017.
+    Burke, E. K., & Bykov, Y. "The Late Acceptance Hill-Climbing Heuristic", 2016.
 """
 
 import copy

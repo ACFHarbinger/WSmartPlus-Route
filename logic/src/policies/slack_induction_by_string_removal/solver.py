@@ -12,6 +12,10 @@ Example:
     >>> from logic.src.policies.slack_induction_by_string_removal.solver import SISRSolver
     >>> solver = SISRSolver(dist_matrix, wastes, ...)
     >>> result = solver.solve()
+
+Reference:
+    Christiaens, J., & Berghe, V. G. "Slack induction by string removal
+    for the vehicle routing problem.", 2022.
 """
 
 import copy

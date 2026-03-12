@@ -8,7 +8,8 @@ search to each particle, analogous to the genetic operators described in
 the survey.
 
 Reference:
-    Survey §"Particle Swarm Optimization" — PSOMA with 0.016% optimality gap.
+    Liu, B., Wang, L., Jin, Y., & Huang, D. (2006).
+    "An Effective PSO-Based Memetic Algorithm for TSP"
 """
 
 import contextlib

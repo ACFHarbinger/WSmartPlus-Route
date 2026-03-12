@@ -8,7 +8,7 @@ local optimum.  If the perturbed + re-optimised solution beats the incumbent,
 it replaces the current solution (hill-climbing acceptance).
 
 Reference:
-    Lourenço, Martin & Stützle, "Iterated Local Search", 2003.
+    Lourenco, H. R., Martin, O. C., & Stutzle, T. "Iterated Local Search", 2001
 """
 
 import copy

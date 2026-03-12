@@ -22,7 +22,8 @@ GP Tree Nodes:
              MAX_LLH(a, b) — returns argmax(a, b) as LLH index
 
 Reference:
-    Survey §"Genetic Programming Hyper-Heuristics" — stochastic TOP w/ time windows.
+    Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., & Woodward, J. R.
+    "Exploring Hyper-heuristic Methodologies with Genetic Programming", 2009
 """
 
 import copy

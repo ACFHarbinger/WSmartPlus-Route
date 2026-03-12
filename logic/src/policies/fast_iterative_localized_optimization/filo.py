@@ -3,6 +3,10 @@ Fast Iterative Localized Optimization (FILO) policy module.
 
 This module provides the main entry point for the FILO metaheuristic,
 incorporating Ruin & Recreate shaking and Local Search via Simulated Annealing.
+
+References:
+    Accorsi, L., & Vigo, D. "A fast and scalable heuristic for the solution
+    of large-scale capacitated vehicle routing problems", 2021.
 """
 
 import copy

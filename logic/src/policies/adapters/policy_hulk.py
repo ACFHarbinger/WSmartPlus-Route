@@ -6,7 +6,7 @@ Provides the interface between the simulator and the HULK solver.
 
 from typing import List
 
-from ..hulk_hyper_heuristic import HULKParams, HULKSolver
+from ..hyper_heuristic_us_lk import HULKParams, HULKSolver
 
 
 def policy_hulk(context) -> List[List[int]]:

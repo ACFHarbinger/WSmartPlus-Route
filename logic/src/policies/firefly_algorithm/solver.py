@@ -7,7 +7,11 @@ position updates with node-extraction / guided-insertion movements governed
 by a three-term favourability score.
 
 Reference:
-    Survey §"Firefly Algorithm" — Rich-VRP newspaper distribution systems.
+    Ai, T. J., & Kachitvichyanukul, V. "A particle swarm optimization for
+    the vehicle routing problem with simultaneous pickup and delivery", 2009.
+    Sayadi, M. K., Ramezanian, R., & Ghaffari-Nasab, N. "A discrete firefly
+    meta-heuristic with local search for makespan minimization in permutation
+    flow shop scheduling problems", 2010.
 """
 
 import contextlib

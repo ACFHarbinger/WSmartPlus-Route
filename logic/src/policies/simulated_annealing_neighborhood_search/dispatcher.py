@@ -1,8 +1,13 @@
 """
-SANS Dispatcher Module.
+Simulated Annealing Neighborhood Search (SANS) Dispatcher Module.
 
 This module contains the execution logic for Simulated Annealing Neighborhood Search (SANS).
 It provides functions to run both the improved ('new') and original ('og') SA engines.
+
+Reference:
+    Jorge, D., Antunes, A. P., Ramos, T. R. P., & Barbosa-Povoa, A. P.
+    "A hybrid metaheuristic for smart waste collection problems with
+    workload concerns", 2022.
 """
 
 import random

@@ -11,7 +11,10 @@ Near-zero benchmark errors (<0.01%) on Orienteering Problem instances have
 been reported in the literature when HMCR and PAR are carefully tuned.
 
 Reference:
-    Survey §"Harmony Search" — Orienteering Problem, <0.01% average error.
+    Rechenberg, I. (1973). "Evolutionsstrategie: Optimierung technischer
+    Systeme nach Prinzipien der biologischen Evolution."
+    Geem, Z. W., Kim, J. H., & Loganathan, G. V. "A New Heuristic
+    Optimization Algorithm: Harmony Search.", 2001
 """
 
 import copy

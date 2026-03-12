@@ -13,7 +13,8 @@ feasible basins, a property that proves particularly valuable in highly
 constrained VRPP variants such as helicopter offshore routing.
 
 Reference:
-    Survey §"League Championship Algorithm" — helicopter offshore routing.
+    Kashan, A. H. (2013). "League Championship Algorithm (LCA): An
+    algorithm for global optimization inspired by sport championships."
 """
 
 import contextlib
