@@ -131,8 +131,8 @@ def historical_profit_removal(
 
     # Calculate profit for each node
     node_profits = {}
-    for r_idx, route in enumerate(routes):
-        for pos, node in enumerate(route):
+    for _r_idx, route in enumerate(routes):
+        for _pos, node in enumerate(route):
             revenue = wastes.get(node, 0.0) * R
             cost = dist_matrix[0][node] * C
             profit = revenue - cost

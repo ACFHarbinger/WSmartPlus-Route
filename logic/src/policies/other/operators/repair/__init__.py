@@ -9,7 +9,16 @@ Example:
     >>> routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
-from ..unstringing_stringing import apply_type_i_s, apply_type_ii_s, apply_type_iii_s, apply_type_iv_s
+from ..unstringing_stringing import (
+    apply_type_i_s,
+    apply_type_i_s_profit,
+    apply_type_ii_s,
+    apply_type_ii_s_profit,
+    apply_type_iii_s,
+    apply_type_iii_s_profit,
+    apply_type_iv_s,
+    apply_type_iv_s_profit,
+)
 from .deep import deep_insertion, deep_profit_insertion
 from .greedy import greedy_insertion, greedy_profit_insertion
 from .greedy_blink import greedy_insertion_with_blinks, greedy_profit_insertion_with_blinks
@@ -33,4 +42,8 @@ __all__ = [
     "apply_type_ii_s",
     "apply_type_iii_s",
     "apply_type_iv_s",
+    "apply_type_i_s_profit",
+    "apply_type_ii_s_profit",
+    "apply_type_iii_s_profit",
+    "apply_type_iv_s_profit",
 ]

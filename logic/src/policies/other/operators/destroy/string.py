@@ -155,6 +155,52 @@ def _propagate_string_removal(
                 break
 
 
+def _get_node_profits(
+    routes: List[List[int]], wastes: Dict[int, float], dist_matrix: np.ndarray, R: float, C: float
+) -> Dict[int, float]:
+    """Helper to calculate profit for all nodes in routes."""
+    node_profits: Dict[int, float] = {}
+    for route in routes:
+        for node in route:
+            if node not in node_profits:
+                revenue = wastes.get(node, 0.0) * R
+                cost = dist_matrix[0][node] * C
+                node_profits[node] = revenue - cost
+    return node_profits
+
+
+def _select_string_seed(
+    routes: List[List[int]], low_profit_nodes: List[int], removed: List[int], rng: Random
+) -> Tuple[Optional[int], int, int]:
+    """Select a seed node and its position, biasing toward low profit."""
+    available_seeds = [n for n in low_profit_nodes if any(n in r for r in routes) and n not in removed]
+
+    if available_seeds:
+        seed_node = rng.choice(available_seeds)
+        for i, route in enumerate(routes):
+            if seed_node in route:
+                return seed_node, i, route.index(seed_node)
+
+    # Fallback: pick any node from available routes
+    available_routes = [(i, r) for i, r in enumerate(routes) if r]
+    if not available_routes:
+        return None, -1, -1
+
+    r_idx, route = rng.choice(available_routes)
+    seed_pos = rng.randint(0, len(route) - 1)
+    return route[seed_pos], r_idx, seed_pos
+
+
+def _get_string_length(
+    max_string_len: int, avg_string_len: float, remaining_to_remove: int, route_len: int, rng: Random
+) -> int:
+    """Helper to determine the length of the string to remove."""
+    string_len = 1
+    while string_len < max_string_len and rng.random() < (1 - 1 / avg_string_len):
+        string_len += 1
+    return min(string_len, remaining_to_remove, route_len)
+
+
 def string_profit_removal(
     routes: List[List[int]],
     n_remove: int,
@@ -168,23 +214,6 @@ def string_profit_removal(
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Remove contiguous strings of customers, biased toward low-profit nodes.
-
-    Similar to standard string removal, but selects seed nodes from low-profit
-    regions. This creates contiguous holes in unprofitable areas of the solution.
-
-    Args:
-        routes: Current routes.
-        n_remove: Number of nodes to remove.
-        dist_matrix: Distance matrix.
-        wastes: Waste/profit values for each node.
-        R: Revenue per unit waste.
-        C: Cost per unit distance.
-        max_string_len: Maximum length of a string to remove.
-        avg_string_len: Average string length for geometric distribution.
-        rng: Random number generator.
-
-    Returns:
-        Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
     """
     if not any(routes) or n_remove <= 0:
         return routes, []
@@ -193,84 +222,42 @@ def string_profit_removal(
         rng = Random(42)
 
     # Calculate profit for all nodes
-    node_profits: Dict[int, float] = {}
-    all_nodes: List[int] = []
-    for route in routes:
-        for node in route:
-            if node not in node_profits:
-                revenue = wastes.get(node, 0.0) * R
-                cost = dist_matrix[0][node] * C
-                profit = revenue - cost
-                node_profits[node] = profit
-                all_nodes.append(node)
-
+    node_profits = _get_node_profits(routes, wastes, dist_matrix, R, C)
+    all_nodes = list(node_profits.keys())
     if not all_nodes:
         return routes, []
 
     # Sort nodes by profit (ascending - worst first)
     all_nodes.sort(key=lambda n: node_profits[n])
 
-    # Select seed from bottom 25% of profit nodes
+    # Identify low-profit nodes (bottom 25%)
     bottom_quartile = max(1, len(all_nodes) // 4)
     low_profit_nodes = all_nodes[:bottom_quartile]
 
     removed: List[int] = []
-    max_iter = n_remove * 3  # Prevent infinite loops
+    max_iter = n_remove * 3
     iterations = 0
 
     while len(removed) < n_remove and iterations < max_iter:
         iterations += 1
 
-        # Pick seed from low-profit nodes still in routes
-        available_seeds = [n for n in low_profit_nodes if any(n in r for r in routes) and n not in removed]
-        if not available_seeds:
-            # Fallback: pick any node
-            available_routes = [(i, r) for i, r in enumerate(routes) if r]
-            if not available_routes:
-                break
-            r_idx, route = rng.choice(available_routes)
-            if not route:
-                continue
-            seed_pos = rng.randint(0, len(route) - 1)
-            seed_node = route[seed_pos]
-        else:
-            seed_node = rng.choice(available_seeds)
-            # Find seed in routes
-            r_idx = -1
-            seed_pos = -1
-            for i, route in enumerate(routes):
-                if seed_node in route:
-                    r_idx = i
-                    seed_pos = route.index(seed_node)
-                    break
-            if r_idx == -1:
-                continue
-
-        if seed_node in removed:
+        seed_node, r_idx, seed_pos = _select_string_seed(routes, low_profit_nodes, removed, rng)
+        if seed_node is None or seed_node in removed:
             continue
 
         route = routes[r_idx]
-
-        # Determine string length
-        string_len = 1
-        while string_len < max_string_len and rng.random() < (1 - 1 / avg_string_len):
-            string_len += 1
-
-        # Don't remove more than needed
-        remaining = n_remove - len(removed)
-        string_len = min(string_len, remaining, len(route))
+        string_len = _get_string_length(max_string_len, avg_string_len, n_remove - len(removed), len(route), rng)
 
         # Extract string starting at seed_pos
         start = seed_pos
         end = min(seed_pos + string_len, len(route))
         string_nodes = route[start:end]
 
-        # Remove string from route (reverse order to maintain indices)
+        # Remove string from route
         for pos in range(end - 1, start - 1, -1):
-            node = routes[r_idx].pop(pos)
-            removed.append(node)
+            removed.append(routes[r_idx].pop(pos))
 
-        # Propagate to neighbors: remove strings from adjacent routes
+        # Propagate to neighbors
         if len(removed) < n_remove and string_nodes:
             _propagate_profit_string_removal(routes, removed, dist_matrix, string_nodes, n_remove, node_profits)
 
