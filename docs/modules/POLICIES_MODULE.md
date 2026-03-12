@@ -1118,15 +1118,17 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 #### Implementation Map
 
-| Metaphor-Based Algorithm    | Rigorous Implementation                 | Mathematical Foundation                                    |
-| --------------------------- | --------------------------------------- | ---------------------------------------------------------- |
-| Harmony Search (HS)         | **(μ+λ) Evolution Strategy [with λ=1]** | Population-based search with recombination and mutation    |
-| Firefly Algorithm (FA)      | **Distance-Based PSO**                  | Particle swarm with exponential distance decay             |
-| Artificial Bee Colony (ABC) | **(μ,λ) Evolution Strategy**            | Multi-phase random search with restart mechanism           |
-| HVPL, SLC (Sports)          | **Island Model Genetic Algorithm**      | Multi-population GA with migration and local search        |
-| League Championship (LCA)   | **Stochastic Tournament GA**            | Pairwise tournament selection with sigmoid probability     |
-| SCA (Sine Cosine)           | **Continuous Local Search**             | Gradient-free search with trigonometric perturbations      |
-| **(μ,κ,λ) ES**              | **Age-Based Evolution Strategy**        | Metaheuristic with age-based selection and self-adaptation |
+| Metaphor-Based Algorithm                | Rigorous Implementation                                        | Mathematical Foundation                                                                  |
+| --------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**                        | Population-based search with recombination and mutation                                  |
+| Firefly Algorithm (FA)                  | **Distance-Based PSO**                                         | Particle swarm with exponential distance decay                                           |
+| Artificial Bee Colony (ABC)             | **(μ,λ) Evolution Strategy**                                   | Multi-phase random search with restart mechanism                                         |
+| Soccer League Competition (SLC)         | **Pure Island Model Genetic Algorithm**                        | Multi-population GA with migration but WITHOUT local search                              |
+| Hybrid Volleyball Premier League (HVPL) | **Memetic Island Model Genetic Algorithm**                     | Multi-population evolutionary algorithm with periodic migration between sub-populations. |
+| Volleyball Premier League (VPL)         | **Island Model Genetic Algorithm with Stochastic Tournaments** | Multi-island GA with stochastic tournament selection                                     |
+| League Championship (LCA)               | **Stochastic Tournament Genetic Algorithm**                    | Pairwise tournament selection with sigmoid probability                                   |
+| SCA (Sine Cosine)                       | **Continuous Local Search**                                    | Gradient-free search with trigonometric perturbations                                    |
+| **(μ,κ,λ) ES**                          | **Age-Based Evolution Strategy**                               | Metaheuristic with age-based selection and self-adaptation                               |
 
 ---
 
@@ -1266,9 +1268,9 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 ##### 4. Island Model Genetic Algorithm
 
-**Replaces:** HVPL, LCA, SLC (Sports-Based Algorithms)
+**Replaces:** HVPL, SLC (Sports-Based Algorithms)
 
-**Location:** `logic/src/policies/island_model_genetic_algorithm/`
+**Location:** `logic/src/policies/genetic_algorithm_pure_island_model/`
 
 **Algorithm:**
 
@@ -1313,11 +1315,55 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 ---
 
+##### 5. Island Model STGA (IMGA-ST)
+
+**Replaces:** Volleyball Premier League (VPL)
+
+**Location:** `logic/src/policies/genetic_algorithm_island_model_stochastic_tournaments/`
+
+**Algorithm:**
+
+```
+1. Initialize K islands with N individuals each
+2. For each generation:
+   a. Local Improvement: Reconstruct via greedy profit insertion + ALNS
+   b. Stochastic Tournament: Pairwise competition using sigmoid win probability
+   c. Crossover: Ordered recombination of selected parents
+   d. Mutation: Population perturbation via random node removal
+   e. Migration: Ring-topology elite exchange between islands
+   f. Record: Global best solution tracking
+```
+
+**Key Parameters:**
+
+- `n_islands`: Number of parallel sub-populations
+- `island_size`: Population size per island
+- `selection_pressure (β)`: Sigmoid coefficient for win probability
+- `migration_interval`: Generations between migration events
+- `crossover_rate`: Probability of recombination
+
+**Terminology Mapping:**
+
+- "Active Teams" → Island individuals (sub-populations)
+- "Passive Teams" → Diversity reservoir (migration pool)
+- "Substitution" → Mutation/Migration operators
+- "Coaching/Learning" → Stochastic tournament + crossover + ALNS
+- "Seasons" → Generations
+
+**Selection Probability:**
+P(i beats j) = σ(β × (f(i) - f(j)))
+
+**Reference:**
+
+> Moghdani, R., & Salimifard, K. (2018). "Volleyball Premier League Algorithm." Applied Soft Computing.
+
+---
+
 ##### 5. Stochastic Tournament Genetic Algorithm
 
 **Replaces:** League Championship Algorithm (LCA)
 
-**Location:** `logic/src/policies/stochastic_tournament_genetic_algorithm/`
+**Location:** `logic/src/policies/genetic_algorithm_stochastic_tournament/`
 
 **Algorithm:**
 
