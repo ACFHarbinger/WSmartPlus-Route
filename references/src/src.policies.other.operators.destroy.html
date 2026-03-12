@@ -520,9 +520,17 @@ document.write(`
 <p>This package contains implementations of removal heuristics for ALNS, including
 random, worst-case, cluster-based, Shaw (relatedness), string, route, neighbor,
 historical, and sector removal.</p>
+<p>Also includes profit-based variants for VRPP problems: random_profit_removal,
+cluster_profit_removal, worst_profit_removal, shaw_profit_removal,
+neighbor_profit_removal, historical_profit_removal, string_profit_removal,
+sector_profit_removal, and route_profit_removal.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.other.operators.destroy import random_removal
-&gt;&gt;&gt; routes, removed = random_removal(routes, n=5)</p>
+&gt;&gt;&gt; routes, removed = random_removal(routes, n=5)
+&gt;&gt;&gt; from logic.src.policies.other.operators.destroy import worst_profit_removal
+&gt;&gt;&gt; routes, removed = worst_profit_removal(routes, n=5, dist_matrix=d, wastes=w, R=1.0, C=1.0)
+&gt;&gt;&gt; from logic.src.policies.other.operators.destroy import route_profit_removal
+&gt;&gt;&gt; routes, removed = route_profit_removal(routes, dist_matrix=d, wastes=w, R=1.0, C=1.0)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

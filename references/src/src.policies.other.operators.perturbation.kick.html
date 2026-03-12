@@ -498,6 +498,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.kick.kick"><code class="docutils literal notranslate"><span class="pre">kick()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.kick.kick_profit"><code class="docutils literal notranslate"><span class="pre">kick_profit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.kick._profit_reinsertion"><code class="docutils literal notranslate"><span class="pre">_profit_reinsertion()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -533,6 +535,12 @@ None</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.kick.kick" title="src.policies.other.operators.perturbation.kick.kick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kick</span></code></a></p></td>
 <td><p>Kick operator: destroy a portion of the solution and repair.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.kick.kick_profit" title="src.policies.other.operators.perturbation.kick.kick_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kick_profit</span></code></a></p></td>
+<td><p>Profit-driven kick: biased removal of low-profit nodes followed by profit reinsertion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.kick._profit_reinsertion" title="src.policies.other.operators.perturbation.kick._profit_reinsertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_profit_reinsertion</span></code></a></p></td>
+<td><p>Helper for profit-driven reinsertion of nodes.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -550,6 +558,25 @@ destroy_ratio: Fraction of nodes to remove (default: 0.2).
 rng: Random number generator.</p>
 <p>Returns:
 bool: True if the operation was performed, False otherwise.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.kick.kick_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.kick.</span></span><span class="sig-name descname"><span class="pre">kick_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destroy_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.kick.kick_profit" title="Link to this definition">#</a></dt>
+<dd><p>Profit-driven kick: biased removal of low-profit nodes followed by profit reinsertion.</p>
+<p>Args:
+ctx: Context object (LocalSearch instance).
+destroy_ratio: Fraction of nodes to remove.
+bias: Bias for selecting low-profit nodes (higher = more deterministic).
+rng: Random number generator.</p>
+<p>Returns:
+bool: True if performed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.kick._profit_reinsertion">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.kick.</span></span><span class="sig-name descname"><span class="pre">_profit_reinsertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.kick._profit_reinsertion" title="Link to this definition">#</a></dt>
+<dd><p>Helper for profit-driven reinsertion of nodes.</p>
 </dd></dl>
 
 </section>
@@ -605,6 +632,8 @@ bool: True if the operation was performed, False otherwise.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.kick.kick"><code class="docutils literal notranslate"><span class="pre">kick()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.kick.kick_profit"><code class="docutils literal notranslate"><span class="pre">kick_profit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.kick._profit_reinsertion"><code class="docutils literal notranslate"><span class="pre">_profit_reinsertion()</span></code></a></li>
 </ul>
 </li>
 </ul>

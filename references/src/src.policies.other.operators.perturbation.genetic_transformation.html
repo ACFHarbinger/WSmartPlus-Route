@@ -498,6 +498,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation"><code class="docutils literal notranslate"><span class="pre">genetic_transformation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit"><code class="docutils literal notranslate"><span class="pre">genetic_transformation_profit()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.genetic_transformation._extract_edges"><code class="docutils literal notranslate"><span class="pre">_extract_edges()</span></code></a></li>
 </ul>
 </li>
@@ -543,7 +544,10 @@ None</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation" title="src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">genetic_transformation</span></code></a></p></td>
 <td><p>Genetic transformation: preserve common edges, rewire the rest.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.genetic_transformation._extract_edges" title="src.policies.other.operators.perturbation.genetic_transformation._extract_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_edges</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit" title="src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">genetic_transformation_profit</span></code></a></p></td>
+<td><p>Profit-driven genetic transformation: preserve common edges, rewire with profit reinsertion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.genetic_transformation._extract_edges" title="src.policies.other.operators.perturbation.genetic_transformation._extract_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_edges</span></code></a></p></td>
 <td><p>Extract all directed edges from a solution (including depot connections).</p></td>
 </tr>
 </tbody>
@@ -562,6 +566,23 @@ elite_solution: Elite reference solution.
 dist_matrix: Distance matrix.
 wastes: Waste/demand look-up.
 capacity: Vehicle capacity.
+rng: Random number generator.</p>
+<p>Returns:
+Modified routes after transformation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.genetic_transformation.</span></span><span class="sig-name descname"><span class="pre">genetic_transformation_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elite_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit" title="Link to this definition">#</a></dt>
+<dd><p>Profit-driven genetic transformation: preserve common edges, rewire with profit reinsertion.</p>
+<p>Args:
+routes: Current solution (list of routes).
+elite_solution: Elite reference solution.
+dist_matrix: Distance matrix.
+wastes: Waste/demand look-up.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
 rng: Random number generator.</p>
 <p>Returns:
 Modified routes after transformation.</p>
@@ -626,6 +647,7 @@ Modified routes after transformation.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation"><code class="docutils literal notranslate"><span class="pre">genetic_transformation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit"><code class="docutils literal notranslate"><span class="pre">genetic_transformation_profit()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.genetic_transformation._extract_edges"><code class="docutils literal notranslate"><span class="pre">_extract_edges()</span></code></a></li>
 </ul>
 </li>

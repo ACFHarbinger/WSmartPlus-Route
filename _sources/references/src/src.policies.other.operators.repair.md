@@ -39,7 +39,7 @@ src.policies.other.operators.repair.greedy
 ````{py:data} __all__
 :canonical: src.policies.other.operators.repair.__all__
 :value: >
-   ['greedy_insertion', 'regret_2_insertion', 'regret_k_insertion', 'greedy_insertion_with_blinks', 'sa...
+   ['greedy_insertion', 'greedy_profit_insertion', 'regret_2_insertion', 'regret_k_insertion', 'regret_...
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.__all__
 ```

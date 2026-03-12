@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us
     :summary:
     ```
+* - {py:obj}`apply_type_i_us_profit <src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us_profit>`
+  - ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us_profit
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +31,12 @@
 :canonical: src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us
+```
+````
+
+````{py:function} apply_type_i_us_profit(route: typing.List[int], i: int, j: int, k: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float, C: float) -> typing.Tuple[typing.List[int], float]
+:canonical: src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us_profit
+
+```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.unstringing_i.apply_type_i_us_profit
 ```
 ````

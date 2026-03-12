@@ -498,6 +498,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.savings.savings_insertion"><code class="docutils literal notranslate"><span class="pre">savings_insertion()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.savings.savings_profit_insertion"><code class="docutils literal notranslate"><span class="pre">savings_profit_insertion()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -536,6 +537,9 @@ None</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.savings.savings_insertion" title="src.policies.other.operators.repair.savings.savings_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">savings_insertion</span></code></a></p></td>
 <td><p>Insert removed nodes based on Clarke-Wright savings.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.savings.savings_profit_insertion" title="src.policies.other.operators.repair.savings.savings_profit_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">savings_profit_insertion</span></code></a></p></td>
+<td><p>Savings-based insertion for VRPP.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -558,6 +562,26 @@ capacity: Vehicle capacity.
 depot: Depot index (default 0).</p>
 <p>Returns:
 Updated routes with nodes inserted.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.repair.savings.savings_profit_insertion">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.repair.savings.</span></span><span class="sig-name descname"><span class="pre">savings_profit_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.repair.savings.savings_profit_insertion" title="Link to this definition">#</a></dt>
+<dd><p>Savings-based insertion for VRPP.</p>
+<p>Calculates the profit gain for each insertion and prioritizes those
+with the highest ‘profit-saving’ (considering both revenue and distance).</p>
+<p>Args:
+routes: List of routes.
+removed_nodes: List of unassigned nodes.
+dist_matrix: Distance matrix.
+wastes: waste look-up.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+mandatory_nodes: List of mandatory node indices.
+depot: Depot index.</p>
+<p>Returns:
+List[List[int]]: Updated routes.</p>
 </dd></dl>
 
 </section>
@@ -613,6 +637,7 @@ Updated routes with nodes inserted.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.savings.savings_insertion"><code class="docutils literal notranslate"><span class="pre">savings_insertion()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.savings.savings_profit_insertion"><code class="docutils literal notranslate"><span class="pre">savings_profit_insertion()</span></code></a></li>
 </ul>
 </li>
 </ul>

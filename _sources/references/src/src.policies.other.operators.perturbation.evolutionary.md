@@ -19,6 +19,18 @@
   - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation
     :summary:
     ```
+* - {py:obj}`evolutionary_perturbation_profit <src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit
+    :summary:
+    ```
+* - {py:obj}`_cluster_profit <src.policies.other.operators.perturbation.evolutionary._cluster_profit>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._cluster_profit
+    :summary:
+    ```
+* - {py:obj}`_sequence_profit <src.policies.other.operators.perturbation.evolutionary._sequence_profit>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_profit
+    :summary:
+    ```
 * - {py:obj}`_select_target_routes <src.policies.other.operators.perturbation.evolutionary._select_target_routes>`
   - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._select_target_routes
     :summary:
@@ -51,6 +63,27 @@
 :canonical: src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation
+```
+````
+
+````{py:function} evolutionary_perturbation_profit(ls: typing.Any, target_routes: typing.Optional[typing.List[int]] = None, pop_size: int = 10, n_generations: int = 5, rng: typing.Optional[random.Random] = None) -> bool
+:canonical: src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit
+```
+````
+
+````{py:function} _cluster_profit(ls: typing.Any, route_indices: typing.List[int]) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._cluster_profit
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._cluster_profit
+```
+````
+
+````{py:function} _sequence_profit(ls: typing.Any, seq: typing.List[int]) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._sequence_profit
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_profit
 ```
 ````
 

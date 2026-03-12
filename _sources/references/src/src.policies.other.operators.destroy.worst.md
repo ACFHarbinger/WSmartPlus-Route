@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.policies.other.operators.destroy.worst.worst_removal
     :summary:
     ```
+* - {py:obj}`worst_profit_removal <src.policies.other.operators.destroy.worst.worst_profit_removal>`
+  - ```{autodoc2-docstring} src.policies.other.operators.destroy.worst.worst_profit_removal
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +31,12 @@
 :canonical: src.policies.other.operators.destroy.worst.worst_removal
 
 ```{autodoc2-docstring} src.policies.other.operators.destroy.worst.worst_removal
+```
+````
+
+````{py:function} worst_profit_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float = 1.0, C: float = 1.0) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+:canonical: src.policies.other.operators.destroy.worst.worst_profit_removal
+
+```{autodoc2-docstring} src.policies.other.operators.destroy.worst.worst_profit_removal
 ```
 ````

@@ -19,6 +19,18 @@
   - ```{autodoc2-docstring} src.policies.other.operators.destroy.sector.sector_removal
     :summary:
     ```
+* - {py:obj}`_calculate_node_profits <src.policies.other.operators.destroy.sector._calculate_node_profits>`
+  - ```{autodoc2-docstring} src.policies.other.operators.destroy.sector._calculate_node_profits
+    :summary:
+    ```
+* - {py:obj}`_choose_starting_angle <src.policies.other.operators.destroy.sector._choose_starting_angle>`
+  - ```{autodoc2-docstring} src.policies.other.operators.destroy.sector._choose_starting_angle
+    :summary:
+    ```
+* - {py:obj}`sector_profit_removal <src.policies.other.operators.destroy.sector.sector_profit_removal>`
+  - ```{autodoc2-docstring} src.policies.other.operators.destroy.sector.sector_profit_removal
+    :summary:
+    ```
 ````
 
 ### API
@@ -27,5 +39,26 @@
 :canonical: src.policies.other.operators.destroy.sector.sector_removal
 
 ```{autodoc2-docstring} src.policies.other.operators.destroy.sector.sector_removal
+```
+````
+
+````{py:function} _calculate_node_profits(routes: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float, C: float) -> typing.Dict[int, float]
+:canonical: src.policies.other.operators.destroy.sector._calculate_node_profits
+
+```{autodoc2-docstring} src.policies.other.operators.destroy.sector._calculate_node_profits
+```
+````
+
+````{py:function} _choose_starting_angle(node_angles: typing.List[typing.Tuple[float, int, int, int, float]], bias_low_profit: bool, rng: random.Random) -> float
+:canonical: src.policies.other.operators.destroy.sector._choose_starting_angle
+
+```{autodoc2-docstring} src.policies.other.operators.destroy.sector._choose_starting_angle
+```
+````
+
+````{py:function} sector_profit_removal(routes: typing.List[typing.List[int]], n_remove: int, coords: numpy.ndarray, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float = 1.0, C: float = 1.0, depot: typing.Tuple[float, float] = (0.0, 0.0), bias_low_profit: bool = True, rng: typing.Optional[random.Random] = None) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+:canonical: src.policies.other.operators.destroy.sector.sector_profit_removal
+
+```{autodoc2-docstring} src.policies.other.operators.destroy.sector.sector_profit_removal
 ```
 ````

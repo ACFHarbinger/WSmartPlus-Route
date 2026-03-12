@@ -498,6 +498,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us"><code class="docutils literal notranslate"><span class="pre">apply_type_ii_us()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us_profit"><code class="docutils literal notranslate"><span class="pre">apply_type_ii_us_profit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -526,6 +527,9 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us" title="src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_type_ii_us</span></code></a></p></td>
 <td><p>Apply Type II Unstringing move.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us_profit" title="src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_type_ii_us_profit</span></code></a></p></td>
+<td><p>Apply Type II Unstringing and return profit delta.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -546,6 +550,20 @@ j: Index of node V_j (neighbor of V_{i+1}).
 k: Index of node V_k (neighbor of V_{i-1}), where k &gt; j relative to i.</p>
 <p>Returns:
 The modified tour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.unstringing_stringing.unstringing_ii.</span></span><span class="sig-name descname"><span class="pre">apply_type_ii_us_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us_profit" title="Link to this definition">#</a></dt>
+<dd><p>Apply Type II Unstringing and return profit delta.</p>
+<p>Args:
+route: The tour as a list of node IDs.
+i, j, k: Indices as defined in apply_type_ii_us.
+dist_matrix: Distance matrix.
+wastes: Waste levels.
+R, C: Revenue and cost multipliers.</p>
+<p>Returns:
+(new_route, delta_profit)</p>
 </dd></dl>
 
 </section>
@@ -601,6 +619,7 @@ The modified tour.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us"><code class="docutils literal notranslate"><span class="pre">apply_type_ii_us()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.unstringing_stringing.unstringing_ii.apply_type_ii_us_profit"><code class="docutils literal notranslate"><span class="pre">apply_type_ii_us_profit()</span></code></a></li>
 </ul>
 </li>
 </ul>

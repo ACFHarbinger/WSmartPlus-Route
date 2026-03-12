@@ -498,6 +498,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation"><code class="docutils literal notranslate"><span class="pre">evolutionary_perturbation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit"><code class="docutils literal notranslate"><span class="pre">evolutionary_perturbation_profit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._cluster_profit"><code class="docutils literal notranslate"><span class="pre">_cluster_profit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._sequence_profit"><code class="docutils literal notranslate"><span class="pre">_sequence_profit()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._select_target_routes"><code class="docutils literal notranslate"><span class="pre">_select_target_routes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._cluster_cost"><code class="docutils literal notranslate"><span class="pre">_cluster_cost()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._sequence_cost"><code class="docutils literal notranslate"><span class="pre">_sequence_cost()</span></code></a></li>
@@ -548,22 +551,31 @@ None</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation" title="src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evolutionary_perturbation</span></code></a></p></td>
 <td><p>Micro-evolutionary perturbation on a subset of routes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._select_target_routes" title="src.policies.other.operators.perturbation.evolutionary._select_target_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_target_routes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit" title="src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evolutionary_perturbation_profit</span></code></a></p></td>
+<td><p>Micro-evolutionary perturbation for profit-maximization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._cluster_profit" title="src.policies.other.operators.perturbation.evolutionary._cluster_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_cluster_profit</span></code></a></p></td>
+<td><p>Compute total profit of selected routes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._sequence_profit" title="src.policies.other.operators.perturbation.evolutionary._sequence_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sequence_profit</span></code></a></p></td>
+<td><p>Total profit of depot → seq → depot.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._select_target_routes" title="src.policies.other.operators.perturbation.evolutionary._select_target_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_target_routes</span></code></a></p></td>
 <td><p>Select the n smallest non-empty routes as targets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._cluster_cost" title="src.policies.other.operators.perturbation.evolutionary._cluster_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_cluster_cost</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._cluster_cost" title="src.policies.other.operators.perturbation.evolutionary._cluster_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_cluster_cost</span></code></a></p></td>
 <td><p>Compute total cost of depot→route→depot for selected routes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._sequence_cost" title="src.policies.other.operators.perturbation.evolutionary._sequence_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sequence_cost</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._sequence_cost" title="src.policies.other.operators.perturbation.evolutionary._sequence_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sequence_cost</span></code></a></p></td>
 <td><p>Total edge cost of depot → seq → depot.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._order_crossover" title="src.policies.other.operators.perturbation.evolutionary._order_crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_order_crossover</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._order_crossover" title="src.policies.other.operators.perturbation.evolutionary._order_crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_order_crossover</span></code></a></p></td>
 <td><p>Order crossover (OX1) between two permutations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._mutate_swap" title="src.policies.other.operators.perturbation.evolutionary._mutate_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mutate_swap</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._mutate_swap" title="src.policies.other.operators.perturbation.evolutionary._mutate_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mutate_swap</span></code></a></p></td>
 <td><p>Random swap mutation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._apply_cluster" title="src.policies.other.operators.perturbation.evolutionary._apply_cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_cluster</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.evolutionary._apply_cluster" title="src.policies.other.operators.perturbation.evolutionary._apply_cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_cluster</span></code></a></p></td>
 <td><p>Partition best sequence back into routes with original sizes.</p></td>
 </tr>
 </tbody>
@@ -587,6 +599,34 @@ n_generations: Number of evolutionary generations.
 rng: Random number generator.</p>
 <p>Returns:
 bool: True if the evolved cluster improves over the original.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.evolutionary.</span></span><span class="sig-name descname"><span class="pre">evolutionary_perturbation_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_generations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit" title="Link to this definition">#</a></dt>
+<dd><p>Micro-evolutionary perturbation for profit-maximization.</p>
+<p>Similar to evolutionary_perturbation but uses profit (Revenue - Cost)
+as the objective function.</p>
+<p>Args:
+ls: LocalSearch instance.
+target_routes: Indices of routes to evolve.
+pop_size: Population size.
+n_generations: Number of generations.
+rng: Random number generator.</p>
+<p>Returns:
+bool: True if the evolved cluster improves over the original.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.evolutionary._cluster_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_cluster_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.evolutionary._cluster_profit" title="Link to this definition">#</a></dt>
+<dd><p>Compute total profit of selected routes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.evolutionary._sequence_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_sequence_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.evolutionary._sequence_profit" title="Link to this definition">#</a></dt>
+<dd><p>Total profit of depot → seq → depot.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -678,6 +718,9 @@ bool: True if the evolved cluster improves over the original.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation"><code class="docutils literal notranslate"><span class="pre">evolutionary_perturbation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit"><code class="docutils literal notranslate"><span class="pre">evolutionary_perturbation_profit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._cluster_profit"><code class="docutils literal notranslate"><span class="pre">_cluster_profit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._sequence_profit"><code class="docutils literal notranslate"><span class="pre">_sequence_profit()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._select_target_routes"><code class="docutils literal notranslate"><span class="pre">_select_target_routes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._cluster_cost"><code class="docutils literal notranslate"><span class="pre">_cluster_cost()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.evolutionary._sequence_cost"><code class="docutils literal notranslate"><span class="pre">_sequence_cost()</span></code></a></li>

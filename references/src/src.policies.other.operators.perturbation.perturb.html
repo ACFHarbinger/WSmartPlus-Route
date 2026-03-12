@@ -498,6 +498,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.perturb.perturb"><code class="docutils literal notranslate"><span class="pre">perturb()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.perturb.perturb_profit"><code class="docutils literal notranslate"><span class="pre">perturb_profit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -532,6 +533,9 @@ None</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.perturb.perturb" title="src.policies.other.operators.perturbation.perturb.perturb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">perturb</span></code></a></p></td>
 <td><p>Perturbation operator: perform k random swaps to escape local optima.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.perturbation.perturb.perturb_profit" title="src.policies.other.operators.perturbation.perturb.perturb_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">perturb_profit</span></code></a></p></td>
+<td><p>Profit-driven perturbation: attempt k swaps with a focus on unvisited nodes.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -540,16 +544,30 @@ None</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.other.operators.perturbation.perturb.perturb">
-<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.perturb.</span></span><span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.perturb.perturb" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.perturb.</span></span><span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob_unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.perturb.perturb" title="Link to this definition">#</a></dt>
 <dd><p>Perturbation operator: perform k random swaps to escape local optima.</p>
-<p>Attempts to perform <code class="docutils literal notranslate"><span class="pre">k</span></code> random swaps between nodes. Swaps are forced
-even if they don’t improve the objective, provided they are feasible.</p>
+<p>Attempts to perform <code class="docutils literal notranslate"><span class="pre">k</span></code> random swaps. If prob_unvisited &gt; 0, some swaps
+may involve currently unvisited nodes.</p>
 <p>Args:
 ctx: Context object with routes, node_map, wastes, capacity, etc.
 k: Number of swaps to perform (default: 3).
+prob_unvisited: Probability of swapping with an unvisited node.
 rng: Random number generator.</p>
 <p>Returns:
 bool: True if any swap was performed, False otherwise.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.perturbation.perturb.perturb_profit">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.perturbation.perturb.</span></span><span class="sig-name descname"><span class="pre">perturb_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob_unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.other.operators.perturbation.perturb.perturb_profit" title="Link to this definition">#</a></dt>
+<dd><p>Profit-driven perturbation: attempt k swaps with a focus on unvisited nodes.</p>
+<p>Args:
+ctx: Context object (LocalSearch instance).
+k: Number of perturbation attempts.
+prob_unvisited: Probability of attempting a swap with an unvisited node.
+rng: Random number generator.</p>
+<p>Returns:
+bool: True if any change was applied.</p>
 </dd></dl>
 
 </section>
@@ -605,6 +623,7 @@ bool: True if any swap was performed, False otherwise.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.perturb.perturb"><code class="docutils literal notranslate"><span class="pre">perturb()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.perturbation.perturb.perturb_profit"><code class="docutils literal notranslate"><span class="pre">perturb_profit()</span></code></a></li>
 </ul>
 </li>
 </ul>

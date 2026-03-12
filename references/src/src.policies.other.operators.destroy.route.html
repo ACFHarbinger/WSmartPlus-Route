@@ -500,6 +500,8 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route.route_removal"><code class="docutils literal notranslate"><span class="pre">route_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route._select_route"><code class="docutils literal notranslate"><span class="pre">_select_route()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route._route_cost"><code class="docutils literal notranslate"><span class="pre">_route_cost()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route.route_profit_removal"><code class="docutils literal notranslate"><span class="pre">route_profit_removal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route._select_profit_route"><code class="docutils literal notranslate"><span class="pre">_select_profit_route()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -526,11 +528,20 @@ the unassigned pool.  Route selection is parameterized by strategy:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;costliest&quot;</span></code>: Select the route with the highest cost per customer.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;profitable&quot;</span></code>: Select the route with the lowest profit (sum of wastes - cost).</p></li>
 </ul>
+<p>Also includes dedicated profit-based route removal for VRPP problems with
+additional strategies:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;worst_profit&quot;</span></code>: Remove route with lowest total profit.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;lowest_efficiency&quot;</span></code>: Remove route with worst profit-per-node ratio.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;negative_profit&quot;</span></code>: Remove unprofitable routes (negative profit).</p></li>
+</ul>
 <p>Attributes:
 None</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.other.operators.destroy.route import route_removal
-&gt;&gt;&gt; routes, removed = route_removal(routes, strategy=”smallest”)</p>
+&gt;&gt;&gt; routes, removed = route_removal(routes, strategy=”smallest”)
+&gt;&gt;&gt; from logic.src.policies.other.operators.destroy.route import route_profit_removal
+&gt;&gt;&gt; routes, removed = route_profit_removal(routes, dist_matrix=d, wastes=w, R=1.0, C=1.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -545,6 +556,12 @@ None</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.destroy.route._route_cost" title="src.policies.other.operators.destroy.route._route_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_route_cost</span></code></a></p></td>
 <td><p>Compute total edge cost of depot → route → depot.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.destroy.route.route_profit_removal" title="src.policies.other.operators.destroy.route.route_profit_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">route_profit_removal</span></code></a></p></td>
+<td><p>Remove an entire route based on profit-based selection strategies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.destroy.route._select_profit_route" title="src.policies.other.operators.destroy.route._select_profit_route"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_profit_route</span></code></a></p></td>
+<td><p>Select route index to remove based on profit-oriented strategy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -577,6 +594,48 @@ Tuple of (modified routes, list of removed node IDs).</p>
 <dt class="sig sig-object py" id="src.policies.other.operators.destroy.route._route_cost">
 <span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.destroy.route.</span></span><span class="sig-name descname"><span class="pre">_route_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.other.operators.destroy.route._route_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute total edge cost of depot → route → depot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.destroy.route.route_profit_removal">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.destroy.route.</span></span><span class="sig-name descname"><span class="pre">route_profit_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'worst_profit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.destroy.route.route_profit_removal" title="Link to this definition">#</a></dt>
+<dd><p>Remove an entire route based on profit-based selection strategies.</p>
+<p>This is a dedicated profit-based variant that provides multiple strategies
+for route selection focused on profit optimization.</p>
+<p>Args:
+routes: Current solution (list of routes).
+dist_matrix: Distance matrix (N+1, N+1) including depot at index 0.
+wastes: Waste/profit values for each node.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+strategy: Selection strategy — <code class="docutils literal notranslate"><span class="pre">&quot;worst_profit&quot;</span></code> (lowest profit route),
+<code class="docutils literal notranslate"><span class="pre">&quot;lowest_efficiency&quot;</span></code> (worst profit per node ratio),
+<code class="docutils literal notranslate"><span class="pre">&quot;negative_profit&quot;</span></code> (unprofitable routes), or
+<code class="docutils literal notranslate"><span class="pre">&quot;random&quot;</span></code> (fallback to random selection).
+rng: Random number generator.</p>
+<p>Returns:
+Tuple of (modified routes, list of removed node IDs).</p>
+<p>Example:
+&gt;&gt;&gt; routes = [[1, 2, 3], [4, 5], [6, 7, 8, 9]]
+&gt;&gt;&gt; dist_matrix = np.array(…)
+&gt;&gt;&gt; wastes = {1: 10, 2: 5, 3: 8, 4: 15, 5: 12, 6: 3, 7: 4, 8: 2, 9: 1}
+&gt;&gt;&gt; routes, removed = route_profit_removal(routes, dist_matrix, wastes, R=1.0, C=1.0)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.destroy.route._select_profit_route">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.destroy.route.</span></span><span class="sig-name descname"><span class="pre">_select_profit_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.other.operators.destroy.route._select_profit_route" title="Link to this definition">#</a></dt>
+<dd><p>Select route index to remove based on profit-oriented strategy.</p>
+<p>Args:
+routes: Current solution (list of routes).
+strategy: Selection strategy.
+dist_matrix: Distance matrix.
+wastes: Waste/profit values.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+rng: Random number generator.</p>
+<p>Returns:
+Index of route to remove, or -1 if no valid route.</p>
 </dd></dl>
 
 </section>
@@ -634,6 +693,8 @@ Tuple of (modified routes, list of removed node IDs).</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route.route_removal"><code class="docutils literal notranslate"><span class="pre">route_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route._select_route"><code class="docutils literal notranslate"><span class="pre">_select_route()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route._route_cost"><code class="docutils literal notranslate"><span class="pre">_route_cost()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route.route_profit_removal"><code class="docutils literal notranslate"><span class="pre">route_profit_removal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.route._select_profit_route"><code class="docutils literal notranslate"><span class="pre">_select_profit_route()</span></code></a></li>
 </ul>
 </li>
 </ul>

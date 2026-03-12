@@ -39,7 +39,7 @@ src.policies.other.operators.perturbation.genetic_transformation
 ````{py:data} __all__
 :canonical: src.policies.other.operators.perturbation.__all__
 :value: >
-   ['perturb', 'kick', 'double_bridge', 'genetic_transformation', 'evolutionary_perturbation']
+   ['perturb', 'perturb_profit', 'kick', 'kick_profit', 'double_bridge', 'genetic_transformation', 'gen...
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.__all__
 ```

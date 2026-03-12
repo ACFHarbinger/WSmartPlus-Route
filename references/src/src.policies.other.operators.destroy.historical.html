@@ -498,6 +498,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.historical.historical_removal"><code class="docutils literal notranslate"><span class="pre">historical_removal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.historical.historical_profit_removal"><code class="docutils literal notranslate"><span class="pre">historical_profit_removal()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -519,12 +520,16 @@ document.write(`
 <p>Uses historical memory to penalize nodes that are frequently found in
 high-cost solutions.  Removes the <code class="docutils literal notranslate"><span class="pre">k</span></code> nodes with the worst historical
 scores from their routes.</p>
+<p>Also includes profit-based historical removal for VRPP problems.</p>
 <p>Attributes:
 None</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.other.operators.destroy.historical import historical_removal
 &gt;&gt;&gt; history = {1: 12.5, 2: 8.0, 3: 15.3, …}
-&gt;&gt;&gt; routes, removed = historical_removal(routes, n_remove=5, history=history)</p>
+&gt;&gt;&gt; routes, removed = historical_removal(routes, n_remove=5, history=history)
+&gt;&gt;&gt; from logic.src.policies.other.operators.destroy.historical import historical_profit_removal
+&gt;&gt;&gt; routes, removed = historical_profit_removal(routes, n_remove=5, history=history,
+…                                             dist_matrix=d, wastes=w, R=1.0, C=1.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -533,6 +538,9 @@ None</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.destroy.historical.historical_removal" title="src.policies.other.operators.destroy.historical.historical_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">historical_removal</span></code></a></p></td>
 <td><p>Remove nodes with the worst historical cost scores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.destroy.historical.historical_profit_removal" title="src.policies.other.operators.destroy.historical.historical_profit_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">historical_profit_removal</span></code></a></p></td>
+<td><p>Remove nodes with worst combined historical score and current profit.</p></td>
 </tr>
 </tbody>
 </table>
@@ -551,6 +559,29 @@ routes: Current solution (list of routes).
 n_remove: Number of nodes to remove.
 history: Dictionary mapping node IDs to their historical cost scores
 (moving averages across iterations).
+rng: Random number generator.
+noise: Noise amplitude (fraction of max score) added for diversity.</p>
+<p>Returns:
+Tuple of (modified routes, list of removed node IDs).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.destroy.historical.historical_profit_removal">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.destroy.historical.</span></span><span class="sig-name descname"><span class="pre">historical_profit_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.destroy.historical.historical_profit_removal" title="Link to this definition">#</a></dt>
+<dd><p>Remove nodes with worst combined historical score and current profit.</p>
+<p>Combines historical penalty with current profit evaluation to remove
+nodes that have been problematic in the past AND have low current profit.</p>
+<p>Args:
+routes: Current solution (list of routes).
+n_remove: Number of nodes to remove.
+history: Dictionary mapping node IDs to their historical cost scores
+(moving averages across iterations).
+dist_matrix: Distance matrix.
+wastes: Waste/profit values for each node.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+alpha: Weight for historical score (1-alpha for profit score).
+alpha=1.0 uses only history, alpha=0.0 uses only profit.
 rng: Random number generator.
 noise: Noise amplitude (fraction of max score) added for diversity.</p>
 <p>Returns:
@@ -610,6 +641,7 @@ Tuple of (modified routes, list of removed node IDs).</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.historical.historical_removal"><code class="docutils literal notranslate"><span class="pre">historical_removal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.destroy.historical.historical_profit_removal"><code class="docutils literal notranslate"><span class="pre">historical_profit_removal()</span></code></a></li>
 </ul>
 </li>
 </ul>

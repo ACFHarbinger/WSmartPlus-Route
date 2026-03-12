@@ -42,7 +42,7 @@ src.policies.other.operators.unstringing_stringing.stringing_i
 ````{py:data} __all__
 :canonical: src.policies.other.operators.unstringing_stringing.__all__
 :value: >
-   ['apply_type_i_us', 'apply_type_ii_us', 'apply_type_iii_us', 'apply_type_iv_us', 'apply_type_i_s', '...
+   ['apply_type_i_us', 'apply_type_i_us_profit', 'apply_type_ii_us', 'apply_type_ii_us_profit', 'apply_...
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.__all__
 ```
