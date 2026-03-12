@@ -4,12 +4,16 @@ Shaw Removal (Relatedness) Operator Module.
 This module implements the Shaw removal heuristic, which removes nodes that are
 similar (related) to a seed node based on distance, time, and waste.
 
+Also includes profit-based Shaw removal for VRPP problems.
+
 Attributes:
     None
 
 Example:
     >>> from logic.src.policies.other.operators.destroy.shaw import shaw_removal
     >>> routes, removed = shaw_removal(routes, n_remove=5, dist_matrix=d, ...)
+    >>> from logic.src.policies.other.operators.destroy.shaw import shaw_profit_removal
+    >>> routes, removed = shaw_profit_removal(routes, n_remove=5, dist_matrix=d, wastes=w, R=1.0, C=1.0)
 """
 
 from random import Random
@@ -118,6 +122,129 @@ def shaw_removal(  # noqa: C901
                     tw_rel = float(abs(tw_node[0] - tw_rem[0])) / max_tw
 
                 rel: float = phi * dist_rel + chi * tw_rel + psi * waste_rel
+                total_rel += rel
+
+            avg_rel: float = total_rel / len(removed)
+            relatedness_scores.append((node, avg_rel))
+
+        if not relatedness_scores:
+            break
+
+        # Sort by relatedness (lower = more related), then node ID for deterministic tie-breaking
+        relatedness_scores.sort(key=lambda x: (x[1], x[0]))
+
+        # Randomized selection using power law
+        # y^p where y is uniform [0,1], p is randomization_factor
+        y = rng.random()
+        idx = int((y**randomization_factor) * len(relatedness_scores))
+        idx = min(idx, len(relatedness_scores) - 1)
+        selected_node = relatedness_scores[idx][0]
+        removed.append(selected_node)
+
+    # Remove from routes
+    to_remove_locs = [(node_map[n][0], node_map[n][1], n) for n in removed if n in node_map]
+    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
+
+    final_removed = []
+    for r_idx, pos, node in to_remove_locs:
+        if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
+            routes[r_idx].pop(pos)
+            final_removed.append(node)
+
+    routes = [r for r in routes if r]
+    return routes, final_removed
+
+
+def shaw_profit_removal(  # noqa: C901
+    routes: List[List[int]],
+    n_remove: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    R: float = 1.0,
+    C: float = 1.0,
+    relatedness_weights: Tuple[float, float] = (0.6, 0.4),
+    randomization_factor: float = 2.0,
+    phi: float = 9.0,
+    psi: float = 5.0,
+    rng: Optional[Random] = None,
+) -> Tuple[List[List[int]], List[int]]:
+    """
+    Profit-based Shaw Removal: Remove related customers based on profit similarity.
+
+    Relatedness R(i,j) = phi * d(i,j) + psi * |profit_i - profit_j|
+
+    Customers that are similar in terms of distance and profit are removed
+    together, maximizing the potential for rearrangement during repair.
+
+    Args:
+        routes: Current routes.
+        n_remove: Number of nodes to remove.
+        dist_matrix: Distance matrix.
+        wastes: Waste/profit values for each node.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        relatedness_weights: Weights for (dist, profit) - deprecated if phi/psi used directly.
+        randomization_factor: Power for randomized selection (higher = more random).
+        phi: Distance weight in relatedness.
+        psi: Profit weight in relatedness.
+        rng: Random number generator.
+
+    Returns:
+        Tuple[List[List[int]], List[int]]: Modified routes and removed nodes.
+    """
+    if not any(routes) or n_remove <= 0:
+        return routes, []
+
+    # Build node map
+    node_map = {}
+    all_nodes = []
+    for r_idx, route in enumerate(routes):
+        for pos, node in enumerate(route):
+            node_map[node] = (r_idx, pos)
+            all_nodes.append(node)
+
+    if not all_nodes:
+        return routes, []
+
+    if rng is None:
+        rng = Random(42)
+
+    # Calculate profit for each node
+    node_profits = {}
+    for node in all_nodes:
+        revenue = wastes.get(node, 0.0) * R
+        cost = dist_matrix[0][node] * C
+        node_profits[node] = revenue - cost
+
+    # Pick random seed
+    seed: int = rng.choice(all_nodes)
+    removed: List[int] = [seed]
+
+    # Normalize distance and profit for relatedness calculation
+    max_dist: float = float(np.max(dist_matrix)) if np.max(dist_matrix) > 0 else 1.0
+    profit_values = list(node_profits.values())
+    max_profit_diff: float = float(max(profit_values) - min(profit_values)) if len(profit_values) > 1 else 1.0
+    if max_profit_diff == 0:
+        max_profit_diff = 1.0
+
+    while len(removed) < n_remove and len(removed) < len(all_nodes):
+        # Calculate relatedness to already-removed nodes
+        relatedness_scores: List[Tuple[int, float]] = []
+
+        for node in all_nodes:
+            if node in removed or node not in node_map:
+                continue
+
+            # Average relatedness to all removed nodes
+            total_rel: float = 0.0
+            for rem_node in removed:
+                # Distance component
+                dist_rel: float = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
+
+                # Profit component
+                profit_rel: float = float(abs(node_profits[node] - node_profits[rem_node])) / max_profit_diff
+
+                rel: float = phi * dist_rel + psi * profit_rel
                 total_rel += rel
 
             avg_rel: float = total_rel / len(removed)
