@@ -7,7 +7,8 @@ trial vector is collapsed to a discrete routing solution by ranking node
 amplitudes and calling greedy_insertion.
 
 Reference:
-    Survey §"Differential Evolution" — quantum-inspired representation for discrete OP.
+    Li, B., & Li, P. (2015). "Quantum Inspired Differential Evolution Algorithm."
+    Chen, S., Li, Z., Yang, B., & Rudolph, G. (2015). "Quantum-inspired hyper-heuristics for energy-aware scheduling on heterogeneous computing systems."
 """
 
 import copy

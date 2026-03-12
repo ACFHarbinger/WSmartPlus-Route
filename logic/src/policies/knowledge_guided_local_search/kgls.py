@@ -4,6 +4,10 @@ Knowledge-Guided Local Search (KGLS) solver.
 Implements the CVRP heuristic from Arnold & Sörensen (2019).
 Combines Fast Local Search with an intelligent perturbation mechanism
 guided by edge length and width penalties.
+
+Reference:
+    Arnold, F., & Sorensen, K. "Knowledge-guided
+    local search for the vehicle routing problem", 2018
 """
 
 import copy

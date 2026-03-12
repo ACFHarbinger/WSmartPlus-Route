@@ -3,8 +3,8 @@ TSP Policy Module.
 
 This module provides helper functions for solving single-vehicle routing problems
 (TSP) including construction, local search optimization, and capacity management.
-It typically wraps exact methods (like Concorde or LKH if available) or
-heuristics (like Nearest Neighbor or 2-opt).
+It typically wraps exact methods (like the bottom-up Held-Karp algorithm) or
+(meta-)heuristics (like 2-opt and Stochastic Local Search).
 
 Key Functions:
 - find_route: Solve TSP using fast_tsp library
@@ -19,6 +19,12 @@ Attributes:
 Example:
     >>> from logic.src.policies.tsp import find_route
     >>> tour, length = find_route(dist_matrix)
+
+Reference:
+    Held, M., & Karp, R. M. (1961).
+    "A dynamic programming approach to sequencing problems"
+    Hoos, H. H., & Stützle, T. (2005).
+    "Stochastic local search: Foundations and applications"
 """
 
 from typing import List, Tuple

@@ -16,7 +16,8 @@ profit exceeds a linearly falling water level, providing a deterministic
 escape from local optima without requiring temperature tuning.
 
 Reference:
-    Survey §"Hyper-Heuristics" — HMM + Great Deluge for selection hyper-heuristics.
+    Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. "A reinforcement learning:
+    Great-deluge hyper-heuristic for examination timetabling", 2010
 """
 
 import copy

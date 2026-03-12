@@ -7,8 +7,8 @@ local optima) and contracts after consecutive acceptances (intensifying
 exploitation of promising basins).
 
 Reference:
-    Hu, Kahng & Tsao, "Old Bachelor Acceptance: A New Class of Non-Monotone
-    Threshold Accepting Methods", 1995.
+    Hu, T. C., Kahng, A. B., & Tsao, C. A. "Old Bachelor Acceptance:
+    A New Class of Non-Monotone Threshold Accepting Methods", 1995.
 """
 
 import copy

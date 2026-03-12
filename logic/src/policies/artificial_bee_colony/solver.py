@@ -7,7 +7,10 @@ information, making ABC naturally suited to the discontinuous profit
 landscapes of the VRPP.
 
 Reference:
-    Survey §"Artificial Bee Colony" — real-world VRP with time windows.
+    Rechenberg, I. (1973). "Evolutionsstrategie: Optimierung technischer
+    Systeme nach Prinzipien der biologischen Evolution."
+    Yao, B., Yan, Q., Zhang, M., & Yang, Y. "Improved artificial bee
+    colony algorithm for vehicle routing problem with time windows", 2017.
 """
 
 import copy

@@ -4,6 +4,11 @@ Hybrid Volleyball Premier League (HVPL) Solver.
 Combines Ant Colony Optimization (ACO) for construction and global guidance
 with Adaptive Large Neighborhood Search (ALNS) for local improvement (Coaching),
 within a population-based framework (Leagues).
+
+Reference:
+    Sun, S., Ma, L., Liu, Y., & Wang, L. (2023).
+    "Volleyball premier league algorithm with ACO and ALNS for
+    simultaneous pickup–delivery location routing problem."
 """
 
 import copy

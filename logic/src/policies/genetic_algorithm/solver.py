@@ -5,8 +5,10 @@ Population of route solutions evolved via tournament selection, order
 crossover (OX), and random relocate mutation.  Elitism preserves the
 best individual across generations.
 
-Reference:
-    Holland, "Adaptation in Natural and Artificial Systems", 1975.
+References:
+    Holland, J. H. "Adaptation in Natural and Artificial Systems", 1975.
+    Prins, C. "A simple and effective evolutionary
+    algorithm for the vehicle routing problem", 2004.
 """
 
 import contextlib

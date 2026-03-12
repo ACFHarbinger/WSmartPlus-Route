@@ -8,7 +8,7 @@ the tabu tenure is increased to amplify diversification; during long
 non-cycling periods, tenure contracts for intensive exploitation.
 
 Reference:
-    Battiti & Tecchiolli, "The Reactive Tabu Search", 1994.
+    Battiti, R., & Tecchiolli, G. "The Reactive Tabu Search", 1994.
 """
 
 import copy

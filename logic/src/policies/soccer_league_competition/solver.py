@@ -14,7 +14,9 @@ Stagnation detection: if a team's aggregate profit does not improve for
 `stagnation_limit` seasons, the entire team is regenerated from scratch.
 
 Reference:
-    Survey §"Soccer League Competition" — dual-tier competition framework.
+    Moosavian, N., & Rppdsarou, B. K. (2014).
+    "Soccer league competition algorithm: A novel meta-heuristic
+    algorithm for optimal design of water distribution networks."
 """
 
 import copy

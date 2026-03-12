@@ -1,5 +1,10 @@
 """
 VRPP Optimizer Interface.
+
+Reference:
+    Morais, C. S., Ramos, T. R. P., Lopes, M., & Barbosa-Povoa, A. P.
+    "A data-driven optimization approach to plan smart
+    waste collection operations", 2022.
 """
 
 from __future__ import annotations

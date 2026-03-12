@@ -10,6 +10,10 @@ Attributes:
 Example:
     >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco.runner import run_hyper_heuristic_aco
     >>> result = run_hyper_heuristic_aco(dist_matrix, wastes, capacity, ...)
+
+Reference:
+    Chen, P., Kendall, G., & Berghe, G. V. "An Ant Based
+    Hyper-heuristic for the Travelling Tournament Problem", 2007.
 """
 
 from typing import Any, Dict, List, Optional, Tuple

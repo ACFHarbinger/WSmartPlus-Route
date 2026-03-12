@@ -8,7 +8,8 @@ final continuous vector is binarised via a sigmoid transfer function and
 decoded to a discrete routing solution via the Largest Rank Value (LRV) rule.
 
 Reference:
-    Survey §"Sine Cosine Algorithm" — multi-group adaptation for CVRP/VRPP.
+    Mirjalili, S. "SCA: A Sine Cosine Algorithm for solving
+    optimization problems.", 2016, Knowledge-Based Systems.
 """
 
 import copy
