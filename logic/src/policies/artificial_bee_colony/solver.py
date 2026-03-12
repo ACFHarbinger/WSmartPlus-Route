@@ -147,11 +147,17 @@ class ABCSolver(PolicyVizMixin):
     # Private helpers
     # ------------------------------------------------------------------
 
+    def _new_source(self) -> List[List[int]]:
+        """
+        Creates a new food source (initial solution).
+        """
+        return self._build_random_solution()
+
     def _build_random_solution(self) -> List[List[int]]:
         """
         Builds a random initial solution applying nearest neighbor ordering.
         """
-        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
         routes = build_nn_routes(
             nodes=self.nodes,

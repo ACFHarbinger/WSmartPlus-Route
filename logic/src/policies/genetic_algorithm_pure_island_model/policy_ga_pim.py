@@ -16,7 +16,7 @@ from .params import PureIslandModelGAParams
 from .solver import PureIslandModelGASolver
 
 
-@PolicyRegistry.register("pure_island_ga")
+@PolicyRegistry.register("ga_pim")
 class PureIslandModelGAPolicy(BaseRoutingPolicy):
     """
     Pure Island Model Genetic Algorithm policy class.
@@ -38,7 +38,7 @@ class PureIslandModelGAPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "pure_island_ga"
+        return "ga_pim"
 
     def _run_solver(
         self,

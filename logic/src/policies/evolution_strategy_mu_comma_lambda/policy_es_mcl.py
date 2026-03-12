@@ -14,7 +14,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.evolution_strategy_mu_comma_lambda import MuCommaLambdaESParams, MuCommaLambdaESSolver
 
 
-@PolicyRegistry.register("mu_comma_lambda_es")
+@PolicyRegistry.register("es_mcl")
 class MuCommaLambdaESPolicy(BaseRoutingPolicy):
     """
     (μ,λ) Evolution Strategy policy class.
@@ -36,7 +36,7 @@ class MuCommaLambdaESPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "mu_comma_lambda_es"
+        return "es_mcl"
 
     def _run_solver(
         self,
