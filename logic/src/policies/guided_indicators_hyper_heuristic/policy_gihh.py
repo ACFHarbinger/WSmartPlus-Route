@@ -12,7 +12,8 @@ import numpy as np
 from logic.src.configs.policies import GIHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.guided_indicators_hyper_heuristic import run_gihh
+
+from .gihh import run_gihh
 
 
 @PolicyRegistry.register("gihh")

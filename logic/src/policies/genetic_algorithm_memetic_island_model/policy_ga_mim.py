@@ -11,10 +11,9 @@ import numpy as np
 from logic.src.configs.policies import MemeticIslandModelGAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.memetic_island_model_genetic_algorithm import (
-    MemeticIslandModelGAParams,
-    MemeticIslandModelGASolver,
-)
+
+from .params import MemeticIslandModelGAParams
+from .solver import MemeticIslandModelGASolver
 
 
 @PolicyRegistry.register("memetic_island_ga")

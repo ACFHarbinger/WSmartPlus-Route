@@ -107,7 +107,7 @@ class PostProcessAction(SimulationAction):
                 refined_tour = processor.process(tour, **pf_params)
 
                 if refined_tour != tour:
-                    from logic.src.policies.tsp import get_route_cost
+                    from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
 
                     dist_matrix = context.get("distance_matrix")
                     new_cost = get_route_cost(dist_matrix, refined_tour)

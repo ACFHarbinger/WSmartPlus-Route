@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from logic.src.policies.adapters.policy_hvpl import HVPLPolicy
+from logic.src.policies.hybrid_volleyball_premier_league.policy_hvpl import HVPLPolicy
 
 def test_subset_dimensions():
     # Use HVPLPolicy to test BaseRoutingPolicy methods

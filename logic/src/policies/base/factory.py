@@ -11,7 +11,8 @@ from typing import Any, Optional
 
 # --- IPolicy Interface ---
 from logic.src.interfaces.adapter import IPolicyAdapter
-from logic.src.policies.adapters.registry import PolicyRegistry
+
+from .registry import PolicyRegistry
 
 # Alias for backward compatibility
 IPolicy = IPolicyAdapter

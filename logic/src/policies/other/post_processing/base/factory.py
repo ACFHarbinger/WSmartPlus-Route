@@ -8,7 +8,7 @@ Attributes:
     PostProcessorFactory (class): The factory class.
 
 Example:
-    >>> from logic.src.policies.post_processing.factory import PostProcessorFactory
+    >>> from logic.src.policies.other.post_processing.base.factory import PostProcessorFactory
     >>> processors = PostProcessorFactory.create_from_config(config)
 """
 
