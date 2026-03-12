@@ -8,7 +8,7 @@ from logic.src.envs.problems import VRPP
 from logic.src.models import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
 from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
-from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
 
 
 def get_dummy_model(device="cpu"):

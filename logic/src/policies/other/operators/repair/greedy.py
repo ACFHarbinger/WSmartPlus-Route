@@ -100,10 +100,7 @@ def greedy_insertion(
             loads[best_route_idx] += wastes.get(best_node, 0)
             unassigned.remove(best_node)
         else:
-            # If no feasible insertions are found, we must handle any remaining mandatory nodes
-            # by creating new routes if necessary, but ALNS usually relies on destroy/repair loops.
-            # For VRPP, we allow skipping non-mandatory nodes.
-            # If there are remaining mandatory nodes, we should probably try to create new routes.
+            # Check for remaining mandatory nodes
             mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
             if mandatory_remaining:
                 node = mandatory_remaining[0]
@@ -111,7 +108,8 @@ def greedy_insertion(
                 loads.append(wastes.get(node, 0))
                 unassigned.remove(node)
             else:
-                # No more mandatory nodes and no more profitable/feasible insertions
+                # No more mandatory nodes can be inserted.
+                # To prevent infinite loops, we must clear unassigned if no more feasible insertions exist.
                 break
 
     return routes

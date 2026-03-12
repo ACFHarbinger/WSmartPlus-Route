@@ -281,6 +281,10 @@ class ALNSSolver(PolicyVizMixin):
             if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
                 continue
 
+            if waste > self.capacity:
+                print(f"ALNS Greedy: Node {node} exceeds capacity {self.capacity}. Skipping.")
+                continue
+
             if load + waste <= self.capacity:
                 curr_route.append(node)
                 load += waste

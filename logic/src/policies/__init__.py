@@ -31,6 +31,7 @@ Example:
 
 from .adaptive_large_neighborhood_search.params import ALNSParams
 from .adaptive_large_neighborhood_search.policy_alns import run_alns
+from .base import IPolicy, PolicyFactory, PolicyRegistry
 from .capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
 from .guided_indicators_hyper_heuristic.policy_gihh import run_gihh
 from .hybrid_genetic_search.policy_hgs import run_hgs
@@ -41,6 +42,9 @@ from .travelling_salesman_problem.tsp import find_route
 __all__ = [
     "ALNSParams",
     "run_alns",
+    "IPolicy",
+    "PolicyFactory",
+    "PolicyRegistry",
     "find_routes",
     "find_routes_ortools",
     "run_gihh",
