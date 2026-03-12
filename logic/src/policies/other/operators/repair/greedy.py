@@ -115,3 +115,105 @@ def greedy_insertion(
                 break
 
     return routes
+
+
+def greedy_profit_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
+) -> List[List[int]]:
+    """
+    Greedily insert nodes to maximize profit (revenue - cost).
+
+    VRPP logic: Instead of minimizing cost, we maximize (waste * R - delta_dist * C).
+    Nodes with negative max profit are skipped unless they are mandatory.
+
+    Args:
+        routes: List of routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier (per waste unit).
+        C: Cost multiplier (per distance unit).
+        mandatory_nodes: List of mandatory node indices.
+        expand_pool: If True, all unvisited nodes are considered.
+
+    Returns:
+        List[List[int]]: Updated routes.
+    """
+    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
+    loads = [sum(wastes.get(node, 0) for node in r) for r in routes]
+
+    visited = set()
+    for r in routes:
+        visited.update(r)
+
+    if expand_pool:
+        n_nodes = len(dist_matrix) - 1
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    else:
+        unassigned = sorted(list(removed_nodes))
+
+    while unassigned:
+        best_profit = -float("inf")
+        best_node = -1
+        best_route_idx = -1
+        best_pos = -1
+
+        for node in unassigned:
+            node_waste = wastes.get(node, 0)
+            revenue = node_waste * R
+            is_mandatory = node in mandatory_nodes_set
+
+            for i, route in enumerate(routes):
+                if loads[i] + node_waste > capacity:
+                    continue
+
+                for pos in range(len(route) + 1):
+                    # Cost increase: d(prev, node) + d(node, nxt) - d(prev, nxt)
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+
+                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                    profit = revenue - (cost * C)
+
+                    # If mandatory, we should prioritize insertion even if profit is negative?
+                    # A common approach is to add a large constant to profit for mandatory nodes
+                    # or just ensure they are inserted.
+                    effective_profit = profit + (1e9 if is_mandatory else 0)
+
+                    if effective_profit > best_profit:
+                        # Even for non-mandatory, we only insert if profit > 0 (or some small epsilon)
+                        if not is_mandatory and profit < -1e-4:
+                            continue
+
+                        best_profit = effective_profit
+                        best_node = node
+                        best_route_idx = i
+                        best_pos = pos
+
+        if best_node != -1:
+            routes[best_route_idx].insert(best_pos, best_node)
+            loads[best_route_idx] += wastes.get(best_node, 0)
+            unassigned.remove(best_node)
+        else:
+            # Handle remaining mandatory nodes by opening new routes if possible
+            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
+            if mandatory_remaining:
+                # Prioritize mandatory nodes greedily?
+                # For now, just pick the first and open a new route.
+                node = mandatory_remaining[0]
+                routes.append([node])
+                loads.append(wastes.get(node, 0))
+                unassigned.remove(node)
+            else:
+                break
+
+    return routes

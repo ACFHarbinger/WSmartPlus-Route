@@ -51,16 +51,16 @@ from .inter_route import (
     cross_exchange,
     cyclic_transfer,
     ejection_chain,
-    i_cross_exchange,
+    exchange_2_0,
+    exchange_2_1,
+    exchange_k_0,
+    exchange_k_h,
+    improved_cross_exchange,
     lambda_interchange,
     move_2opt_star,
     move_3opt_star,
     move_kopt_star,
     move_swap_star,
-    relocate_2_0,
-    relocate_2_1,
-    relocate_k_0,
-    relocate_k_h,
 )
 
 # Intra-route operators
@@ -89,11 +89,16 @@ from .perturbation import (
 # Repair operators
 from .repair import (
     deep_insertion,
+    deep_profit_insertion,
     greedy_insertion,
     greedy_insertion_with_blinks,
+    greedy_profit_insertion,
+    greedy_profit_insertion_with_blinks,
     regret_2_insertion,
     regret_k_insertion,
+    regret_profit_insertion,
     savings_insertion,
+    savings_profit_insertion,
 )
 
 # Unstringing and stringing (US)
@@ -129,11 +134,16 @@ __all__ = [
     "sector_removal",
     # Repair
     "greedy_insertion",
+    "greedy_profit_insertion",
     "regret_2_insertion",
     "regret_k_insertion",
+    "regret_profit_insertion",
     "greedy_insertion_with_blinks",
+    "greedy_profit_insertion_with_blinks",
     "savings_insertion",
+    "savings_profit_insertion",
     "deep_insertion",
+    "deep_profit_insertion",
     # Intra-route
     "move_relocate",
     "move_swap",
@@ -151,14 +161,14 @@ __all__ = [
     "move_3opt_star",
     "move_kopt_star",
     "cross_exchange",
-    "i_cross_exchange",
+    "improved_cross_exchange",
     "ejection_chain",
     "lambda_interchange",
     "cyclic_transfer",
-    "relocate_2_0",
-    "relocate_2_1",
-    "relocate_k_0",
-    "relocate_k_h",
+    "exchange_2_0",
+    "exchange_2_1",
+    "exchange_k_0",
+    "exchange_k_h",
     # Perturbation
     "perturb",
     "kick",

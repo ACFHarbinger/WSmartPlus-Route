@@ -12,7 +12,8 @@ import numpy as np
 
 from logic.src.policies.hybrid_genetic_search import Individual
 from logic.src.policies.hybrid_genetic_search.evolution import evaluate
-from logic.src.policies.other.operators import destroy_operators, repair_operators
+from logic.src.policies.other.operators import destroy as destroy_operators
+from logic.src.policies.other.operators import repair as repair_operators
 
 from .params import HGSRRParams
 
