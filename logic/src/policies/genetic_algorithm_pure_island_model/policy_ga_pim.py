@@ -11,7 +11,9 @@ import numpy as np
 from logic.src.configs.policies import PureIslandModelGAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.pure_island_model_genetic_algorithm import PureIslandModelGAParams, PureIslandModelGASolver
+
+from .params import PureIslandModelGAParams
+from .solver import PureIslandModelGASolver
 
 
 @PolicyRegistry.register("pure_island_ga")

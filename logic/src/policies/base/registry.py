@@ -8,7 +8,7 @@ Attributes:
     PolicyRegistry: The singleton registry class.
 
 Example:
-    >>> from logic.src.policies.adapters.registry import PolicyRegistry
+    >>> from logic.src.policies.base import PolicyRegistry
     >>> @PolicyRegistry.register("my_policy")
     ... class MyPolicy(IPolicy): ...
     >>> policy_cls = PolicyRegistry.get("my_policy")

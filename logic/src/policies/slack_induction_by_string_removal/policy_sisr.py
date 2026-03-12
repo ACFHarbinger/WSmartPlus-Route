@@ -11,7 +11,9 @@ import numpy as np
 from logic.src.configs.policies import SISRConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.slack_induction_by_string_removal import SISRParams, SISRSolver
+
+from .params import SISRParams
+from .solver import SISRSolver
 
 
 @PolicyRegistry.register("sisr")

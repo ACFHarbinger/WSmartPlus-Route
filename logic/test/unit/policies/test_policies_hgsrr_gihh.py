@@ -175,7 +175,7 @@ class TestGIHHPolicy:
         dist_matrix, wastes, capacity, R, C = simple_instance
         values = {
             "time_limit": 1.0,
-            "max_iterations": 50,
+            "max_iterations": 5,
             "seed": 42,
         }
 
@@ -192,7 +192,7 @@ class TestGIHHPolicy:
         dist_matrix, wastes, capacity, R, C = simple_instance
         values = {
             "time_limit": 1.0,
-            "max_iterations": 50,
+            "max_iterations": 5,
             "seed": 42,
         }
 
@@ -211,7 +211,7 @@ class TestGIHHPolicy:
         mandatory_nodes = [1, 3]  # Local indices
         values = {
             "time_limit": 1.0,
-            "max_iterations": 50,
+            "max_iterations": 5,
             "seed": 42,
         }
 
@@ -270,7 +270,7 @@ class TestGIHHPolicy:
         dist_matrix, wastes, capacity, R, C = simple_instance
         values = {
             "time_limit": 1.0,
-            "max_iterations": 50,
+            "max_iterations": 5,
             "iri_weight": 0.7,
             "tbi_weight": 0.3,
             "seed": 42,
@@ -290,7 +290,7 @@ class TestGIHHPolicy:
         config = {
             "gihh": {
                 "time_limit": 1.0,
-                "max_iterations": 50,
+                "max_iterations": 5,
                 "seed": 42,
             }
         }

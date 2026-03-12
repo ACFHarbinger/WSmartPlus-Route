@@ -10,4 +10,5 @@ Attributes:
     SISRSolver (class): Main solver class.
 """
 
-from .sisr import SISRParams, SISRSolver
+from .params import SISRParams
+from .solver import SISRSolver
