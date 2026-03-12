@@ -14,6 +14,7 @@ from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
 from .fa import FAConfig
 from .filo import FILOConfig
+from .ga_im_st import IslandModelSTGAConfig
 from .ga_mim import MemeticIslandModelGAConfig
 from .ga_pim import PureIslandModelGAConfig
 from .ga_st import StochasticTournamentGAConfig
@@ -43,6 +44,7 @@ from .sisr import SISRConfig
 from .slc import SLCConfig
 from .tsp import TSPConfig
 from .vns import VNSConfig
+from .vpl import VPLConfig
 from .vrpp import VRPPConfig
 
 __all__ = [
@@ -90,4 +92,6 @@ __all__ = [
     "GPHHConfig",
     "HMMGDConfig",
     "VNSConfig",
+    "VPLConfig",
+    "IslandModelSTGAConfig",
 ]

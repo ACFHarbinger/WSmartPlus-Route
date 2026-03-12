@@ -1,6 +1,13 @@
 """
-Hyperparameters for Hybrid Volleyball Premier League (HVPL) algorithm.
+Configuration parameters for Hybrid Volleyball Premier League (HVPL) with ACO and ALNS.
+
+Reference:
+    Sun, S., Ma, L., Liu, Y., & Wang, L. (2023). "Volleyball premier league
+    algorithm with ACO and ALNS for simultaneous pickup–delivery location
+    routing problem."
 """
+
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 
@@ -11,44 +18,85 @@ from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 @dataclass
 class HVPLParams:
     """
-    Parameters for the Hybrid Volleyball Premier League metaheuristic.
+    Configuration parameters for Hybrid VPL algorithm integrating ACO and ALNS.
+
+    Architecture:
+        Phase 1: ACO Initialization - Intelligent population seeding
+        Phase 2: VPL Evolution - Population-based optimization with HGS operators
+        Phase 3: ALNS Refinement - Deep local search per solution
+
+    The HVPL combines three algorithmic paradigms:
+        - ACO: Pheromone-guided construction for diversity
+        - VPL + HGS: Population management with genetic operators
+        - ALNS: Adaptive destroy-repair for intensification
+
+    Attributes:
+        n_teams: Number of active teams in VPL population.
+        max_iterations: Maximum VPL iterations (seasons).
+        substitution_rate: Probability of replacing weak teams.
+        crossover_rate: Probability of HGS crossover vs mutation.
+        mutation_rate: Probability of mutation after crossover.
+        elite_size: Number of elite teams preserved.
+        aco_init_iterations: ACO iterations for population initialization.
+        alns_iterations: ALNS iterations per coaching session.
+        time_limit: Wall-clock time limit in seconds.
+        aco_params: ACO algorithm parameters.
+        alns_params: ALNS algorithm parameters.
     """
 
-    # VPL Population Dynamics
-    n_teams: int = 10  # Population size
-    max_iterations: int = 50  # Number of league seasons
-    sub_rate: float = 0.2  # Fraction of teams replaced by substitution
-    time_limit: float = 60.0  # Overall time limit in seconds
+    # VPL Population Parameters
+    n_teams: int = 30
+    max_iterations: int = 100
+    substitution_rate: float = 0.2
+    crossover_rate: float = 0.8
+    mutation_rate: float = 0.1
+    elite_size: int = 3
 
-    # ACO Components (Initialization & Global Guidance)
-    aco_params: ACOParams = field(
-        default_factory=lambda: ACOParams(
-            n_ants=10,
-            k_sparse=10,
-            alpha=1.0,
-            beta=2.0,
-            rho=0.1,
-            q0=0.9,
-            tau_0=None,
-            tau_min=0.001,
-            tau_max=10.0,
-            max_iterations=1,  # Only one iteration per construction phase
-            time_limit=30,
-            local_search=False,  # ALNS handles local search
-            local_search_iterations=0,
-            elitist_weight=1.0,
-        )
-    )
+    # Integration Parameters
+    aco_init_iterations: int = 50  # Truncated ACO for initialization
+    alns_iterations: int = 100  # ALNS coaching iterations per team
 
-    # ALNS Components (Coaching & Improvement)
-    alns_params: ALNSParams = field(
-        default_factory=lambda: ALNSParams(
-            max_iterations=100,  # "Coaching session" length
-            start_temp=100.0,
-            cooling_rate=0.95,
-            reaction_factor=0.5,
-            min_removal=1,
-            max_removal_pct=0.2,
-            time_limit=30,
-        )
-    )
+    # Global Parameters
+    time_limit: float = 300.0
+
+    # Sub-algorithm Parameters
+    aco_params: ACOParams = field(default_factory=lambda: None)  # type: ignore
+    alns_params: ALNSParams = field(default_factory=lambda: None)  # type: ignore
+
+    def __post_init__(self):
+        """Initialize sub-algorithm parameters with defaults if not provided."""
+        if self.aco_params is None:
+            self.aco_params = ACOParams(
+                n_ants=20,
+                k_sparse=10,
+                alpha=1.0,
+                beta=2.0,
+                rho=0.1,
+                q0=0.9,
+                tau_0=None,
+                tau_min=0.001,
+                tau_max=10.0,
+                max_iterations=1,  # Only one iteration per construction phase
+                time_limit=60.0,
+                local_search=False,  # ALNS handles local search
+                local_search_iterations=0,
+                elitist_weight=1.0,
+            )
+
+        if self.alns_params is None:
+            self.alns_params = ALNSParams(
+                max_iterations=self.alns_iterations,
+                start_temp=100.0,
+                cooling_rate=0.95,
+                reaction_factor=0.1,
+                min_removal=1,
+                max_removal_pct=0.3,
+                time_limit=60.0,
+            )
+
+        # Validate constraints
+        assert self.n_teams > 0, "n_teams must be positive"
+        assert 0 <= self.substitution_rate <= 1, "substitution_rate must be in [0, 1]"
+        assert 0 <= self.crossover_rate <= 1, "crossover_rate must be in [0, 1]"
+        assert 0 <= self.mutation_rate <= 1, "mutation_rate must be in [0, 1]"
+        assert self.elite_size >= 1, "elite_size must be at least 1"
