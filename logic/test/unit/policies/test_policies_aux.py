@@ -21,7 +21,7 @@ import pandas as pd
 import pytest
 
 # HGS and ALNS auxiliary imports
-from logic.src.policies.other.operators import destroy_operators, repair_operators
+from logic.src.policies.other.operators import destroy as destroy_operators, repair as repair_operators
 from logic.src.policies.hybrid_genetic_search import evolution, params as hgs_params, individual
 from logic.src.policies.other.operators.crossover import ordered_crossover
 from logic.src.policies.hybrid_genetic_search import split as split_module
