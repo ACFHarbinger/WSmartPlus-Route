@@ -3,6 +3,10 @@ Hybrid Iterated Local Search (HILS) solver.
 
 Combines the Iterated Local Search (ILS) metaheuristic with Randomized
 Variable Neighborhood Descent (RVND) and an exact Set Partitioning (SP) formulation.
+
+Reference:
+    Ropke, S., & Pisinger, D. "A unified heuristic for a large
+    class of Vehicle Routing Problems with Backhauls", 2006
 """
 
 import copy

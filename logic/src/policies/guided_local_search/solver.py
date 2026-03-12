@@ -8,8 +8,8 @@ inflating the cost of the current optimum and guiding the search toward
 unexplored basins.
 
 Reference:
-    Voudouris & Tsang, "Guided Local Search and Its Application to the
-    Traveling Salesman Problem", 1999.
+    Voudouris, C., & Tsang, E. "Guided Local Search and Its
+    Application to the Traveling Salesman Problem", 1999.
 """
 
 import copy

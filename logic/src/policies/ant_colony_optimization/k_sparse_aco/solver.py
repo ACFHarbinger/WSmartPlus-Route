@@ -12,6 +12,10 @@ Example:
     >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
     >>> solver = KSparseACOSolver(dist_matrix, wastes, ...)
     >>> result = solver.solve()
+
+Reference:
+    Hale, D. "Investigation of Ant Colony Optimization Implementation
+    Strategies For Low-Memory Operating Environments", 2021.
 """
 
 import time

@@ -16,7 +16,7 @@ iteration is complete.  The process repeats for max_iterations outer loops
 or until the time_limit is reached.
 
 Reference:
-    Hansen & Mladenović, "Variable Neighborhood Search", 1999.
+    Mladenović, N., & Hansen, P. "Variable Neighborhood Search", 1997.
 """
 
 import copy

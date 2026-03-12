@@ -7,8 +7,10 @@ predefined tolerance threshold.  The tolerance decays linearly over iterations,
 providing a smooth transition from exploration to exploitation.
 
 Reference:
-    Dueck & Scheuer, "Threshold Accepting: A General Purpose Optimization
-    Algorithm Appearing Superior to Simulated Annealing", 1990.
+    Dueck, G., & Scheuer, T. "Threshold Accepting: A General Purpose
+    Optimization Algorithm Appearing Superior to Simulated Annealing", 1990.
+    Dueck, G. "New Optimization Heuristics: The Great Deluge Algorithm
+    and the Record-to-Record Travel", 1993.
 """
 
 import copy

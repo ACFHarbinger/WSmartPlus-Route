@@ -5,8 +5,8 @@ This module provides the main entry points for the ALNS metaheuristic,
 dispatching to specialized implementations based on configuration.
 
 Reference:
-    Pisinger, D., & Ropke, S. (2007). A general heuristic for vehicle routing problems.
-    Computers & Operations Research, 34(8), 2403-2435.
+    Pisinger, D., & Ropke, S. "An Adaptive Large Neighborhood Search
+    Heuristic for the Pickup and Delivery Problem with Time Windows.", 2004.
 """
 
 import copy

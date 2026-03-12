@@ -7,7 +7,8 @@ exp(Δprofit / T), where T is a temperature parameter that decays
 geometrically via T *= alpha.
 
 Reference:
-    Kirkpatrick, Gelatt & Vecchi, "Optimization by Simulated Annealing", 1983.
+    Kirkpatrick, S., Gelatt, C. D., & Vecchi, M. P.
+    "Optimization by Simulated Annealing", 1983.
 """
 
 import copy

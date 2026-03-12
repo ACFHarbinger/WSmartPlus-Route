@@ -3,6 +3,11 @@ GIHH (Hyper-Heuristic with Two Guidance Indicators) implementation.
 
 A selection hyper-heuristic that uses two complementary indicators to guide
 the adaptive selection of low-level heuristics during local search.
+
+Reference:
+    Chen, B., Qu, R., Bai, R., & Laesanklang, W.,
+    "A hyper-heuristic with two guidance indicators for bi-objective
+    mixed-shift vehicle routing problem with time windows", 2018
 """
 
 import random

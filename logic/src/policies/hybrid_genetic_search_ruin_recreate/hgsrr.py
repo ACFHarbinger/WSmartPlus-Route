@@ -3,6 +3,11 @@ Hybrid Genetic Search with Ruin-and-Recreate (HGSRR) implementation.
 
 Combines evolutionary search with adaptive Large Neighborhood Search operators
 for solving the Capacitated Vehicle Routing Problem with Profits.
+
+Reference:
+    Simensen, M., Hasle, G., & Stalhane, M. "Combining hybrid
+    genetic search with ruin-and-recreate for solving the
+    capacitated vehicle routing problem", 2022
 """
 
 import random
