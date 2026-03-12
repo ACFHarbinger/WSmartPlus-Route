@@ -5,7 +5,9 @@ Inserts node V_x and reverses almost the entire sequence.
 This is the inverse of Stringing Type I, exploring other promising regions.
 """
 
-from typing import List
+from typing import Dict, List, Tuple
+
+import numpy as np
 
 
 def apply_type_iii_s(route: List[int], x: int, i: int, j: int, k: int) -> List[int]:
@@ -37,7 +39,7 @@ def apply_type_iii_s(route: List[int], x: int, i: int, j: int, k: int) -> List[i
     n_work = len(work_route)
 
     # Validate constraints
-    if route[k] == route[i] or route[k] == route[j]:
+    if route[k] in (route[i], route[j]):
         return route
 
     # Rotate the route so V_{i-1} is at the end (V_i is at index 0)
@@ -82,3 +84,77 @@ def apply_type_iii_s(route: List[int], x: int, i: int, j: int, k: int) -> List[i
         final_route.append(final_route[0])
 
     return final_route
+
+
+def apply_type_iii_s_profit(
+    route: List[int],
+    x: int,
+    i: int,
+    j: int,
+    k: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+) -> Tuple[List[int], float]:
+    """
+    Apply Type III Stringing and return profit delta.
+
+    Args:
+        route: The tour as a list of node IDs.
+        x: Node ID to insert (V_x).
+        i: Index of node V_i (start of first reversal).
+        j: Index of node V_j (end of first reversal + 1).
+        k: Index of node V_k (start of second reversal).
+        dist_matrix: Distance matrix.
+        wastes: Waste levels.
+        capacity: Vehicle capacity.
+        R, C: Revenue and cost multipliers.
+
+    Returns:
+        (new_route, delta_profit)
+    """
+    n = len(route)
+    is_closed = n > 1 and route[0] == route[-1]
+    work_route = route[:-1] if is_closed else route[:]
+    n_work = len(work_route)
+
+    # Identifiers
+    v_im1 = work_route[(i - 1) % n_work]
+    v_i = work_route[i]
+    v_ip1 = work_route[(i + 1) % n_work]
+    v_jm1 = work_route[(j - 1) % n_work]
+    v_j = work_route[j]
+    v_km1 = work_route[(k - 1) % n_work]
+    v_k = work_route[k]
+
+    # Constraints
+    if v_k in (v_i, v_j):
+        return route, -float("inf")
+
+    # Feasibility
+    node_waste = wastes.get(x, 0.0)
+    current_load = sum(wastes.get(n, 0.0) for n in work_route)
+    if current_load + node_waste > capacity:
+        return route, -float("inf")
+
+    # Delta Cost
+    # Deletes: (V_{i-1}, V_i), (V_i, V_{i+1}), (V_{j-1}, V_j), (V_{k-1}, V_k)
+    # Inserts: (V_{k-1}, V_{i-1}), (V_{i+1}, V_i), (V_i, V_x), (V_x, V_j), (V_k, V_{j-1})
+    d_del = dist_matrix[v_im1, v_i] + dist_matrix[v_i, v_ip1] + dist_matrix[v_jm1, v_j] + dist_matrix[v_km1, v_k]
+    d_ins = (
+        dist_matrix[v_km1, v_im1]
+        + dist_matrix[v_ip1, v_i]
+        + dist_matrix[v_i, x]
+        + dist_matrix[x, v_j]
+        + dist_matrix[v_k, v_jm1]
+    )
+    delta_cost = d_ins - d_del
+
+    # Delta Revenue
+    delta_rev = node_waste * R
+
+    delta_profit = delta_rev - delta_cost * C
+
+    return apply_type_iii_s(route, x, i, j, k), float(delta_profit)

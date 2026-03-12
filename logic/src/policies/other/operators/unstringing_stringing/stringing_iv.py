@@ -5,7 +5,9 @@ Most complex stringing operator, inverse of Type II Unstringing.
 Involves four neighbor nodes and multiple reversals.
 """
 
-from typing import List
+from typing import Dict, List, Tuple
+
+import numpy as np
 
 
 def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int) -> List[int]:
@@ -43,9 +45,9 @@ def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int) ->
     val_l = route[l]
     val_i = route[i]
 
-    if val_k == val_j or val_k == route[(j + 1) % n_work]:
+    if val_k in (val_j, route[(j + 1) % n_work]):
         return route
-    if val_l == val_i or val_l == route[(i + 1) % n_work]:
+    if val_l in (val_i, route[(i + 1) % n_work]):
         return route
 
     # Rotate so V_{i-1} is at the end (V_i at index 0)
@@ -102,3 +104,79 @@ def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int) ->
         final_route.append(final_route[0])
 
     return final_route
+
+
+def apply_type_iv_s_profit(
+    route: List[int],
+    x: int,
+    i: int,
+    j: int,
+    k: int,
+    l: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+) -> Tuple[List[int], float]:
+    """
+    Apply Type IV Stringing and return profit delta.
+
+    Args:
+        route: The tour as a list of node IDs.
+        x: Node ID to insert (V_x).
+        i, j, k, l: Indices as defined in apply_type_iv_s.
+        dist_matrix: Distance matrix.
+        wastes: Waste levels.
+        capacity: Vehicle capacity.
+        R, C: Revenue and cost multipliers.
+
+    Returns:
+        (new_route, delta_profit)
+    """
+    n = len(route)
+    is_closed = n > 1 and route[0] == route[-1]
+    work_route = route[:-1] if is_closed else route[:]
+    n_work = len(work_route)
+
+    # Identifiers
+    v_i = work_route[i]
+    v_ip1 = work_route[(i + 1) % n_work]
+    v_l = work_route[l]
+    v_lp1 = work_route[(l + 1) % n_work]
+    v_jm1 = work_route[(j - 1) % n_work]
+    v_j = work_route[j]
+    v_jp1 = work_route[(j + 1) % n_work]
+
+    # Constraints
+    if route[k] in (route[j], route[(j + 1) % n_work]):
+        return route, -float("inf")
+    if route[l] in (route[i], route[(i + 1) % n_work]):
+        return route, -float("inf")
+
+    # Feasibility
+    node_waste = wastes.get(x, 0.0)
+    current_load = sum(wastes.get(n, 0.0) for n in work_route)
+    if current_load + node_waste > capacity:
+        return route, -float("inf")
+
+    # Delta Cost
+    # Derived from code logic in apply_type_iv_s:
+    # Deletes: (V_i, V_{i+1}), (V_{j-1}, V_j), (V_l, V_{l+1}), (V_j, V_{j+1})
+    # Inserts: (V_i, V_x), (V_x, V_j), (V_j, V_{j-1}), (V_{l+1}, V_l), (V_{i+1}, V_{j+1})
+    d_del = dist_matrix[v_i, v_ip1] + dist_matrix[v_jm1, v_j] + dist_matrix[v_l, v_lp1] + dist_matrix[v_j, v_jp1]
+    d_ins = (
+        dist_matrix[v_i, x]
+        + dist_matrix[x, v_j]
+        + dist_matrix[v_j, v_jm1]
+        + dist_matrix[v_lp1, v_l]
+        + dist_matrix[v_ip1, v_jp1]
+    )
+    delta_cost = d_ins - d_del
+
+    # Delta Revenue
+    delta_rev = node_waste * R
+
+    delta_profit = delta_rev - delta_cost * C
+
+    return apply_type_iv_s(route, x, i, j, k, l), float(delta_profit)
