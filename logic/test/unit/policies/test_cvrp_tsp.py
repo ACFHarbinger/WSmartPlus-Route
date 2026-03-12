@@ -2,9 +2,9 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import numpy as np
-from logic.src.policies.adapters import PolicyRegistry
-from logic.src.policies.adapters.policy_tsp import TSPPolicy
-from logic.src.policies.adapters.policy_cvrp import CVRPPolicy
+from logic.src.policies.base import PolicyRegistry
+from logic.src.policies.travelling_salesman_problem.policy_tsp import TSPPolicy
+from logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp import CVRPPolicy
 
 class MockBins:
     def __init__(self, n=5):
@@ -31,8 +31,8 @@ def mock_params():
 
 def test_tsp_policy(mock_params):
     with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load, \
-         patch("logic.src.policies.adapters.policy_tsp.find_route") as mock_find, \
-         patch("logic.src.policies.adapters.policy_tsp.get_multi_tour") as mock_get_multi:
+         patch("logic.src.policies.travelling_salesman_problem.policy_tsp.find_route") as mock_find, \
+         patch("logic.src.policies.travelling_salesman_problem.policy_tsp.get_multi_tour") as mock_get_multi:
 
         # Mock load: cap, rev, dens, exp, vol
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
@@ -63,7 +63,7 @@ def test_tsp_policy(mock_params):
 
 def test_cvrp_policy(mock_params):
     with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load, \
-         patch("logic.src.policies.adapters.policy_cvrp.find_routes") as mock_find:
+         patch("logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp.find_routes") as mock_find:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
 

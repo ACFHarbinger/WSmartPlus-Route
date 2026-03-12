@@ -16,7 +16,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.cvrp import find_routes
+    >>> from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
     >>> routes = find_routes(dist_matrix, wastes, capacity, num_vehicles)
 
 Reference:

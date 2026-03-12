@@ -12,7 +12,8 @@ import numpy as np
 from logic.src.configs.policies import CVRPConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.cvrp import find_routes, find_routes_ortools
+
+from .cvrp import find_routes, find_routes_ortools
 
 
 @PolicyRegistry.register("cvrp")

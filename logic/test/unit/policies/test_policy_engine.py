@@ -1,17 +1,17 @@
 
 from unittest.mock import MagicMock, patch
 
-import logic.src.policies.adapters.policy_ahvpl as policy_ahvpl_module
+import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl_module
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.adapters import PolicyFactory
-from logic.src.policies.adapters.policy_ahvpl import AHVPLPolicy
-from logic.src.policies.adapters.policy_alns import ALNSPolicy
-from logic.src.policies.adapters.policy_bcp import BCPPolicy
-from logic.src.policies.adapters.policy_hgs import HGSPolicy
-from logic.src.policies.adapters.policy_sans import SANSPolicy
-from logic.src.policies.adapters.policy_vrpp import VRPPPolicy
+from logic.src.policies.base import PolicyFactory
+from logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
+from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
+from logic.src.policies.branch_cut_and_price.policy_bcp import BCPPolicy
+from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
+from logic.src.policies.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
+from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import VRPPPolicy
 
 
 class MockBins:
@@ -79,7 +79,7 @@ def test_policy_factory_standardized():
 
 @pytest.mark.unit
 def test_bcp_engine_override(mock_engine_data):
-    with patch("logic.src.policies.adapters.policy_bcp.run_bcp") as mock_run:
+    with patch("logic.src.policies.branch_cut_and_price.policy_bcp.run_bcp") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0)
 
         policy = PolicyFactory.get_adapter("bcp")
@@ -97,7 +97,7 @@ def test_vrpp_engine_override(mocker, mock_engine_data):
     mocker.patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params",
                  return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
-    with patch("logic.src.policies.adapters.policy_vrpp.run_vrpp_optimizer") as mock_opt:
+    with patch("logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp.run_vrpp_optimizer") as mock_opt:
         mock_opt.return_value = ([0, 1, 0], 10.0, 5.0)
 
         policy = PolicyFactory.get_adapter("vrpp")
@@ -108,7 +108,7 @@ def test_vrpp_engine_override(mocker, mock_engine_data):
 
 @pytest.mark.unit
 def test_hgs_engine_override(mock_engine_data):
-    with patch("logic.src.policies.adapters.policy_hgs.run_hgs") as mock_run:
+    with patch("logic.src.policies.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0, 5.0)
 
         policy = PolicyFactory.get_adapter("hgs")
@@ -119,7 +119,7 @@ def test_hgs_engine_override(mock_engine_data):
 
 @pytest.mark.unit
 def test_alns_engine_override(mock_engine_data):
-    with patch("logic.src.policies.adapters.policy_alns.run_alns") as mock_run:
+    with patch("logic.src.policies.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0, 5.0)
 
         # Set specific engine in config

@@ -8,7 +8,7 @@ Attributes:
     PostProcessorRegistry (class): The registry class.
 
 Example:
-    >>> from logic.src.policies.post_processing.registry import PostProcessorRegistry
+    >>> from logic.src.policies.other.post_processing.base.registry import PostProcessorRegistry
     >>> PostProcessorRegistry.register("my_processor", MyProcessorClass)
     >>> cls = PostProcessorRegistry.get("my_processor")
 """

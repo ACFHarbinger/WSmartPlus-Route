@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from logic.src.interfaces import IPostProcessor
-from logic.src.policies.tsp import find_route
+from logic.src.policies.travelling_salesman_problem.tsp import find_route
 
 from .base import PostProcessorRegistry
 

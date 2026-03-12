@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from logic.src.policies import run_gihh, run_hgsrr
-from logic.src.policies.adapters import PolicyFactory
+from logic.src.policies.base import PolicyFactory
 
 
 class TestHGSRRPolicy:
