@@ -91,19 +91,8 @@ class SolutionConstructor:
         # We continue as long as there are mandatory nodes OR if we want to visit more
         # In VRPP mode, if mandatory_unvisited is empty, we only continue if profitable nodes exist.
         while unvisited:
-            if not mandatory_unvisited:
-                # Optional: break if no profitable/useful nodes left in unvisited
-                # For ACS, we usually continue until a termination condition.
-                # Here we check if any remaining node is profitable.
-                has_profitable = False
-                for j in sorted(unvisited):
-                    revenue = self.wastes.get(j, 0) * self.R
-                    # Heuristic check: is revenue > cost to depot and back?
-                    if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
-                        has_profitable = True
-                        break
-                if not has_profitable:
-                    break
+            if not mandatory_unvisited and not self._any_profitable_nodes(unvisited):
+                break
 
             route: List[int] = []
             load = 0.0
@@ -111,24 +100,10 @@ class SolutionConstructor:
 
             while unvisited:
                 # Find feasible next nodes
-                feasible = []
-                for j in sorted(unvisited):
-                    if load + self.wastes.get(j, 0) <= self.capacity:
-                        # VRPP Logic: Only consider j if mandatory or potentially profitable
-                        if j in mandatory_unvisited:
-                            feasible.append(j)
-                        else:
-                            revenue = self.wastes.get(j, 0) * self.R
-                            # Skip if immediately unprofitable compared to staying at depot
-                            # (Very conservative check)
-                            if (
-                                revenue
-                                > (self.dist_matrix[current][j] + self.dist_matrix[j][0] - self.dist_matrix[current][0])
-                                * self.C
-                            ):
-                                feasible.append(j)
+                feasible = self._get_feasible_nodes(unvisited, mandatory_unvisited, load, current)
 
                 if not feasible:
+                    self._cleanup_unvisited(unvisited, mandatory_unvisited)
                     break
 
                 # Select next node
@@ -148,6 +123,48 @@ class SolutionConstructor:
                 routes.append(route)
 
         return routes
+
+    def _any_profitable_nodes(self, unvisited: Set[int]) -> bool:
+        """Check if any remaining node is profitable to visit from depot."""
+        for j in sorted(unvisited):
+            revenue = self.wastes.get(j, 0) * self.R
+            if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
+                return True
+        return False
+
+    def _get_feasible_nodes(
+        self, unvisited: Set[int], mandatory_unvisited: Set[int], load: float, current: int
+    ) -> List[int]:
+        """Find nodes that can be added to the current route."""
+        feasible = []
+        for j in sorted(unvisited):
+            if load + self.wastes.get(j, 0) <= self.capacity:
+                if j in mandatory_unvisited:
+                    feasible.append(j)
+                else:
+                    revenue = self.wastes.get(j, 0) * self.R
+                    # Skip if immediately unprofitable compared to staying at depot
+                    if (
+                        revenue
+                        > (self.dist_matrix[current][j] + self.dist_matrix[j][0] - self.dist_matrix[current][0])
+                        * self.C
+                    ):
+                        feasible.append(j)
+        return feasible
+
+    def _cleanup_unvisited(self, unvisited: Set[int], mandatory_unvisited: Set[int]) -> None:
+        """Remove nodes that can never fit in any route to avoid infinite loops."""
+        still_constructible = False
+        for j in list(unvisited):
+            if self.wastes.get(j, 0) <= self.capacity:
+                still_constructible = True
+            else:
+                unvisited.remove(j)
+                if j in mandatory_unvisited:
+                    mandatory_unvisited.remove(j)
+
+        if not still_constructible:
+            unvisited.clear()
 
     def _select_next_node(self, current: int, feasible: List[int]) -> int:
         """

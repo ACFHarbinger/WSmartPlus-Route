@@ -49,10 +49,11 @@ def build_greedy_routes(
         best_node = None
         best_profit = float("-inf")
         for node in unvisited:
-            node_waste = wastes.get(node, 0.0) * R
-            if current_load + node_waste <= capacity:
+            node_w = wastes.get(node, 0.0)
+            if current_load + node_w <= capacity:
+                node_revenue = node_w * R
                 distance = dist_matrix[last_node, node] * C
-                profit = node_waste - distance
+                profit = node_revenue - distance
                 if profit > best_profit:
                     best_profit = profit
                     best_node = node
@@ -71,6 +72,15 @@ def build_greedy_routes(
 
             # If still have unvisited nodes, start new route
             if unvisited:
+                still_constructible = False
+                for node in list(unvisited):
+                    if wastes.get(node, 0.0) <= capacity:
+                        still_constructible = True
+                    else:
+                        unvisited.remove(node)
+
+                if not still_constructible:
+                    break
                 continue
             else:
                 break

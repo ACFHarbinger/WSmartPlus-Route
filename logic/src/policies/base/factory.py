@@ -48,7 +48,7 @@ class PolicyFactory:
         import logic.src.policies.genetic_algorithm_stochastic_tournament.policy_ga_st as policy_ga_st  # noqa
         import logic.src.policies.guided_indicators_hyper_heuristic.policy_gihh as policy_gihh  # noqa
         import logic.src.policies.guided_local_search.policy_gls as policy_gls  # noqa
-        import logic.src.policies.guided_programming_hyper_heuristic.policy_gphh as policy_gphh  # noqa
+        import logic.src.policies.genetic_programming_hyper_heuristic.policy_gphh as policy_gphh  # noqa
         import logic.src.policies.harmony_search.policy_hs as policy_hs  # noqa
         import logic.src.policies.hidden_markov_model_great_deluge.policy_hmm_gd as policy_hmm_gd  # noqa
         import logic.src.policies.hybrid_genetic_search.policy_hgs as policy_hgs  # noqa

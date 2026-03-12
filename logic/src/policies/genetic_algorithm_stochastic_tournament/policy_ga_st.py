@@ -11,10 +11,9 @@ import numpy as np
 from logic.src.configs.policies import StochasticTournamentGAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.stochastic_tournament_genetic_algorithm import (
-    StochasticTournamentGAParams,
-    StochasticTournamentGASolver,
-)
+
+from .params import StochasticTournamentGAParams
+from .solver import StochasticTournamentGASolver
 
 
 @PolicyRegistry.register("stochastic_tournament_ga")

@@ -8,7 +8,7 @@ Attributes:
     PolicyRegistry: Registry where this policy is automatically registered with key "neural".
 
 Example:
-    >>> from logic.src.policies.adapters.policy_neural import NeuralPolicy
+    >>> from logic.src.policies.neural_agent.policy_neural import NeuralPolicy
     >>> policy = NeuralPolicy()
     >>> route, cost, _ = policy.execute(model_env=env, model_ls=ls, ...)
 """

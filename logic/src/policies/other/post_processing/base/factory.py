@@ -27,9 +27,9 @@ class PostProcessorFactory:
         """
         Create a post-processor instance by name.
         """
-        from .fast_tsp import FastTSPPostProcessor
-        from .local_search import ClassicalLocalSearchPostProcessor
-        from .random_local_search import RandomLocalSearchPostProcessor
+        from ..fast_tsp import FastTSPPostProcessor
+        from ..local_search import ClassicalLocalSearchPostProcessor
+        from ..random_local_search import RandomLocalSearchPostProcessor
 
         cls = PostProcessorRegistry.get(name)
         if not cls:

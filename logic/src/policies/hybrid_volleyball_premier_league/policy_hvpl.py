@@ -85,7 +85,7 @@ class HVPLPolicy(BaseRoutingPolicy):
             cooling_rate=values.get("alns_cooling_rate", 0.95),
             reaction_factor=values.get("alns_reaction_factor", 0.1),
             min_removal=values.get("alns_min_removal", 1),
-            max_removal_pct=values.get("alns_max_removal_pct", 0.2),
+            max_removal_pct=values.get("alns_max_removal_pct", 0.3),
             time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
         )
 

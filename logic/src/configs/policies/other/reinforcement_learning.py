@@ -66,6 +66,7 @@ class TDLearningConfig:
     epsilon: float = 0.1
     epsilon_decay: float = 0.995
     epsilon_min: float = 0.05
+    epsilon_decay_step: int = 20
     history_size: int = 100
     n_states: int = 27
     n_actions: int = 10

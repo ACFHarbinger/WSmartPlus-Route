@@ -69,7 +69,7 @@ class HVPLSolver(PolicyVizMixin):
 
         # 1. Initialization: Create the initial population (Teams)
         population: List[Tuple[List[List[int]], float, float]] = []
-        for _ in range(self.params.n_teams):
+        for _i in range(self.params.n_teams):
             routes = self.constructor.construct()
             routes = self._canonicalize_routes(routes)
             cost = self._calculate_cost(routes)
@@ -87,7 +87,7 @@ class HVPLSolver(PolicyVizMixin):
 
             # 3. Coaching Phase: Apply ALNS to each team
             new_population = []
-            for routes, _profit, _cost in population:
+            for _i, (routes, _profit, _cost) in enumerate(population):
                 # Coaching session (ALNS solve)
                 c_routes, c_profit, c_cost = self.coaching_solver.solve(initial_solution=routes)
                 c_routes = self._canonicalize_routes(c_routes)
@@ -115,7 +115,6 @@ class HVPLSolver(PolicyVizMixin):
             )
 
             # 6. Substitution Phase: Replace weakest teams
-            # Deterministic tie-breaking: profit (desc), then cost (asc), then route hash
             population.sort(key=lambda x: (x[1], -x[2], self._hash_routes(x[0])), reverse=True)
             n_sub = int(self.params.n_teams * self.params.sub_rate)
 
