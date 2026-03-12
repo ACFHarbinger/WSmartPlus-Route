@@ -1,0 +1,46 @@
+"""
+(μ,κ,λ) Evolution Strategy configuration with age-based selection.
+
+Parents exceeding age κ are excluded from selection, preventing stagnation.
+"""
+
+from dataclasses import dataclass
+from typing import List, Optional
+
+from .other.must_go import MustGoConfig
+from .other.post_processing import PostProcessingConfig
+
+
+@dataclass
+class MuKappaLambdaESConfig:
+    """Configuration for (μ,κ,λ) Evolution Strategy policy.
+
+    Evolution strategy with age-limited parent survival for long-term optimization.
+    """
+
+    # Population parameters (μ,κ,λ)
+    mu: int = 15  # Number of parents
+    kappa: int = 7  # Maximum age (generations)
+    lambda_: int = 100  # Number of offspring
+    rho: int = 2  # Recombination participants
+
+    # Recombination type
+    recombination_type: str = "intermediate"  # 'intermediate' or 'discrete'
+
+    # Mutation parameters (routing-specific)
+    n_removal: int = 3  # Nodes removed in destroy-repair
+
+    # Restart mechanism
+    stagnation_limit: int = 10  # Unused in (μ,κ,λ)-ES (age control replaces this)
+
+    # Local search
+    local_search_iterations: int = 100
+
+    # Runtime control
+    max_iterations: int = 500
+    time_limit: float = 60.0
+
+    # Infrastructure
+    seed: Optional[int] = None
+    must_go: Optional[List[MustGoConfig]] = None
+    post_processing: Optional[List[PostProcessingConfig]] = None

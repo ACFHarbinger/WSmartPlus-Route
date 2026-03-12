@@ -10,6 +10,7 @@ from .bcp import BCPConfig
 from .cls import ContinuousLocalSearchConfig
 from .cvrp import CVRPConfig
 from .es_mcl import MuCommaLambdaESConfig
+from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
 from .fa import FAConfig
 from .filo import FILOConfig
@@ -84,6 +85,7 @@ __all__ = [
     "LCAConfig",
     "MemeticIslandModelGAConfig",
     "MuCommaLambdaESConfig",
+    "MuKappaLambdaESConfig",
     "MuPlusLambdaESConfig",
     "GPHHConfig",
     "HMMGDConfig",

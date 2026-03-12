@@ -9,7 +9,7 @@ import torch
 
 from logic.src.interfaces import IPostProcessor
 
-from .registry import PostProcessorRegistry
+from .base import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("classical_local_search")

@@ -1,0 +1,192 @@
+# (μ,κ,λ) Evolution Strategy Policy Configuration with Age-Based Selection
+
+# =============================================================================
+# (μ,κ,λ) Evolution Strategy Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Classical evolution strategy with age-based selection mechanism. Parents
+#   exceeding age κ are automatically excluded from selection, preventing
+#   long-term stagnation and promoting population turnover.
+#
+# ALGORITHM:
+#   1. Initialize population of μ parents (age = 0)
+#   2. For each generation:
+#       a. Generate λ offspring via recombination and mutation
+#       b. Evaluate all offspring
+#       c. Select μ best from:
+#          - Parents with age ≤ κ (eligible parents)
+#          - All λ offspring
+#       d. Increment age of surviving parents
+#   3. Return best solution found
+#
+# KEY DIFFERENCE FROM (μ,λ)-ES:
+#   Age control (κ) replaces random restart mechanism. Parents automatically
+#   expire after κ generations, ensuring continuous population renewal.
+#
+# PERFORMANCE:
+#   More systematic exploration than (μ,λ)-ES with random restart. Age limit
+#   κ balances exploitation (low κ) vs exploration (high κ). Effective for
+#   long optimization runs requiring sustained diversity.
+#
+# REFERENCE:
+#   Emmerich, M., Shir, O. M., & Wang, H. (2015). Evolution Strategies.
+#   In: Handbook of Natural Computing (pages 1-31).
+#   Page 5: "(μ,κ,λ)-ES from the μ parents who have not exceeded an age of κ
+#   and the λ offspring individuals"
+#
+# TYPICAL USE CASES:
+#   - Long-duration optimization (>1000 iterations)
+#   - Problems requiring sustained diversity over time
+#   - Multi-modal landscapes where premature convergence is a concern
+#   - Benchmarking against standard ES variants
+# =============================================================================
+
+mu_kappa_lambda_es:
+  custom:
+    # ---------------------------------------------------------------------
+    # Population Parameters (μ,κ,λ)
+    # ---------------------------------------------------------------------
+    - mu: 15
+      # Number of parent solutions (μ parameter)
+      # Range: 5-50
+      # Recommendation: 15 for balanced search (paper default, page 10)
+      # Smaller μ → faster convergence
+      # Larger μ → more diversity
+
+    - kappa: 7
+      # Maximum age in generations (κ parameter)
+      # Range: 3-20
+      # Recommendation: 7 (standard practice, prevents stagnation)
+      # Low κ (3-5) → aggressive turnover, more exploration
+      # High κ (10-20) → preserve good solutions longer
+      # κ = ∞ would be equivalent to (μ+λ)-ES
+      # κ = 1 forces complete replacement each generation
+
+    - lambda_: 100
+      # Number of offspring per generation (λ parameter)
+      # Range: μ to 10×μ
+      # Recommendation: 100 (paper default for large population, page 10)
+      # Constraint: λ ≥ μ required
+      # λ/μ ratio controls selection pressure:
+      #   - λ = μ: minimal selection pressure
+      #   - λ = 7×μ: standard high selection pressure
+
+    - rho: 2
+      # Number of parents participating in recombination (ρ parameter)
+      # Range: 1 to μ
+      # Recommendation: 2 for pairwise recombination
+      # ρ = 1: no recombination (mutation only)
+      # ρ = μ: global recombination (averaging all parents)
+
+    # ---------------------------------------------------------------------
+    # Recombination Type
+    # ---------------------------------------------------------------------
+    - recombination_type: "intermediate"
+      # Type of recombination operator (page 7)
+      # Options:
+      #   - "intermediate": Average ρ parents (r_j = (1/ρ)Σq_j^(i))
+      #   - "discrete": Randomly select components from ρ parents
+      # Recommendation: "intermediate" for routing (smoother search)
+
+    # ---------------------------------------------------------------------
+    # Mutation Parameters (Routing-Specific)
+    # ---------------------------------------------------------------------
+    - n_removal: 3
+      # Destroy-repair mutation strength (nodes removed)
+      # Range: 1-10
+      # Recommendation: 3 for moderate perturbation
+      # Analogous to σ (step size) in continuous ES
+
+    # ---------------------------------------------------------------------
+    # Local Search Parameters
+    # ---------------------------------------------------------------------
+    - local_search_iterations: 100
+      # Number of local search improvement steps per offspring
+      # Range: 50-200
+      # Recommendation: 100 for balanced improvement
+      # Memetic ES: combines global search (ES) with local refinement
+
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
+    - max_iterations: 500
+      # Maximum number of evolution cycles
+      # Range: 100-1000
+      # Recommendation: 500 for production
+      # Age-based selection benefits from longer runs
+
+    - time_limit: 60.0
+      # Maximum wall-clock seconds for optimization
+      # Range: 10-600 (0 = unlimited)
+      # Recommendation: 60s for production
+
+    - stagnation_limit: 10
+      # UNUSED in (μ,κ,λ)-ES (age control replaces restart mechanism)
+      # Kept for parameter compatibility with other ES variants
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - engine: "custom"
+      # Execution backend: logic/src/policies/evolution_strategy_mu_kappa_lambda/
+
+    - must_go: ["other/mg_lookahead.yaml"]
+      # Node selection strategy for waste collection problems
+      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # See: docs/MUST_GO_STRATEGIES.md
+
+    - post_processing: []
+      # Route refinement heuristics applied after optimization
+      # Empty list = use raw output
+      # Options: ["2opt_intra", "relocate", "swap"]
+
+# =============================================================================
+# ALGORITHM STRUCTURE (from paper page 5)
+# =============================================================================
+# Each generation t:
+#   1. Recombine(P_{t-1}) → Generate λ offspring from μ parents
+#   2. Mutate(offspring) → Apply destroy-repair mutation
+#   3. Evaluate(offspring) → Compute fitness (profit)
+#   4. Age-based selection:
+#      a. Filter parents: eligible = {p ∈ P_{t-1} | age(p) ≤ κ}
+#      b. Pool = eligible ∪ offspring
+#      c. Select μ best from pool
+#   5. Increment age: ∀p ∈ P_t, if p was parent, age(p) += 1
+#
+# Key invariant: No individual survives beyond age κ
+#
+# Complexity:
+#   - Space: O(μ × n) for parent storage + O(λ × n) for offspring
+#   - Time per iteration: O(λ × n²) for offspring generation and evaluation
+#   - Age tracking: O(μ) per generation
+#
+# Comparison with related variants:
+#   ┌─────────────────┬──────────────┬─────────────┬──────────────────┐
+#   │ Variant         │ Selection    │ Age Control │ Exploration      │
+#   ├─────────────────┼──────────────┼─────────────┼──────────────────┤
+#   │ (μ,λ)-ES        │ λ only       │ None        │ Random restart   │
+#   │ (μ+λ)-ES        │ μ + λ        │ None        │ Elitist          │
+#   │ (μ,κ,λ)-ES      │ Eligible + λ │ ✓ κ gens    │ Systematic aging │
+#   └─────────────────┴──────────────┴─────────────┴──────────────────┘
+#
+# Age control κ provides:
+#   - Automatic diversity maintenance (no manual restart tuning)
+#   - Predictable population turnover rate
+#   - Balance between (μ,λ) and (μ+λ) via κ parameter
+# =============================================================================
+
+# =============================================================================
+# PARAMETER TUNING GUIDELINES
+# =============================================================================
+# Problem Size         │ μ   │ κ  │ λ   │ Rationale
+# ─────────────────────┼─────┼────┼─────┼──────────────────────────────────
+# Small (20-50 nodes)  │ 10  │ 5  │ 50  │ Fast convergence, low overhead
+# Medium (50-100)      │ 15  │ 7  │ 100 │ Balanced (default configuration)
+# Large (100-200)      │ 25  │ 10 │ 150 │ More diversity, sustained search
+# Very large (200+)    │ 50  │ 15 │ 300 │ Maximum exploration capacity
+#
+# Convergence behavior:
+#   - Too low κ (< 3): Excessive turnover, slow convergence
+#   - Too high κ (> 20): Approaches elitist (μ+λ)-ES, risk stagnation
+#   - Sweet spot: κ ≈ 5-10 for most problems
+# =============================================================================
