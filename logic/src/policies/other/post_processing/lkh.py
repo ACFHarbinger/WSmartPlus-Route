@@ -10,7 +10,7 @@ import torch
 from logic.src.interfaces import IPostProcessor
 from logic.src.policies.other.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 
-from .registry import PostProcessorRegistry
+from .base import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("lkh")
