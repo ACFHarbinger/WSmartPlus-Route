@@ -12,7 +12,7 @@ import numpy as np
 from logic.src.configs.policies import HGSRRConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.hybrid_genetic_search_ruin_recreate import run_hgsrr
+from logic.src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr import run_hgsrr
 
 
 @PolicyRegistry.register("hgsrr")

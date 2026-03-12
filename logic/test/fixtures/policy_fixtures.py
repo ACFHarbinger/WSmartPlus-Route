@@ -38,7 +38,7 @@ def policy_deps(mocker):
 
     # Mock TSP solver
     mocker.patch(
-        "logic.src.policies.tsp.find_route",
+        "logic.src.policies.travelling_salesman_problem.tsp.find_route",
         return_value=[0, 1, 3, 0],
     )
 

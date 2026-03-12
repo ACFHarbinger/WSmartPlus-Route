@@ -10,14 +10,15 @@ import pytest
 import torch
 from typing import cast, Callable
 
-from logic.src.policies import tsp
-from logic.src.policies.adapters import PolicyRegistry
-from logic.src.policies.hybrid_genetic_search import run_hgs
-from logic.src.policies.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.adapters.policy_vrpp import run_vrpp_optimizer
-from logic.src.policies.adapters.policy_alns import run_alns, ALNSPolicy
-from logic.src.policies.adapters.policy_bcp import run_bcp, BCPPolicy
-from logic.src.policies.adapters.policy_hgs import HGSPolicy
+from logic.src.policies.travelling_salesman_problem import tsp
+from logic.src.policies.capacitated_vehicle_routing_problem import cvrp
+from logic.src.policies.base import PolicyRegistry
+from logic.src.policies import run_hgs
+from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import run_alns, ALNSPolicy
+from logic.src.policies.branch_cut_and_price.policy_bcp import run_bcp, BCPPolicy
+from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
 
 
 class MockBins:
@@ -65,7 +66,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_alns_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.adapters.policy_alns.run_alns") as mock_run:
+        with patch("logic.src.policies.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
             policy = cast(Callable, PolicyRegistry.get("alns"))()
             assert isinstance(policy, ALNSPolicy)
@@ -75,7 +76,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_bcp_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.adapters.policy_bcp.run_bcp") as mock_run:
+        with patch("logic.src.policies.branch_cut_and_price.policy_bcp.run_bcp") as mock_run:
             mock_run.return_value = ([[1]], 10.0)
             policy = cast(Callable, PolicyRegistry.get("bcp"))()
             assert isinstance(policy, BCPPolicy)
@@ -85,7 +86,7 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_hgs_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.adapters.policy_hgs.run_hgs") as mock_run:
+        with patch("logic.src.policies.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
             policy = cast(Callable, PolicyRegistry.get("hgs"))()
             assert isinstance(policy, HGSPolicy)
@@ -239,7 +240,7 @@ class TestSingleVehiclePolicies:
         """Test finding a route using TSP heuristic."""
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_to_collect = [1, 2]
-        with patch("logic.src.policies.tsp.fast_tsp.find_tour", return_value=[0, 1, 2]):
+        with patch("logic.src.policies.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 2]):
             res_route = tsp.find_route(test_C, test_to_collect)
             assert res_route == [0, 1, 2, 0]
 
