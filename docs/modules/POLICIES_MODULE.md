@@ -15,6 +15,7 @@
 3. [Module Organization](#module-organization)
 4. [Policy Adapters](#policy-adapters)
 5. [Classical & Metaheuristic Policies](#classical--metaheuristic-policies)
+   - [Rigorous Meta-Heuristic Implementations](#rigorous-meta-heuristic-implementations)
 6. [Exact Optimization](#exact-optimization)
 7. [Neural Policies](#neural-policies)
 8. [Operators Library](#operators-library)
@@ -1102,6 +1103,438 @@ tour, cost, _ = kgls_policy.execute(
 #### References
 
 1. Arnold & Sörensen. "What makes a VRP solution good? The generation of problem-specific knowledge for heuristics", _Computers & Operations Research_, 2019.
+
+---
+
+### 5.9 Rigorous Meta-Heuristic Implementations
+
+This section describes the mathematically rigorous implementations that replace metaphor-based algorithms in the WSmart+ Route codebase.
+
+#### Overview
+
+The "metaphor controversy" in optimization research refers to algorithms that obscure standard mathematical operations with biological, physical, or social metaphors. We have replaced these with canonical implementations using proper Operations Research terminology.
+
+---
+
+#### Implementation Map
+
+| Metaphor-Based Algorithm    | Rigorous Implementation            | Mathematical Foundation                                 |
+| --------------------------- | ---------------------------------- | ------------------------------------------------------- |
+| Harmony Search (HS)         | **(μ+λ) Evolution Strategy**       | Population-based search with recombination and mutation |
+| Firefly Algorithm (FA)      | **Distance-Based PSO**             | Particle swarm with exponential distance decay          |
+| Artificial Bee Colony (ABC) | **(μ,λ) Evolution Strategy**       | Multi-phase random search with restart mechanism        |
+| HVPL, SLC (Sports)          | **Island Model Genetic Algorithm** | Multi-population GA with migration and local search     |
+| League Championship (LCA)   | **Stochastic Tournament GA**       | Pairwise tournament selection with sigmoid probability  |
+| Sine Cosine Algorithm (SCA) | **Continuous Local Search**        | Gradient-free search with trigonometric perturbations   |
+
+---
+
+#### Detailed Implementations
+
+##### 1. (μ+λ) Evolution Strategy
+
+**Replaces:** Harmony Search (HS)
+
+**Location:** `logic/src/policies/evolution_strategy_mu_plus_lambda/`
+
+**Algorithm:**
+
+```
+1. Initialize population of μ solutions
+2. For each iteration:
+   a. Generate λ offspring:
+      i. Select parent via fitness-proportional selection
+      ii. Create offspring via recombination (using archive solutions)
+      iii. Apply mutation operator (local perturbation)
+   b. Combine parents (μ) and offspring (λ) into population of (μ+λ)
+   c. Select best μ individuals to survive (elitist selection)
+```
+
+**Key Parameters:**
+
+- `population_size` (μ): Number of parent solutions
+- `offspring_size` (λ): Number of offspring generated per iteration
+- `recombination_rate`: Probability of using archive (was "HMCR")
+- `mutation_rate`: Probability of local mutation (was "PAR")
+
+**Terminology Mapping:**
+
+- "Harmony Memory" → Population/Archive
+- "Improvisation" → Offspring generation
+- "HMCR" → Recombination rate
+- "Pitch Adjustment" → Mutation operator
+
+**Complexity:**
+
+- Time: O(T × λ × (n + n²)) where T = iterations
+- Space: O((μ + λ) × n)
+
+**Reference:**
+
+> Rechenberg, I. (1973). "Evolutionsstrategie: Optimierung technischer Systeme nach Prinzipien der biologischen Evolution."
+
+---
+
+##### 2. Distance-Based Particle Swarm Optimization
+
+**Replaces:** Firefly Algorithm (FA)
+
+**Location:** `logic/src/policies/particle_swarm_optimization_distance/`
+
+**Algorithm:**
+
+```
+1. Initialize swarm of particles (solutions)
+2. For each iteration:
+   a. For each particle pair (i, j where fitness[j] > fitness[i]):
+      - Compute Hamming distance d between solutions
+      - With probability β(d) = β₀ × exp(-γ × d²), move particle i toward j
+   b. With probability α, apply random walk exploration
+   c. Update global best solution
+```
+
+**Key Parameters:**
+
+- `initial_attraction` (β₀): Global best attraction coefficient
+- `distance_decay` (γ): Exponential decay for distance-based attraction
+- `exploration_rate` (α): Random walk probability
+
+**Terminology Mapping:**
+
+- "Fireflies" → Particles
+- "Light intensity" → Objective function value (fitness)
+- "Attractiveness" → Distance-weighted attraction weight
+- "Random walk" → Exploration operator
+
+**Mathematical Foundation:**
+
+- Attraction weight: β(d) = β₀ × exp(-γ × d²)
+- Hamming distance: d = |edges(A) ⊕ edges(B)|
+
+**Complexity:**
+
+- Time: O(T × N² × n²) where N = population size
+- Space: O(N × n)
+
+**Reference:**
+
+> Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization." Proceedings of ICNN'95.
+
+---
+
+##### 3. (μ,λ) Evolution Strategy
+
+**Replaces:** Artificial Bee Colony (ABC)
+
+**Location:** `logic/src/policies/evolution_strategy_mu_comma_lambda/`
+
+**Algorithm:**
+
+```
+1. Initialize population of μ solutions
+2. For each iteration:
+   a. Local Search Phase: Each parent generates offspring via mutation
+   b. Selection Phase: Select offspring via fitness-proportional selection
+   c. Update Phase: Replace parents with selected offspring (non-elitist)
+   d. Restart Phase: Replace stagnant solutions with random restarts
+```
+
+**Key Parameters:**
+
+- `population_size` (μ): Number of parent solutions
+- `offspring_per_parent`: Offspring generation rate (λ/μ)
+- `stagnation_limit`: Random restart threshold
+
+**Terminology Mapping:**
+
+- "Employed bees" → Local search agents (exploitation)
+- "Onlooker bees" → Probabilistic selection mechanism
+- "Scout bees" → Random restart mechanism
+- "Food sources" → Parent solutions
+
+**Complexity:**
+
+- Time: O(T × λ × n²) where λ = offspring count
+- Space: O(μ × n) + O(λ × n)
+
+**Reference:**
+
+> Schwefel, H.-P. (1981). "Numerical Optimization of Computer Models." John Wiley & Sons.
+
+---
+
+##### 4. Island Model Genetic Algorithm
+
+**Replaces:** HVPL, LCA, SLC (Sports-Based Algorithms)
+
+**Location:** `logic/src/policies/island_model_genetic_algorithm/`
+
+**Algorithm:**
+
+```
+1. Initialize K islands with N individuals each
+2. For each generation:
+   a. Local Improvement: Apply ALNS to each individual in each island
+   b. Fitness Evaluation: Compute objective values
+   c. Tournament Selection: Replace weak individuals via k-tournament
+   d. Migration: Periodically exchange best solutions between islands
+   e. Global Update: Track global best across all islands
+```
+
+**Key Parameters:**
+
+- `n_islands` (K): Number of sub-populations
+- `island_size` (N): Population size per island
+- `tournament_size`: Selection pressure
+- `migration_interval`: Generations between migrations
+
+**Terminology Mapping:**
+
+- "Teams" → Islands (sub-populations)
+- "Matches/Competition" → Fitness evaluations
+- "Seasons" → Generations
+- "Coaching" → Local search operator (ALNS)
+- "Relegation/Promotion" → Tournament selection
+- "League tables" → Fitness rankings
+
+**Migration Topology:**
+
+- Ring topology: Island i sends to island (i+1) mod K
+
+**Complexity:**
+
+- Time: O(T × K × N × ALNS_cost)
+- Space: O(K × N × n)
+
+**Reference:**
+
+> Whitley, D., Rana, S., & Heckendorn, R. B. (1998). "The island model genetic algorithm."
+
+---
+
+##### 5. Stochastic Tournament Genetic Algorithm
+
+**Replaces:** League Championship Algorithm (LCA)
+
+**Location:** `logic/src/policies/stochastic_tournament_genetic_algorithm/`
+
+**Algorithm:**
+
+```
+1. Initialize population of N chromosomes
+2. For each generation:
+   a. Fitness evaluation for all individuals
+   b. Stochastic tournament selection:
+      - Each individual competes against k random opponents
+      - Win probability: P(i > j) = σ(β × (f_i - f_j))
+      - Select winners for mating pool
+   c. Crossover (recombination) of selected parents
+   d. Mutation of offspring
+   e. Elitist replacement (keep best individuals)
+```
+
+**Key Parameters:**
+
+- `population_size` (N): Number of chromosomes
+- `tournament_competitors` (k): Opponents per individual
+- `selection_pressure` (β): Sigmoid coefficient for win probability
+- `crossover_rate`: Probability of recombination
+- `mutation_rate`: Probability of perturbation
+- `elitism_count`: Top individuals preserved unchanged
+
+**Terminology Mapping:**
+
+- "League Schedule/Fixtures" → Pairwise fitness evaluation cycles
+- "Playing Strength" → Objective function value (fitness)
+- "Match Outcome (Win/Loss)" → Stochastic tournament result
+- "Team Formation" → Crossover/recombination operator
+
+**Mathematical Foundation:**
+
+- **Stochastic Tournament Selection:** P(i defeats j) = σ(β × (f(i) - f(j)))
+- **Sigmoid Function:** σ(x) = 1/(1 + exp(-x))
+- **Selection Pressure:** Higher β → more deterministic selection
+
+**Complexity:**
+
+- Time: O(T × N × k × eval_cost) where T = generations
+- Space: O(N × n)
+- Selection: O(N × k) for tournament comparisons
+
+**Reference:**
+
+> Goldberg, D. E., & Deb, K. (1991). "A comparative analysis of selection schemes used in genetic algorithms." Foundations of Genetic Algorithms.
+
+---
+
+##### 6. Continuous Local Search
+
+**Replaces:** Sine Cosine Algorithm (SCA)
+
+**Location:** `logic/src/policies/continuous_local_search/`
+
+**Algorithm:**
+
+```
+1. Initialize population in continuous space [-1, 1]^n
+2. For each iteration:
+   a. Update step size α = α_max × (1 - t/T) (linear decay)
+   b. For each solution vector:
+      - Compute perturbation direction toward global best
+      - Apply trigonometric step: sin(θ) or cos(θ)
+      - Update: x' = x + α × trig(θ) × |β × x_best - x|
+      - Decode to discrete solution and evaluate fitness
+   c. Track global best solution
+```
+
+**Key Parameters:**
+
+- `max_step_size` (α_max): Initial perturbation step size
+- `population_size`: Number of continuous solution vectors
+
+**Terminology Mapping:**
+
+- "Position vectors" → Continuous solution encoding
+- "Destination point" → Best solution (global attractor)
+- "Sine/Cosine update" → Directional perturbation operators
+- "Parameter a" → Adaptive step size
+
+**Mathematical Foundation:**
+
+- Position update: x'[i] = x[i] + r₁ × sin(r₂) × |r₃ × x_best[i] - x[i]|
+- or: x'[i] = x[i] + r₁ × cos(r₂) × |r₃ × x_best[i] - x[i]|
+- where r₁ ∈ [0, α], r₂ ∈ [0, 2π], r₃ ∈ [0, 2], α decays linearly
+
+**Decoding Strategy:**
+
+1. Sigmoid binarization: b[j] = 1 if σ(x[j]) > 0.5
+2. Largest Rank Value (LRV) ordering
+3. Greedy insertion for route construction
+
+**Complexity:**
+
+- Time: O(T × N × n²)
+- Space: O(N × n)
+
+**Reference:**
+
+> Mirjalili, S. (2016). "SCA: A Sine Cosine Algorithm for solving optimization problems." (Mathematical interpretation without metaphor)
+
+---
+
+#### Usage Examples
+
+##### Example 1: (μ+λ) Evolution Strategy
+
+```python
+from logic.src.policies import MuPlusLambdaESSolver, MuPlusLambdaESParams
+
+# Configure parameters
+params = MuPlusLambdaESParams(
+    population_size=10,        # μ parameter
+    offspring_size=5,          # λ parameter
+    recombination_rate=0.95,   # Archive recombination probability
+    mutation_rate=0.3,         # Local mutation probability
+    max_iterations=500,
+    time_limit=60.0
+)
+
+# Initialize solver
+solver = MuPlusLambdaESSolver(
+    dist_matrix=distance_matrix,
+    wastes=waste_dict,
+    capacity=100.0,
+    R=1.0,
+    C=1.0,
+    params=params,
+    mandatory_nodes=[1, 5, 10],
+    seed=42
+)
+
+# Execute optimization
+best_routes, best_profit, best_cost = solver.solve()
+```
+
+##### Example 2: Distance-Based PSO
+
+```python
+from logic.src.policies import DistancePSOSolver, DistancePSOParams
+
+params = DistancePSOParams(
+    population_size=20,
+    initial_attraction=1.0,    # β₀
+    distance_decay=0.01,       # γ
+    exploration_rate=0.1,      # α
+    max_iterations=500
+)
+
+solver = DistancePSOSolver(
+    dist_matrix=distance_matrix,
+    wastes=waste_dict,
+    capacity=100.0,
+    R=1.0,
+    C=1.0,
+    params=params,
+    seed=42
+)
+
+best_routes, best_profit, best_cost = solver.solve()
+```
+
+##### Example 3: Island Model GA
+
+```python
+from logic.src.policies import IslandModelGASolver, IslandModelGAParams
+
+params = IslandModelGAParams(
+    n_islands=10,              # K sub-populations
+    island_size=10,            # N individuals per island
+    max_generations=50,
+    migration_interval=5,
+    tournament_size=3
+)
+
+solver = IslandModelGASolver(
+    dist_matrix=distance_matrix,
+    wastes=waste_dict,
+    capacity=100.0,
+    R=1.0,
+    C=1.0,
+    params=params,
+    seed=42
+)
+
+best_routes, best_profit, best_cost = solver.solve()
+```
+
+---
+
+#### Performance Characteristics
+
+| Algorithm                | Time Complexity     | Space Complexity | Best Use Case                                   |
+| ------------------------ | ------------------- | ---------------- | ----------------------------------------------- |
+| (μ+λ)-ES                 | O(T × λ × n²)       | O((μ+λ) × n)     | Small-medium instances, fast convergence        |
+| Distance-Based PSO       | O(T × N² × n²)      | O(N × n)         | Medium instances, global exploration            |
+| (μ,λ)-ES                 | O(T × λ × n²)       | O((μ+λ) × n)     | Large instances, multi-phase search             |
+| Island Model GA          | O(T × K × N × ALNS) | O(K × N × n)     | Large instances, parallel execution             |
+| Stochastic Tournament GA | O(T × N × k × n²)   | O(N × n)         | Medium instances, controlled selection pressure |
+| Continuous Local Search  | O(T × N × n²)       | O(N × n)         | Continuous relaxations, gradient-free           |
+
+---
+
+#### Deprecation Notice
+
+The following metaphor-based implementations are now superseded by rigorous alternatives:
+
+- ❌ `harmony_search/` → Use `evolution_strategy_mu_plus_lambda/`
+- ❌ `firefly_algorithm/` → Use `particle_swarm_optimization_distance/`
+- ❌ `artificial_bee_colony/` → Use `evolution_strategy_mu_comma_lambda/`
+- ❌ `hybrid_volleyball_premier_league/` → Use `island_model_genetic_algorithm/`
+- ❌ `league_championship_algorithm/` → Use `stochastic_tournament_genetic_algorithm/`
+- ❌ `soccer_league_competition/` → Use `island_model_genetic_algorithm/`
+- ❌ `sine_cosine_algorithm/` → Use `continuous_local_search/`
+
+The original implementations remain for backward compatibility but should not be used for new development.
 
 ---
 
