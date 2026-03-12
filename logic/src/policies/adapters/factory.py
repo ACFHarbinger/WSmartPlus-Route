@@ -72,6 +72,13 @@ class PolicyFactory:
         import logic.src.policies.adapters.policy_filo as policy_filo  # noqa
         import logic.src.policies.adapters.policy_hils as policy_hils  # noqa
         import logic.src.policies.adapters.policy_kgls as policy_kgls  # noqa
+        import logic.src.policies.adapters.policy_cls as policy_cls  # noqa
+        import logic.src.policies.adapters.policy_es_mcl as policy_es_mcl  # noqa
+        import logic.src.policies.adapters.policy_es_mpl as policy_es_mpl  # noqa
+        import logic.src.policies.adapters.policy_ga_mim as policy_ga_mim  # noqa
+        import logic.src.policies.adapters.policy_ga_pim as policy_ga_pim  # noqa
+        import logic.src.policies.adapters.policy_ga_st as policy_ga_st  # noqa
+        import logic.src.policies.adapters.policy_psoda as policy_psoda  # noqa
 
         cls._registered = True
 

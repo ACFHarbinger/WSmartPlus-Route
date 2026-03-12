@@ -7,9 +7,15 @@ from .aco import ACOConfig
 from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
 from .bcp import BCPConfig
+from .cls import ContinuousLocalSearchConfig
 from .cvrp import CVRPConfig
+from .es_mcl import MuCommaLambdaESConfig
+from .es_mpl import MuPlusLambdaESConfig
 from .fa import FAConfig
 from .filo import FILOConfig
+from .ga_mim import MemeticIslandModelGAConfig
+from .ga_pim import PureIslandModelGAConfig
+from .ga_st import StochasticTournamentGAConfig
 from .gihh import GIHHConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
@@ -24,6 +30,7 @@ from .kgls import KGLSConfig
 from .lca import LCAConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
+from .psoda import DistancePSOConfig
 from .psoma import PSOMAConfig
 from .qde import QDEConfig
 from .rl_ahvpl import RLAHVPLConfig
@@ -42,7 +49,9 @@ __all__ = [
     "AHVPLConfig",
     "ALNSConfig",
     "BCPConfig",
+    "ContinuousLocalSearchConfig",
     "CVRPConfig",
+    "DistancePSOConfig",
     "FILOConfig",
     "GIHHConfig",
     "HGSConfig",
@@ -65,12 +74,17 @@ __all__ = [
     "HULKConfig",
     "QDEConfig",
     "PSOMAConfig",
+    "PureIslandModelGAConfig",
     "ABCConfig",
     "FAConfig",
     "SCAConfig",
     "HSConfig",
     "SLCConfig",
+    "StochasticTournamentGAConfig",
     "LCAConfig",
+    "MemeticIslandModelGAConfig",
+    "MuCommaLambdaESConfig",
+    "MuPlusLambdaESConfig",
     "GPHHConfig",
     "HMMGDConfig",
     "VNSConfig",

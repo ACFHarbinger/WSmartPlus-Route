@@ -1,0 +1,232 @@
+# Memetic Island Model Genetic Algorithm Policy Configuration
+
+# =============================================================================
+# Memetic Island Model GA Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Advanced multi-population evolutionary algorithm combining island model
+#   topology with memetic local search. Each island evolves independently
+#   using hybrid genetic operators (ACO for construction, ALNS for improvement)
+#   with periodic migration for diversity maintenance.
+#
+# ALGORITHM:
+#   1. Initialize K islands with N individuals each (using ACO)
+#   2. For each generation:
+#      a. Local improvement: Apply ALNS to each island's population
+#      b. Fitness evaluation: Assess all individuals
+#      c. Migration: Exchange best solutions between islands
+#      d. Replacement: Use tournament selection to replace weakest individuals
+#
+# PERFORMANCE:
+#   State-of-the-art hybrid metaheuristic combining genetic diversity with
+#   local search intensification. Superior to pure genetic algorithms on
+#   difficult routing instances. Competitive with specialized solvers like HGS.
+#
+# REFERENCE:
+#   Whitley, D., et al. (1998). "The island model genetic algorithm."
+#   Moscato, P., & Cotta, C. (2003). "A gentle introduction to memetic algorithms."
+#   Handbook of Metaheuristics, 105-144.
+#
+# NOTE:
+#   Originally mislabeled with sports metaphors (HVPL, LCA, etc.). This is
+#   fundamentally an island model GA with memetic local search (ACO+ALNS).
+#
+# TYPICAL USE CASES:
+#   - Large routing instances (150-500 nodes)
+#   - Production deployment requiring best-in-class solutions
+#   - Benchmarking against state-of-the-art metaheuristics
+#   - Research into hybrid evolutionary algorithms
+# =============================================================================
+
+memetic_island_ga:
+  custom:
+    # ---------------------------------------------------------------------
+    # Island Topology
+    # ---------------------------------------------------------------------
+    - n_islands: 10
+      # Number of independent sub-populations (K parameter)
+      # Range: 5-20
+      # Recommendation: 10 for balanced diversity/communication
+      # Higher values increase diversity but require more computation
+
+    - island_size: 10
+      # Population size per island (N parameter)
+      # Range: 5-20
+      # Recommendation: 10 for each island
+      # Total population = n_islands × island_size
+
+    # ---------------------------------------------------------------------
+    # Selection and Replacement
+    # ---------------------------------------------------------------------
+    - replacement_rate: 0.2
+      # Fraction of population replaced per generation
+      # Range: 0.1-0.5
+      # Recommendation: 0.2 for gradual evolution
+      # Number replaced = island_size × replacement_rate
+
+    - tournament_size: 3
+      # Number of individuals competing in tournament selection
+      # Range: 2-7
+      # Recommendation: 3 for moderate selection pressure
+      # Higher values increase selection pressure
+
+    # ---------------------------------------------------------------------
+    # Migration Parameters
+    # ---------------------------------------------------------------------
+    - migration_interval: 5
+      # Generations between inter-island migration
+      # Range: 3-10
+      # Recommendation: 5 for frequent diversity injection
+      # Lower values increase diversity but add overhead
+
+    - migration_size: 1
+      # Number of best solutions migrated per interval
+      # Range: 1-3
+      # Recommendation: 1 for conservative migration
+      # Migrated individuals replace worst in receiving island
+
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
+    - max_generations: 50
+      # Number of evolution cycles
+      # Range: 20-100
+      # Recommendation: 50 for production
+      # Note: Each generation includes expensive local search
+
+    - time_limit: 60.0
+      # Maximum wall-clock seconds for optimization
+      # Range: 60-600 (0 = unlimited)
+      # Recommendation: 60s for quick results, 300s for best quality
+
+    # ---------------------------------------------------------------------
+    # ACO Parameters (Constructive Heuristic)
+    # ---------------------------------------------------------------------
+    # Used for initial population generation and diversity maintenance
+
+    - aco_n_ants: 10
+      # Number of ants per ACO iteration
+      # Recommendation: 10 for initialization
+
+    - aco_k_sparse: 10
+      # Sparse graph parameter (consider k nearest neighbors)
+      # Recommendation: 10 for problem size ≤ 100
+
+    - aco_alpha: 1.0
+      # Pheromone influence coefficient
+      # Standard ACO setting
+
+    - aco_beta: 2.0
+      # Heuristic information influence coefficient
+      # Standard ACO setting
+
+    - aco_rho: 0.1
+      # Pheromone evaporation rate
+      # Standard ACO setting
+
+    - aco_q0: 0.9
+      # Probability of exploitation vs exploration
+      # Standard ACO setting
+
+    - aco_tau_min: 0.001
+      # Minimum pheromone level
+      # Prevents premature convergence
+
+    - aco_tau_max: 10.0
+      # Maximum pheromone level
+      # Prevents stagnation
+
+    - aco_max_iterations: 1
+      # ACO iterations for construction
+      # Recommendation: 1 (quick construction)
+
+    - aco_time_limit: 30
+      # Time limit for ACO phase (seconds)
+      # Recommendation: 30s for initialization
+
+    - aco_elitist_weight: 1.0
+      # Weight for best-so-far solution in pheromone update
+      # Standard ACO setting
+
+    # ---------------------------------------------------------------------
+    # ALNS Parameters (Local Search Improvement)
+    # ---------------------------------------------------------------------
+    # Applied to each island's population for memetic refinement
+
+    - alns_max_iterations: 100
+      # ALNS iterations per individual
+      # Recommendation: 100 for balanced improvement
+
+    - alns_start_temp: 100.0
+      # Initial simulated annealing temperature
+      # Standard ALNS setting
+
+    - alns_cooling_rate: 0.95
+      # Geometric cooling factor
+      # Standard ALNS setting
+
+    - alns_reaction_factor: 0.5
+      # Adaptive weight learning rate
+      # Standard ALNS setting
+
+    - alns_min_removal: 1
+      # Minimum nodes to remove in destroy phase
+      # Standard ALNS setting
+
+    - alns_max_removal_pct: 0.2
+      # Maximum fraction of nodes to remove
+      # Recommendation: 0.2 for local perturbations
+
+    - alns_time_limit: 30
+      # Time limit for ALNS phase per individual (seconds)
+      # Recommendation: 30s for local search
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - engine: "custom"
+      # Execution backend: logic/src/policies/genetic_algorithm_memetic_island_model/
+
+    - must_go: ["other/mg_lookahead.yaml"]
+      # Node selection strategy for waste collection problems
+      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # See: docs/MUST_GO_STRATEGIES.md
+
+    - post_processing: []
+      # Route refinement heuristics applied after optimization
+      # Empty list = use raw output
+      # Note: ALNS already provides comprehensive local search
+
+# =============================================================================
+# ALGORITHM STRUCTURE
+# =============================================================================
+# Initialization:
+#   1. Use ACO to construct initial population for each island
+#
+# Each generation (for each island):
+#   1. Local Improvement: Apply ALNS to all individuals in island
+#   2. Fitness Evaluation: Compute objective values
+#   3. Migration (every migration_interval generations):
+#      - Send migration_size best to neighboring islands
+#      - Replace worst with immigrants
+#   4. Replacement:
+#      - Tournament selection with tournament_size competitors
+#      - Replace replacement_rate fraction of weakest individuals
+#
+# Complexity:
+#   - Space: O(K × N × n) for island populations
+#   - Time per generation: O(K × N × ALNS_cost)
+#   - Highly parallelizable: Islands evolve independently
+#
+# Key Differences from Pure Island GA:
+#   - ACO construction instead of random initialization
+#   - ALNS local search on every individual (memetic learning)
+#   - Typically better solution quality but higher computational cost
+#
+# Interpretation of Sports Metaphors:
+#   - "Teams" → Islands (sub-populations)
+#   - "Matches" → Fitness evaluations
+#   - "Seasons" → Generations
+#   - "Coaching" → ALNS local search operator
+#   - "Relegation/Promotion" → Tournament-based replacement
+# =============================================================================
