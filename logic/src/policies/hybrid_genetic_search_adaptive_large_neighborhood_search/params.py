@@ -27,16 +27,16 @@ class HGSALNSParams:
     hgs_params: HGSParams = field(
         default_factory=lambda: HGSParams(
             time_limit=60.0,
-            population_size=50,
-            elite_size=10,
+            mu=50,
+            nb_elite=10,
             mutation_rate=0.2,
             crossover_rate=0.7,
-            n_generations=100,
+            n_offspring=40,  # Default for lambda_param
             alpha_diversity=0.5,
-            min_diversity_threshold=0.1,
+            min_diversity=0.1,
             diversity_change_rate=0.05,
-            no_improvement_threshold=10,
-            neighbor_list_size=10,
+            n_iterations_no_improvement=10,
+            nb_granular=10,
             local_search_iterations=500,
             max_vehicles=0,
         )

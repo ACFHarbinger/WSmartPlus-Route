@@ -253,9 +253,9 @@ class RLAHVPLSolver(PolicyVizMixin):
             # 1. Bi-criteria fitness update
             update_biased_fitness(
                 population,
-                self.params.hgs_params.elite_size,
+                self.params.hgs_params.nb_elite,
                 current_alpha,
-                self.params.hgs_params.neighbor_list_size,
+                self.params.hgs_params.nb_granular,
             )
 
             # 2. CMAB-driven crossover
@@ -319,7 +319,7 @@ class RLAHVPLSolver(PolicyVizMixin):
                 if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                     break
 
-                if i < self.params.hgs_params.elite_size:
+                if i < self.params.hgs_params.nb_elite:
                     # Elite -> Intensive ALNS
                     new_ind = self._alns_coaching(ind, iterations=self.params.elite_coaching_max_iterations)
                 elif self.random.random() < self.params.gls_probability:
@@ -335,7 +335,7 @@ class RLAHVPLSolver(PolicyVizMixin):
                 population,
                 self.params.n_teams,
                 current_alpha,
-                self.params.hgs_params.neighbor_list_size,
+                self.params.hgs_params.nb_granular,
             )
             population.sort(key=lambda x: x.fitness)
             population = population[: self.params.n_teams]

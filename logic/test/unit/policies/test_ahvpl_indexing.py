@@ -19,12 +19,12 @@ def _fast_params() -> AHVPLParams:
         sub_rate=0.2,
         time_limit=10.0,
         hgs_params=HGSParams(
-            elite_size=2,
+            nb_elite=2,
             mutation_rate=0.0,
             crossover_rate=0.5,
             max_vehicles=0,
-            population_size=3,
-            n_generations=1,
+            mu=3,
+            n_offspring=1,
         ),
         aco_params=ACOParams(
             n_ants=2,

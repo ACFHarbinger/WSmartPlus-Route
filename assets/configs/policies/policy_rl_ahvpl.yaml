@@ -41,10 +41,10 @@ rl_ahvpl:
     - hgs_time_limit: 60
       # Maximum wall-clock seconds for the full algorithm
 
-    - hgs_n_generations: 100
-      # Number of generations for HGS
+    - hgs_n_offspring: 100
+      # Number of offspring (lambda) for HGS
 
-    - hgs_elite_size: 5
+    - hgs_nb_elite: 5
       # Number of elite solutions for biased fitness ranking
 
     - hgs_mutation_rate: 0.2
@@ -62,19 +62,19 @@ rl_ahvpl:
     - hgs_diversity_change_rate: 0.05
       # Rate at which alpha diversity changes
 
-    - hgs_no_improvement_threshold: 20
-      # Number of generations without improvement
+    - hgs_n_iterations_no_improvement: 20
+      # Number of iterations without improvement
 
     - hgs_survivor_threshold: 2
       # Threshold for survivor selection
 
-    - hgs_neighbor_list_size: 10
+    - hgs_nb_granular: 10
       # Number of nearest neighbors to consider
 
     - hgs_max_vehicles: 0
       # Maximum vehicles allowed (0 = unlimited, determined by problem)
 
-    - hgs_population_size: 50
+    - hgs_mu: 50
       # HGS internal population size for diversity management
 
     - hgs_local_search_iterations: 100
@@ -171,17 +171,17 @@ rl_ahvpl:
         min_removal: 1
         max_removal_pct: 0.2
     - hgs:
-        population_size: 50
-        elite_size: 5
+        mu: 50
+        nb_elite: 5
         mutation_rate: 0.2
         crossover_rate: 0.7
-        n_generations: 100
+        n_offspring: 100
         alpha_diversity: 0.1
         min_diversity: 0.2
         diversity_change_rate: 0.05
-        no_improvement_threshold: 20
+        n_iterations_no_improvement: 20
         survivor_threshold: 2
-        neighbor_list_size: 10
+        nb_granular: 10
         local_search_iterations: 100
         max_vehicles: 0
     - rts:

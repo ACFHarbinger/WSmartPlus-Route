@@ -266,18 +266,20 @@ def run_hgsrr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None,
 
     params = HGSRRParams(
         time_limit=values.get("time_limit", 10),
-        population_size=values.get("population_size", 50),
-        elite_size=values.get("elite_size", 10),
+        mu=values.get("mu", values.get("population_size", 50)),
+        nb_elite=values.get("nb_elite", values.get("elite_size", 10)),
         mutation_rate=values.get("mutation_rate", 0.3),
         n_generations=values.get("n_generations", 100),
         alpha_diversity=values.get("alpha_diversity", 0.5),
         min_diversity=values.get("min_diversity", 0.2),
         diversity_change_rate=values.get("diversity_change_rate", 0.05),
-        no_improvement_threshold=values.get("no_improvement_threshold", 20),
+        n_iterations_no_improvement=values.get(
+            "n_iterations_no_improvement", values.get("no_improvement_threshold", 20)
+        ),
         survivor_threshold=values.get("survivor_threshold", 2.0),
         max_vehicles=values.get("max_vehicles", 0),
         crossover_rate=values.get("crossover_rate", 0.7),
-        neighbor_list_size=values.get("neighbor_list_size", 10),
+        nb_granular=values.get("nb_granular", values.get("neighbor_list_size", 10)),
         # Ruin-recreate specific
         min_removal_pct=values.get("min_removal_pct", 0.1),
         max_removal_pct=values.get("max_removal_pct", 0.4),

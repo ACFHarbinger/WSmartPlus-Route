@@ -43,20 +43,32 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         else:
             return [], 0.0, 0.0
 
+    # Create HGSParams using Vidal 2022 parameter names
     params = HGSParams(
-        time_limit=values.get("time_limit", 10),
-        population_size=values.get("population_size", 50),
-        elite_size=values.get("elite_size", 10),
-        mutation_rate=values.get("mutation_rate", 0.2),
-        n_generations=values.get("n_generations", 100),
+        # Core HGS parameters (Vidal 2022)
+        time_limit=values.get("time_limit", 0.0),
+        mu=values.get("mu", 25),
+        n_offspring=values.get("n_offspring", values.get("lambda_param", 40)),
+        nb_elite=values.get("nb_elite", 4),
+        nb_close=values.get("nb_close", 5),
+        nb_granular=values.get("nb_granular", 20),
+        target_feasible=values.get("target_feasible", 0.2),
+        n_iterations_no_improvement=values.get("n_iterations_no_improvement", 20000),
+        # Genetic operators
+        mutation_rate=values.get("mutation_rate", 1.0),
+        repair_probability=values.get("repair_probability", 0.5),
+        crossover_rate=values.get("crossover_rate", 1.0),
+        # Diversity management
         alpha_diversity=values.get("alpha_diversity", 0.5),
         min_diversity=values.get("min_diversity", 0.2),
         diversity_change_rate=values.get("diversity_change_rate", 0.05),
-        no_improvement_threshold=values.get("no_improvement_threshold", 20),
-        survivor_threshold=values.get("survivor_threshold", 2),
+        # Local search
+        local_search_iterations=values.get("local_search_iterations", 100),
         max_vehicles=values.get("max_vehicles", 0),
-        local_search_iterations=values.get("local_search_iterations", 500),
-        crossover_rate=values.get("crossover_rate", 0.7),
+        # Penalty management
+        initial_penalty_capacity=values.get("initial_penalty_capacity", 1.0),
+        penalty_increase=values.get("penalty_increase", 1.2),
+        penalty_decrease=values.get("penalty_decrease", 0.85),
     )
     solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
     return solver.solve()

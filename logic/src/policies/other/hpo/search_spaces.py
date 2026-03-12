@@ -14,11 +14,11 @@ POLICY_SEARCH_SPACES: Dict[str, Dict[str, Dict[str, Any]]] = {
         "max_removal_pct": {"type": "float", "low": 0.1, "high": 0.5},
     },
     "hgs": {
-        "population_size": {"type": "int", "low": 10, "high": 200, "step": 10},
-        "elite_size": {"type": "int", "low": 2, "high": 50, "step": 2},
+        "mu": {"type": "int", "low": 10, "high": 200, "step": 10},
+        "nb_elite": {"type": "int", "low": 2, "high": 50, "step": 2},
         "mutation_rate": {"type": "float", "low": 0.01, "high": 0.4},
         "crossover_rate": {"type": "float", "low": 0.4, "high": 0.9},
-        "neighbor_list_size": {"type": "int", "low": 5, "high": 50},
+        "nb_granular": {"type": "int", "low": 5, "high": 50},
         "local_search_iterations": {"type": "int", "low": 100, "high": 2000, "step": 100},
     },
     "aco": {
