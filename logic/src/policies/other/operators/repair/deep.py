@@ -22,7 +22,7 @@ Example:
     >>> routes = deep_insertion(routes, removed, dist_matrix, wastes, capacity, alpha=0.3)
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -90,5 +90,93 @@ def deep_insertion(
                 routes.append([node])
                 loads.append(wastes.get(node, 0))
             break
+
+    return routes
+
+
+def deep_profit_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    alpha: float = 0.3,
+    mandatory_nodes: Optional[List[int]] = None,
+) -> List[List[int]]:
+    """
+    Deep profit-driven insertion: profit plus capacity-utility scoring.
+
+    Args:
+        routes: List of routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        alpha: Weight for residual capacity bonus (>= 0).
+        mandatory_nodes: List of mandatory node indices.
+
+    Returns:
+        List[List[int]]: Updated routes.
+    """
+    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
+    loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
+    unassigned = sorted(list(removed_nodes))
+
+    while unassigned:
+        best_score = -float("inf")
+        best_node = -1
+        best_route = -1
+        best_pos = -1
+
+        for node in unassigned:
+            node_waste = wastes.get(node, 0)
+            revenue = node_waste * R
+            is_mandatory = node in mandatory_nodes_set
+
+            for r_idx, route in enumerate(routes):
+                if loads[r_idx] + node_waste > capacity:
+                    continue
+
+                residual = (capacity - loads[r_idx] - node_waste) / max(capacity, 1e-9)
+
+                for pos in range(len(route) + 1):
+                    # Cost increase: d(prev, node) + d(node, nxt) - d(prev, nxt)
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+
+                    cost_delta = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                    profit = revenue - (cost_delta * C)
+
+                    # Score = Profit + Alpha * Residual Utility
+                    score = profit + alpha * residual
+                    effective_score = score + (1e9 if is_mandatory else 0)
+
+                    if effective_score > best_score:
+                        if not is_mandatory and profit < -1e-4:
+                            continue
+                        best_score = effective_score
+                        best_node = node
+                        best_route = r_idx
+                        best_pos = pos
+
+        if best_node != -1:
+            routes[best_route].insert(best_pos, best_node)
+            loads[best_route] += wastes.get(best_node, 0)
+            unassigned.remove(best_node)
+        else:
+            # Handle remaining mandatory nodes
+            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
+            if mandatory_remaining:
+                node = mandatory_remaining[0]
+                routes.append([node])
+                loads.append(wastes.get(node, 0))
+                unassigned.remove(node)
+                continue
+            else:
+                break
 
     return routes
