@@ -21,7 +21,7 @@ class AHVPLConfig:
         alns_iterations: Number of ALNS iterations for the coaching phase.
         crossover_rate: Probability of applying OX crossover.
         alpha_diversity: Weight for diversity in biased fitness calculation.
-        elite_size: Number of elite solutions for biased fitness ranking.
+        nb_elite: Number of elite solutions for biased fitness ranking.
     """
 
     time_limit: float = 60.0
@@ -32,4 +32,4 @@ class AHVPLConfig:
     alns_iterations: int = 50
     crossover_rate: float = 0.7
     alpha_diversity: float = 0.5
-    elite_size: int = 5
+    nb_elite: int = 5

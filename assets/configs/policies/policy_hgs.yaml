@@ -20,8 +20,8 @@
 #   Published benchmarks show <1% gap on instances up to 500 nodes.
 #
 # REFERENCE:
-#   Vidal et al. (2012) "A hybrid genetic algorithm for multidepot and
-#   periodic vehicle routing problems" Operations Research 60(3):611-624
+#   Vidal, T. (2022). "Hybrid genetic search for the CVRP: Open-source
+#   implementation and SWAP* neighborhood" Computers & Operations Research, 140, 105643.
 #
 # TYPICAL USE CASES:
 #   - Production deployment (60s budget yields excellent solutions)
@@ -32,81 +32,103 @@
 hgs:
   custom:
     # ---------------------------------------------------------------------
-    # Runtime Control
+    # Runtime Control (Vidal 2022)
     # ---------------------------------------------------------------------
-    - time_limit: 60
-      # Maximum wall-clock seconds for optimization
-      # Range: 30-600 (30s = quick, 300s = thorough, 600s = benchmark)
-      # Recommendation: 60s for production (CONSERVATIVE)
+    - time_limit: 0
+      # Maximum wall-clock seconds for optimization (0 = unlimited)
+      # Range: 0 (unlimited), 30-600 (30s = quick, 300s = thorough)
+      # Recommendation: 0 for iteration-based stopping (Vidal 2022 default)
 
-    - local_search_iterations: 500
+    - n_iterations_no_improvement: 20000
+      # Maximum iterations without improvement before stopping
+      # Range: 5000-20000
+      # Recommendation: 20000 (Vidal 2022 default), or 1000-5000 for faster runs
+
+    - local_search_iterations: 100
       # Number of iterations to run local search
-      # Range: 50-2000
-      # Recommendation: 500 for stable optimization (CONSERVATIVE)
+      # Range: 50-200
+      # Recommendation: 100 (balanced)
 
     # ---------------------------------------------------------------------
-    # Population Management
+    # Population Management (Vidal 2022 - Dual Subpopulations)
     # ---------------------------------------------------------------------
-    - population_size: 50
-      # Total individuals in genetic pool (elite + diverse)
-      # Range: 25-100
-      # Larger populations → better diversity but slower iterations
-      # Recommendation: 50 for stable optimization (CONSERVATIVE)
+    - mu: 25
+      # Minimum population size per subpopulation (feasible/infeasible)
+      # Range: 10-50
+      # Vidal 2022 default: 25
+      # Each subpopulation maintains at least mu individuals
 
-    - elite_size: 10
-      # Number of top solutions preserved across generations
-      # Range: 5-25 (typically 20% of population_size)
-      # Elite solutions drive intensification (exploitation)
+    - lambda_param: 40
+      # Generation size - number of individuals before survivor selection
+      # Range: 20-80
+      # Vidal 2022 default: 40
+      # Maximum population size = mu + lambda_param
+
+    - nb_elite: 4
+      # Number of elite solutions preserved across generations
+      # Range: 2-10 (typically ~15% of mu)
+      # Vidal 2022 default: 4
+
+    - nb_close: 5
+      # Number of close individuals for diversity measurement
+      # Range: 3-10
+      # Vidal 2022 default: 5
+
+    - nb_granular: 20
+      # Granular search parameter for local search moves
+      # Range: 10-40
+      # Vidal 2022 default: 20
+
+    - target_feasible: 0.2
+      # Target proportion of feasible solutions (20%)
+      # Range: 0.1-0.3
+      # Vidal 2022 default: 0.2
+      # Penalty coefficients auto-adjust to maintain this ratio
 
     - alpha_diversity: 0.5
-      # Weight of diversity in fitness calculation
+      # Weight of diversity in biased fitness calculation
       # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
-      # Note: Uses adaptive_diversity=true for dynamic adjustment
+      # Vidal 2022 default: 0.5
 
     - min_diversity: 0.2
-      # Minimum diversity threshold for triggering diversity maintenance
+      # Minimum diversity threshold
       # Range: 0.0-1.0
-      # Recommendation: 0.2 for stable optimization (CONSERVATIVE)
 
     - diversity_change_rate: 0.05
-      # Rate at which alpha diversity changes
+      # Rate at which alpha diversity changes (if adaptive)
       # Range: 0.01-0.1
-      # Recommendation: 0.05 for stable optimization (CONSERVATIVE)
-
-    - survivor_threshold: 2
-      # Threshold for survivor selection
-      # Range: 1-10
-      # Recommendation: 2 for stable optimization (CONSERVATIVE)
-
-    - no_improvement_threshold: 20
-      # Number of generations without improvement to trigger diversity maintenance
-      # Range: 10-50
-      # Recommendation: 20 for stable optimization (CONSERVATIVE)
-
-    - neighbor_list_size: 10
-      # Number of nearest neighbors to consider
-
-    - min_diversity_threshold: 0.2
-      # Threshold for minimum diversity
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
 
     # ---------------------------------------------------------------------
-    # Genetic Operators
+    # Genetic Operators (Vidal 2022)
     # ---------------------------------------------------------------------
-    - mutation_rate: 0.2
-      # Probability of applying random swap/insert after crossover
-      # Range: 0.0-0.5 (0.0 = pure crossover, 0.5 = high randomness)
-      # Recommendation: 0.2 for stable optimization (CONSERVATIVE)
+    - mutation_rate: 1.0
+      # Probability of applying local search (education) to offspring
+      # Vidal 2022 default: 1.0 (always educate)
 
-    - crossover_rate: 0.7
-      # Probability of applying crossover after mutation
-      # Range: 0.0-1.0 (0.0 = pure mutation, 1.0 = pure crossover)
-      # Recommendation: 0.7 for CVRP, 0.5 for VRPTW
+    - repair_probability: 0.5
+      # Probability of repairing infeasible offspring
+      # Vidal 2022 default: 0.5 (50% as per Algorithm 1)
 
-    - n_generations: 100
-      # Number of generations to run
-      # Range: 50-500
-      # Recommendation: 100 for stable optimization (CONSERVATIVE)
+    - crossover_rate: 1.0
+      # Probability of applying crossover
+      # Vidal 2022 default: 1.0 (always apply)
+
+    # ---------------------------------------------------------------------
+    # Penalty Management (Vidal 2022 - Adaptive)
+    # ---------------------------------------------------------------------
+    - initial_penalty_capacity: 1.0
+      # Initial penalty coefficient for capacity violations
+      # Range: 0.1-10.0
+
+    - penalty_increase: 1.2
+      # Multiplier for increasing penalty (when too many feasible)
+      # Range: 1.1-1.5
+      # Vidal 2022 default: 1.2
+
+    - penalty_decrease: 0.85
+      # Multiplier for decreasing penalty (when too many infeasible)
+      # Range: 0.5-0.95
+      # Vidal 2022 default: 0.85
 
     # Crossover operator: Order Crossover (OX)
     #   - Preserves relative order from parents

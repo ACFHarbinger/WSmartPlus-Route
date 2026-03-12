@@ -39,71 +39,83 @@ hgs_alns:
       # Note: Shared between HGS phase and ALNS education phase
 
     # ---------------------------------------------------------------------
-    # HGS Parameters (Diversity Management & Crossover)
+    # HGS Parameters (Vidal 2022 - Dual Subpopulations)
     # ---------------------------------------------------------------------
     - hgs_time_limit: 60
       # Maximum wall-clock seconds for the full algorithm
       # Range: 30-300 (60s = production, 120s = thorough)
 
-    - hgs_n_generations: 100
-      # Number of generations for HGS
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+    - hgs_mu: 25
+      # Minimum population size per subpopulation (feasible/infeasible)
+      # Range: 10-50 (Vidal 2022 default: 25)
 
-    - hgs_elite_size: 5
-      # Number of elite solutions for biased fitness ranking
-      # Range: 3-15 (typically ~50% of n_teams)
-      # Elite solutions get higher diversity preservation
+    - hgs_lambda_param: 40
+      # Generation size - number of individuals before survivor selection
+      # Range: 20-80 (Vidal 2022 default: 40)
 
-    - hgs_mutation_rate: 0.2
-      # Probability of HGS local search mutation after ALNS coaching
-      # Range: 0.0-0.5 (0.0 = no mutation, 0.3 = frequent)
+    - hgs_nb_elite: 4
+      # Number of elite solutions preserved across generations
+      # Range: 2-10 (Vidal 2022 default: 4)
 
-    - hgs_crossover_rate: 0.7
-      # Probability of applying OX crossover per generation
-      # Range: 0.0-1.0 (0.0 = clone parent, 1.0 = always crossover)
+    - hgs_nb_close: 5
+      # Number of close individuals for diversity measurement
+      # Range: 3-10 (Vidal 2022 default: 5)
 
-    - hgs_alpha_diversity: 0.1
-      # Weight of diversity in fitness calculation
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+    - hgs_nb_granular: 20
+      # Granular search parameter for local search
+      # Range: 10-40 (Vidal 2022 default: 20)
+
+    - hgs_target_feasible: 0.2
+      # Target proportion of feasible solutions (20%)
+      # Range: 0.1-0.3 (Vidal 2022 default: 0.2)
+
+    - hgs_n_iterations_no_improvement: 20000
+      # Maximum iterations without improvement before stopping
+      # Range: 5000-20000 (Vidal 2022 default: 20000)
+      # For HGS-ALNS hybrid, use lower values (e.g., 5000)
+
+    - hgs_mutation_rate: 1.0
+      # Probability of applying local search (education) to offspring
+      # Vidal 2022 default: 1.0 (always educate)
+
+    - hgs_repair_probability: 0.5
+      # Probability of repairing infeasible offspring
+      # Vidal 2022 default: 0.5 (50%)
+
+    - hgs_crossover_rate: 1.0
+      # Probability of applying crossover
+      # Vidal 2022 default: 1.0 (always apply)
+
+    - hgs_alpha_diversity: 0.5
+      # Weight of diversity in biased fitness calculation
+      # Range: 0.0-1.0 (Vidal 2022 default: 0.5)
 
     - hgs_min_diversity: 0.2
-      # Minimum diversity threshold for triggering diversity maintenance
+      # Minimum diversity threshold
       # Range: 0.0-1.0
-      # Recommendation: 0.2 for stable optimization (CONSERVATIVE)
 
     - hgs_diversity_change_rate: 0.05
       # Rate at which alpha diversity changes
       # Range: 0.01-0.1
-      # Recommendation: 0.05 for stable optimization (CONSERVATIVE)
-
-    - hgs_survivor_threshold: 2
-      # Threshold for survivor selection
-      # Range: 1-10
-      # Recommendation: 2 for stable optimization (CONSERVATIVE)
-
-    - hgs_no_improvement_threshold: 20
-      # Number of generations without improvement to trigger diversity maintenance
-      # Range: 10-50
-      # Recommendation: 20 for stable optimization (CONSERVATIVE)
-
-    - hgs_neighbor_list_size: 10
-      # Number of nearest neighbors to consider
 
     - hgs_max_vehicles: 0
-      # Maximum vehicles allowed (0 = unlimited, determined by problem)
-      # Set >0 to constrain fleet size
-
-    - hgs_population_size: 50
-      # HGS internal population size for diversity management
-      # Range: 25-100
+      # Maximum vehicles allowed (0 = unlimited)
 
     - hgs_local_search_iterations: 100
       # Number of local search iterations per generation
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+      # Range: 50-200 (Vidal 2022 default: 100)
 
-    - hgs_min_diversity_threshold: 0.2
-      # Threshold for minimum diversity
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
+    - hgs_initial_penalty_capacity: 1.0
+      # Initial penalty coefficient for capacity violations
+      # Range: 0.1-10.0 (Vidal 2022 default: 1.0)
+
+    - hgs_penalty_increase: 1.2
+      # Multiplier for increasing penalty
+      # Range: 1.1-1.5 (Vidal 2022 default: 1.2)
+
+    - hgs_penalty_decrease: 0.85
+      # Multiplier for decreasing penalty
+      # Range: 0.5-0.95 (Vidal 2022 default: 0.85)
 
     # ---------------------------------------------------------------------
     # ALNS Parameters (Coaching & Deep Local Search)

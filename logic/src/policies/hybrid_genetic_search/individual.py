@@ -19,6 +19,7 @@ Example:
 class Individual:
     """
     Individual solution representation for genetic algorithm.
+    Follows Vidal et al. (2022) HGS-CVRP implementation.
     """
 
     def __init__(self, giant_tour: List[int]):
@@ -35,6 +36,12 @@ class Individual:
         self.cost = 0.0
         self.revenue = 0.0
 
+        # Feasibility tracking
+        self.is_feasible = True
+        self.capacity_violation = 0.0  # Total capacity excess across all routes
+        self.penalized_cost = 0.0  # Cost including penalty for violations
+
+        # Diversity and ranking
         self.dist_to_parents = 0.0
         self.rank_profit = 0
         self.rank_diversity = 0

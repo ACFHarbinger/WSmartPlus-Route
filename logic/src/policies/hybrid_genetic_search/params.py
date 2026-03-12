@@ -15,40 +15,58 @@ if TYPE_CHECKING:
 class HGSParams:
     """
     Configuration parameters for Hybrid Genetic Search.
+    Based on Vidal et al. (2022) - "Hybrid genetic search for the CVRP".
 
     Attributes:
-        time_limit: Maximum search time in seconds.
-        population_size: Target population size.
-        elite_size: Number of elite individuals for survivor selection.
-        mutation_rate: Probability of applying local search improvement.
-        max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
-        n_generations: Number of generations to run the algorithm.
+        time_limit: Maximum search time in seconds (0 = unlimited).
+        mu: Minimum population size (for each subpopulation).
+        lambda_param: Generation size - number of individuals before survivor selection.
+        nb_elite: Number of elite individuals to preserve.
+        nb_close: Number of close individuals for diversity measurement.
+        nb_granular: Granular search parameter for local search moves.
+        target_feasible: Target proportion of feasible solutions (e.g., 0.2 = 20%).
+        n_iterations_no_improvement: Max iterations without improvement before stopping.
+        mutation_rate: Probability of applying local search (education) to offspring.
+        repair_probability: Probability of repairing infeasible offspring (default 0.5).
+        crossover_rate: Probability of applying crossover.
         alpha_diversity: Weight for diversity in fitness evaluation.
-        min_diversity: Minimum diversity threshold for triggering diversity maintenance.
+        min_diversity: Minimum diversity threshold.
         diversity_change_rate: Rate at which alpha diversity changes.
-        min_diversity_threshold: Threshold for minimum diversity.
-        survivor_threshold: Threshold for survivor selection.
-        no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
-        neighbor_list_size: Number of nearest neighbors to consider.
-        local_search_iterations: Number of iterations to run local search.
+        local_search_iterations: Number of iterations for local search.
         max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
+        initial_penalty_capacity: Initial penalty coefficient for capacity violations.
+        penalty_increase: Multiplier for increasing penalty (when too many feasible).
+        penalty_decrease: Multiplier for decreasing penalty (when too many infeasible).
     """
 
-    time_limit: float = 60.0
-    population_size: int = 50
-    elite_size: int = 10
-    mutation_rate: float = 0.2
-    crossover_rate: float = 0.7
-    n_generations: int = 100
+    # Core HGS parameters (Vidal 2022)
+    time_limit: float = 0.0  # 0 = no time limit
+    mu: int = 25  # Minimum population size per subpopulation
+    n_offspring: int = 40  # Generation size (number of individuals before survivor selection)
+    nb_elite: int = 4  # Number of elite individuals
+    nb_close: int = 5  # Number of close individuals for diversity
+    nb_granular: int = 20  # Granular search parameter
+    target_feasible: float = 0.2  # Target 20% feasible solutions
+    n_iterations_no_improvement: int = 20000  # Stopping criterion
+
+    # Genetic operators
+    mutation_rate: float = 1.0  # Always educate offspring with local search
+    repair_probability: float = 0.5  # 50% chance to repair infeasible offspring
+    crossover_rate: float = 1.0  # Always apply crossover
+
+    # Diversity management
     alpha_diversity: float = 0.5
     min_diversity: float = 0.2
     diversity_change_rate: float = 0.05
-    survivor_threshold: int = 2
-    no_improvement_threshold: int = 20
-    min_diversity_threshold: float = 0.2
-    neighbor_list_size: int = 15
+
+    # Local search
     local_search_iterations: int = 100
     max_vehicles: int = 0
+
+    # Penalty management
+    initial_penalty_capacity: float = 1.0
+    penalty_increase: float = 1.2
+    penalty_decrease: float = 0.85
 
     @classmethod
     def from_config(cls, config: HGSConfig) -> HGSParams:
@@ -60,16 +78,79 @@ class HGSParams:
         Returns:
             HGSParams instance with values from config.
         """
+        # Map config parameters to HGSParams, using defaults for new parameters
         return cls(
-            time_limit=config.time_limit,
-            population_size=config.population_size,
-            elite_size=config.elite_size,
-            mutation_rate=config.mutation_rate,
-            crossover_rate=config.crossover_rate,
-            n_generations=config.n_generations,
-            max_vehicles=config.max_vehicles,
-            alpha_diversity=config.alpha_diversity,
-            min_diversity=config.min_diversity,
-            neighbor_list_size=config.neighbor_list_size,
-            local_search_iterations=config.local_search_iterations,
+            time_limit=getattr(config, "time_limit", 0.0),
+            mu=getattr(config, "mu", 25),
+            n_offspring=getattr(config, "n_offspring", getattr(config, "lambda_param", 40)),
+            nb_elite=getattr(config, "nb_elite", 4),
+            nb_close=getattr(config, "nb_close", 5),
+            nb_granular=getattr(config, "nb_granular", 20),
+            target_feasible=getattr(config, "target_feasible", 0.2),
+            n_iterations_no_improvement=getattr(config, "n_iterations_no_improvement", 20000),
+            mutation_rate=getattr(config, "mutation_rate", 1.0),
+            repair_probability=getattr(config, "repair_probability", 0.5),
+            crossover_rate=getattr(config, "crossover_rate", 1.0),
+            alpha_diversity=getattr(config, "alpha_diversity", 0.5),
+            min_diversity=getattr(config, "min_diversity", 0.2),
+            diversity_change_rate=getattr(config, "diversity_change_rate", 0.05),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            max_vehicles=getattr(config, "max_vehicles", 0),
+            initial_penalty_capacity=getattr(config, "initial_penalty_capacity", 1.0),
+            penalty_increase=getattr(config, "penalty_increase", 1.2),
+            penalty_decrease=getattr(config, "penalty_decrease", 0.85),
         )
+
+    @property
+    def lambda_param(self) -> int:
+        """Alias for n_offspring (Vidal 2022 terminology)."""
+        return self.n_offspring
+
+    @lambda_param.setter
+    def lambda_param(self, value: int):
+        self.n_offspring = value
+
+    @property
+    def population_size(self) -> int:
+        """Alias for mu (common evolutionary terminology)."""
+        return self.mu
+
+    @population_size.setter
+    def population_size(self, value: int):
+        self.mu = value
+
+    @property
+    def elite_size(self) -> int:
+        """Alias for nb_elite."""
+        return self.nb_elite
+
+    @elite_size.setter
+    def elite_size(self, value: int):
+        self.nb_elite = value
+
+    @property
+    def min_diversity_threshold(self) -> float:
+        """Alias for min_diversity."""
+        return self.min_diversity
+
+    @min_diversity_threshold.setter
+    def min_diversity_threshold(self, value: float):
+        self.min_diversity = value
+
+    @property
+    def no_improvement_threshold(self) -> int:
+        """Alias for n_iterations_no_improvement."""
+        return self.n_iterations_no_improvement
+
+    @no_improvement_threshold.setter
+    def no_improvement_threshold(self, value: int):
+        self.n_iterations_no_improvement = value
+
+    @property
+    def neighbor_list_size(self) -> int:
+        """Alias for nb_granular."""
+        return self.nb_granular
+
+    @neighbor_list_size.setter
+    def neighbor_list_size(self, value: int):
+        self.nb_granular = value

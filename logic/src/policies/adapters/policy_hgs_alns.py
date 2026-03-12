@@ -76,17 +76,16 @@ class HGSALNSPolicy(BaseRoutingPolicy):
 
         hgs_params = HGSParams(
             time_limit=values.get("hgs_time_limit", values.get("time_limit", 60.0)),
-            population_size=values.get("hgs_population_size", 50),
-            elite_size=values.get("hgs_elite_size", 5),
+            mu=values.get("hgs_population_size", 50),
+            nb_elite=values.get("hgs_elite_size", 5),
             mutation_rate=values.get("hgs_mutation_rate", 0.2),
             crossover_rate=values.get("hgs_crossover_rate", 0.7),
-            n_generations=values.get("hgs_n_generations", 100),
+            n_offspring=values.get("hgs_n_generations", 100),  # Mapping generations to offspring for this adapter
             alpha_diversity=values.get("hgs_alpha_diversity", 0.1),
             min_diversity=values.get("hgs_min_diversity", 0.2),
             diversity_change_rate=values.get("hgs_diversity_change_rate", 0.05),
-            no_improvement_threshold=values.get("hgs_no_improvement_threshold", 20),
-            survivor_threshold=values.get("hgs_survivor_threshold", 2),
-            neighbor_list_size=values.get("hgs_neighbor_list_size", 10),
+            n_iterations_no_improvement=values.get("hgs_no_improvement_threshold", 20),
+            nb_granular=values.get("hgs_neighbor_list_size", 10),
             local_search_iterations=values.get("hgs_local_search_iterations", 100),
             max_vehicles=values.get("hgs_max_vehicles", 0),
         )

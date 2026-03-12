@@ -16,18 +16,18 @@ class HGSRRParams:
 
     Attributes:
         time_limit (float): Maximum execution time in seconds.
-        population_size (int): Number of individuals in the population.
-        elite_size (int): Number of elite individuals preserved.
+        mu (int): Minimum population size (for each subpopulation).
+        nb_elite (int): Number of elite individuals preserved.
         mutation_rate (float): Probability of applying ruin-recreate mutation.
-        n_generations (int): Maximum number of generations.
+        n_offspring (int): Generation size (individuals created per iteration).
         alpha_diversity (float): Initial diversity weight in fitness calculation.
         min_diversity (float): Minimum population diversity threshold.
         diversity_change_rate (float): Rate of alpha adjustment.
-        no_improvement_threshold (int): Generations without improvement before diversification.
+        n_iterations_no_improvement (int): Max iterations without improvement.
         survivor_threshold (float): Population size multiplier for survivor selection.
         max_vehicles (int): Maximum number of vehicles (0 = unlimited).
         crossover_rate (float): Probability of crossover operation.
-        neighbor_list_size (int): Size of neighbor list for diversity calculation.
+        nb_granular (int): Granular search parameter for local search.
 
         # Ruin-and-Recreate specific parameters
         min_removal_pct (float): Minimum percentage of nodes to remove (0.0-1.0).
@@ -54,11 +54,12 @@ class HGSRRParams:
     population_size: int = 50
     elite_size: int = 10
     mutation_rate: float = 0.3
-    n_generations: int = 100
+    n_offspring: int = 40  # Generation size
+    n_generations: int = 100  # Total iterations (preserved as is)
     alpha_diversity: float = 0.5
     min_diversity: float = 0.2
     diversity_change_rate: float = 0.05
-    no_improvement_threshold: int = 20
+    no_improvement_threshold: int = 20  # Threshold for diversity/stopping
     survivor_threshold: float = 2.0
     max_vehicles: int = 0
     crossover_rate: float = 0.7
@@ -95,5 +96,7 @@ class HGSRRParams:
     score_sigma_1: float = 33.0  # New global best
     score_sigma_2: float = 9.0  # Improvement
     score_sigma_3: float = 3.0  # Accepted
+
+    seed: Optional[int] = None
 
     seed: Optional[int] = None
