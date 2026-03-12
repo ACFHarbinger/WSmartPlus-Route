@@ -28,7 +28,7 @@
 #   - Benchmark comparison against swarm intelligence methods
 # =============================================================================
 
-continuous_ls:
+cls:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters

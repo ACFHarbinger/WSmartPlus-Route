@@ -15,7 +15,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.evolution_strategy_mu_kappa_lambda import MuKappaLambdaESParams
 
 
-@PolicyRegistry.register("mu_kappa_lambda_es")
+@PolicyRegistry.register("es_mkl")
 class MuKappaLambdaESPolicy(BaseRoutingPolicy):
     """
     (μ,κ,λ) Evolution Strategy policy with age-based selection.
@@ -37,7 +37,7 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "mu_kappa_lambda_es"
+        return "es_mkl"
 
     def _run_solver(
         self,

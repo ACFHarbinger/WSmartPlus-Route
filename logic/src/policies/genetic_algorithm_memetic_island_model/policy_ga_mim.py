@@ -16,7 +16,7 @@ from .params import MemeticIslandModelGAParams
 from .solver import MemeticIslandModelGASolver
 
 
-@PolicyRegistry.register("memetic_island_ga")
+@PolicyRegistry.register("ga_mim")
 class MemeticIslandModelGAPolicy(BaseRoutingPolicy):
     """
     Memetic Island Model Genetic Algorithm policy class.
@@ -38,7 +38,7 @@ class MemeticIslandModelGAPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "memetic_island_ga"
+        return "ga_mim"
 
     def _run_solver(
         self,

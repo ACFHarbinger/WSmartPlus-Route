@@ -125,7 +125,7 @@ class GASolver(PolicyVizMixin):
 
     def _init_population(self) -> List[List[List[int]]]:
         """Initialise population with randomised NN solutions."""
-        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
         population = []
         for _ in range(self.params.pop_size):

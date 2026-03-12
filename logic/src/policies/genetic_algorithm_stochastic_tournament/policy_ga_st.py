@@ -16,7 +16,7 @@ from .params import StochasticTournamentGAParams
 from .solver import StochasticTournamentGASolver
 
 
-@PolicyRegistry.register("stochastic_tournament_ga")
+@PolicyRegistry.register("ga_st")
 class StochasticTournamentGAPolicy(BaseRoutingPolicy):
     """
     Stochastic Tournament Genetic Algorithm policy class.
@@ -38,7 +38,7 @@ class StochasticTournamentGAPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "stochastic_tournament_ga"
+        return "ga_st"
 
     def _run_solver(
         self,

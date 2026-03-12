@@ -38,7 +38,7 @@
 #   - Research into hybrid evolutionary algorithms
 # =============================================================================
 
-memetic_island_ga:
+ga_mim:
   custom:
     # ---------------------------------------------------------------------
     # Island Topology
@@ -103,7 +103,6 @@ memetic_island_ga:
     # ACO Parameters (Constructive Heuristic)
     # ---------------------------------------------------------------------
     # Used for initial population generation and diversity maintenance
-
     - aco_n_ants: 10
       # Number of ants per ACO iteration
       # Recommendation: 10 for initialization
@@ -152,7 +151,6 @@ memetic_island_ga:
     # ALNS Parameters (Local Search Improvement)
     # ---------------------------------------------------------------------
     # Applied to each island's population for memetic refinement
-
     - alns_max_iterations: 100
       # ALNS iterations per individual
       # Recommendation: 100 for balanced improvement

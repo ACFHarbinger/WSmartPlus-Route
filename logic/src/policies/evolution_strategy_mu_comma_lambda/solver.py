@@ -186,7 +186,7 @@ class MuCommaLambdaESSolver(PolicyVizMixin):
 
         Complexity: O(n²) for nearest-neighbor construction.
         """
-        from logic.src.policies.other.operators.heuristics.initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
         routes = build_nn_routes(
             nodes=self.nodes,

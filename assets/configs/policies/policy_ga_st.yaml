@@ -37,7 +37,7 @@
 #   - Benchmarking against classical evolutionary algorithms
 # =============================================================================
 
-stochastic_tournament_ga:
+ga_st:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters
