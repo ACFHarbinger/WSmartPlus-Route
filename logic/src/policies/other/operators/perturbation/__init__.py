@@ -17,15 +17,25 @@ Example:
 """
 
 from .double_bridge import double_bridge
-from .evolutionary import evolutionary_perturbation
-from .genetic_transformation import genetic_transformation
-from .kick import kick
-from .perturb import perturb
+from .evolutionary import (
+    evolutionary_perturbation,
+    evolutionary_perturbation_profit,
+)
+from .genetic_transformation import (
+    genetic_transformation,
+    genetic_transformation_profit,
+)
+from .kick import kick, kick_profit
+from .perturb import perturb, perturb_profit
 
 __all__ = [
     "perturb",
+    "perturb_profit",
     "kick",
+    "kick_profit",
     "double_bridge",
     "genetic_transformation",
+    "genetic_transformation_profit",
     "evolutionary_perturbation",
+    "evolutionary_perturbation_profit",
 ]

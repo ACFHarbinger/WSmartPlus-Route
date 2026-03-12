@@ -112,6 +112,114 @@ def evolutionary_perturbation(
     return False
 
 
+def evolutionary_perturbation_profit(
+    ls: Any,
+    target_routes: Optional[List[int]] = None,
+    pop_size: int = 10,
+    n_generations: int = 5,
+    rng: Optional[Random] = None,
+) -> bool:
+    """
+    Micro-evolutionary perturbation for profit-maximization.
+
+    Similar to evolutionary_perturbation but uses profit (Revenue - Cost)
+    as the objective function.
+
+    Args:
+        ls: LocalSearch instance.
+        target_routes: Indices of routes to evolve.
+        pop_size: Population size.
+        n_generations: Number of generations.
+        rng: Random number generator.
+
+    Returns:
+        bool: True if the evolved cluster improves over the original.
+    """
+    if rng is None:
+        rng = Random(42)
+
+    if not ls.routes:
+        return False
+
+    if target_routes is None:
+        target_routes = _select_target_routes(ls, n=2)
+
+    if not target_routes:
+        return False
+
+    # Extract the target cluster as a flat sequence
+    cluster_nodes: List[int] = []
+    for r_idx in target_routes:
+        if r_idx < len(ls.routes):
+            cluster_nodes.extend(ls.routes[r_idx])
+
+    if len(cluster_nodes) < 3:
+        return False
+
+    # Baseline profit of these routes
+    baseline_profit = _cluster_profit(ls, target_routes)
+
+    # Generate population of permutations
+    population: List[List[int]] = [list(cluster_nodes)]
+    for _ in range(pop_size - 1):
+        individual = list(cluster_nodes)
+        rng.shuffle(individual)
+        population.append(individual)
+
+    # Evolve
+    for _ in range(n_generations):
+        # Evaluate fitness (negative profit because GA rank-sorts ascending for cost)
+        fitnesses = [-_sequence_profit(ls, seq) for seq in population]
+
+        # Select top half
+        ranked = sorted(range(len(population)), key=lambda i: fitnesses[i])
+        survivors = [population[i] for i in ranked[: max(2, pop_size // 2)]]
+
+        # Create offspring via order crossover + mutation
+        population = list(survivors)
+        while len(population) < pop_size:
+            p1 = rng.choice(survivors)
+            p2 = rng.choice(survivors)
+            child = _order_crossover(p1, p2, rng)
+            _mutate_swap(child, rng, prob=0.3)
+            population.append(child)
+
+    # Find best individual
+    fitnesses = [-_sequence_profit(ls, seq) for seq in population]
+    best_idx = min(range(len(population)), key=lambda i: fitnesses[i])
+    best_seq = population[best_idx]
+    best_profit = -fitnesses[best_idx]
+
+    if best_profit > baseline_profit + 1e-4:
+        # Partition best sequence back into routes respecting original sizes
+        _apply_cluster(ls, target_routes, best_seq)
+        return True
+
+    return False
+
+
+def _cluster_profit(ls: Any, route_indices: List[int]) -> float:
+    """Compute total profit of selected routes."""
+    total_profit = 0.0
+    for r_idx in route_indices:
+        if r_idx < len(ls.routes):
+            total_profit += _sequence_profit(ls, ls.routes[r_idx])
+    return total_profit
+
+
+def _sequence_profit(ls: Any, seq: List[int]) -> float:
+    """Total profit of depot → seq → depot."""
+    if not seq:
+        return 0.0
+    dist = ls.d[0, seq[0]]
+    revenue = ls.wastes.get(seq[0], 0) * ls.R
+    for i in range(len(seq) - 1):
+        dist += ls.d[seq[i], seq[i + 1]]
+        revenue += ls.wastes.get(seq[i + 1], 0) * ls.R
+    dist += ls.d[seq[-1], 0]
+    return float(revenue - dist * ls.C)
+
+
 def _select_target_routes(ls: Any, n: int = 2) -> List[int]:
     """Select the n smallest non-empty routes as targets."""
     route_sizes = [(i, len(r)) for i, r in enumerate(ls.routes) if r]
