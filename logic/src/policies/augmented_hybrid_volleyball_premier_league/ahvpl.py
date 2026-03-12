@@ -153,9 +153,9 @@ class AHVPLSolver(PolicyVizMixin):
             # 1. Bi-criteria fitness for parent selection
             update_biased_fitness(
                 population,
-                self.params.hgs_params.elite_size,
+                self.params.hgs_params.nb_elite,
                 current_alpha,
-                self.params.hgs_params.neighbor_list_size,
+                self.params.hgs_params.nb_granular,
             )
 
             # 2. HGS Crossover — generate children (cheap)
@@ -181,7 +181,7 @@ class AHVPLSolver(PolicyVizMixin):
                 if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                     break
 
-                if i < self.params.hgs_params.elite_size:
+                if i < self.params.hgs_params.nb_elite:
                     # ULTRA REFINEMENT: pushes routing efficiency to the max
                     iters = self.params.elite_alns_iterations
                 elif not ind.is_coached:
@@ -197,7 +197,7 @@ class AHVPLSolver(PolicyVizMixin):
                 population,
                 self.params.n_teams,
                 current_alpha,
-                self.params.hgs_params.neighbor_list_size,
+                self.params.hgs_params.nb_granular,
             )
             population.sort(key=lambda x: x.fitness)
             population = population[: self.params.n_teams]
@@ -222,9 +222,9 @@ class AHVPLSolver(PolicyVizMixin):
             # Adaptive alpha diversity
             # Calculate current population diversity
             avg_dist = np.mean([ind.dist_to_parents for ind in population])
-            if avg_dist < self.params.hgs_params.min_diversity_threshold:
+            if avg_dist < self.params.hgs_params.min_diversity:
                 current_alpha = min(1.0, current_alpha + self.params.hgs_params.diversity_change_rate)
-            elif _iteration - last_improvement_it > self.params.hgs_params.no_improvement_threshold:
+            elif _iteration - last_improvement_it > self.params.hgs_params.n_iterations_no_improvement:
                 current_alpha = max(0.0, current_alpha - self.params.hgs_params.diversity_change_rate)
 
             # 7. Pheromone Update — ACO global guidance based on best cost

@@ -73,7 +73,7 @@ class HGSALNSSolver(HGSSolver):
         population: List[Individual] = []
 
         # 1. Initial Population
-        for _ in range(self.hgs_alns_params.hgs_params.population_size):
+        for _ in range(self.hgs_alns_params.hgs_params.mu):
             gt = self.nodes[:]
             self.random.shuffle(gt)
             ind = Individual(gt)
@@ -83,9 +83,9 @@ class HGSALNSSolver(HGSSolver):
         current_alpha = self.hgs_alns_params.hgs_params.alpha_diversity
         update_biased_fitness(
             population,
-            self.hgs_alns_params.hgs_params.elite_size,
+            self.hgs_alns_params.hgs_params.nb_elite,
             current_alpha,
-            self.hgs_alns_params.hgs_params.neighbor_list_size,
+            self.hgs_alns_params.hgs_params.nb_granular,
         )
 
         start_time = time.process_time()
@@ -140,9 +140,9 @@ class HGSALNSSolver(HGSSolver):
             # Adaptive alpha diversity
             # Calculate current population diversity
             avg_dist = np.mean([ind.dist_to_parents for ind in population])
-            if avg_dist < self.hgs_alns_params.hgs_params.min_diversity_threshold:
+            if avg_dist < self.hgs_alns_params.hgs_params.min_diversity:
                 current_alpha = min(1.0, current_alpha + self.hgs_alns_params.hgs_params.diversity_change_rate)
-            elif it - last_improvement_it > self.hgs_alns_params.hgs_params.no_improvement_threshold:
+            elif it - last_improvement_it > self.hgs_alns_params.hgs_params.n_iterations_no_improvement:
                 current_alpha = max(0.0, current_alpha - self.hgs_alns_params.hgs_params.diversity_change_rate)
 
             self._viz_record(
@@ -155,21 +155,21 @@ class HGSALNSSolver(HGSSolver):
             )
 
             # 4. Survivor Selection
-            if len(population) > self.hgs_alns_params.hgs_params.population_size * 2:
+            if len(population) > self.hgs_alns_params.hgs_params.mu * 2:
                 update_biased_fitness(
                     population,
-                    self.hgs_alns_params.hgs_params.elite_size,
+                    self.hgs_alns_params.hgs_params.nb_elite,
                     current_alpha,
-                    self.hgs_alns_params.hgs_params.neighbor_list_size,
+                    self.hgs_alns_params.hgs_params.nb_granular,
                 )
                 population.sort(key=lambda x: x.fitness)
-                population = population[: self.hgs_alns_params.hgs_params.population_size]
+                population = population[: self.hgs_alns_params.hgs_params.mu]
 
         update_biased_fitness(
             population,
-            self.hgs_alns_params.hgs_params.elite_size,
+            self.hgs_alns_params.hgs_params.nb_elite,
             current_alpha,
-            self.hgs_alns_params.hgs_params.neighbor_list_size,
+            self.hgs_alns_params.hgs_params.nb_granular,
         )
         best_ind = min(population, key=lambda x: -x.profit_score)
 

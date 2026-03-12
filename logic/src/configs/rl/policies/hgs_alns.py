@@ -11,8 +11,8 @@ class HGSALNSConfig:
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.
-        population_size: Size of the genetic population.
-        elite_size: Number of elite individuals to preserve.
+        mu: Size of the genetic population.
+        nb_elite: Number of elite individuals to preserve.
         mutation_rate: Probability of mutation.
         alns_education_iterations: Number of ALNS iterations for education phase.
         n_generations: Number of generations to evolve.
@@ -23,8 +23,8 @@ class HGSALNSConfig:
     """
 
     time_limit: float = 60.0
-    population_size: int = 50
-    elite_size: int = 10
+    mu: int = 50
+    nb_elite: int = 10
     mutation_rate: float = 0.2
     alns_education_iterations: int = 50
     n_generations: int = 100
