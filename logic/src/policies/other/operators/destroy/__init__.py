@@ -19,7 +19,16 @@ Example:
     >>> routes, removed = route_profit_removal(routes, dist_matrix=d, wastes=w, R=1.0, C=1.0)
 """
 
-from ..unstringing_stringing import apply_type_i_us, apply_type_ii_us, apply_type_iii_us, apply_type_iv_us
+from ..unstringing_stringing import (
+    apply_type_i_us,
+    apply_type_i_us_profit,
+    apply_type_ii_us,
+    apply_type_ii_us_profit,
+    apply_type_iii_us,
+    apply_type_iii_us_profit,
+    apply_type_iv_us,
+    apply_type_iv_us_profit,
+)
 from .cluster import cluster_profit_removal, cluster_removal
 from .historical import historical_profit_removal, historical_removal
 from .neighbor import neighbor_profit_removal, neighbor_removal
@@ -55,4 +64,8 @@ __all__ = [
     "apply_type_ii_us",
     "apply_type_iii_us",
     "apply_type_iv_us",
+    "apply_type_i_us_profit",
+    "apply_type_ii_us_profit",
+    "apply_type_iii_us_profit",
+    "apply_type_iv_us_profit",
 ]

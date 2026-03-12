@@ -5,7 +5,9 @@ Inserts node V_x back into the route and reconnects by reversing two sub-tours.
 This is the inverse operation of Type I Unstringing.
 """
 
-from typing import List
+from typing import Dict, List, Tuple
+
+import numpy as np
 
 
 def apply_type_i_s(route: List[int], x: int, i: int, j: int, k: int) -> List[int]:
@@ -85,3 +87,68 @@ def apply_type_i_s(route: List[int], x: int, i: int, j: int, k: int) -> List[int
         final_route.append(final_route[0])
 
     return final_route
+
+
+def apply_type_i_s_profit(
+    route: List[int],
+    x: int,
+    i: int,
+    j: int,
+    k: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+) -> Tuple[List[int], float]:
+    """
+    Apply Type I Stringing and return profit delta.
+
+    Args:
+        route: The tour as a list of node IDs.
+        x: Node ID to insert.
+        i, j, k: Indices as defined in apply_type_i_s.
+        dist_matrix: Distance matrix.
+        wastes: Waste levels.
+        capacity: Vehicle capacity (to check feasibility).
+        R, C: Revenue and cost multipliers.
+
+    Returns:
+        (new_route, delta_profit)
+    """
+    n = len(route)
+    is_closed = n > 1 and route[0] == route[-1]
+    work_route = route[:-1] if is_closed else route[:]
+    n_work = len(work_route)
+
+    # Identifiers
+    v_i = work_route[i]
+    v_ip1 = work_route[(i + 1) % n_work]
+    v_j = work_route[j]
+    v_jp1 = work_route[(j + 1) % n_work]
+    v_k = work_route[k]
+    v_kp1 = work_route[(k + 1) % n_work]
+
+    # Constraints
+    if v_k in (v_i, v_j):
+        return route, -float("inf")
+
+    # Feasibility check
+    node_waste = wastes.get(x, 0.0)
+    current_load = sum(wastes.get(n, 0.0) for n in work_route)
+    if current_load + node_waste > capacity:
+        return route, -float("inf")
+
+    # Delta Cost
+    # Deletes: (V_i, V_{i+1}), (V_j, V_{j+1}), (V_k, V_{k+1})
+    # Inserts: (V_i, V_x), (V_x, V_j), (V_{i+1}, V_k), (V_{j+1}, V_{k+1})
+    d_del = dist_matrix[v_i, v_ip1] + dist_matrix[v_j, v_jp1] + dist_matrix[v_k, v_kp1]
+    d_ins = dist_matrix[v_i, x] + dist_matrix[x, v_j] + dist_matrix[v_ip1, v_k] + dist_matrix[v_jp1, v_kp1]
+    delta_cost = d_ins - d_del
+
+    # Delta Revenue
+    delta_rev = node_waste * R
+
+    delta_profit = delta_rev - delta_cost * C
+
+    return apply_type_i_s(route, x, i, j, k), float(delta_profit)

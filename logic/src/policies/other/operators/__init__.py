@@ -108,13 +108,21 @@ from .repair import (
 # Unstringing and stringing (US)
 from .unstringing_stringing import (
     apply_type_i_s,
+    apply_type_i_s_profit,
     apply_type_i_us,
+    apply_type_i_us_profit,
     apply_type_ii_s,
+    apply_type_ii_s_profit,
     apply_type_ii_us,
+    apply_type_ii_us_profit,
     apply_type_iii_s,
+    apply_type_iii_s_profit,
     apply_type_iii_us,
+    apply_type_iii_us_profit,
     apply_type_iv_s,
+    apply_type_iv_s_profit,
     apply_type_iv_us,
+    apply_type_iv_us_profit,
 )
 
 __all__ = [
@@ -185,13 +193,21 @@ __all__ = [
     "evolutionary_perturbation_profit",
     # Unstringing and stringing (US)
     "apply_type_i_us",
+    "apply_type_i_us_profit",
     "apply_type_ii_us",
+    "apply_type_ii_us_profit",
     "apply_type_iii_us",
+    "apply_type_iii_us_profit",
     "apply_type_iv_us",
+    "apply_type_iv_us_profit",
     "apply_type_i_s",
+    "apply_type_i_s_profit",
     "apply_type_ii_s",
+    "apply_type_ii_s_profit",
     "apply_type_iii_s",
+    "apply_type_iii_s_profit",
     "apply_type_iv_s",
+    "apply_type_iv_s_profit",
     # Heuristics
     "build_greedy_routes",
     "build_nn_routes",
