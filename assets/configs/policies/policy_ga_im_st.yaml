@@ -1,0 +1,94 @@
+# Policy Configuration
+
+# =============================================================================
+# IMGA-ST (Island Model Genetic Algorithm with Stochastic Tournaments)
+# =============================================================================
+# PURPOSE:
+#   Mathematically rigorous multi-population genetic algorithm that replaces
+#   metaphor-based sports algorithms (VPL, SLC). It features parallel sub-
+#   populations (islands), migration between islands, and stochastic
+#   tournament selection for robust global optimization.
+#
+# ALGORITHM:
+#   1. Initialize K islands with N individuals each.
+#   2. Local Improvement: Apply profit-based greedy insertion/ALNS refinement.
+#   3. Selection: Stochastic tournament with sigmoid win probability.
+#   4. Recombination: Ordered crossover (OX) on giant tours.
+#   5. Mutation: Random node removal for exploration.
+#   6. Migration: Ring topology elite exchange between sub-populations.
+#
+# KEY FEATURES:
+#   - Island Model prevents premature convergence through genetic isolation.
+#   - Stochastic Tournament allows controllable selection pressure (beta).
+#   - Ring Migration maintains global diversity reservoir.
+#   - ALNS intensification ensures strong local performance.
+#
+# REFERENCE:
+#   Whitley, D. (1998). "The island model genetic algorithm."
+#   Goldberg, D. E., & Deb, K. (1991). "A comparative analysis of selection schemes."
+# =============================================================================
+
+ga_im_st:
+  custom:
+    # ---------------------------------------------------------------------
+    # Population Structure
+    # ---------------------------------------------------------------------
+    - n_islands: 4
+      # Number of independent sub-populations.
+      # Range: 2-8 (4 = balanced, 8 = high diversity)
+
+    - island_size: 10
+      # Number of individuals per island.
+      # Range: 5-20 (10 = standard)
+
+    - max_generations: 100
+      # Total number of evolution cycles.
+      # Range: 50-200 (100 = production)
+
+    # ---------------------------------------------------------------------
+    # Migration (Diversity exchange)
+    # ---------------------------------------------------------------------
+    - migration_interval: 10
+      # Generations between migration events.
+      # Range: 5-20 (10 = standard)
+
+    - migration_size: 2
+      # Number of best solutions to migrate between islands.
+
+    # ---------------------------------------------------------------------
+    # Selection (Exploitation)
+    # ---------------------------------------------------------------------
+    - tournament_size: 2
+      # Participants in each tournament.
+
+    - selection_pressure: 0.5
+      # Beta for sigmoid win prob: P = 1/(1+exp(-beta * delta_f)).
+      # Range: 0.1-1.0 (0.5 = moderate pressure)
+
+    # ---------------------------------------------------------------------
+    # Evolution (Reproduction)
+    # ---------------------------------------------------------------------
+    - crossover_rate: 0.8
+      # Probability of applying recombination.
+
+    - mutation_rate: 0.2
+      # Probability of random perturbation.
+
+    - alns_iterations: 50
+      # Local search iterations per individual per generation.
+
+    - elitism_size: 2
+      # Best solutions preserved in each island.
+
+    # ---------------------------------------------------------------------
+    # Global Parameters
+    # ---------------------------------------------------------------------
+    - time_limit: 300.0
+    - seed: null
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - engine: "custom"
+    - must_go: ["other/mg_lookahead.yaml"]
+    - post_processing: []

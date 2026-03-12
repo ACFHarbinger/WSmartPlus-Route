@@ -43,6 +43,7 @@ class PolicyFactory:
         import logic.src.policies.fast_iterative_localized_optimization.policy_filo as policy_filo  # noqa
         import logic.src.policies.firefly_algorithm.policy_fa as policy_fa  # noqa
         import logic.src.policies.genetic_algorithm.policy_ga as policy_ga  # noqa
+        import logic.src.policies.genetic_algorithm_island_model_stochastic_tournaments.policy_ga_im_st as policy_ga_im_st  # noqa
         import logic.src.policies.genetic_algorithm_memetic_island_model.policy_ga_mim as policy_ga_mim  # noqa
         import logic.src.policies.genetic_algorithm_pure_island_model.policy_ga_pim as policy_ga_pim  # noqa
         import logic.src.policies.genetic_algorithm_stochastic_tournament.policy_ga_st as policy_ga_st  # noqa
@@ -79,6 +80,7 @@ class PolicyFactory:
         import logic.src.policies.travelling_salesman_problem.policy_tsp as policy_tsp  # noqa
         import logic.src.policies.variable_neighborhood_search.policy_vns as policy_vns  # noqa
         import logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp as policy_vrpp  # noqa
+        import logic.src.policies.volleyball_premier_league.policy_vpl as policy_vpl  # noqa
 
         cls._registered = True
 

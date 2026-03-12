@@ -4,160 +4,188 @@
 # HVPL (Hybrid Volleyball Premier League) Policy Configuration
 # =============================================================================
 # PURPOSE:
-#   Population-based metaheuristic inspired by the Volleyball Premier League
-#   competition structure. Combines ACO for intelligent initialization with
-#   ALNS for deep local search (coaching), and a league-style population
-#   management system for balanced exploration/exploitation.
+#   Advanced hybrid metaheuristic integrating three optimization paradigms:
+#   ACO (intelligent initialization), VPL + HGS (population evolution with
+#   genetic operators), and ALNS (deep local search refinement). Addresses
+#   the original VPL's convergence issues through dynamic genetic operators.
 #
 # ALGORITHM:
-#   1. Initialization: ACO constructs diverse initial solutions (teams)
-#   2. Coaching: ALNS applies destroy-repair operators to improve each team
-#   3. League Play: Population-level competition and ranking
-#   4. Substitution: Replace weakest teams with fresh ACO solutions
-#   5. Pheromone Update: Reinforce edges from best solutions
+#   Phase 1: ACO Initialization (50 iterations)
+#     - Pheromone-guided construction for diverse high-quality population
+#     - Builds both active and passive team reserves
+#
+#   Phase 2: VPL + HGS Evolution (100 iterations)
+#     - Tournament selection (k=3) from active teams
+#     - Order-crossover (OX) for route combination (80% rate)
+#     - Destroy-repair mutation (10% rate)
+#     - Elitist selection preserving top solutions
+#     - Substitution from passive teams (20% rate)
+#
+#   Phase 3: ALNS Coaching (100 iterations per team)
+#     - Adaptive destroy-repair operators
+#     - Simulated annealing acceptance
+#     - Deep local search refinement
+#
+#   Pheromone Update: Global best reinforces ACO guidance
 #
 # KEY FEATURES:
-#   - ACO-driven initialization provides diversity
-#   - ALNS coaching for intensive local search
-#   - Population management balances exploration/exploitation
-#   - Pheromone feedback connects ACO and population evolution
+#   - ACO provides intelligent diverse initialization (not random)
+#   - HGS genetic operators replace deterministic VPL coaching
+#   - ALNS provides intensive local refinement
+#   - Pheromone feedback loop connects all three phases
+#   - Dual population (active + passive) for diversity reservoir
 #
 # TYPICAL USE CASES:
-#   - Medium-to-large instances (50-200 nodes)
-#   - Production routing with 60s time budget
-#   - When both ACO diversity and ALNS depth are needed
+#   - Large challenging instances (100-300 nodes)
+#   - Production routing with 300s+ time budget
+#   - When maximum solution quality is required
+#   - State-of-the-art benchmarking
 #
 # PERFORMANCE EXPECTATIONS:
-#   - Competitive with pure ALNS and HGS
-#   - Better diversity than pure ALNS due to ACO initialization
-#   - Diminishing returns beyond 120s time budget
+#   - Superior to original VPL due to HGS diversity management
+#   - Better exploration than pure ALNS due to ACO + population
+#   - Deeper exploitation than pure ACO due to ALNS coaching
+#   - Best results with 300-600s time budget
+#
+# REFERENCE:
+#   Sun, S., Ma, L., Liu, Y., & Wang, L. (2023). "Volleyball premier league
+#   algorithm with ACO and ALNS for simultaneous pickup–delivery location
+#   routing problem."
 # =============================================================================
 
 hvpl:
   custom:
     # ---------------------------------------------------------------------
-    # VPL League Parameters
+    # VPL Population Parameters
     # ---------------------------------------------------------------------
-    - n_teams: 10
-      # Number of solutions (teams) in the league population
-      # Range: 5-20 (5 = fast, 10 = balanced, 20 = thorough)
-      # Larger populations → better diversity but slower iterations
+    - n_teams: 30
+      # Number of active teams (plus N passive reserves)
+      # Range: 10-50 (10 = fast, 30 = balanced, 50 = thorough)
 
-    - max_iterations: 50
-      # Number of league seasons (main loop iterations)
-      # Range: 20-100 (20 = quick, 50 = balanced, 100 = deep)
-      # Usually time_limit is reached first
+    - max_iterations: 100
+      # Number of VPL evolution cycles
+      # Range: 50-200 (50 = quick, 100 = balanced, 200 = deep)
 
-    - sub_rate: 0.2
+    - substitution_rate: 0.2
       # Fraction of weakest teams replaced per iteration
-      # Range: 0.1-0.5 (0.1 = conservative, 0.3 = aggressive turnover)
-      # Higher values → more diversity but risk losing good solutions
-
-    - time_limit: 60
-      # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (30s = quick, 60s = production, 300s = benchmark)
+      # Range: 0.1-0.5 (0.2 = balanced)
 
     # ---------------------------------------------------------------------
-    # ACO Parameters (Initialization & Substitution)
+    # HGS Evolution Parameters
     # ---------------------------------------------------------------------
-    - aco_n_ants: 10
-      # Number of ants for solution construction
-      # Range: 5-30 (10 = balanced for initialization phase)
+    - crossover_rate: 0.8
+      # Probability of OX crossover per generation
+      # Range: 0.5-1.0 (0.8 = balanced)
 
-    - aco_k_sparse: 10
-      # Number of nearest neighbors in sparse ACO graph
-      # Range: 5-20
+    - mutation_rate: 0.1
+      # Probability of mutation after crossover
+      # Range: 0.05-0.3 (0.1 = light)
 
-    - aco_alpha: 1.0
-      # Weight of pheromone in path selection
-      # Range: 0.0-5.0 (1.0 = balanced)
-
-    - aco_beta: 2.0
-      # Weight of heuristic information in path selection
-      # Range: 0.0-5.0 (2.0 = balanced)
-
-    - aco_rho: 0.1
-      # Pheromone evaporation rate
-      # Range: 0.05-0.3
-
-    - aco_q0: 0.9
-      # Probability of choosing the best edge in path selection
-      # Range: 0.0-1.0 (0.9 = balanced)
-
-    - aco_tau_0: 0.1
-      # Initial pheromone level
-      # Range: 0.001-1.0 (0.1 = balanced)
-
-    - aco_tau_min: 0.001
-      # Minimum pheromone level
-      # Range: 0.0001-0.1 (0.001 = balanced)
-
-    - aco_tau_max: 10.0
-      # Maximum pheromone level
-      # Range: 1.0-100.0 (10.0 = balanced)
-
-    - aco_iterations: 1
-      # ACO iterations per construction call
-      # Range: 1-5 (1 = single pass, used for fast initialization)
-
-    - aco_local_search: False
-      # Whether to perform local search within ACO
-      # Range: True/False (False = use ALNS for local search)
-
-    - aco_local_search_iterations: 0
-      # Number of local search iterations per ACO construction
-      # Range: 0-100 (0 = no local search)
-
-    - aco_elitist_weight: 1.0
-      # Weight of elitist ant in pheromone update
-      # Range: 0.0-5.0 (1.0 = balanced)
-
-    - aco_time_limit: 30
-      # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (60s = production, 120s = thorough)
+    - elite_size: 3
+      # Number of elite teams preserved
+      # Range: 1-10 (3 = minimum)
 
     # ---------------------------------------------------------------------
-    # ALNS Parameters (Coaching Phase)
+    # Integration Parameters
     # ---------------------------------------------------------------------
+    - aco_init_iterations: 50
+      # ACO iterations for Phase 1 initialization
+      # Range: 20-100 (50 = balanced)
+
     - alns_iterations: 100
-      # Number of destroy-repair cycles per coaching session
-      # Range: 50-500 (50 = light, 100 = balanced, 500 = deep)
+      # ALNS iterations per Phase 3 coaching
+      # Range: 50-500 (100 = balanced)
 
-    - alns_start_temp: 100.0
-      # Initial simulated annealing temperature
-      # Range: 50-500
+    # ---------------------------------------------------------------------
+    # Global Parameters
+    # ---------------------------------------------------------------------
+    - time_limit: 300
+      # Maximum wall-clock seconds
+      # Range: 60-600 (300s = production)
 
-    - alns_cooling_rate: 0.95
-      # Temperature decay per iteration
-      # Range: 0.90-0.99
+    - seed: null
+      # Random seed (null = random)
 
-    - alns_reaction_factor: 0.5
-      # Weight of reaction factor in simulated annealing
-      # Range: 0.1-2.0 (0.5 = balanced)
+    # ---------------------------------------------------------------------
+    # ACO Nested Configuration (Initialization)
+    # ---------------------------------------------------------------------
+    - aco:
+        n_ants: 20
+        # Number of ants for construction (Range: 10-50)
 
-    - alns_min_removal: 1
-      # Minimum number of nodes to remove in destroy phase
-      # Range: 1-10
+        k_sparse: 10
+        # Nearest neighbors in sparse graph (Range: 5-20)
 
-    - alns_max_removal_pct: 0.2
-      # Maximum fraction of nodes to remove in destroy phase
-      # Range: 0.1-0.4
+        alpha: 1.0
+        # Pheromone weight (Range: 0.5-2.0)
 
-    - alns_time_limit: 60
-      # Maximum wall-clock seconds for the full algorithm
-      # Range: 30-300 (60s = production, 120s = thorough)
+        beta: 2.0
+        # Heuristic weight (Range: 1.0-5.0)
+
+        rho: 0.1
+        # Evaporation rate (Range: 0.05-0.3)
+
+        q0: 0.9
+        # Exploitation probability (Range: 0.7-0.95)
+
+        tau_0: 1.0
+        # Initial pheromone (Range: 0.01-1.0)
+
+        tau_min: 0.001
+        # Minimum pheromone (Range: 0.0001-0.01)
+
+        tau_max: 10.0
+        # Maximum pheromone (Range: 1.0-100.0)
+
+        max_iterations: 1
+        # ACO iterations per construction (Range: 1-5)
+
+        local_search: False
+        # Local search in ACO (ALNS handles local search)
+
+        local_search_iterations: 0
+        # Local search iterations (Range: 0-500)
+
+        elitist_weight: 1.0
+        # Elitist ant weight (Range: 0.5-2.0)
+
+        time_limit: 60.0
+        # ACO time limit in seconds (Range: 30-300)
+
+    # ---------------------------------------------------------------------
+    # ALNS Nested Configuration (Coaching)
+    # ---------------------------------------------------------------------
+    - alns:
+        max_iterations: 100
+        # Number of destroy-repair cycles (Range: 50-500)
+
+        start_temp: 100.0
+        # Initial SA temperature (Range: 50-500)
+
+        cooling_rate: 0.95
+        # Temperature decay per iteration (Range: 0.90-0.99)
+
+        reaction_factor: 0.1
+        # Weight update reaction factor (Range: 0.05-0.3)
+
+        min_removal: 1
+        # Minimum nodes removed (Range: 1-10)
+
+        max_removal_pct: 0.3
+        # Maximum removal fraction (Range: 0.1-0.4)
+
+        time_limit: 60.0
+        # ALNS time limit in seconds (Range: 30-300)
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/hybrid_volleyball_premier_league/
+      # Backend: logic/src/policies/hybrid_volleyball_premier_league/
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # Node selection strategy
 
     - post_processing: []
-      # ALNS coaching provides comprehensive local search
-      # Empty = use HVPL output directly
+      # Post-processing (empty = use HVPL output directly)
 # =============================================================================
