@@ -1,0 +1,160 @@
+# Distance-Based Particle Swarm Optimization Policy Configuration
+
+# =============================================================================
+# Distance-Based PSO Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Standard Particle Swarm Optimization with distance-dependent attraction
+#   weights. Particles are attracted to global best with exponentially
+#   decaying influence based on solution distance (Hamming distance).
+#
+# ALGORITHM:
+#   1. Initialize swarm of particles (routing solutions)
+#   2. For each iteration:
+#      a. Evaluate fitness of all particles
+#      b. Update global best
+#      c. For each particle:
+#         - With probability α: perform random walk (exploration)
+#         - Otherwise: move toward global best with distance-based attraction
+#      d. Apply local search improvement
+#
+# PERFORMANCE:
+#   Effective for continuous-relaxation problems adapted to discrete routing.
+#   Distance-based attraction prevents premature convergence. Competitive
+#   with other swarm intelligence methods for medium-sized instances.
+#
+# REFERENCE:
+#   Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
+#   Proceedings of ICNN'95 - International Conference on Neural Networks.
+#
+# NOTE:
+#   Originally marketed as "Firefly Algorithm" using bioluminescence metaphors.
+#   This is fundamentally distance-based PSO with exponential decay.
+#
+# TYPICAL USE CASES:
+#   - Medium routing instances (50-150 nodes)
+#   - Problems with smooth fitness landscapes
+#   - Benchmarking against swarm intelligence methods
+# =============================================================================
+
+distance_pso:
+  custom:
+    # ---------------------------------------------------------------------
+    # Swarm Parameters
+    # ---------------------------------------------------------------------
+    - population_size: 20
+      # Number of particles in swarm
+      # Range: 10-50
+      # Recommendation: 20 for balanced exploration/exploitation
+
+    # ---------------------------------------------------------------------
+    # Attraction Parameters
+    # ---------------------------------------------------------------------
+    - initial_attraction: 1.0
+      # Initial global best attraction coefficient (β₀ in PSO literature)
+      # Range: 0.5-2.0
+      # Recommendation: 1.0 (standard setting)
+      # Higher values increase convergence speed
+
+    - distance_decay: 0.01
+      # Exponential decay coefficient for distance-based attraction (γ)
+      # Range: 0.001-0.1
+      # Recommendation: 0.01 for moderate decay
+      # Attraction weight: β(d) = β₀ × exp(-γ × d²)
+      # where d = Hamming distance between solutions
+
+    - exploration_rate: 0.1
+      # Probability of random walk instead of global best attraction (α)
+      # Range: 0.05-0.3
+      # Recommendation: 0.1 for balanced exploration
+      # Higher values increase diversity but slow convergence
+
+    # ---------------------------------------------------------------------
+    # Perturbation Parameters
+    # ---------------------------------------------------------------------
+    - n_removal: 3
+      # Number of nodes to remove during perturbation operators
+      # Range: 1-10
+      # Recommendation: 3 for moderate perturbation strength
+
+    # ---------------------------------------------------------------------
+    # Local Search Parameters
+    # ---------------------------------------------------------------------
+    - local_search_iterations: 100
+      # Number of local search improvement steps
+      # Range: 50-200
+      # Recommendation: 100 for balanced improvement
+
+    # ---------------------------------------------------------------------
+    # Scoring Weights (for Guided Insertion)
+    # ---------------------------------------------------------------------
+    - alpha_profit: 1.0
+      # Weight for profit term in attraction scoring
+      # Range: 0.0-2.0
+      # Recommendation: 1.0 (standard weight)
+
+    - beta_will: 0.5
+      # Weight for willingness (fill level) term in attraction scoring
+      # Range: 0.0-2.0
+      # Recommendation: 0.5 for moderate influence
+
+    - gamma_cost: 0.3
+      # Weight for insertion cost penalty in attraction scoring
+      # Range: 0.0-2.0
+      # Recommendation: 0.3 for cost consideration
+
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
+    - max_iterations: 500
+      # Maximum number of PSO iterations
+      # Range: 100-1000
+      # Recommendation: 500 for production
+
+    - time_limit: 60.0
+      # Maximum wall-clock seconds for optimization
+      # Range: 10-600 (0 = unlimited)
+      # Recommendation: 60s for production
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - engine: "custom"
+      # Execution backend: logic/src/policies/particle_swarm_optimization_distance/
+
+    - must_go: ["other/mg_lookahead.yaml"]
+      # Node selection strategy for waste collection problems
+      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # See: docs/MUST_GO_STRATEGIES.md
+
+    - post_processing: []
+      # Route refinement heuristics applied after optimization
+      # Empty list = use raw output
+      # Options: ["2opt_intra", "relocate", "swap"]
+
+# =============================================================================
+# MATHEMATICAL FOUNDATION
+# =============================================================================
+# Distance-Based Attraction:
+#   β(d) = β₀ × exp(-γ × d²)
+#   where:
+#     β₀ = initial_attraction
+#     γ = distance_decay
+#     d = Hamming distance between particle and global best
+#
+# Particle Update:
+#   With probability α (exploration_rate):
+#     x'[i] = RandomWalk(x[i])
+#   Otherwise (exploitation):
+#     x'[i] = MoveToward(x[i], x_gbest, β(d))
+#
+# Complexity:
+#   - Space: O(pop_size × n) for swarm storage
+#   - Time per iteration: O(pop_size² × n²) for pairwise distance evaluation
+#
+# Interpretation of "Firefly Algorithm" Metaphor:
+#   - "Light intensity" → Global best attraction strength
+#   - "Attractiveness" → Distance-based weight β(d)
+#   - "Absorption coefficient" → Distance decay parameter γ
+#   - "Firefly movement" → Particle position update
+# =============================================================================

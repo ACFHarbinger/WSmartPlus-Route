@@ -1,0 +1,123 @@
+# (μ,λ) Evolution Strategy Policy Configuration
+
+# =============================================================================
+# (μ,λ) Evolution Strategy Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Canonical evolution strategy maintaining μ parent solutions and generating
+#   λ offspring per iteration. Combines local search, probabilistic selection,
+#   and random restarts for robust optimization.
+#
+# ALGORITHM:
+#   1. Local Search Phase: Each parent generates offspring via localized mutation
+#   2. Probabilistic Selection Phase: Offspring compete via fitness-proportional selection
+#   3. Random Restart Phase: Stagnant solutions are replaced with new random samples
+#   4. Non-elitist replacement: Best μ offspring become next generation parents
+#
+# PERFORMANCE:
+#   Effective for multimodal landscapes. Random restart mechanism prevents
+#   premature convergence. Standard choice for evolutionary computation.
+#
+# REFERENCE:
+#   Beyer, H. G., & Schwefel, H. P. (2002). "Evolution strategies–A comprehensive
+#   introduction." Natural Computing, 1(1), 3-52.
+#
+# NOTE:
+#   Originally mislabeled as "Artificial Bee Colony" due to superficial metaphor.
+#   This is fundamentally a (μ,λ)-ES with stochastic restart mechanism.
+#
+# TYPICAL USE CASES:
+#   - Medium to large routing instances (50-200 nodes)
+#   - Problems requiring exploration of multiple local optima
+#   - Benchmarking against standard evolutionary algorithms
+# =============================================================================
+
+mu_comma_lambda_es:
+  custom:
+    # ---------------------------------------------------------------------
+    # Population Parameters (μ,λ)
+    # ---------------------------------------------------------------------
+    - population_size: 20
+      # Number of parent solutions (μ parameter)
+      # Range: 10-50
+      # Recommendation: 20 for balanced search
+
+    - offspring_per_parent: 1
+      # Number of offspring per parent (λ = μ × offspring_per_parent)
+      # Range: 1-5
+      # Recommendation: 1 (λ = μ configuration)
+      # Note: λ > μ increases selection pressure
+
+    # ---------------------------------------------------------------------
+    # Mutation Parameters
+    # ---------------------------------------------------------------------
+    - n_removal: 3
+      # Perturbation strength (number of nodes removed during mutation)
+      # Range: 1-10
+      # Recommendation: 3 for moderate perturbation
+
+    # ---------------------------------------------------------------------
+    # Restart Mechanism
+    # ---------------------------------------------------------------------
+    - stagnation_limit: 10
+      # Random restart threshold for solutions without improvement
+      # Range: 5-50
+      # Recommendation: 10 iterations
+      # Solutions stuck for stagnation_limit iterations are replaced
+
+    # ---------------------------------------------------------------------
+    # Local Search Parameters
+    # ---------------------------------------------------------------------
+    - local_search_iterations: 100
+      # Number of local search improvement steps per offspring
+      # Range: 50-200
+      # Recommendation: 100 for balanced improvement
+
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
+    - max_iterations: 500
+      # Maximum number of evolution cycles
+      # Range: 100-1000
+      # Recommendation: 500 for production
+
+    - time_limit: 60.0
+      # Maximum wall-clock seconds for optimization
+      # Range: 10-600 (0 = unlimited)
+      # Recommendation: 60s for production
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - engine: "custom"
+      # Execution backend: logic/src/policies/evolution_strategy_mu_comma_lambda/
+
+    - must_go: ["other/mg_lookahead.yaml"]
+      # Node selection strategy for waste collection problems
+      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # See: docs/MUST_GO_STRATEGIES.md
+
+    - post_processing: []
+      # Route refinement heuristics applied after optimization
+      # Empty list = use raw output
+      # Options: ["2opt_intra", "relocate", "swap"]
+
+# =============================================================================
+# ALGORITHM STRUCTURE
+# =============================================================================
+# Each iteration:
+#   1. Generate λ offspring from μ parents (λ ≥ μ)
+#   2. Apply mutation operator to each offspring
+#   3. Perform local search improvement
+#   4. Select best μ from offspring (non-elitist: parents discarded)
+#   5. Restart stagnant solutions after limit iterations without improvement
+#
+# Complexity:
+#   - Space: O(μ × n) for parent storage + O(λ × n) for offspring
+#   - Time per iteration: O(λ × n²) for offspring generation and evaluation
+#
+# Interpretation of "Bee Colony" Metaphor:
+#   - "Employed bees" → Local search agents (exploitation)
+#   - "Onlooker bees" → Probabilistic selection mechanism
+#   - "Scout bees" → Random restart mechanism (exploration)
+# =============================================================================
