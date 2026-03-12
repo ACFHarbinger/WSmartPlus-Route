@@ -81,9 +81,13 @@ from .intra_route import (
 from .perturbation import (
     double_bridge,
     evolutionary_perturbation,
+    evolutionary_perturbation_profit,
     genetic_transformation,
+    genetic_transformation_profit,
     kick,
+    kick_profit,
     perturb,
+    perturb_profit,
 )
 
 # Repair operators
@@ -171,10 +175,14 @@ __all__ = [
     "exchange_k_h",
     # Perturbation
     "perturb",
+    "perturb_profit",
     "kick",
+    "kick_profit",
     "double_bridge",
     "genetic_transformation",
+    "genetic_transformation_profit",
     "evolutionary_perturbation",
+    "evolutionary_perturbation_profit",
     # Unstringing and stringing (US)
     "apply_type_i_us",
     "apply_type_ii_us",

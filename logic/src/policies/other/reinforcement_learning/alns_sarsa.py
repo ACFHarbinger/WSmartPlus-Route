@@ -520,7 +520,12 @@ class ALNSSARSASolver(PolicyVizMixin):
     def _perturb_random(self, routes: List[List[int]]) -> List[List[int]]:
         """Perturbation operator: performs random swaps to escape local optima."""
         ctx = ALNSPerturbationContext(routes, self.dist_matrix, self.wastes, self.capacity)
-        perturb_op(ctx, k=self.params.perturb_k if hasattr(self.params, "perturb_k") else 3, rng=self.random)
+        perturb_op(
+            ctx,
+            k=self.params.perturb_k if hasattr(self.params, "perturb_k") else 3,
+            prob_unvisited=self.params.prob_unvisited if hasattr(self.params, "prob_unvisited") else 0.0,
+            rng=self.random,
+        )
         return ctx.routes
 
     # ===== Main Solve Loop =====
