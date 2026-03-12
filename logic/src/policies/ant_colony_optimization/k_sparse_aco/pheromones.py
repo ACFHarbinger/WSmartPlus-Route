@@ -69,6 +69,16 @@ class SparsePheromoneTau:
                 del self._pheromone[i][min_neighbor]
                 self._pheromone[i][j] = value
 
+    def deposit_edge(self, i: int, j: int, delta: float) -> None:
+        """
+        Deposit pheromone on edge (i, j).
+
+        This is an alias for adding to the current value, as expected by
+        memetic algorithms.
+        """
+        current = self.get(i, j)
+        self.set(i, j, current + delta)
+
     def update_edge(self, i: int, j: int, delta: float, evaporate: bool = True) -> None:
         """
         Update pheromone on edge with deposit and optional evaporation.

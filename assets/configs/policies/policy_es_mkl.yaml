@@ -41,7 +41,7 @@
 #   - Benchmarking against standard ES variants
 # =============================================================================
 
-mu_kappa_lambda_es:
+es_mkl:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters (μ,κ,λ)

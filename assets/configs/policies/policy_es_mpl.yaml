@@ -32,7 +32,7 @@
 #   - Scenarios where population diversity is less critical
 # =============================================================================
 
-mu_plus_lambda_es:
+es_mpl:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters (μ+1)
@@ -42,7 +42,7 @@ mu_plus_lambda_es:
       # Range: 5-30
       # Recommendation: 10 for balanced diversity/convergence
 
-    - offspring_size: 5
+    - offspring_size: 1
       # Number of offspring generated per cycle (λ parameter)
       # Range: 1-10
       # Recommendation: 5 for balanced diversity/convergence

@@ -32,7 +32,7 @@
 #   - Benchmarking against standard evolutionary algorithms
 # =============================================================================
 
-mu_comma_lambda_es:
+es_mcl:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters (μ,λ)

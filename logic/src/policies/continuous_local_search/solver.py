@@ -181,8 +181,8 @@ class ContinuousLocalSearchSolver(PolicyVizMixin):
 
         Complexity: O(n log n) for sorting + O(n²) for greedy insertion.
         """
-        # Sigmoid activation for binarization
-        sigmoid_values = 1.0 / (1.0 + np.exp(-continuous_vector))
+        # Sigmoid activation for binarization (clipping for numerical stability)
+        sigmoid_values = 1.0 / (1.0 + np.exp(-np.clip(continuous_vector, -100, 100)))
 
         mandatory_set = set(self.mandatory_nodes)
         selected_nodes: List[int] = []

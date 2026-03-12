@@ -14,7 +14,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.continuous_local_search import ContinuousLocalSearchParams, ContinuousLocalSearchSolver
 
 
-@PolicyRegistry.register("continuous_ls")
+@PolicyRegistry.register("cls")
 class ContinuousLocalSearchPolicy(BaseRoutingPolicy):
     """
     Continuous Local Search policy class.
@@ -36,7 +36,7 @@ class ContinuousLocalSearchPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "continuous_ls"
+        return "cls"
 
     def _run_solver(
         self,

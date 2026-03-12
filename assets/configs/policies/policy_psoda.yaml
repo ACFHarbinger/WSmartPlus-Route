@@ -37,7 +37,7 @@
 #   - Benchmarking against swarm intelligence methods
 # =============================================================================
 
-distance_pso:
+psoda:
   custom:
     # ---------------------------------------------------------------------
     # Swarm Parameters

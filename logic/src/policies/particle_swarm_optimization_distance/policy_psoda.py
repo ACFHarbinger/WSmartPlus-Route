@@ -14,7 +14,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.particle_swarm_optimization_distance import DistancePSOParams, DistancePSOSolver
 
 
-@PolicyRegistry.register("distance_pso")
+@PolicyRegistry.register("psoda")
 class DistancePSOPolicy(BaseRoutingPolicy):
     """
     Distance-Based Particle Swarm Optimization policy class.
@@ -36,7 +36,7 @@ class DistancePSOPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "distance_pso"
+        return "psoda"
 
     def _run_solver(
         self,
