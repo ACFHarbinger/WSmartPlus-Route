@@ -10,7 +10,7 @@ import torch
 from logic.src.interfaces import IPostProcessor
 from logic.src.policies.tsp import find_route
 
-from .registry import PostProcessorRegistry
+from .base import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("fast_tsp")

@@ -6,7 +6,7 @@ from typing import Any, List
 
 from logic.src.interfaces import IPostProcessor
 
-from .registry import PostProcessorRegistry
+from .base import PostProcessorRegistry
 
 
 @PostProcessorRegistry.register("path")

@@ -1118,14 +1118,15 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 #### Implementation Map
 
-| Metaphor-Based Algorithm    | Rigorous Implementation            | Mathematical Foundation                                 |
-| --------------------------- | ---------------------------------- | ------------------------------------------------------- |
-| Harmony Search (HS)         | **(μ+λ) Evolution Strategy**       | Population-based search with recombination and mutation |
-| Firefly Algorithm (FA)      | **Distance-Based PSO**             | Particle swarm with exponential distance decay          |
-| Artificial Bee Colony (ABC) | **(μ,λ) Evolution Strategy**       | Multi-phase random search with restart mechanism        |
-| HVPL, SLC (Sports)          | **Island Model Genetic Algorithm** | Multi-population GA with migration and local search     |
-| League Championship (LCA)   | **Stochastic Tournament GA**       | Pairwise tournament selection with sigmoid probability  |
-| Sine Cosine Algorithm (SCA) | **Continuous Local Search**        | Gradient-free search with trigonometric perturbations   |
+| Metaphor-Based Algorithm    | Rigorous Implementation                 | Mathematical Foundation                                    |
+| --------------------------- | --------------------------------------- | ---------------------------------------------------------- |
+| Harmony Search (HS)         | **(μ+λ) Evolution Strategy [with λ=1]** | Population-based search with recombination and mutation    |
+| Firefly Algorithm (FA)      | **Distance-Based PSO**                  | Particle swarm with exponential distance decay             |
+| Artificial Bee Colony (ABC) | **(μ,λ) Evolution Strategy**            | Multi-phase random search with restart mechanism           |
+| HVPL, SLC (Sports)          | **Island Model Genetic Algorithm**      | Multi-population GA with migration and local search        |
+| League Championship (LCA)   | **Stochastic Tournament GA**            | Pairwise tournament selection with sigmoid probability     |
+| SCA (Sine Cosine)           | **Continuous Local Search**             | Gradient-free search with trigonometric perturbations      |
+| **(μ,κ,λ) ES**              | **Age-Based Evolution Strategy**        | Metaheuristic with age-based selection and self-adaptation |
 
 ---
 
@@ -1422,6 +1423,74 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 ---
 
+##### 7. (μ,κ,λ) Evolution Strategy
+
+**Location:** `logic/src/policies/evolution_strategy_mu_kappa_lambda/`
+
+**Algorithm:**
+
+The (μ,κ,λ)-ES implements a classical metaheuristic for continuous optimization with **age-based selection**. Selection occurs from μ parents who have not exceeded an age of κ and λ offspring individuals.
+
+```text
+1. Initialize P₀ with μ parent individuals
+2. For each generation t:
+    a. Recombine(Pₜ₋₁) → create λ offspring
+    b. Mutate(offspring) → apply self-adaptive mutation
+    c. Evaluate(offspring) → compute fitness
+    d. Select(offspring ∪ eligible_parents) → choose μ best
+       where eligible_parents are those with age ≤ κ
+    e. Increment age of all surviving individuals
+    f. Update best solution if improved
+3. Return best solution found
+```
+
+**Mathematical Formulation:**
+
+**Step-size mutation:**
+
+```text
+N_global ~ N(0,1)  (shared across all dimensions)
+σ'ᵢ ← σᵢ · exp(τ_global · N_global + τ_local · Nᵢ(0,1))
+```
+
+**Decision variable mutation:**
+
+```text
+x'ᵢ ← xᵢ + σ'ᵢ · N(0,1)
+```
+
+**Learning rates:**
+
+```text
+τ_local  = 1/√(2d)
+τ_global = 1/(2√d)
+```
+
+**Key Parameters:**
+
+- `mu` (μ): Number of parent individuals.
+- `kappa` (κ): Maximum age for parents before they are discarded (controls population turnover).
+- `lambda_` (λ): Number of offspring generated per generation.
+- `rho` (ρ): Number of parents involved in recombination (1 for discrete, μ for intermediate).
+- `initial_sigma`: Initial step size for mutation (recommended ~5% of search domain).
+
+**Terminology Mapping:**
+
+- "Eligible Parents" → Stay in the selection pool if age ≤ κ
+- "Age" → Counter for how many generations an individual has survived
+- "Self-Adaptation" → Step sizes (σ) evolve alongside decision variables (x)
+
+**Complexity:**
+
+- Time: O(T × λ × d) where T = iterations, λ = offspring, d = dimensions
+- Space: O((μ + λ) × d) for population + offspring
+
+**Reference:**
+
+> Emmerich, M., Shir, O. M., & Wang, H. (2015). "Evolution Strategies." In: Handbook of Natural Computing, Springer.
+
+---
+
 #### Usage Examples
 
 ##### Example 1: (μ+λ) Evolution Strategy
@@ -1507,6 +1576,45 @@ solver = IslandModelGASolver(
 best_routes, best_profit, best_cost = solver.solve()
 ```
 
+##### Example 4: (μ,κ,λ) Evolution Strategy
+
+```python
+import numpy as np
+from logic.src.policies.evolution_strategy_mu_kappa_lambda import (
+    MuKappaLambdaESSolver,
+    MuKappaLambdaESParams
+)
+
+# Define objective function
+def sphere(x):
+    return np.sum(x**2)
+
+# Configure parameters
+params = MuKappaLambdaESParams(
+    mu=15,              # Number of parents
+    kappa=7,            # Maximum age
+    lambda_=100,        # Number of offspring
+    rho=2,              # Recombination size
+    initial_sigma=1.0,  # Initial step size
+    max_iterations=100,
+    bounds_min=-5.0,
+    bounds_max=5.0,
+)
+
+# Create solver
+solver = MuKappaLambdaESSolver(
+    objective_function=sphere,
+    dimension=10,
+    params=params,
+    seed=42,
+    minimize=True,
+)
+
+# Solve
+best_x, best_fitness = solver.solve()
+print(f"Best fitness: {best_fitness:.6e}")
+```
+
 ---
 
 #### Performance Characteristics
@@ -1519,6 +1627,7 @@ best_routes, best_profit, best_cost = solver.solve()
 | Island Model GA          | O(T × K × N × ALNS) | O(K × N × n)     | Large instances, parallel execution             |
 | Stochastic Tournament GA | O(T × N × k × n²)   | O(N × n)         | Medium instances, controlled selection pressure |
 | Continuous Local Search  | O(T × N × n²)       | O(N × n)         | Continuous relaxations, gradient-free           |
+| (μ,κ,λ)-ES               | O(T × λ × d)        | O((μ+λ) × d)     | Age-based elitism control, self-adaptation      |
 
 ---
 
