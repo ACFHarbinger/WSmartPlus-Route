@@ -1118,17 +1118,17 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 #### Implementation Map
 
-| Metaphor-Based Algorithm                | Rigorous Implementation                                        | Mathematical Foundation                                                                  |
-| --------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**                        | Population-based search with recombination and mutation                                  |
-| Firefly Algorithm (FA)                  | **Distance-Based PSO**                                         | Particle swarm with exponential distance decay                                           |
-| Artificial Bee Colony (ABC)             | **(μ,λ) Evolution Strategy**                                   | Multi-phase random search with restart mechanism                                         |
-| Soccer League Competition (SLC)         | **Pure Island Model Genetic Algorithm**                        | Multi-population GA with migration but WITHOUT local search                              |
-| Hybrid Volleyball Premier League (HVPL) | **Memetic Island Model Genetic Algorithm**                     | Multi-population evolutionary algorithm with periodic migration between sub-populations. |
-| Volleyball Premier League (VPL)         | **Island Model Genetic Algorithm with Stochastic Tournaments** | Multi-island GA with stochastic tournament selection                                     |
-| League Championship (LCA)               | **Stochastic Tournament Genetic Algorithm**                    | Pairwise tournament selection with sigmoid probability                                   |
-| SCA (Sine Cosine)                       | **Continuous Local Search**                                    | Gradient-free search with trigonometric perturbations                                    |
-| **(μ,κ,λ) ES**                          | **Age-Based Evolution Strategy**                               | Metaheuristic with age-based selection and self-adaptation                               |
+| Metaphor-Based Algorithm                | Rigorous Implementation                       | Mathematical Foundation                                          |
+| --------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
+| Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**       | Population-based search with recombination and mutation          |
+| Firefly Algorithm (FA)                  | **Distance-Based PSO**                        | Particle swarm with exponential distance decay                   |
+| Artificial Bee Colony (ABC)             | **(μ,λ) Evolution Strategy**                  | Multi-phase random search with restart mechanism                 |
+| Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search. |
+| Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.             |
+| Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).         |
+| League Championship (LCA)               | **Memetic Algorithm Tolerance Based (MA-TB)** | Pairwise tournament selection with infeasibility tolerance.      |
+| SCA (Sine Cosine)                       | **Continuous Local Search**                   | Gradient-free search with trigonometric perturbations            |
+| **(μ,κ,λ) ES**                          | **Age-Based Evolution Strategy**              | Metaheuristic with age-based selection and self-adaptation       |
 
 ---
 
@@ -1266,47 +1266,47 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 ---
 
-##### 4. Island Model Genetic Algorithm
+##### 4. Genetic Algorithm Memetic Island Model (GA-MIM)
 
-**Replaces:** HVPL, SLC (Sports-Based Algorithms)
+**Replaces:** Soccer League Competition (SLC)
 
-**Location:** `logic/src/policies/genetic_algorithm_pure_island_model/`
+**Location:** `logic/src/policies/genetic_algorithm_memetic_island_model/`
 
 **Algorithm:**
 
 ```
 1. Initialize K islands with N individuals each
 2. For each generation:
-   a. Local Improvement: Apply ALNS to each individual in each island
-   b. Fitness Evaluation: Compute objective values
-   c. Tournament Selection: Replace weak individuals via k-tournament
-   d. Migration: Periodically exchange best solutions between islands
-   e. Global Update: Track global best across all islands
+   a. Intra-island Evolution:
+      i. Perturbation: Apply random removal + greedy insertion
+      ii. Local Search: Apply ACOLocalSearch refinement
+      iii. Survival: Keep improved solution
+   b. Inter-island Competition:
+      i. Stochastic Tournament: Pairwise competition between islands
+      ii. Recombination: Weak island adopts structure from strongest via crossover
+   c. Stagnation Check: If island fitness unchanged for stagnation_limit, regenerate
+   d. Global best: Track champion across all islands
 ```
 
 **Key Parameters:**
 
-- `n_islands` (K): Number of sub-populations
-- `island_size` (N): Population size per island
-- `tournament_size`: Selection pressure
-- `migration_interval`: Generations between migrations
+- `n_islands` (K): Number of parallel sub-populations (islands)
+- `island_size` (N): Individuals per island
+- `local_search_iterations`: Search budget for ACOLocalSearch
+- `stagnation_limit`: Generations before island regeneration
 
 **Terminology Mapping:**
 
 - "Teams" → Islands (sub-populations)
-- "Matches/Competition" → Fitness evaluations
+- "Players" → Individuals
 - "Seasons" → Generations
-- "Coaching" → Local search operator (ALNS)
-- "Relegation/Promotion" → Tournament selection
-- "League tables" → Fitness rankings
-
-**Migration Topology:**
-
-- Ring topology: Island i sends to island (i+1) mod K
+- "Intra-team Competition" → Intra-island evolution (Perturbation + LS)
+- "Inter-team Competition" → Inter-island tournament + recombination
+- "Stagnation" → Stagnation limit/Regeneration
 
 **Complexity:**
 
-- Time: O(T × K × N × ALNS_cost)
+- Time: O(T × K × N × LS_cost)
 - Space: O(K × N × n)
 
 **Reference:**
@@ -1315,7 +1315,50 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 ---
 
-##### 5. Island Model STGA (IMGA-ST)
+##### 5. Hybrid Memetic Search (HMS)
+
+**Replaces:** Hybrid Volleyball Premier League (HVPL)
+
+**Location:** `logic/src/policies/hybrid_memetic_search/`
+
+**Algorithm:**
+
+HMS utilizes a **3-Phase Hybrid Pipeline** to balance construction, exploration, and exploitation:
+
+```
+1. Phase 1: ACO Construction (K-Sparse Ant Colony Optimization)
+   - Initialize diverse population using probabilistic pheromone-guided construction.
+2. Phase 2: GA Evolution (HGS-inspired Genetic Search)
+   - Evolve solutions via population-based crossover and diversity management.
+   - Maintain a "Passive Reserve Pool" for elite substitution.
+3. Phase 3: ALNS Refinement (Adaptive Large Neighborhood Search)
+   - Apply trajectory search to the best discovered solutions for fine-grained refinement.
+```
+
+**Key Parameters:**
+
+- `n_teams`: Population size
+- `max_iterations`: Main loop seasons
+- `reserve_pool_size`: Size of the elite replacement buffer
+- `aco_params`: Parameters for the construction phase
+- `alns_params`: Parameters for the refinement phase
+
+**Terminology Mapping:**
+
+- "Teams" → Population members
+- "Coaching" → ALNS refinement
+- "Competition" → Selection/Crossover
+- "Pheromone Update" → Global guidance/Learning
+- "Substitution" → Passive reserve pool replacement
+
+**Complexity:**
+
+- Time: O(ACO_cost + T × (GA_cost + ALNS_cost))
+- Space: O(Population_size × n)
+
+---
+
+##### 6. Island Model STGA (IMGA-ST)
 
 **Replaces:** Volleyball Premier League (VPL)
 
@@ -1359,7 +1402,7 @@ P(i beats j) = σ(β × (f(i) - f(j)))
 
 ---
 
-##### 5. Stochastic Tournament Genetic Algorithm
+##### 7. Stochastic Tournament Genetic Algorithm
 
 **Replaces:** League Championship Algorithm (LCA)
 
@@ -1414,7 +1457,7 @@ P(i beats j) = σ(β × (f(i) - f(j)))
 
 ---
 
-##### 6. Continuous Local Search
+##### 8. Continuous Local Search
 
 **Replaces:** Sine Cosine Algorithm (SCA)
 
@@ -1469,7 +1512,7 @@ P(i beats j) = σ(β × (f(i) - f(j)))
 
 ---
 
-##### 7. (μ,κ,λ) Evolution Strategy
+##### 9. (μ,κ,λ) Evolution Strategy
 
 **Location:** `logic/src/policies/evolution_strategy_mu_kappa_lambda/`
 
@@ -1596,12 +1639,12 @@ solver = DistancePSOSolver(
 best_routes, best_profit, best_cost = solver.solve()
 ```
 
-##### Example 3: Island Model GA
+##### Example 3: Memetic Algorithm Island Model (MA-IM)
 
 ```python
-from logic.src.policies import IslandModelGASolver, IslandModelGAParams
+from logic.src.policies import MemeticAlgorithmIslandModelSolver, MemeticAlgorithmIslandModelParams
 
-params = IslandModelGAParams(
+params = MemeticAlgorithmIslandModelParams(
     n_islands=10,              # K sub-populations
     island_size=10,            # N individuals per island
     max_generations=50,
@@ -1609,7 +1652,7 @@ params = IslandModelGAParams(
     tournament_size=3
 )
 
-solver = IslandModelGASolver(
+solver = MemeticAlgorithmIslandModelSolver(
     dist_matrix=distance_matrix,
     wastes=waste_dict,
     capacity=100.0,
@@ -1665,15 +1708,16 @@ print(f"Best fitness: {best_fitness:.6e}")
 
 #### Performance Characteristics
 
-| Algorithm                | Time Complexity     | Space Complexity | Best Use Case                                   |
-| ------------------------ | ------------------- | ---------------- | ----------------------------------------------- |
-| (μ+λ)-ES                 | O(T × λ × n²)       | O((μ+λ) × n)     | Small-medium instances, fast convergence        |
-| Distance-Based PSO       | O(T × N² × n²)      | O(N × n)         | Medium instances, global exploration            |
-| (μ,λ)-ES                 | O(T × λ × n²)       | O((μ+λ) × n)     | Large instances, multi-phase search             |
-| Island Model GA          | O(T × K × N × ALNS) | O(K × N × n)     | Large instances, parallel execution             |
-| Stochastic Tournament GA | O(T × N × k × n²)   | O(N × n)         | Medium instances, controlled selection pressure |
-| Continuous Local Search  | O(T × N × n²)       | O(N × n)         | Continuous relaxations, gradient-free           |
-| (μ,κ,λ)-ES               | O(T × λ × d)        | O((μ+λ) × d)     | Age-based elitism control, self-adaptation      |
+| Algorithm                | Time Complexity   | Space Complexity | Best Use Case                                   |
+| ------------------------ | ----------------- | ---------------- | ----------------------------------------------- |
+| (μ+λ)-ES                 | O(T × λ × n²)     | O((μ+λ) × n)     | Small-medium instances, fast convergence        |
+| Distance-Based PSO       | O(T × N² × n²)    | O(N × n)         | Medium instances, global exploration            |
+| (μ,λ)-ES                 | O(T × λ × n²)     | O((μ+λ) × n)     | Large instances, multi-phase search             |
+| GA-MIM                   | O(T × K × N × LS) | O(K × N × n)     | Large instances, parallel island execution      |
+| HMS                      | O(T × Pop × n²)   | O(Pop × n)       | Hybrid search (ACO+GA+ALNS)                     |
+| Stochastic Tournament GA | O(T × N × k × n²) | O(N × n)         | Medium instances, controlled selection pressure |
+| Continuous Local Search  | O(T × N × n²)     | O(N × n)         | Continuous relaxations, gradient-free           |
+| (μ,κ,λ)-ES               | O(T × λ × d)      | O((μ+λ) × d)     | Age-based elitism control, self-adaptation      |
 
 ---
 
@@ -1684,9 +1728,9 @@ The following metaphor-based implementations are now superseded by rigorous alte
 - ❌ `harmony_search/` → Use `evolution_strategy_mu_plus_lambda/`
 - ❌ `firefly_algorithm/` → Use `particle_swarm_optimization_distance/`
 - ❌ `artificial_bee_colony/` → Use `evolution_strategy_mu_comma_lambda/`
-- ❌ `hybrid_volleyball_premier_league/` → Use `island_model_genetic_algorithm/`
-- ❌ `league_championship_algorithm/` → Use `stochastic_tournament_genetic_algorithm/`
-- ❌ `soccer_league_competition/` → Use `island_model_genetic_algorithm/`
+- ❌ `hybrid_volleyball_premier_league/` → Use `hybrid_memetic_search/`
+- ❌ `league_championship_algorithm/` → Use `genetic_algorithm_stochastic_tournament/`
+- ❌ `soccer_league_competition/` → Use `genetic_algorithm_memetic_island_model/`
 - ❌ `sine_cosine_algorithm/` → Use `continuous_local_search/`
 
 The original implementations remain for backward compatibility but should not be used for new development.

@@ -1,44 +1,30 @@
-# Memetic Island Model Genetic Algorithm Policy Configuration
+# Hybrid Memetic Search (HMS) Policy Configuration
 
 # =============================================================================
-# Memetic Island Model GA Policy Configuration
+# Hybrid Memetic Search (HMS) Policy Configuration
 # =============================================================================
 # PURPOSE:
-#   Advanced multi-population evolutionary algorithm combining island model
-#   topology with memetic local search. Each island evolves independently
-#   using hybrid genetic operators (ACO for construction, ALNS for improvement)
-#   with periodic migration for diversity maintenance.
+#   Advanced multi-phase hybrid solver combining ACO, GA, and ALNS.
+#   Seeding with ACO, global evolution with GA (HGS variant), and
+#   intensive refinement with ALNS.
 #
 # ALGORITHM:
-#   1. Initialize K islands with N individuals each (using ACO)
-#   2. For each generation:
-#      a. Local improvement: Apply ALNS to each island's population
-#      b. Fitness evaluation: Assess all individuals
-#      c. Migration: Exchange best solutions between islands
-#      d. Replacement: Use tournament selection to replace weakest individuals
+#   1. Seeding: Initialize population using ACO construction.
+#   2. Evolution: Iterative GA-style reproduction with crossover and mutation.
+#   3. Substitution: Periodic replenishment from a passive reserve pool.
+#   4. Refinement: Intensive ALNS coaching for best individuals.
 #
 # PERFORMANCE:
-#   State-of-the-art hybrid metaheuristic combining genetic diversity with
-#   local search intensification. Superior to pure genetic algorithms on
-#   difficult routing instances. Competitive with specialized solvers like HGS.
-#
-# REFERENCE:
-#   Whitley, D., et al. (1998). "The island model genetic algorithm."
-#   Moscato, P., & Cotta, C. (2003). "A gentle introduction to memetic algorithms."
-#   Handbook of Metaheuristics, 105-144.
-#
-# NOTE:
-#   Originally mislabeled with sports metaphors (HVPL, LCA, etc.). This is
-#   fundamentally an island model GA with memetic local search (ACO+ALNS).
+#   State-of-the-art hybrid metaheuristic that provides performance parity
+#   with HVPL but uses a rigorous, metaphor-free structure.
 #
 # TYPICAL USE CASES:
 #   - Large routing instances (150-500 nodes)
 #   - Production deployment requiring best-in-class solutions
-#   - Benchmarking against state-of-the-art metaheuristics
-#   - Research into hybrid evolutionary algorithms
+#   - Benchmarking against Specialized solvers like HGS
 # =============================================================================
 
-ga_mim:
+hms:
   custom:
     # ---------------------------------------------------------------------
     # Island Topology
@@ -175,7 +161,7 @@ ga_mim:
       # Maximum fraction of nodes to remove
       # Recommendation: 0.2 for local perturbations
 
-    - alns_time_limit: 30
+    - alns_time_limit: 60
       # Time limit for ALNS phase per individual (seconds)
       # Recommendation: 30s for local search
 

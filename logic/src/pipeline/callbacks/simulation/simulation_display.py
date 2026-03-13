@@ -102,14 +102,28 @@ class SimulationDisplayCallback:
 
     def _init_layout(self) -> None:
         """Initialize the Rich layout."""
+        # Calculate dynamic footer size based on number of policies
+        # Limit footer to 40% of terminal height or max 15 lines if many policies
+        # This prevents starvation of the chart and metrics table
+        n_pols = len(self.policies)
+
+        # We always want at least the overall progress bar (1 line + 1 padding)
+        # Plus per-policy bars if they exist.
+        footer_size = 2  # Overall progress + padding
+        if n_pols <= 20:
+            footer_size += n_pols
+        else:
+            # Even if we don't show individual bars, we might show a count
+            pass
+
         self.layout.split(
             Layout(name="header", size=1),
             Layout(name="main", ratio=1),
-            Layout(name="footer", size=len(self.policies) + 2),
+            Layout(name="footer", size=footer_size),
         )
         self.layout["main"].split(
-            Layout(name="chart", ratio=2),
-            Layout(name="metrics", ratio=1),
+            Layout(name="chart", ratio=3),  # Increased chart ratio
+            Layout(name="metrics", ratio=2),  # Increased metrics ratio
         )
 
         # Initialize Progress
@@ -130,8 +144,8 @@ class SimulationDisplayCallback:
         total_steps = self.n_samples * len(self.policies) * self.total_days
         self.overall_task_id = self.progress.add_task("Overall Progress", total=total_steps)
 
-        # Policy Tasks (optional, maybe too many if we have lots of policies)
-        if len(self.policies) <= 10:
+        # Policy Tasks (Increased limit to 20 for large simulations)
+        if len(self.policies) <= 20:
             for pol in self.policies:
                 pol_total = self.n_samples * self.total_days
                 self.policy_tasks[pol] = self.progress.add_task(f"Policy: {pol}", total=pol_total)
@@ -214,6 +228,15 @@ class SimulationDisplayCallback:
         self.layout["metrics"].update(self._generate_metrics_table())
 
         if self.progress:
+            # Check terminal height: if too small, hide per-policy bars in footer
+            # Console height minus header, chart (min 5), metrics (min 5)
+            # If remaining space is less than footer_size, we might need to shrink it
+            available_footer = self.console.height - 1 - 10
+
+            if available_footer < self.layout["footer"].size:
+                # Shrink footer to just overall progress if space is tight
+                self.layout["footer"].size = 2
+
             self.layout["footer"].update(self.progress)
 
         return self.layout

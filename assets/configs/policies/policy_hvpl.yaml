@@ -58,11 +58,11 @@ hvpl:
     # ---------------------------------------------------------------------
     # VPL Population Parameters
     # ---------------------------------------------------------------------
-    - n_teams: 30
+    - n_teams: 10
       # Number of active teams (plus N passive reserves)
       # Range: 10-50 (10 = fast, 30 = balanced, 50 = thorough)
 
-    - max_iterations: 100
+    - max_iterations: 50
       # Number of VPL evolution cycles
       # Range: 50-200 (50 = quick, 100 = balanced, 200 = deep)
 
@@ -99,7 +99,7 @@ hvpl:
     # ---------------------------------------------------------------------
     # Global Parameters
     # ---------------------------------------------------------------------
-    - time_limit: 300
+    - time_limit: 60
       # Maximum wall-clock seconds
       # Range: 60-600 (300s = production)
 
@@ -110,7 +110,7 @@ hvpl:
     # ACO Nested Configuration (Initialization)
     # ---------------------------------------------------------------------
     - aco:
-        n_ants: 20
+        n_ants: 10
         # Number of ants for construction (Range: 10-50)
 
         k_sparse: 10
@@ -149,7 +149,7 @@ hvpl:
         elitist_weight: 1.0
         # Elitist ant weight (Range: 0.5-2.0)
 
-        time_limit: 60.0
+        time_limit: 30.0
         # ACO time limit in seconds (Range: 30-300)
 
     # ---------------------------------------------------------------------
@@ -165,13 +165,13 @@ hvpl:
         cooling_rate: 0.95
         # Temperature decay per iteration (Range: 0.90-0.99)
 
-        reaction_factor: 0.1
+        reaction_factor: 0.5
         # Weight update reaction factor (Range: 0.05-0.3)
 
         min_removal: 1
         # Minimum nodes removed (Range: 1-10)
 
-        max_removal_pct: 0.3
+        max_removal_pct: 0.2
         # Maximum removal fraction (Range: 0.1-0.4)
 
         time_limit: 60.0

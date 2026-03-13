@@ -1,48 +1,19 @@
 # Stochastic Tournament Genetic Algorithm Policy Configuration
 
 # =============================================================================
-# Stochastic Tournament GA Policy Configuration
+# Memetic Algorithm Tolerance Based (MA-TB) Policy Configuration
 # =============================================================================
 # PURPOSE:
-#   Canonical genetic algorithm with stochastic tournament selection where
-#   selection pressure is applied via pairwise fitness-based tournaments.
-#   Each individual competes against multiple opponents with probabilistic
-#   outcomes based on fitness differences.
-#
-# ALGORITHM:
-#   1. Initialize population of N chromosomes
-#   2. For each generation:
-#      a. Fitness evaluation for all individuals
-#      b. Pairwise stochastic tournament selection
-#      c. Crossover (recombination) of selected parents
-#      d. Mutation of offspring
-#      e. Elitist replacement (keep best individuals)
-#
-# PERFORMANCE:
-#   Standard GA with configurable selection pressure. Tournament selection
-#   provides good balance between exploration and exploitation. Effective
-#   for multimodal routing problems.
-#
-# REFERENCE:
-#   Miller, B. L., & Goldberg, D. E. (1995). "Genetic algorithms, tournament
-#   selection, and the effects of noise." Complex Systems, 9(3), 193-212.
-#
-# NOTE:
-#   Originally mislabeled as "League Championship Algorithm" using sports
-#   metaphors. This is fundamentally a standard GA with tournament selection.
-#
-# TYPICAL USE CASES:
-#   - Medium routing instances (50-150 nodes)
-#   - Problems requiring balance between diversity and convergence
-#   - Benchmarking against classical evolutionary algorithms
+#   Genetic algorithm with stochastic tournament selection using
+#   infeasibility tolerance. Replaces metaphor-based LCA.
 # =============================================================================
 
-ga_st:
+ma_tb:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters
     # ---------------------------------------------------------------------
-    - population_size: 50
+    - population_size: 10
       # Number of chromosomes in population (N parameter)
       # Range: 20-200
       # Recommendation: 50 for balanced search
@@ -65,7 +36,7 @@ ga_st:
     # ---------------------------------------------------------------------
     # Genetic Operators
     # ---------------------------------------------------------------------
-    - crossover_rate: 0.8
+    - crossover_rate: 0.6
       # Probability of applying crossover operator
       # Range: 0.5-1.0
       # Recommendation: 0.8 (standard GA setting)

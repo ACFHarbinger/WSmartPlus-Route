@@ -53,7 +53,7 @@ fa:
       # Maximum attractiveness coefficient (at zero distance)
       # Range: 0.5-2.0 (higher → stronger pull toward brighter fireflies)
 
-    - gamma: 0.1
+    - gamma: 0.01
       # Light absorption coefficient — controls attractiveness decay with distance
       # β(d) = β0 * exp(-γ * d²)
       # Range: 0.01-1.0 (0.01 = long-range attraction, 1.0 = local only)
@@ -85,7 +85,7 @@ fa:
     # -------------------------------------------------------------------------
     # Runtime Control
     # -------------------------------------------------------------------------
-    - max_iterations: 100
+    - max_iterations: 500
       # Maximum FA iterations
       # Range: 20-300 (50 = quick, 100 = production, 200 = benchmark)
       # Fewer iterations needed vs. single-solution methods due to population
@@ -98,7 +98,7 @@ fa:
       # Maximum wall-clock seconds
       # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
 
-    - local_search_iterations: 500
+    - local_search_iterations: 100
       # Number of local search iterations
       # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
 
