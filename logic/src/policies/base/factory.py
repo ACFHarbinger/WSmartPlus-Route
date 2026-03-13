@@ -43,10 +43,10 @@ class PolicyFactory:
         import logic.src.policies.fast_iterative_localized_optimization.policy_filo as policy_filo  # noqa
         import logic.src.policies.firefly_algorithm.policy_fa as policy_fa  # noqa
         import logic.src.policies.genetic_algorithm.policy_ga as policy_ga  # noqa
-        import logic.src.policies.genetic_algorithm_island_model_stochastic_tournaments.policy_ga_im_st as policy_ga_im_st  # noqa
-        import logic.src.policies.genetic_algorithm_memetic_island_model.policy_ga_mim as policy_ga_mim  # noqa
-        import logic.src.policies.genetic_algorithm_pure_island_model.policy_ga_pim as policy_ga_pim  # noqa
-        import logic.src.policies.genetic_algorithm_stochastic_tournament.policy_ga_st as policy_ga_st  # noqa
+        import logic.src.policies.memetic_algorithm_dual_population.policy_ma_dp as policy_ma_dp  # noqa
+        import logic.src.policies.memetic_algorithm_island_model.policy_ma_im as policy_ma_im  # noqa
+        import logic.src.policies.hybrid_memetic_search.policy_hms as policy_hms  # noqa
+        import logic.src.policies.memetic_algorithm_tolerance_based.policy_ma_tb as policy_ma_tb  # noqa
         import logic.src.policies.guided_indicators_hyper_heuristic.policy_gihh as policy_gihh  # noqa
         import logic.src.policies.guided_local_search.policy_gls as policy_gls  # noqa
         import logic.src.policies.genetic_programming_hyper_heuristic.policy_gphh as policy_gphh  # noqa

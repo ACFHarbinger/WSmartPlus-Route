@@ -12,21 +12,18 @@ from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
-class PureIslandModelGAConfig:
-    """Configuration for Pure Island Model GA policy.
+class MemeticAlgorithmIslandModelConfig:
+    """Configuration for Memetic Algorithm Island Model (MA-IM) policy.
 
-    Multi-population GA with genetic operators only (no local search).
+    Functionally equivalent to SLC.
     """
 
-    n_islands: int = 10
-    island_size: int = 20
-    max_generations: int = 100
-    crossover_rate: float = 0.8
-    mutation_rate: float = 0.2
-    tournament_size: int = 3
-    elitism_count: int = 2
-    migration_interval: int = 10
-    migration_size: int = 2
+    n_islands: int = 5
+    island_size: int = 4
+    max_generations: int = 50
+    stagnation_limit: int = 5
+    n_removal: int = 1
+    local_search_iterations: int = 100
     time_limit: float = 60.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None

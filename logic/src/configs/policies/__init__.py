@@ -14,10 +14,6 @@ from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
 from .fa import FAConfig
 from .filo import FILOConfig
-from .ga_im_st import IslandModelSTGAConfig
-from .ga_mim import MemeticIslandModelGAConfig
-from .ga_pim import PureIslandModelGAConfig
-from .ga_st import StochasticTournamentGAConfig
 from .gihh import GIHHConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
@@ -25,11 +21,15 @@ from .hgs_alns import HGSALNSConfig
 from .hgsrr import HGSRRConfig
 from .hils import HILSConfig
 from .hmm_gd import HMMGDConfig
+from .hms import HybridMemeticSearchConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
 from .kgls import KGLSConfig
 from .lca import LCAConfig
+from .ma_dp import MemeticAlgorithmDualPopulationConfig
+from .ma_im import MemeticAlgorithmIslandModelConfig
+from .ma_tb import MemeticAlgorithmToleranceBasedConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
 from .psoda import DistancePSOConfig
@@ -77,15 +77,15 @@ __all__ = [
     "HULKConfig",
     "QDEConfig",
     "PSOMAConfig",
-    "PureIslandModelGAConfig",
+    "HybridMemeticSearchConfig",
     "ABCConfig",
     "FAConfig",
     "SCAConfig",
     "HSConfig",
     "SLCConfig",
-    "StochasticTournamentGAConfig",
+    "MemeticAlgorithmToleranceBasedConfig",
     "LCAConfig",
-    "MemeticIslandModelGAConfig",
+    "MemeticAlgorithmIslandModelConfig",
     "MuCommaLambdaESConfig",
     "MuKappaLambdaESConfig",
     "MuPlusLambdaESConfig",
@@ -93,5 +93,5 @@ __all__ = [
     "HMMGDConfig",
     "VNSConfig",
     "VPLConfig",
-    "IslandModelSTGAConfig",
+    "MemeticAlgorithmDualPopulationConfig",
 ]

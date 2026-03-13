@@ -1,44 +1,44 @@
 """
-Memetic Island Model GA Policy Adapter.
+Hybrid Memetic Search (HMS) Policy Adapter.
 
-Adapts the rigorous Memetic Island Model GA (replaces HVPL).
+Adapts the rigorous Hybrid Memetic Search (replaces HVPL).
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies import MemeticIslandModelGAConfig
+from logic.src.configs.policies import HybridMemeticSearchConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .params import MemeticIslandModelGAParams
-from .solver import MemeticIslandModelGASolver
+from .params import HybridMemeticSearchParams
+from .solver import HybridMemeticSearchSolver
 
 
-@PolicyRegistry.register("ga_mim")
-class MemeticIslandModelGAPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("hms")
+class HybridMemeticSearchPolicy(BaseRoutingPolicy):
     """
-    Memetic Island Model Genetic Algorithm policy class.
+    Hybrid Memetic Search policy class.
 
-    Multi-population GA with ALNS local search. Replaces HVPL.
+    Multi-phase hybrid solver (ACO + GA + ALNS). Replaces HVPL.
     """
 
-    def __init__(self, config: Optional[Union[MemeticIslandModelGAConfig, Dict[str, Any]]] = None):
-        """Initialize Memetic Island Model GA policy with optional config.
+    def __init__(self, config: Optional[Union[HybridMemeticSearchConfig, Dict[str, Any]]] = None):
+        """Initialize HMS policy with optional config.
 
         Args:
-            config: MemeticIslandModelGAConfig dataclass, raw dict from YAML, or None.
+            config: HybridMemeticSearchConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return MemeticIslandModelGAConfig
+        return HybridMemeticSearchConfig
 
     def _get_config_key(self) -> str:
         """Return config key."""
-        return "ga_mim"
+        return "hms"
 
     def _run_solver(
         self,
@@ -63,34 +63,35 @@ class MemeticIslandModelGAPolicy(BaseRoutingPolicy):
 
         # Create nested params
         aco_params = ACOParams(
-            n_ants=values.get("aco_n_ants", 10),
-            k_sparse=values.get("aco_k_sparse", 10),
+            n_ants=20,
+            k_sparse=10,
             max_iterations=1,
-            time_limit=30,
+            time_limit=60,
             local_search=False,
         )
 
         alns_params = ALNSParams(
-            max_iterations=values.get("alns_max_iterations", 100),
-            start_temp=values.get("alns_start_temp", 100.0),
-            cooling_rate=values.get("alns_cooling_rate", 0.95),
-            time_limit=30,
+            max_iterations=values.get("alns_iterations", 100),
+            start_temp=100.0,
+            cooling_rate=0.95,
+            time_limit=60,
         )
 
-        params = MemeticIslandModelGAParams(
-            n_islands=values.get("n_islands", 10),
-            island_size=values.get("island_size", 10),
+        params = HybridMemeticSearchParams(
+            population_size=values.get("population_size", 30),
             max_generations=values.get("max_generations", 50),
-            time_limit=values.get("time_limit", 60.0),
-            replacement_rate=values.get("replacement_rate", 0.2),
-            tournament_size=values.get("tournament_size", 3),
-            migration_interval=values.get("migration_interval", 5),
-            migration_size=values.get("migration_size", 1),
+            substitution_rate=values.get("substitution_rate", 0.2),
+            crossover_rate=values.get("crossover_rate", 0.8),
+            mutation_rate=values.get("mutation_rate", 0.1),
+            elitism_count=values.get("elitism_count", 3),
+            aco_init_iterations=values.get("aco_init_iterations", 50),
+            alns_iterations=values.get("alns_iterations", 100),
+            time_limit=values.get("time_limit", 300.0),
             aco_params=aco_params,
             alns_params=alns_params,
         )
 
-        solver = MemeticIslandModelGASolver(
+        solver = HybridMemeticSearchSolver(
             dist_matrix=sub_dist_matrix,
             wastes=sub_wastes,
             capacity=capacity,
