@@ -46,12 +46,12 @@ vpl:
     # ---------------------------------------------------------------------
     # VPL Population Parameters
     # ---------------------------------------------------------------------
-    - n_teams: 30
+    - n_teams: 10
       # Number of active teams (total population = 2 * n_teams)
       # Range: 10-50 (10 = fast, 30 = balanced, 50 = thorough)
       # Total teams = 2N (N active + N passive reserves)
 
-    - max_iterations: 200
+    - max_iterations: 50
       # Number of VPL seasons (main loop iterations)
       # Range: 50-500 (50 = quick, 200 = balanced, 500 = deep)
 
@@ -90,7 +90,7 @@ vpl:
     # ---------------------------------------------------------------------
     # Global Parameters
     # ---------------------------------------------------------------------
-    - time_limit: 300.0
+    - time_limit: 60.0
       # Maximum wall-clock seconds for the algorithm
       # Range: 60-600 (60s = quick, 300s = production, 600s = benchmark)
 

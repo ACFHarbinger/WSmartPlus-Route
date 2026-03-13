@@ -63,7 +63,7 @@ psoda:
       # Attraction weight: β(d) = β₀ × exp(-γ × d²)
       # where d = Hamming distance between solutions
 
-    - exploration_rate: 0.1
+    - exploration_rate: 0.2
       # Probability of random walk instead of global best attraction (α)
       # Range: 0.05-0.3
       # Recommendation: 0.1 for balanced exploration
@@ -88,17 +88,17 @@ psoda:
     # ---------------------------------------------------------------------
     # Scoring Weights (for Guided Insertion)
     # ---------------------------------------------------------------------
-    - alpha_profit: 1.0
+    - alpha_profit: 0.5
       # Weight for profit term in attraction scoring
       # Range: 0.0-2.0
       # Recommendation: 1.0 (standard weight)
 
-    - beta_will: 0.5
+    - beta_will: 0.3
       # Weight for willingness (fill level) term in attraction scoring
       # Range: 0.0-2.0
       # Recommendation: 0.5 for moderate influence
 
-    - gamma_cost: 0.3
+    - gamma_cost: 0.2
       # Weight for insertion cost penalty in attraction scoring
       # Range: 0.0-2.0
       # Recommendation: 0.3 for cost consideration

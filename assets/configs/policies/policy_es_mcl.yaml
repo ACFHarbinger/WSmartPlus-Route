@@ -51,7 +51,7 @@ es_mcl:
     # ---------------------------------------------------------------------
     # Mutation Parameters
     # ---------------------------------------------------------------------
-    - n_removal: 3
+    - n_removal: 1
       # Perturbation strength (number of nodes removed during mutation)
       # Range: 1-10
       # Recommendation: 3 for moderate perturbation
@@ -68,7 +68,7 @@ es_mcl:
     # ---------------------------------------------------------------------
     # Local Search Parameters
     # ---------------------------------------------------------------------
-    - local_search_iterations: 100
+    - local_search_iterations: 500
       # Number of local search improvement steps per offspring
       # Range: 50-200
       # Recommendation: 100 for balanced improvement
@@ -76,7 +76,7 @@ es_mcl:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - max_iterations: 500
+    - max_iterations: 200
       # Maximum number of evolution cycles
       # Range: 100-1000
       # Recommendation: 500 for production

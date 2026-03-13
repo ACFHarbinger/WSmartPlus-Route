@@ -33,7 +33,7 @@ cls:
     # ---------------------------------------------------------------------
     # Population Parameters
     # ---------------------------------------------------------------------
-    - population_size: 30
+    - population_size: 20
       # Number of solution vectors in population
       # Range: 10-100
       # Recommendation: 30 for balanced exploration/exploitation
@@ -50,7 +50,7 @@ cls:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - max_iterations: 500
+    - max_iterations: 200
       # Maximum number of search iterations
       # Range: 100-1000
       # Recommendation: 500 for production

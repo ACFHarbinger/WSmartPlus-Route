@@ -1,39 +1,23 @@
 # Policy Configuration
 
 # =============================================================================
-# IMGA-ST (Island Model Genetic Algorithm with Stochastic Tournaments)
+# MA-DP (Memetic Algorithm with Dual Population)
 # =============================================================================
 # PURPOSE:
 #   Mathematically rigorous multi-population genetic algorithm that replaces
-#   metaphor-based sports algorithms (VPL, SLC). It features parallel sub-
-#   populations (islands), migration between islands, and stochastic
-#   tournament selection for robust global optimization.
-#
-# ALGORITHM:
-#   1. Initialize K islands with N individuals each.
-#   2. Local Improvement: Apply profit-based greedy insertion/ALNS refinement.
-#   3. Selection: Stochastic tournament with sigmoid win probability.
-#   4. Recombination: Ordered crossover (OX) on giant tours.
-#   5. Mutation: Random node removal for exploration.
-#   6. Migration: Ring topology elite exchange between sub-populations.
-#
-# KEY FEATURES:
-#   - Island Model prevents premature convergence through genetic isolation.
-#   - Stochastic Tournament allows controllable selection pressure (beta).
-#   - Ring Migration maintains global diversity reservoir.
-#   - ALNS intensification ensures strong local performance.
+#   metaphor-based sports algorithms (VPL). It features parallel sub-
+#   populations, elite-guided search, and diversity injection.
 #
 # REFERENCE:
-#   Whitley, D. (1998). "The island model genetic algorithm."
-#   Goldberg, D. E., & Deb, K. (1991). "A comparative analysis of selection schemes."
+#   VPL (Legacy Metaphorical Component)
 # =============================================================================
 
-ga_im_st:
+ma_dp:
   custom:
     # ---------------------------------------------------------------------
     # Population Structure
     # ---------------------------------------------------------------------
-    - n_islands: 4
+    - n_islands: 10
       # Number of independent sub-populations.
       # Range: 2-8 (4 = balanced, 8 = high diversity)
 
@@ -41,7 +25,7 @@ ga_im_st:
       # Number of individuals per island.
       # Range: 5-20 (10 = standard)
 
-    - max_generations: 100
+    - max_generations: 50
       # Total number of evolution cycles.
       # Range: 50-200 (100 = production)
 
@@ -74,7 +58,7 @@ ga_im_st:
     - mutation_rate: 0.2
       # Probability of random perturbation.
 
-    - alns_iterations: 50
+    - alns_iterations: 100
       # Local search iterations per individual per generation.
 
     - elitism_size: 2
@@ -83,7 +67,7 @@ ga_im_st:
     # ---------------------------------------------------------------------
     # Global Parameters
     # ---------------------------------------------------------------------
-    - time_limit: 300.0
+    - time_limit: 60.0
     - seed: null
 
     # ---------------------------------------------------------------------

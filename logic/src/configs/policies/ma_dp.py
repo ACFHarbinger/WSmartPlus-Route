@@ -1,0 +1,32 @@
+"""
+Island Model Genetic Algorithm with Stochastic Tournaments (IMGA-ST) Configuration.
+"""
+
+from dataclasses import dataclass, field
+from typing import Any, List, Optional
+
+
+@dataclass
+class MemeticAlgorithmDualPopulationConfig:
+    """
+    Configuration for the Memetic Algorithm Dual Population policy.
+    """
+
+    engine: str = "ma_dp"
+
+    # MADP Parameters
+    population_size: int = 30
+    max_iterations: int = 200
+    diversity_injection_rate: float = 0.2
+    elite_learning_weights: Optional[List[float]] = None
+    elite_count: int = 3
+
+    # Operators
+    local_search_iterations: int = 100
+    time_limit: float = 300.0
+    seed: Optional[int] = None
+
+    # Common policy fields
+    vrpp: bool = True
+    must_go: List[str] = field(default_factory=list)
+    post_processing: List[Any] = field(default_factory=list)
