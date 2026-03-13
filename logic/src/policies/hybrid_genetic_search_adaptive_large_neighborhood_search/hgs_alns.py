@@ -61,7 +61,9 @@ class HGSALNSSolver(HGSSolver):
         self.hgs_alns_params = params
 
         # Initialize ALNS solver for education phase
-        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, seed=seed)
+        alns_params_copy = params.alns_params
+        alns_params_copy.max_iterations = params.alns_education_iterations
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, alns_params_copy, seed=seed)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -92,9 +94,12 @@ class HGSALNSSolver(HGSSolver):
         it = 0
         last_improvement_it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
-        while (
-            self.hgs_alns_params.time_limit > 0 and time.process_time() - start_time < self.hgs_alns_params.time_limit
-        ):
+        while it < self.hgs_alns_params.hgs_max_iter:
+            if (
+                self.hgs_alns_params.time_limit > 0
+                and time.process_time() - start_time >= self.hgs_alns_params.time_limit
+            ):
+                break
             it += 1
             # 2. Selection & Crossover
             p1, p2 = self._select_parents(population)

@@ -21,6 +21,68 @@ from logic.src.constants import DAY_METRICS
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.utils.functions import move_to
 
+# Metaphor-Rigorous Algorithm Mapping for RNG Seeding
+# Maps rigorous algorithm names to their metaphor equivalents
+# This ensures equivalent algorithms use the SAME RNG seed for perfect matching
+METAPHOR_RIGOROUS_SEED_MAP = {
+    # Rigorous -> Metaphor (canonical)
+    "es_mcl": "abc",  # Evolution Strategy (μ,λ) -> Artificial Bee Colony
+    "psoda": "fa",  # Distance-Based PSO -> Firefly Algorithm
+    "es_mpl": "hs",  # Evolution Strategy (μ+λ) -> Harmony Search
+    "ma_im": "slc",  # Memetic Algorithm Island Model -> Soccer League Competition
+    "hms": "hvpl",  # Hybrid Memetic Search -> Hybrid Volleyball Premier League
+    "ma_dp": "vpl",  # Memetic Algorithm Dual Population -> Volleyball Premier League
+    "ma_tb": "lca",  # Memetic Algorithm Tolerance-Based -> League Championship Algorithm
+    "cls": "sca",  # Continuous Local Search -> Sine Cosine Algorithm
+}
+
+
+def get_canonical_policy_name(policy_name: str) -> str:
+    """
+    Get canonical (metaphor) algorithm name for RNG seeding.
+
+    This ensures that metaphor-rigorous algorithm pairs use the SAME RNG seed,
+    producing identical results when given the same configuration.
+
+    Args:
+        policy_name: Full policy name (e.g., 'lookahead_ma_im_custom_gamma3')
+
+    Returns:
+        Canonical name for seeding (e.g., 'slc' for ma_im)
+
+    Examples:
+        >>> get_canonical_policy_name('lookahead_ma_im_custom_gamma3')
+        'slc'
+        >>> get_canonical_policy_name('lookahead_abc_custom_gamma3')
+        'abc'
+    """
+    policy_lower = policy_name.lower()
+
+    # Check each rigorous name and return its metaphor equivalent
+    for rigorous, metaphor in METAPHOR_RIGOROUS_SEED_MAP.items():
+        if rigorous in policy_lower:
+            return metaphor
+
+    # If not in map, extract base algorithm name from policy string
+    # Examples:
+    #   'lookahead_abc_custom_gamma3' -> 'abc'
+    #   'policy_regular3_gamma1' -> 'regular3'
+    parts = policy_name.lower().split("_")
+
+    # Try to find algorithm name (typically after lookahead/policy prefix)
+    for _i, part in enumerate(parts):
+        if part in ["lookahead", "policy", "regular", "lastminute", "revenue"]:
+            # Skip selection strategy prefixes
+            continue
+        if part in ["custom", "gamma", "gamma1", "gamma2", "gamma3"]:
+            # Skip config suffixes
+            break
+        # Found algorithm name
+        return part
+
+    # Fallback: return original name
+    return policy_name
+
 
 @dataclass
 class SimulationDayContext(Mapping):
@@ -30,7 +92,6 @@ class SimulationDayContext(Mapping):
     Attributes:
         graph_size: Total nodes in the problem graph, **including** the depot (= num_loc + 1).
         full_policy: Full string identifier of the policy (e.g., 'policy_regular3_gamma1').
-        policy: Parsed policy name.
         policy_name: Name of the policy.
         bins: The Bins object managing waste levels.
         new_data: DataFrame containing new data for the day.
@@ -83,7 +144,6 @@ class SimulationDayContext(Mapping):
     # Required/Core Fields
     graph_size: int = 0
     full_policy: str = ""
-    policy: str = ""
     policy_name: str = ""
     bins: Optional[Bins] = None
     new_data: Optional[pd.DataFrame] = None
@@ -114,6 +174,7 @@ class SimulationDayContext(Mapping):
     engine: Optional[str] = None
     threshold: Optional[float] = None
     seed: int = 42
+    policy_seed: Optional[int] = None  # Policy-specific seed for RNG isolation
 
     # Optional/Mutable Fields
     daily_log: Optional[Dict[str, Any]] = None
@@ -229,10 +290,39 @@ def get_daily_results(
 
 
 def run_day(context: SimulationDayContext) -> SimulationDayContext:
-    """Orchestrates a single simulation day using the Command Pattern."""
-    random.seed(context.seed)
-    np.random.seed(context.seed)
-    torch.manual_seed(context.seed)
+    """
+    Orchestrates a single simulation day using the Command Pattern.
+
+    CRITICAL: Uses per-policy RNG isolation to ensure deterministic equivalence.
+    Each policy gets its own isolated RNG state derived from:
+        policy_seed = base_seed + hash(policy_name)
+
+    This ensures that metaphor-rigorous algorithm pairs produce IDENTICAL results
+    regardless of execution order in the simulation.
+    """
+    # Compute policy-specific seed for RNG isolation
+    # CRITICAL: Use canonical name to ensure metaphor-rigorous pairs get SAME seed
+    # Example: 'lookahead_ma_im_custom_gamma3' -> 'slc' (its metaphor equivalent)
+    import zlib
+
+    canonical_name = get_canonical_policy_name(context.policy_name)
+    name_hash = zlib.adler32(canonical_name.encode()) & 0xFFFFFFFF
+    policy_seed = (context.seed + name_hash + context.day) % (2**31)
+    context.policy_seed = policy_seed  # Store for later use
+
+    # Set policy-specific RNG state (isolates this policy from others)
+    random.seed(policy_seed)
+    np.random.seed(policy_seed)
+    torch.manual_seed(policy_seed)
+
+    # CRITICAL: Reset Bins RNG to policy-specific state
+    # This ensures bin fill predictions are identical for equivalent algorithms
+    # regardless of execution order
+    if context.bins is not None:
+        # Reset the Bins RNG using policy-specific seed + day + sample_id
+        # This gives each (policy, day, sample) tuple its own isolated bin predictions
+        bins_seed = (policy_seed + context.day + context.sample_id) % (2**31)
+        context.bins.rng = np.random.RandomState(bins_seed)
 
     from logic.src.pipeline.simulations.actions import (
         CollectAction,

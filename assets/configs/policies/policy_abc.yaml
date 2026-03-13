@@ -67,7 +67,7 @@ abc:
       # Maximum wall-clock seconds
       # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
 
-    - local_search_iterations: 500
+    - local_search_iterations: 100
       # Number of local search iterations
       # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
 

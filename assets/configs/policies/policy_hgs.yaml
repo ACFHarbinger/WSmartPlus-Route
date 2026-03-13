@@ -44,7 +44,7 @@ hgs:
       # Range: 5000-20000
       # Recommendation: 20000 (Vidal 2022 default), or 1000-5000 for faster runs
 
-    - local_search_iterations: 100
+    - local_search_iterations: 500
       # Number of iterations to run local search
       # Range: 50-200
       # Recommendation: 100 (balanced)

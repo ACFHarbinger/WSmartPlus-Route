@@ -18,7 +18,6 @@ class AHVPLConfig:
         n_teams: Number of teams (solutions) per instance in the league.
         sub_rate: Rate of substitution for weak teams each iteration.
         aco_iterations: Number of ACO iterations for initialization/substitution.
-        alns_iterations: Number of ALNS iterations for the coaching phase.
         crossover_rate: Probability of applying OX crossover.
         alpha_diversity: Weight for diversity in biased fitness calculation.
         nb_elite: Number of elite solutions for biased fitness ranking.
@@ -29,7 +28,6 @@ class AHVPLConfig:
     n_teams: int = 10
     sub_rate: float = 0.2
     aco_iterations: int = 1
-    alns_iterations: int = 50
     crossover_rate: float = 0.7
     alpha_diversity: float = 0.5
     nb_elite: int = 5

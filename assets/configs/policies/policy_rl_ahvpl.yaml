@@ -77,7 +77,7 @@ rl_ahvpl:
     - hgs_mu: 50
       # HGS internal population size for diversity management
 
-    - hgs_local_search_iterations: 100
+    - hgs_local_search_iterations: 500
       # Number of local search iterations per generation
 
     # ---------------------------------------------------------------------
@@ -128,7 +128,7 @@ rl_ahvpl:
     # ---------------------------------------------------------------------
     # ALNS Parameters (Local Search)
     # ---------------------------------------------------------------------
-    - alns_iterations: 100
+    - alns_iterations: 500
       # Number of destroy-repair cycles per coaching session
 
     - alns_start_temp: 100.0
@@ -164,7 +164,7 @@ rl_ahvpl:
         max_iterations: 1
         elitist_weight: 1.0
     - alns:
-        max_iterations: 100
+        max_iterations: 500
         start_temp: 100.0
         cooling_rate: 0.95
         reaction_factor: 0.1
@@ -182,7 +182,7 @@ rl_ahvpl:
         n_iterations_no_improvement: 20
         survivor_threshold: 2
         nb_granular: 10
-        local_search_iterations: 100
+        local_search_iterations: 500
         max_vehicles: 0
     - rts:
         initial_tenure: 7

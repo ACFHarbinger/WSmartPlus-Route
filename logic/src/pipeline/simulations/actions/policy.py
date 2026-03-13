@@ -33,9 +33,15 @@ class PolicyExecutionAction(SimulationAction):
         raw_cfg = context.get("config", {})
 
         # 2b. INJECT SIMULATION SEED INTO POLICY CONFIG
-        # This ensures that both global and explicit seeding are available
-        sim_cfg = getattr(context.get("cfg"), "sim", None)
-        seed = getattr(sim_cfg, "seed", 42) if sim_cfg else 42
+        # CRITICAL: Use policy-specific seed for RNG isolation
+        # If policy_seed is available (set by run_day), use it; otherwise fallback to base seed
+        policy_seed = context.get("policy_seed")
+        if policy_seed is not None:
+            seed = policy_seed
+        else:
+            # Fallback to base simulation seed
+            sim_cfg = getattr(context.get("cfg"), "sim", None)
+            seed = getattr(sim_cfg, "seed", 42) if sim_cfg else 42
 
         # Convert to a standard dict to ensure mutability
         if isinstance(raw_cfg, DictConfig):

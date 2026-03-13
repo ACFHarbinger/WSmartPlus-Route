@@ -52,3 +52,13 @@ class MuCommaLambdaESParams:
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0
+
+    @property
+    def n_sources(self) -> int:
+        """Alias for population_size to match ABC exactly."""
+        return self.population_size
+
+    @property
+    def limit(self) -> int:
+        """Alias for stagnation_limit to match ABC exactly."""
+        return self.stagnation_limit

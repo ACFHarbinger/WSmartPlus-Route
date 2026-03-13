@@ -43,6 +43,14 @@ defaults:
   - /policies@p.rl_ahvpl: policy_rl_ahvpl
   - /policies@p.rl_alns: policy_rl_alns
   - /policies@p.vns: policy_vns
+  - /policies@p.ma_im: policy_ma_im
+  - /policies@p.ma_tb: policy_ma_tb
+  - /policies@p.ma_dp: policy_ma_dp
+  - /policies@p.es_mpl: policy_es_mpl
+  - /policies@p.es_mcl: policy_es_mcl
+  - /policies@p.cls: policy_cls
+  - /policies@p.psoda: policy_psoda
+  - /policies@p.hms: policy_hms
   - _self_
   - override /tracking: test_sim
 
@@ -110,3 +118,11 @@ sim:
     - vns: ${p.vns.vns}
     - rl_alns: ${p.rl_alns.rl_alns}
     - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
+    - ma_im: ${p.ma_im.ma_im}
+    - ma_tb: ${p.ma_tb.ma_tb}
+    - ma_dp: ${p.ma_dp.ma_dp}
+    - es_mpl: ${p.es_mpl.es_mpl}
+    - es_mcl: ${p.es_mcl.es_mcl}
+    - cls: ${p.cls.cls}
+    - psoda: ${p.psoda.psoda}
+    - hms: ${p.hms.hms}

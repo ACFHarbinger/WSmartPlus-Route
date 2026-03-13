@@ -70,7 +70,7 @@ class VPLPolicy(BaseRoutingPolicy):
             coaching_weight_2=values.get("coaching_weight_2", 0.3),
             coaching_weight_3=values.get("coaching_weight_3", 0.2),
             elite_size=values.get("elite_size", 3),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 300.0),
         )
 

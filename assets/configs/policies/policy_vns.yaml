@@ -64,7 +64,7 @@ vns:
     # -------------------------------------------------------------------------
     # Local Search Descent Phase
     # -------------------------------------------------------------------------
-    - local_search_iterations: 20
+    - local_search_iterations: 500
       # LLH applications per descent phase (after each shaking step)
       # Range: 5-50 (5 = lightweight, 20 = balanced, 50 = deep descent)
       # Higher values improve solution quality but slow outer VNS iterations

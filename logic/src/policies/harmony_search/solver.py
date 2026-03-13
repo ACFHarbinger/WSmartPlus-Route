@@ -26,6 +26,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import greedy_insertion
 from .params import HSParams
 
@@ -56,6 +57,20 @@ class HSSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
+
+        # Pre-instantiate Local Search for reuse
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
 
     # ------------------------------------------------------------------
     # Public interface
@@ -201,10 +216,8 @@ class HSSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            routes = ls.optimize(routes)
+            # Apply comprehensive local search (reusing instance)
+            routes = self.ls.optimize(routes)
         except Exception:
             routes = []
         return routes

@@ -39,7 +39,6 @@ class HVPLConfig:
 
     # Integration Parameters
     aco_init_iterations: int = 50  # ACO iterations for initialization
-    alns_iterations: int = 100  # ALNS coaching iterations per team
 
     # Global Parameters
     time_limit: float = 300.0

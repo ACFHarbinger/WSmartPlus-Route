@@ -55,6 +55,20 @@ class PSOMAsSolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
 
+        # Initialize Local Search once for reuse
+        from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
+
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
@@ -184,8 +198,7 @@ class PSOMAsSolver(PolicyVizMixin):
             routes = self._random_relocate(routes)
 
         # 2-opt local search after every position update
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        return ls.optimize(routes)
+        return self.ls.optimize(routes)
 
     def _crossover(self, base_routes: List[List[int]], guide_routes: List[List[int]]) -> List[List[int]]:
         """
@@ -273,8 +286,7 @@ class PSOMAsSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            return ls.optimize(repaired)
+            return self.ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)
 

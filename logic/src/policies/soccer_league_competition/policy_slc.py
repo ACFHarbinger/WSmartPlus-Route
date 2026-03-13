@@ -52,7 +52,7 @@ class SLCPolicy(BaseRoutingPolicy):
             stagnation_limit=int(values.get("stagnation_limit", 5)),
             n_removal=int(values.get("n_removal", 1)),
             time_limit=float(values.get("time_limit", 60.0)),
-            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
         )
 
         solver = SLCSolver(

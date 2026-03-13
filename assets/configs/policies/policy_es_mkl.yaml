@@ -100,7 +100,7 @@ es_mkl:
     # ---------------------------------------------------------------------
     # Local Search Parameters
     # ---------------------------------------------------------------------
-    - local_search_iterations: 100
+    - local_search_iterations: 500
       # Number of local search improvement steps per offspring
       # Range: 50-200
       # Recommendation: 100 for balanced improvement

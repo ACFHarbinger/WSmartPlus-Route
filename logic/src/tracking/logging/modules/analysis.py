@@ -104,7 +104,11 @@ def runs_per_policy(
     runs_ls = []
     for path, ns in zip(dir_paths, nsamples):
         dit: Dict[str, List[int]] = {pol: [] for pol in policies}
-        data = cast(List[Dict[str, Any]], read_json(os.path.join(path, f"log_full_{ns}N.json"), lock))
+        full_log_path = os.path.join(path, f"log_full_{ns}N.json")
+        if not os.path.exists(full_log_path):
+            runs_ls.append(dit)
+            continue
+        data = cast(List[Dict[str, Any]], read_json(full_log_path, lock))
         for id, run_data in enumerate(data):
             for key in dit:
                 if key in run_data:

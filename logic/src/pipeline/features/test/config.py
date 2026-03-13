@@ -29,7 +29,13 @@ def expand_policy_configs(cfg: Config) -> None:
     config_path: Dict[str, Any] = dict(sim.config_path) if sim.config_path else {}
     dist_suffix = f"_{sim.data_distribution}"
 
-    for item in sim.policies:
+    from omegaconf import OmegaConf
+
+    resolved_policies = OmegaConf.to_container(sim.policies, resolve=True)
+    if not isinstance(resolved_policies, list):
+        resolved_policies = [resolved_policies]
+
+    for item in resolved_policies:
         if isinstance(item, dict) and len(item) == 1:
             pol_name = list(item.keys())[0]
             custom_overrides = item[pol_name]

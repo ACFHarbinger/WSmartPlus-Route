@@ -47,7 +47,7 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
             diversity_injection_rate=values.get("diversity_injection_rate", 0.2),
             elite_learning_weights=values.get("elite_learning_weights"),
             elite_count=values.get("elite_count", 3),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 300.0),
         )
 

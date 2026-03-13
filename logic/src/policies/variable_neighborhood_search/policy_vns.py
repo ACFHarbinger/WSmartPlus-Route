@@ -50,7 +50,7 @@ class VNSPolicy(BaseRoutingPolicy):
         params = VNSParams(
             k_max=int(values.get("k_max", 5)),
             max_iterations=int(values.get("max_iterations", 200)),
-            local_search_iterations=int(values.get("local_search_iterations", 20)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
             n_removal=int(values.get("n_removal", 2)),
             n_llh=int(values.get("n_llh", 5)),
             time_limit=float(values.get("time_limit", 60.0)),

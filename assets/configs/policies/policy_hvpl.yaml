@@ -21,7 +21,7 @@
 #     - Elitist selection preserving top solutions
 #     - Substitution from passive teams (20% rate)
 #
-#   Phase 3: ALNS Coaching (100 iterations per team)
+#   Phase 3: ALNS Coaching (Refinement)
 #     - Adaptive destroy-repair operators
 #     - Simulated annealing acceptance
 #     - Deep local search refinement
@@ -91,10 +91,6 @@ hvpl:
     - aco_init_iterations: 50
       # ACO iterations for Phase 1 initialization
       # Range: 20-100 (50 = balanced)
-
-    - alns_iterations: 100
-      # ALNS iterations per Phase 3 coaching
-      # Range: 50-500 (100 = balanced)
 
     # ---------------------------------------------------------------------
     # Global Parameters

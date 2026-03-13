@@ -122,26 +122,32 @@ class InitializingState(SimState):
         self._load_neural_configs(ctx)
 
     def _load_neural_configs(self, ctx):
-        # Neural if model.name or specific neural parameters are in config
-        neural_keywords = ["am", "ptr", "transgcn", "neural", "ddam", "ham", "l2d"]
-
         # Priority 1: policy_cfg (new structured format)
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
         neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
-        should_load_neural = any(kw in model_name for kw in neural_keywords) or any(
-            model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
+        pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
+        is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
+            kw in model_name for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]
         )
 
-        if should_load_neural and os.path.exists(neural_cfg_path):
+        # Look for neural keywords in model_name or context's pol_name
+        is_neural_arch = any(kw in model_name for kw in ["am", "ptr", "transgcn", "ddam"]) or any(
+            kw in ctx.pol_name.lower().split("_") for kw in ["neural", "am", "ptr", "transgcn", "ddam"]
+        )
+
+        if is_neural and (is_neural_arch or model_name == "") and os.path.exists(neural_cfg_path):
             try:
                 neural_cfg = load_config(neural_cfg_path)
                 if neural_cfg:
                     if "neural" in neural_cfg:
+                        # Flatten specific neural sub-configs if they are lists
+                        from ..actions.base import _flatten_config
+
                         for pol_key, pol_val in neural_cfg["neural"].items():
-                            ctx.config[pol_key] = pol_val
+                            ctx.config[pol_key] = _flatten_config(pol_val)
                     else:
                         ctx.config.update(neural_cfg)
                 print(f"\n[INFO] Loaded configuration from {neural_cfg_path}")
@@ -169,18 +175,33 @@ class InitializingState(SimState):
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
         sim = ctx.cfg.sim
-        should_load_neural = any(kw in model_name for kw in ["am", "ptr", "transgcn", "neural", "ddam"]) or any(
-            model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
+        sim = ctx.cfg.sim
+        pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
+        is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
+            kw in model_name for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]
         )
+        should_load_neural = is_neural or any(model_name.startswith(kw) for kw in ["am", "ddam", "ptr"])
 
         configs = None
-        if should_load_neural and ("am" in model_name or "transgcn" in model_name or model_name.startswith("am")):
+        # Architecture check: also include common neural architecture keywords
+        is_neural_arch = (
+            any(kw in model_name for kw in ["am", "ptr", "transgcn", "ddam"])
+            or any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam"])
+            or "amgat" in ctx.pol_name.lower()
+        )
+
+        if should_load_neural and (is_neural_arch or model_name == ""):
+            # Flatten policy config in case it's a list-based structured config
+            from ..actions.base import _flatten_config
+
+            flat_pol_cfg = _flatten_config(ctx.pol_cfg)
+
             # Extract decoding parameters from policy config
-            decoding = ctx.pol_cfg.get("decoding", {}) if isinstance(ctx.pol_cfg, dict) else {}
+            decoding = flat_pol_cfg.get("decoding", {})
             temp = decoding.get("temperature", 1.0)
             strat = str(decoding.get("strategy", "greedy"))
 
-            model_path_raw = ctx.pol_cfg.get("model_path") if isinstance(ctx.pol_cfg, dict) else None
+            model_path_raw = flat_pol_cfg.get("model_path")
             model_paths: dict[str, str] = model_path_raw if isinstance(model_path_raw, dict) else {}
 
             ctx.model_env, configs = setup_model(
@@ -254,11 +275,16 @@ class InitializingState(SimState):
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
-        should_load_neural = any(kw in model_name for kw in ["am", "ptr", "transgcn", "neural", "ddam"]) or any(
-            model_name.startswith(kw) for kw in ["am", "ddam", "ptr"]
+        pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
+        is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
+            kw in model_name for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]
+        )
+        # Look for neural keywords in model_name or context's pol_name
+        is_neural_arch = any(kw in model_name for kw in ["am", "ptr", "transgcn", "ddam"]) or any(
+            kw in ctx.pol_name.lower().split("_") for kw in ["neural", "am", "ptr", "transgcn", "ddam"]
         )
 
-        if should_load_neural and ("am" in model_name or "transgcn" in model_name or model_name.startswith("am")):
+        if is_neural and (is_neural_arch or model_name == ""):
             ctx.model_tup = process_model_data(
                 ctx.coords,
                 ctx.dist_tup[2],

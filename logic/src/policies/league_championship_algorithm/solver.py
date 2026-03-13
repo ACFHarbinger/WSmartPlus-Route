@@ -28,6 +28,7 @@ import numpy as np
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import greedy_insertion, worst_removal
 from .params import LCAParams
 
@@ -59,6 +60,18 @@ class LCASolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
         self.mandatory_set = set(self.mandatory_nodes)
         self.random = random.Random(seed) if seed is not None else random.Random()
+
+        # Pre-instantiate Local Search for reuse
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
 
     # ------------------------------------------------------------------
     # Public interface
@@ -188,9 +201,8 @@ class LCASolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            # Apply comprehensive local search
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            return ls.optimize(repaired)
+            # Apply comprehensive local search (reusing instance)
+            return self.ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)
 
@@ -239,9 +251,8 @@ class LCASolver(PolicyVizMixin):
                     mandatory_nodes=self.mandatory_nodes,
                 )
 
-        # Apply comprehensive local search
-        ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-        return ls.optimize(child)
+        # Apply comprehensive local search (reusing instance)
+        return self.ls.optimize(child)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Net profit for a set of routes."""
