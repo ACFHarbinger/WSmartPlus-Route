@@ -22,7 +22,7 @@ class MemeticAlgorithmDualPopulationConfig:
     elite_count: int = 3
 
     # Operators
-    local_search_iterations: int = 100
+    local_search_iterations: int = 500
     time_limit: float = 300.0
     seed: Optional[int] = None
 

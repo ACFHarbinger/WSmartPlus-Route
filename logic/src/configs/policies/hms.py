@@ -18,6 +18,7 @@ class HybridMemeticSearchConfig:
     Functionally equivalent to HVPL.
     """
 
+    engine: str = "hms"
     population_size: int = 30
     max_generations: int = 50
     substitution_rate: float = 0.2
@@ -25,7 +26,6 @@ class HybridMemeticSearchConfig:
     mutation_rate: float = 0.1
     elitism_count: int = 3
     aco_init_iterations: int = 50
-    alns_iterations: int = 100
     time_limit: float = 300.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None

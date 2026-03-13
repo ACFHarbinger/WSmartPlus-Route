@@ -7,6 +7,7 @@ from ..model.checkpoint_utils import load_data
 from ..model.loader import load_args, load_model, torch_load_cpu
 from ..model.problem_factory import load_problem
 from ..model.processing import get_inner_model, parse_softmax_temperature
+from .math import safe_exp
 from .parallel import run_all_in_pool
 from .path import get_path_until_string
 from .sampling import sample_many

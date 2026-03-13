@@ -63,7 +63,7 @@ class HGSConfig:
     diversity_change_rate: float = 0.05
 
     # Local search
-    local_search_iterations: int = 100
+    local_search_iterations: int = 500
     max_vehicles: int = 0
 
     # Penalty management

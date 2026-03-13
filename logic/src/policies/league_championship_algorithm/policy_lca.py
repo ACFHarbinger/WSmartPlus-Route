@@ -52,7 +52,7 @@ class LCAPolicy(BaseRoutingPolicy):
             crossover_prob=float(values.get("crossover_prob", 0.6)),
             n_removal=int(values.get("n_removal", 2)),
             time_limit=float(values.get("time_limit", 60.0)),
-            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
         )
 
         solver = LCASolver(

@@ -100,7 +100,7 @@ class RunningState(SimState):
                 # Ensure it's deeply converted or updated properly
                 current_policy_config.update(dict(pol_data))
 
-        if ctx.pol_cfg:
+        if ctx.pol_cfg and isinstance(ctx.pol_cfg, (dict, Mapping)):
             current_policy_config.update(dict(ctx.pol_cfg))
 
         return current_policy_config
@@ -113,7 +113,6 @@ class RunningState(SimState):
         return SimulationDayContext(
             graph_size=sim.graph.num_loc,
             full_policy=ctx.pol_name,
-            policy=ctx.pol_name,
             policy_name=ctx.pol_name,
             bins=ctx.bins,
             new_data=ctx.new_data,

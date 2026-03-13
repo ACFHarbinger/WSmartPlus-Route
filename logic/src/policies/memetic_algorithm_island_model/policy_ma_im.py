@@ -47,7 +47,7 @@ class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
             max_generations=values.get("max_generations", 50),
             stagnation_limit=values.get("stagnation_limit", 5),
             n_removal=values.get("n_removal", 1),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 60.0),
         )
 

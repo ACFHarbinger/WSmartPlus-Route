@@ -61,7 +61,7 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
             recombination_rate=values.get("recombination_rate", 0.95),
             mutation_rate=values.get("mutation_rate", 0.3),
             max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 60.0),
         )
 

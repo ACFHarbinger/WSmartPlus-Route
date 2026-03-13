@@ -22,6 +22,8 @@ class HGSALNSParams:
 
     # Hybrid-specific parameters
     time_limit: float = 60.0
+    alns_education_iterations: int = 50
+    hgs_max_iter: int = 100
 
     # HGS Components (Genetic Evolution & Population Management)
     hgs_params: HGSParams = field(

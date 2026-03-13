@@ -1,12 +1,7 @@
-"""
-Hybrid Memetic Search (HMS) Parameters.
-
-This module defines the configuration parameters for the Hybrid Memetic
-Search algorithm, which is a triple-phase hybrid solver combining ACO,
-Genetic Algorithms (HGS variant), and ALNS.
-"""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..adaptive_large_neighborhood_search import ALNSParams
 from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
@@ -27,7 +22,6 @@ class HybridMemeticSearchParams:
         mutation_rate: Probability of local perturbation.
         elitism_count: Number of best solutions to preserve across generations.
         aco_init_iterations: ACO iterations for population seeding.
-        alns_iterations: ALNS iterations per refinement session.
         time_limit: Wall-clock time limit in seconds.
         aco_params: ACO configuration.
         alns_params: ALNS configuration.
@@ -35,7 +29,7 @@ class HybridMemeticSearchParams:
 
     # Population Parameters
     population_size: int = 30
-    max_generations: int = 50
+    max_generations: int = 100
     substitution_rate: float = 0.2
     crossover_rate: float = 0.8
     mutation_rate: float = 0.1
@@ -43,32 +37,76 @@ class HybridMemeticSearchParams:
 
     # Phase-specific Parameters
     aco_init_iterations: int = 50
-    alns_iterations: int = 100
     time_limit: float = 300.0
 
     # Sub-algorithm Parameters
-    aco_params: ACOParams = field(
-        default_factory=lambda: ACOParams(
-            n_ants=20,
-            k_sparse=10,
-            alpha=1.0,
-            beta=2.0,
-            rho=0.1,
-            q0=0.9,
-            tau_0=None,
-            tau_min=0.001,
-            tau_max=10.0,
-            max_iterations=1,
-            time_limit=30,
-            local_search=False,
-        )
-    )
+    aco_params: ACOParams = field(default_factory=lambda: None)  # type: ignore
+    alns_params: ALNSParams = field(default_factory=lambda: None)  # type: ignore
 
-    alns_params: ALNSParams = field(
-        default_factory=lambda: ALNSParams(
-            max_iterations=100,
-            start_temp=100.0,
-            cooling_rate=0.95,
-            time_limit=30,
+    def __post_init__(self):
+        """Initialize sub-algorithm parameters with defaults if not provided."""
+        if self.aco_params is None:
+            self.aco_params = ACOParams(
+                n_ants=20,
+                k_sparse=10,
+                alpha=1.0,
+                beta=2.0,
+                rho=0.1,
+                q0=0.9,
+                tau_0=None,
+                tau_min=0.001,
+                tau_max=10.0,
+                max_iterations=1,
+                time_limit=60.0,
+                local_search=False,
+            )
+
+        if self.alns_params is None:
+            self.alns_params = ALNSParams(
+                max_iterations=100,
+                start_temp=100.0,
+                cooling_rate=0.95,
+                reaction_factor=0.1,
+                min_removal=1,
+                max_removal_pct=0.3,
+                time_limit=60.0,
+            )
+
+    @classmethod
+    def from_config(cls, config: Any) -> HybridMemeticSearchParams:
+        """Create HMSParams from an HMSConfig dataclass or dict."""
+        if isinstance(config, dict):
+            return cls(
+                population_size=config.get("population_size", 30),
+                max_generations=config.get("max_generations", 100),
+                substitution_rate=config.get("substitution_rate", 0.2),
+                crossover_rate=config.get("crossover_rate", 0.8),
+                mutation_rate=config.get("mutation_rate", 0.1),
+                elitism_count=config.get("elitism_count", 3),
+                aco_init_iterations=config.get("aco_init_iterations", 50),
+                time_limit=config.get("time_limit", 300.0),
+                aco_params=ACOParams.from_config(config.get("aco")) if config.get("aco") else None,
+                alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
+            )
+
+        return cls(
+            population_size=config.population_size,
+            max_generations=config.max_generations,
+            substitution_rate=config.substitution_rate,
+            crossover_rate=config.crossover_rate,
+            mutation_rate=config.mutation_rate,
+            elitism_count=config.elitism_count,
+            aco_init_iterations=config.aco_init_iterations,
+            time_limit=config.time_limit,
+            aco_params=ACOParams.from_config(config.aco) if config.aco else None,
+            alns_params=ALNSParams.from_config(config.alns) if config.alns else None,
         )
-    )
+
+    # ------------------------------------------------------------------
+    # Compatibility aliases for EXACT matching with HVPL attribute names
+    # ------------------------------------------------------------------
+
+    @property
+    def max_iterations(self) -> int:
+        """Alias for max_generations to match HVPL exactly."""
+        return self.max_generations

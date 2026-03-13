@@ -54,7 +54,7 @@ class PSOMAPolicy(BaseRoutingPolicy):
             local_search_freq=int(values.get("local_search_freq", 10)),
             n_removal=int(values.get("n_removal", 2)),
             time_limit=float(values.get("time_limit", 60.0)),
-            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
         )
 
         solver = PSOMAsSolver(

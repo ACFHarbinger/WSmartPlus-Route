@@ -65,7 +65,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
 
         # Build Params from nested config
         alns_params = ALNSParams(
-            max_iterations=values.get("alns_iterations", 100),
+            max_iterations=values.get("alns_iterations", 500),
             start_temp=values.get("alns_start_temp", 100.0),
             cooling_rate=values.get("alns_cooling_rate", 0.95),
             reaction_factor=values.get("alns_reaction_factor", 0.1),
@@ -86,7 +86,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             diversity_change_rate=values.get("hgs_diversity_change_rate", 0.05),
             n_iterations_no_improvement=values.get("hgs_no_improvement_threshold", 20),
             nb_granular=values.get("hgs_neighbor_list_size", 10),
-            local_search_iterations=values.get("hgs_local_search_iterations", 100),
+            local_search_iterations=values.get("hgs_local_search_iterations", 500),
             max_vehicles=values.get("hgs_max_vehicles", 0),
         )
 

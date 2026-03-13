@@ -21,6 +21,7 @@ from omegaconf import DictConfig
 from logic.src.constants import (
     ROOT_DIR,
 )
+from logic.src.utils.configs.setup_utils import deep_sanitize, get_pol_name
 
 from .base import SimState
 
@@ -103,14 +104,27 @@ class SimulationContext:
         )
         policies = sim.full_policies
         raw_policy = policies[pol_id]
-        if isinstance(raw_policy, dict) and len(raw_policy) == 1:
-            self.pol_name = list(raw_policy.keys())[0]
-            self.pol_cfg = raw_policy[self.pol_name]
-        elif isinstance(raw_policy, dict):
-            self.pol_name = "unknown"
-            self.pol_cfg = raw_policy
+
+        # Use robust utility to extract policy name and ensure config is a plain dict
+        self.pol_name = get_pol_name(raw_policy)
+        sanitized_policy = deep_sanitize(raw_policy)
+
+        # 1. Handle case where raw_policy is just a string (common in expanded test-sim)
+        if isinstance(sanitized_policy, str):
+            sim = cfg.sim
+            config_paths = sim.config_path if sim.config_path else {}
+            # Try to find the config for this policy name in the config_path map
+            if self.pol_name in config_paths:
+                loaded_cfg = deep_sanitize(config_paths[self.pol_name])
+                self.pol_cfg = loaded_cfg if isinstance(loaded_cfg, dict) else {}
+            else:
+                self.pol_cfg = {}
+        # 2. Handle structured dictionary case
+        elif isinstance(sanitized_policy, dict) and len(sanitized_policy) == 1 and self.pol_name in sanitized_policy:
+            self.pol_cfg = sanitized_policy[self.pol_name]
+        elif isinstance(sanitized_policy, dict):
+            self.pol_cfg = sanitized_policy
         else:
-            self.pol_name = str(raw_policy)
             self.pol_cfg = {}
 
         self._continue_init(variables_dict, pol_id)

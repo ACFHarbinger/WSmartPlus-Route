@@ -27,7 +27,7 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "hs,fa,abc,hvpl,slc,lca,sca,cls,es_mpl,es_mcl,psoda,ma_dp,ma_im,ma_tb"
+policies := "hs,fa,abc,slc,hvpl,vpl,lca,sca,cls,es_mpl,es_mcl,psoda,hms,ma_dp,ma_im,ma_tb"
 
 #policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,hmm_gd"
 # --- Setup & Environment ---

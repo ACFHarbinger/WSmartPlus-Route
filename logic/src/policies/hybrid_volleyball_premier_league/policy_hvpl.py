@@ -109,7 +109,7 @@ class HVPLPolicy(BaseRoutingPolicy):
         alns_config = values.get("alns", {})
         if isinstance(alns_config, dict):
             alns_params = ALNSParams(
-                max_iterations=alns_config.get("max_iterations", 100),
+                max_iterations=alns_config.get("max_iterations", 500),
                 start_temp=alns_config.get("start_temp", 100.0),
                 cooling_rate=alns_config.get("cooling_rate", 0.95),
                 reaction_factor=alns_config.get("reaction_factor", 0.1),
@@ -120,7 +120,7 @@ class HVPLPolicy(BaseRoutingPolicy):
         else:
             # Fallback to flattened parameters for backward compatibility
             alns_params = ALNSParams(
-                max_iterations=values.get("alns_iterations", 100),
+                max_iterations=values.get("alns_iterations", 500),
                 start_temp=values.get("alns_start_temp", 100.0),
                 cooling_rate=values.get("alns_cooling_rate", 0.95),
                 reaction_factor=values.get("alns_reaction_factor", 0.1),
@@ -137,7 +137,7 @@ class HVPLPolicy(BaseRoutingPolicy):
             mutation_rate=values.get("mutation_rate", 0.1),
             elite_size=values.get("elite_size", 3),
             aco_init_iterations=values.get("aco_init_iterations", 50),
-            alns_iterations=values.get("alns_iterations", 100),
+            alns_iterations=values.get("alns_iterations", 500),
             time_limit=values.get("time_limit", 300.0),
             aco_params=aco_params,
             alns_params=alns_params,

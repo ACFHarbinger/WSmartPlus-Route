@@ -24,7 +24,7 @@ class DistancePSOConfig:
     exploration_rate: float = 0.1
     n_removal: int = 3
     max_iterations: int = 500
-    local_search_iterations: int = 100
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     alpha_profit: float = 1.0
     beta_will: float = 0.5

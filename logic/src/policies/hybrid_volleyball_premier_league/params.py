@@ -10,6 +10,7 @@ Reference:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
@@ -38,7 +39,6 @@ class HVPLParams:
         mutation_rate: Probability of mutation after crossover.
         elite_size: Number of elite teams preserved.
         aco_init_iterations: ACO iterations for population initialization.
-        alns_iterations: ALNS iterations per coaching session.
         time_limit: Wall-clock time limit in seconds.
         aco_params: ACO algorithm parameters.
         alns_params: ALNS algorithm parameters.
@@ -54,7 +54,6 @@ class HVPLParams:
 
     # Integration Parameters
     aco_init_iterations: int = 50  # Truncated ACO for initialization
-    alns_iterations: int = 100  # ALNS coaching iterations per team
 
     # Global Parameters
     time_limit: float = 300.0
@@ -85,7 +84,7 @@ class HVPLParams:
 
         if self.alns_params is None:
             self.alns_params = ALNSParams(
-                max_iterations=self.alns_iterations,
+                max_iterations=100,
                 start_temp=100.0,
                 cooling_rate=0.95,
                 reaction_factor=0.1,
@@ -100,3 +99,33 @@ class HVPLParams:
         assert 0 <= self.crossover_rate <= 1, "crossover_rate must be in [0, 1]"
         assert 0 <= self.mutation_rate <= 1, "mutation_rate must be in [0, 1]"
         assert self.elite_size >= 1, "elite_size must be at least 1"
+
+    @classmethod
+    def from_config(cls, config: Any) -> HVPLParams:
+        """Create HVPLParams from an HVPLConfig dataclass or dict."""
+        if isinstance(config, dict):
+            return cls(
+                n_teams=config.get("n_teams", 30),
+                max_iterations=config.get("max_iterations", 100),
+                substitution_rate=config.get("substitution_rate", 0.2),
+                crossover_rate=config.get("crossover_rate", 0.8),
+                mutation_rate=config.get("mutation_rate", 0.1),
+                elite_size=config.get("elite_size", 3),
+                aco_init_iterations=config.get("aco_init_iterations", 50),
+                time_limit=config.get("time_limit", 300.0),
+                aco_params=ACOParams.from_config(config.get("aco")) if config.get("aco") else None,
+                alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
+            )
+
+        return cls(
+            n_teams=config.n_teams,
+            max_iterations=config.max_iterations,
+            substitution_rate=config.substitution_rate,
+            crossover_rate=config.crossover_rate,
+            mutation_rate=config.mutation_rate,
+            elite_size=config.elite_size,
+            aco_init_iterations=config.aco_init_iterations,
+            time_limit=config.time_limit,
+            aco_params=ACOParams.from_config(config.aco) if config.aco else None,
+            alns_params=ALNSParams.from_config(config.alns) if config.alns else None,
+        )

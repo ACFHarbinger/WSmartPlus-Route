@@ -37,7 +37,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..other.operators import greedy_insertion, random_removal
@@ -86,6 +85,21 @@ class DistancePSOSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
+
+        # Initialize Local Search once for reuse
+        from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+        from ..other.local_search.local_search_aco import ACOLocalSearch
+
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -300,8 +314,7 @@ class DistancePSOSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply local search refinement
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            return ls.optimize(routes)
+            return self.ls.optimize(routes)
         return routes
 
     def _compute_best_insertion_cost(self, node: int, routes: List[List[int]]) -> float:
@@ -362,8 +375,7 @@ class DistancePSOSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply local search refinement
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            return ls.optimize(repaired_routes)
+            return self.ls.optimize(repaired_routes)
         except Exception:
             return copy.deepcopy(particle)
 

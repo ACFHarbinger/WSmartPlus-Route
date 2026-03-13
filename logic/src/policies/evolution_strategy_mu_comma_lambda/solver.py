@@ -37,6 +37,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .params import MuCommaLambdaESParams
 
@@ -84,6 +85,21 @@ class MuCommaLambdaESSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.rng = random.Random(seed) if seed is not None else random.Random()
+
+        # Initialize Local Search once to cache neighbor list
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
+        # Pre-instantiate local search for reuse
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -260,11 +276,8 @@ class MuCommaLambdaESSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
 
-            # Apply local search refinement
-            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            return ls.optimize(repaired_routes)
+            # Apply local search refinement (reusing instance)
+            return self.ls.optimize(repaired_routes)
         except Exception:
             return copy.deepcopy(parent)
 

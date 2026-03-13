@@ -70,7 +70,17 @@ def get_pol_name(pol_obj: Any) -> str:
 
         # If it's a string, or became one, ensure it's not a serialized dict/block
         name = str(sanitized)
-        if "{" in name or "[" in name or len(name) > 64:
+        if "{" in name or "[" in name:
+            import ast
+
+            try:
+                # Attempt to parse a string repr of a dict/list
+                parsed = ast.literal_eval(name)
+                return get_pol_name(parsed)
+            except (ValueError, SyntaxError):
+                return "unnamed_policy"
+
+        if len(name) > 64:
             return "unnamed_policy"
 
         return name
