@@ -91,3 +91,32 @@ class MemeticAlgorithmDualPopulationParams:
         total_weight = sum(self.elite_learning_weights[: self.elite_count])
         if abs(total_weight - 1.0) > 1e-6:
             raise ValueError(f"Elite learning weights (first {self.elite_count}) must sum to 1.0, got {total_weight}")
+
+    # ------------------------------------------------------------------
+    # Compatibility aliases for EXACT matching with VPL attribute names
+    # ------------------------------------------------------------------
+
+    @property
+    def substitution_rate(self) -> float:
+        """Alias for diversity_injection_rate to match VPL exactly."""
+        return self.diversity_injection_rate
+
+    @property
+    def elite_size(self) -> int:
+        """Alias for elite_count to match VPL exactly."""
+        return self.elite_count
+
+    @property
+    def coaching_weight_1(self) -> float:
+        """Alias for first elite learning weight to match VPL exactly."""
+        return self.elite_learning_weights[0]
+
+    @property
+    def coaching_weight_2(self) -> float:
+        """Alias for second elite learning weight to match VPL exactly."""
+        return self.elite_learning_weights[1]
+
+    @property
+    def coaching_weight_3(self) -> float:
+        """Alias for third elite learning weight to match VPL exactly."""
+        return self.elite_learning_weights[2]

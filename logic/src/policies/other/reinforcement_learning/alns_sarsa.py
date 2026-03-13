@@ -37,7 +37,6 @@ Reference:
 """
 
 import copy
-import math
 import random
 import time
 from collections import deque
@@ -102,6 +101,7 @@ from logic.src.policies.other.operators.unstringing_stringing import (
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import SarsaAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.tracking.viz_mixin import PolicyVizMixin
+from logic.src.utils.functions import safe_exp
 
 from .alns_perturbation_context import ALNSPerturbationContext
 
@@ -615,7 +615,7 @@ class ALNSSARSASolver(PolicyVizMixin):
             if delta < self.improvement_thresholds[0]:
                 accept = True
                 score = 3.0  # High score for global/local improvement
-            elif T > 0 and self.random.random() < math.exp(-delta / T):
+            elif T > 0 and self.random.random() < safe_exp(-delta / T):
                 accept = True
                 score = 1.0  # Medium score for accepted non-improving moves
             else:

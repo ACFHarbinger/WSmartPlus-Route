@@ -13,6 +13,9 @@ ma_tb:
     # ---------------------------------------------------------------------
     # Population Parameters
     # ---------------------------------------------------------------------
+    - local_search_iterations: 500
+      # Number of local search iterations per individual
+
     - population_size: 10
       # Number of chromosomes in population (N parameter)
       # Range: 20-200

@@ -1126,8 +1126,8 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 | Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search. |
 | Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.             |
 | Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).         |
-| League Championship (LCA)               | **Memetic Algorithm Tolerance Based (MA-TB)** | Pairwise tournament selection with infeasibility tolerance.      |
-| SCA (Sine Cosine)                       | **Continuous Local Search**                   | Gradient-free search with trigonometric perturbations            |
+| League Championship Algorithm (LCA)     | **Memetic Algorithm Tolerance Based (MA-TB)** | Pairwise tournament selection with infeasibility tolerance.      |
+| Sine Cosine Algorithm (SCA)             | **Continuous Local Search**                   | Gradient-free search with trigonometric perturbations            |
 | **(μ,κ,λ) ES**                          | **Age-Based Evolution Strategy**              | Metaheuristic with age-based selection and self-adaptation       |
 
 ---

@@ -106,7 +106,7 @@ class AHVPLSolver(PolicyVizMixin):
         ind.routes = [r[:] for r in routes]
 
         # Calculate precise cost/rev directly from ACO routes
-        rev = sum(self.wastes.get(n, 0) for r in routes for n in r) * self.params.aco_params.R
+        rev = sum(self.wastes.get(n, 0) for r in routes for n in r) * self.R
         cost = 0.0
         for r in routes:
             if not r:
@@ -115,7 +115,7 @@ class AHVPLSolver(PolicyVizMixin):
             for i in range(len(r) - 1):
                 d += self.dist_matrix[r[i]][r[i + 1]]
             d += self.dist_matrix[r[-1]][0]
-            cost += d * self.params.aco_params.C
+            cost += d * self.C
 
         ind.cost = cost
         ind.revenue = rev
@@ -188,6 +188,7 @@ class AHVPLSolver(PolicyVizMixin):
                     # New children
                     iters = self.params.not_coached_alns_iterations
                 else:
+                    # Base coaching
                     iters = self.params.alns_params.max_iterations
 
                 population[i] = self._alns_coaching(ind, iterations=iters)
@@ -241,36 +242,6 @@ class AHVPLSolver(PolicyVizMixin):
             )
 
         return best_routes, best_profit, best_cost
-
-    # ── Initialization ──────────────────────────────────────────────
-
-    def _initialize_population(self) -> List[Individual]:
-        """Generate initial population using ACO constructor."""
-        population: List[Individual] = []
-        for _ in range(self.params.n_teams):
-            ind = self._construct_individual()
-            if ind is not None:
-                population.append(ind)
-        return population
-
-    def _construct_individual(self) -> Optional[Individual]:
-        """Build one Individual from an ACO-constructed solution."""
-        routes = self.constructor.construct()
-        if not routes:
-            return None
-
-        giant_tour = self._routes_to_giant_tour(routes)
-        if not giant_tour:
-            return None
-
-        # Ensure all nodes are present for genetic consistency
-        visited = set(giant_tour)
-        missing = [n for n in self.nodes if n not in visited]
-        giant_tour.extend(missing)
-
-        ind = Individual(giant_tour)
-        evaluate(ind, self.split_manager)
-        return ind
 
     # ── HGS Operators ────────────────────────────────────────────────
 

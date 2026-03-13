@@ -10,7 +10,6 @@ Reference:
 """
 
 import copy
-import math
 import random
 import time
 from typing import Dict, List, Optional, Tuple
@@ -18,6 +17,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
+from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
     cluster_removal,
@@ -146,7 +146,7 @@ class ALNSSolver(PolicyVizMixin):
         if delta < -1e-6:
             return True
         else:
-            prob = math.exp(-delta / T) if T > 0 else 0
+            prob = safe_exp(-delta / T) if T > 0 else 0
             return self.random.random() < prob
 
     def _update_weights(self, d_idx, r_idx, score):

@@ -13,7 +13,9 @@ Example:
     >>> optimized_routes = ls.optimize(routes)
 """
 
-from typing import List
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 
 from .local_search_base import LocalSearch
 
@@ -23,6 +25,20 @@ class ACOLocalSearch(LocalSearch):
     Local Search module for K-Sparse ACO.
     Implements 2-opt local search refinement.
     """
+
+    def __init__(
+        self,
+        dist_matrix: np.ndarray,
+        waste: Dict[int, float],
+        capacity: float,
+        R: float,
+        C: float,
+        params: Any,
+        seed: Optional[int] = None,
+        neighbors: Optional[Dict[int, List[int]]] = None,
+    ):
+        """Initialize ACO Local Search."""
+        super().__init__(dist_matrix, waste, capacity, R, C, params, seed, neighbors)
 
     def optimize(self, solution: List[List[int]]) -> List[List[int]]:
         """

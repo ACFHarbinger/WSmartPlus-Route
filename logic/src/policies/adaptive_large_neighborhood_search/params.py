@@ -4,11 +4,9 @@ Configuration parameters for the Adaptive Large Neighborhood Search (ALNS).
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from logic.src.configs.policies import ALNSConfig
+from typing import Any
 
 
 @dataclass
@@ -35,15 +33,18 @@ class ALNSParams:
     max_removal_pct: float = 0.3
 
     @classmethod
-    def from_config(cls, config: ALNSConfig) -> ALNSParams:
-        """Create ALNSParams from an ALNSConfig dataclass.
+    def from_config(cls, config: Any) -> ALNSParams:
+        """Create ALNSParams from an ALNSConfig dataclass or dict.
 
         Args:
-            config: ALNSConfig dataclass with solver parameters.
+            config: ALNSConfig dataclass or dict with solver parameters.
 
         Returns:
             ALNSParams instance with values from config.
         """
+        if isinstance(config, dict):
+            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+
         return cls(
             time_limit=config.time_limit,
             max_iterations=config.max_iterations,

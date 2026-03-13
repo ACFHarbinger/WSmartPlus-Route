@@ -72,7 +72,7 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
             n_removal=values.get("n_removal", 3),
             stagnation_limit=values.get("stagnation_limit", 10),
             max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 60.0),
         )
 

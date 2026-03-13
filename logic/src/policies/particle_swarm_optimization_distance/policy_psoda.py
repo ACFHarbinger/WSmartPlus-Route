@@ -62,7 +62,7 @@ class DistancePSOPolicy(BaseRoutingPolicy):
             exploration_rate=values.get("exploration_rate", 0.1),
             n_removal=values.get("n_removal", 3),
             max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 60.0),
             alpha_profit=values.get("alpha_profit", 1.0),
             beta_will=values.get("beta_will", 0.5),

@@ -14,11 +14,9 @@ Example:
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
-
-if TYPE_CHECKING:
-    from logic.src.configs.policies import ACOConfig
+from typing import Any, Optional
 
 
 @dataclass
@@ -66,15 +64,18 @@ class ACOParams:
             raise ValueError(f"Exploitation probability q0 must be in [0, 1], got {self.q0}")
 
     @classmethod
-    def from_config(cls, config: ACOConfig) -> ACOParams:
-        """Create ACOParams from an ACOConfig dataclass.
+    def from_config(cls, config: Any) -> ACOParams:
+        """Create ACOParams from an ACOConfig dataclass or dict.
 
         Args:
-            config: ACOConfig dataclass with solver parameters.
+            config: ACOConfig dataclass or dict with solver parameters.
 
         Returns:
             ACOParams instance with values from config.
         """
+        if isinstance(config, dict):
+            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+
         return cls(
             n_ants=config.n_ants,
             k_sparse=config.k_sparse,

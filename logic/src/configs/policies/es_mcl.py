@@ -23,7 +23,7 @@ class MuCommaLambdaESConfig:
     n_removal: int = 3
     stagnation_limit: int = 10
     max_iterations: int = 500
-    local_search_iterations: int = 100
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None

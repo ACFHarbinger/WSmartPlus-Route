@@ -63,7 +63,7 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         min_diversity=values.get("min_diversity", 0.2),
         diversity_change_rate=values.get("diversity_change_rate", 0.05),
         # Local search
-        local_search_iterations=values.get("local_search_iterations", 100),
+        local_search_iterations=values.get("local_search_iterations", 500),
         max_vehicles=values.get("max_vehicles", 0),
         # Penalty management
         initial_penalty_capacity=values.get("initial_penalty_capacity", 1.0),

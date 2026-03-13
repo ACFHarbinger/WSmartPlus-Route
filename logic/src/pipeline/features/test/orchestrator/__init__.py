@@ -83,7 +83,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         to_remove = runs_per_policy_any(
             home_dir=str(udef.ROOT_DIR),
             ndays=sim.days,
-            nbins=sim.graph.num_loc,
+            nbins=[sim.graph.num_loc],
             output_dir=sim.output_dir,
             area=sim.graph.area,
             nsamples=[sim.n_samples],

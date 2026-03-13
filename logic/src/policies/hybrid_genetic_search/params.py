@@ -60,7 +60,7 @@ class HGSParams:
     diversity_change_rate: float = 0.05
 
     # Local search
-    local_search_iterations: int = 100
+    local_search_iterations: int = 500
     max_vehicles: int = 0
 
     # Penalty management
@@ -94,7 +94,7 @@ class HGSParams:
             alpha_diversity=getattr(config, "alpha_diversity", 0.5),
             min_diversity=getattr(config, "min_diversity", 0.2),
             diversity_change_rate=getattr(config, "diversity_change_rate", 0.05),
-            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            local_search_iterations=getattr(config, "local_search_iterations", 500),
             max_vehicles=getattr(config, "max_vehicles", 0),
             initial_penalty_capacity=getattr(config, "initial_penalty_capacity", 1.0),
             penalty_increase=getattr(config, "penalty_increase", 1.2),

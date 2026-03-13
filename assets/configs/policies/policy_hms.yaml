@@ -27,143 +27,124 @@
 hms:
   custom:
     # ---------------------------------------------------------------------
-    # Island Topology
+    # Population Parameters
     # ---------------------------------------------------------------------
-    - n_islands: 10
-      # Number of independent sub-populations (K parameter)
-      # Range: 5-20
-      # Recommendation: 10 for balanced diversity/communication
-      # Higher values increase diversity but require more computation
+    - population_size: 10
+      # Number of active chromosomes (individuals)
+      # Range: 10-50 (10 = fast, 30 = balanced, 50 = thorough)
+      # NOTE: Aligned with HVPL n_teams for exact equivalence
 
-    - island_size: 10
-      # Population size per island (N parameter)
-      # Range: 5-20
-      # Recommendation: 10 for each island
-      # Total population = n_islands × island_size
-
-    # ---------------------------------------------------------------------
-    # Selection and Replacement
-    # ---------------------------------------------------------------------
-    - replacement_rate: 0.2
-      # Fraction of population replaced per generation
-      # Range: 0.1-0.5
-      # Recommendation: 0.2 for gradual evolution
-      # Number replaced = island_size × replacement_rate
-
-    - tournament_size: 3
-      # Number of individuals competing in tournament selection
-      # Range: 2-7
-      # Recommendation: 3 for moderate selection pressure
-      # Higher values increase selection pressure
-
-    # ---------------------------------------------------------------------
-    # Migration Parameters
-    # ---------------------------------------------------------------------
-    - migration_interval: 5
-      # Generations between inter-island migration
-      # Range: 3-10
-      # Recommendation: 5 for frequent diversity injection
-      # Lower values increase diversity but add overhead
-
-    - migration_size: 1
-      # Number of best solutions migrated per interval
-      # Range: 1-3
-      # Recommendation: 1 for conservative migration
-      # Migrated individuals replace worst in receiving island
-
-    # ---------------------------------------------------------------------
-    # Runtime Control
-    # ---------------------------------------------------------------------
     - max_generations: 50
       # Number of evolution cycles
-      # Range: 20-100
-      # Recommendation: 50 for production
-      # Note: Each generation includes expensive local search
+      # Range: 50-200 (50 = quick, 100 = balanced, 200 = deep)
+      # NOTE: Aligned with HVPL max_iterations for exact equivalence
 
-    - time_limit: 60.0
-      # Maximum wall-clock seconds for optimization
-      # Range: 60-600 (0 = unlimited)
-      # Recommendation: 60s for quick results, 300s for best quality
+    - substitution_rate: 0.2
+      # Fraction of weakest individuals replaced per generation
+      # Range: 0.1-0.5 (0.2 = balanced)
 
     # ---------------------------------------------------------------------
-    # ACO Parameters (Constructive Heuristic)
+    # Genetic Operators
     # ---------------------------------------------------------------------
-    # Used for initial population generation and diversity maintenance
-    - aco_n_ants: 10
-      # Number of ants per ACO iteration
-      # Recommendation: 10 for initialization
+    - crossover_rate: 0.8
+      # Probability of recombination per generation
+      # Range: 0.5-1.0 (0.8 = balanced)
 
-    - aco_k_sparse: 10
-      # Sparse graph parameter (consider k nearest neighbors)
-      # Recommendation: 10 for problem size ≤ 100
+    - mutation_rate: 0.1
+      # Probability of perturbation after crossover
+      # Range: 0.05-0.3 (0.1 = light)
 
-    - aco_alpha: 1.0
-      # Pheromone influence coefficient
-      # Standard ACO setting
-
-    - aco_beta: 2.0
-      # Heuristic information influence coefficient
-      # Standard ACO setting
-
-    - aco_rho: 0.1
-      # Pheromone evaporation rate
-      # Standard ACO setting
-
-    - aco_q0: 0.9
-      # Probability of exploitation vs exploration
-      # Standard ACO setting
-
-    - aco_tau_min: 0.001
-      # Minimum pheromone level
-      # Prevents premature convergence
-
-    - aco_tau_max: 10.0
-      # Maximum pheromone level
-      # Prevents stagnation
-
-    - aco_max_iterations: 1
-      # ACO iterations for construction
-      # Recommendation: 1 (quick construction)
-
-    - aco_time_limit: 30
-      # Time limit for ACO phase (seconds)
-      # Recommendation: 30s for initialization
-
-    - aco_elitist_weight: 1.0
-      # Weight for best-so-far solution in pheromone update
-      # Standard ACO setting
+    - elitism_count: 3
+      # Number of elite individuals preserved
+      # Range: 1-10 (3 = minimum)
 
     # ---------------------------------------------------------------------
-    # ALNS Parameters (Local Search Improvement)
+    # Integration Parameters
     # ---------------------------------------------------------------------
-    # Applied to each island's population for memetic refinement
-    - alns_max_iterations: 100
-      # ALNS iterations per individual
-      # Recommendation: 100 for balanced improvement
+    - aco_init_iterations: 50
+      # ACO iterations for Phase 1 initialization
+      # Range: 20-100 (50 = balanced)
 
-    - alns_start_temp: 100.0
-      # Initial simulated annealing temperature
-      # Standard ALNS setting
+    # ---------------------------------------------------------------------
+    # Global Parameters
+    # ---------------------------------------------------------------------
+    - time_limit: 60
+      # Maximum wall-clock seconds
+      # Range: 60-600 (300s = production)
 
-    - alns_cooling_rate: 0.95
-      # Geometric cooling factor
-      # Standard ALNS setting
+    - seed: null
+      # Random seed (null = random)
 
-    - alns_reaction_factor: 0.5
-      # Adaptive weight learning rate
-      # Standard ALNS setting
+    # ---------------------------------------------------------------------
+    # ACO Nested Configuration (Initialization)
+    # ---------------------------------------------------------------------
+    - aco:
+        n_ants: 10
+        # Number of ants for construction (Range: 10-50)
 
-    - alns_min_removal: 1
-      # Minimum nodes to remove in destroy phase
-      # Standard ALNS setting
+        k_sparse: 10
+        # Nearest neighbors in sparse graph (Range: 5-20)
 
-    - alns_max_removal_pct: 0.2
-      # Maximum fraction of nodes to remove
-      # Recommendation: 0.2 for local perturbations
+        alpha: 1.0
+        # Pheromone weight (Range: 0.5-2.0)
 
-    - alns_time_limit: 60
-      # Time limit for ALNS phase per individual (seconds)
-      # Recommendation: 30s for local search
+        beta: 2.0
+        # Heuristic weight (Range: 1.0-5.0)
+
+        rho: 0.1
+        # Evaporation rate (Range: 0.05-0.3)
+
+        q0: 0.9
+        # Exploitation probability (Range: 0.7-0.95)
+
+        tau_0: 1.0
+        # Initial pheromone (Range: 0.01-1.0)
+
+        tau_min: 0.001
+        # Minimum pheromone (Range: 0.0001-0.01)
+
+        tau_max: 10.0
+        # Maximum pheromone (Range: 1.0-100.0)
+
+        max_iterations: 1
+        # ACO iterations per construction (Range: 1-5)
+
+        local_search: False
+        # Local search in ACO (ALNS handles local search)
+
+        local_search_iterations: 0
+        # Local search iterations (Range: 0-500)
+
+        elitist_weight: 1.0
+        # Elitist ant weight (Range: 0.5-2.0)
+
+        time_limit: 30.0
+        # ACO time limit in seconds (Range: 30-300)
+
+    # ---------------------------------------------------------------------
+    # ALNS Nested Configuration (Coaching)
+    # ---------------------------------------------------------------------
+    - alns:
+        max_iterations: 100
+        # Number of destroy-repair cycles (Range: 50-500)
+
+        start_temp: 100.0
+        # Initial SA temperature (Range: 50-500)
+
+        cooling_rate: 0.95
+        # Temperature decay per iteration (Range: 0.90-0.99)
+
+        reaction_factor: 0.5
+        # Weight update reaction factor (Range: 0.05-0.3)
+
+        min_removal: 1
+        # Minimum nodes removed (Range: 1-10)
+
+        max_removal_pct: 0.2
+        # Maximum removal fraction (Range: 0.1-0.4)
+
+        time_limit: 60.0
+        # ALNS time limit in seconds (Range: 30-300)
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings

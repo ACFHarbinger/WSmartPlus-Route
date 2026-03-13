@@ -22,6 +22,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import (
     greedy_insertion,
     random_removal,
@@ -55,6 +56,22 @@ class ABCSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.rng = random.Random(seed) if seed is not None else random.Random()
+
+        # Initialize Local Search once to cache neighbor list
+        from logic.src.policies.other.local_search.local_search_aco import (
+            ACOLocalSearch,
+        )  # Pre-instantiate Local Search for reuse
+
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
 
     # ------------------------------------------------------------------
     # Public interface
@@ -211,11 +228,8 @@ class ABCSolver(PolicyVizMixin):
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            # Apply comprehensive local search
-            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            return ls.optimize(repaired)
+            # Apply comprehensive local search (reusing instance)
+            return self.ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(current)
 

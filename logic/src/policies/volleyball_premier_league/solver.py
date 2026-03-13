@@ -27,6 +27,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import greedy_insertion
 from .params import VPLParams
 
@@ -74,6 +75,21 @@ class VPLSolver(PolicyVizMixin):
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
+
+        # Initialize Local Search once to cache neighbor list
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
+        # Initialize ACO Local Search for elite learning
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
 
     # ------------------------------------------------------------------
     # Public interface
@@ -372,11 +388,8 @@ class VPLSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
 
-            # Apply local search refinement
-            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            new_routes = ls.optimize(new_routes)
+            # Apply local search refinement (reusing instance)
+            new_routes = self.ls.optimize(new_routes)
 
             return new_routes
         except Exception:

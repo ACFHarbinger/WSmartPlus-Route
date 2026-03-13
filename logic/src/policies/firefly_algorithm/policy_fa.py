@@ -55,7 +55,7 @@ class FAPolicy(BaseRoutingPolicy):
             alpha_rnd=float(values.get("alpha_rnd", 0.2)),
             max_iterations=int(values.get("max_iterations", 100)),
             time_limit=float(values.get("time_limit", 60.0)),
-            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
         )
 
         solver = FASolver(

@@ -47,7 +47,7 @@ class MemeticAlgorithmToleranceBasedPolicy(BaseRoutingPolicy):
             tolerance_pct=values.get("tolerance_pct", 0.05),
             recombination_rate=values.get("recombination_rate", 0.6),
             perturbation_strength=values.get("perturbation_strength", 2),
-            local_search_iterations=values.get("local_search_iterations", 100),
+            local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 60.0),
         )
 

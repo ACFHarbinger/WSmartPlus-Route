@@ -56,3 +56,23 @@ class DistancePSOParams:
     alpha_profit: float = 1.0
     beta_will: float = 0.5
     gamma_cost: float = 0.3
+
+    @property
+    def beta0(self) -> float:
+        """Alias for initial_attraction to match FA exactly."""
+        return self.initial_attraction
+
+    @property
+    def gamma(self) -> float:
+        """Alias for distance_decay to match FA exactly."""
+        return self.distance_decay
+
+    @property
+    def alpha_rnd(self) -> float:
+        """Alias for exploration_rate to match FA exactly."""
+        return self.exploration_rate
+
+    @property
+    def pop_size(self) -> int:
+        """Alias for population_size to match FA exactly."""
+        return self.population_size

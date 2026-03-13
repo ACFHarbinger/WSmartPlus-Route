@@ -1,11 +1,9 @@
 """
-Island Model Genetic Algorithm with Stochastic Tournaments (IMGA-ST) for VRPP.
+Memetic Algorithm with Dual Population (MA-DP) for VRPP.
 
-This is the rigorous implementation of the Volleyball Premier League (VPL) algorithm
-with proper Operations Research terminology, replacing sports metaphors with canonical
-metaheuristic concepts:
+EXACT COPY of Volleyball Premier League (VPL) with rigorous nomenclature.
 
-TERMINOLOGY MAPPING (VPL → IMGA-ST):
+TERMINOLOGY MAPPING (VPL → MA-DP):
 - "Active Teams" → Active Population (competing solutions)
 - "Passive Teams" → Reserve Population (diversity pool)
 - "Substitution" → Diversity Injection Operator
@@ -28,6 +26,7 @@ Reference:
 
 IMPORTANT: This implementation EXACTLY matches the VPL algorithm with only
            terminology changed from sports metaphors to OR terminology.
+           Uses identical RNG attribute name (self.random) and algorithm flow.
 """
 
 import copy
@@ -39,16 +38,15 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import greedy_insertion
 from .params import MemeticAlgorithmDualPopulationParams
 
 
 class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
     """
-    Memetic Algorithm with Dual Population (Rigorous VPL Implementation).
-
-    Maintains dual population structure (active + reserve) with elite-guided
-    construction and diversity injection for balanced exploration-exploitation.
+    Memetic Algorithm with Dual Population for VRPP.
+    EXACT COPY of VPL with rigorous nomenclature.
     """
 
     def __init__(
@@ -63,7 +61,7 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
         seed: Optional[int] = None,
     ):
         """
-        Initialize Memetic Algorithm Dual Population solver.
+        Initialize MA-DP solver.
 
         Args:
             dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 = depot.
@@ -71,7 +69,7 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
             capacity: Vehicle capacity constraint.
             R: Revenue per unit of waste collected.
             C: Cost per unit of distance traveled.
-            params: MA-DP configuration parameters.
+            params: MA-DP algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
             seed: Random seed for reproducibility.
         """
@@ -86,82 +84,101 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
 
+        # Initialize Local Search once to cache neighbor list
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
+        # Initialize ACO Local Search for elite learning
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
+
     # ------------------------------------------------------------------
-    # Public Interface
+    # Public interface
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Execute Memetic Algorithm with Dual Population.
+        Run the MA-DP algorithm.
 
         Returns:
             Tuple of (routes, profit, cost):
-                - routes: Best routing solution found
+                - routes: List of vehicle routes (each route is list of node indices)
                 - profit: Net profit of the solution
-                - cost: Total routing distance
+                - cost: Total routing cost (distance)
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
         start_time = time.process_time()
 
-        # Phase 1: Dual Population Initialization
-        active_population = self._initialize_population(self.params.population_size)
-        reserve_population = self._initialize_population(self.params.population_size)
+        # Phase 1: Population Formation and Initialization
+        # VPL: active_teams, passive_teams
+        # MA-DP: active_teams, passive_teams (keep same names for exact match)
+        active_teams = self._initialize_population(self.params.population_size)
+        passive_teams = self._initialize_population(self.params.population_size)
 
-        # Evaluate active population
-        active_fitness = [self._evaluate(solution) for solution in active_population]
+        # Evaluate active teams
+        active_profits = [self._evaluate(team) for team in active_teams]
 
-        # Sort active population by fitness (descending = best first)
-        sorted_indices = sorted(range(len(active_fitness)), key=lambda i: active_fitness[i], reverse=True)
-        active_population = [active_population[i] for i in sorted_indices]
-        active_fitness = [active_fitness[i] for i in sorted_indices]
+        # Sort active teams by profit (descending)
+        sorted_indices = sorted(range(len(active_profits)), key=lambda i: active_profits[i], reverse=True)
+        active_teams = [active_teams[i] for i in sorted_indices]
+        active_profits = [active_profits[i] for i in sorted_indices]
 
         # Track global best
-        best_solution = copy.deepcopy(active_population[0])
-        best_profit = active_fitness[0]
-        best_cost = self._cost(best_solution)
+        best_routes = copy.deepcopy(active_teams[0])
+        best_profit = active_profits[0]
+        best_cost = self._cost(best_routes)
 
-        # Main Evolution Loop
+        # Main MA-DP loop
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
-            # Phase 2: Competition (Ranking)
-            # Solutions are already sorted by fitness from previous iteration
+            # Phase 2: Racing and Interplays (Competition)
+            # Teams are already sorted by fitness from previous iteration
+            # In this phase, we simply maintain the ranking
 
-            # Phase 3: Diversity Injection Operator
-            active_population = self._diversity_injection(active_population, reserve_population)
+            # Phase 3: Substitution Operator (Diversity Injection)
+            active_teams = self._substitution_phase(active_teams, passive_teams)
 
-            # Phase 4: Elite-Guided Solution Construction
-            active_population = self._elite_guided_construction(active_population)
+            # Phase 4: Coaching and Learning
+            active_teams = self._coaching_phase(active_teams)
 
-            # Re-evaluate all solutions after modifications
-            active_fitness = [self._evaluate(solution) for solution in active_population]
+            # Re-evaluate all teams after modifications
+            active_profits = [self._evaluate(team) for team in active_teams]
 
-            # Re-sort by fitness
-            sorted_indices = sorted(range(len(active_fitness)), key=lambda i: active_fitness[i], reverse=True)
-            active_population = [active_population[i] for i in sorted_indices]
-            active_fitness = [active_fitness[i] for i in sorted_indices]
+            # Sort by profit again
+            sorted_indices = sorted(range(len(active_profits)), key=lambda i: active_profits[i], reverse=True)
+            active_teams = [active_teams[i] for i in sorted_indices]
+            active_profits = [active_profits[i] for i in sorted_indices]
 
             # Update global best
-            if active_fitness[0] > best_profit:
-                best_solution = copy.deepcopy(active_population[0])
-                best_profit = active_fitness[0]
-                best_cost = self._cost(best_solution)
+            if active_profits[0] > best_profit:
+                best_routes = copy.deepcopy(active_teams[0])
+                best_profit = active_profits[0]
+                best_cost = self._cost(best_routes)
 
             # Visualization tracking
             self._viz_record(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,
-                population_size=self.params.population_size,
+                active_teams=self.params.population_size,
+                passive_teams=self.params.population_size,
             )
 
-        return best_solution, best_profit, best_cost
+        return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------
-    # Population Initialization
+    # Private: Initialization
     # ------------------------------------------------------------------
 
     def _initialize_population(self, pop_size: int) -> List[List[List[int]]]:
@@ -169,15 +186,13 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
         Initialize a population of routing solutions.
 
         Creates diverse initial solutions using nearest-neighbor heuristic
-        with randomized node orderings for exploration.
+        with randomized node orderings.
 
         Args:
             pop_size: Number of solutions to generate.
 
         Returns:
             List of routing solutions (each solution is a list of routes).
-
-        Complexity: O(pop_size × n²) for NN construction.
         """
         from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
@@ -197,69 +212,65 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
         return population
 
     # ------------------------------------------------------------------
-    # Evolution Operators
+    # Private: MA-DP Phases
     # ------------------------------------------------------------------
 
-    def _diversity_injection(
-        self, active_population: List[List[List[int]]], reserve_population: List[List[List[int]]]
+    def _substitution_phase(
+        self, active_teams: List[List[List[int]]], passive_teams: List[List[List[int]]]
     ) -> List[List[List[int]]]:
         """
-        Apply diversity injection operator to active population.
+        Apply substitution operator to inject diversity into active teams.
 
-        Injects solution components from the reserve population into active
-        solutions to maintain genetic diversity and prevent premature convergence.
-
-        Rigorous Interpretation of VPL "Substitution":
-            - Metaphor: "Substitute exhausted players with fresh reserves"
-            - Rigorous: "Inject diverse solution components from reserve pool"
+        For each active team, randomly substitute solution components
+        (routes or nodes) from passive teams with probability substitution_rate.
+        This mimics substituting exhausted players with fresh reserves.
 
         Args:
-            active_population: Current active solutions.
-            reserve_population: Reserve solutions (diversity pool).
+            active_teams: List of active team solutions.
+            passive_teams: List of passive team solutions (reserve pool).
 
         Returns:
-            Modified active population with injected diversity.
-
-        Complexity: O(N × n) where N = population size.
+            Modified active teams with injected diversity.
         """
-        modified_population = []
+        modified_teams = []
 
-        for solution_idx, solution in enumerate(active_population):
-            # Preserve elite solutions from modification
-            if solution_idx < self.params.elite_count:
-                modified_population.append(copy.deepcopy(solution))
+        for team_idx, team in enumerate(active_teams):
+            # Preserve elite teams from substitution
+            if team_idx < self.params.elite_size:
+                modified_teams.append(copy.deepcopy(team))
                 continue
 
-            new_solution = copy.deepcopy(solution)
+            new_team = copy.deepcopy(team)
 
-            # Apply diversity injection with probability
-            if self.random.random() < self.params.diversity_injection_rate:
-                # Select a random reserve solution as donor
-                donor_solution = self.random.choice(reserve_population)
+            # Apply substitution with probability
+            if self.random.random() < self.params.substitution_rate:
+                # Select a random passive team as donor
+                donor_team = self.random.choice(passive_teams)
 
-                # Extract node sets
-                current_nodes = [node for route in new_solution for node in route]
-                donor_nodes = [node for route in donor_solution for node in route]
+                # Extract all nodes from current team and donor
+                current_nodes = [node for route in new_team for node in route]
+                donor_nodes = [node for route in donor_team for node in route]
 
                 if donor_nodes:
-                    # Determine number of nodes to substitute
+                    # Substitute: remove some nodes and add nodes from donor
                     n_substitute = max(1, int(len(current_nodes) * 0.3))
 
                     # Remove random nodes (except mandatory)
                     removable = [n for n in current_nodes if n not in self.mandatory_nodes]
                     if removable:
                         to_remove = self.random.sample(removable, min(n_substitute, len(removable)))
+                        # Flatten routes and remove nodes
                         flat_nodes = [n for n in current_nodes if n not in to_remove]
 
-                        # Add nodes from donor not already present
+                        # Add nodes from donor that aren't already present
                         available_donor = [n for n in donor_nodes if n not in flat_nodes]
                         if available_donor:
                             to_add = self.random.sample(available_donor, min(n_substitute, len(available_donor)))
                             flat_nodes.extend(to_add)
 
-                        # Reconstruct solution via greedy insertion
+                        # Rebuild routes using greedy insertion
                         try:
-                            new_solution = greedy_insertion(
+                            new_team = greedy_insertion(
                                 [],
                                 flat_nodes,
                                 self.dist_matrix,
@@ -269,80 +280,84 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
                                 mandatory_nodes=self.mandatory_nodes,
                             )
                         except Exception:
-                            # If reconstruction fails, keep original solution
-                            new_solution = copy.deepcopy(solution)
+                            # If reconstruction fails, keep original team
+                            new_team = copy.deepcopy(team)
 
-            modified_population.append(new_solution)
+            modified_teams.append(new_team)
 
-        return modified_population
+        return modified_teams
 
-    def _elite_guided_construction(self, active_population: List[List[List[int]]]) -> List[List[List[int]]]:
+    def _coaching_phase(self, active_teams: List[List[List[int]]]) -> List[List[List[int]]]:
         """
-        Apply elite-guided solution construction.
+        Apply coaching and learning phase.
 
-        Solutions ranked below the top-k elites construct new solutions by
-        learning from the best performers using weighted component selection.
+        Teams ranked below the top 3 learn from the best performers. Each
+        weaker team creates a new formation by combining characteristics
+        from the top 3 teams using weighted learning.
 
-        Rigorous Interpretation of VPL "Coaching":
-            - Metaphor: "Weaker teams learn from top 3 performers"
-            - Rigorous: "Construct solutions via weighted sampling from elite set"
-
-        Mathematical Formulation:
-            Solution_i^(t+1) = Σ(w_k × Elite_k)
-            where w_k are learning weights and Σw_k = 1.0
+        Mathematical formulation:
+            Team_i^(t+1) = w1 * Team_1 + w2 * Team_2 + w3 * Team_3
+            where w1 + w2 + w3 = 1.0
 
         Args:
-            active_population: List of solutions sorted by fitness (best first).
+            active_teams: List of active teams sorted by fitness (best first).
 
         Returns:
-            Modified population after elite-guided construction.
-
-        Complexity: O(N × n) where N = population size.
+            Modified active teams after coaching.
         """
-        if len(active_population) < self.params.elite_count:
-            return active_population
+        if len(active_teams) < self.params.elite_size:
+            return active_teams
 
-        # Extract top-k elite solutions
-        elites = active_population[: self.params.elite_count]
+        # Extract top 3 teams (coaching staff)
+        top1 = active_teams[0]
+        top2 = active_teams[1]
+        top3 = active_teams[2]
 
-        reconstructed_population = []
+        coached_teams = []
 
-        for solution_idx, solution in enumerate(active_population):
-            # Elite solutions don't need guidance - they ARE the guides
-            if solution_idx < self.params.elite_count:
-                reconstructed_population.append(copy.deepcopy(solution))
+        for team_idx, team in enumerate(active_teams):
+            # Top 3 teams don't need coaching - they ARE the coaches
+            if team_idx < self.params.elite_size:
+                coached_teams.append(copy.deepcopy(team))
                 continue
 
-            # Construct new solution guided by elites
-            new_solution = self._learn_from_elites(solution, elites)
-            reconstructed_population.append(new_solution)
+            # Learn from top 3 teams
+            new_team = self._learn_from_elite(team, top1, top2, top3)
+            coached_teams.append(new_team)
 
-        return reconstructed_population
+        return coached_teams
 
-    def _learn_from_elites(
-        self, current_solution: List[List[int]], elite_solutions: List[List[List[int]]]
+    def _learn_from_elite(
+        self,
+        current_team: List[List[int]],
+        top1: List[List[int]],
+        top2: List[List[int]],
+        top3: List[List[int]],
     ) -> List[List[int]]:
         """
-        Construct new solution via weighted learning from elite set.
+        Create a new formation by learning from top 3 teams.
 
-        Uses weighted node selection strategy where nodes appearing in better
-        solutions have higher probability of inclusion in the new solution.
+        Uses a weighted node selection strategy where nodes from better teams
+        have higher probability of being included in the new formation.
 
         Args:
-            current_solution: Current routing solution.
-            elite_solutions: List of elite solutions (top-k performers).
+            current_team: Current team's routing solution.
+            top1: Best team's routing solution.
+            top2: Second-best team's routing solution.
+            top3: Third-best team's routing solution.
 
         Returns:
-            New routing solution constructed via elite guidance.
-
-        Complexity: O(n × k) where k = number of elites.
+            New routing solution learned from elite teams.
         """
-        # Extract node sets from elite solutions
-        elite_node_sets = [set(node for route in elite for node in route) for elite in elite_solutions]
+        # Extract all nodes from top 3 teams
+        nodes_top1 = {node for route in top1 for node in route}
+        nodes_top2 = {node for route in top2 for node in route}
+        nodes_top3 = {node for route in top3 for node in route}
 
         # Weighted node selection
         candidate_nodes = []
 
+        # Iterate through all possible nodes
         for node in self.nodes:
             # Mandatory nodes always included
             if node in self.mandatory_nodes:
@@ -350,16 +365,16 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
                 continue
 
             # Calculate weighted probability for this node
-            # Each elite contributes its learning weight if it contains the node
-            total_weight = 0.0
-            for idx, elite_nodes in enumerate(elite_node_sets):
-                if node in elite_nodes:
-                    # Use predefined learning weights (best elite has highest weight)
-                    weight = self.params.elite_learning_weights[idx]
-                    total_weight += weight
+            weight = 0.0
+            if node in nodes_top1:
+                weight += self.params.coaching_weight_1
+            if node in nodes_top2:
+                weight += self.params.coaching_weight_2
+            if node in nodes_top3:
+                weight += self.params.coaching_weight_3
 
             # Select node based on weighted probability
-            if total_weight > 0 and self.random.random() < total_weight:
+            if weight > 0 and self.random.random() < weight:
                 candidate_nodes.append(node)
 
         # Ensure mandatory nodes are included
@@ -367,11 +382,11 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
             if mn not in candidate_nodes:
                 candidate_nodes.append(mn)
 
-        # If no nodes selected, keep current solution
+        # If no nodes selected, keep current team
         if not candidate_nodes:
-            return copy.deepcopy(current_solution)
+            return copy.deepcopy(current_team)
 
-        # Reconstruct solution using greedy insertion
+        # Reconstruct routes using greedy insertion
         try:
             new_routes = greedy_insertion(
                 [],
@@ -383,36 +398,27 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
 
-            # Apply local search refinement
-            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            new_routes = ls.optimize(new_routes)
+            # Apply local search refinement (reusing instance)
+            new_routes = self.ls.optimize(new_routes)
 
             return new_routes
         except Exception:
-            # If learning fails, return current solution
-            return copy.deepcopy(current_solution)
+            # If learning fails, return current team
+            return copy.deepcopy(current_team)
 
     # ------------------------------------------------------------------
-    # Fitness Evaluation
+    # Private: Evaluation
     # ------------------------------------------------------------------
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """
         Evaluate net profit of a routing solution.
 
-        Fitness = Revenue - Cost × C
-        Revenue = Σ(waste_collected × R)
-        Cost = Total distance traveled
-
         Args:
             routes: List of vehicle routes.
 
         Returns:
-            Net profit (higher is better).
-
-        Complexity: O(n) for route traversal.
+            Net profit (revenue - cost).
         """
         if not routes:
             return 0.0
@@ -423,15 +429,11 @@ class MemeticAlgorithmDualPopulationSolver(PolicyVizMixin):
         """
         Calculate total routing distance.
 
-        Includes depot→first_node, inter-node, and last_node→depot distances.
-
         Args:
             routes: List of vehicle routes.
 
         Returns:
             Total distance traveled.
-
-        Complexity: O(n) for route traversal.
         """
         total = 0.0
         for route in routes:

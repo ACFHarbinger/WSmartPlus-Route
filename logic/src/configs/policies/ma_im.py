@@ -18,12 +18,13 @@ class MemeticAlgorithmIslandModelConfig:
     Functionally equivalent to SLC.
     """
 
+    engine: str = "ma_im"
     n_islands: int = 5
     island_size: int = 4
     max_generations: int = 50
     stagnation_limit: int = 5
     n_removal: int = 1
-    local_search_iterations: int = 100
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None

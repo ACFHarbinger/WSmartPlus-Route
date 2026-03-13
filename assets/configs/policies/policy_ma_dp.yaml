@@ -14,55 +14,26 @@
 
 ma_dp:
   custom:
-    # ---------------------------------------------------------------------
-    # Population Structure
-    # ---------------------------------------------------------------------
-    - n_islands: 10
-      # Number of independent sub-populations.
-      # Range: 2-8 (4 = balanced, 8 = high diversity)
-
-    - island_size: 10
-      # Number of individuals per island.
-      # Range: 5-20 (10 = standard)
-
-    - max_generations: 50
+    - population_size: 10
+    # Number of individuals in active population
+    # (Total population = 2 * population_size)
+    - max_iterations: 50
       # Total number of evolution cycles.
-      # Range: 50-200 (100 = production)
 
-    # ---------------------------------------------------------------------
-    # Migration (Diversity exchange)
-    # ---------------------------------------------------------------------
-    - migration_interval: 10
-      # Generations between migration events.
-      # Range: 5-20 (10 = standard)
+    - diversity_injection_rate: 0.2
+      # Probability of substituting with reserve individual.
+      # Aliased as substitution_rate.
 
-    - migration_size: 2
-      # Number of best solutions to migrate between islands.
+    - elite_count: 3
+      # Number of best solutions preserved (immune to substitution).
+      # Aliased as elite_size.
 
-    # ---------------------------------------------------------------------
-    # Selection (Exploitation)
-    # ---------------------------------------------------------------------
-    - tournament_size: 2
-      # Participants in each tournament.
+    - elite_learning_weights: [0.5, 0.3, 0.2]
+      # Weights for learning from top-3 elite solutions.
+      # Aliased as coaching_weight_1, 2, 3.
 
-    - selection_pressure: 0.5
-      # Beta for sigmoid win prob: P = 1/(1+exp(-beta * delta_f)).
-      # Range: 0.1-1.0 (0.5 = moderate pressure)
-
-    # ---------------------------------------------------------------------
-    # Evolution (Reproduction)
-    # ---------------------------------------------------------------------
-    - crossover_rate: 0.8
-      # Probability of applying recombination.
-
-    - mutation_rate: 0.2
-      # Probability of random perturbation.
-
-    - alns_iterations: 100
-      # Local search iterations per individual per generation.
-
-    - elitism_size: 2
-      # Best solutions preserved in each island.
+    - local_search_iterations: 100
+      # Local search iterations per solution.
 
     # ---------------------------------------------------------------------
     # Global Parameters

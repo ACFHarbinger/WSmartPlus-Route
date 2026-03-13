@@ -59,6 +59,7 @@ class LocalSearch(PolicyVizMixin, ABC):
         C: float,
         params: Any,
         seed: Optional[int] = None,
+        neighbors: Optional[Dict[int, List[int]]] = None,
     ):
         """
         Initialize Local Search base class.
@@ -71,6 +72,7 @@ class LocalSearch(PolicyVizMixin, ABC):
             C: A parameter, likely related to route cost or penalty.
             params: An object containing additional parameters for the local search,
                     such as time_limit.
+            neighbors: Optional pre-computed neighbor map to avoid redundant sorting.
         """
         self.d = np.array(dist_matrix)
         self.waste = waste
@@ -80,19 +82,22 @@ class LocalSearch(PolicyVizMixin, ABC):
         self.params = params
         self.random = random.Random(seed) if seed is not None else random.Random()
 
-        # Common initialization for neighbors (used by all LS)
-        n_nodes = len(dist_matrix)
-        self.neighbors = {}
-        for i in range(1, n_nodes):
-            row = self.d[i]
-            order = np.argsort(row)
-            cands = []
-            for c in order:
-                if c not in (i, 0):
-                    cands.append(c)
-                    if len(cands) >= 10:
-                        break
-            self.neighbors[i] = cands
+        if neighbors is not None:
+            self.neighbors = neighbors
+        else:
+            # Common initialization for neighbors (used by all LS)
+            n_nodes = len(dist_matrix)
+            self.neighbors = {}
+            for i in range(1, n_nodes):
+                row = self.d[i]
+                order = np.argsort(row)
+                cands = []
+                for c in order:
+                    if c not in (i, 0):
+                        cands.append(c)
+                        if len(cands) >= 10:
+                            break
+                self.neighbors[i] = cands
 
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.route_loads: List[float] = []

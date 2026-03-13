@@ -51,7 +51,7 @@ class ABCPolicy(BaseRoutingPolicy):
             max_iterations=int(values.get("max_iterations", 200)),
             n_removal=int(values.get("n_removal", 1)),
             time_limit=float(values.get("time_limit", 60.0)),
-            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
         )
 
         solver = ABCSolver(

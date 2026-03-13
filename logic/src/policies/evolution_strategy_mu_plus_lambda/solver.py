@@ -87,6 +87,21 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
 
+        # Initialize Local Search once for reuse
+        from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+        from ..other.local_search.local_search_aco import ACOLocalSearch
+
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
+
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
         Execute the (μ+λ) Evolution Strategy.
@@ -259,10 +274,7 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply local search refinement
-            from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-            ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-            routes = ls.optimize(routes)
+            routes = self.ls.optimize(routes)
         except Exception:
             routes = []
 

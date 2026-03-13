@@ -18,11 +18,13 @@ class MemeticAlgorithmToleranceBasedConfig:
     GA with sigmoid-based pairwise tournament selection.
     """
 
+    engine: str = "ma_tb"
     population_size: int = 10
     max_iterations: int = 100
     tolerance_pct: float = 0.05
     recombination_rate: float = 0.6
     perturbation_strength: int = 2
+    local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
