@@ -9,17 +9,17 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.hmm_gd import HMMGDConfig
+from logic.src.configs.policies.hmm_gd_hh import HMMGDHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.hidden_markov_model_great_deluge.params import HMMGDParams
-from logic.src.policies.hidden_markov_model_great_deluge.solver import HMMGDSolver
+from logic.src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params import HMMGDHHParams
+from logic.src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver import HMMGDHHSolver
 
 
-@PolicyRegistry.register("hmm_gd")
-class HMMGDPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("hmm_gd_hh")
+class HMMGDHHPolicy(BaseRoutingPolicy):
     """
-    HMM-GD policy class.
+    HMM-GD-HH policy class.
 
     Visits bins using the online-learning HMM + Great Deluge hyper-heuristic.
     The HMM learns which Low-Level Heuristic to apply based on observed search
@@ -27,15 +27,15 @@ class HMMGDPolicy(BaseRoutingPolicy):
     provides acceptance control without temperature parameters.
     """
 
-    def __init__(self, config: Optional[Union[HMMGDConfig, Dict[str, Any]]] = None):
+    def __init__(self, config: Optional[Union[HMMGDHHConfig, Dict[str, Any]]] = None):
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return HMMGDConfig
+        return HMMGDHHConfig
 
     def _get_config_key(self) -> str:
-        return "hmm_gd"
+        return "hmm_gd_hh"
 
     def _run_solver(
         self,
@@ -48,7 +48,7 @@ class HMMGDPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        params = HMMGDParams(
+        params = HMMGDHHParams(
             max_iterations=int(values.get("max_iterations", 500)),
             flood_margin=float(values.get("flood_margin", 0.05)),
             rain_speed=float(values.get("rain_speed", 0.001)),
@@ -59,7 +59,7 @@ class HMMGDPolicy(BaseRoutingPolicy):
             local_search_iterations=int(values.get("local_search_iterations", 500)),
         )
 
-        solver = HMMGDSolver(
+        solver = HMMGDHHSolver(
             sub_dist_matrix,
             sub_wastes,
             capacity,

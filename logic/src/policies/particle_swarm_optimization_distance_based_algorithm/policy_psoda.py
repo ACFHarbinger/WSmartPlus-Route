@@ -11,7 +11,7 @@ import numpy as np
 from logic.src.configs.policies import DistancePSOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.particle_swarm_optimization_distance import DistancePSOParams, DistancePSOSolver
+from logic.src.policies.particle_swarm_optimization_distance_based_algorithm import DistancePSOParams, DistancePSOSolver
 
 
 @PolicyRegistry.register("psoda")

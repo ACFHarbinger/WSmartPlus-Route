@@ -1,5 +1,5 @@
 """
-HMM-GD (Hidden Markov Model + Great Deluge) configuration for Hydra.
+SS-HH (Sequence-based Selection Hyper-Heuristic) configuration for Hydra.
 """
 
 from dataclasses import dataclass, field
@@ -7,33 +7,33 @@ from typing import Any, List, Optional
 
 
 @dataclass
-class HMMGDConfig:
+class SSHHConfig:
     """
-    Configuration for the HMM + Great Deluge hyper-heuristic policy.
+    Configuration for the Sequence-based Selection Hyper-Heuristic policy.
+
+    Reference: Kheiri (2014), Algorithm 1.
 
     Attributes:
-        max_iterations: Total LLH applications.
-        flood_margin: Initial water level offset as fraction of initial profit.
-        rain_speed: Rate of water level decrease per iteration.
-        learning_rate: Online HMM transition probability update step.
-        n_removal: Nodes removed per destroy step.
+        max_iterations: Total main-loop steps.
+        n_removal: Nodes removed per LLH destroy step.
         n_llh: LLH pool size (fixed at 5).
-        local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
+        threshold_infeasible: Acceptance threshold T when infeasible (Eq. 4).
+        threshold_feasible_base: Base acceptance threshold T (Eq. 4).
+        threshold_decay_rate: Time-decay coefficient for T (Eq. 4).
         vrpp: If True, solver operates in full VRPP mode.
         must_go: Must-go selection strategy config list.
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "hmm_gd"
+    engine: str = "ss_hh"
     max_iterations: int = 500
-    flood_margin: float = 0.05
-    rain_speed: float = 0.001
-    learning_rate: float = 0.1
     n_removal: int = 2
     n_llh: int = 5
-    local_search_iterations: int = 500
     time_limit: float = 60.0
+    threshold_infeasible: float = 0.001
+    threshold_feasible_base: float = 0.0001
+    threshold_decay_rate: float = 0.01
     seed: Optional[int] = None
     vrpp: bool = True
     must_go: Optional[List[Any]] = field(default_factory=list)

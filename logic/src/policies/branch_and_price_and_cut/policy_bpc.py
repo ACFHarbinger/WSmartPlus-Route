@@ -11,7 +11,7 @@ import numpy as np
 from logic.src.configs.policies import BPCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.branch_price_cut import run_bpc
+from logic.src.policies.branch_and_price_and_cut import run_bpc
 
 
 @PolicyRegistry.register("bpc")

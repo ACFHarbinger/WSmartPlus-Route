@@ -8,7 +8,7 @@ import pytest
 from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
 from logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
 from logic.src.policies.base import PolicyFactory
-from logic.src.policies.branch_price_cut.policy_bpc import BCPPolicy
+from logic.src.policies.branch_and_price_and_cut.policy_bpc import BCPPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
 from logic.src.policies.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
 from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import VRPPPolicy
@@ -79,7 +79,7 @@ def test_policy_factory_standardized():
 
 @pytest.mark.unit
 def test_bcp_engine_override(mock_engine_data):
-    with patch("logic.src.policies.branch_price_cut.policy_bpc.run_bpc") as mock_run:
+    with patch("logic.src.policies.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0)
 
         policy = PolicyFactory.get_adapter("bpc")

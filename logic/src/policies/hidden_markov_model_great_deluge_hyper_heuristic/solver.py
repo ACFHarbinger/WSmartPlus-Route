@@ -1,23 +1,26 @@
 """
-Hidden Markov Model + Great Deluge (HMM-GD) hyper-heuristic for VRPP.
+Hidden Markov Model + Great Deluge Hyper-Heuristic (HMM-GD-HH) for VRPP.
 
 This online-learning approach treats the sequence of applied Low-Level
-Heuristics (LLHs) as a Markov chain.  The system observes the objective
-change after each LLH application and classifies the current search state
-as one of three hidden states: improving (state 0), stagnating (state 1),
-or escaping from a local optimum (state 2).
+Heuristics (LLHs) as a Markov chain. The system maintains a *belief*
+distribution over three hidden states — improving, stagnating, escaping —
+using the Forward Algorithm, rather than assigning a single deterministic
+state.
 
-Transition probabilities govern which LLH is most likely to be beneficial
-given the current state.  These probabilities are updated online via a
-simplified Baum-Welch-like rule based on the observed profit change.
+At each iteration the belief vector P(S_t | O_{1:t}) is updated via the
+observation likelihood of the normalised profit change Δ_norm.  The LLH
+selection probabilities are then the belief-weighted mixture of the
+per-state emission matrices.
 
 The Great Deluge acceptance criterion accepts candidate solutions whose
-profit exceeds a linearly falling water level, providing a deterministic
+profit exceeds a linearly rising water level, providing a deterministic
 escape from local optima without requiring temperature tuning.
 
 Reference:
-    Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. "A reinforcement learning:
-    Great-deluge hyper-heuristic for examination timetabling", 2010
+    Onsem, W. V., Demoen, B., & Causmaecker, P. D. "HHaaHMM:
+    A Hyper-Heuristic as a Hidden Markov Model", 2014
+    McMullan, P. "An Extended Implementation of the Great
+    Deluge Algorithm for Course Timetabling", 2007
 """
 
 import copy
@@ -36,7 +39,7 @@ from ..other.operators import (
     regret_2_insertion,
     worst_removal,
 )
-from .params import HMMGDParams
+from .params import HMMGDHHParams
 
 # HMM states
 _STATE_IMPROVING = 0
@@ -45,9 +48,26 @@ _STATE_ESCAPING = 2
 _N_STATES = 3
 
 
-class HMMGDSolver(PolicyVizMixin):
+class HMMGDHHSolver(PolicyVizMixin):
     """
-    HMM + Great Deluge hyper-heuristic solver for VRPP.
+    Hidden Markov Model + Great Deluge Hyper-Heuristic solver for VRPP.
+
+    Improvements over the naive HMM-GD implementation:
+
+    1. **Forward Algorithm state belief** — instead of assigning a single
+       deterministic state, the solver maintains a probability distribution
+       ``belief[s]`` = P(state=s | observations_{1:t}).  The Forward Algorithm
+       updates this distribution at every iteration.
+
+    2. **Relative improvement Δ_norm** — the observation likelihood is
+       parameterised by Δ_norm = (f(S_new) − f(S_old)) / |f(S_old)|, which
+       normalises for problem scale.  Each state defines a Gaussian emission
+       over Δ_norm so that improvements, stagnation and escaping moves are
+       weighted proportionally.
+
+    3. **No embedded local search** — ACOLocalSearch has been removed from
+       the main loop.  Each LLH application stands on its own merit, giving
+       the HMM a clean signal about which operator is actually effective.
     """
 
     def __init__(
@@ -57,7 +77,7 @@ class HMMGDSolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: HMMGDParams,
+        params: HMMGDHHParams,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):
@@ -82,13 +102,37 @@ class HMMGDSolver(PolicyVizMixin):
             self._llh4,
         ]
 
-        # HMM transition matrix A[state] -> probability over LLHs
-        # Initialised uniformly
-        self._A: np.ndarray = np.ones((_N_STATES, self.n_llh)) / self.n_llh
+        # --- HMM parameters ---
 
-        # LLH performance accumulators per state
-        self._llh_hits: np.ndarray = np.zeros((_N_STATES, self.n_llh))
-        self._llh_total: np.ndarray = np.ones((_N_STATES, self.n_llh))  # avoid /0
+        # Emission matrix B[state][llh]: probability of selecting each LLH
+        # in a given state.  Initialised uniformly; updated via Δ_norm reward.
+        self._B: np.ndarray = np.ones((_N_STATES, self.n_llh)) / self.n_llh
+
+        # State transition matrix T[s_from][s_to]: probability of moving
+        # between hidden states.  Initialised with sensible priors:
+        #   - Improving tends to stay improving (0.6) or stagnate (0.3)
+        #   - Stagnating tends to stay stagnating (0.5) or escape (0.3)
+        #   - Escaping tends to improve (0.4) or stagnate (0.4)
+        self._T: np.ndarray = np.array(
+            [
+                [0.6, 0.3, 0.1],  # from improving
+                [0.2, 0.5, 0.3],  # from stagnating
+                [0.4, 0.4, 0.2],  # from escaping
+            ],
+            dtype=np.float64,
+        )
+
+        # Observation emission parameters per state: Gaussian(mean, std) over Δ_norm
+        # Improving: positive Δ_norm; Stagnating: near-zero; Escaping: negative
+        self._obs_mean = np.array([0.05, 0.0, -0.03], dtype=np.float64)
+        self._obs_std = np.array([0.05, 0.02, 0.05], dtype=np.float64)
+
+        # State belief: P(state | observations)  —  initialised uniformly
+        self._belief: np.ndarray = np.ones(_N_STATES) / _N_STATES
+
+        # Cumulative reward accumulators for Δ_norm-weighted B updates
+        self._llh_reward: np.ndarray = np.zeros((_N_STATES, self.n_llh))
+        self._llh_counts: np.ndarray = np.ones((_N_STATES, self.n_llh))  # avoid /0
 
     # ------------------------------------------------------------------
     # Public interface
@@ -96,7 +140,7 @@ class HMMGDSolver(PolicyVizMixin):
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run HMM-GD and return the best solution found.
+        Run HMM-GD-HH and return the best solution found.
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -113,35 +157,30 @@ class HMMGDSolver(PolicyVizMixin):
         best_profit = profit
         best_cost = self._cost(best_routes)
 
-        # Great Deluge for maximization: water level starts *below* initial profit
-        # and slowly rises. We accept any move that is better than the water level.
+        # Great Deluge for maximisation: water level starts *below* initial profit
+        # and slowly rises.  Accept any move whose profit ≥ water level.
         water_level = (
             best_profit * (1.0 - self.params.flood_margin) if best_profit > 0 else -abs(self.params.flood_margin)
         )
-
-        # Current HMM state
-        state = _STATE_IMPROVING
-        stagnation_count = 0
 
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Select LLH from HMM transition probabilities for current state
-            llh_probs = self._A[state]
+            # Belief-weighted LLH selection probabilities
+            llh_probs = self._belief @ self._B  # shape (n_llh,)
+            llh_probs_sum = llh_probs.sum()
+            if llh_probs_sum > 1e-12:
+                llh_probs /= llh_probs_sum
+            else:
+                llh_probs = np.ones(self.n_llh) / self.n_llh
+
             llh_idx = self._sample_llh(llh_probs)
             llh = self._llh_pool[llh_idx]
 
-            # Apply LLH
+            # Apply LLH (no embedded local search — image fix #3)
             try:
                 new_routes = llh(routes, self.params.n_removal)
-
-                # Apply 2-opt after each LLH application
-                from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-                ls = ACOLocalSearch(self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.params)
-                new_routes = ls.optimize(new_routes)
-
                 new_profit = self._evaluate(new_routes)
             except Exception:
                 new_routes = routes
@@ -149,8 +188,10 @@ class HMMGDSolver(PolicyVizMixin):
 
             delta = new_profit - profit
 
-            # --- Great Deluge acceptance (Maximization) ---
-            # Accept if profit is better than the rising water level
+            # --- Relative improvement Δ_norm (image fix #2) ---
+            delta_norm = delta / abs(profit) if abs(profit) > 1e-12 else 0.0
+
+            # --- Great Deluge acceptance (maximisation) ---
             accepted = new_profit >= water_level
 
             if accepted:
@@ -162,48 +203,70 @@ class HMMGDSolver(PolicyVizMixin):
                     best_profit = profit
                     best_cost = self._cost(best_routes)
 
-            # --- HMM state transition ---
-            prev_state = state
-            if delta > 1e-9:
-                state = _STATE_IMPROVING
-                stagnation_count = 0
-            elif stagnation_count > 10:
-                state = _STATE_ESCAPING
-                stagnation_count = 0
+            # --- Forward Algorithm belief update (image fix #1) ---
+            # Compute observation likelihood P(Δ_norm | state) for each state
+            obs_likelihood = self._gaussian_pdf(delta_norm)
+
+            # Forward step: belief'[s'] = Σ_s belief[s] * T[s][s'] * P(obs | s')
+            new_belief = np.zeros(_N_STATES)
+            for s_next in range(_N_STATES):
+                new_belief[s_next] = obs_likelihood[s_next] * np.dot(self._belief, self._T[:, s_next])
+
+            belief_sum = new_belief.sum()
+            if belief_sum > 1e-12:
+                new_belief /= belief_sum
             else:
-                state = _STATE_STAGNATING
-                stagnation_count += 1
+                new_belief = np.ones(_N_STATES) / _N_STATES
 
-            # --- Online HMM update ---
-            # Record LLH performance: "hit" if improvement, "miss" otherwise
-            self._llh_total[prev_state][llh_idx] += 1
-            if delta > 0:
-                self._llh_hits[prev_state][llh_idx] += 1
+            self._belief = new_belief
 
-            # Update transition probabilities with online learning
-            success_rate = self._llh_hits[prev_state][llh_idx] / self._llh_total[prev_state][llh_idx]
+            # --- Online emission matrix B update with Δ_norm reward ---
+            # Weight each state's contribution by the current belief
+            for s in range(_N_STATES):
+                self._llh_counts[s][llh_idx] += self._belief[s]
+                if delta_norm > 0:
+                    self._llh_reward[s][llh_idx] += self._belief[s] * delta_norm
+
+            # Recompute B[s] from accumulated rewards
             lr = self.params.learning_rate
-            self._A[prev_state][llh_idx] = (1.0 - lr) * self._A[prev_state][llh_idx] + lr * success_rate
-            # Re-normalise row
-            row_sum = self._A[prev_state].sum()
-            if row_sum > 1e-9:
-                self._A[prev_state] /= row_sum
-            else:
-                self._A[prev_state] = np.ones(self.n_llh) / self.n_llh
+            for s in range(_N_STATES):
+                reward_rate = self._llh_reward[s][llh_idx] / self._llh_counts[s][llh_idx]
+                self._B[s][llh_idx] = (1.0 - lr) * self._B[s][llh_idx] + lr * reward_rate
+                # Re-normalise row so it sums to 1
+                row_sum = self._B[s].sum()
+                if row_sum > 1e-12:
+                    self._B[s] /= row_sum
+                else:
+                    self._B[s] = np.ones(self.n_llh) / self.n_llh
 
             # Increase water level (flood rises)
             water_level += self.params.rain_speed * abs(best_profit + 1e-9)
+
+            # Determine most likely state for viz
+            hmm_state = int(np.argmax(self._belief))
 
             self._viz_record(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,
                 water_level=water_level,
-                hmm_state=state,
+                hmm_state=hmm_state,
                 llh_selected=llh_idx,
             )
 
         return best_routes, best_profit, best_cost
+
+    # ------------------------------------------------------------------
+    # Forward Algorithm helpers
+    # ------------------------------------------------------------------
+
+    def _gaussian_pdf(self, delta_norm: float) -> np.ndarray:
+        """Compute Gaussian observation likelihood P(Δ_norm | state) per state."""
+        diff = delta_norm - self._obs_mean
+        exponent = -0.5 * (diff / self._obs_std) ** 2
+        pdf = np.exp(exponent) / (self._obs_std * np.sqrt(2.0 * np.pi))
+        # Clamp to avoid numerical zeros
+        return np.maximum(pdf, 1e-12)
 
     # ------------------------------------------------------------------
     # LLH pool

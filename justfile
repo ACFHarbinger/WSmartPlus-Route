@@ -29,7 +29,7 @@ distribution := "gamma3"
 n_cores := "20"
 policies := "hs,fa,abc,slc,hvpl,vpl,lca,sca,de,es_mpl,pso,psoda,hms,ma_dp,ma_im,ma_ts"
 
-#policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,hmm_gd"
+#policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,ss_hh"
 # --- Setup & Environment ---
 
 # Sync dependencies using uv

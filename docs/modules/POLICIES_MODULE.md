@@ -1791,7 +1791,7 @@ Harmony search relies on a "Harmony Memory" which is mathematically equivalent t
 
 **Replaces:** Firefly Algorithm (FA)
 
-**Location:** `logic/src/policies/particle_swarm_optimization_distance/`
+**Location:** `logic/src/policies/particle_swarm_optimization_distance_based_algorithm/`
 
 **Algorithm:**
 
@@ -2484,7 +2484,7 @@ best_routes, best_profit, best_cost = solver.solve()
 The following metaphor-based implementations are now superseded by rigorous alternatives:
 
 - ❌ `harmony_search/` → Use `evolution_strategy_mu_plus_lambda/`
-- ❌ `firefly_algorithm/` → Use `particle_swarm_optimization_distance/`
+- ❌ `firefly_algorithm/` → Use `particle_swarm_optimization_distance_based_algorithm/`
 - ❌ `artificial_bee_colony/` → Use `differential_evolution/`
 - ❌ `hybrid_volleyball_premier_league/` → Use `hybrid_memetic_search/`
 - ❌ `league_championship_algorithm/` → Use `genetic_algorithm_stochastic_tournament/`
@@ -3900,7 +3900,7 @@ neural:
 | ACO               | `ant_colony_optimization/`                    |
 | SANS              | `simulated_annealing_neighborhood_search/`    |
 | SISR              | `slack_induction_by_string_removal/`          |
-| BPC               | `branch_price_cut/`                           |
+| BPC               | `branch_and_price_and_cut/`                   |
 | Neural            | `neural_agent/`                               |
 
 ### 14.6 Related Documentation

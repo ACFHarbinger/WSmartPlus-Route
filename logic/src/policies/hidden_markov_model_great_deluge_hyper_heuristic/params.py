@@ -8,9 +8,9 @@ from dataclasses import dataclass
 
 
 @dataclass
-class HMMGDParams:
+class HMMGDHHParams:
     """
-    Configuration parameters for the HMM-GD solver.
+    Configuration parameters for the Hidden Markov Model + Great Deluge Hyper-Heuristic solver.
 
     The solver is an online-learning hyper-heuristic.  A Hidden Markov Model
     (HMM) learns which Low-Level Heuristic (LLH) to invoke based on the

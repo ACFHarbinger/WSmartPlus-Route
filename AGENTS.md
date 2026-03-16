@@ -657,7 +657,7 @@ This section maintains a registry of intelligent agents, orchestration component
 | Policy             | File                                     | Type            | Description                                                          |
 | ------------------ | ---------------------------------------- | --------------- | -------------------------------------------------------------------- |
 | **ALNS**           | `adaptive_large_neighborhood_search.py`  | Metaheuristic   | Destroy-repair operators with adaptive weights.                      |
-| **BPC**            | `branch_price_cut_price.py`              | Exact           | Branch-and-Price-and-Cut via Gurobi/OR-Tools/VRPy.                   |
+| **BPC**            | `branch_and_price_and_cut.py`            | Exact           | Branch-and-Price-and-Cut via Gurobi/OR-Tools/VRPy.                   |
 | **GIHH**           | `guided_indicators_hyper_heuristic.py`   | Hyper-Heuristic | Two guidance indicators (IRI & TBI) for adaptive operator selection. |
 | **HGS**            | `hybrid_genetic_search.py`               | Genetic         | Evolutionary operators with local search and Split.                  |
 | **HGSRR**          | `hybrid_genetic_search_ruin_recreate.py` | Hybrid Genetic  | HGS with adaptive ruin-and-recreate mutation operators.              |

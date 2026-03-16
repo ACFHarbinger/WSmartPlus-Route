@@ -36,7 +36,7 @@ class PolicyFactory:
         import logic.src.policies.ant_colony_optimization_k_sparse.policy_ks_aco as policy_ks_aco  # noqa
         import logic.src.policies.artificial_bee_colony.policy_abc as policy_abc  # noqa
         import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl  # noqa
-        import logic.src.policies.branch_price_cut.policy_bpc as policy_bpc  # noqa
+        import logic.src.policies.branch_and_price_and_cut.policy_bpc as policy_bpc  # noqa
         import logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp as policy_cvrp  # noqa
         import logic.src.policies.differential_evolution.policy_de as policy_de  # noqa
         import logic.src.policies.evolution_strategy_mu_comma_lambda.policy_es_mcl as policy_es_mcl  # noqa
@@ -49,7 +49,7 @@ class PolicyFactory:
         import logic.src.policies.guided_indicators_hyper_heuristic.policy_gihh as policy_gihh  # noqa
         import logic.src.policies.guided_local_search.policy_gls as policy_gls  # noqa
         import logic.src.policies.harmony_search.policy_hs as policy_hs  # noqa
-        import logic.src.policies.hidden_markov_model_great_deluge.policy_hmm_gd as policy_hmm_gd  # noqa
+        import logic.src.policies.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh as policy_hmm_gd_hh  # noqa
         import logic.src.policies.hybrid_genetic_search.policy_hgs as policy_hgs  # noqa
         import logic.src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns as policy_hgs_alns  # noqa
         import logic.src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr as policy_hgsrr  # noqa
@@ -63,18 +63,19 @@ class PolicyFactory:
         import logic.src.policies.league_championship_algorithm.policy_lca as policy_lca  # noqa
         import logic.src.policies.memetic_algorithm_dual_population.policy_ma_dp as policy_ma_dp  # noqa
         import logic.src.policies.memetic_algorithm_island_model.policy_ma_im as policy_ma_im  # noqa
-        import logic.src.policies.memetic_algorithm_tolerance_selection.policy_ma_ts as policy_ma_ts  # noqa
+        import logic.src.policies.memetic_algorithm_tolerance_based_selection.policy_ma_ts as policy_ma_ts  # noqa
         import logic.src.policies.neural_agent.policy_neural as neural_agent  # noqa
         import logic.src.policies.old_bachelor_acceptance.policy_oba as policy_oba  # noqa
         import logic.src.policies.particle_swarm_optimization.policy_pso as policy_pso  # noqa
-        import logic.src.policies.particle_swarm_optimization_distance.policy_psoda as policy_psoda  # noqa
-        import logic.src.policies.particle_swarm_optimization_memetic.policy_psoma as policy_psoma  # noqa
+        import logic.src.policies.particle_swarm_optimization_distance_based_algorithm.policy_psoda as policy_psoda  # noqa
+        import logic.src.policies.particle_swarm_optimization_memetic_algorithm.policy_psoma as policy_psoma  # noqa
         import logic.src.policies.quantum_differential_evolution.policy_qde as policy_qde  # noqa
         import logic.src.policies.reactive_tabu_search.policy_rts as policy_rts  # noqa
         import logic.src.policies.record_to_record_travel.policy_rrt as policy_rrt  # noqa
         import logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns as policy_rl_alns  # noqa
         import logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl as policy_rl_ahvpl  # noqa
         import logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league.policy_rl_hvpl as policy_rl_hvpl  # noqa
+        import logic.src.policies.sequence_based_selection_hyper_heuristic.policy_ss_hh as policy_ss_hh  # noqa
         import logic.src.policies.simulated_annealing.policy_sa as policy_sa  # noqa
         import logic.src.policies.simulated_annealing_neighborhood_search.policy_sans as policy_sans  # noqa
         import logic.src.policies.sine_cosine_algorithm.policy_sca as policy_sca  # noqa

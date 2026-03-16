@@ -1,7 +1,7 @@
 """
-PSOMA Policy Adapter.
+SS-HH Policy Adapter.
 
-Adapts the Particle Swarm Optimization Memetic Algorithm (PSOMA) to the
+Adapts the Sequence-based Selection Hyper-Heuristic (SS-HH) solver to the
 agnostic BaseRoutingPolicy interface.
 """
 
@@ -9,30 +9,30 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.psoma import PSOMAConfig
+from logic.src.configs.policies.ss_hh import SSHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.particle_swarm_optimization_memetic.params import PSOMAParams
-from logic.src.policies.particle_swarm_optimization_memetic.solver import PSOMAsSolver
+from logic.src.policies.sequence_based_selection_hyper_heuristic.params import SSHHParams
+from logic.src.policies.sequence_based_selection_hyper_heuristic.solver import SSHHSolver
 
 
-@PolicyRegistry.register("psoma")
-class PSOMAPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("ss_hh")
+class SSHHPolicy(BaseRoutingPolicy):
     """
-    PSOMA policy class.
+    SS-HH policy class.
 
-    Visits bins using Particle Swarm Optimization with a memetic local-search step.
+    Visits bins using the online-learning Sequence-based Selection Hyper-Heuristic.
     """
 
-    def __init__(self, config: Optional[Union[PSOMAConfig, Dict[str, Any]]] = None):
+    def __init__(self, config: Optional[Union[SSHHConfig, Dict[str, Any]]] = None):
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return PSOMAConfig
+        return SSHHConfig
 
     def _get_config_key(self) -> str:
-        return "psoma"
+        return "ss_hh"
 
     def _run_solver(
         self,
@@ -45,19 +45,17 @@ class PSOMAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        params = PSOMAParams(
-            pop_size=int(values.get("pop_size", 20)),
-            omega=float(values.get("omega", 0.4)),
-            c1=float(values.get("c1", 1.5)),
-            c2=float(values.get("c2", 2.0)),
-            max_iterations=int(values.get("max_iterations", 200)),
-            local_search_freq=int(values.get("local_search_freq", 10)),
+        params = SSHHParams(
+            max_iterations=int(values.get("max_iterations", 500)),
             n_removal=int(values.get("n_removal", 2)),
+            n_llh=int(values.get("n_llh", 5)),
             time_limit=float(values.get("time_limit", 60.0)),
-            local_search_iterations=int(values.get("local_search_iterations", 500)),
+            threshold_infeasible=float(values.get("threshold_infeasible", 0.001)),
+            threshold_feasible_base=float(values.get("threshold_feasible_base", 0.0001)),
+            threshold_decay_rate=float(values.get("threshold_decay_rate", 0.01)),
         )
 
-        solver = PSOMAsSolver(
+        solver = SSHHSolver(
             sub_dist_matrix,
             sub_wastes,
             capacity,
