@@ -29,7 +29,7 @@
 # TYPICAL USE CASES:
 #   - Comparing acceptance criteria (LAHC vs SA vs Great Deluge)
 #   - Production VRPP optimization requiring parameter-free acceptance
-#   - Benchmarking against HMM-GD and GPHH
+#   - Benchmarking against SS-HH and GPHH
 #
 # PERFORMANCE EXPECTATIONS:
 #   - Robust across objective function rescaling (scale-independent)

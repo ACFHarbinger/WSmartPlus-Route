@@ -31,7 +31,7 @@ defaults:
   - /policies@p.slc: policy_slc
   - /policies@p.lca: policy_lca
   - /policies@p.gphh: policy_gphh
-  - /policies@p.hmm_gd: policy_hmm_gd
+  - /policies@p.ss_hh: policy_ss_hh
   - /policies@p.lahc: policy_lahc
   - /policies@p.rrt: policy_rrt
   - /policies@p.oba: policy_oba
@@ -105,7 +105,7 @@ sim:
     - slc: ${p.slc.slc}
     - lca: ${p.lca.lca}
     - gphh: ${p.gphh.gphh}
-    - hmm_gd: ${p.hmm_gd.hmm_gd}
+    - ss_hh: ${p.ss_hh.ss_hh}
     - lahc: ${p.lahc.lahc}
     - rrt: ${p.rrt.rrt}
     - oba: ${p.oba.oba}

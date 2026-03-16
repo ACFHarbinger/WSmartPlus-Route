@@ -409,7 +409,7 @@ alns_config = {
 }
 ```
 
-#### BPC (`policies/branch_price_cut.py`)
+#### BPC (`policies/branch_and_price_and_cut.py`)
 
 **Branch-and-Price-and-Cut** is an exact method for solving the VRPP optimally.
 
@@ -422,7 +422,7 @@ alns_config = {
 **Integration**: Uses Gurobi, OR-Tools, or VRPy as the backend solver.
 
 ```python
-from logic.src.policies.branch_price_cut import BranchAndPriceAndCut
+from logic.src.policies.branch_and_price_and_cut import BranchAndPriceAndCut
 
 bpc = BranchAndPriceAndCut(
     solver='gurobi',

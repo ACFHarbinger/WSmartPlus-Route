@@ -19,7 +19,7 @@ from .gphh import GPHHConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
 from .hgsrr import HGSRRConfig
-from .hmm_gd import HMMGDConfig
+from .hmm_gd_hh import HMMGDHHConfig
 from .hms import HybridMemeticSearchConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
@@ -43,6 +43,7 @@ from .sans import SANSConfig
 from .sca import SCAConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
+from .ss_hh import SSHHConfig
 from .tsp import TSPConfig
 from .vns import VNSConfig
 from .vpl import VPLConfig
@@ -91,7 +92,8 @@ __all__ = [
     "MuKappaLambdaESConfig",
     "MuPlusLambdaESConfig",
     "GPHHConfig",
-    "HMMGDConfig",
+    "HMMGDHHConfig",
+    "SSHHConfig",
     "VNSConfig",
     "VPLConfig",
     "MemeticAlgorithmDualPopulationConfig",

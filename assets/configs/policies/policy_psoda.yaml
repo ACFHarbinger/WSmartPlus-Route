@@ -143,7 +143,7 @@ psoda:
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/particle_swarm_optimization_distance/
+      # Execution backend: logic/src/policies/particle_swarm_optimization_distance_based_algorithm/
 
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems

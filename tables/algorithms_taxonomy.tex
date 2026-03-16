@@ -95,8 +95,6 @@ Guided Local Search (GLS) & Voudouris \& Tsang (1997) & Local Search (LS) & Cano
 
 Harmony Search (HS) & Geem et al. (2001) & ES & Relabeled Meta-heuristic & Population, General & Pitch Adjustment (mutation) & Mimics musicians improvising to find acoustic harmony via pitch adjustments and memory. & \textbf{Deceptive.} Mathematically proven to be nothing more than a relabeled, constrained $(\mu + 1)$-Evolution Strategy (Weyland, 2013). \\ \midrule
 
-Hidden Markov Model + Great Deluge (HMM-GD) & Ozcan et al. (2010) & Great Deluge (GD) & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & Great Deluge acceptance & Probabilistic HMM actively governs the threshold state transitions for the Great Deluge local search. & Legitimate parameter control; applies reinforcement learning to guide an existing thermodynamic heuristic. \\ \midrule
-
 Hopfield Neural Network (HNN) & Hopfield \& Tank (1985) & Canonical & NCO: Improvement Heuristic (UL) & Single-point, General & Energy minimization & Iteratively refines a continuous state relaxation by minimizing an unsupervised energy landscape. & Foundational archetype of unsupervised neural optimization; relies on statistical physics. \\ \midrule
 
 Hybrid Genetic Search (HGS) & Vidal et al. (2012) & Memetic Algorithm & Memetic Algorithm & Population, Routing & Swap, 2-opt, Cross-exchange & GA that applies local search to offspring prior to fitness evaluation. & State-of-the-art framework for routing optimization; transparent engineering. \\ \midrule
@@ -146,6 +144,8 @@ Reactive Tabu Search (RTS) & Battiti (1994) & Tabu Search (TS) & Canonical Meta-
 Record-to-Record Travel (RRT) & Dueck (1993) & Local Search / SA & Canonical Acceptance Criterion & Single-point, Combinatorial & Relies on external LS & Deterministically accepts deteriorating solutions if they fall within a defined scalar margin of the global best. & Foundational fixed-margin acceptance rule offering a deterministic, parameter-light alternative to SA. \\ \midrule
 
 Reinforcement Learning B\&B (RL-B\&B) & Sun et al. (2020) & RL + B\&B & NCO: Predict-Many (RL) & Complete Tree, MILP & RL-based variable branching & Interacts with the B\&B tree as an environment to minimize tree size via RL actions. & Rigorous integration of RL into exact mathematical programming spaces. \\ \midrule
+
+Sequence-based Selection Hyper-Heuristic (SS-HH) & Ahmed Kheiri (2014) & Great Deluge (GD) & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & Great Deluge acceptance & Probabilistic SS-HH actively governs the threshold state transitions for the Great Deluge local search. & Legitimate parameter control; applies reinforcement learning to guide an existing thermodynamic heuristic. \\ \midrule
 
 Simulated Annealing (SA) & Kirkpatrick (1983) & MH & Canonical Meta-heuristic & Single-point, General & Probabilistic acceptance & Probabilistically accepts worse solutions based on a decreasing temperature $T$. & Foundational link between statistical mechanics and combinatorial optimization. \\ \midrule
 
