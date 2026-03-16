@@ -6,6 +6,7 @@ from .abc import ABCConfig
 from .aco_hh import HyperHeuristicACOConfig
 from .aco_ks import KSparseACOConfig
 from .ahvpl import AHVPLConfig
+from .aks import AdaptiveKernelSearchConfig
 from .alns import ALNSConfig
 from .bb import BBConfig
 from .bpc import BPCConfig
@@ -72,6 +73,7 @@ from .vpl import VPLConfig
 from .vrpp import VRPPConfig
 
 __all__ = [
+    "AdaptiveKernelSearchConfig",
     "KSparseACOConfig",
     "HyperHeuristicACOConfig",
     "AHVPLConfig",
