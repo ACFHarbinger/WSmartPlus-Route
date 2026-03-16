@@ -23,15 +23,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.local_search.local_search_aco import ACOLocalSearch
 from .construction import SolutionConstructor
 from .params import KSACOParams
 from .pheromones import SparsePheromoneTau
 
 
-class KSparseACOSolver(PolicyVizMixin):
+class KSparseACOSolver:
     """
     K-Sparse Ant Colony System solver for CVRP/VRPP.
 
@@ -193,7 +191,7 @@ class KSparseACOSolver(PolicyVizMixin):
             self._global_pheromone_update(best_routes, best_cost)
 
             _tau_vals = [v for nbrs in self.pheromone._pheromone.values() for v in nbrs.values()]
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_iteration,
                 best_cost=best_cost,
                 iter_best_cost=iteration_best_cost,

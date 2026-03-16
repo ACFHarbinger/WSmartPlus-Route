@@ -33,8 +33,6 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -50,7 +48,7 @@ from .tree import GPNode, _mutate, _random_tree, _subtree_crossover
 # ---------------------------------------------------------------------------
 
 
-class GPHHSolver(PolicyVizMixin):
+class GPHHSolver:
     """
     Genetic Programming Hyper-Heuristic solver for VRPP.
     """
@@ -152,7 +150,7 @@ class GPHHSolver(PolicyVizMixin):
             gp_pop = new_pop[: self.params.gp_pop_size]
             gp_fitness = new_fitness[: self.params.gp_pop_size]
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=gen,
                 best_tree_fitness=best_tree_fitness,
                 gp_pop_size=self.params.gp_pop_size,

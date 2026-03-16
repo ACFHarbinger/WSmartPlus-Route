@@ -49,12 +49,11 @@ from logic.src.policies.other.reinforcement_learning.agents.td_learning import (
 )
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.policies.other.reinforcement_learning.reward.shaping import AdaptiveRewardShaper, RewardShaper
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .params import RLALNSParams
 
 
-class RLALNSSolver(PolicyVizMixin):
+class RLALNSSolver:
     """
     RL-ALNS solver with multiple RL algorithms for operator selection.
 
@@ -372,7 +371,7 @@ class RLALNSSolver(PolicyVizMixin):
             T *= self.params.cooling_rate
 
             # Record for visualization
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_cost=best_profit,
                 current_cost=current_profit,

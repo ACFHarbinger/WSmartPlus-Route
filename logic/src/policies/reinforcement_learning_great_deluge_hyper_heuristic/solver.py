@@ -20,13 +20,11 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import greedy_insertion
 from .params import RLGDHHParams
 
 
-class RLGDHHSolver(PolicyVizMixin):
+class RLGDHHSolver:
     """
     Reinforcement Learning Great Deluge Hyper-Heuristic Solver.
 
@@ -175,7 +173,7 @@ class RLGDHHSolver(PolicyVizMixin):
 
             # Telemetry for visualization
             if iteration % 10 == 0:
-                self._viz_record(
+                getattr(self, "_viz_record", lambda **k: None)(
                     iteration=iteration,
                     best_profit=best_fitness,
                     best_cost=self._cost(best_solution),

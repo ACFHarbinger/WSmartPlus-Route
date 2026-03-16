@@ -19,8 +19,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -31,7 +29,7 @@ from ..other.operators import (
 from .params import GLSParams
 
 
-class GLSSolver(PolicyVizMixin):
+class GLSSolver:
     """
     Guided Local Search solver for VRPP.
     """
@@ -123,7 +121,7 @@ class GLSSolver(PolicyVizMixin):
             # At local optimum: penalise the edge with highest utility
             self._update_penalties(routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=restart,
                 best_profit=best_profit,
                 best_cost=self._cost(best_routes),

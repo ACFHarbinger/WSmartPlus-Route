@@ -27,15 +27,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .individual import Individual
 from .params import MuKappaLambdaESParams
 
 
-class MuKappaLambdaESSolver(PolicyVizMixin):
+class MuKappaLambdaESSolver:
     """
     (μ,κ,λ) Evolution Strategy solver adapted for VRP.
 
@@ -151,7 +149,7 @@ class MuKappaLambdaESSolver(PolicyVizMixin):
             self._update_best(parents)
             self.convergence_curve.append(self.best_individual.fitness)  # type: ignore[union-attr]
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=generation,
                 best_profit=self.best_individual.fitness,  # type: ignore[union-attr]
                 best_cost=self._cost(self.best_individual.routes),  # type: ignore[union-attr]

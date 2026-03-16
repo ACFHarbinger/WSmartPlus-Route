@@ -20,13 +20,12 @@ from logic.src.policies.hybrid_genetic_search import Individual
 from logic.src.policies.hybrid_genetic_search.evolution import evaluate, update_biased_fitness
 from logic.src.policies.hybrid_genetic_search.split import LinearSplit
 from logic.src.policies.other.operators.crossover import ordered_crossover
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .params import HGSRRParams
 from .ruin_recreate import AdaptiveOperatorManager, RuinRecreateOperator
 
 
-class HGSRRSolver(PolicyVizMixin):
+class HGSRRSolver:
     """
     Hybrid Genetic Search with Ruin-and-Recreate for VRPP.
 
@@ -179,7 +178,7 @@ class HGSRRSolver(PolicyVizMixin):
             if it % 10 == 0:
                 self.operator_manager.decay_weights()
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=it,
                 best_profit=best_profit_so_far,
                 child_profit=child.profit_score,

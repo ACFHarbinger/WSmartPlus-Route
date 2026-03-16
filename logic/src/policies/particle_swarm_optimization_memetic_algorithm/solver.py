@@ -21,14 +21,13 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..other.operators import greedy_insertion, worst_removal
 from .params import PSOMAParams
 from .particle import PSOMAParticle
 
 
-class PSOMAsSolver(PolicyVizMixin):
+class PSOMAsSolver:
     """
     PSOMA solver for VRPP — PSO with memetic local-search steps.
     """
@@ -131,7 +130,7 @@ class PSOMAsSolver(PolicyVizMixin):
                             gbest_profit = ls_profit
                             gbest_cost = self._cost(gbest_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=gbest_profit,
                 best_cost=gbest_cost,

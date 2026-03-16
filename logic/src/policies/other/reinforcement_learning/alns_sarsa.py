@@ -100,13 +100,12 @@ from logic.src.policies.other.operators.unstringing_stringing import (
 )
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import SarsaAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 from logic.src.utils.functions import safe_exp
 
 from .alns_perturbation_context import ALNSPerturbationContext
 
 
-class ALNSSARSASolver(PolicyVizMixin):
+class ALNSSARSASolver:
     """
     Enhanced ALNS solver with SARSA reinforcement learning for operator selection.
 
@@ -673,7 +672,7 @@ class ALNSSARSASolver(PolicyVizMixin):
                 self.agent.decay_epsilon()
 
             # Visualization
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 destroy_op=self.destroy_names[d_idx],
                 repair_op=self.repair_names[r_idx],

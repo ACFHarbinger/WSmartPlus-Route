@@ -6,13 +6,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from .batch import BatchMixin
 from .simulation import SimulationMixin
 
 
-class NeuralAgent(PolicyVizMixin, BatchMixin, SimulationMixin):
+class NeuralAgent(BatchMixin, SimulationMixin):
     """
     Agent interface between simulator/environment and neural routing models.
 

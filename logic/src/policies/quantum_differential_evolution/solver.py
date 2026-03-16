@@ -18,12 +18,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from .params import QDEParams
 
 
-class QDESolver(PolicyVizMixin):
+class QDESolver:
     """
     Quantum-Inspired Differential Evolution solver for VRPP.
     """
@@ -116,7 +114,7 @@ class QDESolver(PolicyVizMixin):
                         best_profit = trial_profit
                         best_cost = self._cost(best_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,
