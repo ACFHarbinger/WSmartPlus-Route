@@ -26,8 +26,6 @@
 `````{py:class} RTSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.reactive_tabu_search.params.RTSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.reactive_tabu_search.solver.RTSSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.reactive_tabu_search.solver.RTSSolver
 ```
 

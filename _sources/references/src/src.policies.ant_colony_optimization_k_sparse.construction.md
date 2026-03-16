@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SolutionConstructor(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, pheromone: src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau, eta: numpy.ndarray, candidate_lists: typing.Dict[int, typing.List[int]], nodes: typing.List[int], params: src.policies.ant_colony_optimization_k_sparse.params.ACOParams, tau_0: float, R: float = 0.0, C: float = 1.0, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} SolutionConstructor(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, pheromone: src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau, eta: numpy.ndarray, candidate_lists: typing.Dict[int, typing.List[int]], nodes: typing.List[int], params: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams, tau_0: float, R: float = 0.0, C: float = 1.0, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor

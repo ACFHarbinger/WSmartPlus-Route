@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args)
+````{py:function} run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, recorder=None, *args)
 :canonical: src.policies.adaptive_large_neighborhood_search.dispatcher.run_alns
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.dispatcher.run_alns

@@ -26,8 +26,6 @@
 `````{py:class} HULKSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hyper_heuristic_us_lk.params.HULKParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None, evaluator=None)
 :canonical: src.policies.hyper_heuristic_us_lk.hulk.HULKSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.hulk.HULKSolver
 ```
 

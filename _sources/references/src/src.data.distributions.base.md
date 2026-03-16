@@ -45,7 +45,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} sample(size: typing.Tuple[int, ...], rng: typing.Optional[typing.Union[torch.Generator, numpy.random.RandomState]] = None) -> typing.Union[numpy.ndarray, torch.Tensor]
+````{py:method} sample(size: typing.Tuple[int, ...], rng: typing.Optional[typing.Union[torch.Generator, numpy.random.Generator]] = None) -> typing.Union[numpy.ndarray, torch.Tensor]
 :canonical: src.data.distributions.base.BaseDistribution.sample
 
 ```{autodoc2-docstring} src.data.distributions.base.BaseDistribution.sample
@@ -53,7 +53,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[typing.Union[torch.Generator, numpy.random.RandomState]] = None) -> numpy.ndarray
+````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[numpy.random.Generator] = None) -> numpy.ndarray
 :canonical: src.data.distributions.base.BaseDistribution._sample_array
 :abstractmethod:
 

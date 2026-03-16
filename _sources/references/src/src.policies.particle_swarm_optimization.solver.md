@@ -26,8 +26,6 @@
 `````{py:class} PSOSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.particle_swarm_optimization.params.PSOParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.particle_swarm_optimization.solver.PSOSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization.solver.PSOSolver
 ```
 

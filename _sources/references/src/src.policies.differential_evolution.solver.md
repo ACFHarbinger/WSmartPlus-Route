@@ -26,8 +26,6 @@
 `````{py:class} DESolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.differential_evolution.params.DEParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.differential_evolution.solver.DESolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.differential_evolution.solver.DESolver
 ```
 

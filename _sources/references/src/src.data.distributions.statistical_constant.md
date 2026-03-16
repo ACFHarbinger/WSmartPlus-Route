@@ -45,7 +45,7 @@ Bases: {py:obj}`src.data.distributions.base.BaseDistribution`
 
 ````
 
-````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[numpy.random.RandomState] = None) -> numpy.ndarray
+````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[numpy.random.Generator] = None) -> numpy.ndarray
 :canonical: src.data.distributions.statistical_constant.Constant._sample_array
 
 ```{autodoc2-docstring} src.data.distributions.statistical_constant.Constant._sample_array

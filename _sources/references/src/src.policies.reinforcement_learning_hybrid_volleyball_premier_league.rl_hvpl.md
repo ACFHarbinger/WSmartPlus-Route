@@ -26,8 +26,6 @@
 `````{py:class} RLHVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.rl_hvpl.RLHVPLSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.rl_hvpl.RLHVPLSolver
 ```
 

@@ -26,8 +26,6 @@
 `````{py:class} FILOSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.fast_iterative_localized_optimization.params.FILOParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver
 ```
 

@@ -26,8 +26,6 @@
 `````{py:class} AHVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver
 ```
 

@@ -26,8 +26,6 @@
 `````{py:class} SLCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.soccer_league_competition.params.SLCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.soccer_league_competition.solver.SLCSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.soccer_league_competition.solver.SLCSolver
 ```
 

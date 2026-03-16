@@ -26,8 +26,6 @@
 `````{py:class} VPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.volleyball_premier_league.params.VPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.volleyball_premier_league.solver.VPLSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.volleyball_premier_league.solver.VPLSolver
 ```
 

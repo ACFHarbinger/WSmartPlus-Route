@@ -26,8 +26,6 @@
 `````{py:class} HybridMemeticSearchSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.hybrid_memetic_search.solver.HybridMemeticSearchSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.hybrid_memetic_search.solver.HybridMemeticSearchSolver
 ```
 

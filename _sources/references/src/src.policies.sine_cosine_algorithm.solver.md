@@ -26,8 +26,6 @@
 `````{py:class} SCASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.sine_cosine_algorithm.params.SCAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.sine_cosine_algorithm.solver.SCASolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.sine_cosine_algorithm.solver.SCASolver
 ```
 

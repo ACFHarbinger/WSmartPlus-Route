@@ -61,7 +61,7 @@ src.data.distributions.spatial_gaussian_mixture
 ````{py:data} __all__
 :canonical: src.data.distributions.__all__
 :value: >
-   ['Cluster', 'Mixed', 'Gaussian_Mixture', 'Gamma', 'Empirical', 'MixDistribution', 'MixMultiDistribut...
+   ['BaseDistribution', 'Cluster', 'Mixed', 'Gaussian_Mixture', 'Gamma', 'Empirical', 'MixDistribution'...
 
 ```{autodoc2-docstring} src.data.distributions.__all__
 ```

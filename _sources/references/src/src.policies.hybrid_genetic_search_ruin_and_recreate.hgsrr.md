@@ -38,8 +38,6 @@
 `````{py:class} HGSRRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr.HGSRRSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr.HGSRRSolver
 ```
 

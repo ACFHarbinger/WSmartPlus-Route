@@ -119,7 +119,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.aco_params
-:type: src.policies.ant_colony_optimization_k_sparse.params.ACOParams
+:type: typing.Optional[src.policies.ant_colony_optimization_k_sparse.params.KSACOParams]
 :value: >
    'field(...)'
 
@@ -130,7 +130,7 @@
 
 ````{py:attribute} alns_params
 :canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.alns_params
-:type: src.policies.adaptive_large_neighborhood_search.ALNSParams
+:type: typing.Optional[src.policies.adaptive_large_neighborhood_search.ALNSParams]
 :value: >
    'field(...)'
 

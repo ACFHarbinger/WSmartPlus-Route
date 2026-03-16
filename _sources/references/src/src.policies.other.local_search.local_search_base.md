@@ -26,7 +26,7 @@
 `````{py:class} LocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, seed: typing.Optional[int] = None, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None)
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`abc.ABC`
+Bases: {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch
 ```

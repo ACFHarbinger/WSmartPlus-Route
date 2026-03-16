@@ -26,8 +26,6 @@
 `````{py:class} SISRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.slack_induction_by_string_removal.params.SISRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.slack_induction_by_string_removal.solver.SISRSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.solver.SISRSolver
 ```
 

@@ -26,8 +26,6 @@
 `````{py:class} MuPlusLambdaESSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
-
 ```{autodoc2-docstring} src.policies.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver
 ```
 

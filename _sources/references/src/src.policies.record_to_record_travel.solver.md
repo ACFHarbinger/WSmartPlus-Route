@@ -23,10 +23,10 @@
 
 ### API
 
-`````{py:class} RRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.record_to_record_travel.params.RRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} RRSolver(*args, **kwargs)
 :canonical: src.policies.record_to_record_travel.solver.RRSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
+Bases: {py:obj}`src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver`
 
 ```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver
 ```
@@ -37,75 +37,16 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 ```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver.__init__
 ```
 
-````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver.solve
+````{py:method} _accept(new_profit: float, current_profit: float, iteration: int) -> bool
+:canonical: src.policies.record_to_record_travel.solver.RRSolver._accept
 
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver.solve
+```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._accept
 ```
 
 ````
 
-````{py:method} _llh0(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._llh0
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._llh0
-```
-
-````
-
-````{py:method} _llh1(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._llh1
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._llh1
-```
-
-````
-
-````{py:method} _llh2(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._llh2
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._llh2
-```
-
-````
-
-````{py:method} _llh3(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._llh3
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._llh3
-```
-
-````
-
-````{py:method} _llh4(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._llh4
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._llh4
-```
-
-````
-
-````{py:method} _build_initial_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._build_initial_solution
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._build_initial_solution
-```
-
-````
-
-````{py:method} _evaluate(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._evaluate
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._evaluate
-```
-
-````
-
-````{py:method} _cost(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.record_to_record_travel.solver.RRSolver._cost
-
-```{autodoc2-docstring} src.policies.record_to_record_travel.solver.RRSolver._cost
-```
+````{py:method} _record_telemetry(iteration: int, best_profit: float, current_profit: float)
+:canonical: src.policies.record_to_record_travel.solver.RRSolver._record_telemetry
 
 ````
 

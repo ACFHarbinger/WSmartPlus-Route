@@ -23,10 +23,8 @@
 
 ### API
 
-`````{py:class} KSparseACOQLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.ant_colony_optimization_k_sparse.params.ACOParams, rl_params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} KSparseACOQLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.ant_colony_optimization_k_sparse.params.KSACOParams, rl_params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.other.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver
-
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver
 ```

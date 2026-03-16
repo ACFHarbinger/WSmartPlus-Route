@@ -45,7 +45,7 @@
 `````{py:class} BaseRoutingPolicy(config: typing.Any = None)
 :canonical: src.policies.base.base_routing_policy.BaseRoutingPolicy
 
-Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
 
 ```{autodoc2-docstring} src.policies.base.base_routing_policy.BaseRoutingPolicy
 ```

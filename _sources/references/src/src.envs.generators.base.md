@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} Generator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', device: typing.Union[str, torch.device] = 'cpu', rng: typing.Optional[numpy.random.RandomState] = None, generator: typing.Optional[torch.Generator] = None, **kwargs: typing.Any)
+`````{py:class} Generator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', device: typing.Union[str, torch.device] = 'cpu', rng: typing.Optional[numpy.random.Generator] = None, generator: typing.Optional[torch.Generator] = None, **kwargs: typing.Any)
 :canonical: src.envs.generators.base.Generator
 
 Bases: {py:obj}`abc.ABC`

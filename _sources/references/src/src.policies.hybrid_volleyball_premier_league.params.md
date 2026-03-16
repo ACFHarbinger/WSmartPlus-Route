@@ -119,7 +119,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.aco_params
-:type: src.policies.ant_colony_optimization_k_sparse.params.ACOParams
+:type: typing.Optional[src.policies.ant_colony_optimization_k_sparse.params.KSACOParams]
 :value: >
    'field(...)'
 
@@ -130,7 +130,7 @@
 
 ````{py:attribute} alns_params
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.alns_params
-:type: src.policies.adaptive_large_neighborhood_search.params.ALNSParams
+:type: typing.Optional[src.policies.adaptive_large_neighborhood_search.params.ALNSParams]
 :value: >
    'field(...)'
 

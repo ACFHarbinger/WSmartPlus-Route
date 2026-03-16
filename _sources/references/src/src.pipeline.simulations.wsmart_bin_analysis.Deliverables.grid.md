@@ -103,7 +103,7 @@
 
 ````
 
-````{py:method} sample(n_samples=1, rng: typing.Optional[numpy.random.RandomState] = None) -> numpy.ndarray
+````{py:method} sample(n_samples=1, rng: typing.Optional[numpy.random.Generator] = None) -> numpy.ndarray
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.sample
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.sample

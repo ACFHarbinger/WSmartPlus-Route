@@ -37,7 +37,7 @@ Bases: {py:obj}`src.data.distributions.base.BaseDistribution`
 ```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance.__init__
 ```
 
-````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[typing.Union[torch.Generator, numpy.random.RandomState]] = None) -> numpy.ndarray
+````{py:method} _sample_array(size: typing.Tuple[int, ...], rng: typing.Optional[typing.Union[torch.Generator, numpy.random.Generator]] = None) -> numpy.ndarray
 :canonical: src.data.distributions.spatial_distance.Distance._sample_array
 
 ```{autodoc2-docstring} src.data.distributions.spatial_distance.Distance._sample_array
