@@ -28,7 +28,7 @@ class BaseDistribution(ABC):
         return self
 
     def sample(
-        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.RandomState]] = None
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.default_rng]] = None
     ) -> Union[np.ndarray, torch.Tensor]:
         """Sample from distribution.
 
@@ -40,7 +40,7 @@ class BaseDistribution(ABC):
             Union[np.ndarray, torch.Tensor]: Sampled values.
         """
         if self._sampling_method == "sample_array":
-            assert rng is None or isinstance(rng, np.random.RandomState)
+            assert rng is None or isinstance(rng, np.random.default_rng)
             return np.clip(self._sample_array(size, rng=rng), 0, MAX_WASTE)  # type: ignore[arg-type]
         elif self._sampling_method == "sample_tensor":
             assert rng is None or isinstance(rng, torch.Generator)
@@ -50,7 +50,7 @@ class BaseDistribution(ABC):
 
     @abstractmethod
     def _sample_array(
-        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.RandomState]] = None
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.default_rng]] = None
     ) -> np.ndarray:
         """Sample from distribution.
 

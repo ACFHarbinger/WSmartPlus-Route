@@ -190,13 +190,13 @@ class GridBase:
         index = self.data.index
         return pd.Timestamp(index[0]), pd.Timestamp(index[-1])
 
-    def sample(self, n_samples=1, rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def sample(self, n_samples=1, rng: Optional[np.random.default_rng] = None) -> np.ndarray:
         """
         Sample N times from each bins' waste fill rate distribution.
 
         Args:
             n_samples: Number of samples to generate (default: 1)
-            rng: Optional numpy RandomState for reproducibility.
+            rng: Optional numpy default_rng for reproducibility.
 
         Returns:
             np.ndarray: Array of shape (n_samples, n_columns) containing values sampled from each distribution
@@ -207,7 +207,7 @@ class GridBase:
         )
 
         if rng is None:
-            rng = cast(np.random.RandomState, np.random)
+            rng = cast(np.random.default_rng, np.random)
 
         index_values = np.array(self.__freq_table.index)
         freq_table = self.__freq_table.to_numpy()

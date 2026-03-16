@@ -78,7 +78,7 @@ class HyperHeuristicACO(PolicyVizMixin):
         self.initial_solution = initial_solution or []
         self.mandatory_nodes = mandatory_nodes
         self.random = random.Random(seed) if seed is not None else random.Random()
-        self.np_rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
+        self.np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
 
         self.operator_names = list(HYPER_OPERATORS.keys())
         self.n_operators = len(self.operator_names)

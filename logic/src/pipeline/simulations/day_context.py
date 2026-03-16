@@ -285,7 +285,7 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         # Reset the Bins RNG using policy-specific seed + day + sample_id
         # This gives each (policy, day, sample) tuple its own isolated bin predictions
         bins_seed = (policy_seed + context.day + context.sample_id) % (2**31)
-        context.bins.rng = np.random.RandomState(bins_seed)
+        context.bins.rng = np.random.default_rng(bins_seed)
 
     from logic.src.pipeline.simulations.actions import (
         CollectAction,

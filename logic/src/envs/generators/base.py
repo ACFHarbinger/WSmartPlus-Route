@@ -27,7 +27,7 @@ class Generator(ABC):
         max_loc: float = 1.0,
         loc_distribution: Union[str, Callable] = "uniform",
         device: Union[str, torch.device] = "cpu",
-        rng: Optional[np.random.RandomState] = None,
+        rng: Optional[np.random.default_rng] = None,
         generator: Optional[torch.Generator] = None,
         **kwargs: Any,
     ) -> None:
@@ -52,7 +52,7 @@ class Generator(ABC):
         self.device = torch.device(device)
         self.bins = kwargs.get("bins")
         self._kwargs = kwargs
-        self.rng = np.random.RandomState(42) if rng is None else rng
+        self.rng = np.random.default_rng(42) if rng is None else rng
         self.generator = generator if generator is not None else torch.Generator(device=device).manual_seed(42)
 
     @property

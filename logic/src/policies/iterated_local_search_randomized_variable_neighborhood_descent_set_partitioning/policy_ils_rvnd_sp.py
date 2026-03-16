@@ -19,8 +19,8 @@ from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_d
 )
 
 
-@PolicyRegistry.register("ils_rvns_sp")
-class ILSRVNSSPPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("ils_rvnd_sp")
+class ILSRVNDSPPolicy(BaseRoutingPolicy):
     """
     ILS-RVND-SP policy class.
 
@@ -60,7 +60,11 @@ class ILSRVNSSPPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        ils_rvnd_sp_config = ILSRVNDSPConfig(**values)
+        from dataclasses import fields
+
+        valid_fields = {f.name for f in fields(ILSRVNDSPConfig)}
+        filtered_values = {k: v for k, v in values.items() if k in valid_fields}
+        ils_rvnd_sp_config = ILSRVNDSPConfig(**filtered_values)
         params = ILSRVNDSPParams.from_config(ils_rvnd_sp_config)
 
         solver = ILSRVNDSPSolver(

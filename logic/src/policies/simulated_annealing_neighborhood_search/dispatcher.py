@@ -194,7 +194,7 @@ def execute_og(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
     og_time_limit = cfg.time_limit if cfg is not None else lac_config.get("time_limit", DEFAULT_TIME_LIMIT)
 
     rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random()
-    np_rng = np.random.RandomState(kwargs.get("seed")) if kwargs.get("seed") is not None else np.random.RandomState()
+    np_rng = np.random.default_rng(kwargs.get("seed")) if kwargs.get("seed") is not None else np.random.default_rng(42)
     try:
         res, _, _ = find_solutions(
             new_data,

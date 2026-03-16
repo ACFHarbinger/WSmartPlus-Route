@@ -8,8 +8,8 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization_k_sparse.params import ACOParams
-    >>> params = ACOParams(n_ants=20, rho=0.1)
+    >>> from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
+    >>> params = KSACOParams(n_ants=20, rho=0.1)
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ACOParams:
+class KSACOParams:
     """
     Parameters for K-Sparse Ant Colony Optimization.
 
@@ -67,14 +67,14 @@ class ACOParams:
             raise ValueError(f"Exploitation probability q0 must be in [0, 1], got {self.q0}")
 
     @classmethod
-    def from_config(cls, config: Union[KSparseACOConfig, Dict[str, Any]]) -> ACOParams:
-        """Create ACOParams from an KSparseACOConfig dataclass or dict.
+    def from_config(cls, config: Union[KSparseACOConfig, Dict[str, Any]]) -> KSACOParams:
+        """Create KSACOParams from an KSparseACOConfig dataclass or dict.
 
         Args:
             config: KSparseACOConfig dataclass or dict with solver parameters.
 
         Returns:
-            ACOParams instance with values from config.
+            KSACOParams instance with values from config.
         """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})

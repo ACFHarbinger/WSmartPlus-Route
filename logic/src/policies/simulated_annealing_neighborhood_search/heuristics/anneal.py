@@ -29,7 +29,7 @@ def run_annealing_loop(
     chosen_combination: Tuple,
     time_limit: float,
     rng: random.Random,
-    np_rng: np.random.RandomState,
+    np_rng: np.random.default_rng,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Execute the simulated annealing loop to find an improved solution.

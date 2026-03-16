@@ -16,7 +16,7 @@ from typing import Any, Deque, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
-from logic.src.policies.ant_colony_optimization_k_sparse.params import ACOParams
+from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.ant_colony_optimization_k_sparse.pheromones import SparsePheromoneTau
 from logic.src.policies.other.local_search.local_search_manager import LocalSearchManager
 from logic.src.policies.other.operators.heuristics import build_nn_routes
@@ -37,7 +37,7 @@ class KSparseACOQLSolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: ACOParams,
+        params: KSACOParams,
         rl_params: Any,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,

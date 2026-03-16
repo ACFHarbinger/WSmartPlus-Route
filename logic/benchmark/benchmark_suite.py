@@ -67,7 +67,7 @@ def benchmark_neural_latency(device="cpu", seed=42):
 def benchmark_solvers(seed=42):
     print("\n--- OR Solver Performance (N=20) ---")
     n_bins = 20
-    np_rng = np.random.RandomState(seed)
+    np_rng = np.random.default_rng(seed)
     dist_matrix = np_rng.rand(n_bins + 1, n_bins + 1).tolist()
     bins = np_rng.rand(n_bins) * 100
     values = {"Q": 100.0, "R": 1.0, "B": 1.0, "C": 0.1, "V": 1.0, "Omega": 0.1, "delta": 0.0, "psi": 0.8}

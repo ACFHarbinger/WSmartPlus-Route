@@ -78,10 +78,10 @@ class Mixed(BaseDistribution):
 
         return coords.clamp_(0, 1)
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
         """NumPy version of _sample_tensor."""
         if rng is None:
-            rng = np.random.RandomState(42)
+            rng = np.random.default_rng(42)
 
         batch_size, num_loc, _ = size
 

@@ -26,7 +26,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion
 from .params import HSParams
 
@@ -61,7 +61,7 @@ class HSSolver(PolicyVizMixin):
         # Pre-instantiate Local Search for reuse
         from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
-        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
