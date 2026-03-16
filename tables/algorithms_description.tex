@@ -78,6 +78,8 @@ POPMUSIC & Partitions massive routing instances into subproblems optimized exact
 
 Record-to-Record Travel (RRT) & Accepts moves within a fixed scalar margin of the best-known record. & Deterministic threshold rule; highly effective for sensitive sequences in cumulative VRPs. \\ \midrule
 
+Relaxation Enforced Neighborhood Search (RENS) & Constructs a sub-MIP representing the space of all feasible roundings of a fractional LP optimum. & A unique LNS variant that functions as a start heuristic; it can prove whether a feasible rounding exists and establishes the best possible rounding for a given LP solution. \\ \midrule
+
 Relaxation Induced Neighborhood Search (RINS) & Fixes variables matching the LP relaxation and solves a restricted MILP. & Exploits commercial solvers as heuristic operators; effective for rapidly improving bounds. \\ \midrule
 
 Restricted Master Heuristics & Replaces exact pricing with fast metaheuristics to generate columns for a Master Problem. & Overcomes column generation bottlenecks, establishing near-optimal bounds rapidly. \\ \midrule
