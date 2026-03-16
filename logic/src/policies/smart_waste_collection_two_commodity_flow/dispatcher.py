@@ -1,10 +1,10 @@
 """
-VRPP Optimizer Interface.
+SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Optimizer Interface.
 
 Reference:
-    Morais, C. S., Ramos, T. R. P., Lopes, M., & Barbosa-Povoa, A. P.
-    "A data-driven optimization approach to plan smart
-    waste collection operations", 2022.
+    Ramos, T. R. P., Morais, C. S., & Barbosa-Povoa, A. P.
+    "The smart waste collection routing problem:
+    Alternative operational management approaches", 2018.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from .gurobi import _run_gurobi_optimizer
 from .hexaly import _run_hexaly_optimizer
 
 
-def run_vrpp_optimizer(
+def run_swc_tcf_optimizer(
     bins: NDArray[np.float64],
     distance_matrix: List[List[float]],
     param: float,
@@ -36,7 +36,7 @@ def run_vrpp_optimizer(
     max_iter_no_improv: int = 10,
 ):
     """
-    Solve VRPP using either Gurobi or Hexaly optimizer.
+    Solve SWC-TCF using either Gurobi or Hexaly optimizer.
     """
     if optimizer == "gurobi":
         return _run_gurobi_optimizer(

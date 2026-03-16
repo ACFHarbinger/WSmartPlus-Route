@@ -19,7 +19,7 @@ defaults:
   - /policies@p.sans: policy_sans
   - /policies@p.sisr: policy_sisr
   - /policies@p.tsp: policy_tsp
-  - /policies@p.vrpp: policy_vrpp
+  - /policies@p.swc_tcf: policy_swc_tcf
   - /policies@p.ahvpl: policy_ahvpl
   - /policies@p.hvpl: policy_hvpl
   - /policies@p.qde: policy_qde
@@ -115,7 +115,7 @@ sim:
     - hgs: ${p.hgs.hgs}
     - sans: ${p.sans.sans}
     - alns: ${p.alns.alns}
-    - vrpp: ${p.vrpp.vrpp}
+    - swc_tcf: ${p.swc_tcf.swc_tcf}
     - hgs_alns: ${p.hgs_alns.hgs_alns}
     - sisr: ${p.sisr.sisr}
     - tsp: ${p.tsp.tsp}
