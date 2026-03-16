@@ -42,24 +42,24 @@ swc_tcf:
     # Objective Function Weights
     # ---------------------------------------------------------------------
     - Omega: 0.1
-      # Penalty weight for overtime (exceeding max route duration)
-      # Range: 0.0-1.0 (0 = no penalty, 1 = strong penalty)
-      # Higher Omega → tighter adherence to time windows/route length limits
-      # Recommendation: 0.1 for soft constraints, 0.5 for strict enforcement
+    # Penalty weight for overtime (exceeding max route duration)
+    # Range: 0.0-1.0 (0 = no penalty, 1 = strong penalty)
+    # Higher Omega → tighter adherence to time windows/route length limits
+    # Recommendation: 0.1 for soft constraints, 0.5 for strict enforcement
 
     - delta: 0
-      # Bonus reward for visiting mandatory nodes
-      # Range: 0-100 (0 = no bonus, 100 = strong incentive)
-      # delta=0 → all nodes treated equally (standard SWC-TCF)
-      # delta>0 → must_go nodes receive extra profit delta
-      # Use case: Prioritize high-fill bins in waste collection
+    # Bonus reward for visiting mandatory nodes
+    # Range: 0-100 (0 = no bonus, 100 = strong incentive)
+    # delta=0 → all nodes treated equally (standard SWC-TCF)
+    # delta>0 → must_go nodes receive extra profit delta
+    # Use case: Prioritize high-fill bins in waste collection
 
     - psi: 1
-      # Travel cost scaling factor
-      # Range: 0.1-10.0 (0.1 = cheap travel, 10.0 = expensive travel)
-      # psi=1 → standard cost (distance × fuel_rate)
-      # psi=2 → double travel cost (favor fewer, longer routes)
-      # Trade-off: Higher psi → visit fewer nodes but higher profit/node
+    # Travel cost scaling factor
+    # Range: 0.1-10.0 (0.1 = cheap travel, 10.0 = expensive travel)
+    # psi=1 → standard cost (distance × fuel_rate)
+    # psi=2 → double travel cost (favor fewer, longer routes)
+    # Trade-off: Higher psi → visit fewer nodes but higher profit/node
 
     # Objective = Σ profit - psi * Σ cost - Omega * Σ overtime + delta * Σ must_go
     # Gurobi maximizes this combined objective
@@ -67,35 +67,35 @@ swc_tcf:
     # Solver Backend
     # ---------------------------------------------------------------------
     - engine: "gurobi"
-      # Execution backend: logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
-      # Requires: gurobipy Python package + valid Gurobi license
+    # Execution backend: logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
+    # Requires: gurobipy Python package + valid Gurobi license
 
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
     - must_go: ["other/mg_lookahead.yaml"]
-      # Multiple selection strategies (union of both):
-      #   1. mg_lookahead.yaml: Bins predicted to overflow soon
-      #   2. mg_service_level0.84.xml: Statistical service level ≥84%
-      #
-      # Must-go nodes receive bonus profit (delta) and stricter constraints
-      # See: docs/MUST_GO_STRATEGIES.md for detailed comparison
+    # Multiple selection strategies (union of both):
+    #   1. mg_lookahead.yaml: Bins predicted to overflow soon
+    #   2. mg_service_level0.84.xml: Statistical service level ≥84%
+    #
+    # Must-go nodes receive bonus profit (delta) and stricter constraints
+    # See: docs/MUST_GO_STRATEGIES.md for detailed comparison
 
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
     - time_limit: 60
-      # Maximum wall-clock seconds before termination
-      # Range: 60-3600 (60s = quick, 600s = thorough, 3600s = deep search)
-      # Gurobi returns best solution found if time limit reached
-      # Note: 600s (10 min) allows solving most 50-node instances to optimality
+    # Maximum wall-clock seconds before termination
+    # Range: 60-3600 (60s = quick, 600s = thorough, 3600s = deep search)
+    # Gurobi returns best solution found if time limit reached
+    # Note: 600s (10 min) allows solving most 50-node instances to optimality
 
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------
     - post_processing: []
-      # No post-processing needed for exact solutions
-      # Empty = use Gurobi output directly (already optimal)
+    # No post-processing needed for exact solutions
+    # Empty = use Gurobi output directly (already optimal)
 
     # ---------------------------------------------------------------------
     # Gurobi Solver Parameters (Implicit)

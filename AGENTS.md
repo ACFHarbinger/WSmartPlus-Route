@@ -660,7 +660,7 @@ This section maintains a registry of intelligent agents, orchestration component
 | **BPC**            | `branch_and_price_and_cut.py`            | Exact           | Branch-and-Price-and-Cut via Gurobi/OR-Tools/VRPy.                   |
 | **GIHH**           | `guided_indicators_hyper_heuristic.py`   | Hyper-Heuristic | Two guidance indicators (IRI & TBI) for adaptive operator selection. |
 | **HGS**            | `hybrid_genetic_search.py`               | Genetic         | Evolutionary operators with local search and Split.                  |
-| **HGSRR**          | `hybrid_genetic_search_ruin_recreate.py` | Hybrid Genetic  | HGS with adaptive ruin-and-recreate mutation operators.              |
+| **HGS-RR**         | `hybrid_genetic_search_ruin_recreate.py` | Hybrid Genetic  | HGS with adaptive ruin-and-recreate mutation operators.              |
 | **MultiVehicle**   | `multi_vehicle.py`                       | OR Solver       | PyVRP/OR-Tools for multi-vehicle routing.                            |
 | **SingleVehicle**  | `single_vehicle.py`                      | TSP Heuristic   | fast_tsp for single-vehicle sequencing.                              |
 | **LinKernighan**   | `lin_kernighan.py`                       | Local Search    | Lin-Kernighan TSP heuristic.                                         |

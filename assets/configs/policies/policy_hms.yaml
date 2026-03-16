@@ -72,9 +72,6 @@ hms:
       # Maximum wall-clock seconds
       # Range: 60-600 (300s = production)
 
-    - seed: null
-      # Random seed (null = random)
-
     # ---------------------------------------------------------------------
     # ACO Nested Configuration (Initialization)
     # ---------------------------------------------------------------------

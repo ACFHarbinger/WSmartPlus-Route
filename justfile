@@ -27,9 +27,9 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "hs,fa,abc,slc,hvpl,vpl,lca,sca,de,es_mpl,pso,psoda,hms,ma_dp,ma_im,ma_ts"
+policies := "bpc,popmusic,hgs,hgs_rr,alns,filo,sisr,rl_gd_hh,gphh,sa,ema"
 
-#policies := "qde,psoma,abc,fa,sca,hs,slc,lca,gphh,ss_hh"
+#policies := "swc_tcf,bpc,ils_rvnd_sp,popmusic,aks,hgs,hgs_rr,alns,filo,sisr,rl_gd_hh,gphh,sa,ema"
 # --- Setup & Environment ---
 
 # Sync dependencies using uv

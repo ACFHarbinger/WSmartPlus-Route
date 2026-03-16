@@ -62,6 +62,6 @@ rens:
       # Selection strategy for nodes that MUST be visited (e.g., overflow risk).
       # Composes with the RENS solver to ensure these nodes are collected.
 
-    - post_processing: null
+    - post_processing: []
       # Optional local search or cleanup settings applied after RENS.
 # =============================================================================

@@ -56,5 +56,6 @@ popmusic:
       # Implementation: logic/src/policies/popmusic/
 
     - must_go: ["other/mg_lookahead.yaml"]
+    - post_processing: []
       # Node selection strategy for waste collection.
 # =============================================================================

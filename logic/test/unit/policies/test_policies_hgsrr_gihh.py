@@ -1,18 +1,18 @@
 """
-Tests for HGSRR and GIHH policies.
+Tests for HGS-RR and GIHH policies.
 
-This module tests the Hybrid Genetic Search with Ruin-and-Recreate (HGSRR)
+This module tests the Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR)
 and the Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 """
 
 import numpy as np
 import pytest
-from logic.src.policies import run_gihh, run_hgsrr
+from logic.src.policies import run_gihh, run_hgs_rr
 from logic.src.policies.base import PolicyFactory
 
 
 class TestHGSRRPolicy:
-    """Test suite for HGSRR policy."""
+    """Test suite for HGS-RR policy."""
 
     @pytest.fixture
     def simple_instance(self):
@@ -32,8 +32,8 @@ class TestHGSRRPolicy:
         C = 1.0   # Cost per distance
         return dist_matrix, wastes, capacity, R, C
 
-    def test_hgsrr_basic_execution(self, simple_instance):
-        """Test that HGSRR executes without errors."""
+    def test_hgs_rr_basic_execution(self, simple_instance):
+        """Test that HGS-RR executes without errors."""
         dist_matrix, wastes, capacity, R, C = simple_instance
         values = {
             "time_limit": 1.0,
@@ -43,7 +43,7 @@ class TestHGSRRPolicy:
             "seed": 42,
         }
 
-        routes, profit, cost = run_hgsrr(
+        routes, profit, cost = run_hgs_rr(
             dist_matrix, wastes, capacity, R, C, values
         )
 
@@ -51,8 +51,8 @@ class TestHGSRRPolicy:
         assert isinstance(profit, float)
         assert isinstance(cost, float)
 
-    def test_hgsrr_respects_capacity(self, simple_instance):
-        """Test that HGSRR respects capacity constraints."""
+    def test_hgs_rr_respects_capacity(self, simple_instance):
+        """Test that HGS-RR respects capacity constraints."""
         dist_matrix, wastes, capacity, R, C = simple_instance
         values = {
             "time_limit": 1.0,
@@ -61,7 +61,7 @@ class TestHGSRRPolicy:
             "seed": 42,
         }
 
-        routes, profit, cost = run_hgsrr(
+        routes, profit, cost = run_hgs_rr(
             dist_matrix, wastes, capacity, R, C, values
         )
 
@@ -70,8 +70,8 @@ class TestHGSRRPolicy:
             route_load = sum(wastes.get(node, 0.0) for node in route)
             assert route_load <= capacity, f"Route {route} exceeds capacity"
 
-    def test_hgsrr_mandatory_nodes(self, simple_instance):
-        """Test that HGSRR visits mandatory nodes."""
+    def test_hgs_rr_mandatory_nodes(self, simple_instance):
+        """Test that HGS-RR visits mandatory nodes."""
         dist_matrix, wastes, capacity, R, C = simple_instance
         mandatory_nodes = [1, 3]  # Local indices
         values = {
@@ -81,7 +81,7 @@ class TestHGSRRPolicy:
             "seed": 42,
         }
 
-        routes, profit, cost = run_hgsrr(
+        routes, profit, cost = run_hgs_rr(
             dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=mandatory_nodes
         )
 
@@ -93,8 +93,8 @@ class TestHGSRRPolicy:
         for node in mandatory_nodes:
             assert node in visited_nodes, f"Mandatory node {node} not visited"
 
-    def test_hgsrr_empty_instance(self):
-        """Test HGSRR with empty instance."""
+    def test_hgs_rr_empty_instance(self):
+        """Test HGS-RR with empty instance."""
         dist_matrix = np.array([[0.0]])
         wastes = {}
         capacity = 1.0
@@ -102,7 +102,7 @@ class TestHGSRRPolicy:
         C = 1.0
         values = {"seed": 42}
 
-        routes, profit, cost = run_hgsrr(
+        routes, profit, cost = run_hgs_rr(
             dist_matrix, wastes, capacity, R, C, values
         )
 
@@ -110,8 +110,8 @@ class TestHGSRRPolicy:
         assert profit == 0.0
         assert cost == 0.0
 
-    def test_hgsrr_single_node(self):
-        """Test HGSRR with single node."""
+    def test_hgs_rr_single_node(self):
+        """Test HGS-RR with single node."""
         dist_matrix = np.array([
             [0.0, 1.0],
             [1.0, 0.0]
@@ -122,7 +122,7 @@ class TestHGSRRPolicy:
         C = 1.0
         values = {"seed": 42}
 
-        routes, profit, cost = run_hgsrr(
+        routes, profit, cost = run_hgs_rr(
             dist_matrix, wastes, capacity, R, C, values
         )
 
@@ -131,12 +131,12 @@ class TestHGSRRPolicy:
         assert profit > 0
         assert cost > 0
 
-    def test_hgsrr_policy_adapter(self, simple_instance):
-        """Test HGSRR through PolicyFactory."""
+    def test_hgs_rr_policy_adapter(self, simple_instance):
+        """Test HGS-RR through PolicyFactory."""
         dist_matrix, wastes, capacity, R, C = simple_instance
 
         config = {
-            "hgsrr": {
+            "hgs_rr": {
                 "time_limit": 1.0,
                 "population_size": 10,
                 "n_generations": 20,
@@ -144,7 +144,7 @@ class TestHGSRRPolicy:
             }
         }
 
-        policy = PolicyFactory.get_adapter("hgsrr", config=config)
+        policy = PolicyFactory.get_adapter("hgs_rr", config=config)
         assert policy is not None
 
 
@@ -299,7 +299,7 @@ class TestGIHHPolicy:
 
 
 class TestPolicyComparison:
-    """Compare HGSRR and GIHH on the same instances."""
+    """Compare HGS-RR and GIHH on the same instances."""
 
     @pytest.fixture
     def test_instance(self):
@@ -321,7 +321,7 @@ class TestPolicyComparison:
         """Test that both policies produce feasible solutions."""
         dist_matrix, wastes, capacity, R, C = test_instance
 
-        values_hgsrr = {
+        values_hgs_rr = {
             "time_limit": 2.0,
             "population_size": 20,
             "n_generations": 50,
@@ -336,8 +336,8 @@ class TestPolicyComparison:
             "seed": 42,
         }
 
-        routes_hgsrr, profit_hgsrr, cost_hgsrr = run_hgsrr(
-            dist_matrix, wastes, capacity, R, C, values_hgsrr
+        routes_hgs_rr, profit_hgs_rr, cost_hgs_rr = run_hgs_rr(
+            dist_matrix, wastes, capacity, R, C, values_hgs_rr
         )
 
         routes_gihh, profit_gihh, cost_gihh = run_gihh(
@@ -345,11 +345,11 @@ class TestPolicyComparison:
         )
 
         # Both should produce valid solutions
-        assert isinstance(routes_hgsrr, list)
+        assert isinstance(routes_hgs_rr, list)
         assert isinstance(routes_gihh, list)
 
-        # Check feasibility for HGSRR
-        for route in routes_hgsrr:
+        # Check feasibility for HGS-RR
+        for route in routes_hgs_rr:
             route_load = sum(wastes.get(node, 0.0) for node in route)
             assert route_load <= capacity
 

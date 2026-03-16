@@ -74,6 +74,6 @@ aks:
     - must_go: ["other/mg_lookahead.yaml"]
       # Points to the YAML defining the lookahead-based node selection strategy.
 
-    - post_processing: null
+    - post_processing: []
       # External local search refinement (e.g., 2-opt) applied to the result.
 # =============================================================================

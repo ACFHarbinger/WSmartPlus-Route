@@ -54,6 +54,6 @@ lb:
     - must_go: ["other/mg_lookahead.yaml"]
       # Defines which bins are prioritized for mandatory collection.
 
-    - post_processing: null
+    - post_processing: []
       # External local search refinements (e.g., 2-opt) applied to the tour.
 # =============================================================================

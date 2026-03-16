@@ -35,3 +35,4 @@ class FILOConfig(ABCConfig):
     gamma_base: float = 1.0
     omega_base_multiplier: float = 1.0
     seed: int = 42
+    local_search_iterations: int = 500

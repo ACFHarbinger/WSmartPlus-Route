@@ -22,11 +22,8 @@ oi:
   # Whether to enable VRPP mode (selecting profitable subsets of nodes).
   vrpp: true
 
-  # Random seed for reproducibility.
-  seed: null
-
   # Must-go node selection strategies.
-  must_go: null
+  must_go: ["other/mg_lookahead.yaml"]
 
   # Post-processing steps (e.g., 2-opt refinement).
-  post_processing: null
+  post_processing: []

@@ -61,6 +61,20 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         """
         return "lb_vns"
 
+    def _run_solver(
+        self,
+        sub_dist_matrix: Any,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """Not used - LB-VNS requires specialized execute()."""
+        return [], 0.0, 0.0
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Extract the current problem state and execute the LB-VNS metaheuristic.

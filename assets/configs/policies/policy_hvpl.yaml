@@ -59,48 +59,45 @@ hvpl:
     # VPL Population Parameters
     # ---------------------------------------------------------------------
     - n_teams: 10
-      # Number of active teams (plus N passive reserves)
-      # Range: 10-50 (10 = fast, 30 = balanced, 50 = thorough)
+    # Number of active teams (plus N passive reserves)
+    # Range: 10-50 (10 = fast, 30 = balanced, 50 = thorough)
 
     - max_iterations: 50
-      # Number of VPL evolution cycles
-      # Range: 50-200 (50 = quick, 100 = balanced, 200 = deep)
+    # Number of VPL evolution cycles
+    # Range: 50-200 (50 = quick, 100 = balanced, 200 = deep)
 
     - substitution_rate: 0.2
-      # Fraction of weakest teams replaced per iteration
-      # Range: 0.1-0.5 (0.2 = balanced)
+    # Fraction of weakest teams replaced per iteration
+    # Range: 0.1-0.5 (0.2 = balanced)
 
     # ---------------------------------------------------------------------
     # HGS Evolution Parameters
     # ---------------------------------------------------------------------
     - crossover_rate: 0.8
-      # Probability of OX crossover per generation
-      # Range: 0.5-1.0 (0.8 = balanced)
+    # Probability of OX crossover per generation
+    # Range: 0.5-1.0 (0.8 = balanced)
 
     - mutation_rate: 0.1
-      # Probability of mutation after crossover
-      # Range: 0.05-0.3 (0.1 = light)
+    # Probability of mutation after crossover
+    # Range: 0.05-0.3 (0.1 = light)
 
     - elite_size: 3
-      # Number of elite teams preserved
-      # Range: 1-10 (3 = minimum)
+    # Number of elite teams preserved
+    # Range: 1-10 (3 = minimum)
 
     # ---------------------------------------------------------------------
     # Integration Parameters
     # ---------------------------------------------------------------------
     - aco_init_iterations: 50
-      # ACO iterations for Phase 1 initialization
-      # Range: 20-100 (50 = balanced)
+    # ACO iterations for Phase 1 initialization
+    # Range: 20-100 (50 = balanced)
 
     # ---------------------------------------------------------------------
     # Global Parameters
     # ---------------------------------------------------------------------
     - time_limit: 60
-      # Maximum wall-clock seconds
-      # Range: 60-600 (300s = production)
-
-    - seed: null
-      # Random seed (null = random)
+    # Maximum wall-clock seconds
+    # Range: 60-600 (300s = production)
 
     # ---------------------------------------------------------------------
     # ACO Nested Configuration (Initialization)
@@ -177,11 +174,11 @@ hvpl:
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Backend: logic/src/policies/hybrid_volleyball_premier_league/
+    # Backend: logic/src/policies/hybrid_volleyball_premier_league/
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Node selection strategy
+    # Node selection strategy
 
     - post_processing: []
-      # Post-processing (empty = use HVPL output directly)
+    # Post-processing (empty = use HVPL output directly)
 # =============================================================================

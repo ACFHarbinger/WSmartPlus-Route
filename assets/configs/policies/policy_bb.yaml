@@ -38,10 +38,10 @@ bb:
   # must_go:
   #   - name: "fill_level"
   #     threshold: 90.0
-  must_go: null
+  must_go: ["other/mg_lookahead.yaml"]
 
   # List of post-processing operations to apply after the search.
   # Example:
   # post_processing:
   #   - name: "two_opt"
-  post_processing: null
+  post_processing: []

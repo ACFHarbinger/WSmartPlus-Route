@@ -36,41 +36,41 @@ tsp:
     # Performance Optimization
     # ---------------------------------------------------------------------
     - cache: true
-      # Cache distance matrix computations across multiple solves
-      # true = Faster repeated calls, higher memory usage (~O(n²))
-      # false = Recalculate each time, lower memory footprint
-      # Recommendation: true for batch experiments, false for one-off solves
+    # Cache distance matrix computations across multiple solves
+    # true = Faster repeated calls, higher memory usage (~O(n²))
+    # false = Recalculate each time, lower memory footprint
+    # Recommendation: true for batch experiments, false for one-off solves
 
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
     - must_go: ["other/mg_last_minute_cf70.yaml"]
-      # Pre-filter nodes before TSP solving
-      # mg_last_minute_cf70.xml: Collect bins when fill ≥70% capacity
-      # Alternative strategies: mg_lookahead.yaml (predictive), mg_regular.yaml
-      # See: docs/MUST_GO_STRATEGIES.md
-      #
-      # Note: Different from most policies which use mg_lookahead.yaml
-      # Last-minute strategy is simpler and faster for uncapacitated TSP
+    # Pre-filter nodes before TSP solving
+    # mg_last_minute_cf70.xml: Collect bins when fill ≥70% capacity
+    # Alternative strategies: mg_lookahead.yaml (predictive), mg_regular.yaml
+    # See: docs/MUST_GO_STRATEGIES.md
+    #
+    # Note: Different from most policies which use mg_lookahead.yaml
+    # Last-minute strategy is simpler and faster for uncapacitated TSP
 
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
     - time_limit: 60
-      # Maximum wall-clock seconds (soft limit)
-      # Range: 1-300 (fast_tsp usually finishes in <1s for 100 nodes)
-      # Note: fast_tsp is so fast that time_limit rarely triggers
-      #       Primarily used for consistency with other policies
+    # Maximum wall-clock seconds (soft limit)
+    # Range: 1-300 (fast_tsp usually finishes in <1s for 100 nodes)
+    # Note: fast_tsp is so fast that time_limit rarely triggers
+    #       Primarily used for consistency with other policies
 
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------
     - post_processing: []
-      # Optional local search refinement after TSP
-      # Empty = use fast_tsp output directly (already includes 2-opt)
-      # Options: ["2opt_intra"] (redundant, fast_tsp already applies 2-opt)
-      #
-      # Recommendation: Empty (fast_tsp 2-opt is sufficient)
+    # Optional local search refinement after TSP
+    # Empty = use fast_tsp output directly (already includes 2-opt)
+    # Options: ["2opt_intra"] (redundant, fast_tsp already applies 2-opt)
+    #
+    # Recommendation: Empty (fast_tsp 2-opt is sufficient)
 
     # ---------------------------------------------------------------------
     # Algorithm Details (Implicit)

@@ -39,6 +39,7 @@ class FILOParams:
     gamma_base: float = 1.0
     omega_base_multiplier: float = 1.0
     seed: int = 42
+    local_search_iterations: int = 500
 
     @classmethod
     def from_config(cls, config: FILOConfig) -> FILOParams:
@@ -61,4 +62,5 @@ class FILOParams:
             gamma_base=config.gamma_base,
             omega_base_multiplier=config.omega_base_multiplier,
             seed=config.seed,
+            local_search_iterations=getattr(config, "local_search_iterations", 500),
         )

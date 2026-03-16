@@ -48,10 +48,6 @@ gihh:
       # Range: 500-5000
       # Recommendation: 1000 for stable optimization (CONSERVATIVE)
 
-    - seed: null
-      # Random seed for reproducibility
-      # null = use system time; integer = fixed seed
-
     - vrpp: true
       # Enable VRPP mode (visit subset profitably)
       # true = only visit nodes where profit > cost
