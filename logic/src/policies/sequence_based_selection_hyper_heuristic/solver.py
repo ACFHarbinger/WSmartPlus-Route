@@ -36,8 +36,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -63,7 +61,7 @@ class _SeqEntry:
     AS: int
 
 
-class SSHHSolver(PolicyVizMixin):
+class SSHHSolver:
     """
     Sequence-based Selection Hyper-Heuristic (SS-HH) solver for VRPP.
 
@@ -202,7 +200,7 @@ class SSHHSolver(PolicyVizMixin):
                 # Algorithm 1, line 30: clear SEQ
                 seq.clear()
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

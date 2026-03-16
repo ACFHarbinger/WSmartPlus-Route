@@ -26,13 +26,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import greedy_insertion_with_blinks, string_removal
 from .params import SISRParams
 
 
-class SISRSolver(PolicyVizMixin):
+class SISRSolver:
     """
     Solver implementing the SISR metaheuristic.
     """
@@ -138,7 +136,7 @@ class SISRSolver(PolicyVizMixin):
             # Cooling
             T *= self.params.cooling_rate
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_it,
                 best_cost=best_cost,
                 current_cost=current_cost,

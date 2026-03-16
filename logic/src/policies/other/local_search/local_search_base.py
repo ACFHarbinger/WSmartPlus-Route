@@ -22,8 +22,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..operators.inter_route import (
     move_2opt_star,
     move_swap_star,
@@ -44,7 +42,7 @@ from ..operators.intra_route.or_opt import move_or_opt
 from ..operators.intra_route.relocate import relocate_chain
 
 
-class LocalSearch(PolicyVizMixin, ABC):
+class LocalSearch(ABC):
     """
     Abstract base class for Local Search algorithms.
     Provides common infrastructure for neighbor lists and move operators.
@@ -140,7 +138,7 @@ class LocalSearch(PolicyVizMixin, ABC):
                     improved = True
                     break
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=it,
                 n_routes=len(self.routes),
                 improved=int(improved),

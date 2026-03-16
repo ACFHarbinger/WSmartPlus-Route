@@ -50,6 +50,34 @@ defaults:
   - /policies@p.es_mcl: policy_es_mcl
   - /policies@p.psoda: policy_psoda
   - /policies@p.hms: policy_hms
+  - /policies@p.aks: policy_aks
+  - /policies@p.bb: policy_bb
+  - /policies@p.cf_rs: policy_cf_rs
+  - /policies@p.de: policy_de
+  - /policies@p.ema: policy_ema
+  - /policies@p.es_mkl: policy_es_mkl
+  - /policies@p.filo: policy_filo
+  - /policies@p.gd: policy_gd
+  - /policies@p.gihh: policy_gihh
+  - /policies@p.hgsrr: policy_hgsrr
+  - /policies@p.hmm_gd_hh: policy_hmm_gd_hh
+  - /policies@p.hulk: policy_hulk
+  - /policies@p.ie: policy_ie
+  - /policies@p.ils_rvnd_sp: policy_ils_rvnd_sp
+  - /policies@p.kgls: policy_kgls
+  - /policies@p.ks: policy_ks
+  - /policies@p.lb: policy_lb
+  - /policies@p.lb_vns: policy_lb_vns
+  - /policies@p.ma: policy_ma
+  - /policies@p.oi: policy_oi
+  - /policies@p.popmusic: policy_popmusic
+  - /policies@p.pso: policy_pso
+  - /policies@p.rens: policy_rens
+  - /policies@p.rl_gd_hh: policy_rl_gd_hh
+  - /policies@p.rl_hvpl: policy_rl_hvpl
+  - /policies@p.schc: policy_schc
+  - /policies@p.ta: policy_ta
+  - /policies@p.vpl: policy_vpl
   - _self_
   - override /tracking: test_sim
 
@@ -124,3 +152,31 @@ sim:
     - es_mcl: ${p.es_mcl.es_mcl}
     - psoda: ${p.psoda.psoda}
     - hms: ${p.hms.hms}
+    - aks: ${p.aks.aks}
+    - bb: ${p.bb.bb}
+    - cf_rs: ${p.cf_rs.cf_rs}
+    - de: ${p.de.de}
+    - ema: ${p.ema.ema}
+    - es_mkl: ${p.es_mkl.es_mkl}
+    - filo: ${p.filo.filo}
+    - gd: ${p.gd.gd}
+    - gihh: ${p.gihh.gihh}
+    - hgsrr: ${p.hgsrr.hgsrr}
+    - hmm_gd_hh: ${p.hmm_gd_hh.hmm_gd_hh}
+    - hulk: ${p.hulk.hulk}
+    - ie: ${p.ie.ie}
+    - ils_rvnd_sp: ${p.ils_rvnd_sp.ils_rvnd_sp}
+    - kgls: ${p.kgls.kgls}
+    - ks: ${p.ks.ks}
+    - lb: ${p.lb.lb}
+    - lb_vns: ${p.lb_vns.lb_vns}
+    - ma: ${p.ma.ma}
+    - oi: ${p.oi.oi}
+    - popmusic: ${p.popmusic.popmusic}
+    - pso: ${p.pso.pso}
+    - rens: ${p.rens.rens}
+    - rl_gd_hh: ${p.rl_gd_hh.rl_gd_hh}
+    - rl_hvpl: ${p.rl_hvpl.rl_hvpl}
+    - schc: ${p.schc.schc}
+    - ta: ${p.ta.ta}
+    - vpl: ${p.vpl.vpl}

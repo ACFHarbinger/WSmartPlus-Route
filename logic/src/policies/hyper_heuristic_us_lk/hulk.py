@@ -20,8 +20,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .adaptive_selection import AdaptiveOperatorSelector
 from .operators import HULKOperators
@@ -29,7 +27,7 @@ from .params import HULKParams
 from .solution import Solution
 
 
-class HULKSolver(PolicyVizMixin):
+class HULKSolver:
     """
     HULK: Hyper-heuristic Using unstringing/stringing with Local search and K-opt.
 
@@ -188,7 +186,7 @@ class HULKSolver(PolicyVizMixin):
                     self.local_search_selector.decay_epsilon(self.params.epsilon_decay, self.params.min_epsilon)
 
                 # Visualization
-                self._viz_record(
+                getattr(self, "_viz_record", lambda **k: None)(
                     iteration=it + restart * self.params.max_iterations,
                     unstring_op=unstring_op,
                     string_op=string_op,

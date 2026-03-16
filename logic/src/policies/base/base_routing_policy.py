@@ -15,6 +15,7 @@ import numpy as np
 
 from logic.src.interfaces.adapter import IPolicyAdapter
 from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 def _flatten_raw_config(source: Any) -> Dict[str, Any]:
@@ -37,7 +38,7 @@ def _flatten_raw_config(source: Any) -> Dict[str, Any]:
     return result
 
 
-class BaseRoutingPolicy(IPolicyAdapter):
+class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
     """
     Base class for routing policies with common utilities.
 

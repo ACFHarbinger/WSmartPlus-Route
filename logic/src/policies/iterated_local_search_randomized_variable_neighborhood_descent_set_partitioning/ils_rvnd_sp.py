@@ -25,12 +25,11 @@ from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_d
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
 )
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 logger = logging.getLogger(__name__)
 
 
-class ILSRVNDSPSolver(PolicyVizMixin):
+class ILSRVNDSPSolver:
     """
     ILS-RVND-SP solver executing ILS with RVND and resolving via Set Partitioning.
     """
@@ -300,7 +299,7 @@ class ILSRVNDSPSolver(PolicyVizMixin):
                     best_routes = copy.deepcopy(ls_routes)
                     best_profit = ls_profit
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 current_profit=current_profit,

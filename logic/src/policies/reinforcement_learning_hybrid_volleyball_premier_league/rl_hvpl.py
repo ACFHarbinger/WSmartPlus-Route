@@ -30,12 +30,11 @@ from logic.src.policies.other.reinforcement_learning.alns_sarsa import (
 from logic.src.policies.other.reinforcement_learning.ks_aco_qlearning import (
     KSparseACOQLSolver,
 )
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from .params import RLHVPLParams
 
 
-class RLHVPLSolver(PolicyVizMixin):
+class RLHVPLSolver:
     """
     Reinforcement Learning Hybrid Volleyball Premier League solver for VRP variants.
 
@@ -186,7 +185,7 @@ class RLHVPLSolver(PolicyVizMixin):
                 population[i] = (new_routes, new_profit, new_cost)
 
             # ===== Visualization & Logging =====
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

@@ -17,7 +17,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.operators.crossover.ordered import ordered_crossover
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..other.local_search.local_search_hgs import HGSLocalSearch
 from .evolution import evaluate, update_biased_fitness
@@ -26,7 +25,7 @@ from .params import HGSParams
 from .split import LinearSplit
 
 
-class HGSSolver(PolicyVizMixin):
+class HGSSolver:
     """
     Implements Hybrid Genetic Search for VRPP.
     """
@@ -171,7 +170,7 @@ class HGSSolver(PolicyVizMixin):
             if it % 100 == 0:
                 penalty_capacity = self._adjust_penalty_coefficients(pop_feasible, pop_infeasible, penalty_capacity)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=it,
                 best_profit=best_profit_so_far,
                 child_profit=child.profit_score,

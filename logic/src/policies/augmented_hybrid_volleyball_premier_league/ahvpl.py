@@ -22,7 +22,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.operators.crossover import ordered_crossover
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
@@ -35,7 +34,7 @@ from ..hybrid_genetic_search.split import LinearSplit
 from .params import AHVPLParams
 
 
-class AHVPLSolver(PolicyVizMixin):
+class AHVPLSolver:
     """
     Augmented Hybrid Volleyball Premier League solver for VRP variants.
 
@@ -231,7 +230,7 @@ class AHVPLSolver(PolicyVizMixin):
             # 7. Pheromone Update — ACO global guidance based on best cost
             self._update_pheromones(best_routes, best_profit, best_cost)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

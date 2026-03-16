@@ -17,15 +17,13 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .indicators import ImprovementRateIndicator, TimeBasedIndicator
 from .params import GIHHParams
 from .solution import Solution
 
 
-class GIHHSolver(PolicyVizMixin):
+class GIHHSolver:
     """
     Hyper-Heuristic with Two Guidance Indicators for VRPP.
 
@@ -155,7 +153,7 @@ class GIHHSolver(PolicyVizMixin):
                 if it - last_improvement_it > self.params.restart_threshold:
                     break
 
-                self._viz_record(
+                getattr(self, "_viz_record", lambda **k: None)(
                     iteration=it,
                     restart=restart,
                     best_profit=restart_best_profit,

@@ -22,12 +22,11 @@ from logic.src.policies.knowledge_guided_local_search.params import KGLSParams
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
 )
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 logger = logging.getLogger(__name__)
 
 
-class KGLSSolver(PolicyVizMixin):
+class KGLSSolver:
     """
     KGLS execution engine propagating geometric penalties through local search.
     """
@@ -213,7 +212,7 @@ class KGLSSolver(PolicyVizMixin):
                 best_profit = current_profit
                 last_reset_time = current_time
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 current_profit=current_profit,

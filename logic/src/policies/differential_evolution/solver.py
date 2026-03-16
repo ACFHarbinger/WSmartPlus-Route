@@ -32,14 +32,12 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .params import DEParams
 
 
-class DESolver(PolicyVizMixin):
+class DESolver:
     """
     Differential Evolution (DE/rand/1/bin) solver for VRPP.
 
@@ -168,7 +166,7 @@ class DESolver(PolicyVizMixin):
                         best_profit = trial_fitness
                         best_cost = self._cost(trial)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

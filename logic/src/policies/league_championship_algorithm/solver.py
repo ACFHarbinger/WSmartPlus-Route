@@ -26,14 +26,13 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, worst_removal
 from .params import LCAParams
 
 
-class LCASolver(PolicyVizMixin):
+class LCASolver:
     """
     League Championship Algorithm solver for VRPP.
     """
@@ -145,7 +144,7 @@ class LCASolver(PolicyVizMixin):
                     best_profit = new_profit
                     best_cost = self._cost(best_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

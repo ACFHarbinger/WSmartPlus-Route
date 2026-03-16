@@ -42,13 +42,11 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import greedy_insertion, random_removal
 from .params import DistancePSOParams
 
 
-class DistancePSOSolver(PolicyVizMixin):
+class DistancePSOSolver:
     """
     Particle Swarm Optimization solver with velocity momentum for VRPP.
 
@@ -187,7 +185,7 @@ class DistancePSOSolver(PolicyVizMixin):
                     best_profit = new_fitness
                     best_cost = self._cost(best_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

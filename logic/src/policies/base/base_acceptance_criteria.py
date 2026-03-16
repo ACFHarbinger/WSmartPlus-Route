@@ -8,23 +8,23 @@ using various move acceptance criteria (SA, GD, TA, etc.).
 import copy
 import random
 import time
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
-from ..operators import (
+from logic.src.interfaces.adapter import IPolicyAdapter
+from logic.src.policies.other.operators import (
     cluster_removal,
     greedy_insertion,
     random_removal,
     regret_2_insertion,
     worst_removal,
 )
+from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class BaseAcceptanceSolver(PolicyVizMixin, ABC):
+class BaseAcceptanceSolver(PolicyVizMixin, IPolicyAdapter):
     """
     Abstract base class for solvers using a move acceptance criterion.
     """
@@ -67,7 +67,7 @@ class BaseAcceptanceSolver(PolicyVizMixin, ABC):
         """
         pass
 
-    def _update_state(self, iteration: int):
+    def _update_state(self, iteration: int):  # noqa: B027
         """
         Hook for updating internal solver state (e.g., temperature).
         """
@@ -121,7 +121,7 @@ class BaseAcceptanceSolver(PolicyVizMixin, ABC):
 
     def _record_telemetry(self, iteration: int, best_profit: float, current_profit: float):
         """Record iteration data for visualization."""
-        self._viz_record(
+        getattr(self, "_viz_record", lambda **k: None)(
             iteration=iteration,
             best_profit=best_profit,
             current_profit=current_profit,

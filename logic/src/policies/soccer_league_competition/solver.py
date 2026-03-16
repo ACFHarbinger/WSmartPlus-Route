@@ -27,14 +27,13 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .params import SLCParams
 
 
-class SLCSolver(PolicyVizMixin):
+class SLCSolver:
     """
     Soccer League Competition solver for VRPP.
     """
@@ -156,7 +155,7 @@ class SLCSolver(PolicyVizMixin):
                 best_profit = iter_best_profit
                 best_cost = self._cost(best_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

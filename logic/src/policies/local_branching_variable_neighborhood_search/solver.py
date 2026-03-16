@@ -28,8 +28,6 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
-from logic.src.tracking.viz_mixin import PolicyStateRecorder
-
 from ..kernel_search.solver import _reconstruct_tour, _setup_ks_model
 from ..local_branching.solver import _add_local_branching_constraint
 
@@ -145,7 +143,6 @@ def run_lb_vns_gurobi(
     mip_gap: float = 0.01,
     seed: int = 42,
     env: Optional[gp.Env] = None,
-    recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[int], float, float]:
     """
     Solve the Vehicle Routing Problem with Profits (VRPP) using LB-VNS.
@@ -174,7 +171,6 @@ def run_lb_vns_gurobi(
         mip_gap (float): Optimality gap for sub-problem termination.
         seed (int): Global seed for randomization.
         env (Optional[gp.Env]): Shared Gurobi environment to reduce startup overhead.
-        recorder (Optional[PolicyStateRecorder]): Hook for tracking search telemetry.
 
     Returns:
         Tuple[List[int], float, float]:
@@ -267,9 +263,5 @@ def run_lb_vns_gurobi(
     # =========================================================================
     # After the loop terminates, reconstruct the best found tour sequence.
     tour, cost = _reconstruct_tour(len(dist_matrix), x, dist_matrix)
-
-    if recorder:
-        # Log final performance metrics.
-        recorder.record(engine="lb_vns", obj_val=current_best_obj, cost=cost, solved=1)
 
     return tour, float(current_best_obj), float(cost)
