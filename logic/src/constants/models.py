@@ -16,7 +16,7 @@ Each carries distinct semantics — do NOT rename one to another:
                 Relationship: ``graph_size = num_loc + 1`` for VRP problems.
 
     n_nodes     Customer nodes inside classical solvers, **excluding** the depot.
-                Used in: HGS, ALNS, BCP (local/instance variables).
+                Used in: HGS, ALNS, BPC (local/instance variables).
                 Typically computed as ``len(dist_matrix) - 1``.
 
 Propagation flow:

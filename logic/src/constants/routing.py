@@ -4,7 +4,7 @@ Constants for routing algorithms.
 This module defines operational parameters, solver settings, and penalty values
 for classical routing algorithms. Used by:
 - logic/src/policies/ (HGS, ALNS, local search operators)
-- logic/src/configs/policies/ (Gurobi, Hexaly, BCP configurations)
+- logic/src/configs/policies/ (Gurobi, Hexaly, BPC configurations)
 
 Parameter Categories
 --------------------
@@ -60,7 +60,7 @@ MAX_WASTE: float = 1.0  # [0.0, 1.0] capacity range (bins can exceed this, trigg
 # Gurobi MIP Solver Parameters
 # -----------------------------
 # Tuned for VRP-class problems. Trade-off: solution quality vs runtime.
-# Used in: logic/src/policies/adapters/policy_bcp.py, policy_vrpp.py
+# Used in: logic/src/policies/adapters/policy_bpc.py, policy_vrpp.py
 
 # MIP optimality gap tolerance (ratio)
 # Solver stops when: (best_bound - incumbent) / incumbent ≤ MIP_GAP

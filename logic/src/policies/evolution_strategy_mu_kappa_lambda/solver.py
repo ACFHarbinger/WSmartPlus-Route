@@ -1,377 +1,331 @@
 """
-(μ,κ,λ) Evolution Strategy with age-based selection.
+(μ,κ,λ) Evolution Strategy for Vehicle Routing Problems (VRP).
 
-This implementation follows the classical ES formulation from Emmerich et al. (2015),
-where selection occurs from μ parents who have not exceeded an age of κ and λ offspring.
+This module implements a structurally correct Evolution Strategy (ES) specifically
+adapted for discrete routing domains. It follows the metric-based design guidelines
+and the age-based selection scheme described in Emmerich et al. (2015).
 
-Key features:
-- **Mutative self-adaptation**: Step sizes (σ) evolve alongside decision variables
-- **Age-based selection**: Parents exceeding age κ are discarded
-- **Recombination**: Intermediate or discrete recombination of ρ parents
-- **Gaussian mutation**: x'_i ← x_i + σ_i · N(0,1)
+Key Algorithmic Components:
+    - **Self-Adaptive Mutation**: Each individual evolves its own mutation strength
+      (n_removal), serving as the discrete analog to the continuous step-size σ
+      .
+    - **Independent Recombination Selection**: Parents are sampled with replacement
+      to maintain high selection pressure.
+    - **(μ,κ,λ) Selection Pool**: The survivor pool consists of λ offspring and
+      μ parents whose age has not exceeded κ generations.
+    - **Memetic Refinement**: Post-mutation local search ensures offspring reach
+      local minima within the discrete landscape.
 
-Algorithm (from paper, page 5):
-    1. Initialize P_0 with μ parent individuals
-    2. For each generation t:
-        a. Recombine(P_{t-1}) → create λ offspring
-        b. Mutate(offspring) → apply self-adaptive mutation
-        c. Evaluate(offspring) → compute fitness
-        d. Select(offspring ∪ eligible_parents) → choose μ best
-           where eligible_parents are those with age ≤ κ
-        e. Increment age of all surviving individuals
-        f. Update best solution if improved
-    3. Return best solution found
-
-Complexity:
-    - Time: O(T × λ × d) where T = iterations, λ = offspring, d = dimensions
-    - Space: O((μ + λ) × d) for population + offspring
-
-Reference:
-    Emmerich, M., Shir, O. M., & Wang, H. (2015). Evolution Strategies.
-    In: Handbook of Natural Computing (pages 1-31).
+References:
+    [2] Emmerich, M., Shir, O. M., & Wang, H. (2015). Evolution Strategies.
+        In: Handbook of Natural Computing.
 """
 
+import random
 import time
-from typing import Callable, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-try:
-    from .params import MuKappaLambdaESParams
-except ImportError:
-    from params import MuKappaLambdaESParams
+from logic.src.tracking.viz_mixin import PolicyVizMixin
+
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+from ..other.operators import greedy_insertion, random_removal
+from .individual import Individual
+from .params import MuKappaLambdaESParams
 
 
-class Individual:
+class MuKappaLambdaESSolver(PolicyVizMixin):
     """
-    Individual in the Evolution Strategy population.
+    (μ,κ,λ) Evolution Strategy solver adapted for VRP.
 
-    Attributes:
-        x: Decision variables (solution vector).
-        sigma: Step sizes for mutation (one per dimension for individual adaptation).
-        fitness: Objective function value.
-        age: Number of generations the individual has survived.
-    """
-
-    def __init__(self, x: np.ndarray, sigma: np.ndarray, fitness: float = -np.inf, age: int = 0):
-        """
-        Initialize an individual.
-
-        Args:
-            x: Decision variable vector (d-dimensional).
-            sigma: Step size vector (d-dimensional).
-            fitness: Fitness value (default: -∞).
-            age: Age in generations (default: 0).
-        """
-        self.x = x.copy()
-        self.sigma = sigma.copy()
-        self.fitness = fitness
-        self.age = age
-
-    def copy(self) -> "Individual":
-        """Create a deep copy of the individual."""
-        return Individual(x=self.x.copy(), sigma=self.sigma.copy(), fitness=self.fitness, age=self.age)
-
-
-class MuKappaLambdaESSolver:
-    """
-    (μ,κ,λ) Evolution Strategy solver for continuous optimization.
-
-    Implements age-based selection where parents exceeding age κ are excluded
-    from selection pool. Uses mutative self-adaptation of step sizes.
+    This solver optimizes the Vehicle Routing Problem with Profits (VRPP) by
+    simulating a generational evolutionary process. It employs deterministic
+    truncation selection over an age-limited pool.
     """
 
     def __init__(
         self,
-        objective_function: Callable[[np.ndarray], float],
-        dimension: int,
+        dist_matrix: np.ndarray,
+        wastes: Dict[int, float],
+        capacity: float,
+        R: float,
+        C: float,
         params: MuKappaLambdaESParams,
+        mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
-        minimize: bool = True,
     ):
         """
-        Initialize the (μ,κ,λ) Evolution Strategy solver.
+        Initializes the solver and pre-instantiates local search operators.
 
         Args:
-            objective_function: Function to optimize f(x) → ℝ.
-            dimension: Dimensionality of the search space.
-            params: ES configuration parameters.
-            seed: Random seed for reproducibility.
-            minimize: If True, minimize; if False, maximize.
+            dist_matrix: Distance matrix where [0] is the depot.
+            wastes: Mapping of node IDs to waste quantities.
+            capacity: Vehicle capacity constraint.
+            R: Revenue per unit waste.
+            C: Cost per unit distance.
+            params: Configuration dataclass for (μ,κ,λ) parameters.
+            mandatory_nodes: Nodes that must be included in feasible solutions.
+            seed: Seed for the random number generators.
         """
-        self.f = objective_function
-        self.d = dimension
+        self.dist_matrix = dist_matrix
+        self.wastes = wastes
+        self.capacity = capacity
+        self.R = R
+        self.C = C
         self.params = params
-        self.minimize = minimize
-        self.rng = np.random.RandomState(seed)
+        self.mandatory_nodes = mandatory_nodes or []
+        self.n_nodes = len(dist_matrix) - 1
+        self.nodes = list(range(1, self.n_nodes + 1))
 
-        # Adjust learning rates based on dimensionality (paper recommendation, page 7)
-        self.params.tau_local = 1.0 / np.sqrt(2.0 * self.d)
-        self.params.tau_global = 1.0 / (2.0 * np.sqrt(self.d))
+        self.rng = random.Random(seed) if seed is not None else random.Random()
+        self.np_rng = np.random.RandomState(seed)
 
-        # Statistics
+        # Pre-instantiate local search for memetic refinement
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
+        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
+
         self.n_evaluations = 0
         self.best_individual: Optional[Individual] = None
         self.convergence_curve: List[float] = []
 
-    def solve(self) -> Tuple[np.ndarray, float]:
+    def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Execute the (μ,κ,λ) Evolution Strategy.
+        Executes the optimization loop according to the (μ,κ,λ)-ES scheme.
+
+        This follows the high-level loop defined in Algorithm 1.
 
         Returns:
-            Tuple of (best_solution, best_fitness).
+            A tuple of (best_routes, best_profit, best_cost).
         """
+        if self.n_nodes == 0:
+            return [], 0.0, 0.0
+
         start_time = time.time()
 
-        # Initialize population P_0 with μ parents (Algorithm 1, page 6)
+        # Step 1: Initialize population P_0 with μ parents
         parents = self._initialize_population()
-
-        # Evaluate initial population
         for ind in parents:
-            ind.fitness = self._evaluate(ind.x)
+            ind.fitness = self._evaluate(ind.routes)
 
-        # Track global best
         self._update_best(parents)
 
-        # Evolution loop (Algorithm 1, page 6)
+        # Evolution loop
         generation = 0
         while generation < self.params.max_iterations:
             if self.params.time_limit > 0 and (time.time() - start_time) > self.params.time_limit:
                 break
 
-            # Step 1: Generate λ offspring via recombination and mutation
+            # Variation: Generate λ offspring via recombination and self-adaptive mutation
             offspring = []
             for _ in range(self.params.lambda_):
-                # Select ρ parents for recombination (page 7)
                 selected_parents = self._select_parents_for_recombination(parents)
-
-                # Create offspring via recombination
                 child = self._recombine(selected_parents)
-
-                # Apply mutation with self-adaptive step sizes (Eq. 4-6, page 9)
                 mutated_child = self._mutate(child)
-
-                # Evaluate offspring
-                mutated_child.fitness = self._evaluate(mutated_child.x)
-
+                mutated_child.fitness = self._evaluate(mutated_child.routes)
                 offspring.append(mutated_child)
 
-            # Step 2: Age-based selection - select from eligible parents + offspring
-            # Eligible parents are those with age ≤ κ (page 5)
-            eligible_parents = [p for p in parents if p.age < self.params.kappa]
-
-            # Combine eligible parents and offspring for selection pool
+            # Selection: Filter parents by age κ and combine with offspring
+            eligible_parents = [p for p in parents if p.age <= self.params.kappa]
             selection_pool = eligible_parents + offspring
 
-            # Step 3: Select μ best individuals from the pool
-            # Sort by fitness (ascending for minimization, descending for maximization)
-            selection_pool.sort(key=lambda ind: ind.fitness, reverse=not self.minimize)
+            # Deterministic truncation: select best μ individuals
+            selection_pool.sort(key=lambda ind: ind.fitness, reverse=True)
             parents = selection_pool[: self.params.mu]
 
-            # Step 4: Increment age of surviving parents
+            # Increment age of surviving individuals
             for p in parents:
-                if p in eligible_parents:  # Only increment if it was a parent
+                if p in eligible_parents:
                     p.age += 1
 
-            # Update global best
             self._update_best(parents)
+            self.convergence_curve.append(self.best_individual.fitness)  # type: ignore[union-attr]
 
-            # Record convergence
-            self.convergence_curve.append(self.best_individual.fitness)
+            self._viz_record(
+                iteration=generation,
+                best_profit=self.best_individual.fitness,  # type: ignore[union-attr]
+                best_cost=self._cost(self.best_individual.routes),  # type: ignore[union-attr]
+                population_size=self.params.mu,
+            )
 
             generation += 1
 
-        return self.best_individual.x.copy(), self.best_individual.fitness
-
-    # ------------------------------------------------------------------
-    # Initialization
-    # ------------------------------------------------------------------
+        if self.best_individual:
+            return (
+                self.best_individual.routes,
+                self.best_individual.fitness,
+                self._cost(self.best_individual.routes),
+            )
+        return [], 0.0, 0.0
 
     def _initialize_population(self) -> List[Individual]:
         """
-        Initialize population with μ individuals (page 6).
+        Creates the initial parent population P_0.
 
-        Individuals are initialized with:
-        - x: Uniform random in [bounds_min, bounds_max]
-        - σ: Initial step size (recommended 5% of search space, page 7)
-        - age: 0
+        Initial solutions are built using a randomized nearest-neighbor
+        heuristic to ensure initial diversity.
 
         Returns:
-            List of μ initialized individuals.
-
-        Complexity: O(μ × d)
+            A list of μ individuals initialized with age 1.
         """
+        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+
         population = []
         for _ in range(self.params.mu):
-            # Initialize decision variables
-            if self.params.bounds_min is not None and self.params.bounds_max is not None:
-                x = self.rng.uniform(self.params.bounds_min, self.params.bounds_max, size=self.d)
-            else:
-                x = self.rng.randn(self.d)
-
-            # Initialize step sizes (recommended 5% of search space, page 7)
-            sigma = np.full(self.d, self.params.initial_sigma)
-
-            ind = Individual(x=x, sigma=sigma, age=0)
+            routes = build_nn_routes(
+                nodes=self.nodes,
+                mandatory_nodes=self.mandatory_nodes,
+                wastes=self.wastes,
+                capacity=self.capacity,
+                dist_matrix=self.dist_matrix,
+                R=self.R,
+                C=self.C,
+                rng=self.rng,
+            )
+            ind = Individual(routes=routes, age=1, mutation_strength=float(self.params.n_removal))
             population.append(ind)
-
         return population
-
-    # ------------------------------------------------------------------
-    # Recombination (page 7)
-    # ------------------------------------------------------------------
 
     def _select_parents_for_recombination(self, parents: List[Individual]) -> List[Individual]:
         """
-        Select ρ parents for recombination via uniform random sampling (page 7).
+        Uniformly samples ρ parents for recombination.
+
+        Samples are drawn independently and WITH replacement, as specified
+        for canonical Evolution Strategies.
 
         Args:
             parents: Current parent population.
 
         Returns:
-            List of ρ randomly selected parents.
-
-        Complexity: O(ρ)
+            List of ρ selected individuals.
         """
-        indices = self.rng.choice(len(parents), size=self.params.rho, replace=False)
-        return [parents[i] for i in indices]
+        return self.rng.choices(parents, k=self.params.rho)
 
     def _recombine(self, parents: List[Individual]) -> Individual:
         """
-        Create offspring via recombination of ρ parents (page 7).
+        Creates an offspring by combining structural data from ρ parents.
 
-        Two types:
-        1. **Intermediate recombination** (page 7, Eq. before Eq. 3):
-           r_j = (1/ρ) Σ q_j^(i) for i=1..ρ
-           Averages components across parents.
-
-        2. **Discrete (dominant) recombination** (page 7):
-           r_j = q_u_j^(j) where u_j ~ Uniform{1..ρ}
-           Each component randomly chosen from one parent.
+        Implements Discrete Recombination for routes and Intermediate
+        Recombination for the mutation strength parameter.
 
         Args:
             parents: List of ρ parent individuals.
 
         Returns:
-            Offspring individual.
-
-        Complexity: O(ρ × d)
+            A new offspring individual with age 1.
         """
         if self.params.recombination_type == "intermediate":
-            # Intermediate recombination: average all parents
-            x_child = np.mean([p.x for p in parents], axis=0)
-            sigma_child = np.mean([p.sigma for p in parents], axis=0)
+            # Intermediate Recombination: merge all nodes and reconstruct
+            all_nodes = set()
+            for parent in parents:
+                for route in parent.routes:
+                    all_nodes.update(route)
+            routes = []
+            if all_nodes:
+                routes = greedy_insertion(
+                    routes=[],
+                    removed_nodes=sorted(list(all_nodes)),
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    R=self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                )
         else:
-            # Discrete recombination: randomly select component from parents
-            x_child = np.zeros(self.d)
-            sigma_child = np.zeros(self.d)
-            for j in range(self.d):
-                parent_idx = self.rng.randint(len(parents))
-                x_child[j] = parents[parent_idx].x[j]
-                sigma_child[j] = parents[parent_idx].sigma[j]
+            # Discrete Recombination: pick routes randomly from the parent pool
+            all_routes = [route for parent in parents for route in parent.routes]
+            routes = []
+            if all_routes:
+                n_routes = min(len(all_routes), max(1, self.params.mu // 2))
+                selected_routes = self.rng.sample(all_routes, n_routes)
+                visited: set[int] = set()
+                for route in selected_routes:
+                    route_set = set(route)
+                    if not route_set.intersection(visited):
+                        routes.append(route)
+                        visited.update(route_set)
 
-        return Individual(x=x_child, sigma=sigma_child, age=0)
-
-    # ------------------------------------------------------------------
-    # Mutation with Self-Adaptation (page 9, Eq. 4-6)
-    # ------------------------------------------------------------------
+        # Average the mutation strength (Intermediate Recombination of strategy params)
+        avg_ms = sum(p.mutation_strength for p in parents) / max(1, len(parents))
+        return Individual(routes=routes, age=1, mutation_strength=avg_ms)
 
     def _mutate(self, individual: Individual) -> Individual:
         """
-        Apply mutative self-adaptation to offspring (page 9, Eq. 4-6).
+        Performs mutative self-adaptation and discrete perturbation.
 
-        Step-size mutation (Eq. 5):
-            N_global ~ N(0,1)  (shared across all dimensions)
-            σ'_i ← σ_i · exp(τ_global · N_global + τ_local · N_i(0,1))
-
-        Decision variable mutation (Eq. 6):
-            x'_i ← x_i + σ'_i · N(0,1)
-
-        Learning rates (page 7):
-            τ_local = 1/√(2d)
-            τ_global = 1/(2√d)
+        Applies log-normal mutation to the mutation_strength (σ) before
+        applying the destroy-repair operator to the routes.
 
         Args:
-            individual: Individual to mutate.
+            individual: Offspring to mutate.
 
         Returns:
-            Mutated individual.
-
-        Complexity: O(d)
+            The mutated individual.
         """
         mutant = individual.copy()
 
-        # Step 1: Mutate step sizes (Eq. 5)
-        N_global = self.rng.randn()  # Global random factor (Eq. 4)
+        # Step 1: Self-Adapt Strategy Parameter (Eq. 5)
+        n_global = self.np_rng.randn()
+        n_local = self.np_rng.randn()
 
-        for i in range(self.d):
-            N_local = self.rng.randn()
-            mutant.sigma[i] *= np.exp(self.params.tau_global * N_global + self.params.tau_local * N_local)
+        mutant.mutation_strength *= np.exp(self.params.tau_global * n_global + self.params.tau_local * n_local)
+        # Boundary control for strategy parameter
+        mutant.mutation_strength = np.clip(mutant.mutation_strength, 1.0, 10.0)
 
-            # Clamp σ to prevent degeneration (page 8, recommended practice)
-            mutant.sigma[i] = np.clip(mutant.sigma[i], self.params.min_sigma, self.params.max_sigma)
+        n_remove = int(round(mutant.mutation_strength))
 
-        # Step 2: Mutate decision variables (Eq. 6)
-        for i in range(self.d):
-            mutant.x[i] += mutant.sigma[i] * self.rng.randn()
-
-            # Apply bounds if specified
-            if self.params.bounds_min is not None and self.params.bounds_max is not None:
-                mutant.x[i] = np.clip(mutant.x[i], self.params.bounds_min, self.params.bounds_max)
-
+        # Step 2: Object Variable Mutation (Destroy-Repair)
+        if mutant.routes:
+            try:
+                partial, removed = random_removal(mutant.routes, n_remove, rng=self.rng)
+                if removed:
+                    mutant.routes = greedy_insertion(
+                        partial,
+                        removed,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        R=self.R,
+                        mandatory_nodes=self.mandatory_nodes,
+                    )
+                    # Memetic optimization
+                    mutant.routes = self.ls.optimize(mutant.routes)
+            except Exception:
+                pass
         return mutant
 
-    # ------------------------------------------------------------------
-    # Evaluation
-    # ------------------------------------------------------------------
-
-    def _evaluate(self, x: np.ndarray) -> float:
-        """
-        Evaluate objective function and track evaluation count.
-
-        Args:
-            x: Decision variable vector.
-
-        Returns:
-            Fitness value.
-
-        Complexity: O(1) + O(f)
-        """
+    def _evaluate(self, routes: List[List[int]]) -> float:
+        """Calculates net profit and increments evaluation counter."""
         self.n_evaluations += 1
-        return self.f(x)
+        if not routes:
+            return 0.0
+        revenue = sum(self.wastes.get(n, 0.0) * self.R for route in routes for n in route)
+        return revenue - self._cost(routes) * self.C
+
+    def _cost(self, routes: List[List[int]]) -> float:
+        """Calculates total distance traveled across all routes."""
+        total = 0.0
+        for route in routes:
+            if not route:
+                continue
+            total += self.dist_matrix[0][route[0]]
+            for k in range(len(route) - 1):
+                total += self.dist_matrix[route[k]][route[k + 1]]
+            total += self.dist_matrix[route[-1]][0]
+        return total
 
     def _update_best(self, population: List[Individual]):
-        """
-        Update global best solution.
-
-        Args:
-            population: Current population.
-
-        Complexity: O(μ)
-        """
-        if self.minimize:
-            current_best = min(population, key=lambda ind: ind.fitness)
-            if self.best_individual is None or current_best.fitness < self.best_individual.fitness:
-                self.best_individual = current_best.copy()
-        else:
-            current_best = max(population, key=lambda ind: ind.fitness)
-            if self.best_individual is None or current_best.fitness > self.best_individual.fitness:
-                self.best_individual = current_best.copy()
-
-    # ------------------------------------------------------------------
-    # Utilities
-    # ------------------------------------------------------------------
-
-    def get_statistics(self) -> dict:
-        """
-        Get optimization statistics.
-
-        Returns:
-            Dictionary with statistics.
-        """
-        return {
-            "n_evaluations": self.n_evaluations,
-            "best_fitness": self.best_individual.fitness if self.best_individual else None,
-            "best_solution": self.best_individual.x.copy() if self.best_individual else None,
-            "convergence_curve": self.convergence_curve.copy(),
-        }
+        """Updates the global elitist solution tracker."""
+        current_best = max(population, key=lambda ind: ind.fitness)
+        if self.best_individual is None or current_best.fitness > self.best_individual.fitness:
+            self.best_individual = current_best.copy()

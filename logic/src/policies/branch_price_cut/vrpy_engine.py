@@ -1,5 +1,5 @@
 """
-VRPy engine for Branch-Cut-and-Price module.
+VRPy engine for Branch-and-Price-and-Cut module.
 """
 
 import logging
@@ -13,7 +13,7 @@ from vrpy.hyper_heuristic import _HyperHeuristic
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
-def run_bcp_vrpy(
+def run_bpc_vrpy(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,

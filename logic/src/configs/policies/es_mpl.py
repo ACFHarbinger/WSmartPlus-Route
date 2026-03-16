@@ -1,7 +1,9 @@
 """
-(μ+1) Evolution Strategy configuration.
+(μ+λ) Evolution Strategy configuration.
 
-Replaces Harmony Search with rigorous ES terminology.
+Strictly follows the generational evolutionary algorithm terminology where:
+- μ (mu): Parent population size.
+- λ (lambda_): Offspring population size.
 """
 
 from dataclasses import dataclass
@@ -13,27 +15,47 @@ from .other.post_processing import PostProcessingConfig
 
 @dataclass
 class MuPlusLambdaESConfig:
-    """Configuration for (μ+λ) Evolution Strategy policy.
+    """
+    Configuration for (μ+λ) Evolution Strategy policy.
 
-    Canonical evolution strategy with recombination and mutation.
+    The (μ+λ) scheme is an elitist generational strategy where the next parent
+    population is selected from the union of the current parents and their
+    offspring. This ensures monotonic improvement in solution quality.
 
     Attributes:
-        population_size: Number of parent solutions (μ parameter).
-        offspring_size: Number of offspring generated per cycle (λ parameter).
-        recombination_rate: Probability of archive recombination (vs random).
-        mutation_rate: Probability of local mutation after recombination.
-        max_iterations: Maximum number of evolution cycles.
-        local_search_iterations: Number of local search improvement steps.
-        time_limit: Wall-clock time limit in seconds (0 = no limit).
-        seed: Random seed for reproducibility.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mu (int): The number of individuals in the parent population (μ).
+            These individuals are transferred to the next generation if they
+            remain among the best μ solutions.
+
+        lambda_ (int): The number of individuals in the offspring population (λ).
+            Offspring are created via recombination and mutation variation
+            operators.
+
+        n_removal (int): The mutation strength parameter.
+            Defines the number of nodes removed during the destroy-repair
+            perturbation phase.
+
+        max_iterations (int): The maximum number of evolution cycles
+            (generations) to perform.
+
+        local_search_iterations (int): Intensity of local optimization
+            applied to each candidate offspring.
+
+        time_limit (float): Maximum wall-clock duration for the search process
+            in seconds.
+
+        seed (Optional[int]): Random seed for deterministic reproducibility.
+
+        must_go (Optional[List[MustGoConfig]]): Configuration for node
+            selection strategies.
+
+        post_processing (Optional[List[PostProcessingConfig]]): List of
+            heuristics applied to refine solutions after optimization.
     """
 
-    population_size: int = 10
-    offspring_size: int = 5
-    recombination_rate: float = 0.95
-    mutation_rate: float = 0.3
+    mu: int = 10
+    lambda_: int = 5
+    n_removal: int = 3
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0

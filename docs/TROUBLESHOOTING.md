@@ -912,14 +912,14 @@ alns_config = {
 }
 ```
 
-### 12.2 BCP Memory Exhaustion
+### 12.2 BPC Memory Exhaustion
 
-**Symptom**: BCP runs out of memory on large instances.
+**Symptom**: BPC runs out of memory on large instances.
 
 **Fixes**:
 
-1. Set node limit: `--bcp_node_limit 10000`
-2. Set column limit: `--bcp_column_limit 50000`
+1. Set node limit: `--bpc_node_limit 10000`
+2. Set column limit: `--bpc_column_limit 50000`
 3. Use heuristic instead for large instances
 
 ### 12.3 HGS Population Collapse
@@ -1116,7 +1116,7 @@ When opening an issue, provide the **"Crash Tuple"**:
 
 ### Issue Template
 
-````markdown
+```markdown
 ## Environment
 
 - OS: Ubuntu 24.04
@@ -1148,7 +1148,7 @@ Training crashes with the following error:
 
 - This worked on commit xyz789
 - Only happens with graph_size 50, works fine with 20
-````
+```
 
 ### Diagnostic Information Script
 

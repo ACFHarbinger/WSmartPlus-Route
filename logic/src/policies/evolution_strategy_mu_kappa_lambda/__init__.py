@@ -47,23 +47,8 @@ Example:
 from .params import MuKappaLambdaESParams
 from .solver import Individual, MuKappaLambdaESSolver
 
-try:
-    from .routing_solver import MuKappaLambdaESRoutingSolver, RoutingIndividual
-
-    _has_routing = True
-except ImportError:
-    _has_routing = False
-
 __all__ = [
     "MuKappaLambdaESSolver",
     "MuKappaLambdaESParams",
     "Individual",
 ]
-
-if _has_routing:
-    __all__.extend(
-        [
-            "MuKappaLambdaESRoutingSolver",
-            "RoutingIndividual",
-        ]
-    )

@@ -6,7 +6,7 @@ from .abc import ABCConfig
 from .aco import ACOConfig
 from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
-from .bcp import BCPConfig
+from .bpc import BPCConfig
 from .cls import ContinuousLocalSearchConfig
 from .cvrp import CVRPConfig
 from .es_mcl import MuCommaLambdaESConfig
@@ -51,7 +51,7 @@ __all__ = [
     "ACOConfig",
     "AHVPLConfig",
     "ALNSConfig",
-    "BCPConfig",
+    "BPCConfig",
     "ContinuousLocalSearchConfig",
     "CVRPConfig",
     "DistancePSOConfig",

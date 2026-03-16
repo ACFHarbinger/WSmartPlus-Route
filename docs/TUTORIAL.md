@@ -409,9 +409,9 @@ alns_config = {
 }
 ```
 
-#### BCP (`policies/branch_cut_and_price.py`)
+#### BPC (`policies/branch_price_cut.py`)
 
-**Branch-Cut-and-Price** is an exact method for solving the VRPP optimally.
+**Branch-and-Price-and-Cut** is an exact method for solving the VRPP optimally.
 
 **Components:**
 
@@ -422,16 +422,16 @@ alns_config = {
 **Integration**: Uses Gurobi, OR-Tools, or VRPy as the backend solver.
 
 ```python
-from logic.src.policies.branch_cut_and_price import BranchCutAndPrice
+from logic.src.policies.branch_price_cut import BranchAndPriceAndCut
 
-bcp = BranchCutAndPrice(
+bpc = BranchAndPriceAndCut(
     solver='gurobi',
     time_limit=300,
     mip_gap=0.01,
     num_threads=4
 )
 
-solution = bcp.solve(instance)
+solution = bpc.solve(instance)
 ```
 
 #### HGS (`policies/hybrid_genetic_search.py`)
@@ -1678,7 +1678,7 @@ writer.add_scalar('Cost/validation', val_cost, epoch)
 | **Neural Models** | `attention_model.py`, `gat_lstm_manager.py`, `meta_rnn.py` | Core neural architectures                                                                                          |
 | **Encoders**      | `gat_encoder.py`, `gcn_encoder.py`, `tgc_encoder.py`       | Graph encoding layers                                                                                              |
 | **Trainer**       | `pipeline/train_lightning.py`                              | Central entry for `train`, `meta_train`, `hpo`. Manages device selection, data loading, epoch loops via Lightning. |
-| **Policies**      | `alns.py`, `bcp.py`, `hgs.py`, `look_ahead.py`             | Classical solvers                                                                                                  |
+| **Policies**      | `alns.py`, `bpc.py`, `hgs.py`, `look_ahead.py`             | Classical solvers                                                                                                  |
 | **Problems**      | `vrpp/`, `wcvrp/`                                          | Environment definitions                                                                                            |
 | **Simulator**     | `simulation.py`, `bins.py`, `network.py`                   | Physics engine                                                                                                     |
 | **RL Pipeline**   | `reinforce.py`, `epoch.py`, `trainers.py`                  | Training loops                                                                                                     |
@@ -1693,7 +1693,7 @@ writer.add_scalar('Cost/validation', val_cost, epoch)
 | ----------------- | -------------------------------------------------- |
 | **ALNS**          | Adaptive Large Neighborhood Search (Metaheuristic) |
 | **AM**            | Attention Model                                    |
-| **BCP**           | Branch-Cut-and-Price (Exact method)                |
+| **BPC**           | Branch-and-Price-and-Cut (Exact method)            |
 | **Baseline**      | Reference value to reduce policy gradient variance |
 | **CWC VRP**       | Capacitated Waste Collection VRP                   |
 | **Decoder**       | Neural component that selects next node            |

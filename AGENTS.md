@@ -654,19 +654,19 @@ This section maintains a registry of intelligent agents, orchestration component
 
 #### Routing Policies
 
-| Policy             | File                                       | Type            | Description                                                              |
-| ------------------ | ------------------------------------------ | --------------- | ------------------------------------------------------------------------ |
-| **ALNS**           | `adaptive_large_neighborhood_search.py`    | Metaheuristic   | Destroy-repair operators with adaptive weights.                          |
-| **BCP**            | `branch_cut_and_price.py`                  | Exact           | Branch-Cut-and-Price via Gurobi/OR-Tools/VRPy.                           |
-| **GIHH**           | `guided_indicators_hyper_heuristic.py`     | Hyper-Heuristic | Two guidance indicators (IRI & TBI) for adaptive operator selection.     |
-| **HGS**            | `hybrid_genetic_search.py`                 | Genetic         | Evolutionary operators with local search and Split.                      |
-| **HGSRR**          | `hybrid_genetic_search_ruin_recreate.py`   | Hybrid Genetic  | HGS with adaptive ruin-and-recreate mutation operators.                  |
-| **MultiVehicle**   | `multi_vehicle.py`                         | OR Solver       | PyVRP/OR-Tools for multi-vehicle routing.                                |
-| **SingleVehicle**  | `single_vehicle.py`                        | TSP Heuristic   | fast_tsp for single-vehicle sequencing.                                  |
-| **LinKernighan**   | `lin_kernighan.py`                         | Local Search    | Lin-Kernighan TSP heuristic.                                             |
-| **NeuralAgent**    | `neural_agent.py`                          | Agent Wrapper   | Interfaces neural models with simulator.                                 |
-| **PostProcessing** | `post_processing.py`                       | Refinement      | Route improvement heuristics.                                            |
-| **PolicyFactory**  | `adapters.py`                              | Factory         | Central policy instantiation via `get_adapter()`.                        |
+| Policy             | File                                     | Type            | Description                                                          |
+| ------------------ | ---------------------------------------- | --------------- | -------------------------------------------------------------------- |
+| **ALNS**           | `adaptive_large_neighborhood_search.py`  | Metaheuristic   | Destroy-repair operators with adaptive weights.                      |
+| **BPC**            | `branch_price_cut_price.py`              | Exact           | Branch-and-Price-and-Cut via Gurobi/OR-Tools/VRPy.                   |
+| **GIHH**           | `guided_indicators_hyper_heuristic.py`   | Hyper-Heuristic | Two guidance indicators (IRI & TBI) for adaptive operator selection. |
+| **HGS**            | `hybrid_genetic_search.py`               | Genetic         | Evolutionary operators with local search and Split.                  |
+| **HGSRR**          | `hybrid_genetic_search_ruin_recreate.py` | Hybrid Genetic  | HGS with adaptive ruin-and-recreate mutation operators.              |
+| **MultiVehicle**   | `multi_vehicle.py`                       | OR Solver       | PyVRP/OR-Tools for multi-vehicle routing.                            |
+| **SingleVehicle**  | `single_vehicle.py`                      | TSP Heuristic   | fast_tsp for single-vehicle sequencing.                              |
+| **LinKernighan**   | `lin_kernighan.py`                       | Local Search    | Lin-Kernighan TSP heuristic.                                         |
+| **NeuralAgent**    | `neural_agent.py`                        | Agent Wrapper   | Interfaces neural models with simulator.                             |
+| **PostProcessing** | `post_processing.py`                     | Refinement      | Route improvement heuristics.                                        |
+| **PolicyFactory**  | `adapters.py`                            | Factory         | Central policy instantiation via `get_adapter()`.                    |
 
 #### Selection Strategies (`logic/src/policies/selection/`)
 

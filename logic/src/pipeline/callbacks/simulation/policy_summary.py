@@ -78,7 +78,7 @@ class PolicySummaryCallback:
         """Extract the engine name."""
         raw_cfg = config
         solver_key = None
-        known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bcp", "sans", "neural"]
+        known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bpc", "sans", "neural"]
 
         # 1. Check top-level keys
         for key in known_policy_keys:
