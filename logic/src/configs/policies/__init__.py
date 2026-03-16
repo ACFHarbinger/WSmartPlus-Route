@@ -38,6 +38,7 @@ from .ils_rvnd_sp import ILSRVNDSPConfig
 from .kgls import KGLSConfig
 from .ks import KernelSearchConfig
 from .lahc import LAHCConfig
+from .lb import LocalBranchingConfig
 from .lca import LCAConfig
 from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
@@ -137,6 +138,7 @@ __all__ = [
     "EMAConfig",
     "SAConfig",
     "LAHCConfig",
+    "LocalBranchingConfig",
     "OBAConfig",
     "RENSConfig",
     "RRTConfig",
