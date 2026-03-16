@@ -8,7 +8,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+    >>> from logic.src.policies.ant_colony_optimization_k_sparse.params import ACOParams
     >>> params = ACOParams(n_ants=20, rho=0.1)
 """
 
@@ -16,7 +16,10 @@ from __future__ import annotations
 
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+
+if TYPE_CHECKING:
+    from logic.src.configs.policies import KSparseACOConfig
 
 
 @dataclass
@@ -64,11 +67,11 @@ class ACOParams:
             raise ValueError(f"Exploitation probability q0 must be in [0, 1], got {self.q0}")
 
     @classmethod
-    def from_config(cls, config: Any) -> ACOParams:
-        """Create ACOParams from an ACOConfig dataclass or dict.
+    def from_config(cls, config: Union[KSparseACOConfig, Dict[str, Any]]) -> ACOParams:
+        """Create ACOParams from an KSparseACOConfig dataclass or dict.
 
         Args:
-            config: ACOConfig dataclass or dict with solver parameters.
+            config: KSparseACOConfig dataclass or dict with solver parameters.
 
         Returns:
             ACOParams instance with values from config.

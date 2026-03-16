@@ -12,7 +12,7 @@ from typing import Optional, Tuple
 from logic.src.configs.policies.other import RLConfig
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import ACOParams
 
 
 @dataclass

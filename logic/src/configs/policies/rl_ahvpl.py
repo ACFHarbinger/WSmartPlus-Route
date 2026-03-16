@@ -5,7 +5,7 @@ RL-AHVPL (Reinforcement Learning Augmented Hybrid Volleyball Premier League) con
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .aco import ACOConfig
+from .aco_ks import KSparseACOConfig
 from .alns import ALNSConfig
 from .hgs import HGSConfig
 from .other import RLConfig
@@ -33,7 +33,7 @@ class RLAHVPLConfig:
     sub_rate: float = 0.2
 
     # Nested component configs
-    aco: ACOConfig = field(default_factory=ACOConfig)
+    aco: KSparseACOConfig = field(default_factory=KSparseACOConfig)
     alns: ALNSConfig = field(default_factory=ALNSConfig)
     hgs: HGSConfig = field(default_factory=HGSConfig)
     rts: RTSConfig = field(default_factory=RTSConfig)

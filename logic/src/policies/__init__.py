@@ -13,7 +13,7 @@ Rigorous Implementations (Metaphor-Free):
     - DifferentialEvolutionSolver: Differential Evolution (replaces Artificial Bee Colony)
     - HybridMemeticSearchSolver: Hybrid Memetic Search (replaces HMS/HVPL)
     - MemeticAlgorithmIslandModelSolver: Memetic Algorithm with Island Model (replaces MA-IM/SLC)
-    - MemeticAlgorithmToleranceBasedSolver: Memetic Algorithm with Tolerance-Based Selection (replaces MA-TB/LCA)
+    - MemeticAlgorithmToleranceBasedSelectionSolver: Memetic Algorithm with Tolerance-Based Selection (replaces MA-TB/LCA)
     - MemeticAlgorithmDualPopulationSolver: Memetic Algorithm with Dual Population (replaces MA-DP/VPL)
     - ParticleSwarmOptimizationSolver: Canonical PSO (replaces Sine Cosine Algorithm)
 
@@ -47,8 +47,8 @@ from .memetic_algorithm_dual_population.params import MemeticAlgorithmDualPopula
 from .memetic_algorithm_dual_population.solver import MemeticAlgorithmDualPopulationSolver
 from .memetic_algorithm_island_model.params import MemeticAlgorithmIslandModelParams
 from .memetic_algorithm_island_model.solver import MemeticAlgorithmIslandModelSolver
-from .memetic_algorithm_tolerance_based_selection.params import MemeticAlgorithmToleranceBasedSelectionParams
-from .memetic_algorithm_tolerance_based_selection.solver import MemeticAlgorithmToleranceBasedSelectionSolver
+from .memetic_algorithm_tolerance_selection.params import MemeticAlgorithmToleranceBasedSelectionParams
+from .memetic_algorithm_tolerance_selection.solver import MemeticAlgorithmToleranceBasedSelectionSolver
 from .neural_agent.policy_neural import NeuralAgent
 from .particle_swarm_optimization_distance.solver import DistancePSOParams, DistancePSOSolver
 from .travelling_salesman_problem.tsp import find_route

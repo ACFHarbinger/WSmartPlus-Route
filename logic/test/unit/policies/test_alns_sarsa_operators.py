@@ -1,6 +1,8 @@
-import numpy as np
-import sys
 import os
+import sys
+
+import numpy as np
+
 
 def test_alns_sarsa_operator_integration():
     """Verify that all unstringing operators are correctly registered as destroy operators."""
@@ -9,9 +11,11 @@ def test_alns_sarsa_operator_integration():
     if root not in sys.path:
         sys.path.insert(0, root)
 
-    from logic.src.policies.other.reinforcement_learning.alns_sarsa import ALNSSARSASolver
-    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import RLAHVPLParams
     from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
+    from logic.src.policies.other.reinforcement_learning.alns_sarsa import ALNSSARSASolver
+    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
+        RLAHVPLParams,
+    )
 
     # Mock Data
     dist_matrix = np.zeros((10, 10))

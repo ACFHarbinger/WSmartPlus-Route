@@ -1,10 +1,12 @@
 
-import pytest
 from unittest.mock import MagicMock, patch
+
 import numpy as np
+import pytest
 from logic.src.policies.base import PolicyRegistry
-from logic.src.policies.travelling_salesman_problem.policy_tsp import TSPPolicy
 from logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp import CVRPPolicy
+from logic.src.policies.travelling_salesman_problem.policy_tsp import TSPPolicy
+
 
 class MockBins:
     def __init__(self, n=5):

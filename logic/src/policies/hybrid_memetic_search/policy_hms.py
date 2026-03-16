@@ -59,7 +59,7 @@ class HybridMemeticSearchPolicy(BaseRoutingPolicy):
         """
         # Import params classes
         from logic.src.policies.adaptive_large_neighborhood_search import ALNSParams
-        from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+        from logic.src.policies.ant_colony_optimization_k_sparse.params import ACOParams
 
         # Create nested params
         aco_params = ACOParams(

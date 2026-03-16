@@ -1,16 +1,10 @@
 """Unit tests for HGS local search operators."""
 
-import pytest
-import numpy as np
-from unittest.mock import MagicMock
-from logic.src.policies.other.operators import (
-    move_relocate,
-    move_swap,
-    move_swap_star,
-)
 from logic.src.policies.other.operators import (
     move_2opt_intra,
     move_2opt_star,
+    move_relocate,
+    move_swap,
 )
 
 

@@ -5,7 +5,7 @@ AHVPL (Augmented Hybrid Volleyball Premier League) configuration for Hydra.
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .aco import ACOConfig
+from .aco_ks import KSparseACOConfig
 from .alns import ALNSConfig
 from .hgs import HGSConfig
 
@@ -32,7 +32,7 @@ class AHVPLConfig:
 
     # Nested component configs
     hgs: HGSConfig = field(default_factory=HGSConfig)
-    aco: ACOConfig = field(default_factory=ACOConfig)
+    aco: KSparseACOConfig = field(default_factory=KSparseACOConfig)
     alns: ALNSConfig = field(default_factory=ALNSConfig)
 
     # Common policy fields
