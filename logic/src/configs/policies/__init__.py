@@ -7,6 +7,7 @@ from .aco_hh import HyperHeuristicACOConfig
 from .aco_ks import KSparseACOConfig
 from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
+from .bb import BBConfig
 from .bpc import BPCConfig
 from .cvrp import CVRPConfig
 from .es_mcl import MuCommaLambdaESConfig
@@ -56,6 +57,7 @@ __all__ = [
     "HyperHeuristicACOConfig",
     "AHVPLConfig",
     "ALNSConfig",
+    "BBConfig",
     "BPCConfig",
     "CVRPConfig",
     "DistancePSOConfig",
