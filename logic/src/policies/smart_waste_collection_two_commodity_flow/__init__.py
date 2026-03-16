@@ -1,13 +1,13 @@
 """
-VRPP Adapter Package.
+SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Adapter Package.
 """
 
-from .dispatcher import run_vrpp_optimizer
+from .dispatcher import run_swc_tcf_optimizer
 from .gurobi import _run_gurobi_optimizer
 from .hexaly import _run_hexaly_optimizer
 
 __all__ = [
     "_run_gurobi_optimizer",
     "_run_hexaly_optimizer",
-    "run_vrpp_optimizer",
+    "run_swc_tcf_optimizer",
 ]

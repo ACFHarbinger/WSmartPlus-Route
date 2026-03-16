@@ -1,10 +1,10 @@
 # Policy Configuration
 
 # =============================================================================
-# VRPP (Vehicle Routing Problem with Profits) Exact Solver Configuration
+# SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Exact Solver Configuration
 # =============================================================================
 # PURPOSE:
-#   Exact optimization for VRPP using Gurobi MIP solver. Finds provably
+#   Exact optimization for SWC-TCF using Gurobi MIP solver. Finds provably
 #   optimal solutions for profit-maximization routing where visiting nodes
 #   yields rewards but incurs travel costs. Guarantees optimality for small
 #   instances (≤50 nodes).
@@ -17,12 +17,12 @@
 #     - Depot start/end requirements
 #
 # ALGORITHM:
-#   1. Formulate VRPP as Mixed-Integer Program (MIP)
+#   1. Formulate SWC-TCF as Mixed-Integer Program (MIP)
 #   2. Solve via Gurobi's branch-and-cut (exact method)
 #   3. Return optimal subset of nodes to visit + routes
 #
 # TYPICAL USE CASES:
-#   - Small VRPP instances (20-50 nodes) requiring optimal solutions
+#   - Small SWC-TCF instances (20-50 nodes) requiring optimal solutions
 #   - Benchmark baseline for neural/metaheuristic comparison
 #   - Profit-driven waste collection (collect only if profitable)
 #
@@ -36,7 +36,7 @@
 #   https://www.gurobi.com/academia/academic-program-and-licenses/
 # =============================================================================
 
-vrpp:
+swc_tcf:
   gurobi:
     # ---------------------------------------------------------------------
     # Objective Function Weights
@@ -50,7 +50,7 @@ vrpp:
     - delta: 0
       # Bonus reward for visiting mandatory nodes
       # Range: 0-100 (0 = no bonus, 100 = strong incentive)
-      # delta=0 → all nodes treated equally (standard VRPP)
+      # delta=0 → all nodes treated equally (standard SWC-TCF)
       # delta>0 → must_go nodes receive extra profit delta
       # Use case: Prioritize high-fill bins in waste collection
 
@@ -67,7 +67,7 @@ vrpp:
     # Solver Backend
     # ---------------------------------------------------------------------
     - engine: "gurobi"
-      # Execution backend: logic/src/policies/gurobi_vrpp.py
+      # Execution backend: logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
       # Requires: gurobipy Python package + valid Gurobi license
 
     # ---------------------------------------------------------------------
@@ -101,7 +101,7 @@ vrpp:
     # Gurobi Solver Parameters (Implicit)
     # ---------------------------------------------------------------------
     # Advanced Gurobi settings configured in:
-    #   logic/src/policies/gurobi_vrpp.py
+    #   logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
     #
     # Key implicit settings:
     #   - MIPGap: 0.01 (stop if within 1% of optimal)
@@ -111,7 +111,7 @@ vrpp:
     #   - Threads: -1 (use all available CPU cores)
     #   - LogToConsole: 0 (suppress Gurobi output)
     #
-    # To override: Modify logic/src/policies/gurobi_vrpp.py
+    # To override: Modify logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
 
     # ---------------------------------------------------------------------
     # MIP Formulation Details

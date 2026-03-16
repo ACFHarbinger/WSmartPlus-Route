@@ -34,7 +34,7 @@ class PolicyFactory:
         # Exact Solvers
         import logic.src.policies.branch_and_bound.policy_bb as policy_bb  # noqa
         import logic.src.policies.branch_and_price_and_cut.policy_bpc as policy_bpc  # noqa
-        import logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp as policy_vrpp  # noqa
+        import logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf as policy_swc_tcf  # noqa
 
         # Meta-Heuristics
         import logic.src.policies.adaptive_large_neighborhood_search.policy_alns as policy_alns  # noqa
@@ -94,7 +94,7 @@ class PolicyFactory:
         import logic.src.policies.local_branching.policy_lb as policy_lb  # noqa
         import logic.src.policies.local_branching_variable_neighborhood_search.policy_lb_vns as policy_lb_vns  # noqa
         import logic.src.policies.popmusic.policy_popmusic as policy_popmusic  # noqa
-        import logic.src.policies.rens.policy_rens as policy_rens  # noqa
+        import logic.src.policies.relaxation_enforced_neighborhood_search.policy_rens as policy_rens  # noqa
 
         # Acceptance Criterion
         import logic.src.policies.ensemble_move_acceptance.policy_ema as policy_ema  # noqa

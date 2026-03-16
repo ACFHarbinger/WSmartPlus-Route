@@ -8,14 +8,11 @@
 #   and Local Search for Dynamic Optimization Problems."
 #   Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
 
-defaults:
-  - /policies@_here_: hulk
-
 # Override with environment-specific settings
 policies:
   # Search parameters
   max_iterations: 1000
-  time_limit: 300.0  # 5 minutes
+  time_limit: 300.0 # 5 minutes
   restarts: 3
   restart_threshold: 100
 

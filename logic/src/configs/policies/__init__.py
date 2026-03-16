@@ -68,11 +68,11 @@ from .schc import SCHCConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
 from .ss_hh import SSHHConfig
+from .swc_tcf import SWCTCFConfig
 from .ta import TAConfig
 from .tsp import TSPConfig
 from .vns import VNSConfig
 from .vpl import VPLConfig
-from .vrpp import VRPPConfig
 
 __all__ = [
     "AdaptiveKernelSearchConfig",
@@ -102,7 +102,7 @@ __all__ = [
     "SANSConfig",
     "SISRConfig",
     "TSPConfig",
-    "VRPPConfig",
+    "SWCTCFConfig",
     "OIConfig",
     "POPMUSICConfig",
     "MustGoConfig",
