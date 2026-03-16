@@ -11,7 +11,7 @@ from logic.src.policies.base import PolicyFactory
 from logic.src.policies.branch_and_price_and_cut.policy_bpc import BCPPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
 from logic.src.policies.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
-from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import VRPPPolicy
+from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import SWCTCFPolicy
 
 
 class MockBins:
@@ -56,7 +56,7 @@ def mock_engine_data():
             "bpc": {"bcp_engine": "ortools"},
             "hgs": {"engine": None},
             "alns": {"engine": None},
-            "vrpp": {},
+            "swc_tcf": {},
             "n_encode_layers": 3,
             "n_encode_sublayers": 1,
             "n_decode_layers": 1,
@@ -93,15 +93,15 @@ def test_bcp_engine_override(mock_engine_data):
         assert "env" in kwargs
 
 @pytest.mark.unit
-def test_vrpp_engine_override(mocker, mock_engine_data):
+def test_swc_tcf_engine_override(mocker, mock_engine_data):
     mocker.patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params",
                  return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
-    with patch("logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp.run_vrpp_optimizer") as mock_opt:
+    with patch("logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.run_swc_tcf_optimizer") as mock_opt:
         mock_opt.return_value = ([0, 1, 0], 10.0, 5.0)
 
-        policy = PolicyFactory.get_adapter("vrpp")
-        assert isinstance(policy, VRPPPolicy)
+        policy = PolicyFactory.get_adapter("swc_tcf")
+        assert isinstance(policy, SWCTCFPolicy)
         policy.execute(**mock_engine_data)
 
         assert mock_opt.called

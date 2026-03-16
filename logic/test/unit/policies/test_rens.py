@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import numpy as np
 import pandas as pd
-from logic.src.policies.rens.solver import run_rens_gurobi
+from logic.src.policies.relaxation_enforced_neighborhood_search.solver import run_rens_gurobi
 
 
 def mock_run_rens(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
