@@ -13,7 +13,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.interfaces.adapter import IPolicyAdapter
 from logic.src.policies.other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -24,7 +23,7 @@ from logic.src.policies.other.operators import (
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class BaseAcceptanceSolver(PolicyVizMixin, IPolicyAdapter):
+class BaseAcceptanceSolver(PolicyVizMixin):
     """
     Abstract base class for solvers using a move acceptance criterion.
     """

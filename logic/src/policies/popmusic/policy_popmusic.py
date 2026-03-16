@@ -27,6 +27,20 @@ class POPMUSICPolicy(BaseRoutingPolicy):
     def _get_config_key(self) -> str:
         return "popmusic"
 
+    def _run_solver(
+        self,
+        sub_dist_matrix: Any,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """Not used - POPMUSIC requires specialized execute()."""
+        return [], 0.0, 0.0
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute POPMUSIC on the current collection problem.

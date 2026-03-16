@@ -52,7 +52,7 @@ class PolicyFactory:
         import logic.src.policies.harmony_search.policy_hs as policy_hs  # noqa
         import logic.src.policies.hybrid_genetic_search.policy_hgs as policy_hgs  # noqa
         import logic.src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns as policy_hgs_alns  # noqa
-        import logic.src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr as policy_hgsrr  # noqa
+        import logic.src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr as policy_hgs_rr  # noqa
         import logic.src.policies.hybrid_memetic_search.policy_hms as policy_hms  # noqa
         import logic.src.policies.hybrid_volleyball_premier_league.policy_hvpl as policy_hvpl  # noqa
         import logic.src.policies.iterated_local_search.policy_ils as policy_ils  # noqa

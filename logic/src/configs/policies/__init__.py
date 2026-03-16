@@ -26,7 +26,7 @@ from .gls import GLSConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
-from .hgsrr import HGSRRConfig
+from .hgs_rr import HGSRRConfig
 from .hmm_gd_hh import HMMGDHHConfig
 from .hms import HybridMemeticSearchConfig
 from .hs import HSConfig

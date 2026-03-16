@@ -40,7 +40,7 @@ from .evolution_strategy_mu_comma_lambda.solver import MuCommaLambdaESParams, Mu
 from .evolution_strategy_mu_plus_lambda.solver import MuPlusLambdaESParams, MuPlusLambdaESSolver
 from .guided_indicators_hyper_heuristic.policy_gihh import run_gihh
 from .hybrid_genetic_search.policy_hgs import run_hgs
-from .hybrid_genetic_search_ruin_and_recreate.policy_hgsrr import run_hgsrr
+from .hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr import run_hgs_rr
 from .hybrid_memetic_search.params import HybridMemeticSearchParams
 from .hybrid_memetic_search.solver import HybridMemeticSearchSolver
 from .memetic_algorithm_dual_population.params import MemeticAlgorithmDualPopulationParams
@@ -63,7 +63,7 @@ __all__ = [
     "find_routes_ortools",
     "run_gihh",
     "run_hgs",
-    "run_hgsrr",
+    "run_hgs_rr",
     "NeuralAgent",
     "find_route",
     "MuPlusLambdaESSolver",
