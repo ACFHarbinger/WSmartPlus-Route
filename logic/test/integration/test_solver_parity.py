@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from logic.src.policies.base import PolicyFactory
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
 class TestSolverParity:
@@ -18,7 +18,7 @@ class TestSolverParity:
 
         # 1. Gurobi (Ground Truth usually)
         try:
-            routes_g, profit_g, cost_g = run_vrpp_optimizer(
+            routes_g, profit_g, cost_g = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
                 param=0.0,
@@ -36,7 +36,7 @@ class TestSolverParity:
 
         # 2. Hexaly
         try:
-            routes_h, profit_h, cost_h = run_vrpp_optimizer(
+            routes_h, profit_h, cost_h = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
                 param=0.0,

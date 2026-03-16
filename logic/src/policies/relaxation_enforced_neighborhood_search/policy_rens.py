@@ -21,7 +21,7 @@ from logic.src.configs.policies.rens import RENSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .solver import RENSSolver
+from .solver import run_rens_gurobi
 
 
 @PolicyRegistry.register("rens")
@@ -45,11 +45,10 @@ class RENSPolicy(BaseRoutingPolicy):
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
-        Initialize the RENS policy adapter.
+        Initialize the RENS policy with a configuration dictionary.
 
         Args:
-            config: Hydra/OmegaConf configuration object containing policy
-                parameters (e.g., time limits, MIP gaps).
+            config: Hydra configuration for RENS.
         """
         super().__init__(config)
 
@@ -62,27 +61,24 @@ class RENSPolicy(BaseRoutingPolicy):
         """Return the unique Hydra configuration key for RENS."""
         return "rens"
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Dict[str, Any]]:
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
-        Execute the RENS matheuristic optimization within the simulation context.
+        Execute the RENS matheuristic on the current state.
+
+        Extracts environmental variables (distance matrix, waste levels, capacity)
+        and invokes the Gurobi-based RENS solver.
 
         Args:
-            **kwargs: Execution context provided by the simulation Loop.
-                Required keys:
-                - distance_matrix (np.ndarray): Symmetric matrix of distances
-                  between depot and all bins.
-                - wastes (Dict[int, float]): Current state of bins including fill levels.
+            **kwargs: Cumulative simulation state including:
+                - distance_matrix (np.ndarray): Cost matrix between nodes.
+                - wastes (Dict[int, float]): Current waste levels for each bin.
                 - capacity (float): Vehicle volume limit.
-                - must_go (List[int]): Indices of bins that are required visits.
+                - must_go (List[int]): Optional nodes requiring collection.
                 - R (float): Revenue multiplier.
                 - C (float): Cost multiplier.
-                - seed (int): Optional random seed override.
 
         Returns:
-            Tuple[List[int], float, Dict[str, Any]]:
-                - tour: Optimized sequence of node IDs starting and ending at depot.
-                - distance: Total travel distance of the constructed tour.
-                - metadata: Dict containing "obj_val" (net profit).
+            A tuple of (tour, total_travel_cost, extra_data_dict).
         """
         cfg = self._parse_config(self.config, RENSConfig)
 
@@ -97,24 +93,17 @@ class RENSPolicy(BaseRoutingPolicy):
 
         seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
 
-        # Initialize the core solver (class-based interface)
-        solver = RENSSolver(
+        tour, obj_val, cost = run_rens_gurobi(
             dist_matrix=distance_matrix,
             wastes=wastes,
             capacity=capacity,
             R=R,
             C=C,
-            values={
-                "time_limit": cfg.time_limit,
-                "lp_time_limit": cfg.lp_time_limit,
-                "mip_gap": cfg.mip_gap,
-            },
-            seed=seed,
             mandatory_nodes=mandatory_nodes,
+            time_limit=cfg.time_limit,
+            lp_time_limit=cfg.lp_time_limit,
+            mip_gap=cfg.mip_gap,
+            seed=seed,
         )
-
-        # Execute optimization via the standard solver interface
-        # Note: solver.solve() returns (tour, obj_val, cost)
-        tour, obj_val, cost = solver.solve()
 
         return tour, float(cost), {"obj_val": obj_val}

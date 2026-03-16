@@ -4,17 +4,17 @@ from logic.src.policies.base import PolicyFactory
 from logic.src.policies.base import PolicyRegistry
 from logic.src.policies import run_hgs
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
-class TestVRPPOptimizerContract:
-    """Contract tests for run_vrpp_optimizer (Gurobi/Hexaly)."""
+class TestSWCTCFOptimizerContract:
+    """Contract tests for run_swc_tcf_optimizer (Gurobi/Hexaly)."""
 
     @pytest.mark.integration
     @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
-    def test_vrpp_optimizer_basic_contract(self, base_vrpp_data, backend, check_license):
+    def test_swc_tcf_optimizer_basic_contract(self, base_vrpp_data, backend, check_license):
         data = base_vrpp_data
-        routes, profit, cost = run_vrpp_optimizer(
+        routes, profit, cost = run_swc_tcf_optimizer(
             bins=data["bins"],
             distance_matrix=data["dist_matrix"],
             param=0.0,
@@ -44,14 +44,14 @@ class TestVRPPOptimizerContract:
 
     @pytest.mark.integration
     @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
-    def test_vrpp_optimizer_empty_bins(self, base_vrpp_data, backend, check_license):
+    def test_swc_tcf_optimizer_empty_bins(self, base_vrpp_data, backend, check_license):
         """Case where no bins should be collected."""
         data = base_vrpp_data
         data["bins"] = np.zeros(len(data["bins"]))  # all empty
         data["must_go"] = []
         data["values"]["psi"] = 0.99
 
-        routes, profit, cost = run_vrpp_optimizer(
+        routes, profit, cost = run_swc_tcf_optimizer(
             bins=data["bins"],
             distance_matrix=data["dist_matrix"],
             param=0.0,
