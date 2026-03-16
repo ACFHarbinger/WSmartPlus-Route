@@ -46,7 +46,7 @@ class PolicyFactory:
         import logic.src.policies.memetic_algorithm_dual_population.policy_ma_dp as policy_ma_dp  # noqa
         import logic.src.policies.memetic_algorithm_island_model.policy_ma_im as policy_ma_im  # noqa
         import logic.src.policies.hybrid_memetic_search.policy_hms as policy_hms  # noqa
-        import logic.src.policies.memetic_algorithm_tolerance_based.policy_ma_tb as policy_ma_tb  # noqa
+        import logic.src.policies.memetic_algorithm_tolerance_selection.policy_ma_ts as policy_ma_ts  # noqa
         import logic.src.policies.guided_indicators_hyper_heuristic.policy_gihh as policy_gihh  # noqa
         import logic.src.policies.guided_local_search.policy_gls as policy_gls  # noqa
         import logic.src.policies.genetic_programming_hyper_heuristic.policy_gphh as policy_gphh  # noqa

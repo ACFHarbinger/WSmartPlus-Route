@@ -28,7 +28,7 @@ from .kgls import KGLSConfig
 from .lca import LCAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
 from .ma_im import MemeticAlgorithmIslandModelConfig
-from .ma_tb import MemeticAlgorithmToleranceBasedConfig
+from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
 from .pso import PSOConfig
@@ -82,7 +82,7 @@ __all__ = [
     "SCAConfig",
     "HSConfig",
     "SLCConfig",
-    "MemeticAlgorithmToleranceBasedConfig",
+    "MemeticAlgorithmToleranceBasedSelectionConfig",
     "LCAConfig",
     "MemeticAlgorithmIslandModelConfig",
     "MuCommaLambdaESConfig",
