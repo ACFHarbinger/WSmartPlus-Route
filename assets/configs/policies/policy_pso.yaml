@@ -1,7 +1,7 @@
-# Particle Swarm Optimization with Velocity Momentum Policy Configuration
+# Particle Swarm Optimization (PSO) with Velocity Momentum Policy Configuration
 
 # =============================================================================
-# PSO with Velocity Momentum Policy Configuration
+# PSO Policy Configuration - Rigorous Replacement for SCA
 # =============================================================================
 # PURPOSE:
 #   **TRUE PARTICLE SWARM OPTIMIZATION** with inertia-weighted velocity updates.
@@ -12,7 +12,26 @@
 #   - Cognitive and social acceleration coefficients
 #   - Linearly decreasing inertia weight
 #
-# ALGORITHM (Kennedy & Eberhart 1995; Ai & Kachitvichyanukul 2009):
+# WHY PSO REPLACES SCA:
+#   The Sine Cosine Algorithm (SCA) is mathematically identical to PSO without
+#   the velocity term, but with unnecessary computational overhead:
+#
+#   SCA Update: X' = X + r₁·sin(r₂)·|r₃·P - X|
+#   PSO Social: X' = X + w·(G_best - X) where w is simple random weight
+#
+#   Problems with SCA:
+#   1. sin(r₂) where r₂~U(0,2π) is just random weight ∈ [-1,1]
+#   2. No periodicity exploitation (r₂ resampled every iteration)
+#   3. cos/sin switch is redundant (same distribution, phase-shifted)
+#   4. Expensive transcendental calls with zero optimization benefit
+#
+#   PSO Advantages:
+#   1. Velocity maintains momentum from previous iterations (MISSING in SCA)
+#   2. Personal best enables individual learning (MISSING in SCA)
+#   3. Simpler, faster arithmetic operations
+#   4. 30+ years of theoretical and empirical foundation
+#
+# ALGORITHM (Kennedy & Eberhart 1995):
 #   1. Initialize swarm with random positions and velocities
 #   2. For each iteration:
 #      a. For each particle i:
@@ -23,41 +42,39 @@
 #      b. Update global best from all personal bests
 #      c. Decrease inertia weight w linearly
 #
-# WHY THIS MATTERS:
-#   The "Firefly Algorithm" was a **deceptive relabeling** of PSO that stripped
-#   out velocity momentum terms. This implementation restores proper PSO with:
-#   - Velocity carries momentum from previous iterations (inertia term)
-#   - Particles remember their own best (cognitive term)
-#   - Particles learn from swarm best (social term)
+# ENCODING:
+#   - Continuous position vectors in [-1, 1]^n
+#   - Sigmoid binarization for node selection
+#   - Largest Rank Value (LRV) ordering
 #
 # PERFORMANCE:
-#   Superior exploration-exploitation balance vs. non-momentum variants.
+#   Superior exploration-exploitation balance vs. SCA.
 #   Linearly decreasing inertia: high w early (exploration) → low w late (exploitation).
-#   Proven effective for VRPSPD (Ai & Kachitvichyanukul 2009).
+#   Faster than SCA (no transcendental functions).
 #
 # REFERENCES:
 #   Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
 #   Proceedings of ICNN'95 - International Conference on Neural Networks.
 #
-#   Ai, T. J., & Kachitvichyanukul, V. (2009). "A particle swarm optimization
-#   for the vehicle routing problem with simultaneous pickup and delivery."
-#   Computers & Operations Research, 36(6), 1693-1702.
+#   Shi, Y., & Eberhart, R. (1998). "A modified particle swarm optimizer."
+#   IEEE International Conference on Evolutionary Computation.
 #
 # TYPICAL USE CASES:
-#   - Medium to large routing instances (50-200+ nodes)
-#   - Problems requiring global optimization
-#   - Benchmarking against metaheuristics
+#   - Continuous optimization problems adapted to discrete routing
+#   - Replacement for any SCA-based implementation
+#   - Benchmarking against population-based metaheuristics
 # =============================================================================
 
-psoda:
+pso:
   custom:
     # ---------------------------------------------------------------------
     # Swarm Parameters
     # ---------------------------------------------------------------------
-    - population_size: 20
+    - pop_size: 30
       # Number of particles in swarm
-      # Range: 10-50
-      # Recommendation: 20 for balanced exploration/exploitation
+      # Range: 20-50
+      # Recommendation: 30 for balanced exploration/exploitation
+      # Note: SCA typically uses same population size
 
     # ---------------------------------------------------------------------
     # PSO Velocity Momentum Parameters (Kennedy & Eberhart 1995)
@@ -67,6 +84,7 @@ psoda:
       # Range: 0.7-1.0
       # Recommendation: 0.9 (standard PSO value)
       # High inertia early → particles explore freely
+      # **MISSING IN SCA** - this is why PSO is superior
 
     - inertia_weight_end: 0.4
       # Final inertia weight w(T) for exploitation phase
@@ -77,54 +95,35 @@ psoda:
     - cognitive_coef: 2.0
       # Cognitive acceleration coefficient c₁ (personal best attraction)
       # Range: 1.0-3.0
-      # Recommendation: 2.0 (standard PSO value, Ai & Kachitvichyanukul 2009)
+      # Recommendation: 2.0 (standard PSO value)
       # Controls how much particle trusts its own experience
+      # **MISSING IN SCA** - no personal best tracking
 
     - social_coef: 2.0
       # Social acceleration coefficient c₂ (global best attraction)
       # Range: 1.0-3.0
-      # Recommendation: 2.0 (standard PSO value, Ai & Kachitvichyanukul 2009)
+      # Recommendation: 2.0 (standard PSO value)
       # Controls how much particle follows swarm's best
+      # SCA only has this term (via trigonometric wrapper)
 
     # ---------------------------------------------------------------------
-    # Discrete Adaptation Parameters (Ai & Kachitvichyanukul 2009)
+    # Continuous Space Bounds
     # ---------------------------------------------------------------------
-    - n_removal: 3
-      # Number of nodes in velocity-based perturbation
-      # Range: 1-10
-      # Recommendation: 3 for moderate perturbation strength
+    - position_min: -1.0
+      # Lower bound for position vector components
+      # Range: -10.0 to 0.0
+      # Recommendation: -1.0 (matches SCA bounds)
 
-    - velocity_to_mutation_rate: 0.1
-      # Scaling factor: velocity magnitude → mutation probability
-      # Range: 0.05-0.3
-      # Recommendation: 0.1 for balanced discrete adaptation
-      # Higher values = more aggressive position updates
+    - position_max: 1.0
+      # Upper bound for position vector components
+      # Range: 0.0 to 10.0
+      # Recommendation: 1.0 (matches SCA bounds)
 
-    # ---------------------------------------------------------------------
-    # Local Search Parameters
-    # ---------------------------------------------------------------------
-    - local_search_iterations: 100
-      # Number of local search improvement steps
-      # Range: 50-200
-      # Recommendation: 100 for balanced improvement
-
-    # ---------------------------------------------------------------------
-    # Guided Insertion Scoring Weights
-    # ---------------------------------------------------------------------
-    - alpha_profit: 1.0
-      # Weight for profit term in node insertion scoring
-      # Range: 0.0-2.0
-      # Recommendation: 1.0 (standard weight)
-
-    - beta_will: 0.5
-      # Weight for willingness (fill level) term
-      # Range: 0.0-2.0
-      # Recommendation: 0.5 for moderate influence
-
-    - gamma_cost: 0.3
-      # Weight for insertion cost penalty
-      # Range: 0.0-2.0
-      # Recommendation: 0.3 for cost consideration
+    - velocity_max: 0.5
+      # Maximum velocity magnitude (velocity clamping)
+      # Range: 0.1 to 2.0
+      # Recommendation: 0.5 (prevents divergence)
+      # Prevents particles from "overshooting" search space
 
     # ---------------------------------------------------------------------
     # Runtime Control
@@ -133,6 +132,7 @@ psoda:
       # Maximum number of PSO iterations
       # Range: 100-1000
       # Recommendation: 500 for production
+      # Note: PSO typically converges faster than SCA
 
     - time_limit: 60.0
       # Maximum wall-clock seconds for optimization
@@ -143,12 +143,11 @@ psoda:
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/particle_swarm_optimization_distance/
+      # Execution backend: logic/src/policies/particle_swarm_optimization/
 
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
-      # See: docs/MUST_GO_STRATEGIES.md
 
     - post_processing: []
       # Route refinement heuristics applied after optimization
@@ -177,21 +176,31 @@ psoda:
 # Inertia Weight Decay (Shi & Eberhart 1998):
 #   w(t) = w_start - (w_start - w_end) × (t / T_max)
 #
-# Discrete Space Adaptation (Ai & Kachitvichyanukul 2009):
-#   - Velocity = set of nodes to add/remove
-#   - Inertia term: probabilistically preserve previous velocity nodes
-#   - Cognitive term: nodes in pbest but not in current position
-#   - Social term: nodes in gbest but not in current position
-#   - Position update: destroy-repair with velocity-guided node insertion
+# Velocity Clamping:
+#   v(t+1) = clip(v(t+1), -v_max, v_max)
+#
+# Position Clamping:
+#   x(t+1) = clip(x(t+1), x_min, x_max)
 #
 # Complexity:
 #   - Space: O(pop_size × n) for swarm + velocities + personal bests
-#   - Time per iteration: O(pop_size × n²) for velocity updates + insertions
+#   - Time per iteration: O(pop_size × n) for velocity updates
+#   - Faster than SCA: no sin/cos transcendental calls
 #
-# Key Differences from "Firefly Algorithm":
-#   ✓ Maintains velocity vectors with momentum (inertia term)
-#   ✓ Tracks personal best for each particle (cognitive learning)
-#   ✓ Uses linearly decreasing inertia weight (dynamic exploration)
-#   ✗ No pairwise distance-based attraction (O(N²) → O(N))
-#   ✗ No exponential decay functions
+# Mathematical Comparison PSO vs SCA:
+#   PSO Full Equation:
+#     v' = w*v + c₁*r₁*(pbest - x) + c₂*r₂*(gbest - x)
+#     x' = x + v'
+#
+#   SCA Equation (stripped of metaphor):
+#     x' = x + r₁·sin(r₂)·|r₃·gbest - x|
+#     ≡  x' = x + W·(gbest - x)  where W = r₁·sin(r₂)·r₃
+#
+#   Key Differences:
+#     ✓ PSO has velocity momentum (w*v term)
+#     ✓ PSO has personal best (pbest term)
+#     ✓ PSO uses simple random weights (r₁, r₂)
+#     ✗ SCA lacks velocity (no memory)
+#     ✗ SCA lacks personal best (no individual learning)
+#     ✗ SCA uses sin(random) ≈ random but slower
 # =============================================================================

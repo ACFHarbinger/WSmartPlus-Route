@@ -7,7 +7,6 @@ from .aco import ACOConfig
 from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
 from .bpc import BPCConfig
-from .cls import ContinuousLocalSearchConfig
 from .cvrp import CVRPConfig
 from .es_mcl import MuCommaLambdaESConfig
 from .es_mkl import MuKappaLambdaESConfig
@@ -32,6 +31,7 @@ from .ma_im import MemeticAlgorithmIslandModelConfig
 from .ma_tb import MemeticAlgorithmToleranceBasedConfig
 from .neural import NeuralConfig
 from .other import MustGoConfig, PostProcessingConfig
+from .pso import PSOConfig
 from .psoda import DistancePSOConfig
 from .psoma import PSOMAConfig
 from .qde import QDEConfig
@@ -52,7 +52,6 @@ __all__ = [
     "AHVPLConfig",
     "ALNSConfig",
     "BPCConfig",
-    "ContinuousLocalSearchConfig",
     "CVRPConfig",
     "DistancePSOConfig",
     "FILOConfig",
@@ -94,4 +93,5 @@ __all__ = [
     "VNSConfig",
     "VPLConfig",
     "MemeticAlgorithmDualPopulationConfig",
+    "PSOConfig",
 ]

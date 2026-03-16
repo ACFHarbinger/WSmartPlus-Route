@@ -1533,16 +1533,16 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 #### Implementation Map
 
-| Metaphor-Based Algorithm                | Rigorous Implementation                       | Mathematical Foundation                                          |
-| --------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
-| Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**       | Population-based search with recombination and mutation          |
-| Firefly Algorithm (FA)                  | **PSO Distance-Based Algorithm (PSODA)**      | Particle swarm with distance-based update                        |
-| Artificial Bee Colony (ABC)             |                                               |                                                                  |
-| Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search. |
-| Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.             |
-| Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).         |
-| League Championship Algorithm (LCA)     | **Memetic Algorithm Tolerance Based (MA-TB)** | Pairwise tournament selection with infeasibility tolerance.      |
-| Sine Cosine Algorithm (SCA)             |                                               |                                                                  |
+| Metaphor-Based Algorithm                | Rigorous Implementation                       | Mathematical Foundation                                                                                           |
+| --------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**       | Population-based search with recombination and mutation                                                           |
+| Firefly Algorithm (FA)                  | **PSO Distance-Based Algorithm (PSODA)**      | Particle swarm with distance-based update                                                                         |
+| Artificial Bee Colony (ABC)             |                                               |                                                                                                                   |
+| Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search.                                                  |
+| Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.                                                              |
+| Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).                                                          |
+| League Championship Algorithm (LCA)     | **Memetic Algorithm Tolerance Based (MA-TB)** | Pairwise tournament selection with infeasibility tolerance.                                                       |
+| Sine Cosine Algorithm (SCA)             | **Particle Swarm Optimization (PSO)**         | PSO that uses the sine and cosine functions to control the search, instead of a uniform/Gaussian random variable. |
 
 ---
 
@@ -1844,7 +1844,109 @@ P(i beats j) = σ(β × (f(i) - f(j)))
 
 ---
 
-##### 8. TBA
+##### 8. Particle Swarm Optimization (PSO)
+
+**Replaces:** Sine Cosine Algorithm (SCA)
+
+**Location:** `logic/src/policies/particle_swarm_optimization/`
+
+**Algorithm:**
+
+```
+
+TRUE PSO with inertia-weighted velocity updates (Kennedy & Eberhart 1995):
+
+1. Initialize swarm with random positions and velocities
+2. For each iteration:
+   a. For each particle i:
+      - Update velocity: v(t+1) = w*v(t) + c₁*r₁*(pbest - x) + c₂*r₂*(gbest - x)
+      - Update position: x(t+1) = x(t) + v(t+1)
+      - Clamp velocity and position to bounds
+      - Evaluate fitness f(x(t+1))
+      - Update personal best if f(x(t+1)) > f(pbest_i)
+   b. Update global best from all personal bests
+   c. Linearly decrease inertia weight w
+
+Encoding:
+- Continuous position vectors in [-1, 1]^n
+- Sigmoid binarization for node selection: select if sigmoid(x_i) > 0.5
+- Largest Rank Value (LRV) ordering: sort by x_i descending
+
+```
+
+**Key Parameters:**
+
+- `inertia_weight_start` (w₀): Initial inertia for exploration (0.9)
+- `inertia_weight_end` (w_T): Final inertia for exploitation (0.4)
+- `cognitive_coef` (c₁): Personal best attraction coefficient (2.0)
+- `social_coef` (c₂): Global best attraction coefficient (2.0)
+- `velocity_max`: Maximum velocity magnitude (clamping)
+
+**Why PSO Replaces SCA:**
+
+The Sine Cosine Algorithm is mathematically identical to PSO without velocity momentum:
+
+```
+SCA Update: X' = X + r₁·sin(r₂)·|r₃·P - X|
+PSO Social: X' = X + w·(G_best - X)  where w is simple random weight
+```
+
+**SCA's Flaws:**
+
+1. sin(r₂) where r₂~U(0,2π) is just random weight ∈ [-1,1] (expensive transcendental call)
+2. No periodicity exploitation (r₂ resampled every iteration)
+3. cos/sin switch is redundant (same distribution, phase-shifted)
+4. **MISSING velocity momentum** - no memory of previous movements
+5. **MISSING personal best** - no individual particle learning
+
+**PSO's Advantages:**
+
+1. ✓ Velocity maintains momentum (inertia term w\*v)
+2. ✓ Personal best enables individual learning (cognitive term)
+3. ✓ Simpler arithmetic (no transcendental functions)
+4. ✓ Linearly decreasing inertia (exploration → exploitation)
+5. ✓ 30+ years of theoretical foundation vs metaphor-based naming
+
+**Terminology Mapping (SCA → PSO):**
+
+- "Sine/Cosine oscillation" → Velocity momentum
+- "Random position update" → Position = Position + Velocity
+- "Best solution attraction" → Social term (gbest attraction)
+- ~~"Light intensity"~~ → **Proper PSO**: Personal + Global best
+
+**Mathematical Foundation:**
+
+PSO Velocity Update:
+
+```
+v(t+1) = w*v(t) + c₁*r₁*(pbest - x(t)) + c₂*r₂*(gbest - x(t))
+```
+
+Where:
+
+- **Inertia term (w\*v)**: Maintains previous movement direction
+- **Cognitive term (c₁·(pbest - x))**: Learns from personal best
+- **Social term (c₂·(gbest - x))**: Learns from swarm best
+
+Inertia Weight Decay (Shi & Eberhart 1998):
+
+```
+w(t) = w_start - (w_start - w_end) × (t / T_max)
+```
+
+**Complexity:**
+
+- Time: O(T × N × n) where T = iterations, N = pop_size
+- Space: O(N × n) for swarm + velocities + personal bests
+- **Faster than SCA**: No sin/cos transcendental function calls
+
+**References:**
+
+> Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization." Proceedings of ICNN'95 - International Conference on Neural Networks.
+
+> Shi, Y., & Eberhart, R. (1998). "A modified particle swarm optimizer." IEEE International Conference on Evolutionary Computation.
+
+> Mirjalili, S. (2016). "SCA: A Sine Cosine Algorithm..." Knowledge-Based Systems. [Note: SCA is PSO without velocity - superseded by this implementation]
 
 ---
 
@@ -1907,7 +2009,41 @@ solver = DistancePSOSolver(
 best_routes, best_profit, best_cost = solver.solve()
 ```
 
-##### Example 3: Memetic Algorithm Island Model (MA-IM)
+##### Example 3: Particle Swarm Optimization (PSO) - Replaces SCA
+
+```python
+from logic.src.policies import PSOSolver, PSOParams
+
+# TRUE PSO with velocity momentum (replaces Sine Cosine Algorithm)
+params = PSOParams(
+    pop_size=30,
+    inertia_weight_start=0.9,  # w(0) - exploration
+    inertia_weight_end=0.4,    # w(T) - exploitation
+    cognitive_coef=2.0,        # c₁ - personal best
+    social_coef=2.0,           # c₂ - global best
+    velocity_max=0.5,          # velocity clamping
+    max_iterations=500
+)
+
+solver = PSOSolver(
+    dist_matrix=distance_matrix,
+    wastes=waste_dict,
+    capacity=100.0,
+    R=1.0,
+    C=1.0,
+    params=params,
+    seed=42
+)
+
+best_routes, best_profit, best_cost = solver.solve()
+
+# Note: This implementation is superior to SCA because:
+# - Velocity momentum (MISSING in SCA)
+# - Personal best tracking (MISSING in SCA)
+# - No expensive sin/cos calls (SCA uses transcendental functions)
+```
+
+##### Example 4: Memetic Algorithm Island Model (MA-IM)
 
 ```python
 from logic.src.policies import MemeticAlgorithmIslandModelSolver, MemeticAlgorithmIslandModelParams
@@ -1937,16 +2073,19 @@ best_routes, best_profit, best_cost = solver.solve()
 
 #### Performance Characteristics
 
-| Algorithm                | Time Complexity   | Space Complexity | Best Use Case                                   |
-| ------------------------ | ----------------- | ---------------- | ----------------------------------------------- |
-| (μ+λ)-ES                 | O(T × λ × n²)     | O((μ+λ) × n)     | Small-medium instances, fast convergence        |
-| Distance-Based PSO       | O(T × N² × n²)    | O(N × n)         | Medium instances, global exploration            |
-| (μ,λ)-ES                 | O(T × λ × n²)     | O((μ+λ) × n)     | Large instances, multi-phase search             |
-| GA-MIM                   | O(T × K × N × LS) | O(K × N × n)     | Large instances, parallel island execution      |
-| HMS                      | O(T × Pop × n²)   | O(Pop × n)       | Hybrid search (ACO+GA+ALNS)                     |
-| Stochastic Tournament GA | O(T × N × k × n²) | O(N × n)         | Medium instances, controlled selection pressure |
-| Continuous Local Search  | O(T × N × n²)     | O(N × n)         | Continuous relaxations, gradient-free           |
-| (μ,κ,λ)-ES               | O(T × λ × d)      | O((μ+λ) × d)     | Age-based elitism control, self-adaptation      |
+| Algorithm                   | Time Complexity   | Space Complexity                   | Best Use Case                                   |
+| --------------------------- | ----------------- | ---------------------------------- | ----------------------------------------------- |
+| (μ+λ)-ES                    | O(T × λ × n²)     | O((μ+λ) × n)                       | Small-medium instances, fast convergence        |
+| Distance-Based PSO          | O(T × N² × n²)    | O(N × n)                           | Medium instances, global exploration            |
+| **PSO (Velocity)**          | **O(T × N × n)**  | **O(N × n + velocities + pbests)** | **Continuous optimization, replaces SCA**       |
+| (μ,λ)-ES                    | O(T × λ × n²)     | O((μ+λ) × n)                       | Large instances, multi-phase search             |
+| GA-MIM                      | O(T × K × N × LS) | O(K × N × n)                       | Large instances, parallel island execution      |
+| HMS                         | O(T × Pop × n²)   | O(Pop × n)                         | Hybrid search (ACO+GA+ALNS)                     |
+| Stochastic Tournament GA    | O(T × N × k × n²) | O(N × n)                           | Medium instances, controlled selection pressure |
+| ~~Continuous Local Search~~ | ~~O(T × N × n²)~~ | ~~O(N × n)~~                       | ~~Deprecated - use PSO instead~~                |
+| (μ,κ,λ)-ES                  | O(T × λ × d)      | O((μ+λ) × d)                       | Age-based elitism control, self-adaptation      |
+
+**Note:** PSO (Velocity) is faster than Distance-Based PSO (O(N) vs O(N²)) and significantly faster than SCA (no transcendental function overhead).
 
 ---
 
@@ -1960,9 +2099,11 @@ The following metaphor-based implementations are now superseded by rigorous alte
 - ❌ `hybrid_volleyball_premier_league/` → Use `hybrid_memetic_search/`
 - ❌ `league_championship_algorithm/` → Use `genetic_algorithm_stochastic_tournament/`
 - ❌ `soccer_league_competition/` → Use `genetic_algorithm_memetic_island_model/`
-- ❌ `sine_cosine_algorithm/` → Use `continuous_local_search/`
+- ❌ **`sine_cosine_algorithm/` → Use `particle_swarm_optimization/`** ⚠️ **NEW**
 
 The original implementations remain for backward compatibility but should not be used for new development.
+
+**Note on SCA:** The Sine Cosine Algorithm is mathematically equivalent to PSO without velocity momentum, but with expensive trigonometric operations (sin/cos) that provide no optimization benefit. The new `particle_swarm_optimization/` implementation includes proper velocity momentum, personal best tracking, and uses simple arithmetic for superior performance.
 
 ---
 
