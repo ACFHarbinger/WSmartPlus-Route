@@ -23,14 +23,12 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .params import MuPlusLambdaESParams
 
 
-class MuPlusLambdaESSolver(PolicyVizMixin):
+class MuPlusLambdaESSolver:
     """
     (μ+λ) Evolution Strategy solver for the Vehicle Routing Problem with Profits.
 
@@ -148,7 +146,7 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
                 best_routes = copy.deepcopy(parents[0])
                 best_cost = self._cost(best_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

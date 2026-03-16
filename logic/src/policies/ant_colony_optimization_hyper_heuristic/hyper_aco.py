@@ -27,8 +27,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from .hyper_operators import (
     HYPER_OPERATORS,
     HyperOperatorContext,
@@ -36,7 +34,7 @@ from .hyper_operators import (
 from .params import HyperACOParams
 
 
-class HyperHeuristicACO(PolicyVizMixin):
+class HyperHeuristicACO:
     """
     Hyper-Heuristic ACO solver.
 
@@ -131,7 +129,7 @@ class HyperHeuristicACO(PolicyVizMixin):
             # Update Success-based Heuristics
             self._update_heuristics()
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_it,
                 best_cost=best_cost,
                 iter_best_cost=iter_best_cost,

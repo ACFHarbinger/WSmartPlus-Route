@@ -22,10 +22,9 @@ from logic.src.policies.other.local_search.local_search_manager import LocalSear
 from logic.src.policies.other.operators.heuristics import build_nn_routes
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import QLearningAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class KSparseACOQLSolver(PolicyVizMixin):
+class KSparseACOQLSolver:
     """
     Enhanced K-Sparse ACO with Q-Learning for local search operator selection.
     """
@@ -254,7 +253,7 @@ class KSparseACOQLSolver(PolicyVizMixin):
             self._global_pheromone_update(best_routes, best_cost)
 
             # Visualization
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

@@ -19,13 +19,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import greedy_insertion
 from .params import GAParams
 
 
-class GASolver(PolicyVizMixin):
+class GASolver:
     """
     Genetic Algorithm solver for VRPP.
     """
@@ -109,7 +107,7 @@ class GASolver(PolicyVizMixin):
                 best_routes = copy.deepcopy(population[gen_best_idx])
                 best_profit = fitnesses[gen_best_idx]
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=gen,
                 best_profit=best_profit,
                 best_cost=self._cost(best_routes),

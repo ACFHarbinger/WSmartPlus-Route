@@ -26,8 +26,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -38,7 +36,7 @@ from ..other.operators import (
 from .params import VNSParams
 
 
-class VNSSolver(PolicyVizMixin):
+class VNSSolver:
     """
     Variable Neighborhood Search solver for VRPP.
     """
@@ -135,7 +133,7 @@ class VNSSolver(PolicyVizMixin):
                 else:
                     k += 1  # No improvement: try next neighborhood
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=self._cost(best_routes),

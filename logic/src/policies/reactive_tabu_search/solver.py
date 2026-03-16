@@ -19,8 +19,6 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -31,7 +29,7 @@ from ..other.operators import (
 from .params import RTSParams
 
 
-class RTSSolver(PolicyVizMixin):
+class RTSSolver:
     """
     Reactive Tabu Search solver for VRPP.
     """
@@ -168,7 +166,7 @@ class RTSSolver(PolicyVizMixin):
 
             hash_history[sol_hash] = iteration
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=self._cost(best_routes),

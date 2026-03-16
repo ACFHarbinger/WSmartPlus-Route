@@ -20,13 +20,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import greedy_insertion
 from .params import MAParams
 
 
-class MASolver(PolicyVizMixin):
+class MASolver:
     """
     Memetic Algorithm solver for the Vehicle Routing Problem with Profits (VRPP).
 
@@ -139,7 +137,7 @@ class MASolver(PolicyVizMixin):
                 best_fitness = current_fitness
 
             # Record metrics for telemetry and visualization.
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=generation,
                 best_profit=best_fitness,
                 best_cost=self._cost(best_individual),

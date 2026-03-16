@@ -42,15 +42,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
 from ..other.operators import greedy_insertion, random_removal
 from .params import HybridMemeticSearchParams
 
 
-class HybridMemeticSearchSolver(PolicyVizMixin):
+class HybridMemeticSearchSolver:
     """
     Hybrid Memetic Search solver for VRPP.
     EXACT COPY of HVPL with rigorous nomenclature.
@@ -195,7 +193,7 @@ class HybridMemeticSearchSolver(PolicyVizMixin):
                 self._update_pheromones(best_routes, best_cost)
 
             # Visualization tracking
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

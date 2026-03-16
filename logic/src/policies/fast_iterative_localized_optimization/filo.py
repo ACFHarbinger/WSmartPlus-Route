@@ -23,10 +23,9 @@ from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate impo
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
 )
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
-class FILOSolver(PolicyVizMixin):
+class FILOSolver:
     """
     Implementation of Fast Iterative Localized Optimization (FILO) for CVRP/VRPP.
 
@@ -260,7 +259,7 @@ class FILOSolver(PolicyVizMixin):
             best_profit = best_revenue - best_cost
 
             # Visualization
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 current_profit=sum(self.wastes.get(n, 0.0) * self.R for r in current_routes for n in r) - current_cost,

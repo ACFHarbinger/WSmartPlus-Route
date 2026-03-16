@@ -30,8 +30,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
@@ -48,7 +46,7 @@ _STATE_ESCAPING = 2
 _N_STATES = 3
 
 
-class HMMGDHHSolver(PolicyVizMixin):
+class HMMGDHHSolver:
     """
     Hidden Markov Model + Great Deluge Hyper-Heuristic solver for VRPP.
 
@@ -245,7 +243,7 @@ class HMMGDHHSolver(PolicyVizMixin):
             # Determine most likely state for viz
             hmm_state = int(np.argmax(self._belief))
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

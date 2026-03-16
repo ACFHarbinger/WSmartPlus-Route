@@ -20,12 +20,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
-
 from .params import SCAParams
 
 
-class SCASolver(PolicyVizMixin):
+class SCASolver:
     """
     Sine Cosine Algorithm solver for VRPP.
     """
@@ -111,7 +109,7 @@ class SCASolver(PolicyVizMixin):
                     best_profit = profits[i]
                     best_cost = self._cost(best_routes)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=t,
                 best_profit=best_profit,
                 best_cost=best_cost,

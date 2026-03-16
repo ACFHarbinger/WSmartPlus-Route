@@ -35,14 +35,13 @@ import numpy as np
 from logic.src.policies.other.reinforcement_learning.alns_sarsa import ALNSSARSASolver
 from logic.src.policies.other.reinforcement_learning.evolution_cmab import CMABEvolution, update_biased_fitness
 from logic.src.policies.other.reinforcement_learning.ks_aco_qlearning import KSparseACOQLSolver
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..hybrid_genetic_search.individual import Individual
 from ..hybrid_genetic_search.split import LinearSplit
 from .params import RLAHVPLParams
 
 
-class RLAHVPLSolver(PolicyVizMixin):
+class RLAHVPLSolver:
     """
     Reinforcement Learning Augmented Hybrid Volleyball Premier League.
 
@@ -376,7 +375,7 @@ class RLAHVPLSolver(PolicyVizMixin):
 
             # Visualization with CMAB stats
             cmab_stats = self.cmab_evolution.get_statistics()
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,

@@ -16,7 +16,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.tracking.viz_mixin import PolicyVizMixin
 from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
@@ -29,7 +28,7 @@ from ..other.operators import (
 from .params import ALNSParams
 
 
-class ALNSSolver(PolicyVizMixin):
+class ALNSSolver:
     """
     Custom implementation of Adaptive Large Neighborhood Search for CVRP.
     """
@@ -203,7 +202,7 @@ class ALNSSolver(PolicyVizMixin):
             self._update_weights(d_idx, r_idx, score)
             T *= self.params.cooling_rate
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_it,
                 d_idx=d_idx,
                 r_idx=r_idx,
