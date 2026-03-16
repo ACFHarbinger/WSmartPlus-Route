@@ -123,6 +123,8 @@ Lin-Kernighan-Helsgaun (LKH) & Helsgaun (2000) & Lin-Kernighan (1973) & Domain-S
 
 Local Search (LS) / Neighborhood Search & Generic (Croes 1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert & Iteratively moves to a strictly improving neighboring solution until a local optimum is reached. & The absolute foundational trajectory-based optimization mechanism. \\ \midrule
 
+Memetic Algorithm (MA) & Moscato et al. (2004) & GA + Local Search & Meta-heuristic (Hybrid) & Population, General & Selection, Crossover, Hill-climbing & Synergistic combination of population-level evolution and individual-level intensive refinement (local improver). & The absolute foundational archetype for modern hybrid meta-heuristics; formalizes the synergy between global search and local optimization. \\ \midrule
+
 Metropolis-Hastings (MH) & Metropolis et al. (1953) & Canonical & Statistical Acceptance & Single-point, General & Random perturbation & Accepts moves based on probability density ratios to sample from a distribution. & The core statistical mechanics foundation from physics that directly birthed SA. \\ \midrule
 
 NeuRewriter & Chen et al. (2019) & LS + RL & NCO: Improvement Heuristic (RL) & Single-point, Combinatorial & MDP rewriting (swap/insert) & Uses an actor-critic RL framework to iteratively refine a solution by selecting rewrite rules. & Directly maps classical trajectory search into an RL framework. \\ \midrule
@@ -144,6 +146,8 @@ Reactive Tabu Search (RTS) & Battiti (1994) & Tabu Search (TS) & Canonical Meta-
 Record-to-Record Travel (RRT) & Dueck (1993) & Local Search / SA & Canonical Acceptance Criterion & Single-point, Combinatorial & Relies on external LS & Deterministically accepts deteriorating solutions if they fall within a defined scalar margin of the global best. & Foundational fixed-margin acceptance rule offering a deterministic, parameter-light alternative to SA. \\ \midrule
 
 Reinforcement Learning B\&B (RL-B\&B) & Sun et al. (2020) & RL + B\&B & NCO: Predict-Many (RL) & Complete Tree, MILP & RL-based variable branching & Interacts with the B\&B tree as an environment to minimize tree size via RL actions. & Rigorous integration of RL into exact mathematical programming spaces. \\ \midrule
+
+Reinforcement Learning Great Deluge Hyper-Heuristic (RL-GD-HH) & Ozcan et al. (2010) & RL + Great Deluge & Hyper-heuristic (Learning) & Single-point, Combinatorial & Heuristic Selection, Level Update & Uses RL to dynamically select low-level heuristics and Great Deluge with a time-based linear level to accept moves. & A robust adaptive framework for managing operator neighborhoods; formally integrates online reinforcement learning with deterministic threshold acceptance. \\ \midrule
 
 Sequence-based Selection Hyper-Heuristic (SS-HH) & Ahmed Kheiri (2014) & Great Deluge (GD) & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & Great Deluge acceptance & Probabilistic SS-HH actively governs the threshold state transitions for the Great Deluge local search. & Legitimate parameter control; applies reinforcement learning to guide an existing thermodynamic heuristic. \\ \midrule
 

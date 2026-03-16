@@ -39,6 +39,7 @@ from .psoma import PSOMAConfig
 from .qde import QDEConfig
 from .rl_ahvpl import RLAHVPLConfig
 from .rl_alns import RLALNSConfig
+from .rl_gd_hh import RLGDHHConfig
 from .rl_hvpl import RLHVPLConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
@@ -70,6 +71,7 @@ __all__ = [
     "NeuralConfig",
     "RLAHVPLConfig",
     "RLALNSConfig",
+    "RLGDHHConfig",
     "RLHVPLConfig",
     "SANSConfig",
     "SISRConfig",
