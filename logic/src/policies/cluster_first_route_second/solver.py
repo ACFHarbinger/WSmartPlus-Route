@@ -8,6 +8,12 @@ This module provides the computational logic for the two-stage routing heuristic
 This approach is particularly efficient for large-scale logistics where global
 optimization is computationally prohibitive, and provides intuitive,
 geometrically-grouped routes.
+
+Reference:
+    Fisher, M. L., & Jaikumar, R. (1981). "A generalized assignment heuristic
+    for vehicle routing". Networks, 11(2), 109-124.
+    Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017). "A Variant Fisher
+    and Jaikuamr Algorithm to Solve Capacitated Vehicle Routing Problem".
 """
 
 import math
