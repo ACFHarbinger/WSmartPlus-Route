@@ -1390,7 +1390,92 @@ best_routes, best_cost = solver.solve()
 
 ---
 
-### 5.9 (μ,κ,λ) Evolution Strategy
+### 5.9 (μ,λ) Evolution Strategy
+
+**Location:** `logic/src/policies/evolution_strategy_mu_comma_lambda/`
+**Adapters:** `policy_es_mcl.py`
+
+A generational (μ,λ) Evolution Strategy that enforces a memoryless state transition. It maintains a parent population of size μ and generates an offspring population of size λ at each iteration.
+
+#### Algorithm
+
+```text
+Algorithm: (μ,λ) Evolution Strategy
+1. Initialize population of μ parent solutions using nearest-neighbor heuristic
+2. For each generation:
+   a. Variation (Offspring Generation):
+      For 1 to λ:
+        i.   Select two parents uniformly at random
+        ii.  Recombination: Extract a random subset of nodes from Parent 2 and remove them from Parent 1
+        iii. Mutation: Destroy a fraction of the remaining nodes (n_removal)
+        iv.  Repair: Greedily reinsert destroyed and extracted nodes
+        v.   Education: Optimize repaired solution using ACO Local Search
+   b. Evaluation: Calculate net profit for all λ offspring
+   c. Selection (Generational): Sort the λ offspring descending by fitness
+   d. Select the top μ offspring to become the new parents. The previous μ parents are entirely discarded.
+3. Return the global best solution
+```
+
+#### Key Features
+
+- **Strict Generational Transition**: Unlike (μ+λ)-ES, the selection operator perfectly enforces the Markov property. The previous parents are discarded completely rather than competing against offspring, helping the algorithm escape local optima.
+- **Truncation Selection**: Deterministically selects the top μ individuals purely from the λ generated offspring.
+- **Robust Neighborhood Exploration**: Uses discrete variable neighborhood structures (random removal, greedy insertion) integrated tightly with robust ACO Local search.
+
+#### Mathematical Formulation
+
+**Selection Operator:**
+
+$$
+P_{t+1} = \text{Top}_{\mu}(O_t)
+$$
+
+where:
+
+- $O_t$ is the offspring pool of size $\lambda$ generated at generation $t$.
+- $\text{Top}_{\mu}$ selects the $\mu$ best individuals based on fitness.
+
+**Key Parameters:**
+
+- `mu` (μ): Number of parent individuals.
+- `lambda_` (λ): Number of offspring generated per generation (must be $\ge \mu$).
+- `n_removal`: Mutation strength for discrete destruction operators.
+- `local_search_iterations`: Number of inter-route and intra-route improvements applied to each newly repaired offspring.
+
+**Complexity:**
+
+- Time: $O(T \times \lambda \times n^2)$ where $T$ is the number of iterations and $n^2$ bounds the continuous local search phase.
+- Space: $O((\mu + \lambda) \times n)$ to track pop and offspring buffers.
+
+#### Usage Example
+
+```python
+from logic.src.policies.evolution_strategy_mu_comma_lambda import MuCommaLambdaESSolver, MuCommaLambdaESParams
+
+params = MuCommaLambdaESParams(
+    mu=10,                      # Number of parents
+    lambda_=40,                 # Number of offspring (λ > μ)
+    n_removal=3,                # Discrete mutation strength
+    local_search_iterations=20, # Optimization power on offspring
+    max_iterations=100
+)
+
+solver = MuCommaLambdaESSolver(
+    dist_matrix=distance_matrix,
+    wastes=waste_dict,
+    capacity=100.0,
+    R=1.0,
+    C=1.0,
+    params=params,
+    seed=42
+)
+
+best_routes, best_profit, best_cost = solver.solve()
+```
+
+---
+
+### 5.10 (μ,κ,λ) Evolution Strategy
 
 **Location:** `logic/src/policies/evolution_strategy_mu_kappa_lambda/`
 **Adapters**: `policy_es_mkl.py`
@@ -1521,7 +1606,7 @@ print(f"Best fitness: {best_fitness:.6e}")
 
 1. Emmerich, M., Shir, O. M., & Wang, H. (2015). "Evolution Strategies." In: Handbook of Natural Computing, Springer.
 
-### 5.10 Rigorous Meta-Heuristic Implementations
+### 5.11 Rigorous Meta-Heuristic Implementations
 
 This section describes the mathematically rigorous implementations that replace metaphor-based algorithms in the WSmart+ Route codebase.
 
@@ -1537,7 +1622,7 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 | --------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**       | Population-based search with recombination and mutation                                                           |
 | Firefly Algorithm (FA)                  | **PSO Distance-Based Algorithm (PSODA)**      | Particle swarm with distance-based update                                                                         |
-| Artificial Bee Colony (ABC)             |                                               |                                                                                                                   |
+| Artificial Bee Colony (ABC)             | **Differential Evolution (DE)**               | Isomorphic to DE mutation and proportional selection                                                              |
 | Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search.                                                  |
 | Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.                                                              |
 | Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).                                                          |
@@ -1556,37 +1641,46 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 **Algorithm:**
 
-```
-
-1. Initialize population of μ solutions
-2. For each iteration:
-   a. Generate λ offspring:
-   i. Select parent via fitness-proportional selection
-   ii. Create offspring via recombination (using archive solutions)
-   iii. Apply mutation operator (local perturbation)
-   b. Combine parents (μ) and offspring (λ) into population of (μ+λ)
-   c. Select best μ individuals to survive (elitist selection)
-
+```text
+Algorithm: (μ+λ) Evolution Strategy
+1. Initialize population of μ parent solutions using nearest-neighbor heuristic
+2. For each generation:
+   a. Variation (Offspring Generation):
+      For 1 to λ:
+        i.   Select two parents uniformly at random
+        ii.  Recombination: Extract a random subset of nodes from Parent 2 and remove them from Parent 1
+        iii. Mutation: Destroy a fraction of the remaining nodes (n_removal)
+        iv.  Repair: Greedily reinsert destroyed and extracted nodes
+        v.   Education: Optimize repaired solution using ACO Local Search
+   b. Evaluation: Calculate net profit for all λ offspring
+   c. Selection (Elitist): Combine the μ parents and λ offspring into a single pool (size μ+λ)
+   d. Sort combined pool descending by fitness
+   e. Select the top μ individuals to survive into the next generation
+3. Return the global best solution
 ```
 
 **Key Parameters:**
 
-- `population_size` (μ): Number of parent solutions
-- `offspring_size` (λ): Number of offspring generated per iteration
-- `recombination_rate`: Probability of using archive (was "HMCR")
-- `mutation_rate`: Probability of local mutation (was "PAR")
+- `population_size` (μ): Number of parent solutions.
+- `offspring_size` (λ): Number of offspring generated per iteration.
+- `n_removal`: Mutation strength for discrete destruction operators.
+- `local_search_iterations`: Iterations for ACO local search during mutation/repair.
 
-**Terminology Mapping:**
+**Why it replaces Harmony Search (HS):**
+
+Harmony search relies on a "Harmony Memory" which is mathematically equivalent to a population archive, and "improvisations" which map perfectly to offspring generations.
+
+**Terminology Mapping (HS → (μ+λ) ES):**
 
 - "Harmony Memory" → Population/Archive
 - "Improvisation" → Offspring generation
-- "HMCR" → Recombination rate
-- "Pitch Adjustment" → Mutation operator
+- "HMCR (Memory Consideration Rate)" → Recombination rate
+- "Pitch Adjustment" → Mutation operator (Destroy/Repair + Local Search)
 
 **Complexity:**
 
-- Time: O(T × λ × (n + n²)) where T = iterations
-- Space: O((μ + λ) × n)
+- Time: O(T × λ × (n + n²)) where T = iterations and n² bounds the local search
+- Space: O((μ + λ) × n) to store the populations
 
 **Reference:**
 
@@ -1603,47 +1697,211 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 **Algorithm:**
 
 ```
+TRUE PSO with distance-based attraction and velocity momentum:
 
-1. Initialize swarm of particles (solutions)
+1. Initialize swarm of particles (solutions) with velocities
 2. For each iteration:
-   a. For each particle pair (i, j where fitness[j] > fitness[i]):
-   - Compute Hamming distance d between solutions
-   - With probability β(d) = β₀ × exp(-γ × d²), move particle i toward j
-     b. With probability α, apply random walk exploration
-     c. Update global best solution
+   a. For each particle i:
+      - Update velocity using PSO equation with distance-based attraction:
+        v_i(t+1) = w(t) × v_i(t) + c₁ × r₁ × (pbest_i - x_i) + c₂ × β(d) × (gbest - x_i)
+        where β(d) = β₀ × exp(-γ × d²) is distance-dependent social coefficient
+      - Update position: x_i(t+1) = x_i(t) + v_i(t+1)
+      - Evaluate fitness f(x_i(t+1))
+      - Update personal best if f(x_i(t+1)) > f(pbest_i)
+   b. Update global best from all personal bests
+   c. Linearly decrease inertia weight w(t)
 
+Discrete Adaptation:
+- Velocity represented as set of nodes
+- Distance-based attraction uses Hamming distance between solutions
+- Destroy-repair operators for position updates
 ```
 
 **Key Parameters:**
 
-- `initial_attraction` (β₀): Global best attraction coefficient
-- `distance_decay` (γ): Exponential decay for distance-based attraction
-- `exploration_rate` (α): Random walk probability
+- `inertia_weight_start` (w₀): Initial inertia for exploration (0.9)
+- `inertia_weight_end` (w_T): Final inertia for exploitation (0.4)
+- `cognitive_coef` (c₁): Personal best attraction coefficient (2.0)
+- `social_coef` (c₂): Global best base attraction coefficient (2.0)
+- `initial_attraction` (β₀): Distance-based attraction scaling (1.0)
+- `distance_decay` (γ): Exponential decay rate (0.01)
 
-**Terminology Mapping:**
+**Why PSO-DA Replaces Firefly Algorithm:**
 
-- "Fireflies" → Particles
-- "Light intensity" → Objective function value (fitness)
-- "Attractiveness" → Distance-weighted attraction weight
-- "Random walk" → Exploration operator
+The Firefly Algorithm (FA) obscures PSO mechanics with "light intensity" metaphor:
+
+```
+FA Update: x_i = x_i + β₀ × exp(-γ × d²) × (x_j - x_i) + α × random_walk
+PSO-DA:    v_i = w × v_i + c₁ × r₁ × (pbest - x_i) + c₂ × β(d) × (gbest - x_i)
+```
+
+**PSO-DA Improvements over FA:**
+
+1. ✓ **Velocity momentum** (inertia term w×v) - MISSING in FA
+2. ✓ **Personal best tracking** (cognitive term) - MISSING in FA
+3. ✓ **Distance-based social attraction** - Same as FA's β(d), but explicit
+4. ✓ **Linearly decreasing inertia** - Exploration → exploitation
+5. ✓ **Proper PSO foundation** - 30+ years of theory vs firefly metaphor
+
+**Terminology Mapping (FA → PSO-DA):**
+
+- "Fireflies" → Particles with velocity and personal best
+- "Light intensity" → Fitness value
+- "Attractiveness β(d)" → Distance-dependent social coefficient
+- "Random walk" → Exploration via velocity momentum
 
 **Mathematical Foundation:**
 
-- Attraction weight: β(d) = β₀ × exp(-γ × d²)
-- Hamming distance: d = |edges(A) ⊕ edges(B)|
+PSO-DA Velocity Update:
+
+```
+v_i(t+1) = w(t) × v_i(t) + c₁ × r₁ × (pbest_i - x_i) + c₂ × β(d_ij) × (x_j - x_i)
+```
+
+Where:
+- **Inertia term (w×v)**: Maintains previous movement direction
+- **Cognitive term (c₁·(pbest - x))**: Learns from personal best
+- **Social term (c₂·β(d)·(gbest - x))**: Learns from swarm best with distance weighting
+
+Distance-Dependent Attraction:
+
+```
+β(d_ij) = β₀ × exp(-γ × d²)
+d = Hamming distance between solutions i and j
+```
+
+Inertia Weight Decay:
+
+```
+w(t) = w_start - (w_start - w_end) × (t / T_max)
+```
 
 **Complexity:**
 
-- Time: O(T × N² × n²) where N = population size
-- Space: O(N × n)
+- Time: O(T × N² × n²) where T = iterations, N = swarm size
+  - N² from pairwise distance calculations
+  - n² from Hamming distance computation
+- Space: O(N × n) for swarm + velocities + personal bests
 
 **Reference:**
 
-> Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization." Proceedings of ICNN'95.
+> Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization." Proceedings of ICNN'95 - International Conference on Neural Networks.
+
+> Yang, X.-S. (2008). "Nature-Inspired Metaheuristic Algorithms." Luniver Press. [Note: Firefly Algorithm is PSO with distance-based attraction but without velocity momentum - superseded by this implementation]
 
 ---
 
-##### 3. TBA
+##### 3. Differential Evolution (DE)
+
+**Replaces:** Artificial Bee Colony (ABC)
+
+**Location:** `logic/src/policies/differential_evolution/`
+
+**Algorithm:**
+
+```
+TRUE DIFFERENTIAL EVOLUTION with greedy selection (Storn & Price 1997):
+
+1. Initialize population of NP solution vectors
+2. For each generation:
+   a. For each target vector x_i:
+      - Mutation: Create mutant v_i = x_r1 + F × (x_r2 - x_r3)
+        where r1, r2, r3 are distinct random indices ≠ i
+      - Crossover: Create trial u_i by binomial crossover:
+        u_ij = v_ij  if rand() < CR or j = j_rand
+               x_ij  otherwise
+      - Selection: Greedy replacement:
+        x_i(t+1) = u_i  if f(u_i) ≥ f(x_i)
+                   x_i  otherwise
+   b. Track global best solution
+
+Discrete Adaptation:
+- Differential mutation via set operations on node sets
+- Destroy-repair operators for discrete routing space
+- Local search applied to trial vectors (memetic DE)
+```
+
+**Key Parameters:**
+
+- `pop_size` (NP): Population size (50)
+- `mutation_factor` (F): Differential weight ∈ [0, 2] (0.8)
+  - Controls amplification of differential variation (x_r2 - x_r3)
+- `crossover_rate` (CR): Crossover probability ∈ [0, 1] (0.9)
+  - Controls inheritance from mutant vs. target vector
+- `n_removal`: Mutation strength for discrete operators (3)
+
+**Why DE Replaces ABC:**
+
+The Artificial Bee Colony is mathematically isomorphic to Differential Evolution with fitness-proportionate selection:
+
+```
+ABC Employed: v = x_i + φ(x_i - x_k)  [peer-based perturbation]
+DE Mutation:  v = x_r1 + F × (x_r2 - x_r3)  [differential mutation]
+
+ABC Onlooker: Roulette-wheel selection (fitness-proportionate)
+DE Selection: Greedy one-to-one replacement
+
+ABC Scout: Abandon sources if trials > limit
+DE: No abandonment (differential mutation provides diversity)
+```
+
+**ABC's Flaws:**
+
+1. Fitness-proportionate selection is slower than greedy selection
+2. Three agent types (employed/onlooker/scout) are unnecessary abstractions
+3. Trial counter and limit parameter add complexity without benefit
+4. "Food source" metaphor obscures actual DE mechanics
+5. Often requires canonical GA crossover injections for discrete spaces
+
+**DE's Advantages:**
+
+1. ✓ Greedy selection is faster and more effective
+2. ✓ Explicit crossover operator (CR parameter) controls exploration
+3. ✓ Single population - no metaphorical agent types
+4. ✓ Simpler algorithm with proven convergence properties
+5. ✓ 25+ years of theoretical foundation vs bee foraging metaphor
+
+**Terminology Mapping (ABC → DE):**
+
+- "Employed bee exploiting food source" → Target vector update via mutation+crossover
+- "Onlooker bee probabilistic selection" → Greedy one-to-one selection
+- "Scout bee abandonment" → Differential mutation (no explicit abandonment)
+- ~~"Food source quality"~~ → **Proper DE**: Fitness for greedy selection
+
+**Mathematical Foundation:**
+
+DE/rand/1/bin Strategy:
+
+```
+Mutation (rand/1):
+v_i = x_r1 + F × (x_r2 - x_r3)
+
+Crossover (bin - binomial):
+u_ij = v_ij  if rand() < CR or j = j_rand
+       x_ij  otherwise
+
+Selection (greedy):
+x_i(t+1) = u_i  if f(u_i) ≥ f(x_i)
+           x_i  otherwise
+```
+
+Where:
+
+- **Mutation**: Differential variation scaled by F
+- **Crossover**: Binomial inheritance from mutant vs. target
+- **Selection**: Deterministic greedy replacement (not probabilistic)
+
+**Complexity:**
+
+- Time: O(G × NP × n²) where G = generations, NP = pop_size
+- Space: O(NP × n) to store population
+- **Faster than ABC**: No fitness-proportionate selection overhead
+
+**References:**
+
+> Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and Efficient Heuristic for Global Optimization over Continuous Spaces." Journal of Global Optimization, 11(4), 341-359.
+
+> Karaboga, D. (2005). "An idea based on honey bee swarm for numerical optimization." Technical Report TR06, Erciyes University. [Note: ABC is DE with fitness-proportionate selection - superseded by this implementation]
 
 ##### 4. Genetic Algorithm Memetic Island Model (GA-MIM)
 
@@ -2043,7 +2301,41 @@ best_routes, best_profit, best_cost = solver.solve()
 # - No expensive sin/cos calls (SCA uses transcendental functions)
 ```
 
-##### Example 4: Memetic Algorithm Island Model (MA-IM)
+##### Example 4: Differential Evolution (DE/rand/1/bin) - Replaces ABC
+
+```python
+from logic.src.policies import DESolver, DEParams
+
+# TRUE DE with differential mutation and binomial crossover (replaces ABC)
+params = DEParams(
+    pop_size=50,             # NP - population size
+    mutation_factor=0.8,     # F - differential weight
+    crossover_rate=0.9,      # CR - crossover probability
+    n_removal=3,             # mutation strength for discrete operators
+    max_iterations=500,
+    local_search_iterations=100
+)
+
+solver = DESolver(
+    dist_matrix=distance_matrix,
+    wastes=waste_dict,
+    capacity=100.0,
+    R=1.0,
+    C=1.0,
+    params=params,
+    seed=42
+)
+
+best_routes, best_profit, best_cost = solver.solve()
+
+# Note: This implementation is superior to ABC because:
+# - Greedy selection (FASTER than ABC's fitness-proportionate)
+# - Explicit crossover with CR parameter (MISSING in ABC)
+# - No metaphorical agent types (employed/onlooker/scout)
+# - Simpler algorithm with proven convergence properties
+```
+
+##### Example 5: Memetic Algorithm Island Model (MA-IM)
 
 ```python
 from logic.src.policies import MemeticAlgorithmIslandModelSolver, MemeticAlgorithmIslandModelParams
@@ -2073,17 +2365,15 @@ best_routes, best_profit, best_cost = solver.solve()
 
 #### Performance Characteristics
 
-| Algorithm                   | Time Complexity   | Space Complexity                   | Best Use Case                                   |
-| --------------------------- | ----------------- | ---------------------------------- | ----------------------------------------------- |
-| (μ+λ)-ES                    | O(T × λ × n²)     | O((μ+λ) × n)                       | Small-medium instances, fast convergence        |
-| Distance-Based PSO          | O(T × N² × n²)    | O(N × n)                           | Medium instances, global exploration            |
-| **PSO (Velocity)**          | **O(T × N × n)**  | **O(N × n + velocities + pbests)** | **Continuous optimization, replaces SCA**       |
-| (μ,λ)-ES                    | O(T × λ × n²)     | O((μ+λ) × n)                       | Large instances, multi-phase search             |
-| GA-MIM                      | O(T × K × N × LS) | O(K × N × n)                       | Large instances, parallel island execution      |
-| HMS                         | O(T × Pop × n²)   | O(Pop × n)                         | Hybrid search (ACO+GA+ALNS)                     |
-| Stochastic Tournament GA    | O(T × N × k × n²) | O(N × n)                           | Medium instances, controlled selection pressure |
-| ~~Continuous Local Search~~ | ~~O(T × N × n²)~~ | ~~O(N × n)~~                       | ~~Deprecated - use PSO instead~~                |
-| (μ,κ,λ)-ES                  | O(T × λ × d)      | O((μ+λ) × d)                       | Age-based elitism control, self-adaptation      |
+| Algorithm                | Time Complexity   | Space Complexity               | Best Use Case                                   |
+| ------------------------ | ----------------- | ------------------------------ | ----------------------------------------------- |
+| (μ+λ)-ES                 | O(T × λ × n²)     | O((μ+λ) × n)                   | Small-medium instances, fast convergence        |
+| Distance-Based PSO       | O(T × N² × n²)    | O(N × n)                       | Medium instances, global exploration            |
+| PSO (Velocity)           | O(T × N × n)      | O(N × n + velocities + pbests) | Continuous optimization, replaces SCA           |
+| DE                       | O(G × NP × n²)    | O(NP × n)                      | Global optimization, replaces ABC               |
+| GA-MIM                   | O(T × K × N × LS) | O(K × N × n)                   | Large instances, parallel island execution      |
+| HMS                      | O(T × Pop × n²)   | O(Pop × n)                     | Hybrid search (ACO+GA+ALNS)                     |
+| Stochastic Tournament GA | O(T × N × k × n²) | O(N × n)                       | Medium instances, controlled selection pressure |
 
 **Note:** PSO (Velocity) is faster than Distance-Based PSO (O(N) vs O(N²)) and significantly faster than SCA (no transcendental function overhead).
 
@@ -2095,15 +2385,17 @@ The following metaphor-based implementations are now superseded by rigorous alte
 
 - ❌ `harmony_search/` → Use `evolution_strategy_mu_plus_lambda/`
 - ❌ `firefly_algorithm/` → Use `particle_swarm_optimization_distance/`
-- ❌ `artificial_bee_colony/` → Use `evolution_strategy_mu_comma_lambda/`
+- ❌ `artificial_bee_colony/` → Use `differential_evolution/`
 - ❌ `hybrid_volleyball_premier_league/` → Use `hybrid_memetic_search/`
 - ❌ `league_championship_algorithm/` → Use `genetic_algorithm_stochastic_tournament/`
 - ❌ `soccer_league_competition/` → Use `genetic_algorithm_memetic_island_model/`
-- ❌ **`sine_cosine_algorithm/` → Use `particle_swarm_optimization/`** ⚠️ **NEW**
+- ❌ `sine_cosine_algorithm/` → Use `particle_swarm_optimization/`
 
 The original implementations remain for backward compatibility but should not be used for new development.
 
 **Note on SCA:** The Sine Cosine Algorithm is mathematically equivalent to PSO without velocity momentum, but with expensive trigonometric operations (sin/cos) that provide no optimization benefit. The new `particle_swarm_optimization/` implementation includes proper velocity momentum, personal best tracking, and uses simple arithmetic for superior performance.
+
+**Note on ABC:** The Artificial Bee Colony is mathematically isomorphic to Differential Evolution (DE) with fitness-proportionate selection instead of greedy selection, but with unnecessary "bee foraging" metaphor (employed/onlooker/scout bees). The new `differential_evolution/` implementation uses proper DE/rand/1/bin mechanics with greedy selection, explicit crossover parameter (CR), and simpler algorithm structure for superior performance.
 
 ---
 
