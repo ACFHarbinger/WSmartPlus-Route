@@ -61,6 +61,7 @@ class PolicyFactory:
         import logic.src.policies.knowledge_guided_local_search.policy_kgls as policy_kgls  # noqa
         import logic.src.policies.late_acceptance_hill_climbing.policy_lahc as policy_lahc  # noqa
         import logic.src.policies.league_championship_algorithm.policy_lca as policy_lca  # noqa
+        import logic.src.policies.memetic_algorithm.policy_ma as policy_ma  # noqa
         import logic.src.policies.memetic_algorithm_dual_population.policy_ma_dp as policy_ma_dp  # noqa
         import logic.src.policies.memetic_algorithm_island_model.policy_ma_im as policy_ma_im  # noqa
         import logic.src.policies.memetic_algorithm_tolerance_based_selection.policy_ma_ts as policy_ma_ts  # noqa
