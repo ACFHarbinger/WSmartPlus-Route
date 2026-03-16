@@ -50,6 +50,7 @@ from .pso import PSOConfig
 from .psoda import DistancePSOConfig
 from .psoma import PSOMAConfig
 from .qde import QDEConfig
+from .rens import RENSConfig
 from .rl_ahvpl import RLAHVPLConfig
 from .rl_alns import RLALNSConfig
 from .rl_gd_hh import RLGDHHConfig
@@ -133,6 +134,7 @@ __all__ = [
     "SAConfig",
     "LAHCConfig",
     "OBAConfig",
+    "RENSConfig",
     "RRTConfig",
     "GAConfig",
     "DEConfig",
