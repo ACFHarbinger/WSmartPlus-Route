@@ -10,12 +10,12 @@ Rigorous Implementations (Metaphor-Free):
     canonical mathematical foundations:
     - MuPlusLambdaESSolver: (μ+λ) Evolution Strategy (replaces Harmony Search)
     - DistancePSOSolver: Distance-Based PSO (replaces Firefly Algorithm)
-    - MuCommaLambdaESSolver: (μ,λ) Evolution Strategy (replaces Artificial Bee Colony)
+    - DifferentialEvolutionSolver: Differential Evolution (replaces Artificial Bee Colony)
     - HybridMemeticSearchSolver: Hybrid Memetic Search (replaces HMS/HVPL)
     - MemeticAlgorithmIslandModelSolver: Memetic Algorithm with Island Model (replaces MA-IM/SLC)
     - MemeticAlgorithmToleranceBasedSolver: Memetic Algorithm with Tolerance-Based Selection (replaces MA-TB/LCA)
     - MemeticAlgorithmDualPopulationSolver: Memetic Algorithm with Dual Population (replaces MA-DP/VPL)
-    - ContinuousLocalSearchSolver: Continuous Local Search (replaces Sine Cosine Algorithm)
+    - ParticleSwarmOptimizationSolver: Canonical PSO (replaces Sine Cosine Algorithm)
 
 Attributes:
     ALNSParams (class): Parameters for ALNS.
@@ -34,7 +34,6 @@ from .adaptive_large_neighborhood_search.params import ALNSParams
 from .adaptive_large_neighborhood_search.policy_alns import run_alns
 from .base import IPolicy, PolicyFactory, PolicyRegistry
 from .capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from .continuous_local_search.solver import ContinuousLocalSearchParams, ContinuousLocalSearchSolver
 from .evolution_strategy_mu_comma_lambda.solver import MuCommaLambdaESParams, MuCommaLambdaESSolver
 from .evolution_strategy_mu_plus_lambda.solver import MuPlusLambdaESParams, MuPlusLambdaESSolver
 from .guided_indicators_hyper_heuristic.policy_gihh import run_gihh
@@ -79,6 +78,4 @@ __all__ = [
     "MemeticAlgorithmToleranceBasedParams",
     "MemeticAlgorithmDualPopulationSolver",
     "MemeticAlgorithmDualPopulationParams",
-    "ContinuousLocalSearchSolver",
-    "ContinuousLocalSearchParams",
 ]

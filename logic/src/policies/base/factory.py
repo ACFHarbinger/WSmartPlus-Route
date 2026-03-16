@@ -34,10 +34,8 @@ class PolicyFactory:
         import logic.src.policies.ant_colony_optimization.policy_ks_aco as policy_ks_aco  # noqa
         import logic.src.policies.artificial_bee_colony.policy_abc as policy_abc  # noqa
         import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl  # noqa
-
-        # import logic.src.policies.branch_cut_and_price.policy_bcp as policy_bcp  # noqa
+        import logic.src.policies.branch_price_cut.policy_bpc as policy_bpc  # noqa
         import logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp as policy_cvrp  # noqa
-        import logic.src.policies.continuous_local_search.policy_cls as policy_cls  # noqa
         import logic.src.policies.evolution_strategy_mu_comma_lambda.policy_es_mcl as policy_es_mcl  # noqa
         import logic.src.policies.evolution_strategy_mu_kappa_lambda.policy_es_mkl as policy_es_mkl  # noqa
         import logic.src.policies.evolution_strategy_mu_plus_lambda.policy_es_mpl as policy_es_mpl  # noqa
@@ -60,11 +58,13 @@ class PolicyFactory:
         import logic.src.policies.hybrid_volleyball_premier_league.policy_hvpl as policy_hvpl  # noqa
         import logic.src.policies.hyper_heuristic_us_lk.policy_hulk as policy_hulk  # noqa
         import logic.src.policies.iterated_local_search.policy_ils as policy_ils  # noqa
+        import logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp as policy_ils_rvnd_sp  # noqa
         import logic.src.policies.knowledge_guided_local_search.policy_kgls as policy_kgls  # noqa
         import logic.src.policies.late_acceptance_hill_climbing.policy_lahc as policy_lahc  # noqa
         import logic.src.policies.league_championship_algorithm.policy_lca as policy_lca  # noqa
         import logic.src.policies.neural_agent.policy_neural as neural_agent  # noqa
         import logic.src.policies.old_bachelor_acceptance.policy_oba as policy_oba  # noqa
+        import logic.src.policies.particle_swarm_optimization.policy_pso as policy_pso  # noqa
         import logic.src.policies.particle_swarm_optimization_distance.policy_psoda as policy_psoda  # noqa
         import logic.src.policies.particle_swarm_optimization_memetic.policy_psoma as policy_psoma  # noqa
         import logic.src.policies.quantum_differential_evolution.policy_qde as policy_qde  # noqa

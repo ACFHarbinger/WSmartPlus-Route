@@ -1,32 +1,38 @@
 """
-Distance-Based Particle Swarm Optimization for VRPP.
+Particle Swarm Optimization with Velocity Momentum for VRPP.
 
-Standard PSO where attraction to the global best solution decays exponentially
-with solution distance. Replaces the metaphor-based "Firefly Algorithm":
-- "Fireflies" → Particles
-- "Light intensity" → Objective function value (fitness)
-- "Attractiveness" → Distance-weighted attraction to global best
-- "Random walk" → Exploration operator
+**TRUE PSO IMPLEMENTATION** with inertia-weighted velocity updates.
+This replaces the deceptive "Firefly Algorithm" which lacked velocity momentum.
 
-Algorithm:
-    1. Initialize swarm of particles (solutions)
+Core PSO Algorithm (Kennedy & Eberhart 1995, Ai & Kachitvichyanukul 2009):
+    1. Initialize swarm of particles (solutions) with random velocities
     2. For each iteration:
-        a. For each particle pair (i, j where fitness[j] > fitness[i]):
-            - Compute Hamming distance d between solutions
-            - With probability β(d) = β₀ × exp(-γ × d²), move particle i toward j
-        b. With probability α, apply random walk exploration
-        c. Update global best solution
+        a. For each particle i:
+            - Update velocity: v(t+1) = w*v(t) + c₁*r₁*(pbest - x(t)) + c₂*r₂*(gbest - x(t))
+            - Update position: x(t+1) = x(t) + v(t+1)
+            - Evaluate fitness f(x(t+1))
+            - Update personal best if f(x(t+1)) > f(pbest_i)
+        b. Update global best from all personal bests
+        c. Decrease inertia weight w linearly
+
+Velocity in Discrete Space (Ai & Kachitvichyanukul 2009):
+    - Velocity magnitude → mutation strength
+    - Cognitive term (pbest - x) → reintroduce nodes from personal best
+    - Social term (gbest - x) → reintroduce nodes from global best
+    - Inertia term w*v → preserve previous move direction
 
 Complexity:
-    - Time: O(T × N² × n²) where T = iterations, N = pop_size, n = nodes
-    - Space: O(N × n) for swarm storage
-    - Distance computation: O(n) per pair (edge set symmetric difference)
+    - Time: O(T × N × n²) where T = iterations, N = pop_size, n = nodes
+    - Space: O(N × n) for swarm + velocities + personal bests
+    - Velocity update: O(n) per particle (node set differences)
 
-Reference:
+References:
     Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
     Proceedings of ICNN'95 - International Conference on Neural Networks.
+
     Ai, T. J., & Kachitvichyanukul, V. (2009). "A particle swarm optimization
-    for the vehicle routing problem with simultaneous pickup and delivery"
+    for the vehicle routing problem with simultaneous pickup and delivery."
+    Computers & Operations Research, 36(6), 1693-1702.
 """
 
 import contextlib
@@ -45,10 +51,13 @@ from .params import DistancePSOParams
 
 class DistancePSOSolver(PolicyVizMixin):
     """
-    Distance-Based Particle Swarm Optimization solver for VRPP.
+    Particle Swarm Optimization solver with velocity momentum for VRPP.
 
-    Each particle represents a routing solution. Particles are attracted
-    to better solutions with strength decaying exponentially by Hamming distance.
+    **TRUE PSO** with inertia-weighted velocity updates (Kennedy & Eberhart 1995).
+    Each particle maintains:
+    - Current position x(t): routing solution
+    - Velocity v(t): tendency to change solution (represented as node sets)
+    - Personal best pbest: best solution this particle has found
     """
 
     def __init__(
@@ -63,7 +72,7 @@ class DistancePSOSolver(PolicyVizMixin):
         seed: Optional[int] = None,
     ):
         """
-        Initialize the Distance-Based PSO solver.
+        Initialize the PSO solver with velocity momentum.
 
         Args:
             dist_matrix: Distance matrix [n+1 × n+1] including depot at index 0.
@@ -86,6 +95,11 @@ class DistancePSOSolver(PolicyVizMixin):
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
 
+        # PSO State: Velocities and Personal Bests
+        self.velocities: List[Set[int]] = []  # Velocity as set of nodes to add/remove
+        self.personal_bests: List[List[List[int]]] = []  # pbest for each particle
+        self.personal_best_fitness: List[float] = []  # f(pbest) for each particle
+
         # Initialize Local Search once for reuse
         from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
         from ..other.local_search.local_search_aco import ACOLocalSearch
@@ -103,7 +117,12 @@ class DistancePSOSolver(PolicyVizMixin):
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Execute Distance-Based Particle Swarm Optimization.
+        Execute Particle Swarm Optimization with velocity momentum.
+
+        Implements standard PSO algorithm (Kennedy & Eberhart 1995):
+        1. Initialize swarm with random positions and velocities
+        2. Iteratively update velocities and positions
+        3. Track personal and global bests
 
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
@@ -113,58 +132,60 @@ class DistancePSOSolver(PolicyVizMixin):
 
         start = time.process_time()
 
-        # Initialize swarm (particle population)
+        # Initialize swarm (particle positions)
         swarm = [self._initialize_particle() for _ in range(self.params.population_size)]
         fitness_values = [self._evaluate(particle) for particle in swarm]
 
-        # Track global best
+        # Initialize velocities (empty sets = no movement initially)
+        self.velocities = [set() for _ in range(self.params.population_size)]
+
+        # Initialize personal bests (pbest)
+        self.personal_bests = [copy.deepcopy(particle) for particle in swarm]
+        self.personal_best_fitness = list(fitness_values)
+
+        # Track global best (gbest)
         best_idx = int(np.argmax(fitness_values))
         best_routes = copy.deepcopy(swarm[best_idx])
         best_profit = fitness_values[best_idx]
         best_cost = self._cost(best_routes)
 
-        # PSO main loop
+        # PSO main loop with velocity momentum
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Pairwise attraction: Each particle moves toward better particles
+            # Compute dynamic inertia weight (linearly decreasing)
+            inertia_weight = self.params.get_inertia_weight(iteration)
+
+            # Update each particle using PSO velocity equation
             for i in range(self.params.population_size):
-                moved = False
+                # Update velocity: v(t+1) = w*v(t) + c₁*r₁*(pbest - x) + c₂*r₂*(gbest - x)
+                new_velocity = self._update_velocity(
+                    current_position=swarm[i],
+                    current_velocity=self.velocities[i],
+                    personal_best=self.personal_bests[i],
+                    global_best=best_routes,
+                    inertia_weight=inertia_weight,
+                )
+                self.velocities[i] = new_velocity
 
-                for j in range(self.params.population_size):
-                    if fitness_values[j] <= fitness_values[i]:
-                        continue
+                # Update position: x(t+1) = x(t) + v(t+1)
+                new_position = self._apply_velocity(swarm[i], new_velocity)
+                new_fitness = self._evaluate(new_position)
 
-                    # Compute Hamming distance between particles
-                    hamming_distance = self._hamming_distance(swarm[i], swarm[j])
+                # Accept new position
+                swarm[i] = new_position
+                fitness_values[i] = new_fitness
 
-                    # Distance-dependent attraction weight
-                    attraction_weight = self.params.initial_attraction * np.exp(
-                        -self.params.distance_decay * hamming_distance * hamming_distance
-                    )
+                # Update personal best if improved
+                if new_fitness > self.personal_best_fitness[i]:
+                    self.personal_bests[i] = copy.deepcopy(new_position)
+                    self.personal_best_fitness[i] = new_fitness
 
-                    # Probabilistically move toward better particle
-                    if self.random.random() < attraction_weight:
-                        new_particle = self._attract_toward(swarm[i], swarm[j])
-                        new_fitness = self._evaluate(new_particle)
-                        if new_fitness > fitness_values[i]:
-                            swarm[i] = new_particle
-                            fitness_values[i] = new_fitness
-                            moved = True
-
-                # Random walk exploration (with probability α)
-                if not moved or self.random.random() < self.params.exploration_rate:
-                    explored = self._random_walk(swarm[i])
-                    explored_fitness = self._evaluate(explored)
-                    if explored_fitness > fitness_values[i]:
-                        swarm[i] = explored
-                        fitness_values[i] = explored_fitness
-
-                # Update global best
-                if fitness_values[i] > best_profit:
-                    best_routes = copy.deepcopy(swarm[i])
-                    best_profit = fitness_values[i]
+                # Update global best if improved
+                if new_fitness > best_profit:
+                    best_routes = copy.deepcopy(new_position)
+                    best_profit = new_fitness
                     best_cost = self._cost(best_routes)
 
             self._viz_record(
@@ -206,107 +227,134 @@ class DistancePSOSolver(PolicyVizMixin):
         return routes
 
     # ------------------------------------------------------------------
-    # Distance Metrics
+    # PSO Velocity Update Methods
     # ------------------------------------------------------------------
 
-    def _hamming_distance(self, routes_a: List[List[int]], routes_b: List[List[int]]) -> int:
+    def _update_velocity(
+        self,
+        current_position: List[List[int]],
+        current_velocity: Set[int],
+        personal_best: List[List[int]],
+        global_best: List[List[int]],
+        inertia_weight: float,
+    ) -> Set[int]:
         """
-        Compute Hamming distance between two routing solutions.
+        Update particle velocity using PSO equation (discrete adaptation).
 
-        Defined as the number of edges present in one solution but not the other
-        (symmetric edge set difference). This measures structural dissimilarity.
+        PSO Velocity Equation (Kennedy & Eberhart 1995):
+            v(t+1) = w*v(t) + c₁*r₁*(pbest - x(t)) + c₂*r₂*(gbest - x(t))
+
+        Discrete Interpretation (Ai & Kachitvichyanukul 2009):
+            - Velocity = set of nodes representing movement tendency
+            - Inertia term w*v(t): preserve fraction of current velocity
+            - Cognitive term c₁*(pbest - x): nodes in pbest but not in x
+            - Social term c₂*(gbest - x): nodes in gbest but not in x
 
         Args:
-            routes_a: First routing solution.
-            routes_b: Second routing solution.
+            current_position: Current particle position x(t).
+            current_velocity: Current velocity v(t) as node set.
+            personal_best: Personal best position pbest.
+            global_best: Global best position gbest.
+            inertia_weight: Inertia weight w ∈ [0,1].
 
         Returns:
-            Integer Hamming distance ≥ 0.
+            New velocity v(t+1) as set of nodes.
 
-        Complexity: O(n) for edge set construction and comparison.
+        Complexity: O(n) for set operations.
         """
-        edges_a = self._extract_edge_set(routes_a)
-        edges_b = self._extract_edge_set(routes_b)
-        return len(edges_a.symmetric_difference(edges_b))
+        # Extract node sets
+        current_nodes = self._get_node_set(current_position)
+        pbest_nodes = self._get_node_set(personal_best)
+        gbest_nodes = self._get_node_set(global_best)
 
-    @staticmethod
-    def _extract_edge_set(routes: List[List[int]]) -> Set[Tuple[int, int]]:
+        # Inertia term: w * v(t) - probabilistically keep nodes in current velocity
+        inertia_contribution = {node for node in current_velocity if self.random.random() < inertia_weight}
+
+        # Cognitive term: c₁ * r₁ * (pbest - x) - nodes in pbest but not in current
+        cognitive_difference = pbest_nodes - current_nodes
+        r1 = self.random.random()
+        cognitive_prob = self.params.c1 * r1
+        cognitive_contribution = {node for node in cognitive_difference if self.random.random() < cognitive_prob}
+
+        # Social term: c₂ * r₂ * (gbest - x) - nodes in gbest but not in current
+        social_difference = gbest_nodes - current_nodes
+        r2 = self.random.random()
+        social_prob = self.params.c2 * r2
+        social_contribution = {node for node in social_difference if self.random.random() < social_prob}
+
+        # Combine all velocity components
+        new_velocity = inertia_contribution | cognitive_contribution | social_contribution
+
+        return new_velocity
+
+    def _apply_velocity(self, current_position: List[List[int]], velocity: Set[int]) -> List[List[int]]:
         """
-        Extract the set of directed edges from a routing solution.
+        Apply velocity to current position to get new position.
 
-        Includes depot→first_node, inter-node, and last_node→depot edges.
+        Position Update: x(t+1) = x(t) + v(t+1)
+
+        In discrete space:
+        1. Velocity nodes = nodes to add to solution
+        2. Remove random nodes (destroy)
+        3. Insert velocity nodes greedily (repair)
+        4. Apply local search refinement
 
         Args:
-            routes: List of routes.
+            current_position: Current routing solution x(t).
+            velocity: Velocity vector v(t+1) as node set.
 
         Returns:
-            Set of directed edges (tuples).
+            New routing solution x(t+1).
 
-        Complexity: O(n) for route traversal.
+        Complexity: O(n²) for insertion + local search.
         """
-        edges = set()
-        for route in routes:
-            if not route:
-                continue
-            edges.add((0, route[0]))
-            for k in range(len(route) - 1):
-                edges.add((route[k], route[k + 1]))
-            edges.add((route[-1], 0))
-        return edges
+        if not velocity:
+            # No velocity → small random perturbation for exploration
+            return self._random_walk(current_position)
 
-    # ------------------------------------------------------------------
-    # Particle Movement Operators
-    # ------------------------------------------------------------------
+        # Extract current nodes
+        current_nodes = self._get_node_set(current_position)
 
-    def _attract_toward(self, current_particle: List[List[int]], target_particle: List[List[int]]) -> List[List[int]]:
-        """
-        Move current particle toward target particle via guided node insertion.
+        # Separate velocity into nodes to add vs nodes already present
+        nodes_to_add = [n for n in velocity if n not in current_nodes]
 
-        Extracts nodes that are in target but not in current, scores each by
-        profitability, and inserts them greedily. This implements the PSO
-        "velocity update" in discrete space.
+        if not nodes_to_add:
+            # All velocity nodes already in solution → small perturbation
+            return self._random_walk(current_position)
 
-        Scoring function per candidate node n:
-            score(n) = α_profit × profit(n) + β_will × fill_level(n) - γ_cost × insertion_cost(n)
+        # Destroy: remove nodes to make room (proportional to velocity magnitude)
+        n_remove = min(len(nodes_to_add), max(3, int(len(velocity) * self.params.velocity_to_mutation_rate)))
 
-        Args:
-            current_particle: Current particle (routing solution).
-            target_particle: Target particle with higher fitness.
+        try:
+            partial_routes, removed_nodes = random_removal(current_position, n_remove, self.random)
+        except Exception:
+            partial_routes = copy.deepcopy(current_position)
+            removed_nodes = []
 
-        Returns:
-            Updated particle after attraction operation.
+        # Repair: insert velocity nodes + removed nodes greedily
+        all_nodes_to_insert = nodes_to_add + [n for n in removed_nodes if n not in velocity]
 
-        Complexity: O(n²) for insertion cost computation + greedy insertion.
-        """
-        current_nodes = {n for route in current_particle for n in route}
-        target_nodes = {n for route in target_particle for n in route}
-        candidate_nodes = [n for n in target_nodes if n not in current_nodes]
-
-        if not candidate_nodes:
-            return copy.deepcopy(current_particle)
-
-        # Score candidates by multi-objective function
-        scored_candidates = []
-        for node in candidate_nodes:
+        # Score and sort nodes by attraction (same as original attract_toward logic)
+        scored_nodes = []
+        for node in all_nodes_to_insert:
             profit = self.wastes.get(node, 0.0) * self.R
-            fill_level = self.wastes.get(node, 0.0)  # Proxy for urgency
-            insertion_cost = self._compute_best_insertion_cost(node, current_particle)
+            fill_level = self.wastes.get(node, 0.0)
+            insertion_cost = self._compute_best_insertion_cost(node, partial_routes)
             score = (
                 self.params.alpha_profit * profit
                 + self.params.beta_will * fill_level
                 - self.params.gamma_cost * insertion_cost
             )
-            scored_candidates.append((score, node))
+            scored_nodes.append((score, node))
 
-        scored_candidates.sort(reverse=True)
-        selected_nodes = [node for _, node in scored_candidates]
+        scored_nodes.sort(reverse=True)
+        sorted_nodes = [node for _, node in scored_nodes]
 
-        # Insert selected nodes greedily
-        routes = copy.deepcopy(current_particle)
-        with contextlib.suppress(Exception):
-            routes = greedy_insertion(
-                routes,
-                selected_nodes,
+        # Greedy insertion
+        try:
+            new_routes = greedy_insertion(
+                partial_routes,
+                sorted_nodes,
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
@@ -314,8 +362,28 @@ class DistancePSOSolver(PolicyVizMixin):
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Apply local search refinement
-            return self.ls.optimize(routes)
-        return routes
+            return self.ls.optimize(new_routes)
+        except Exception:
+            return copy.deepcopy(current_position)
+
+    @staticmethod
+    def _get_node_set(routes: List[List[int]]) -> Set[int]:
+        """
+        Extract set of nodes visited in routing solution.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Set of node indices.
+
+        Complexity: O(n).
+        """
+        return {node for route in routes for node in route}
+
+    # ------------------------------------------------------------------
+    # Helper Methods
+    # ------------------------------------------------------------------
 
     def _compute_best_insertion_cost(self, node: int, routes: List[List[int]]) -> float:
         """

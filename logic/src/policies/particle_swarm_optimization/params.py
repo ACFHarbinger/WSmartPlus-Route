@@ -1,7 +1,9 @@
 """
-Configuration parameters for Distance-Based Particle Swarm Optimization.
+Configuration parameters for Particle Swarm Optimization (PSO).
 
-This replaces the metaphor-based "Firefly Algorithm" with standard PSO terminology.
+**TRUE PSO** with inertia-weighted velocity updates (Kennedy & Eberhart 1995).
+This serves as a rigorous replacement for the Sine Cosine Algorithm (SCA),
+which is mathematically equivalent to PSO without velocity momentum.
 """
 
 from __future__ import annotations
@@ -10,13 +12,13 @@ from dataclasses import dataclass
 
 
 @dataclass
-class DistancePSOParams:
+class PSOParams:
     """
-    Parameters for Particle Swarm Optimization with velocity momentum.
+    Parameters for standard Particle Swarm Optimization with velocity momentum.
 
-    **TRUE PSO IMPLEMENTATION** with inertia-weighted velocity updates.
-    Replaces the deceptive "Firefly Algorithm" which was merely PSO
-    without velocity momentum terms.
+    **Replaces SCA** - The Sine Cosine Algorithm is mathematically identical to
+    PSO without the velocity term, personal best tracking, and with expensive
+    trigonometric functions replacing simple random weights.
 
     Core PSO Velocity Update Equation (Kennedy & Eberhart 1995):
         v(t+1) = w*v(t) + c₁*r₁*(pbest - x(t)) + c₂*r₂*(gbest - x(t))
@@ -33,7 +35,7 @@ class DistancePSOParams:
         - x(t): current particle position
 
     Attributes:
-        population_size: Number of particles in swarm.
+        pop_size: Number of particles in swarm.
         max_iterations: Maximum number of PSO iterations.
 
         # PSO Velocity Parameters (Kennedy & Eberhart 1995)
@@ -42,51 +44,50 @@ class DistancePSOParams:
         cognitive_coef: c₁ - personal best acceleration constant.
         social_coef: c₂ - global best acceleration constant.
 
-        # Continuous→Discrete Adaptation (Ai & Kachitvichyanukul 2009)
-        n_removal: Number of nodes in velocity-based perturbation.
-        velocity_to_mutation_rate: Scaling factor: velocity magnitude → mutation probability.
+        # Continuous Space Parameters
+        position_min: Minimum value for position vector components.
+        position_max: Maximum value for position vector components.
+        velocity_max: Maximum velocity magnitude (velocity clamping).
 
-        # Local Search & Optimization
-        local_search_iterations: Number of local search improvement steps.
+        # Runtime Control
         time_limit: Wall-clock time limit in seconds (0 = no limit).
 
-        # Guided Insertion Weights
-        alpha_profit: Weight for profit term in node insertion scoring.
-        beta_will: Weight for willingness (fill level) term.
-        gamma_cost: Weight for insertion cost penalty.
-
     Complexity:
-        - Space: O(pop_size × n) for swarm storage + velocities + personal bests
-        - Time per iteration: O(pop_size × n²) for velocity updates + insertions
+        - Space: O(pop_size × n) for swarm + velocities + personal bests
+        - Time per iteration: O(pop_size × n) for velocity updates
+
+    Why PSO > SCA:
+        1. **Velocity Momentum**: PSO maintains inertia from previous iterations
+        2. **Personal Best**: Each particle learns from its own experience
+        3. **No Expensive Trigonometry**: sin(r) ≈ random(-1,1) but slower
+        4. **Proven Theory**: PSO has 30+ years of theoretical foundation
+        5. **Better Convergence**: Velocity helps escape local optima
 
     References:
-        - Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
-        - Ai, T. J., & Kachitvichyanukul, V. (2009). "A particle swarm optimization
-          for the vehicle routing problem with simultaneous pickup and delivery."
+        Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
+        Proceedings of ICNN'95 - International Conference on Neural Networks.
+
+        Shi, Y., & Eberhart, R. (1998). "A modified particle swarm optimizer."
+        IEEE International Conference on Evolutionary Computation.
     """
 
     # Swarm Configuration
-    population_size: int = 20
-    max_iterations: int = 500
+    pop_size: int = 30
 
     # PSO Velocity Momentum Parameters
     inertia_weight_start: float = 0.9  # w(0) - high for initial exploration
     inertia_weight_end: float = 0.4  # w(T) - low for final exploitation
-    cognitive_coef: float = 2.0  # c₁ - personal best attraction (Ai & Kachitvichyanukul 2009)
+    cognitive_coef: float = 2.0  # c₁ - personal best attraction
     social_coef: float = 2.0  # c₂ - global best attraction
 
-    # Discrete Adaptation Parameters
-    n_removal: int = 3  # Nodes removed in velocity-based mutation
-    velocity_to_mutation_rate: float = 0.1  # Velocity → mutation probability scaling
+    # Continuous Space Bounds
+    position_min: float = -1.0  # Lower bound for position vector
+    position_max: float = 1.0  # Upper bound for position vector
+    velocity_max: float = 0.5  # Maximum velocity (prevents divergence)
 
-    # Optimization Parameters
-    local_search_iterations: int = 100
+    # Runtime Control
+    max_iterations: int = 500
     time_limit: float = 60.0
-
-    # Guided Insertion Scoring Weights
-    alpha_profit: float = 1.0
-    beta_will: float = 0.5
-    gamma_cost: float = 0.3
 
     def get_inertia_weight(self, iteration: int) -> float:
         """
@@ -129,8 +130,3 @@ class DistancePSOParams:
     def w_end(self) -> float:
         """Alias for inertia_weight_end."""
         return self.inertia_weight_end
-
-    @property
-    def pop_size(self) -> int:
-        """Alias for population_size."""
-        return self.population_size
