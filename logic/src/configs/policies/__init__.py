@@ -39,6 +39,7 @@ from .kgls import KGLSConfig
 from .ks import KernelSearchConfig
 from .lahc import LAHCConfig
 from .lb import LocalBranchingConfig
+from .lb_vns import LocalBranchingVNSConfig
 from .lca import LCAConfig
 from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
@@ -139,6 +140,7 @@ __all__ = [
     "SAConfig",
     "LAHCConfig",
     "LocalBranchingConfig",
+    "LocalBranchingVNSConfig",
     "OBAConfig",
     "RENSConfig",
     "RRTConfig",
