@@ -87,6 +87,7 @@ class PolicyFactory:
         import logic.src.policies.sequence_based_selection_hyper_heuristic.policy_ss_hh as policy_ss_hh  # noqa
 
         # Matheuristics
+        import logic.src.policies.adaptive_kernel_search.policy_aks as policy_aks  # noqa
         import logic.src.policies.cluster_first_route_second.policy_cf_rs as policy_cf_rs  # noqa
         import logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp as policy_ils_rvnd_sp  # noqa
         import logic.src.policies.kernel_search.policy_ks as policy_ks  # noqa
