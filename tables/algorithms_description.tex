@@ -28,136 +28,68 @@
 \bottomrule
 \endlastfoot
 
-Adaptive Large Neighborhood Search (ALNS) & Destroys localized portions of a solution and rebuilds using multiple heuristics. & State-of-the-art routing framework; dynamically controls and weights multiple lower-level heuristics. \\ \midrule
+Adaptive Large Neighborhood Search (ALNS) & Destroys localized portions of a solution and rebuilds using multiple heuristics. & State-of-the-art framework; dynamically weights lower-level heuristics based on success. \\ \midrule
 
-Ant Colony Optimization (ACO) & Constructive paths based on local heuristic information and global pheromone stigmergy. & Foundational swarm paradigm; rigorous value in probabilistic construction, though sensitive to decay parameters. \\ \midrule
+Ant Colony Optimization (ACO) & Constructive paths based on local heuristic info and global pheromone stigmergy. & Foundational swarm paradigm; rigorous value in probabilistic construction and stigmergy. \\ \midrule
 
-Artificial Bee Colony (ABC) & Three agent types (Employed, Onlooker, Scout) model foraging behavior. & \textbf{Deceptive.} Isomorphic to Differential Evolution mutation and proportional selection; often requires GA injections for discrete parity. \\ \midrule
+Artificial Bee Colony (ABC) & Three agent types (Employed, Onlooker, Scout) model foraging. & \textbf{Deceptive.} Isomorphic to Differential Evolution mutation; often requires GA injections for discrete parity. \\ \midrule
 
-Attention Model (AM) & Sequentially constructs a valid route by selecting unvisited vertices using a Transformer. & Foundational RL NCO baseline; successfully replaces hard-coded heuristics with learned policies. \\ \midrule
+Attention Model (AM) & Sequentially constructs a valid route by selecting vertices using a Transformer. & Foundational RL NCO baseline; successfully replaces hard-coded heuristics with learned policies. \\ \midrule
 
-Attention Model with POMO & Forces the AM to start from multiple roots, generating diverse trajectories to exploit graph symmetry. & Highly effective RL training technique; mathematically sound exploitation of problem invariance. \\ \midrule
+Attention Model with POMO & Forces the AM to start from multiple roots to exploit graph symmetry. & Highly effective training technique; mathematically sound exploitation of problem invariance. \\ \midrule
 
-Branch-and-Bound (BB) & Systematic enumeration of candidate solutions via state-space search, using bounds to "prune" non-optimal sub-trees. & The foundational mathematical procedure for exact optimization; guaranteed global optimality but computationally prohibitive at scale. \\ \midrule
+Branch-and-Bound (BB) & Systematic enumeration of candidate solutions via state-space search and pruning. & Foundational procedure for exact optimization; guaranteed optimality but computationally prohibitive at scale. \\ \midrule
 
-Branch-and-Price-and-Cut (BPC) & Solves LP relaxations via pricing, tightens bounds with cuts, and branches for integrality. & The gold standard for exact multicommodity flow; rigorously proves optimality via simultaneous column and row generation. \\ \midrule
+Branch-and-Price-and-Cut (BPC) & Solves LP relaxations via simultaneous column and cut generation. & The gold standard for exact multicommodity flow; rigorously proves optimality via valid inequalities. \\ \midrule
 
-Circuit-SAT GNN & Iteratively predicts variable assignments to restrict the search tree via continuous circuit loss. & Purely mathematical Unsupervised Learning application for iterative state-space reduction. \\ \midrule
+Cluster-First Route-Second & Assigns customers via an exact GAP and sequences them heuristically. & Foundational decomposition; leverages exact solvers for spatial clustering where heuristics struggle. \\ \midrule
 
-Deep Policy Dynamic Programming (DPDP) & SL model predicts edge probabilities (heatmaps) once to restrict the state space for exact DP. & Rigorously synthesizes DL probability predictions with exact, mathematically sound DP bounds. \\ \midrule
+DeepACO & Uses a GNN trained via RL to output a matrix to initialize pheromones. & Excellent modern hybrid; uses DL to intelligently bias canonical swarm mathematics. \\ \midrule
 
-DeepACO & Uses a GNN trained via RL to output a single non-autoregressive matrix to initialize pheromones. & Excellent modern hybrid; uses DL to intelligently bias canonical swarm mathematics. \\ \midrule
+Differential Evolution (DE) & Adds scaled differences between random members to a target base vector. & Highly effective continuous optimizer; the mathematical engine behind many relabeled swarm metaphors. \\ \midrule
 
-Differential Evolution (DE) & Adds scaled differences between random members to a target base vector. & Highly effective continuous optimizer; the mathematical engine behind many relabeled "swarm" metaphors. \\ \midrule
+Ensemble Move Acceptance & Combines multiple criteria (e.g., SA, GD, IE) for joint decisions. & Mitigates individual weaknesses; majority rule (G-VOT) is often the most robust. \\ \midrule
 
-Efficient Active Search (EAS) & Predicts a baseline policy once, then uses RL at test-time to update weights for the specific instance. & Novel Predict-Once RL application; effectively bridges the gap between inference and local trajectory search. \\ \midrule
+Genetic Programming Hyper-Heuristic (GPHH) & Evolves new heuristic rules using GP trees rather than searching solution space directly. & Powerful automated design paradigm; shifts the search space from solutions to algorithms. \\ \midrule
 
-Ensemble Move Acceptance & A group decision-making approach where multiple criteria are combined for joint decisions. & Mitigates individual weaknesses of standalone criteria; majority rule (G-VOT) is often the most robust. \\ \midrule
+Great Deluge (GD) & Accepts moves better than a monotonically updating "water level" threshold. & Foundational deterministic alternative to SA; manages the exploration budget without stochasticity. \\ \midrule
 
-Erdős Goes Neural (EGN) & Unsupervised GNN outputs soft probabilities processed by sequential decoding for guarantees. & Rigorous bridging of DL probabilities with deterministic, discrete mathematical guarantees. \\ \midrule
+Hybrid Genetic Search (HGS) & GA that applies local search to offspring prior to fitness evaluation. & State-of-the-art for routing; highly transparent and rigorous memetic engineering. \\ \midrule
 
-Evolution Strategy Mu Plus Lambda (ES-MPL) & $\mu$ parents generate $\lambda$ offspring; deterministic elitist selection from the combined pool. & Foundational archetype establishing elitist survival principles for numerical optimization. \\ \midrule
+Improving and Equal (IE) & Elitist strategy accepting candidates better than or equal to current solutions. & Crucial gatekeeper for navigating high levels of neutrality in combinatorial search spaces. \\ \midrule
 
-Evolution Strategy Mu, Kappa, Lambda (ES-MKL) & Parents generate offspring; individuals survive for a maximum of $\kappa$ generations before discard. & Foundational extension of ES introducing chronological memory/lifespan bounds to populations. \\ \midrule
+Iterated Local Search (ILS) & Iterates local search by applying perturbation operators to escape local optima. & Foundational trajectory archetype utilizing intelligent mathematical restarts. \\ \midrule
 
-Evolution Strategy Mu, Lambda (ES-MCL) & Selection occurs strictly from $\lambda$ offspring, discarding the parent generation. & Foundational archetype introducing the mechanism of escaping local optima by abandoning older generations. \\ \midrule
+Kernel Search (KS) & Restricts the set of active binary variables available to an iterative MILP solver. & Guarantees structural feasibility via exact solvers; superior to pure metaheuristics in tight polyhedra. \\ \midrule
 
-Exact Learning to Branch (GNN-B\&B) & Iteratively predicts branching variable probabilities at each node of the B\&B tree. & State-of-the-art Predict-Many framework; replaces expensive branching calculations with GNN inference. \\ \midrule
+Late Acceptance Hill-Climbing (LAHC) & Accepts candidates better than or equal to a solution from $L$ iterations ago. & Superior scale-independent memory mechanism; allows plateau traversal without recalibration. \\ \midrule
 
-Fast Iterative Localized Optimization (FILO) & Local search constrained by predefined spatial granularity and proximity limits. & Genuinely effective spatial heuristic designed for massive-scale routing problems. \\ \midrule
+Learning-Augmented Matheuristics & Uses GNNs to score and predict branching outcomes, filtering candidates before MILP execution. & Traverses search trees exponentially faster by replacing LP solver tests with ML inference. \\ \midrule
 
-Firefly Algorithm (FA) & Models bioluminescent attraction where brightness exponentially decays over distance. & \textbf{Deceptive.} A minor, continuous local-search derivative of PSO; highly inefficient in complex combinatorial routing. \\ \midrule
+Local Branching (VNSB) & Restricts MILP space by placing a bound on the Hamming distance from the incumbent. & Turns exact solvers into aggressive neighborhood explorers, pruning nodes instantaneously. \\ \midrule
 
-Genetic Algorithm (GA) & Evolves candidate solutions using proportional selection, recombination (crossover), and mutation. & Foundational mathematical archetype for population-based search and schema theory. \\ \midrule
+Memetic Algorithm (MA) & Augments population-based search with intensive local trajectory refinement. & Foundational hybrid; bridges the gap between global exploration and local exploitation. \\ \midrule
 
-Genetic Programming Hyper-Heuristic (GPHH) & Evolves new heuristic rules or constructive policies using GP trees rather than searching solution space. & Powerful automated heuristic design paradigm; shifts the search space from solutions to algorithms. \\ \midrule
+Old Bachelor Acceptance (OBA) & Uses a non-monotone threshold that tightens on accept and loosens on reject. & Valid dynamic tuning schedule for SA/TA pipelines; prevents search stagnation. \\ \midrule
 
-Great Deluge (GD) & Accepts moves better than a monotonically updating "water level" threshold. & Foundational deterministic alternative to SA; manages the "uphill" budget without stochasticity. \\ \midrule
+Only Improving (OI) & Accepts a move only if the objective cost is strictly better than the current. & Purely exploitative gatekeeper; defines the most basic elitist local search. \\ \midrule
 
-Guided Indicators Hyper-Heuristic (GIHH) & Selects low-level routing heuristics dynamically, guided by performance indicators like convergence. & Effective multi-objective control mechanism; balances exploration without relying on thematic metaphor. \\ \midrule
+POPMUSIC & Partitions massive routing instances into subproblems optimized exactly by a solver. & State-of-the-art decomposition; operates over large neighborhoods to escape local optima. \\ \midrule
 
-Guided Local Search (GLS) & Escapes local optima by dynamically penalizing features via an augmented objective. & Foundational memory-based search trajectory adjustment mechanism. \\ \midrule
+Record-to-Record Travel (RRT) & Accepts moves within a fixed scalar margin of the best-known record. & Deterministic threshold rule; highly effective for sensitive sequences in cumulative VRPs. \\ \midrule
 
-Harmony Search (HS) & Mimics musicians improvising to find acoustic harmony via pitch adjustments. & \textbf{Deceptive.} Mathematically proven to be a relabeled, constrained $(\mu + 1)$-Evolution Strategy. \\ \midrule
+Relaxation Induced Neighborhood Search (RINS) & Fixes variables matching the LP relaxation and solves a restricted MILP. & Exploits commercial solvers as heuristic operators; effective for rapidly improving bounds. \\ \midrule
 
-Hopfield Neural Network (HNN) & Iteratively refines a continuous state relaxation by minimizing an unsupervised energy landscape. & Foundational archetype of unsupervised neural optimization based on statistical physics. \\ \midrule
+Restricted Master Heuristics & Replaces exact pricing with fast metaheuristics to generate columns for a Master Problem. & Overcomes column generation bottlenecks, establishing near-optimal bounds rapidly. \\ \midrule
 
-Hybrid Genetic Search (HGS) & Genetic Algorithm that applies local search to offspring prior to fitness evaluation. & State-of-the-art framework for routing optimization; highly transparent and rigorous engineering. \\ \midrule
+Simulated Annealing (SA) & Probabilistically accepts worse moves based on Boltzmann distribution and temperature. & Foundational stochastic criterion; manages the exploration-exploitation balance through cooling. \\ \midrule
 
-Hybrid Genetic Search with Ruin and Recreate (HGS-RR) & HGS wrapper that utilizes advanced ruin and recreate principles instead of simple 2-opt. & Genuinely novel intersection of the premier population paradigm with state-of-the-art trajectory operators. \\ \midrule
+Step Counting Hill Climbing (SCHC) & Memory-based criterion where a cost bound is fixed for a set number of steps. & Scale-independent alternative to SA; robust performance on timetabling benchmarks. \\ \midrule
 
-Hybrid Volleyball Premier League (HVPL) & Merges the VPL competition framework with ACO routing and ALNS neighborhood search. & \textbf{Exposes the Metaphor:} VPL was too weak to solve routing; authors injected rigorous ACO/ALNS to achieve performance. \\ \midrule
+Threshold Accepting (TA) & Accepts deteriorating moves that fall within a predefined threshold range. & Deterministic alternative to SA; provides efficient reorganization of tour sequences. \\ \midrule
 
-Hyper-Heuristic Ant Colony Optimization (HH-ACO) & Uses a global pheromone matrix to probabilistically select which low-level heuristic operators to apply. & Legitimate abstraction; applies canonical ACO logic to navigate the heuristic operator space. \\ \midrule
+Variable Neighborhood Search (VNS) & Systematically switches neighborhood structures when trapped in local optima. & Foundational framework establishing rules for trajectory diversification. \\ \midrule
 
-Hyper-heuristic with Us and LK (HULK) & ACO-based selector managing Unstringing/Stringing and Lin-Kernighan operators. & Advanced adaptive operator management; avoids metaphor by explicitly stating hybrid components. \\ \midrule
-
-Improving and Equal (IE) & Elitist strategy accepting candidates better than or equal to current solutions. & Gatekeeper mechanism; crucial for navigating high levels of neutrality in heuristic search spaces. \\ \midrule
-
-Iterated Local Search (ILS) & Iterates local search by systematically applying perturbation operators to escape basins. & Foundational trajectory archetype utilizing intelligent mathematical restarts rather than randomization. \\ \midrule
-
-ILS-RVND-SP & Uses ILS and randomized VNS to populate a pool of routes solved exactly via Set Partitioning. & Gold-standard matheuristic; explicitly combines rigorous local search with exact ILP models. \\ \midrule
-
-K-Sparse Ant Colony Optimization (KS-ACO) & Modifies ACO pheromone updates to maintain a strictly $K$-sparse probability distribution. & Effective structural constraint preventing premature convergence; a rigorous mathematical modifier. \\ \midrule
-
-Knowledge Guided Local Search (KGLS) & Uses data mining to group variables prior to deterministic local search. & Data-driven execution of GLS; precise, honest, and completely devoid of metaphor. \\ \midrule
-
-Late Acceptance Hill-Climbing (LAHC) & Accepts candidates if they are better than or equal to a solution from $L$ iterations ago. & Superior scale-independent memory mechanism; allows plateau traversal without parameter recalibration. \\ \midrule
-
-League Championship Algorithm (LCA) & Models a sports schedule where teams adapt "formations" based on win/loss fitness. & \textbf{Deceptive.} Functionally an exhaustive, steady-state Genetic Algorithm obscured by sports terminology. \\ \midrule
-
-Lin-Kernighan-Helsgaun (LKH) & Searches for improving $k$-opt moves restricted by minimum spanning trees. & The pinnacle of TSP trajectory heuristics; purely mathematical and completely devoid of metaphor. \\ \midrule
-
-Local Search (LS) & Iteratively moves to a strictly improving neighboring solution until local optimum. & The absolute foundational trajectory-based optimization mechanism. \\ \midrule
-
-Memetic Algorithm (MA) & Augments population-based search with intensive local trajectory refinement for individuals. & Foundational hybrid paradigm; mathematically bridges exploration (evolution) and exploitation (local optimization). \\ \midrule
-
-Metropolis-Hastings (MH) & Accepts moves based on probability density ratios to sample from a distribution. & The core statistical mechanics foundation from physics that directly birthed Simulated Annealing. \\ \midrule
-
-NeuRewriter & Uses an actor-critic RL framework to iteratively refine a solution via rewrite rules. & Directly maps classical trajectory search into an RL framework. \\ \midrule
-
-Old Bachelor Acceptance (OBA) & Uses a non-monotone threshold that tightens on accept and loosens on reject. & Valid dynamic tuning schedule for SA/TA cooling pipelines; prevents search stagnation. \\ \midrule
-
-Only Improving (OI) & Accepts a candidate move only if the objective cost is strictly better than the current. & Purely exploitative gatekeeper; incapable of traversing neutral plateaus or escaping local minima. \\ \midrule
-
-Particle Swarm Optimization (PSO) & Particles move guided by personal bests and global swarm knowledge. & Foundational continuous swarm archetype; heavily plagiarized by animal-based metaphors. \\ \midrule
-
-Particle Swarm Optimization Memetic Algorithm (PSOMA) & Utilizes PSO as global wrapper, refining positions directly with trajectory local search. & Transparent combination of canonical PSO exploration with local search exploitation. \\ \midrule
-
-Physics-Inspired GNN (PI-GNN) & Learns node assignments by directly minimizing physics-based Hamiltonian energy. & Modern Unsupervised Learning; replaces heuristic search with continuous energy gradients. \\ \midrule
-
-Pointer Network (Ptr-Net) & Uses an LSTM with attention to output a permutation of graph nodes step-by-step. & Foundational SL model that birthed NCO; limited by reliance on optimal labels. \\ \midrule
-
-Quantum Differential Evolution (QDE) & Replaces uniform random parameter distributions with chaotic probability functions. & Primarily a parameter tuning strategy; use of "Quantum" terminology is often more semantic than functional. \\ \midrule
-
-Reactive Tabu Search (RTS) & Dynamically adjusts tabu list cardinality based on search history and cycle detection. & Foundational advancement in memory-based adaptive trajectory search; mathematically rigorous. \\ \midrule
-
-Record-to-Record Travel (RRT) & Accepts candidates if they fall within a fixed scalar margin of the best-known record. & Deterministic acceptance rule; particularly effective for Cumulative VRPs where sequences are highly sensitive. \\ \midrule
-
-Reinforcement Learning B\&B (RL-B\&B) & Interacts with the B\&B tree as an environment to minimize tree size via RL actions. & Rigorous integration of RL into exact mathematical programming spaces. \\ \midrule
-
-Reinforcement Learning - Great Deluge HH (RL-GD-HH) & Uses RL to select low-level heuristics while GD acceptance governs state transitions. & Rigorous cross-domain hybridization; controls a thermodynamic criterion with learned policies. \\ \midrule
-
-Sequence-based Selection HH (SS-HH) & Probabilistic SS-HH governs threshold transitions for Great Deluge local search. & Legitimate parameter control; applies reinforcement learning to guide a thermodynamic heuristic. \\ \midrule
-
-Simulated Annealing (SA) & Probabilistically accepts worse moves based on Boltzmann distribution and temperature. & Foundational stochastic criterion; manages global exploration-exploitation but is sensitive to objective scale. \\ \midrule
-
-Simulated Annealing Neighborhood Search (SANS) & Explores diverse neighborhood structures utilizing SA's cooling schedule. & Transparent hybridization; correctly attributes its mathematical foundations to SA/LS. \\ \midrule
-
-Sine Cosine Algorithm (SCA) & Fluctuates agents toward/away from best solution using sine/cosine functions. & \textbf{Deceptive.} Meaningless trigonometric "math-washing" applied to standard vector translation operations. \\ \midrule
-
-Slack Induction by String Removal (SISR) & Removes spatial sequences of variables and reinserts them to minimize slack. & Genuinely novel spatial meta-heuristic; achieves state-of-the-art results in large-scale routing. \\ \midrule
-
-Soccer League Competition (SLC) & Simulates matches, substitutions, and standings to optimize real-valued networks. & \textbf{Deceptive.} Convoluted multi-population Genetic Algorithm burdened with unnecessary sports rule constraints. \\ \midrule
-
-Step Counting Hill Climbing (SCHC) & Memory-based criterion where a cost bound remains fixed for a specific number of steps. & Scale-independent alternative to SA; offers high performance on examination timetabling benchmarks. \\ \midrule
-
-Threshold Accepting (TA) & Accepts deteriorating moves if they fall within a predefined threshold range. & Deterministic alternative to SA; allows reorganization of sequences to find globally efficient tours. \\ \midrule
-
-Variable Neighborhood Search (VNS) & Systematically switches neighborhood structures when trapped in local optima. & Foundational framework establishing rigorous rules for trajectory diversification. \\ \midrule
-
-Vehicle Routing Problem with Profits Optimizer (VRPP) & Data-driven exact optimizer maximizing collection profits via a rolling horizon MILP. & Exact solver implementation; utilizes HMMs to handle uncertainty while proving global daily optimality. \\ \midrule
-
-Volleyball Premier League (VPL) & Mimics volleyball coaching via substitution, coaching, and learning phases. & \textbf{Deceptive.} Fundamentally flawed GA/ES hybrid that relies on thematic phases rather than rigorous exploitation. \\ \bottomrule
+VRPP Exact Optimizer & Maximizes collection profits via a data-driven rolling horizon MILP model. & Exact solver implementation; utilizes HMMs to handle uncertainty while proving daily optimality. \\ \bottomrule
 \end{longtable}
 \end{center}
