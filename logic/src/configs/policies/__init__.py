@@ -27,6 +27,7 @@ from .hvpl import HVPLConfig
 from .ils_rvnd_sp import ILSRVNDSPConfig
 from .kgls import KGLSConfig
 from .lca import LCAConfig
+from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
 from .ma_im import MemeticAlgorithmIslandModelConfig
 from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
@@ -98,4 +99,5 @@ __all__ = [
     "VPLConfig",
     "MemeticAlgorithmDualPopulationConfig",
     "PSOConfig",
+    "MAConfig",
 ]
