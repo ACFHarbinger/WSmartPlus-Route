@@ -3,7 +3,7 @@ import pytest
 from logic.src.policies.base import PolicyFactory
 from logic.src.policies import run_hgs
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 class TestSolverEdgeCases:
     """
@@ -46,7 +46,7 @@ class TestSolverEdgeCases:
         data["binsids"] = [0]
 
         try:
-            routes, _, _ = run_vrpp_optimizer(
+            routes, _, _ = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
                 param=0.0,
@@ -120,7 +120,7 @@ class TestSolverEdgeCases:
         data["binsids"] = [1]
 
         try:
-            routes, _, _ = run_vrpp_optimizer(
+            routes, _, _ = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
                 param=0.0,
@@ -190,7 +190,7 @@ class TestSolverEdgeCases:
 
         # Test Gurobi (most sensitive to constraints)
         try:
-             routes, _, _ = run_vrpp_optimizer(
+             routes, _, _ = run_swc_tcf_optimizer(
                 bins=bins,
                 distance_matrix=dist_matrix,
                 param=0.0,
