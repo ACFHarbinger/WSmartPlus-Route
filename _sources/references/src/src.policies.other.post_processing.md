@@ -7,18 +7,25 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.policies.other.post_processing.base
+```
+
 ## Submodules
 
 ```{toctree}
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.post_processing.factory
 src.policies.other.post_processing.random_local_search
 src.policies.other.post_processing.lkh
 src.policies.other.post_processing.local_search
 src.policies.other.post_processing.path
-src.policies.other.post_processing.registry
 src.policies.other.post_processing.fast_tsp
 ```
 

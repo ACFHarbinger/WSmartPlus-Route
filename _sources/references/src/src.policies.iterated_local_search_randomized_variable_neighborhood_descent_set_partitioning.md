@@ -1,0 +1,20 @@
+# {py:mod}`src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning`
+
+```{py:module} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning
+```
+
+```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning
+:allowtitles:
+```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp
+src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp
+src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params
+src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd
+```

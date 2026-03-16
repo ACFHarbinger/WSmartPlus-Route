@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.simulated_annealing.params
+src.policies.simulated_annealing.policy_sa
 src.policies.simulated_annealing.solver
 ```
 

@@ -15,5 +15,6 @@
 
 src.policies.particle_swarm_optimization_memetic.params
 src.policies.particle_swarm_optimization_memetic.particle
+src.policies.particle_swarm_optimization_memetic.policy_psoma
 src.policies.particle_swarm_optimization_memetic.solver
 ```

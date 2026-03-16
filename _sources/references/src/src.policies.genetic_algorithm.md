@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.genetic_algorithm.policy_ga
 src.policies.genetic_algorithm.params
 src.policies.genetic_algorithm.solver
 ```

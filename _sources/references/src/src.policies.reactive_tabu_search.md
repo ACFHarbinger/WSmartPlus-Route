@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.reactive_tabu_search.params
+src.policies.reactive_tabu_search.policy_rts
 src.policies.reactive_tabu_search.solver
 ```
 

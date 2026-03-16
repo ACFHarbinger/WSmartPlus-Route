@@ -14,5 +14,6 @@
 :maxdepth: 1
 
 src.policies.hidden_markov_model_great_deluge.params
+src.policies.hidden_markov_model_great_deluge.policy_hmm_gd
 src.policies.hidden_markov_model_great_deluge.solver
 ```

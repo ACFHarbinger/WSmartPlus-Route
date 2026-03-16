@@ -14,5 +14,6 @@
 :maxdepth: 1
 
 src.policies.quantum_differential_evolution.params
+src.policies.quantum_differential_evolution.policy_qde
 src.policies.quantum_differential_evolution.solver
 ```

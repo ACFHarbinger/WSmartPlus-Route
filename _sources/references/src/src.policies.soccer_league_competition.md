@@ -14,5 +14,6 @@
 :maxdepth: 1
 
 src.policies.soccer_league_competition.params
+src.policies.soccer_league_competition.policy_slc
 src.policies.soccer_league_competition.solver
 ```

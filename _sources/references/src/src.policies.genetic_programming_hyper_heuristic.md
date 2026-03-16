@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.genetic_programming_hyper_heuristic.tree
+src.policies.genetic_programming_hyper_heuristic.policy_gphh
 src.policies.genetic_programming_hyper_heuristic.params
 src.policies.genetic_programming_hyper_heuristic.solver
 ```

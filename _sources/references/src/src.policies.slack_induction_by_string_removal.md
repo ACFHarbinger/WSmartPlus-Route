@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.slack_induction_by_string_removal.policy_sisr
 src.policies.slack_induction_by_string_removal.params
 src.policies.slack_induction_by_string_removal.solver
 ```

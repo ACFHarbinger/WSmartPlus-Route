@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.variable_neighborhood_search.params
+src.policies.variable_neighborhood_search.policy_vns
 src.policies.variable_neighborhood_search.solver
 ```
 

@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.guided_indicators_hyper_heuristic.solution
+src.policies.guided_indicators_hyper_heuristic.policy_gihh
 src.policies.guided_indicators_hyper_heuristic.indicators
 src.policies.guided_indicators_hyper_heuristic.params
 src.policies.guided_indicators_hyper_heuristic.gihh

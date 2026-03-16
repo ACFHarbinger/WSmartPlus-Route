@@ -97,7 +97,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.aco_params
-:type: src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams
+:type: src.policies.ant_colony_optimization_k_sparse.params.ACOParams
 :value: >
    'field(...)'
 

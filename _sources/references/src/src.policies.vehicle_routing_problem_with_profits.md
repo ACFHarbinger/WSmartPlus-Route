@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.vehicle_routing_problem_with_profits.policy_vrpp
 src.policies.vehicle_routing_problem_with_profits.hexaly
 src.policies.vehicle_routing_problem_with_profits.gurobi
 src.policies.vehicle_routing_problem_with_profits.dispatcher

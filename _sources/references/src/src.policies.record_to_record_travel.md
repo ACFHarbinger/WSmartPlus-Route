@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.record_to_record_travel.params
+src.policies.record_to_record_travel.policy_rrt
 src.policies.record_to_record_travel.solver
 ```
 

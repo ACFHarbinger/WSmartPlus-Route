@@ -141,7 +141,7 @@
 
 ````{py:attribute} aco
 :canonical: src.configs.policies.rl_hvpl.RLHVPLConfig.aco
-:type: src.configs.policies.aco.ACOConfig
+:type: src.configs.policies.aco_ks.KSparseACOConfig
 :value: >
    'field(...)'
 

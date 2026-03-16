@@ -27,6 +27,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`get_canonical_policy_name <src.pipeline.simulations.day_context.get_canonical_policy_name>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_canonical_policy_name
+    :summary:
+    ```
 * - {py:obj}`set_daily_waste <src.pipeline.simulations.day_context.set_daily_waste>`
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.set_daily_waste
     :summary:
@@ -42,6 +46,13 @@
 ````
 
 ### API
+
+````{py:function} get_canonical_policy_name(policy_name: str) -> str
+:canonical: src.pipeline.simulations.day_context.get_canonical_policy_name
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.get_canonical_policy_name
+```
+````
 
 `````{py:class} SimulationDayContext
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext
@@ -68,16 +79,6 @@ Bases: {py:obj}`collections.abc.Mapping`
 :value: <Multiline-String>
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.full_policy
-```
-
-````
-
-````{py:attribute} policy
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.policy
-:type: str
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.policy
 ```
 
 ````
@@ -405,6 +406,17 @@ Bases: {py:obj}`collections.abc.Mapping`
    42
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.seed
+```
+
+````
+
+````{py:attribute} policy_seed
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.policy_seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.policy_seed
 ```
 
 ````

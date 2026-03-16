@@ -84,15 +84,4 @@
 
 ````
 
-````{py:attribute} alns_iterations
-:canonical: src.configs.rl.policies.hvpl.HVPLConfig.alns_iterations
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.configs.rl.policies.hvpl.HVPLConfig.alns_iterations
-```
-
-````
-
 `````

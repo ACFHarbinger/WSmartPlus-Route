@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.functions.math
 src.utils.functions.sampling
 src.utils.functions.rl
 src.utils.functions.lexsort

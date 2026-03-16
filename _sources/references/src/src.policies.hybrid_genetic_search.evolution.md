@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} update_biased_fitness(population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, alpha_diversity: float = 0.5, neighbor_size: int = 15)
+````{py:function} update_biased_fitness(population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, alpha_diversity: float = 0.5, neighbor_size: int = 5)
 :canonical: src.policies.hybrid_genetic_search.evolution.update_biased_fitness
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.update_biased_fitness
 ```
 ````
 
-````{py:function} evaluate(ind: src.policies.hybrid_genetic_search.individual.Individual, split_manager: src.policies.hybrid_genetic_search.split.LinearSplit)
+````{py:function} evaluate(ind: src.policies.hybrid_genetic_search.individual.Individual, split_manager: src.policies.hybrid_genetic_search.split.LinearSplit, penalty_capacity: float = 1.0)
 :canonical: src.policies.hybrid_genetic_search.evolution.evaluate
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.evaluate

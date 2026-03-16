@@ -40,24 +40,24 @@
 
 ````
 
-````{py:attribute} population_size
-:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.population_size
+````{py:attribute} mu
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.mu
 :type: int
 :value: >
    50
 
-```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.population_size
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.mu
 ```
 
 ````
 
-````{py:attribute} elite_size
-:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.elite_size
+````{py:attribute} nb_elite
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.nb_elite
 :type: int
 :value: >
    10
 
-```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.elite_size
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.nb_elite
 ```
 
 ````

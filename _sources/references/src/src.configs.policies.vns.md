@@ -66,7 +66,7 @@
 :canonical: src.configs.policies.vns.VNSConfig.local_search_iterations
 :type: int
 :value: >
-   20
+   500
 
 ```{autodoc2-docstring} src.configs.policies.vns.VNSConfig.local_search_iterations
 ```

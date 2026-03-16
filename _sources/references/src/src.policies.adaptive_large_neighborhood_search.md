@@ -18,6 +18,7 @@ src.policies.adaptive_large_neighborhood_search.alns_package
 src.policies.adaptive_large_neighborhood_search.params
 src.policies.adaptive_large_neighborhood_search.alns
 src.policies.adaptive_large_neighborhood_search.dispatcher
+src.policies.adaptive_large_neighborhood_search.policy_alns
 ```
 
 ## Package Contents

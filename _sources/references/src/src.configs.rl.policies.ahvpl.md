@@ -84,17 +84,6 @@
 
 ````
 
-````{py:attribute} alns_iterations
-:canonical: src.configs.rl.policies.ahvpl.AHVPLConfig.alns_iterations
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.rl.policies.ahvpl.AHVPLConfig.alns_iterations
-```
-
-````
-
 ````{py:attribute} crossover_rate
 :canonical: src.configs.rl.policies.ahvpl.AHVPLConfig.crossover_rate
 :type: float
@@ -117,13 +106,13 @@
 
 ````
 
-````{py:attribute} elite_size
-:canonical: src.configs.rl.policies.ahvpl.AHVPLConfig.elite_size
+````{py:attribute} nb_elite
+:canonical: src.configs.rl.policies.ahvpl.AHVPLConfig.nb_elite
 :type: int
 :value: >
    5
 
-```{autodoc2-docstring} src.configs.rl.policies.ahvpl.AHVPLConfig.elite_size
+```{autodoc2-docstring} src.configs.rl.policies.ahvpl.AHVPLConfig.nb_elite
 ```
 
 ````

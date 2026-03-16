@@ -44,7 +44,7 @@
 :canonical: src.configs.policies.hvpl.HVPLConfig.n_teams
 :type: int
 :value: >
-   10
+   30
 
 ```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.n_teams
 ```
@@ -55,20 +55,64 @@
 :canonical: src.configs.policies.hvpl.HVPLConfig.max_iterations
 :type: int
 :value: >
-   50
+   100
 
 ```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.max_iterations
 ```
 
 ````
 
-````{py:attribute} sub_rate
-:canonical: src.configs.policies.hvpl.HVPLConfig.sub_rate
+````{py:attribute} substitution_rate
+:canonical: src.configs.policies.hvpl.HVPLConfig.substitution_rate
 :type: float
 :value: >
    0.2
 
-```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.sub_rate
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.substitution_rate
+```
+
+````
+
+````{py:attribute} crossover_rate
+:canonical: src.configs.policies.hvpl.HVPLConfig.crossover_rate
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.crossover_rate
+```
+
+````
+
+````{py:attribute} mutation_rate
+:canonical: src.configs.policies.hvpl.HVPLConfig.mutation_rate
+:type: float
+:value: >
+   0.1
+
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.mutation_rate
+```
+
+````
+
+````{py:attribute} elite_size
+:canonical: src.configs.policies.hvpl.HVPLConfig.elite_size
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.elite_size
+```
+
+````
+
+````{py:attribute} aco_init_iterations
+:canonical: src.configs.policies.hvpl.HVPLConfig.aco_init_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.aco_init_iterations
 ```
 
 ````
@@ -77,7 +121,7 @@
 :canonical: src.configs.policies.hvpl.HVPLConfig.time_limit
 :type: float
 :value: >
-   60.0
+   300.0
 
 ```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.time_limit
 ```
@@ -97,7 +141,7 @@
 
 ````{py:attribute} aco
 :canonical: src.configs.policies.hvpl.HVPLConfig.aco
-:type: src.configs.policies.aco.ACOConfig
+:type: src.configs.policies.aco_ks.KSparseACOConfig
 :value: >
    'field(...)'
 

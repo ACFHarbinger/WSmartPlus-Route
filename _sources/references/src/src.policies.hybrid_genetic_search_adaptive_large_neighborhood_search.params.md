@@ -40,6 +40,28 @@
 
 ````
 
+````{py:attribute} alns_education_iterations
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_education_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_education_iterations
+```
+
+````
+
+````{py:attribute} hgs_max_iter
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter
+```
+
+````
+
 ````{py:attribute} hgs_params
 :canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_params
 :type: src.policies.hybrid_genetic_search.params.HGSParams

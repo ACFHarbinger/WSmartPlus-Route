@@ -267,6 +267,17 @@
 
 ````
 
+````{py:attribute} epsilon_decay_step
+:canonical: src.configs.policies.other.reinforcement_learning.TDLearningConfig.epsilon_decay_step
+:type: int
+:value: >
+   20
+
+```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.TDLearningConfig.epsilon_decay_step
+```
+
+````
+
 ````{py:attribute} history_size
 :canonical: src.configs.policies.other.reinforcement_learning.TDLearningConfig.history_size
 :type: int

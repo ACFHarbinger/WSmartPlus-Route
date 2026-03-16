@@ -106,7 +106,7 @@
 
 ````
 
-````{py:method} from_config(config: logic.src.configs.policies.ALNSConfig) -> src.policies.adaptive_large_neighborhood_search.params.ALNSParams
+````{py:method} from_config(config: typing.Any) -> src.policies.adaptive_large_neighborhood_search.params.ALNSParams
 :canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.from_config
 :classmethod:
 

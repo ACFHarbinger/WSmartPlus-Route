@@ -33,7 +33,7 @@
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.n_teams
 :type: int
 :value: >
-   10
+   30
 
 ```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.n_teams
 ```
@@ -44,20 +44,64 @@
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.max_iterations
 :type: int
 :value: >
-   50
+   100
 
 ```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.max_iterations
 ```
 
 ````
 
-````{py:attribute} sub_rate
-:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.sub_rate
+````{py:attribute} substitution_rate
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.substitution_rate
 :type: float
 :value: >
    0.2
 
-```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.sub_rate
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.substitution_rate
+```
+
+````
+
+````{py:attribute} crossover_rate
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.crossover_rate
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.crossover_rate
+```
+
+````
+
+````{py:attribute} mutation_rate
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.mutation_rate
+:type: float
+:value: >
+   0.1
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.mutation_rate
+```
+
+````
+
+````{py:attribute} elite_size
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.elite_size
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.elite_size
+```
+
+````
+
+````{py:attribute} aco_init_iterations
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.aco_init_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.aco_init_iterations
 ```
 
 ````
@@ -66,7 +110,7 @@
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.time_limit
 :type: float
 :value: >
-   60.0
+   300.0
 
 ```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.time_limit
 ```
@@ -75,7 +119,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.aco_params
-:type: src.policies.ant_colony_optimization.k_sparse_aco.params.ACOParams
+:type: src.policies.ant_colony_optimization_k_sparse.params.ACOParams
 :value: >
    'field(...)'
 
@@ -91,6 +135,23 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.alns_params
+```
+
+````
+
+````{py:method} __post_init__()
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.__post_init__
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.__post_init__
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.hybrid_volleyball_premier_league.params.HVPLParams
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.from_config
 ```
 
 ````

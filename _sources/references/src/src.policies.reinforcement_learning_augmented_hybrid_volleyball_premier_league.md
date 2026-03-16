@@ -15,6 +15,7 @@
 
 src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl
 src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params
+src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl
 ```
 
 ## Package Contents

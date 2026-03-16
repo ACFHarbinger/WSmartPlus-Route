@@ -45,6 +45,14 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ````
 
+````{py:method} _new_source() -> typing.List[typing.List[int]]
+:canonical: src.policies.artificial_bee_colony.solver.ABCSolver._new_source
+
+```{autodoc2-docstring} src.policies.artificial_bee_colony.solver.ABCSolver._new_source
+```
+
+````
+
 ````{py:method} _build_random_solution() -> typing.List[typing.List[int]]
 :canonical: src.policies.artificial_bee_colony.solver.ABCSolver._build_random_solution
 

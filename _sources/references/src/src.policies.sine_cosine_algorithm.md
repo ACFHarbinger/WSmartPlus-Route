@@ -14,5 +14,6 @@
 :maxdepth: 1
 
 src.policies.sine_cosine_algorithm.params
+src.policies.sine_cosine_algorithm.policy_sca
 src.policies.sine_cosine_algorithm.solver
 ```
