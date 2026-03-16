@@ -20,14 +20,22 @@ class RENSConfig:
     MIP on the remaining (fractional) variables.
 
     Attributes:
-        time_limit (float): Total maximum runtime for the heuristic (seconds).
-        lp_time_limit (float): Time strictly allocated for the initial LP relaxation phase.
-        mip_limit_nodes (int): Node limit for the sub-MIP branch-and-bound tree.
-        mip_gap (float): Target optimality gap for the restricted sub-MIP.
-        seed (int): Random seed for Gurobi solver consistency.
-        engine (str): Infrastructure engine to use (defaults to "custom").
-        must_go (Optional[MustGoConfig]): Configuration for mandatory node selection.
-        post_processing (Optional[PostProcessingConfig]): Post-optimization cleanup settings.
+        time_limit (float): Total maximum runtime for the entire RENS process
+            (including LP and MIP phases). Typical range is 30-120s.
+        lp_time_limit (float): Hard limit for the initial continuous relaxation
+            solve. LP relaxation is usually fast, so 5-10s is standard.
+        mip_limit_nodes (int): Limit on branch-and-bound nodes for the sub-MIP.
+            Used to prevent stalling on difficult neighborhoods.
+        mip_gap (float): Optimality gap threshold for the sub-MIP. Setting this
+            slightly higher (e.g., 0.05) often helps find a "good enough"
+            primal solution quickly.
+        seed (int): Random seed for the underlying Gurobi solver to ensure
+            deterministic and reproducible results.
+        engine (str): Internal solver engine identifier. Defaults to "custom".
+        must_go (Optional[MustGoConfig]): Composition handle for bin selection
+            strategies (e.g., collecting bins at risk of overflow).
+        post_processing (Optional[PostProcessingConfig]): Settings for
+            post-optimization refinement (e.g., Local Search or Route-Smoothing).
     """
 
     time_limit: float = 60.0

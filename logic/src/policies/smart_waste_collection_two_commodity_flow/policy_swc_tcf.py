@@ -1,5 +1,5 @@
 """
-VRPP Policy Wrapper.
+SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Policy Wrapper.
 """
 
 from __future__ import annotations
@@ -8,33 +8,34 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies import VRPPConfig
+from logic.src.configs.policies import SWCTCFConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.vehicle_routing_problem_with_profits.dispatcher import run_vrpp_optimizer
+
+from .dispatcher import run_swc_tcf_optimizer
 
 
-@PolicyRegistry.register("vrpp")
-class VRPPPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("swc_tcf")
+class SWCTCFPolicy(BaseRoutingPolicy):
     """
-    Agnostic VRPP Policy adapter.
-    Delegates to run_vrpp_optimizer.
+    Agnostic SWC-TCF Policy adapter.
+    Delegates to run_swc_tcf_optimizer.
     """
 
-    def __init__(self, config: Optional[Union[VRPPConfig, Dict[str, Any]]] = None):
-        """Initialize VRPP policy with optional config.
+    def __init__(self, config: Optional[Union[SWCTCFConfig, Dict[str, Any]]] = None):
+        """Initialize SWC-TCF policy with optional config.
 
         Args:
-            config: VRPPConfig dataclass, raw dict from YAML, or None.
+            config: SWCTCFConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return VRPPConfig
+        return SWCTCFConfig
 
     def _get_config_key(self) -> str:
-        return "vrpp"
+        return "swc_tcf"
 
     def _run_solver(
         self,
@@ -47,12 +48,12 @@ class VRPPPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - VRPP requires specialized execute()."""
+        """Not used - SWC-TCF requires specialized execute()."""
         return [], 0.0, 0.0
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
-        Execute the VRPP policy.
+        Execute the SWC-TCF policy.
         """
         # 1. Extract context
         area = kwargs.get("area", "Rio Maior")
@@ -82,7 +83,7 @@ class VRPPPolicy(BaseRoutingPolicy):
         optimizer = cfg.engine if cfg is not None else values.get("engine", "gurobi")
 
         # 5. Run optimizer
-        route, profit, cost = run_vrpp_optimizer(
+        route, profit, cost = run_swc_tcf_optimizer(
             bins=amounts,  # type: ignore[arg-type]
             distance_matrix=distance_matrix,  # type: ignore[arg-type]
             param=kwargs.get("param", 0.0),

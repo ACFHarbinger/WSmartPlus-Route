@@ -18,6 +18,7 @@ This document provides a reference for common abbreviations, acronyms, and domai
 | **hrl**      | Hierarchical RL       | Reinforcement Learning with a high-level manager and low-level workers.                         |
 | **hgs**      | Hybrid Genetic Search | A state-of-the-art metaheuristic for VRP.                                                       |
 | **alns**     | ALNS                  | Adaptive Large Neighborhood Search, a popular metaheuristic.                                    |
+| **swc_tcf**  | SWC-TCF               | Smart Waste Collection - Two-Commodity Flow, standard policy for VRPP.                          |
 
 ## Problem Domain Terms
 
