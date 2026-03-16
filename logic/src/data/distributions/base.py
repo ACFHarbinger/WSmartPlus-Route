@@ -28,7 +28,7 @@ class BaseDistribution(ABC):
         return self
 
     def sample(
-        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.default_rng]] = None
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.Generator]] = None
     ) -> Union[np.ndarray, torch.Tensor]:
         """Sample from distribution.
 
@@ -40,7 +40,7 @@ class BaseDistribution(ABC):
             Union[np.ndarray, torch.Tensor]: Sampled values.
         """
         if self._sampling_method == "sample_array":
-            assert rng is None or isinstance(rng, np.random.default_rng)
+            assert rng is None or isinstance(rng, np.random.Generator)
             return np.clip(self._sample_array(size, rng=rng), 0, MAX_WASTE)  # type: ignore[arg-type]
         elif self._sampling_method == "sample_tensor":
             assert rng is None or isinstance(rng, torch.Generator)
@@ -49,9 +49,7 @@ class BaseDistribution(ABC):
             raise ValueError(f"Unsupported sample_method: {self._sampling_method}")
 
     @abstractmethod
-    def _sample_array(
-        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.default_rng]] = None
-    ) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample from distribution.
 
         Args:

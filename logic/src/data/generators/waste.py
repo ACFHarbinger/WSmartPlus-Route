@@ -11,7 +11,15 @@ from typing import Any, Optional, Tuple, Union
 import numpy as np
 import torch
 
-from logic.src.data.distributions import Beta, Constant, Distance, Empirical, Gamma, Uniform
+from logic.src.data.distributions import (
+    BaseDistribution,
+    Beta,
+    Constant,
+    Distance,
+    Empirical,
+    Gamma,
+    Uniform,
+)
 
 
 def generate_waste(
@@ -20,7 +28,7 @@ def generate_waste(
     graph: Tuple[Any, Any],
     dataset_size: int = 1,
     grid: Optional[Any] = None,
-    rng: Optional[Union[torch.Generator, np.random.default_rng]] = None,
+    rng: Optional[Union[torch.Generator, np.random.Generator]] = None,
     sample_method: Optional[str] = "sample_array",
     **kwargs: Any,
 ) -> Union[np.ndarray, Any]:
@@ -43,7 +51,7 @@ def generate_waste(
         Generated waste values.
     """
     size = (dataset_size, problem_size)
-    dist_obj = None
+    dist_obj: BaseDistribution = None
     if distribution == "empty":
         dist_obj = Constant(value=0.0)
     elif distribution == "const":

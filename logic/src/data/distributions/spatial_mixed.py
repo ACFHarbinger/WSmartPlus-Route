@@ -28,15 +28,15 @@ class Mixed(BaseDistribution):
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
-    def _sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
-            size (Tuple[int, int, int]): Description of size.
+            size (Tuple[int, ...]): Description of size.
             generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Sampled values.
         """
         if generator is None:
             generator = torch.Generator().manual_seed(42)
@@ -78,7 +78,7 @@ class Mixed(BaseDistribution):
 
         return coords.clamp_(0, 1)
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """NumPy version of _sample_tensor."""
         if rng is None:
             rng = np.random.default_rng(42)
@@ -86,10 +86,10 @@ class Mixed(BaseDistribution):
         batch_size, num_loc, _ = size
 
         # 1. Generate cluster centers
-        center = self.lower + (self.upper - self.lower) * rng.rand(batch_size, self.n_cluster_mix * 2)
+        center = self.lower + (self.upper - self.lower) * rng.random(size=(batch_size, self.n_cluster_mix * 2))
 
         # 2. Initialize coords with uniform distribution [0, 1)
-        coords = rng.rand(batch_size, num_loc, 2)
+        coords = rng.random(size=(batch_size, num_loc, 2))
 
         # 3. Create mutation indices (equivalent to torch.randperm)
         # We generate a permutation for each batch and take the first half

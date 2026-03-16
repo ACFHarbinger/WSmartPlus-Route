@@ -27,7 +27,7 @@ class Generator(ABC):
         max_loc: float = 1.0,
         loc_distribution: Union[str, Callable] = "uniform",
         device: Union[str, torch.device] = "cpu",
-        rng: Optional[np.random.default_rng] = None,
+        rng: Optional[np.random.Generator] = None,
         generator: Optional[torch.Generator] = None,
         **kwargs: Any,
     ) -> None:

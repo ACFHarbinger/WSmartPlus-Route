@@ -7,7 +7,7 @@ Example:
     >>> import spatial_gaussian_mixture
 """
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, cast
 
 import numpy as np
 import torch
@@ -28,15 +28,15 @@ class GaussianMixture(BaseDistribution):
         self.num_modes = num_modes
         self.cdist = cdist
 
-    def _sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
-            size (Tuple[int, int, int]): Description of size.
+            size (Tuple[int, ...]): Description of size.
             generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Sampled values.
         """
         if generator is None:
             generator = torch.Generator().manual_seed(42)
@@ -51,7 +51,7 @@ class GaussianMixture(BaseDistribution):
                 [self._generate_gaussian_mixture(num_loc, generator=generator) for _ in range(batch_size)]
             )
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """NumPy version of the Gaussian/Mixture spatial sampler."""
         if rng is None:
             # Maintaining the same default seed for reproducibility
@@ -61,7 +61,7 @@ class GaussianMixture(BaseDistribution):
 
         # Case 1: Simple Uniform Distribution
         if self.num_modes == 0:
-            return rng.rand(batch_size, num_loc, 2)
+            return rng.random(size=(batch_size, num_loc, 2))
 
         # Case 2: Single Mode Gaussian (Vectorized)
         elif self.num_modes == 1 and self.cdist == 1:
@@ -105,7 +105,7 @@ class GaussianMixture(BaseDistribution):
                 )
                 coords = torch.cat((coords, nxy), dim=0)
 
-        return self._global_min_max_scaling(coords)
+        return self._global_min_max_scaling(coords)  # type: ignore[return-value]
 
     def _generate_gaussian(
         self, batch_size: int, num_loc: int, generator: Optional[torch.Generator] = None
@@ -132,9 +132,9 @@ class GaussianMixture(BaseDistribution):
         indices = torch.randperm(coords.size(0), generator=generator)
         coords = coords[indices]
 
-        return self._batch_normalize_and_center(coords)
+        return self._batch_normalize_and_center(coords)  # type: ignore[return-value]
 
-    def _generate_gaussian_mixture_array(self, num_loc: int, rng: np.random.default_rng) -> np.ndarray:
+    def _generate_gaussian_mixture_array(self, num_loc: int, rng: np.random.Generator) -> np.ndarray:
         # 1. Sample which mode each point belongs to (replacing multinomial)
         probs = np.ones(self.num_modes) / self.num_modes
         nums = rng.choice(self.num_modes, size=num_loc, p=probs)
@@ -145,7 +145,7 @@ class GaussianMixture(BaseDistribution):
             num = np.sum(nums == i)
             if num > 0:
                 # Random center scaled by cdist
-                center = rng.rand(2) * self.cdist
+                center = rng.random(2) * self.cdist
                 cov = np.eye(2)
 
                 # Sample from Multivariate Normal
@@ -155,11 +155,11 @@ class GaussianMixture(BaseDistribution):
         # Concatenate all sampled clusters
         coords = np.vstack(coords_list)
 
-        return self._global_min_max_scaling(coords)
+        return self._global_min_max_scaling(coords)  # type: ignore[return-value]
 
-    def _generate_gaussian_array(self, batch_size: int, num_loc: int, rng: np.random.default_rng) -> np.ndarray:
+    def _generate_gaussian_array(self, batch_size: int, num_loc: int, rng: np.random.Generator) -> np.ndarray:
         coords = np.zeros((batch_size, num_loc, 2))
-        cov_values = rng.rand(batch_size)
+        cov_values = rng.random(batch_size)
 
         # In NumPy, we still iterate over the batch for Multivariate Normal
         # as its built-in multivariate_normal doesn't broadcast different cov matrices easily
@@ -175,7 +175,7 @@ class GaussianMixture(BaseDistribution):
         indices = rng.permutation(batch_size)
         coords = coords[indices]
 
-        return self._batch_normalize_and_center_array(coords)
+        return self._batch_normalize_and_center(coords)  # type: ignore[return-value]
 
     def _global_min_max_scaling(self, coords: Union[np.ndarray, torch.Tensor]) -> Union[np.ndarray, torch.Tensor]:
         """global min max scaling.
@@ -187,8 +187,9 @@ class GaussianMixture(BaseDistribution):
             Any: Description of return value.
         """
         if isinstance(coords, torch.Tensor):
-            coords_min = coords.min(dim=0, keepdim=True).values
-            coords_max = coords.max(dim=0, keepdim=True).values
+            t_coords = cast(torch.Tensor, coords)
+            coords_min = torch.amin(t_coords, dim=0, keepdim=True)
+            coords_max = torch.amax(t_coords, dim=0, keepdim=True)
         else:
             coords_min = coords.min(axis=0, keepdims=True)
             coords_max = coords.max(axis=0, keepdims=True)
@@ -206,23 +207,24 @@ class GaussianMixture(BaseDistribution):
             Any: Description of return value.
         """
         if isinstance(coords, torch.Tensor):
-            coords_min = coords.min(dim=1, keepdim=True).values
-            coords_max = coords.max(dim=1, keepdim=True).values
+            t_coords = cast(torch.Tensor, coords)
+            coords_min = torch.amin(t_coords, dim=1, keepdim=True)
+            coords_max = torch.amax(t_coords, dim=1, keepdim=True)
         else:
             coords_min = coords.min(axis=1, keepdims=True)
             coords_max = coords.max(axis=1, keepdims=True)
 
         coords = coords - coords_min
-        range_max = (
-            (coords_max - coords_min).max(dim=-1, keepdim=True).values
-            if isinstance(coords, torch.Tensor)
-            else (coords_max - coords_min).max(axis=-1, keepdims=True)
-        )
+        if isinstance(coords, torch.Tensor):
+            range_max = torch.amax(coords_max - coords_min, dim=-1, keepdim=True)
+        else:
+            range_max = (coords_max - coords_min).max(axis=-1, keepdims=True)
+
         coords = coords / (range_max + 1e-8)
 
-        coords = (
-            coords + (1 - coords.max(dim=1, keepdim=True).values) / 2
-            if isinstance(coords, torch.Tensor)
-            else coords + (1 - coords.max(axis=1, keepdims=True)) / 2
-        )
+        if isinstance(coords, torch.Tensor):
+            coords = coords + (1 - torch.amax(coords, dim=1, keepdim=True)) / 2
+        else:
+            coords = coords + (1 - coords.max(axis=1, keepdims=True)) / 2
+
         return coords

@@ -30,11 +30,11 @@ class MixDistribution(BaseDistribution):
         self.Mixed = Mixed(n_cluster_mix=n_cluster_mix)
         self.Cluster = Cluster(n_cluster=n_cluster)
 
-    def _sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
-            size (Tuple[int, int, int]): Description of size.
+            size (Tuple[int, ...]): Description of size.
             generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
@@ -60,7 +60,7 @@ class MixDistribution(BaseDistribution):
 
         return coords
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """NumPy version of the probabilistic spatial sampler."""
         if rng is None:
             rng = np.random.default_rng(42)
@@ -68,24 +68,24 @@ class MixDistribution(BaseDistribution):
         batch_size, num_loc, _ = size
 
         # 1. Initialize coordinates with uniform distribution [0, 1)
-        coords = rng.rand(batch_size, num_loc, 2)
+        coords = rng.random(size=(batch_size, num_loc, 2))
 
         # 2. Sample probabilities for the distribution mixture
-        p = rng.rand(batch_size)
+        p = rng.random(size=(batch_size,))
 
         # 3. Handle 'Mixed' distribution (p <= 0.33)
         mask_mixed = p <= 0.33
         n_mixed = np.sum(mask_mixed)
         if n_mixed > 0:
             # Strategy Pattern: call the array version of the Mixed sampler
-            coords[mask_mixed] = self.Mixed._sample_array((n_mixed, num_loc, 2), rng=rng)
+            coords[mask_mixed] = self.Mixed._sample_array((n_mixed, num_loc, 2), rng=rng)  # type: ignore[arg-type]
 
         # 4. Handle 'Cluster' distribution (0.33 < p <= 0.66)
         mask_cluster = (p > 0.33) & (p <= 0.66)
         n_cluster = np.sum(mask_cluster)
         if n_cluster > 0:
             # Strategy Pattern: call the array version of the Cluster sampler
-            coords[mask_cluster] = self.Cluster._sample_array((n_cluster, num_loc, 2), rng=rng)
+            coords[mask_cluster] = self.Cluster._sample_array((n_cluster, num_loc, 2), rng=rng)  # type: ignore[arg-type]
 
         # Note: (p > 0.66) remains the initial uniform distribution (coords)
         return coords

@@ -81,7 +81,11 @@ def test_run_day_execution():
     """Test run_day function orchestrates actions."""
     # Mock SimulationDayContext
     mock_context = MagicMock()
-    mock_context.policy = "regular"
+    mock_context.policy = "cvrp"
+    mock_context.policy_name = "cvrp"
+    mock_context.seed = 42
+    mock_context.day = 1
+    mock_context.bins = None
 
     with patch("logic.src.pipeline.simulations.actions.FillAction") as MockFill, \
          patch("logic.src.pipeline.simulations.actions.PolicyExecutionAction") as MockPolicy, \

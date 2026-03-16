@@ -45,7 +45,7 @@ def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed
         distance_matrix (np.ndarray): Distance matrix.
         bins_cannot_removed (List[int]): Bins that must remain in the routes.
         rng (random.Random): Random number generator.
-        np_rng (np.random.default_rng): Numpy random number generator.
+        np_rng (np.random.Generator): Numpy random number generator.
 
     Returns:
         List[List[int]]: Mutated routing solution.

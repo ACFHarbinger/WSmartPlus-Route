@@ -28,15 +28,15 @@ class Cluster(BaseDistribution):
         self.lower, self.upper = 0.2, 0.8
         self.std = 0.07
 
-    def _sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample clustered locations.
 
         Args:
-            size: (batch_size, num_loc, 2)
+            size (Tuple[int, ...]): Description of size.
             generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
-            Tensor of shape (batch_size, num_loc, 2)
+            torch.Tensor: Sampled values.
         """
         if generator is None:
             generator = torch.Generator().manual_seed(42)
@@ -65,7 +65,7 @@ class Cluster(BaseDistribution):
 
         return coords.clamp_(0, 1)
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """NumPy version of clustered location sampling."""
         if rng is None:
             rng = np.random.default_rng(42)
@@ -74,7 +74,7 @@ class Cluster(BaseDistribution):
 
         # 1. Sample cluster centers uniformly within [lower, upper]
         # Shape: (batch_size, n_cluster * 2)
-        center = self.lower + (self.upper - self.lower) * rng.rand(batch_size, self.n_cluster * 2)
+        center = self.lower + (self.upper - self.lower) * rng.random(size=(batch_size, self.n_cluster * 2))
 
         coords = np.zeros((batch_size, num_loc, 2))
 
