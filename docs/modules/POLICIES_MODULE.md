@@ -143,7 +143,7 @@ logic/src/policies/
 │   ├── policy_sans.py                       # SANS adapter
 │   ├── policy_sisr.py                       # SISR adapter
 │   ├── policy_tsp.py                        # TSP adapter
-│   └── policy_vrpp.py                       # VRPP adapter
+│   └── policy_swc_tcf.py                    # SWC-TCF adapter
 │
 ├── adaptive_large_neighborhood_search/      # ALNS Implementation
 │   ├── __init__.py
@@ -199,10 +199,10 @@ logic/src/policies/
 │   ├── solver.py                            # SISR solver
 │   └── params.py
 │
-├── vehicle_routing_problem_with_profits/    # VRPP Solvers
-│   ├── interface.py                         # VRPP interface
-│   ├── gurobi.py                            # Gurobi VRPP solver
-│   └── hexaly.py                            # Hexaly VRPP solver
+├── smart_waste_collection_two_commodity_flow/ # SWC-TCF Solvers
+│   ├── dispatcher.py                        # SWC-TCF dispatcher
+│   ├── gurobi.py                            # Gurobi SWC-TCF solver
+│   └── hexaly.py                            # Hexaly SWC-TCF solver
 │
 ├── neural_agent/                            # Neural Policy Wrapper
 │   ├── agent.py                             # NeuralAgent class
@@ -313,7 +313,7 @@ tour, cost, metadata = policy.execute(
 - `"alns"`, `"hgs"`, `"hgs_alns"`, `"bpc"`, `"gurobi"`, `"hexaly"`
 - `"ks_aco"`, `"hh_aco"`, `"sisr"`, `"sans"`, `"lkh"`
 - `"neural"`, `"am"`, `"ddam"`, `"tam"`, `"transgcn"`
-- `"tsp"`, `"cvrp"`, `"vrpp"`
+- `"tsp"`, `"cvrp"`, `"swc_tcf"`
 
 ### 4.2 PolicyRegistry
 
@@ -2559,15 +2559,15 @@ tour, cost, _ = bpc_policy.execute(
 ### 6.2 VRPP Exact Solvers
 
 **Directory**: `vehicle_routing_problem_with_profits/`
-**Adapters**: `policy_vrpp.py`
+**Adapters**: `policy_swc_tcf.py`
 
 Exact optimization for VRPP (profit-oriented VRP).
 
 ```python
-from logic.src.policies import run_vrpp_optimizer
+from logic.src.policies import run_swc_tcf_optimizer
 
-# Gurobi VRPP
-routes, cost, selected_nodes = run_vrpp_optimizer(
+# Gurobi SWC-TCF
+routes, cost, selected_nodes = run_swc_tcf_optimizer(
     distance_matrix=dist_matrix,
     wastes=wastes_dict,  # Profit per node
     capacity=200.0,
