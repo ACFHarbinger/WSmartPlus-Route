@@ -1,0 +1,32 @@
+# Only Improving (OI) Policy Configuration
+# Reference: Canonical Elitist Local Search
+
+# The Only Improving policy is the strictest form of local search move acceptance.
+# It accepts a candidate solution if and only if its profit is strictly greater
+# than the current solution's profit. This strategy effectively performs a
+# steepest descent (or hill climbing for maximization) towards the nearest local optimum.
+
+oi:
+  # Total number of low-level heuristic (LLH) applications.
+  max_iterations: 1000
+
+  # Number of nodes to remove in the "Ruin" phase of each iteration.
+  n_removal: 2
+
+  # Number of available Low-Level Heuristics in the pool.
+  n_llh: 5
+
+  # Wall-clock time limit in seconds.
+  time_limit: 60.0
+
+  # Whether to enable VRPP mode (selecting profitable subsets of nodes).
+  vrpp: true
+
+  # Random seed for reproducibility.
+  seed: null
+
+  # Must-go node selection strategies.
+  must_go: null
+
+  # Post-processing steps (e.g., 2-opt refinement).
+  post_processing: null

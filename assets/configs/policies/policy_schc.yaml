@@ -1,0 +1,35 @@
+# Step Counting Hill Climbing (SCHC) Policy Configuration
+# Reference: Burke, E. K., & Bykov, Y. (2016). "The step counting hill climbing algorithm."
+
+# SCHC is a memory-based acceptance criterion. It maintains a profit threshold
+# that remains constant for a fixed number of steps (the 'step_size').
+# If the candidate solution is better than or equal to this threshold, it is accepted.
+# At the end of each interval, the threshold is updated to the current solution's profit.
+
+schc:
+  # Total number of iterations.
+  max_iterations: 1000
+
+  # Interval length: the number of steps before the threshold is updated.
+  step_size: 100
+
+  # Number of nodes destroyed per iteration.
+  n_removal: 2
+
+  # Number of Low-Level Heuristics in the pool.
+  n_llh: 5
+
+  # Wall-clock time limit in seconds.
+  time_limit: 60.0
+
+  # Whether to enable VRPP mode.
+  vrpp: true
+
+  # Random seed for reproducibility.
+  seed: null
+
+  # Must-go node selection strategies.
+  must_go: null
+
+  # Post-processing refinement.
+  post_processing: null

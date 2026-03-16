@@ -1,0 +1,53 @@
+# Ensemble Move Acceptance (EMA) Policy Configuration
+# Reference: Ahmed Kheiri (2016). "Sequence-based Selection Hyper-heuristic" (General context)
+
+# EMA is a meta-criterion that combines multiple base criteria (like SA, GD, IE)
+# to make a joint decision about accepting a move. This configuration allows
+# the user to specify which criteria to use and how to combine their decisions.
+
+ema:
+  # Total number of iterations.
+  max_iterations: 1000
+
+  # Decision rule used to consolidate sub-criteria results:
+  # - "G-VOT": Grand Voting. Accepts if the majority of criteria accept. (Default)
+  # - "G-AND": Grand And. Accepts ONLY if ALL criteria accept.
+  # - "G-OR": Grand Or. Accepts if ANY criterion accepts.
+  # - "G-PVO": Probabilistic Voting. Accept with probability = (Accepted_Count / Total_Criteria).
+  rule: "G-VOT"
+
+  # List of criteria indices/names to include in the ensemble.
+  # Supported: "oi", "ie", "sa", "gd", "ta"
+  criteria: ["sa", "gd", "ie"]
+
+  # Nested parameters for individual criteria within the ensemble.
+  sub_params:
+    sa:
+      initial_temp: 100.0
+      alpha: 0.995
+      min_temp: 0.01
+    gd:
+      target_fitness_multiplier: 1.1
+    ta:
+      initial_threshold: 100.0
+
+  # Number of nodes removed per iteration.
+  n_removal: 2
+
+  # Number of LLHs in the ensemble solver's pool.
+  n_llh: 5
+
+  # Wall-clock time limit in seconds.
+  time_limit: 60.0
+
+  # Whether to enable VRPP mode.
+  vrpp: true
+
+  # Random seed for reproducibility.
+  seed: null
+
+  # Must-go node selection strategies.
+  must_go: null
+
+  # Post-processing steps.
+  post_processing: null

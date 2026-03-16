@@ -1,0 +1,36 @@
+# Threshold Accepting (TA) Policy Configuration
+# Reference: Dueck, G., & Scheuer, T. (1990). "Threshold accepting: A general purpose optimization algorithm appearing superior to simulated annealing."
+
+# Threshold Accepting is a deterministic version of Simulated Annealing.
+# It accepts worsening moves if the deterioration is within a certain absolute
+# threshold. This threshold decays linearly over time until it reaches zero,
+# at which point the algorithm behaves like a greedy Only Improving search.
+
+ta:
+  # Total number of iterations.
+  max_iterations: 1000
+
+  # Starting absolute threshold for accepting worsening moves.
+  # A high value encourages exploration; 0.0 makes it purely elitist.
+  initial_threshold: 100.0
+
+  # Number of nodes removed per destroy step.
+  n_removal: 2
+
+  # Number of LLHs in the solver's pool.
+  n_llh: 5
+
+  # Wall-clock time limit in seconds.
+  time_limit: 60.0
+
+  # Whether to enable VRPP mode.
+  vrpp: true
+
+  # Random seed for reproducibility.
+  seed: null
+
+  # Must-go node selection strategies.
+  must_go: null
+
+  # Post-processing refinement steps.
+  post_processing: null
