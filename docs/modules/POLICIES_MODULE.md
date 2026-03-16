@@ -392,135 +392,217 @@ class MyPolicy(BaseRoutingPolicy):
 
 ### 5.1 ALNS (Adaptive Large Neighborhood Search)
 
-**Directory**: `adaptive_large_neighborhood_search/`
+**Location**: `logic/src/policies/adaptive_large_neighborhood_search/`
 **Adapters**: `policy_alns.py`
 
 Destroy-and-repair metaheuristic with adaptive operator weights.
 
-#### Architecture
+#### Algorithm
 
+```text
+Algorithm: Adaptive Large Neighborhood Search
+1. Generate an initial solution x
+2. x_best ← x
+3. Initialize weights w_i for all destroy and repair heuristics
+4. While stopping criterion is not met:
+   a. Select a destroy heuristic d_i and a repair heuristic r_j
+      using roulette wheel selection based on weights w_i, w_j
+   b. Generate neighborhood solution: x' ← r_j(d_i(x))
+   c. If Accept(x', x) criteria met (e.g., Simulated Annealing):
+        x ← x'
+   d. If f(x) < f(x_best):
+        x_best ← x
+   e. Update scores for d_i and r_j based on the performance of x'
+   f. Periodically update weights w_i and w_j using accumulated scores
+5. Return x_best
 ```
-ALNSPolicy
-├── Engine Selection (custom, ortools, package)
-├── Destroy Operators
-│   ├── Random Removal
-│   ├── Worst Removal
-│   ├── Cluster Removal
-│   ├── Shaw Removal
-│   └── String Removal
-├── Repair Operators
-│   ├── Greedy Insertion
-│   ├── Regret-2 Insertion
-│   ├── Regret-k Insertion
-│   └── Greedy Blink Insertion
-└── Adaptive Weight Update (Simulated Annealing acceptance)
-```
+
+#### Key Features
+
+- **Adaptive Weighting Mechanism**: Maintains a pool of distinct "destroy" (removal) and "repair" (insertion) operators. The algorithm continuously evaluates operator performance and adaptively shifts the selection probability towards heuristics that have historically yielded better solutions.
+
+- **Competing Sub-Heuristics**: Rather than relying on a single neighborhood structure, ALNS explores the search space using multiple, competing strategies (e.g., Shaw removal, worst removal, regret insertion), allowing it to effectively navigate diverse and heavily constrained landscapes.
+
+- **Simulated Annealing Acceptance**: Utilizes a simulated annealing metaheuristic framework at the master level to decide whether to accept worse solutions, enabling the algorithm to escape local optima.
+
+#### Mathematical Formulation
+
+**Operator Selection Probability:**
+
+$$
+P(heuristic_i) = \frac{w_i}{\sum_{k=1}^{n} w_k}
+$$
+
+where:
+
+- $w_i$ is the weight of heuristic $i$
+- $n$ is the total number of heuristics
+
+**Weight Update Rule:**
+
+$$
+w_i \leftarrow (1 - r) * w_i + r * \left(\frac{π_i}{θ_i}\right)
+$$
+
+where:
+
+- $r$ is the reaction factor
+- $π_i$ is the score accumulated during the segment of heuristic $i$
+- $θ_i$ is the number of times the heuristic $i$ was used
+
+**Scoring System ($\pi$ increments):**
+
+- $\sigma_1$: New global best solution found.
+- $\sigma_2$: Better solution than current found.
+- $\sigma_3$: Worse solution accepted.
+
+**Key Parameters:**
+
+- `time_limit`: Maximum runtime in seconds.
+- `max_iterations`: Maximum destroy/repair cycles.
+- `start_temp`: Initial temperature for SA acceptance.
+- `cooling_rate`: The decay rate for the simulated annealing temperature parameter.
+- `reaction_factor`(r): Controls how quickly the weight adjustment reacts to recent operator performance.
+- `min_removal`: Minimum nodes to destroy.
+- `max_removal_pct`: Maximum % of nodes to destroy.
+
+**Complexity:**
+
+- Time: Heavily dependent on the complexity of the selected insertion heuristic. Generally $O(T \times q \times n^2)$ where $T$ is iterations, $q$ is removed nodes, and $n$ is total nodes.
+- Space: $O(n)$ to store current and best solutions.
 
 #### Usage Example
 
 ```python
-from logic.src.policies import run_alns, ALNSParams
+from logic.src.policies.adaptive_large_neighborhood_search import ALNSSolver, ALNSParams
 
-# Configure ALNS
 params = ALNSParams(
-    time_limit=60.0,
-    max_iterations=5000,
-    start_temp=100.0,
-    cooling_rate=0.995,
+    max_iterations=25000,
     reaction_factor=0.1,
-    min_removal=1,
-    max_removal_pct=0.3
+    cooling_rate=0.9995,
+    sigma_1=33, sigma_2=9, sigma_3=13,
+    min_removal_pct=0.1,
+    max_removal_pct=0.4,
+    time_limit=120.0
 )
 
-# Run ALNS
-routes, cost = run_alns(
-    distance_matrix=dist_matrix,
-    wastes=wastes_dict,
-    capacity=200.0,
+solver = ALNSSolver(
+    dist_matrix=distance_matrix,
+    demands=node_demands,
+    capacity=vehicle_capacity,
     params=params
 )
 
-# Via adapter
-from logic.src.policies.adapters import PolicyFactory
-
-alns_policy = PolicyFactory.get_adapter("alns")
-tour, cost, _ = alns_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
-    distance_matrix=dist_matrix,
-    area="riomaior",
-    config={"alns": {"time_limit": 120.0}}
-)
+best_routes, best_cost = solver.solve()
 ```
 
-#### Key Parameters
+#### References
 
-| Parameter         | Default | Description                                    |
-| ----------------- | ------- | ---------------------------------------------- |
-| `time_limit`      | 60.0    | Maximum runtime in seconds                     |
-| `max_iterations`  | 5000    | Maximum destroy/repair cycles                  |
-| `start_temp`      | 100.0   | Initial temperature for SA acceptance          |
-| `cooling_rate`    | 0.995   | Temperature decay rate per iteration           |
-| `reaction_factor` | 0.1     | Speed of operator weight adaptation            |
-| `min_removal`     | 1       | Minimum nodes to destroy                       |
-| `max_removal_pct` | 0.3     | Maximum % of nodes to destroy                  |
-| `engine`          | custom  | Implementation: `custom`, `ortools`, `package` |
+1. Ropke, S., & Pisinger, D. (2006). "An Adaptive Large Neighborhood Search Heuristic for the Pickup and Delivery Problem with Time Windows." Transportation Science, 40(4), 455-472.
 
 ### 5.2 HGS (Hybrid Genetic Search)
 
-**Directory**: `hybrid_genetic_search/`
+**Location**: `logic/src/policies/hybrid_genetic_search/`
 **Adapters**: `policy_hgs.py`, `policy_hgs_alns.py`
 
 State-of-the-art genetic algorithm with local search and Split procedure.
 
-#### Architecture
+#### Algorithm
 
+```text
+Algorithm: Hybrid Genetic Search
+1. Initialize feasible and infeasible subpopulations (P_feas, P_infeas)
+2. While stopping criteria not met:
+   a. Select two parent individuals P1, P2 using binary tournament
+   b. Generate offspring C via Order Crossover (OX) or similar operator
+   c. Educate(C): Apply local search (including SWAP* neighborhood)
+   d. If C violates capacity/duration constraints:
+        Add C to P_infeas
+      Else:
+        Add C to P_feas
+   e. Update penalty parameters based on proportion of feasible individuals
+   f. If |P_feas| > max_size OR |P_infeas| > max_size:
+        SurvivorSelection(Subpopulation) → Remove worst individuals based on Biased Fitness
+   g. Update global best solution
+3. Return best feasible individual
 ```
-HGSPolicy
-├── Population Management
-│   ├── Feasible Solutions
-│   └── Infeasible Solutions
-├── Genetic Operators
-│   ├── OX Crossover (Order Crossover)
-│   ├── PMX Crossover (Partially Mapped)
-│   └── Mutation (random swaps)
-├── Local Search
-│   ├── Intra-route: 2-opt, 3-opt
-│   ├── Inter-route: relocate, swap, 2-opt*
-│   └── Perturbation for diversity
-├── Split Algorithm (giant tour → routes)
-└── Survivor Selection (elite + diversity)
-```
+
+#### Key Features
+
+- **Biased Fitness & Diversity Management**: HGS prevents premature convergence by scoring individuals not just on their objective value (cost/distance), but also on their contribution to the population's genetic diversity.
+- **Relaxed Constraints (Infeasible Subpopulation)**: Dynamically maintains an infeasible subpopulation, allowing the search to temporarily violate capacity or time constraints to cross barriers in the objective landscape, adjusting penalty weights dynamically based on recent feasibility ratios.
+- **Advanced Local Search (SWAP\*)**: Integrates intense local search optimization (education) on every generated offspring. Specifically leverages the SWAP\* neighborhood which evaluates the exchange of nodes between routes without requiring optimal insertion positions a priori.
+- **Split Algorithm Evaluation**: Uses a highly efficient Split algorithm with $O(n)$ complexity to evaluate individuals represented as giant tours without trip delimiters.
+
+#### Mathematical Formulation
+
+**Biased Fitness Function:**
+
+$$
+biased_fitness(C) = fit(C) + (1 - (\frac{N_{elite}}{|P|})) * dc(C)
+$$
+
+where:
+
+- $fit(C)$ is the rank of the individual based on penalized cost
+- $dc(C)$ is the diversity contribution rank of the individual (measured via average distance to $n_{close}$ nearest neighbors)
+- $N_{elite}$ is the number of elite individuals
+- $|P|$ is the population size
+
+**Penalized Cost Function:**
+
+$$
+φ(C) = distance(C) + ω_Q * overcapacity(C) + ω_T * overtime(C)
+$$
+
+where:
+
+- $distance(C)$ is the total distance of the individual
+- $ω_Q$ is the penalty factor for overcapacity
+- $overcapacity(C)$ is the total overcapacity of the individual
+- $ω_T$ is the penalty factor for overtime
+- $overtime(C)$ is the total overtime of the individual
+
+**Key Parameters:**
+
+- `mu (μ)`: Minimum population size.
+- `lambda (λ)`: Generation size (number of offspring created before survivor selection).
+- `n_elite`: Number of elite individuals strictly protected from survivor deletion.
+- `n_close`: Number of nearest neighbors used to calculate diversity contribution.
+
+**Complexity:**
+
+- Time: Dominated by the local search step $O(T \times n^2)$. The SWAP\* operator drastically reduces the constant factor of standard inter-route swaps.
+- Space: $O(\mu \times n)$ to maintain the subpopulations.
 
 #### Usage Example
 
 ```python
-from logic.src.policies import run_hgs
+from logic.src.policies.hybrid_genetic_search import HGSSolver, HGSParams
 
-# Run HGS
-routes, cost = run_hgs(
-    distance_matrix=dist_matrix,
-    wastes=wastes_dict,
-    capacity=200.0,
-    time_limit=60.0,
-    population_size=50,
-    elite_size=10
+params = HGSParams(
+    mu=25,
+    lambda_=40,
+    n_elite=5,
+    n_close=4,
+    penalty_update_interval=100,
+    max_iterations=10000,
+    time_limit=300.0
 )
 
-# Via adapter
-hgs_policy = PolicyFactory.get_adapter("hgs")
-tour, cost, _ = hgs_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
-    distance_matrix=dist_matrix,
-    config={
-        "hgs": {
-            "time_limit": 120.0,
-            "population_size": 100
-        }
-    }
+solver = HGSSolver(
+    dist_matrix=distance_matrix,
+    demands=demands,
+    capacity=capacity,
+    params=params
 )
+
+best_routes, best_cost = solver.solve()
 ```
+
+#### References
+
+1. Vidal, T. (2022). "Hybrid genetic search for the CVRP: Open-source implementation and SWAP\* neighborhood." Computers & Operations Research, 140, 105643.
 
 #### 5.2.1 HGS-ALNS Variant
 
@@ -586,13 +668,93 @@ routes, cost = run_hyper_heuristic_aco(
 
 ### 5.4 SANS (Simulated Annealing Neighborhood Search)
 
-**Directory**: `simulated_annealing_neighborhood_search/`
+**Location**: `logic/src/policies/simulated_annealing_neighborhood_search/`
 **Adapters**: `policy_sans.py`
 
 Comprehensive SA-based search with multiple neighborhoods.
 
+#### Algorithm
+
+```text
+Algorithm: Simulated Annealing Neighborhood Search (SANS)
+1. Initialize route and bin selection S ← GenerateInitialSolution(must_go_bins)
+2. S_best ← S
+3. T ← T_initial
+4. While T > T_final:
+   a. For iter = 1 to max_iterations (per temperature level):
+      i.   Select a neighborhood operator randomly from active pool (e.g., Swap, Relocate, 2-Opt)
+      ii.  Generate candidate solution S' ∈ N(S)
+      iii. Δ ← f(S') - f(S)
+      iv.  If Δ < 0 (improvement):
+             S ← S'
+             If f(S') < f(S_best):
+                 S_best ← S'
+      v.   Else (worse solution):
+             Draw random r ∈ (0, 1)
+             If r < exp(-Δ / T):
+                 S ← S'  (Probabilistic acceptance)
+   b. T ← T * α (Geometric cooling schedule)
+5. Return S_best
+```
+
+#### Key Features
+
+- **Metropolis Acceptance Criterion**: Leverages thermodynamic-inspired probability to accept worse routing configurations early in the search (when the "temperature" is high) to escape local optima. As the system cools, it gradually transforms into a strict, greedy descent algorithm.
+
+- **Profit-Oriented Node Selection**: Specifically tailored for "smart waste collection" or Inventory Routing Problems, SANS actively decides which non-mandatory (optional) nodes are profitable to visit on the current day by balancing the routing cost penalty against the revenue or urgency of the node.
+
+- **Multi-Neighborhood Exploration**: Fuses Simulated Annealing with Variable Neighborhood Search principles. It dynamically applies a suite of inter-route and intra-route operators (e.g., Relocate, Swap, 2-Opt) to thoroughly explore the structural landscape without getting trapped in a single operator's local minimum.
+
+- **Look-Ahead Integration Readiness**: Designed to naturally pair with look-ahead heuristics that flag must_go nodes, isolating the combinatorial routing logic from the predictive inventory management logic.
+
+#### Mathematical Formulation
+
+**Acceptabce Probability:**
+
+$$
+p_{accept}(S') = \begin{cases}
+    1 & \text{if } f(S') < f(S) \\
+    \exp\left(-\frac{f(S') - f(S)}{T}\right) & \text{otherwise}
+\end{cases}
+$$
+
+where:
+
+- $f(S)$ is the objective function value of solution $S$
+- $T$ is the current temperature
+
+**Geometric Cooling Schedule:**
+
+$$
+T_{k+1} = \alpha \cdot T_k
+$$
+
+where:
+
+- $T_{k}$ is the temperature at iteration $k$
+- $\alpha$ is the cooling rate
+
+**Key Parameters:**
+
+- `initial_temp` ($T_0$): Starting temperature, typically set high enough to accept a large percentage of worse moves initially.
+- `cooling_rate` ($\alpha$): The decay factor applied to the temperature at the end of each epoch (e.g., 0.95 to 0.99).
+- `max_iterations`: The number of neighborhood moves evaluated at each temperature plateau.
+- `neighborhoods`: Array denoting the specific structural operators allowed to generate $S'$ (e.g., ["swap", "relocate", "2opt"]).
+
+**Complexity:**
+
+- Time: $\mathcal{O}(K \times I \times n^2)$ where $K$ is the number of temperature plateaus (calculated via $\log_{\alpha}(T_{final}/T_{initial})$), $I$ is max_iterations, and $n^2$ bounds the neighborhood generation.
+- Space: $\mathcal{O}(n)$ to track the current working solution and the global best solution.
+
+#### Usage Example
+
 ```python
+from logic.src.policies.adapters import PolicyFactory
+
+# Instantiate the SANS adapter
 sans_policy = PolicyFactory.get_adapter("sans")
+
+# Execute policy with geometric cooling and multi-neighborhood search
 tour, cost, _ = sans_policy.execute(
     must_go=must_go_bins,
     bins=bins_state,
@@ -608,6 +770,10 @@ tour, cost, _ = sans_policy.execute(
     }
 )
 ```
+
+#### References
+
+1. Jorge, D., Antunes, A. P., Ramos, T. R. P., & Barbosa-Póvoa, A. P. (2022). "A hybrid metaheuristic for smart waste collection problems with workload concerns." Computers & Operations Research, 137, 105518.
 
 ### 5.5 RL-HVPL (Reinforcement Learning Hybrid Volleyball Premier League)
 
@@ -941,108 +1107,195 @@ reinforcement_learning_hybrid_volleyball_premier_league/
 
 ### 5.6 FILO (Fast Iterative Localized Optimization)
 
-**Directory**: `fast_iterative_localized_optimization/`
+**Location**: `logic/src/policies/fast_iterative_localized_optimization/`
 **Adapters**: `policy_filo.py`
 
 Fast Iterative Localized Optimization (FILO) is a scalable metaheuristic built specifically to solve large Capacitated Vehicle Routing Problems (CVRP). It introduces dynamic parameters to selectively evaluate the neighborhood space.
 
-#### Architecture
+#### Algorithm
 
 ```text
-FILO
-├── Ruin & Recreate (Shaking)
-│   └── Node extraction proportional to `omega` intensity bounds
-├── Fast Local Search
-│   └── Sparse exploration restricted by `gamma` activation rates
-└── Simulated Annealing
-    └── Acceptance criterion with dynamic cooling
+Algorithm: Fast Iterative Localized Optimization
+1. Generate initial solution S
+2. S_best ← S
+3. While max iterations or time limit not reached:
+   a. Select a seed node or seed route randomly
+   b. Identify a localized sub-problem (subset of spatially close routes)
+   c. Extract the localized sub-problem from S to form S_local
+   d. S'_local ← RuinAndRecreate(S_local) OR LocalSearch(S_local)
+   e. Reintegrate S'_local into S to form S'
+   f. If f(S') < f(S):
+        S ← S'
+   g. If f(S) < f(S_best):
+        S_best ← S
+   h. Periodically apply global diversification
+4. Return S_best
 ```
 
 #### Key Features
 
-- **Granular Shaking Intensity (`omega`)**: Each node dynamically calibrates its own degree of extraction during Ruin & Recreate, bounding the scope based on the current objective value and moving average route costs.
-- **Node-Level Activation Probability (`gamma`)**: To radically reduce iteration times, FILO tracks consecutive non-improving evaluations for each node and applies an activation probability (gamma) that drops the likelihood of computing unpromising neighbors.
-- **Dynamic Tuning**: At runtime, `shaking_lb` and `shaking_ub` intervals recalibrate themselves whenever a new global best is found.
+- **Extreme Scalability (Localization)**: FILO is specifically designed for very large-scale instances (up to tens of thousands of nodes). By extracting and optimizing only a small, spatially localized subset of routes at any given time, the algorithm operates with near-linear asymptotic complexity $O(n \log n)$ relative to the total problem size.
+- **Granular Neighborhoods**: Utilizes granular tabu search principles to restrict evaluated moves to a candidate list of promising edges, effectively filtering out structurally poor moves and dramatically accelerating neighborhood evaluations.
+- **Localized Ruin and Recreate**: Applies intense perturbation (ruin and recreate) strictly within the extracted localized sub-problem, preserving the global structure of the solution while deeply optimizing regional routing inefficiencies.
+
+#### Mathematical Formulation
+
+**Granular Distance Metric:**
+
+$$
+d'_{ij} = d_{ij} - \alpha * (\mu_i + \mu_j)
+$$
+
+Where:
+
+- $\alpha$: sparsity parameter
+- $\mu$: node-specific potentials (e.g., waiting times or penalties), used to build the restricted candidate list (RCL).
+
+**Key Parameters**
+
+- `localization_radius`: The maximum geographic or topological distance to include routes in the local sub-problem.
+- `max_routes_in_subproblem`: Hard cap on the number of routes extracted per iteration to ensure $O(1)$ scaling behavior relative to $n$.
+- `ruin_fraction`: The percentage of nodes within the sub-problem to remove during the localized ruin phase.
+
+**Complexity:**
+
+- Time: $O(T \times k^2)$ where $k$ is the constant size of the localized sub-problem (independent of global size $n$). Global iteration complexity scales at $O(n \log n)$.
+- Space: $O(n)$ for solution representation and granular neighbor lists.
 
 #### Usage Example
 
 ```python
-from logic.src.policies.adapters import PolicyFactory
+from logic.src.policies.fast_iterative_localized_optimization import FILOSolver, FILOParams
 
-filo_policy = PolicyFactory.get_adapter("filo")
-tour, cost, _ = filo_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
-    distance_matrix=dist_matrix,
-    config={
-        "filo": {
-            "time_limit": 60.0,
-            "max_iterations": 50000,
-            "initial_temperature_factor": 10.0,
-            "delta_gamma": 0.1
-        }
-    }
+params = FILOParams(
+    max_routes_in_subproblem=10,
+    ruin_fraction=0.3,
+    alpha_sparsity=0.5,
+    max_iterations=50000,
+    time_limit=600.0
 )
+
+solver = FILOSolver(
+    dist_matrix=large_distance_matrix,
+    demands=demands,
+    capacity=capacity,
+    params=params
+)
+
+best_routes, best_cost = solver.solve()
 ```
-
-#### Performance Characteristics
-
-Because FILO uses extreme sparsification, it is capable of performing tens of thousands of iterations in highly competitive time frames.
-
-- **Computational Complexity**: O(n_nodes) per iteration dynamically masked via `gamma`.
-- **Memory Usage**: O(N) where N is node dimension, meaning it completely out-scales full ant colony and path-relinking structures.
 
 #### References
 
-1. Accorsi & Vigo. "A Fast and Scalable Heuristic for the Solution of Large-Scale Capacitated Vehicle Routing Problems", _Transportation Science_, 2021.
+1. Accorsi, L., & Vigo, D. (2021). "A fast and scalable heuristic for the solution of large-scale capacitated vehicle routing problems." Transportation Science, 55(4), 832-856.
 
-### 5.7 HILS (Hybrid Iterated Local Search)
+### 5.7 ILS-RVND-SP (Iterated Local Search - Randomized Variable Neighborhood Descent - Set Partitioning)
 
-**Directory**: `hybrid_iterated_local_search/`
-**Adapters**: `policy_hils.py`
+**Directory**: `iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning/`
+**Adapters**: `policy_ils_rvns_sp.py`
 
-Hybrid Iterated Local Search (HILS) combines the Iterated Local Search (ILS) metaheuristic with an exact algorithm approach, effectively marrying heuristics with Set Partitioning.
+Iterated Local Search - Randomized Variable Neighborhood Descent - Set Partitioning (ILS-RVND-SP) combines the Iterated Local Search (ILS) and Randomized Variable Neighborhood Descent (RVND) metaheuristics with the Set Partitioning (SP) exact method to solve the Vehicle Routing Problem (VRP).
 
-#### Architecture
+#### Algorithm
 
 ```text
-HILS
-├── ILS Phase
-│   ├── Perturbation (random node extraction & greedy insertion)
-│   └── Randomized Variable Neighborhood Descent (RVND) Local Search
-├── Route Pool
-│   └── Global tracking of all active unique route structures
-└── Set Partitioning (SP) Phase
-    └── Gurobi MIP model resolving optimal combinations over the route pool
+Algorithm: ILS-RVND-SP
+1. Initialize route pool P ← ∅
+2. S_best ← ∞
+3. For restart = 1 to Max_Restarts:
+   a. S ← GenerateInitialSolution()
+   b. iter_ILS ← 0
+   c. While iter_ILS < Max_Iter_ILS:
+      i.   S' ← Perturbation(S) (e.g., multiple node shifts/swaps)
+      ii.  S'' ← RVND(S')
+           # RVND Loop:
+           # 1. N_list ← Randomly shuffle neighborhood operators (e.g., 2-opt, Swap, Relocate)
+           # 2. While N_list is not empty:
+           #    a. Apply operator N_i from N_list to S''
+           #    b. If local optimum improved:
+           #         Update S'' and completely reshuffle N_list
+           #    c. Else:
+           #         Remove N_i from N_list
+      iii. Add all unique valid routes from S'' to pool P
+      iv.  If f(S'') < f(S):
+             S ← S''
+             iter_ILS ← 0
+           Else:
+             iter_ILS ← iter_ILS + 1
+      v.   If f(S'') < f(S_best):
+             S_best ← S''
+4. Set Partitioning Phase:
+   a. S_MIP ← Solve Set Partitioning MIP model over route pool P using exact solver
+5. Return better of S_best and S_MIP
 ```
 
 #### Key Features
 
-- **Randomized Variable Neighborhood Descent**: Local search operators (e.g., Relocate, Swap, 2-Opt) are dynamically shuffled and applied until full local optimums are found, preventing static cyclic traps.
-- **Route Pool Synergies**: Employs Iterated Local Search solely as a mass-route generator. The final solution is resolved purely mathematically through Set Partitioning, ensuring optimal exploitation of the explored sub-spaces.
-- **Exact-Heuristic Hybridity**: Takes advantage of Gurobi's commercial performance to find absolute guarantees over sub-domains identified by agile heuristic techniques.
+- **Randomized Variable Neighborhood Descent (RVND)**: Instead of applying local search operators in a fixed deterministic order (as in standard VND), RVND dynamically shuffles the list of inter- and intra-route operators (e.g., Relocate, Swap, 2-Opt, Cross). Whenever an improvement is found, the sequence is re-randomized, preventing the search from falling into static cyclic traps and exploring a richer variety of local minima.
+
+- **Multi-Start Iterated Local Search**: Employs an aggressive perturbation phase combined with multiple restarts to deeply explore the solution space. The ILS phase effectively acts as a high-quality "mass-route generator" for the exact phase rather than just a standalone solver.
+
+- **Exact-Heuristic Hybridity (Matheuristic)**: Extracts all unique, actively explored route structures discovered during the metaheuristic phase into a global route pool. The final solution is resolved purely mathematically through a Set Partitioning (SP) model, guaranteeing the optimal combination of the discovered sub-spaces using commercial MIP solvers (e.g., Gurobi).
+
+#### Mathematical Formulation
+
+Set Partitioning (SP) Model: The exact phase solves the following Mixed Integer Programming (MIP) model over the generated pool of routes $P$:
+
+$$
+\begin{align}
+\text{minimize } & \sum_{r \in P} c_r \lambda_r \\
+\text{subject to } & \sum_{r \in P} a_{ir} \lambda_r = 1  \quad \forall i \in V \\
+& \lambda_r \in \{0, 1\} \quad \forall r \in P
+\end{align}
+$$
+
+Where:
+
+- $P$ is the set of all unique valid routes found during the ILS-RVND phase.
+- $c_j$ is the cost (e.g., total distance) of route $j$.
+- $a_{ij}$ is a binary parameter equal to $1$ if route $j$ visits customer $i$, and $0$ otherwise.
+- $\lambda_j$ is the binary decision variable indicating whether route $j$ is selected for the final solution.
+
+**Key Parameters:**
+
+- max_restarts: Number of independent multi-start executions.
+- max_iter_ils: Consecutive non-improving ILS iterations before terminating the current restart.
+- perturbation_strength: Number of elements modified during the perturbation phase.
+- mip_time_limit: Maximum wall-clock time allocated to the exact MIP solver during the SP phase.
+
+**Complexity:**
+
+- Time (Metaheuristic Phase): $\mathcal{O}(R \times I \times n^2)$ where $R$ is restarts, $I$ is ILS iterations, and $n^2$ bounds the RVND local search descents.
+- Time (Exact Phase): $\mathcal{O}(2^{|P|})$ worst-case, bounded by the mip_time_limit and solver pruning efficiency.
+- Space: $\mathcal{O}(|P| \times n)$ to maintain the sparse matrix of the global route pool.
 
 #### Usage Example
 
 ```python
-from logic.src.policies.adapters import PolicyFactory
+from logic.src.policies.ils_rvnd_sp import ILSRVNDSPSolver, ILSRVNDSPParams
 
-hils_policy = PolicyFactory.get_adapter("hils")
-tour, cost, _ = hils_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
-    distance_matrix=dist_matrix,
-    config={
-        "hils": {
-            "max_iterations": 100,
-            "ils_iterations": 50,
-            "perturbation_size": 2,
-            "use_set_partitioning": True,
-            "sp_time_limit": 60.0,
-            "time_limit": 120.0
-        }
-    }
+# Configure parameters based on the paper's multi-start setup
+params = ILSRVNDSPParams(
+    max_restarts=10,
+    max_iter_ils=50,
+    perturbation_strength=2,
+    use_set_partitioning=True,
+    mip_time_limit=120.0,
+    time_limit=300.0
 )
+
+# Initialize the matheuristic solver
+solver = ILSRVNDSPSolver(
+    dist_matrix=distance_matrix,
+    demands=node_demands,
+    capacity=vehicle_capacity,
+    params=params,
+    seed=42
+)
+
+# Solve
+best_routes, best_cost = solver.solve()
+print(f"Best exact-resolved cost: {best_cost:.2f}")
 ```
 
 #### References
@@ -1051,62 +1304,224 @@ tour, cost, _ = hils_policy.execute(
 
 ### 5.8 KGLS (Knowledge-Guided Local Search)
 
-**Directory**: `knowledge_guided_local_search/`
+**Location**: `logic/src/policies/knowledge_guided_local_search/`
 **Adapters**: `policy_kgls.py`
 
 Knowledge-Guided Local Search (KGLS) utilizes problem-specific domain logic—particularly spatial and geometric routing constraints—to perturb solutions dynamically, rather than purely mathematically or randomly tearing sub-graphs.
 
-#### Architecture
+#### Algorithm
 
 ```text
-KGLS
-├── Initial Construct
-├── Local Search Descent
-│   └── (Unpenalized baseline descent on valid configurations)
-└── KGLS Execution Loop
-    ├── Perturbation (Enable geometric evaluation matrices)
-    │   ├── Evaluate edge badness (Width, Length, or both)
-    │   ├── Inflate targeted true edge costs via Penalty Counters
-    │   └── Trigger strict Fast Local Search radiating out of penalized targets
-    └── Repair (Disable geometric matrices for absolute baseline descent)
+Algorithm: Knowledge-Guided Local Search
+1. Generate initial solution S
+2. S ← BaselineLocalSearchDescent(S)
+3. S_best ← S
+4. While stopping criteria not met:
+   a. Compute geometric route features (e.g., Route Width, Route Length)
+   b. Identify sub-optimal edge connections (haphazard weaving, long crossings)
+   c. Inflate the cost of identified bad edges in the distance matrix:
+        d'_{ij} ← d_{ij} + penalty(i, j)
+   d. Fast Local Search Descent starting from penalized targets using d'
+   e. Remove penalties (d' ← d)
+   f. Fast Local Search Descent using pure baseline distance matrix
+   g. If f(S) < f(S_best):
+        S_best ← S
+   h. Rotate penalization criteria (Width → Length → Width/Length)
+5. Return S_best
 ```
 
 #### Key Features
 
-- **Geometric Perturbation**: Evaluates continuous local sub-routes via width properties computed dynamically against the main depot, extracting connections that weave haphazardly globally.
-- **Inflated Cost Matrices**: Edge connections identified as geometrically suboptimal receive additive penalties (a fraction of network baseline scaled by their penalty count). Normal heuristic operators immediately snap/break these false edges simply by falling down the penalized gradient.
-- **Cycle Criteria**: KGLS systematically rotates its penalty scoring mechanisms (`width`, `length`, `width_length`), preventing repetitive exploitation traps.
+- **Problem-Specific Geometric Perturbation**: Departs from standard randomized mathematical perturbation. KGLS actively analyzes route geometries—identifying routes that are "too wide" or edges that are abnormally long compared to the route average—and actively targets them for destruction.
+- **Dynamic Cost Matrix Inflation**: Perturbation is achieved implicitly rather than explicitly. Instead of manually tearing apart a route, KGLS heavily penalizes the cost of the identified "bad" edges in the internal distance matrix. Subsequent local search operations automatically break these edges by naturally following the newly altered gradient.
+- **Systematic Penalty Cycles**: Avoids getting trapped in repetitive evaluation cycles by systematically rotating the geometric criteria used to generate penalties (e.g., width-based penalization, followed by length-based penalization).
+
+#### Mathematical Formulation
+
+**Cost Inflation (Penalized Matrix):**
+
+$$
+c'_{ij} = c_{ij} + (p_{ij} × base_penalty_factor)
+$$
+
+where:
+
+- $c_{ij}$ is the original distance between nodes $i$ and $j$.
+- $p_{ij}$ is the accumulated penalty count for edge $(i, j)$ incremented whenever the edge is flagged by the geometric evaluation functions.
+- $base_penalty_factor$ is a constant factor that scales the penalty.
+
+**Key Parameters:**
+
+- `num_perturbations`: Number of times the cost-inflation and subsequent local search cycle is triggered per iteration block.
+- `neighborhood_size`: The maximum number of nearest neighbors evaluated during the Fast Local Search descent phase.
+- `penalization_cycle`: Array denoting the order of geometric criteria to apply (e.g., ["width", "length", "width_length"]).
+
+**Complexity:**
+
+- Time: Dominated by the Local Search descent $O(T \times n^2)$.
+- Space: $O(n^2)$ for maintaining the base distance matrix and the dynamic penalty matrices.
 
 #### Usage Example
 
 ```python
-from logic.src.policies.adapters import PolicyFactory
+from logic.src.policies.knowledge_guided_local_search import KGLSSolver, KGLSParams
 
-# Requires positional arguments via the environment to compute widths
-kgls_policy = PolicyFactory.get_adapter("kgls")
-tour, cost, _ = kgls_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
-    distance_matrix=dist_matrix,
-    data_nodes={"depot": [0,0], "locs": [...]},
-    config={
-        "kgls": {
-            "time_limit": 60.0,
-            "num_perturbations": 3,
-            "neighborhood_size": 20,
-            "penalization_cycle": ["width", "length", "width_length"]
-        }
-    }
+params = KGLSParams(
+    num_perturbations=3,
+    neighborhood_size=20,
+    penalization_cycle=["width", "length", "width_length"],
+    time_limit=60.0
 )
+
+solver = KGLSSolver(
+    dist_matrix=distance_matrix,
+    demands=demands,
+    capacity=capacity,
+    node_coordinates=coordinates, # Required for geometric analysis
+    params=params
+)
+
+best_routes, best_cost = solver.solve()
 ```
 
 #### References
 
-1. Arnold & Sörensen. "What makes a VRP solution good? The generation of problem-specific knowledge for heuristics", _Computers & Operations Research_, 2019.
+1. Arnold, F., & Sörensen, K. (2019). "Knowledge-guided local search for the vehicle routing problem." Computers & Operations Research, 105, 32-46.
 
 ---
 
-### 5.9 Rigorous Meta-Heuristic Implementations
+### 5.9 (μ,κ,λ) Evolution Strategy
+
+**Location:** `logic/src/policies/evolution_strategy_mu_kappa_lambda/`
+**Adapters**: `policy_es_mkl.py`
+
+#### Algorithm
+
+```text
+Algorithm: (μ,κ,λ)-Evolution Strategy
+1. Initialize population P₀ of size μ:
+   For each individual:
+       x ← random vector from search space
+       σ ← initial_sigma
+       age ← 1
+2. Evaluate fitness for all individuals in P₀
+3. While generation t < max_iterations:
+   a. Offspring Generation (Offspring Pool O = ∅):
+      For 1 to λ:
+          i.   Select ρ parents from Pₜ via independent uniform sampling with replacement
+          ii.  Recombine selected parents to generate offspring (x_child, σ_child)
+          iii. Mutate strategy parameters (σ') using log-normal self-adaptation
+          iv.  Mutate object variables: x' ← x_child + σ' · N(0,1)
+          v.   Evaluate fitness f(x')
+          vi.  Set age of offspring = 1
+          vii. Add individual to O
+   b. Age Filtering (Eligible Parent Pool P_eligible):
+      P_eligible ← { p ∈ Pₜ | age(p) ≤ κ }
+   c. Selection Pool (T):
+      T ← P_eligible ∪ O
+   d. Survival Selection:
+      Pₜ₊₁ ← Select the top μ individuals from T based on fitness (truncation)
+   e. Aging:
+      For each surviving individual p ∈ Pₜ₊₁:
+          If p was in P_eligible:
+              age(p) ← age(p) + 1
+   f. Update global best solution found so far
+   g. t ← t + 1
+4. Return best individual
+```
+
+#### Key Features
+
+- **Age-Based Truncation (κ)**: Implements a systematic survivor constraint that bridges the gap between non-elitist $(\mu,\lambda)$ and elitist $(\mu+\lambda)$ strategies. By limiting parental lifespan to $\kappa$ generations, the algorithm ensures population turnover and prevents the search from being trapped by aging "super-individuals" in multi-modal landscapes.
+- **Self-Adaptive Mutation Control**: Treats the search distribution (step-size $\sigma$) as part of the evolved genetic material. By adapting mutation strength via log-normal updates, the algorithm automatically discovers the local topology of the fitness landscape to maintain optimal progress rates without manual parameter tuning.
+- **Independent Parent Sampling**: Recombination participants are selected via uniform sampling with replacement. This allows individuals with high relative fitness to influence multiple offspring within a single cycle, enhancing the "genetic repair" effect and amplifying beneficial traits.
+- **Markovian State Transition**: The generational transition is modeled as a memoryless state update governed by the age counter. This functional structure facilitates clear data ownership and enables parallelized evaluation of the $\lambda$ offspring pool.
+
+#### Mathematical Formulation
+
+**Step-size mutation:**
+
+```text
+N_global ~ N(0,1)  (shared across all dimensions)
+σ'ᵢ ← σᵢ · exp(τ_global · N_global + τ_local · Nᵢ(0,1))
+```
+
+**Decision variable mutation:**
+
+```text
+x'ᵢ ← xᵢ + σ'ᵢ · N(0,1)
+```
+
+**Learning rates:**
+
+```text
+τ_local  = 1/√(2d)
+τ_global = 1/(2√d)
+```
+
+**Key Parameters:**
+
+- `mu` (μ): Number of parent individuals.
+- `kappa` (κ): Maximum age for parents before they are discarded (controls population turnover).
+- `lambda_` (λ): Number of offspring generated per generation.
+- `rho` (ρ): Number of parents involved in recombination (1 for discrete, μ for intermediate).
+- `initial_sigma`: Initial step size for mutation (recommended ~5% of search domain).
+
+**Terminology Mapping:**
+
+- "Eligible Parents" → Stay in the selection pool if age ≤ κ
+- "Age" → Counter for how many generations an individual has survived
+- "Self-Adaptation" → Step sizes (σ) evolve alongside decision variables (x)
+
+**Complexity:**
+
+- Time: O(T × λ × d) where T = iterations, λ = offspring, d = dimensions
+- Space: O((μ + λ) × d) for population + offspring
+
+#### Usage Example
+
+```python
+import numpy as np
+from logic.src.policies.evolution_strategy_mu_kappa_lambda import (
+    MuKappaLambdaESSolver,
+    MuKappaLambdaESParams
+)
+
+# Define objective function
+def sphere(x):
+    return np.sum(x**2)
+
+# Configure parameters
+params = MuKappaLambdaESParams(
+    mu=15,              # Number of parents
+    kappa=7,            # Maximum age
+    lambda_=100,        # Number of offspring
+    rho=2,              # Recombination size
+    initial_sigma=1.0,  # Initial step size
+    max_iterations=100,
+    bounds_min=-5.0,
+    bounds_max=5.0,
+)
+
+# Create solver
+solver = MuKappaLambdaESSolver(
+    objective_function=sphere,
+    dimension=10,
+    params=params,
+    seed=42,
+    minimize=True,
+)
+
+# Solve
+best_x, best_fitness = solver.solve()
+print(f"Best fitness: {best_fitness:.6e}")
+```
+
+#### References
+
+1. Emmerich, M., Shir, O. M., & Wang, H. (2015). "Evolution Strategies." In: Handbook of Natural Computing, Springer.
+
+### 5.10 Rigorous Meta-Heuristic Implementations
 
 This section describes the mathematically rigorous implementations that replace metaphor-based algorithms in the WSmart+ Route codebase.
 
@@ -1121,14 +1536,13 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 | Metaphor-Based Algorithm                | Rigorous Implementation                       | Mathematical Foundation                                          |
 | --------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**       | Population-based search with recombination and mutation          |
-| Firefly Algorithm (FA)                  | **Distance-Based PSO**                        | Particle swarm with exponential distance decay                   |
+| Firefly Algorithm (FA)                  | **PSO Distance-Based Algorithm (PSODA)**      | Particle swarm with distance-based update                        |
 | Artificial Bee Colony (ABC)             |                                               |                                                                  |
 | Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search. |
 | Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.             |
 | Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).         |
 | League Championship Algorithm (LCA)     | **Memetic Algorithm Tolerance Based (MA-TB)** | Pairwise tournament selection with infeasibility tolerance.      |
-| Sine Cosine Algorithm (SCA)             | **Continuous Local Search**                   | Gradient-free search with trigonometric perturbations            |
-| **(μ,κ,λ) ES**                          | **Age-Based Evolution Strategy**              | Metaheuristic with age-based selection and self-adaptation       |
+| Sine Cosine Algorithm (SCA)             |                                               |                                                                  |
 
 ---
 
@@ -1143,14 +1557,16 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 **Algorithm:**
 
 ```
+
 1. Initialize population of μ solutions
 2. For each iteration:
    a. Generate λ offspring:
-      i. Select parent via fitness-proportional selection
-      ii. Create offspring via recombination (using archive solutions)
-      iii. Apply mutation operator (local perturbation)
+   i. Select parent via fitness-proportional selection
+   ii. Create offspring via recombination (using archive solutions)
+   iii. Apply mutation operator (local perturbation)
    b. Combine parents (μ) and offspring (λ) into population of (μ+λ)
    c. Select best μ individuals to survive (elitist selection)
+
 ```
 
 **Key Parameters:**
@@ -1187,13 +1603,15 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 **Algorithm:**
 
 ```
+
 1. Initialize swarm of particles (solutions)
 2. For each iteration:
    a. For each particle pair (i, j where fitness[j] > fitness[i]):
-      - Compute Hamming distance d between solutions
-      - With probability β(d) = β₀ × exp(-γ × d²), move particle i toward j
-   b. With probability α, apply random walk exploration
-   c. Update global best solution
+   - Compute Hamming distance d between solutions
+   - With probability β(d) = β₀ × exp(-γ × d²), move particle i toward j
+     b. With probability α, apply random walk exploration
+     c. Update global best solution
+
 ```
 
 **Key Parameters:**
@@ -1236,17 +1654,19 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 **Algorithm:**
 
 ```
+
 1. Initialize K islands with N individuals each
 2. For each generation:
    a. Intra-island Evolution:
-      i. Perturbation: Apply random removal + greedy insertion
-      ii. Local Search: Apply ACOLocalSearch refinement
-      iii. Survival: Keep improved solution
+   i. Perturbation: Apply random removal + greedy insertion
+   ii. Local Search: Apply ACOLocalSearch refinement
+   iii. Survival: Keep improved solution
    b. Inter-island Competition:
-      i. Stochastic Tournament: Pairwise competition between islands
-      ii. Recombination: Weak island adopts structure from strongest via crossover
+   i. Stochastic Tournament: Pairwise competition between islands
+   ii. Recombination: Weak island adopts structure from strongest via crossover
    c. Stagnation Check: If island fitness unchanged for stagnation_limit, regenerate
    d. Global best: Track champion across all islands
+
 ```
 
 **Key Parameters:**
@@ -1287,6 +1707,7 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 HMS utilizes a **3-Phase Hybrid Pipeline** to balance construction, exploration, and exploitation:
 
 ```
+
 1. Phase 1: ACO Construction (K-Sparse Ant Colony Optimization)
    - Initialize diverse population using probabilistic pheromone-guided construction.
 2. Phase 2: GA Evolution (HGS-inspired Genetic Search)
@@ -1294,6 +1715,7 @@ HMS utilizes a **3-Phase Hybrid Pipeline** to balance construction, exploration,
    - Maintain a "Passive Reserve Pool" for elite substitution.
 3. Phase 3: ALNS Refinement (Adaptive Large Neighborhood Search)
    - Apply trajectory search to the best discovered solutions for fine-grained refinement.
+
 ```
 
 **Key Parameters:**
@@ -1328,6 +1750,7 @@ HMS utilizes a **3-Phase Hybrid Pipeline** to balance construction, exploration,
 **Algorithm:**
 
 ```
+
 1. Initialize K islands with N individuals each
 2. For each generation:
    a. Local Improvement: Reconstruct via greedy profit insertion + ALNS
@@ -1336,6 +1759,7 @@ HMS utilizes a **3-Phase Hybrid Pipeline** to balance construction, exploration,
    d. Mutation: Population perturbation via random node removal
    e. Migration: Ring-topology elite exchange between islands
    f. Record: Global best solution tracking
+
 ```
 
 **Key Parameters:**
@@ -1372,16 +1796,18 @@ P(i beats j) = σ(β × (f(i) - f(j)))
 **Algorithm:**
 
 ```
+
 1. Initialize population of N chromosomes
 2. For each generation:
    a. Fitness evaluation for all individuals
    b. Stochastic tournament selection:
-      - Each individual competes against k random opponents
-      - Win probability: P(i > j) = σ(β × (f_i - f_j))
-      - Select winners for mating pool
-   c. Crossover (recombination) of selected parents
-   d. Mutation of offspring
-   e. Elitist replacement (keep best individuals)
+   - Each individual competes against k random opponents
+   - Win probability: P(i > j) = σ(β × (f_i - f_j))
+   - Select winners for mating pool
+     c. Crossover (recombination) of selected parents
+     d. Mutation of offspring
+     e. Elitist replacement (keep best individuals)
+
 ```
 
 **Key Parameters:**
@@ -1418,126 +1844,7 @@ P(i beats j) = σ(β × (f(i) - f(j)))
 
 ---
 
-##### 8. Continuous Local Search
-
-**Replaces:** Sine Cosine Algorithm (SCA)
-
-**Location:** `logic/src/policies/continuous_local_search/`
-
-**Algorithm:**
-
-```
-1. Initialize population in continuous space [-1, 1]^n
-2. For each iteration:
-   a. Update step size α = α_max × (1 - t/T) (linear decay)
-   b. For each solution vector:
-      - Compute perturbation direction toward global best
-      - Apply trigonometric step: sin(θ) or cos(θ)
-      - Update: x' = x + α × trig(θ) × |β × x_best - x|
-      - Decode to discrete solution and evaluate fitness
-   c. Track global best solution
-```
-
-**Key Parameters:**
-
-- `max_step_size` (α_max): Initial perturbation step size
-- `population_size`: Number of continuous solution vectors
-
-**Terminology Mapping:**
-
-- "Position vectors" → Continuous solution encoding
-- "Destination point" → Best solution (global attractor)
-- "Sine/Cosine update" → Directional perturbation operators
-- "Parameter a" → Adaptive step size
-
-**Mathematical Foundation:**
-
-- Position update: x'[i] = x[i] + r₁ × sin(r₂) × |r₃ × x_best[i] - x[i]|
-- or: x'[i] = x[i] + r₁ × cos(r₂) × |r₃ × x_best[i] - x[i]|
-- where r₁ ∈ [0, α], r₂ ∈ [0, 2π], r₃ ∈ [0, 2], α decays linearly
-
-**Decoding Strategy:**
-
-1. Sigmoid binarization: b[j] = 1 if σ(x[j]) > 0.5
-2. Largest Rank Value (LRV) ordering
-3. Greedy insertion for route construction
-
-**Complexity:**
-
-- Time: O(T × N × n²)
-- Space: O(N × n)
-
-**Reference:**
-
-> Mirjalili, S. (2016). "SCA: A Sine Cosine Algorithm for solving optimization problems." (Mathematical interpretation without metaphor)
-
----
-
-##### 9. (μ,κ,λ) Evolution Strategy
-
-**Location:** `logic/src/policies/evolution_strategy_mu_kappa_lambda/`
-
-**Algorithm:**
-
-The (μ,κ,λ)-ES implements a classical metaheuristic for continuous optimization with **age-based selection**. Selection occurs from μ parents who have not exceeded an age of κ and λ offspring individuals.
-
-```text
-1. Initialize P₀ with μ parent individuals
-2. For each generation t:
-    a. Recombine(Pₜ₋₁) → create λ offspring
-    b. Mutate(offspring) → apply self-adaptive mutation
-    c. Evaluate(offspring) → compute fitness
-    d. Select(offspring ∪ eligible_parents) → choose μ best
-       where eligible_parents are those with age ≤ κ
-    e. Increment age of all surviving individuals
-    f. Update best solution if improved
-3. Return best solution found
-```
-
-**Mathematical Formulation:**
-
-**Step-size mutation:**
-
-```text
-N_global ~ N(0,1)  (shared across all dimensions)
-σ'ᵢ ← σᵢ · exp(τ_global · N_global + τ_local · Nᵢ(0,1))
-```
-
-**Decision variable mutation:**
-
-```text
-x'ᵢ ← xᵢ + σ'ᵢ · N(0,1)
-```
-
-**Learning rates:**
-
-```text
-τ_local  = 1/√(2d)
-τ_global = 1/(2√d)
-```
-
-**Key Parameters:**
-
-- `mu` (μ): Number of parent individuals.
-- `kappa` (κ): Maximum age for parents before they are discarded (controls population turnover).
-- `lambda_` (λ): Number of offspring generated per generation.
-- `rho` (ρ): Number of parents involved in recombination (1 for discrete, μ for intermediate).
-- `initial_sigma`: Initial step size for mutation (recommended ~5% of search domain).
-
-**Terminology Mapping:**
-
-- "Eligible Parents" → Stay in the selection pool if age ≤ κ
-- "Age" → Counter for how many generations an individual has survived
-- "Self-Adaptation" → Step sizes (σ) evolve alongside decision variables (x)
-
-**Complexity:**
-
-- Time: O(T × λ × d) where T = iterations, λ = offspring, d = dimensions
-- Space: O((μ + λ) × d) for population + offspring
-
-**Reference:**
-
-> Emmerich, M., Shir, O. M., & Wang, H. (2015). "Evolution Strategies." In: Handbook of Natural Computing, Springer.
+##### 8. TBA
 
 ---
 
@@ -1624,45 +1931,6 @@ solver = MemeticAlgorithmIslandModelSolver(
 )
 
 best_routes, best_profit, best_cost = solver.solve()
-```
-
-##### Example 4: (μ,κ,λ) Evolution Strategy
-
-```python
-import numpy as np
-from logic.src.policies.evolution_strategy_mu_kappa_lambda import (
-    MuKappaLambdaESSolver,
-    MuKappaLambdaESParams
-)
-
-# Define objective function
-def sphere(x):
-    return np.sum(x**2)
-
-# Configure parameters
-params = MuKappaLambdaESParams(
-    mu=15,              # Number of parents
-    kappa=7,            # Maximum age
-    lambda_=100,        # Number of offspring
-    rho=2,              # Recombination size
-    initial_sigma=1.0,  # Initial step size
-    max_iterations=100,
-    bounds_min=-5.0,
-    bounds_max=5.0,
-)
-
-# Create solver
-solver = MuKappaLambdaESSolver(
-    objective_function=sphere,
-    dimension=10,
-    params=params,
-    seed=42,
-    minimize=True,
-)
-
-# Solve
-best_x, best_fitness = solver.solve()
-print(f"Best fitness: {best_fitness:.6e}")
 ```
 
 ---
