@@ -1,0 +1,60 @@
+# Policy Configuration Override
+
+# =============================================================================
+# POPMUSIC (Partial Optimization Metaheuristic Under Special Intensification Conditions)
+# =============================================================================
+# PURPOSE:
+#   A matheuristic decomposition framework for large-scale routing problems.
+#   It iteratively optimizes sub-parts of the solution (overlapping subproblems)
+#   until a local optimum is achieved across all route neighborhoods.
+#
+# ALGORITHM:
+#   1. Initial Solution: Generate a baseline set of routes.
+#   2. Neighborhood Definition: Identify proximity-based route neighborhoods
+#      of size R (subproblem_size).
+#   3. Intensification: Optimize each neighborhood independently. If an
+#      improvement is found, update the global solution and continue.
+#
+# REFERENCE:
+#   Taillard, E. D., & Voss, S. (2002). "POPMUSIC: Partial Optimization
+#   Metaheuristic Under Special Intensification Conditions". Essays and
+#   Surveys in Metaheuristics, 613-629.
+# =============================================================================
+
+popmusic:
+  custom:
+    # ---------------------------------------------------------------------
+    # Decomposition Parameters
+    # ---------------------------------------------------------------------
+    - subproblem_size: 3
+      # Number of neighboring routes (R) to include in each subproblem.
+      # Smaller values → faster execution, likely to get stuck in local optima.
+      # Larger values → more intensive search, slower iterations.
+      # Range: 2-10 (Recommendation: 3-5)
+
+    - max_iterations: 100
+      # Maximum number of subproblem optimization attempts without improvement.
+      # Prevents excessive runtime on very large instances.
+
+    # ---------------------------------------------------------------------
+    # Optimization Backend
+    # ---------------------------------------------------------------------
+    - base_solver: "fast_tsp"
+      # The solver used to optimize identified subproblems.
+      # fast_tsp: High-speed heuristic suitable for frequent subproblem calls.
+
+    - initial_solver: "nearest_neighbor"
+      # Heuristic used to construct the initial set of routes for decomposition.
+
+    - seed: 42
+      # Determinism control for stochastic elements in backend solvers.
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - engine: "custom"
+      # Implementation: logic/src/policies/popmusic/
+
+    - must_go: ["other/mg_lookahead.yaml"]
+      # Node selection strategy for waste collection.
+# =============================================================================

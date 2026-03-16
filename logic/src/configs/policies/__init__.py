@@ -45,6 +45,7 @@ from .neural import NeuralConfig
 from .oba import OBAConfig
 from .oi import OIConfig
 from .other import MustGoConfig, PostProcessingConfig
+from .popmusic import POPMUSICConfig
 from .pso import PSOConfig
 from .psoda import DistancePSOConfig
 from .psoma import PSOMAConfig
@@ -96,6 +97,8 @@ __all__ = [
     "SISRConfig",
     "TSPConfig",
     "VRPPConfig",
+    "OIConfig",
+    "POPMUSICConfig",
     "MustGoConfig",
     "PostProcessingConfig",
     "HULKConfig",
