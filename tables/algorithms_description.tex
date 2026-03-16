@@ -30,6 +30,8 @@
 
 Adaptive Large Neighborhood Search (ALNS) & Destroys localized portions of a solution and rebuilds using multiple heuristics. & State-of-the-art routing framework; dynamically controls and weights multiple lower-level heuristics. \\ \midrule
 
+Adaptive Kernel Search (AKS) & Dynamically assesses instance difficulty (EASY, NORMAL, HARD) and solves a sequence of restricted MIPs with adaptive kernel sizing. & Powerful general-purpose MIP heuristic; significantly outperforms standard heuristics by offering a flexible quality-time trade-off. \\ \midrule
+
 Ant Colony Optimization (ACO) & Constructive paths based on local heuristic information and global pheromone stigmergy. & Foundational swarm paradigm; rigorous value in probabilistic construction, though sensitive to decay parameters. \\ \midrule
 
 Artificial Bee Colony (ABC) & Three agent types (Employed, Onlooker, Scout) model foraging behavior. & \textbf{Deceptive.} Isomorphic to Differential Evolution mutation and proportional selection; often requires GA injections for discrete parity. \\ \midrule
@@ -147,6 +149,8 @@ Record-to-Record Travel (RRT) & Accepts candidates if they fall within a fixed s
 Reinforcement Learning B\&B (RL-B\&B) & Interacts with the B\&B tree as an environment to minimize tree size via RL actions. & Rigorous integration of RL into exact mathematical programming spaces. \\ \midrule
 
 Reinforcement Learning - Great Deluge HH (RL-GD-HH) & Uses RL to select low-level heuristics while GD acceptance governs state transitions. & Rigorous cross-domain hybridization; controls a thermodynamic criterion with learned policies. \\ \midrule
+
+Relaxation Enforced Neighborhood Search (RENS) & Constructs a sub-MIP that represents the space of all feasible roundings of the LP optimum. & A powerful start heuristic that doesn't require an incumbent solution; mathematically proves if any rounding exists for a given LP point. \\ \midrule
 
 Relaxation Induced Neighborhood Search (RINS) & Fixes binary variables matching the continuous LP relaxation and solves a restricted MILP on the unfixed variables. & Exploits commercial solvers as black-box heuristic operators; highly effective for rapidly improving integer bounds. \\ \midrule
 

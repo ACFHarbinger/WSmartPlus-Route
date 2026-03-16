@@ -35,6 +35,7 @@ from .ie import IEConfig
 from .ils import ILSConfig
 from .ils_rvnd_sp import ILSRVNDSPConfig
 from .kgls import KGLSConfig
+from .ks import KernelSearchConfig
 from .lahc import LAHCConfig
 from .lca import LCAConfig
 from .ma import MAConfig
@@ -106,6 +107,7 @@ __all__ = [
     "QDEConfig",
     "PSOMAConfig",
     "HybridMemeticSearchConfig",
+    "KernelSearchConfig",
     "ABCConfig",
     "FAConfig",
     "SCAConfig",
