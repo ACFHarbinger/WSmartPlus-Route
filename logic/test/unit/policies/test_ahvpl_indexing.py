@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
-from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.augmented_hybrid_volleyball_premier_league.ahvpl import AHVPLSolver
 from logic.src.policies.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
 from logic.src.policies.hybrid_genetic_search.individual import Individual
@@ -26,7 +26,7 @@ def _fast_params() -> AHVPLParams:
             mu=3,
             n_offspring=1,
         ),
-        aco_params=ACOParams(
+        aco_params=KSACOParams(
             n_ants=2,
             max_iterations=1,
             k_sparse=5,

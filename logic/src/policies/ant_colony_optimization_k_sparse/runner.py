@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from .params import ACOParams
+from .params import KSACOParams
 from .solver import KSparseACOSolver
 
 
@@ -47,7 +47,7 @@ def run_k_sparse_aco(
     Returns:
         Tuple[List[List[int]], float, float]: (routes, profit, cost)
     """
-    params = ACOParams(
+    params = KSACOParams(
         n_ants=values.get("n_ants", 10),
         k_sparse=values.get("k_sparse", 15),
         alpha=values.get("alpha", 1.0),

@@ -615,7 +615,7 @@ Bio-inspired algorithm with pheromone-based learning, adapted for the WCVRP. The
 
 Efficient ACO variant using a K-nearest neighbors graph to restrict the search space, significantly reducing algorithmic complexity and speeding up convergence on large-scale VRP variants.
 
-**Algorithm**
+##### Algorithm
 
 ```text
 Algorithm: K-Sparse Ant Colony Optimization (KS-ACO)
@@ -635,21 +635,21 @@ Algorithm: K-Sparse Ant Colony Optimization (KS-ACO)
 4. Return S_best
 ```
 
-**Key Features**
+##### Key Features
 
 - **K-Sparse Neighborhoods**: Restricts the next-node exploration to the $K$ nearest neighbors, changing the node selection complexity from $\mathcal{O}(n)$ to $\mathcal{O}(K)$.
 - **Pheromone-Based Learning**: Uses distributed learning where ants deposit pheromones on high-quality routes.
 - **Heuristic Guidance**: Balances learned pheromone values with greedy heuristic information (profitability / distance).
 
-**Mathematical Formulation**
+##### Mathematical Formulation
 
-_Transition Probability:_
+**Transition Probability:**
 
 $$
 p_{ij}^k = \frac{[\tau_{ij}]^\alpha [\eta_{ij}]^\beta}{\sum_{l \in N_i^K} [\tau_{il}]^\alpha [\eta_{il}]^\beta}
 $$
 
-_Pheromone Update:_
+**Pheromone Update:**
 
 $$
 \tau_{ij} \leftarrow (1 - \rho)\tau_{ij} + \sum_{k=1}^{n_{ants}} \Delta\tau_{ij}^k
@@ -670,7 +670,7 @@ where $\Delta\tau_{ij}^k$ is inversely proportional to the route cost $f(R_k)$.
 - Time: $\mathcal{O}(I \times M \times n \times K)$, where $I$ is iterations, $M$ is ants, $n$ is nodes, and $K$ is the sparsity factor.
 - Space: $\mathcal{O}(n^2)$ for pheromone matrix, though effectively $\mathcal{O}(nK)$ if stored sparsely.
 
-**Usage Example**
+##### Usage Example
 
 ```python
 ks_aco_policy = PolicyFactory.get_adapter("ks_aco")
@@ -696,7 +696,7 @@ tour, cost, _ = ks_aco_policy.execute(
 
 ACO variant that integrates an adaptive operator selection mechanism to apply different local search heuristics dynamically to constructed ant paths.
 
-**Algorithm**
+##### Algorithm
 
 ```text
 Algorithm: Hyper-Heuristic Ant Colony Optimization (HH-ACO)
@@ -717,21 +717,21 @@ Algorithm: Hyper-Heuristic Ant Colony Optimization (HH-ACO)
 4. Return S_best
 ```
 
-**Key Features**
+##### Key Features
 
 - **Adaptive Operator Selection**: Learns which local search operators are most effective during the search process and applies them more frequently.
 - **Operator Sequences**: Applies a predefined number (`sequence_length`) of operators back-to-back on each constructed ant route.
 - **Exploration vs. Exploitation**: Balances the global exploration of the ACO construction phase with the intensive local exploitation of the hyper-heuristic layer.
 
-**Mathematical Formulation**
+##### Mathematical Formulation
 
-_Operator Selection Probability:_
+**Operator Selection Probability:**
 
 $$
 p(o) = \frac{W(o)}{\sum_{o' \in \mathcal{O}} W(o')}
 $$
 
-_Operator Weight Update:_
+**Operator Weight Update:**
 
 $$
 W(o) \leftarrow W(o) + \Delta W(o)
@@ -749,7 +749,7 @@ where $\Delta W(o)$ is the reward given if application of operator $o$ led to an
 - Time: $\mathcal{O}(I \times M \times [n^2 + L \cdot T_{LS}])$, where $T_{LS}$ is the complexity of the applied local search operators (often $\mathcal{O}(n^2)$).
 - Space: $\mathcal{O}(n^2)$ for pheromone/heuristic matrices.
 
-**Usage Example**
+##### Usage Example
 
 ```python
 hh_aco_policy = PolicyFactory.get_adapter("hh_aco")
@@ -1000,7 +1000,7 @@ Elite teams (top `elite_size`) receive **intensive coaching** with more ALNS-SAR
 
 ##### ACO Parameters
 
-Configured via `aco_params` (ACOParams):
+Configured via `ks_aco_params` (KSACOParams):
 
 - `n_ants`: Number of ants per iteration (default: 10)
 - `k_sparse`: Sparse pheromone neighbors (default: 10)
@@ -1088,7 +1088,7 @@ print(f"Routes: {routes}")
 
 ```python
 from logic.src.configs.policies.other import RLConfig
-from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
 
 # Custom RL configuration
@@ -1098,7 +1098,7 @@ rl_config.td_learning.gamma = 0.95
 rl_config.td_learning.epsilon = 0.25
 
 # Custom ACO parameters
-aco_params = ACOParams(
+aco_params = KSACOParams(
     n_ants=15,
     k_sparse=15,
     alpha=1.2,

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 from ..adaptive_large_neighborhood_search import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 
 
 @dataclass
@@ -40,13 +40,13 @@ class HybridMemeticSearchParams:
     time_limit: float = 300.0
 
     # Sub-algorithm Parameters
-    aco_params: ACOParams = field(default_factory=lambda: None)  # type: ignore
-    alns_params: ALNSParams = field(default_factory=lambda: None)  # type: ignore
+    aco_params: Optional[KSACOParams] = field(default_factory=lambda: None)
+    alns_params: Optional[ALNSParams] = field(default_factory=lambda: None)
 
     def __post_init__(self):
         """Initialize sub-algorithm parameters with defaults if not provided."""
         if self.aco_params is None:
-            self.aco_params = ACOParams(
+            self.aco_params = KSACOParams(
                 n_ants=20,
                 k_sparse=10,
                 alpha=1.0,
@@ -85,7 +85,7 @@ class HybridMemeticSearchParams:
                 elitism_count=config.get("elitism_count", 3),
                 aco_init_iterations=config.get("aco_init_iterations", 50),
                 time_limit=config.get("time_limit", 300.0),
-                aco_params=ACOParams.from_config(config.get("aco")) if config.get("aco") else None,
+                aco_params=KSACOParams.from_config(config.get("aco")) if config.get("aco") else None,
                 alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
             )
 
@@ -98,7 +98,7 @@ class HybridMemeticSearchParams:
             elitism_count=config.elitism_count,
             aco_init_iterations=config.aco_init_iterations,
             time_limit=config.time_limit,
-            aco_params=ACOParams.from_config(config.aco) if config.aco else None,
+            aco_params=KSACOParams.from_config(config.aco) if config.aco else None,
             alns_params=ALNSParams.from_config(config.alns) if config.alns else None,
         )
 

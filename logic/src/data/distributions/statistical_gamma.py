@@ -74,7 +74,7 @@ class Gamma(BaseDistribution):
         return m.sample(torch.Size(size))
 
     def _sample_array(
-        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.RandomState]] = None
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.default_rng]] = None
     ) -> np.ndarray:
         """Sample from Gamma distribution.
 
@@ -83,13 +83,13 @@ class Gamma(BaseDistribution):
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc))
-            rng: Optional numpy RandomState for reproducibility.
+            rng: Optional numpy default_rng for reproducibility.
 
         Returns:
             np.ndarray: Sampled values
         """
         if rng is None:
-            rng = cast(np.random.RandomState, np.random)
+            rng = cast(np.random.default_rng, np.random)
 
         if self.option is not None:
             alpha_pattern, theta_pattern = GAMMA_PRESETS[self.option]

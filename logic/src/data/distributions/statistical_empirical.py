@@ -88,24 +88,24 @@ class Empirical(BaseDistribution):
             else:
                 raise ValueError("Dataset must be a pandas DataFrame, numpy array, dictionary, or torch Tensor.")
         elif self.grid is not None:
-            vals = self.grid.sample(n_samples=batch_size, rng=np.random.RandomState(generator.initial_seed()))
+            vals = self.grid.sample(n_samples=batch_size, rng=np.random.default_rng(generator.initial_seed()))
             vals_tensor = torch.from_numpy(vals).float() / 100.0
         else:
             raise ValueError("No grid or dataset found.")
         return torch.clip(vals_tensor, 0, 1)
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
         """Sample from empirical dataset.
 
         Args:
             size: Sampling shape. First dimension is assumed to be batch size.
-            rng: Optional numpy RandomState for reproducibility.
+            rng: Optional numpy default_rng for reproducibility.
 
         Returns:
             np.ndarray: Sampled values
         """
         if rng is None:
-            rng = cast(np.random.RandomState, np.random)
+            rng = cast(np.random.default_rng, np.random)
 
         n_samples = size[0]
         if self.dataset is not None:

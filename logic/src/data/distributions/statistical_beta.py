@@ -39,16 +39,16 @@ class Beta(BaseDistribution):
         m = torch.distributions.Beta(self.alpha, self.beta)
         return m.sample(torch.Size(size))
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
         """Sample from Beta distribution.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
-            rng: Optional numpy RandomState for reproducibility.
+            rng: Optional numpy default_rng for reproducibility.
 
         Returns:
             np.ndarray: Sampled values
         """
         if rng is None:
-            rng = cast(np.random.RandomState, np.random)
+            rng = cast(np.random.default_rng, np.random)
         return rng.beta(self.alpha, self.beta, size=size)

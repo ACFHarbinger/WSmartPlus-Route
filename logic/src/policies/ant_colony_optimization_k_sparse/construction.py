@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, Set
 
 import numpy as np
 
-from .params import ACOParams
+from .params import KSACOParams
 from .pheromones import SparsePheromoneTau
 
 
@@ -38,7 +38,7 @@ class SolutionConstructor:
         eta: np.ndarray,
         candidate_lists: Dict[int, List[int]],
         nodes: List[int],
-        params: ACOParams,
+        params: KSACOParams,
         tau_0: float,
         R: float = 0.0,
         C: float = 1.0,

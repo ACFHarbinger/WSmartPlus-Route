@@ -20,7 +20,7 @@ from logic.src.policies.hybrid_volleyball_premier_league.params import HVPLParam
 from logic.src.policies.hybrid_volleyball_premier_league.solver import HVPLSolver
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 
 
 @PolicyRegistry.register("hvpl")
@@ -70,7 +70,7 @@ class HVPLPolicy(BaseRoutingPolicy):
         # Get ACO config (nested or flattened)
         aco_config = values.get("aco", {})
         if isinstance(aco_config, dict):
-            aco_params = ACOParams(
+            aco_params = KSACOParams(
                 n_ants=aco_config.get("n_ants", 20),
                 k_sparse=aco_config.get("k_sparse", 10),
                 alpha=aco_config.get("alpha", 1.0),
@@ -88,7 +88,7 @@ class HVPLPolicy(BaseRoutingPolicy):
             )
         else:
             # Fallback to flattened parameters for backward compatibility
-            aco_params = ACOParams(
+            aco_params = KSACOParams(
                 n_ants=values.get("aco_n_ants", 20),
                 k_sparse=values.get("aco_k_sparse", 10),
                 alpha=values.get("aco_alpha", 1.0),

@@ -95,7 +95,7 @@ class RLALNSSolver(PolicyVizMixin):
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
         self.random = random.Random(seed) if seed is not None else random.Random()
-        self.np_random = np.random.RandomState(seed)
+        self.np_random = np.random.default_rng(seed)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -187,7 +187,7 @@ class RLALNSSolver(PolicyVizMixin):
             ValueError: If the configured algorithm is not recognized.
         """
         algo = self.params.rl_algorithm.lower()
-        seed = self.np_random.randint(1000000)
+        seed = int(self.np_random.integers(1000000))
 
         if algo == "ucb1":
             return UCB1Agent(n_arms=self.n_actions, c=self.params.ucb_c, seed=seed)

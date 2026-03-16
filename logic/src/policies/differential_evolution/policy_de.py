@@ -8,8 +8,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.base.registry import PolicyRegistry
 from logic.src.interfaces import IPolicyAdapter
+from logic.src.policies.base.registry import PolicyRegistry
 
 from .params import DEParams
 from .solver import DESolver

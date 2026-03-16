@@ -3,8 +3,8 @@ import numpy as np
 
 def test_rl_alns_solver():
     print("\n=== Testing RLALNSSolver ===")
-    from logic.src.policies.rl_alns.params import RLALNSParams
-    from logic.src.policies.rl_alns.solver import RLALNSSolver
+    from logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
+    from logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
@@ -18,10 +18,14 @@ def test_rl_alns_solver():
 
     for algo in algos:
         print(f"Testing with algorithm: {algo}")
+        from logic.src.configs.policies.other import RLConfig, BanditConfig
+        rl_config = RLConfig(
+            agent_type="bandit",
+            bandit=BanditConfig(algorithm=algo)
+        )
         params = RLALNSParams(
-            rl_algorithm=algo,
+            rl_config=rl_config,
             max_iterations=5,
-            n_operators=6,
             start_temp=100.0,
             cooling_rate=0.9
         )
@@ -35,11 +39,11 @@ def test_rl_alns_solver():
 
 def test_ahvpl_rl_solver():
     print("\n=== Testing AHVPLRLSolver ===")
-    from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+    from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
     from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
         RLAHVPLParams,
     )
-    from logic.src.policies.rl_ahvpl.solver import RLAHVPLSolver as AHVPLRLSolver
+    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl import RLAHVPLSolver as AHVPLRLSolver
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
@@ -48,13 +52,19 @@ def test_ahvpl_rl_solver():
     R = 1.0
     C = 1.0
 
-    aco_params = ACOParams(max_iterations=5, n_ants=2)
+    aco_params = KSACOParams(max_iterations=5, n_ants=2)
+    from logic.src.configs.policies.other import RLConfig, BanditConfig, LinUCBConfig
+    rl_config = RLConfig(
+        agent_type="bandit",
+        bandit=BanditConfig(algorithm="linucb"),
+        contextual=LinUCBConfig(alpha=0.1)
+    )
     rl_params = RLAHVPLParams(
-        bandit_algorithm="linucb",
-        qlearning_epsilon=0.1
+        rl_config=rl_config,
+        aco_params=aco_params
     )
 
-    solver = AHVPLRLSolver(dist_matrix, wastes, capacity, R, C, aco_params, rl_params, seed=42)
+    solver = AHVPLRLSolver(dist_matrix, wastes, capacity, R, C, rl_params, seed=42)
     routes, profit, cost = solver.solve()
 
     print(f"  Result: Routes={routes}, Profit={profit:.2f}, Cost={cost:.2f}")

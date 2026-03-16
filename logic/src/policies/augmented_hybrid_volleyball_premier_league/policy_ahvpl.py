@@ -20,7 +20,7 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..hybrid_genetic_search.params import HGSParams
 
 
@@ -60,7 +60,7 @@ class AHVPLPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost).
         """
-        aco_params = ACOParams(
+        aco_params = KSACOParams(
             n_ants=values.get("aco_n_ants", 10),
             k_sparse=values.get("aco_k_sparse", 10),
             alpha=values.get("aco_alpha", 1.0),

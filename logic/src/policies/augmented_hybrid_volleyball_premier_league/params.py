@@ -8,7 +8,7 @@ for diversity-driven population management and genetic crossover operators.
 from dataclasses import dataclass, field
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..hybrid_genetic_search.params import HGSParams
 
 
@@ -49,8 +49,8 @@ class AHVPLParams:
     )
 
     # ACO Components (Initialization & Global Guidance)
-    aco_params: ACOParams = field(
-        default_factory=lambda: ACOParams(
+    aco_params: KSACOParams = field(
+        default_factory=lambda: KSACOParams(
             n_ants=10,
             k_sparse=10,
             alpha=1.0,

@@ -51,11 +51,11 @@ class GaussianMixture(BaseDistribution):
                 [self._generate_gaussian_mixture(num_loc, generator=generator) for _ in range(batch_size)]
             )
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
         """NumPy version of the Gaussian/Mixture spatial sampler."""
         if rng is None:
             # Maintaining the same default seed for reproducibility
-            rng = np.random.RandomState(42)
+            rng = np.random.default_rng(42)
 
         batch_size, num_loc, _ = size
 
@@ -134,7 +134,7 @@ class GaussianMixture(BaseDistribution):
 
         return self._batch_normalize_and_center(coords)
 
-    def _generate_gaussian_mixture_array(self, num_loc: int, rng: np.random.RandomState) -> np.ndarray:
+    def _generate_gaussian_mixture_array(self, num_loc: int, rng: np.random.default_rng) -> np.ndarray:
         # 1. Sample which mode each point belongs to (replacing multinomial)
         probs = np.ones(self.num_modes) / self.num_modes
         nums = rng.choice(self.num_modes, size=num_loc, p=probs)
@@ -157,7 +157,7 @@ class GaussianMixture(BaseDistribution):
 
         return self._global_min_max_scaling(coords)
 
-    def _generate_gaussian_array(self, batch_size: int, num_loc: int, rng: np.random.RandomState) -> np.ndarray:
+    def _generate_gaussian_array(self, batch_size: int, num_loc: int, rng: np.random.default_rng) -> np.ndarray:
         coords = np.zeros((batch_size, num_loc, 2))
         cov_values = rng.rand(batch_size)
 
