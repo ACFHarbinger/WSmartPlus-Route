@@ -317,7 +317,6 @@ class TestPolicyComparison:
 
         return dist_matrix, wastes, capacity, R, C
 
-    @pytest.mark.skip(reason="Known edge case with crossover when giant tours become very small after ruin-recreate")
     def test_both_policies_feasible(self, test_instance):
         """Test that both policies produce feasible solutions."""
         dist_matrix, wastes, capacity, R, C = test_instance
