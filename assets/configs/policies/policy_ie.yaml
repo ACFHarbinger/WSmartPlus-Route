@@ -1,0 +1,32 @@
+# Improving and Equal (IE) Policy Configuration
+# Reference: Canonical Local Search with Plateaus
+
+# The Improving and Equal policy accepts moves that either improve the objective
+# or keep it the same. This allows the search to traverse "plateaus" in the
+# solution space, potentially bridging the gap to better local optima that
+# would be unreachable under a strict improvement-only regime.
+
+ie:
+  # Total number of iterations (move applications).
+  max_iterations: 1000
+
+  # Number of nodes to remove per iteration during the destroy phase.
+  n_removal: 2
+
+  # Number of Low-Level Heuristics available in the solver's pool.
+  n_llh: 5
+
+  # Wall-clock time limit in seconds.
+  time_limit: 60.0
+
+  # Whether to enable VRPP mode.
+  vrpp: true
+
+  # Random seed for reproducibility.
+  seed: null
+
+  # Must-go node selection strategies.
+  must_go: null
+
+  # Post-processing refinement steps.
+  post_processing: null

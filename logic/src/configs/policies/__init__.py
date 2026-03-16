@@ -10,12 +10,17 @@ from .alns import ALNSConfig
 from .bb import BBConfig
 from .bpc import BPCConfig
 from .cvrp import CVRPConfig
+from .de import DEConfig
+from .ema import EMAConfig
 from .es_mcl import MuCommaLambdaESConfig
 from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
 from .fa import FAConfig
 from .filo import FILOConfig
+from .ga import GAConfig
+from .gd import GDConfig
 from .gihh import GIHHConfig
+from .gls import GLSConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
@@ -25,14 +30,19 @@ from .hms import HybridMemeticSearchConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
+from .ie import IEConfig
+from .ils import ILSConfig
 from .ils_rvnd_sp import ILSRVNDSPConfig
 from .kgls import KGLSConfig
+from .lahc import LAHCConfig
 from .lca import LCAConfig
 from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
 from .ma_im import MemeticAlgorithmIslandModelConfig
 from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from .neural import NeuralConfig
+from .oba import OBAConfig
+from .oi import OIConfig
 from .other import MustGoConfig, PostProcessingConfig
 from .pso import PSOConfig
 from .psoda import DistancePSOConfig
@@ -42,11 +52,16 @@ from .rl_ahvpl import RLAHVPLConfig
 from .rl_alns import RLALNSConfig
 from .rl_gd_hh import RLGDHHConfig
 from .rl_hvpl import RLHVPLConfig
+from .rrt import RRTConfig
+from .rts import RTSConfig
+from .sa import SAConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
+from .schc import SCHCConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
 from .ss_hh import SSHHConfig
+from .ta import TAConfig
 from .tsp import TSPConfig
 from .vns import VNSConfig
 from .vpl import VPLConfig
@@ -104,4 +119,19 @@ __all__ = [
     "MemeticAlgorithmDualPopulationConfig",
     "PSOConfig",
     "MAConfig",
+    "OIConfig",
+    "IEConfig",
+    "GDConfig",
+    "TAConfig",
+    "SCHCConfig",
+    "EMAConfig",
+    "SAConfig",
+    "LAHCConfig",
+    "OBAConfig",
+    "RRTConfig",
+    "GAConfig",
+    "DEConfig",
+    "GLSConfig",
+    "ILSConfig",
+    "RTSConfig",
 ]

@@ -1,0 +1,37 @@
+# Great Deluge (GD) Policy Configuration
+# Reference: Dueck, G. (1993). "New optimization algorithms: The great deluge algorithm and the record-to-record travel."
+
+# The Great Deluge algorithm is a deterministic non-elitist acceptance criterion.
+# It accepts a move if the candidate's profit is above a "water level" threshold.
+# The water level rises over time (in maximization), forcing the solver to find
+# increasingly better solutions while still allowing worsening moves earlier on
+# to escape local optima.
+
+gd:
+  # Total number of iterations.
+  max_iterations: 1000
+
+  # The multiplier used to determine the final target fitness (water level).
+  # Target = f0 * multiplier. 1.1 means we aim for a 10% improvement over the initial solution.
+  target_fitness_multiplier: 1.1
+
+  # Number of nodes destroyed per iteration.
+  n_removal: 2
+
+  # Number of Low-Level Heuristics in the operation pool.
+  n_llh: 5
+
+  # Wall-clock time limit in seconds.
+  time_limit: 60.0
+
+  # Whether to enable VRPP mode.
+  vrpp: true
+
+  # Random seed for reproducibility.
+  seed: null
+
+  # Must-go node selection strategies.
+  must_go: null
+
+  # Post-processing refinery.
+  post_processing: null
