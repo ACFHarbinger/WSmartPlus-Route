@@ -58,10 +58,8 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        # Import the routing solver
-        from logic.src.policies.evolution_strategy_mu_kappa_lambda.routing_solver import (
-            MuKappaLambdaESRoutingSolver,
-        )
+        # Import the updated routing solver
+        from logic.src.policies.evolution_strategy_mu_kappa_lambda.solver import MuKappaLambdaESSolver
 
         params = MuKappaLambdaESParams(
             mu=values.get("mu", 15),
@@ -76,7 +74,8 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
             time_limit=values.get("time_limit", 60.0),
         )
 
-        solver = MuKappaLambdaESRoutingSolver(
+        # Initialize the generalized self-adaptive solver
+        solver = MuKappaLambdaESSolver(
             dist_matrix=sub_dist_matrix,
             wastes=sub_wastes,
             capacity=capacity,

@@ -1,5 +1,5 @@
 """
-OR-Tools engine for Branch-Cut-and-Price module.
+OR-Tools engine for Branch-and-Price-and-Cut module.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -11,7 +11,7 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
-def run_bcp_ortools(
+def run_bpc_ortools(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,

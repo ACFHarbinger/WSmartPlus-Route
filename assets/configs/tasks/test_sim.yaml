@@ -9,7 +9,7 @@
 
 defaults:
   - /policies@p.alns: policy_alns
-  - /policies@p.bcp: policy_bcp
+  - /policies@p.bpc: policy_bpc
   - /policies@p.cvrp: policy_cvrp
   - /policies@p.hgs: policy_hgs
   - /policies@p.hgs_alns: policy_hgs_alns
@@ -93,7 +93,7 @@ sim:
     - sisr: ${p.sisr.sisr}
     - tsp: ${p.tsp.tsp}
     - cvrp: ${p.cvrp.cvrp}
-    - bcp: ${p.bcp.bcp}
+    - bpc: ${p.bpc.bpc}
     - neural: ${p.neural.neural}
     - ks_aco: ${p.ks_aco.ks_aco}
     - hh_aco: ${p.hh_aco.hh_aco}

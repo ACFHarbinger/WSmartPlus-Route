@@ -1,7 +1,7 @@
 # Policy Configuration
 
 # =============================================================================
-# BCP (Branch-Cut-and-Price) Exact Solver Configuration
+# BPC (Branch-and-Price-and-Cut) Exact Solver Configuration
 # =============================================================================
 # PURPOSE:
 #   Exact optimization using column generation and branch-and-bound.
@@ -31,13 +31,13 @@
 #   Monitor RAM usage if running on resource-constrained systems.
 # =============================================================================
 
-bcp:
+bpc:
   ortools:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "ortools"
-      # Execution backend: Google OR-Tools with exact BCP mode
+      # Execution backend: Google OR-Tools with exact BPC mode
       # Alternative: "vrpy" (VRPy library, slower but more flexible)
 
     - must_go: ["other/mg_lookahead.yaml"]
@@ -48,16 +48,16 @@ bcp:
     - time_limit: 60
       # Maximum wall-clock seconds before termination
       # Range: 30-3600 (30s = quick test, 3600s = thorough search)
-      # Note: BCP may find optimal solution early and stop before time_limit
+      # Note: BPC may find optimal solution early and stop before time_limit
 
     - post_processing: []
       # Route refinement heuristics (not needed for exact solutions)
-      # Always empty for BCP since solutions are already optimal
+      # Always empty for BPC since solutions are already optimal
 
     # ---------------------------------------------------------------------
     # Solver Parameters (Implicit)
     # ---------------------------------------------------------------------
-    # OR-Tools BCP parameters are configured in:
+    # OR-Tools BPC parameters are configured in:
     #   logic/src/policies/branch_cut_and_price.py
     #
     # Key implicit settings:

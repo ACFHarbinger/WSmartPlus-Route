@@ -17,7 +17,7 @@
 #
 # TYPICAL USE CASES:
 #   - Real-time routing (requires <10s response)
-#   - Large fleets (100-200 nodes) where BCP times out
+#   - Large fleets (100-200 nodes) where BPC times out
 #   - Baseline comparison for neural policies
 #
 # PERFORMANCE EXPECTATIONS:

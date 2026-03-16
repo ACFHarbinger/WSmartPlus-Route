@@ -1,7 +1,9 @@
 """
 (μ,λ) Evolution Strategy configuration.
 
-Replaces Artificial Bee Colony with rigorous ES terminology.
+Strictly follows the generational evolutionary algorithm terminology where:
+- μ (mu): Parent population size.
+- λ (lambda): Offspring population size.
 """
 
 from dataclasses import dataclass
@@ -15,15 +17,15 @@ from .other.post_processing import PostProcessingConfig
 class MuCommaLambdaESConfig:
     """Configuration for (μ,λ) Evolution Strategy policy.
 
-    Multi-phase ES with random restart mechanism.
+    The (μ,λ) scheme is a non-elitist generational strategy where the offspring
+    entirely replace the parents.
     """
 
-    population_size: int = 20
-    offspring_per_parent: int = 1
+    mu: int = 15
+    lambda_: int = 100
     n_removal: int = 3
-    stagnation_limit: int = 10
     max_iterations: int = 500
-    local_search_iterations: int = 500
+    local_search_iterations: int = 100
     time_limit: float = 60.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None

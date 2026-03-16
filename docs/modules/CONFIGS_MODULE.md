@@ -98,7 +98,7 @@ logic/src/configs/
 │   ├── hgs.py, hgs_alns.py  # Hybrid Genetic Search
 │   ├── aco.py               # Ant Colony Optimization
 │   ├── ils.py, sisr.py      # Local search variants
-│   ├── bcp.py               # Branch-Cut-Price exact solver
+│   ├── bpc.py               # Branch-and-Price-and-Cut exact solver
 │   ├── neural.py            # Neural policy wrapper
 │   ├── other/               # Modular extensions
 │   │   ├── must_go.py       # Pre-selection strategies
@@ -145,7 +145,7 @@ from logic.src.configs import (
     # Tasks
     TrainConfig, EvalConfig, SimConfig, MetaRLConfig, HPOConfig,
     # Policies
-    ALNSConfig, HGSConfig, ACOConfig, BCPConfig, ILSConfig,
+    ALNSConfig, HGSConfig, ACOConfig, BPCConfig, ILSConfig,
     MustGoConfig, PostProcessingConfig,
     # RL
     RLConfig, PPOConfig, POMOConfig, ImitationConfig,
@@ -1974,7 +1974,7 @@ from logic.src.configs.models import (
 
 # Policy configs
 from logic.src.configs.policies import (
-    ALNSConfig, HGSConfig, ACOConfig, ILSConfig, BCPConfig,
+    ALNSConfig, HGSConfig, ACOConfig, ILSConfig, BPCConfig,
     MustGoConfig, PostProcessingConfig
 )
 

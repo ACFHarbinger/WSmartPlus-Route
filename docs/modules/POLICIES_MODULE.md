@@ -55,7 +55,7 @@ The `policies` module provides a comprehensive technical ecosystem of routing op
 
 ### Policy Categories
 
-1. **Exact Methods** (BCP): Branch-Cut-and-Price via Gurobi/OR-Tools/VRPy
+1. **Exact Methods** (BPC): Branch-and-Price-and-Cut via Gurobi/OR-Tools/VRPy
 2. **Metaheuristics**:
    - ALNS (Adaptive Large Neighborhood Search)
    - HGS (Hybrid Genetic Search)
@@ -132,7 +132,7 @@ logic/src/policies/
 │   ├── factory.py                           # PolicyFactory
 │   ├── registry.py                          # PolicyRegistry
 │   ├── policy_alns.py                       # ALNS adapter
-│   ├── policy_bcp.py                        # BCP adapter
+│   ├── policy_bpc.py                        # BPC adapter
 │   ├── policy_cvrp.py                       # CVRP adapter
 │   ├── policy_hgs.py                        # HGS adapter
 │   ├── policy_hgs_alns.py                   # HGS-ALNS adapter
@@ -310,7 +310,7 @@ tour, cost, metadata = policy.execute(
 
 **Supported Policy Names**:
 
-- `"alns"`, `"hgs"`, `"hgs_alns"`, `"bcp"`, `"gurobi"`, `"hexaly"`
+- `"alns"`, `"hgs"`, `"hgs_alns"`, `"bpc"`, `"gurobi"`, `"hexaly"`
 - `"ks_aco"`, `"hh_aco"`, `"sisr"`, `"sans"`, `"lkh"`
 - `"neural"`, `"am"`, `"ddam"`, `"tam"`, `"transgcn"`
 - `"tsp"`, `"cvrp"`, `"vrpp"`
@@ -338,7 +338,7 @@ policy = policy_cls()
 # List all policies
 all_policies = PolicyRegistry.list_policies()
 print(all_policies)
-# ['alns', 'hgs', 'bcp', 'neural', 'my_custom_policy', ...]
+# ['alns', 'hgs', 'bpc', 'neural', 'my_custom_policy', ...]
 ```
 
 ### 4.3 BaseRoutingPolicy
@@ -1122,7 +1122,7 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 | --------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | Harmony Search (HS)                     | **(μ+λ) Evolution Strategy [with λ=1]**       | Population-based search with recombination and mutation          |
 | Firefly Algorithm (FA)                  | **Distance-Based PSO**                        | Particle swarm with exponential distance decay                   |
-| Artificial Bee Colony (ABC)             | **(μ,λ) Evolution Strategy**                  | Multi-phase random search with restart mechanism                 |
+| Artificial Bee Colony (ABC)             |                                               |                                                                  |
 | Soccer League Competition (SLC)         | **Memetic Algorithm Island Model (MA-IM)**    | Hierarchical Island GA with intensive intra-island local search. |
 | Hybrid Volleyball Premier League (HVPL) | **Hybrid Memetic Search (HMS)**               | 3-Phase hybrid pipeline combining ACO, GA, and ALNS.             |
 | Volleyball Premier League (VPL)         | **Memetic Algorithm Dual Population (MA-DP)** | Multi-island GA with dual population (active + reserve).         |
@@ -1225,46 +1225,7 @@ The "metaphor controversy" in optimization research refers to algorithms that ob
 
 ---
 
-##### 3. (μ,λ) Evolution Strategy
-
-**Replaces:** Artificial Bee Colony (ABC)
-
-**Location:** `logic/src/policies/evolution_strategy_mu_comma_lambda/`
-
-**Algorithm:**
-
-```
-1. Initialize population of μ solutions
-2. For each iteration:
-   a. Local Search Phase: Each parent generates offspring via mutation
-   b. Selection Phase: Select offspring via fitness-proportional selection
-   c. Update Phase: Replace parents with selected offspring (non-elitist)
-   d. Restart Phase: Replace stagnant solutions with random restarts
-```
-
-**Key Parameters:**
-
-- `population_size` (μ): Number of parent solutions
-- `offspring_per_parent`: Offspring generation rate (λ/μ)
-- `stagnation_limit`: Random restart threshold
-
-**Terminology Mapping:**
-
-- "Employed bees" → Local search agents (exploitation)
-- "Onlooker bees" → Probabilistic selection mechanism
-- "Scout bees" → Random restart mechanism
-- "Food sources" → Parent solutions
-
-**Complexity:**
-
-- Time: O(T × λ × n²) where λ = offspring count
-- Space: O(μ × n) + O(λ × n)
-
-**Reference:**
-
-> Schwefel, H.-P. (1981). "Numerical Optimization of Computer Models." John Wiley & Sons.
-
----
+##### 3. TBA
 
 ##### 4. Genetic Algorithm Memetic Island Model (GA-MIM)
 
@@ -1739,20 +1700,20 @@ The original implementations remain for backward compatibility but should not be
 
 ## 6. Exact Optimization
 
-### 6.1 BCP (Branch-Cut-and-Price)
+### 6.1 BPC (Branch-and-Price-and-Cut)
 
 **Directory**: `branch_cut_and_price/`
-**Adapters**: `policy_bcp.py`
+**Adapters**: `policy_bpc.py`
 
 Exact MIP solvers for optimal solutions.
 
 #### Engine Selection
 
 ```python
-from logic.src.policies import run_bcp
+from logic.src.policies import run_bpc
 
 # Dispatcher selects best available engine
-routes, cost = run_bcp(
+routes, cost = run_bpc(
     distance_matrix=dist_matrix,
     wastes=wastes_dict,
     capacity=200.0,
@@ -1760,7 +1721,7 @@ routes, cost = run_bcp(
 )
 
 # Force specific engine
-routes, cost = run_bcp(
+routes, cost = run_bpc(
     distance_matrix=dist_matrix,
     wastes=wastes_dict,
     capacity=200.0,
@@ -1779,13 +1740,13 @@ routes, cost = run_bcp(
 #### Usage via Adapter
 
 ```python
-bcp_policy = PolicyFactory.get_adapter("bcp")
-tour, cost, _ = bcp_policy.execute(
+bpc_policy = PolicyFactory.get_adapter("bpc")
+tour, cost, _ = bpc_policy.execute(
     must_go=must_go_bins,
     bins=bins_state,
     distance_matrix=dist_matrix,
     config={
-        "bcp": {
+        "bpc": {
             "engine": "gurobi",
             "time_limit": 600.0,
             "mip_gap": 0.001  # 0.1% optimality tolerance
@@ -2724,7 +2685,7 @@ print(f"Improvement: {(cost - final_cost) / cost * 100:.1f}%")
 ```python
 from logic.src.policies import create_policy
 
-policies = ["hgs", "alns", "bcp", "neural"]
+policies = ["hgs", "alns", "bpc", "neural"]
 results = {}
 
 for policy_name in policies:
@@ -2899,15 +2860,15 @@ tour, cost, _ = policy.execute(...)
 ```python
 # ✅ GOOD: Graceful fallback
 try:
-    policy = PolicyFactory.get_adapter("bcp")
-    tour, cost, _ = policy.execute(..., config={"bcp": {"engine": "gurobi"}})
+    policy = PolicyFactory.get_adapter("bpc")
+    tour, cost, _ = policy.execute(..., config={"bpc": {"engine": "gurobi"}})
 except ImportError:
     print("Gurobi not available, falling back to OR-Tools")
-    tour, cost, _ = policy.execute(..., config={"bcp": {"engine": "ortools"}})
+    tour, cost, _ = policy.execute(..., config={"bpc": {"engine": "ortools"}})
 
 # ❌ BAD: Assume engine exists
-policy = PolicyFactory.get_adapter("bcp")
-tour, cost, _ = policy.execute(..., config={"bcp": {"engine": "gurobi"}})
+policy = PolicyFactory.get_adapter("bpc")
+tour, cost, _ = policy.execute(..., config={"bpc": {"engine": "gurobi"}})
 # Crashes if Gurobi not installed
 ```
 
@@ -3022,7 +2983,7 @@ from logic.src.policies.adapters import PolicyFactory, PolicyRegistry
 
 # Main policies
 from logic.src.policies import (
-    run_alns, run_hgs, run_bcp,
+    run_alns, run_hgs, run_bpc,
     run_k_sparse_aco, run_hyper_heuristic_aco,
     NeuralAgent
 )
@@ -3058,7 +3019,7 @@ from logic.src.policies import find_route, find_routes
 
 | Policy       | Type          | Best For                             | Typical Runtime |
 | ------------ | ------------- | ------------------------------------ | --------------- |
-| **BCP**      | Exact         | Small instances (<50 nodes), optimal | Minutes-Hours   |
+| **BPC**      | Exact         | Small instances (<50 nodes), optimal | Minutes-Hours   |
 | **HGS**      | Metaheuristic | Medium-large instances, high quality | Seconds-Minutes |
 | **ALNS**     | Metaheuristic | Diverse instances, robustness        | Seconds-Minutes |
 | **HGS-ALNS** | Hybrid        | Large instances, best quality        | Minutes         |
@@ -3138,7 +3099,7 @@ neural:
 | ACO               | `ant_colony_optimization/`                    |
 | SANS              | `simulated_annealing_neighborhood_search/`    |
 | SISR              | `slack_induction_by_string_removal/`          |
-| BCP               | `branch_cut_and_price/`                       |
+| BPC               | `branch_price_cut/`                           |
 | Neural            | `neural_agent/`                               |
 
 ### 14.6 Related Documentation

@@ -1,42 +1,42 @@
 """
-BCP Policy Adapter.
+BPC Policy Adapter.
 
-Adapts the Branch-Cut-and-Price (BCP) logic to the agnostic interface.
+Adapts the Branch-and-Price-and-Cut (BPC) logic to the agnostic interface.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies import BCPConfig
+from logic.src.configs.policies import BPCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.branch_cut_and_price import run_bcp
+from logic.src.policies.branch_price_cut import run_bpc
 
 
-@PolicyRegistry.register("bcp")
-class BCPPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("bpc")
+class BPCPolicy(BaseRoutingPolicy):
     """
-    Branch-Cut-and-Price policy class.
+    Branch-and-Price-and-Cut policy class.
 
-    Visits pre-selected 'must_go' bins using exact or heuristic BCP solvers.
+    Visits pre-selected 'must_go' bins using exact or heuristic BPC solvers.
     """
 
-    def __init__(self, config: Optional[Union[BCPConfig, Dict[str, Any]]] = None):
-        """Initialize BCP policy with optional config.
+    def __init__(self, config: Optional[Union[BPCConfig, Dict[str, Any]]] = None):
+        """Initialize BPC policy with optional config.
 
         Args:
-            config: BCPConfig dataclass, raw dict from YAML, or None.
+            config: BPCConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return BCPConfig
+        return BPCConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for BCP."""
-        return "bcp"
+        """Return config key for BPC."""
+        return "bpc"
 
     def _run_solver(
         self,
@@ -50,7 +50,7 @@ class BCPPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run BCP solver.
+        Run BPC solver.
 
         All nodes in mandatory_nodes are treated as must-go for the solver.
         In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
@@ -61,7 +61,7 @@ class BCPPolicy(BaseRoutingPolicy):
         # Convert local mandatory indices to a set of must-go nodes for the solver
         must_go_indices: Set[int] = set(mandatory_nodes)
 
-        routes, solver_cost = run_bcp(
+        routes, solver_cost = run_bpc(
             sub_dist_matrix,
             sub_wastes,
             capacity,
