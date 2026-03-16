@@ -12,7 +12,7 @@ from typing import Optional, Tuple
 from logic.src.configs.policies.other import RLConfig
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 
 
 @dataclass
@@ -38,8 +38,8 @@ class RLHVPLParams:
     rl_config: RLConfig = field(default_factory=RLConfig)
 
     # ===== ACO Parameters (with Q-Learning) =====
-    aco_params: ACOParams = field(
-        default_factory=lambda: ACOParams(
+    aco_params: KSACOParams = field(
+        default_factory=lambda: KSACOParams(
             n_ants=10,
             k_sparse=10,
             alpha=1.0,

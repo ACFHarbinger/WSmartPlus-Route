@@ -1,5 +1,5 @@
 import numpy as np
-from logic.src.policies.hybrid_volleyball_premier_league.hvpl import HVPLSolver
+from logic.src.policies.hybrid_volleyball_premier_league.solver import HVPLSolver
 from logic.src.policies.hybrid_volleyball_premier_league.params import HVPLParams
 
 
@@ -20,7 +20,7 @@ def test_hvpl_solver():
     params = HVPLParams(
         n_teams=3,
         max_iterations=2,
-        sub_rate=0.3,
+        substitution_rate=0.3,
         time_limit=5.0
     )
     # Adjust nested params for speed

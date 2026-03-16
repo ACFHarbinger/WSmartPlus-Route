@@ -88,7 +88,7 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2, seed: int =
     print(f"[*] Benchmarking VRPP Solvers (nodes={num_nodes}, limit={time_limit}s)...")
 
     # Generate random instance
-    np_rng = np.random.RandomState(seed)
+    np_rng = np.random.default_rng(seed)
     bins = np_rng.rand(num_nodes) * 100
     dist_mat = np_rng.rand(num_nodes + 1, num_nodes + 1).tolist()
     binsids = list(range(num_nodes + 1))
@@ -141,7 +141,7 @@ def benchmark_cvrp_solvers(num_nodes: int = 50, n_vehicles: int = 5, seed: int =
     """Benchmark PyVRP vs OR-Tools."""
     print(f"[*] Benchmarking CVRP Solvers (nodes={num_nodes}, vehicles={n_vehicles})...")
 
-    np_rng = np.random.RandomState(seed)
+    np_rng = np.random.default_rng(seed)
     dist_mat = np_rng.randint(10, 100, size=(num_nodes + 1, num_nodes + 1))
     np.fill_diagonal(dist_mat, 0)
     wastes = np_rng.randint(5, 20, size=num_nodes)

@@ -35,12 +35,12 @@ class Constant(BaseDistribution):
             return self.value.expand(size)
         return torch.full(size, float(self.value))
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.RandomState] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
         """Return constant array.
 
         Args:
             size: Sampling shape (e.g., (batch_size, num_loc, components))
-            rng: Optional numpy RandomState (ignored, for interface consistency).
+            rng: Optional numpy default_rng (ignored, for interface consistency).
 
         Returns:
             np.ndarray: Constant values

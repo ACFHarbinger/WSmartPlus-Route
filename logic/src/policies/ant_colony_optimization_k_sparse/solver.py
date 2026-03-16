@@ -27,7 +27,7 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..other.local_search.local_search_aco import ACOLocalSearch
 from .construction import SolutionConstructor
-from .params import ACOParams
+from .params import KSACOParams
 from .pheromones import SparsePheromoneTau
 
 
@@ -46,7 +46,7 @@ class KSparseACOSolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: ACOParams,
+        params: KSACOParams,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):

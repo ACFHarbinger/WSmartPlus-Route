@@ -36,7 +36,7 @@ import numpy as np
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .params import MemeticAlgorithmIslandModelParams
 
@@ -71,7 +71,7 @@ class MemeticAlgorithmIslandModelSolver(PolicyVizMixin):
         self.random = random.Random(seed) if seed is not None else random.Random()
 
         # Pre-instantiate Local Search for reuse
-        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,

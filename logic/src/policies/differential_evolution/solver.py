@@ -34,7 +34,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion, random_removal
 from .params import DEParams
 
@@ -88,7 +88,7 @@ class DESolver(PolicyVizMixin):
         # Pre-instantiate local search for reuse
         from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
-        aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -206,7 +206,6 @@ class DESolver(PolicyVizMixin):
             Mutant vector v_i
         """
         # Extract node sets
-        base_nodes = set(node for route in base for node in route)
         diff1_nodes = set(node for route in diff1 for node in route)
         diff2_nodes = set(node for route in diff2 for node in route)
 

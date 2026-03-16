@@ -20,7 +20,7 @@ from logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league.
 )
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 
 
 @PolicyRegistry.register("rl_hvpl")
@@ -65,7 +65,7 @@ class RLHVPLPolicy(BaseRoutingPolicy):
             Tuple of (routes, profit, solver_cost)
         """
         # Extract sub-params for ACO and ALNS
-        aco_params = ACOParams(
+        aco_params = KSACOParams(
             n_ants=values.get("aco_n_ants", 10),
             k_sparse=values.get("aco_k_sparse", 10),
             alpha=values.get("aco_alpha", 1.0),

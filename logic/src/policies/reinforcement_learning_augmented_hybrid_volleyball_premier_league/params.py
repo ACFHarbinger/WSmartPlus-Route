@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 from logic.src.configs.policies.other import RLConfig
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..hybrid_genetic_search.params import HGSParams
 from ..reactive_tabu_search.params import RTSParams
 
@@ -34,7 +34,7 @@ class RLAHVPLParams:
     rl_config: RLConfig = field(default_factory=RLConfig)
 
     # ACO parameters
-    aco_params: ACOParams = field(default_factory=ACOParams)
+    aco_params: KSACOParams = field(default_factory=KSACOParams)
 
     # ALNS parameters
     alns_params: ALNSParams = field(default_factory=ALNSParams)

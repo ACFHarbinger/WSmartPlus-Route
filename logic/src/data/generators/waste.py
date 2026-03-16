@@ -20,7 +20,7 @@ def generate_waste(
     graph: Tuple[Any, Any],
     dataset_size: int = 1,
     grid: Optional[Any] = None,
-    rng: Optional[Union[torch.Generator, np.random.RandomState]] = None,
+    rng: Optional[Union[torch.Generator, np.random.default_rng]] = None,
     sample_method: Optional[str] = "sample_array",
     **kwargs: Any,
 ) -> Union[np.ndarray, Any]:
