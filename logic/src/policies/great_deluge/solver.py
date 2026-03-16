@@ -7,7 +7,7 @@ monotonically updating threshold known as the "water level".
 
 import time
 
-from ..other.local_search.base_acceptance_criteria import BaseAcceptanceSolver
+from ..base.base_acceptance_criteria import BaseAcceptanceSolver
 
 
 class GDSolver(BaseAcceptanceSolver):
