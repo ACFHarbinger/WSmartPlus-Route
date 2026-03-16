@@ -1,0 +1,80 @@
+"""
+Configuration for Local Branching with Variable Neighborhood Search (LB-VNS).
+"""
+
+from dataclasses import dataclass
+from typing import Optional
+
+from .other.must_go import MustGoConfig
+from .other.post_processing import PostProcessingConfig
+
+
+@dataclass
+class LocalBranchingVNSConfig:
+    """
+    Configuration for the Local Branching with Variable Neighborhood Search (LB-VNS) matheuristic.
+
+    LB-VNS (Hansen, Mladenović, and Urošević, 2006) is a powerful hybrid that
+    integrates the metaheuristic structure of Variable Neighborhood Search (VNS)
+    with the tactical 'local' search capabilities of Local Branching (LB).
+
+    The algorithm operates by systematically exploring neighborhoods of increasing
+    size (defined by the Hamming distance 'k') whenever the current neighborhood
+    fails to yield an improved solution. This allows the solver to escape local
+    optima while maintaining the mathematical rigor of a MILP-based intensification.
+
+    Attributes:
+        time_limit (float): Total wall-clock time limit for the entire VNS process.
+            If exceeded, the algorithm terminates and returns the best found solution.
+
+        k_min (int): Initial neighborhood size (Hamming distance). This determines
+             the 'radius' of the first restricted search space. Standard values range from 10 to 20.
+
+        k_max (int): Maximum neighborhood size for the VNS loop. If LB-VNS reaches this
+            size without finding an improvement, it may reset or terminate depending on
+            the implementation. It acts as an upper bound on diversification intensity.
+
+        k_step (int): Increment value for neighborhood expansion. Whenever a sub-problem
+            is solved to optimality (or a limit) without finding a better solution,
+            k is increased by this amount: k = k + k_step.
+
+        time_limit_per_lb (float): Maximum time budget allocated for each internal
+            Local Branching execution (local search phase). This ensures the solver
+            doesn't get stuck too long in a single, potentially difficult, sub-MIP.
+
+        max_lb_iterations (int): Limit on the number of internal improvement steps
+            taken within each Local Branching call. In LB-VNS, the LB part itself
+            can iterate to find a local optimum before the VNS moves to the next neighborhood.
+
+        mip_gap (float): Relative optimality gap targeted for each sub-problem solve.
+            A value like 0.01 (1%) allows the solver to stop once it's close enough to
+            the local optimal solution, saving time for more VNS explorations.
+
+        seed (int): Global random seed for both the Shaking mechanism (random perturbation)
+            and the underlying Gurobi solver, ensuring deterministic and reproducible results.
+
+        # Infrastructure Settings
+        # -----------------------
+        engine (str): Identifier for the optimization engine backend (default: "custom").
+
+        must_go (Optional[MustGoConfig]): Configuration for identifying and enforcing
+            mandatory nodes in the routing problem.
+
+        post_processing (Optional[PostProcessingConfig]): Optional local search or
+            heuristics (e.g., node swaps, 2-opt) to be applied to solutions found
+            by the matheuristic for further minor refinement.
+    """
+
+    time_limit: float = 300.0
+    k_min: int = 10
+    k_max: int = 60
+    k_step: int = 10
+    time_limit_per_lb: float = 30.0
+    max_lb_iterations: int = 15
+    mip_gap: float = 0.01
+    seed: int = 42
+
+    # Infrastructure
+    engine: str = "custom"
+    must_go: Optional[MustGoConfig] = None
+    post_processing: Optional[PostProcessingConfig] = None
