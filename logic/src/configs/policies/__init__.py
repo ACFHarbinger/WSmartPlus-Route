@@ -9,6 +9,7 @@ from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
 from .bb import BBConfig
 from .bpc import BPCConfig
+from .cf_rs import CFRSConfig
 from .cvrp import CVRPConfig
 from .de import DEConfig
 from .ema import EMAConfig
@@ -74,6 +75,7 @@ __all__ = [
     "ALNSConfig",
     "BBConfig",
     "BPCConfig",
+    "CFRSConfig",
     "CVRPConfig",
     "DistancePSOConfig",
     "FILOConfig",

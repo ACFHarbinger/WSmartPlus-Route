@@ -67,6 +67,8 @@ Branch-and-Price-and-Cut (BPC) & Laporte et al. (1998) & Branch-and-Bound & Exac
 
 Circuit-SAT GNN & Amizadeh et al. (2018) & GNN + DPLL & NCO: Predict-Many (UL) & Complete Tree, SAT / MILP & Unsupervised loss, DPLL & Iteratively predicts variable assignments to restrict the search tree via continuous circuit loss. & Purely mathematical Unsupervised Learning application for iterative state-space reduction. \\ \midrule
 
+Cluster-First Route-Second & Fisher \& Jaikumar (1981) & GAP + TSP & Matheuristic (Decomposition) & Set, Routing & MILP Assignment, Heur. Routing & Assigns seed customers via an exact Generalized Assignment Problem (GAP), then sequences routes heuristically. & Foundational decomposition paradigm; leverages exact solvers for spatial clustering where heuristics traditionally struggle. \\ \midrule
+
 Deep Policy Dynamic Programming (DPDP) & Kool et al. (2022) & GNN + DP & NCO: Predict-Once (SL) & Complete Tree, Routing & Heatmap Gen., DP Bounds & SL model predicts edge probabilities (heatmaps) once to restrict the state space for exact DP. & Rigorously synthesizes DL probability predictions with exact, mathematically sound DP bounds. \\ \midrule
 
 DeepACO & Ye et al. (2023) & GNN + ACO & NCO: Non-AR Constructive (RL) & Swarm, Combinatorial & Neural Pheromone Init. & Uses a GNN trained via RL to output a single non-autoregressive matrix to initialize pheromones. & Excellent modern hybrid. Uses DL to intelligently bias canonical swarm math. \\ \midrule
@@ -76,6 +78,8 @@ Differential Evolution (DE) & Storn \& Price (1997) & Canonical & Canonical Meta
 Efficient Active Search (EAS) & Hottung et al. (2021) & AM + Active Search & NCO: Predict-Once (RL) & Sequence, Combinatorial & Test-time weight update & Predicts a baseline policy once, then uses RL at test-time to update the weights for the instance. & Novel Predict-Once RL application; blurs the line between inference and local trajectory search. \\ \midrule
 
 Ensemble Move Acceptance & Ahmed Kheiri (2016) & Hyper-heuristic & Acceptance Criterion (Ensemble) & General & G-VOT / G-AND / G-OR & A group decision-making approach where multiple criteria are combined for joint decisions. & Mitigates individual weaknesses of standalone criteria; majority rule (G-VOT) is often the most robust. \\ \midrule
+
+Enhanced Kernel Search & Hanafi et al. & Kernel Search & Matheuristic (Restricted Search) & Complete Tree, Combinatorial & Heuristic bucket sorting & Organizes variable buckets using algorithmic intelligence and heuristic frequency rather than pure LP fractions. & Bypasses mathematical stalling in profit-routing landscapes where standard LP relaxations yield uninformative fractional bounds. \\ \midrule
 
 Erdős Goes Neural (EGN) & Karalias \& Loukas (2020) & GNN + Decoding & NCO: Predict-Once (UL) & Single-point, Combinatorial & Probabilistic penalty loss & Unsupervised GNN outputs soft probabilities processed by sequential decoding for guarantees. & Rigorous bridging of DL probabilities with deterministic, discrete mathematical guarantees. \\ \midrule
 
@@ -111,7 +115,7 @@ Hyper-Heuristic Ant Colony Optimization (HH-ACO) & Chen et al. (2007) & ACO & Hy
 
 Hyper-heuristic with Us and LK (HULK) & Müller \& Bonilha (2022) & ACO / Local Search & Hyper-heuristic (Swarm + Traj.) & Population, Dynamic Routing & Unstringing/Stringing, Lin-Kernighan & ACO-based selector managing US and LK operators for dynamic optimization. & Advanced adaptive operator management; avoids metaphor by explicitly stating its hybrid components. \\ \midrule
 
-Improving and Equal (IE) & Generic & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Relies on external LS & Elitist strategy accepting candidates better than or equal to current solutions. & Gatekeeper mechanism; crucial for navigating high levels of neutrality in heuristic search spaces. \\ \midrule
+Improving and Equal (IE) & Bykov (2012) & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Relies on external LS & Elitist strategy accepting candidates better than or equal to current solutions. & Codified gatekeeper for navigating high levels of neutrality in heuristic search spaces. \\ \midrule
 
 Iterated Local Search (ILS) & Lourenço (2003) & Local Search (LS) & Canonical Meta-heuristic (Traj.) & Single-point, Combinatorial & Neighborhood perturbation & Iterates local search by systematically applying perturbation operators to escape local optima basins. & Foundational trajectory archetype utilizing intelligent mathematical restarts rather than total randomization. \\ \midrule
 
@@ -121,11 +125,17 @@ Knowledge Guided Local Search (KGLS) & Arnold \& Sörensen (2018) & GLS & Domain
 
 K-Sparse Ant Colony Optimization (KS-ACO) & Hale (2021) & ACO & Algorithmic Regularization (Swarm) & Swarm, Combinatorial & Standard ACO routing & Modifies standard ACO pheromone updates to maintain a strictly $K$-sparse probability distribution. & Effective structural constraint preventing premature convergence; a rigorous mathematical modifier. \\ \midrule
 
+Kernel Search (KS) & Angelelli et al. & MILP & Matheuristic (Restricted Search) & Complete Tree, Combinatorial & Iterative MILP over subsets & Decomposes the problem by intelligently restricting the active binary variables available to an iterative MILP solver. & Guarantees structural feasibility implicitly via the exact solver; superior to pure metaheuristics in tight polyhedra. \\ \midrule
+
 Late Acceptance Hill-Climbing (LAHC) & Burke \& Bykov (2008) & Threshold Accepting & Acceptance Criterion (Thermo.) & Single-point, Combinatorial & Relies on external LS & Accepts a deteriorating solution if it is better than one visited exactly $L$ iterations ago. & Genuine, minor dynamic threshold derivative of Threshold Accepting; eliminates temperature parameter tuning. \\ \midrule
 
 League Championship Algorithm (LCA) & Kashan (2014) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Artificial SWOT Analysis & Models a sports schedule where teams adapt "formations" based on win/loss fitness. & \textbf{Deceptive.} Functionally an exhaustive, deterministic steady-state Genetic Algorithm obscured by convoluted sports schedule terminology. \\ \midrule
 
+Learning-Augmented Column Generation & Generic (2024) & B\&P + ML & Matheuristic (Learning) & Complete Tree, Routing & ML branching prediction & Uses Graph Neural Networks to predict strong branching outcomes, filtering candidates before MILP execution. & Traverses the B\&P search tree exponentially faster by replacing computationally exorbitant LP solver tests with ML inference. \\ \midrule
+
 Lin-Kernighan-Helsgaun (LKH) & Helsgaun (2000) & Lin-Kernighan (1973) & Domain-Specific Heuristic (Traj.) & Single-point, TSP / Routing & Dynamic $k$-opt swap & Searches for improving $k$-opt moves by restricting the search space via minimum spanning trees. & The pinnacle of TSP trajectory heuristics; purely mathematical, completely devoid of metaphor. \\ \midrule
+
+Local Branching (VNSB) & Fischetti \& Lodi (2003) & MILP + VNS & Matheuristic (Restricted Search) & Complete Tree, General & Hamming distance constraint & Restricts the MILP search space by enforcing a strict mathematical bound on the Hamming distance from the incumbent. & Turns the exact solver into an aggressive neighborhood explorer, pruning millions of variables and nodes instantaneously. \\ \midrule
 
 Local Search (LS) / Neighborhood Search & Generic (Croes 1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert & Iteratively moves to a strictly improving neighboring solution until a local optimum is reached. & The absolute foundational trajectory-based optimization mechanism. \\ \midrule
 
@@ -137,7 +147,9 @@ NeuRewriter & Chen et al. (2019) & LS + RL & NCO: Improvement Heuristic (RL) & S
 
 Old Bachelor Acceptance (OBA) & Hu et al. (1995) & Simulated Annealing & Acceptance Criterion (Thermo.) & Single-point, Combinatorial & Relies on external LS & Uses a non-monotone threshold that tightens on accepted moves and loosens on rejected moves. & Valid dynamic tuning schedule for Simulated Annealing/Threshold Accepting cooling pipelines. \\ \midrule
 
-Only Improving (OI) & Generic & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Relies on external LS & Accepts a candidate move only if the objective cost is strictly better than the current. & Purely exploitative gatekeeper; incapable of traversing neutral plateaus or escaping local minima. \\ \midrule
+Only Improving (OI) & Lin \& Kernighan (1973) & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Relies on external LS & The strictest form of elitist move acceptance, accepting moves only if $f(s') < f(s).$ & Purely exploitative gatekeeper; the core logic of standard greedy Hill Climbing. \\ \midrule
+
+POPMUSIC & Taillard (1995) & Local Search & Matheuristic (Decomposition) & Single-point, Routing & Route-based subproblem MILP & Dynamically partitions massive routing instances into subproblems optimized exactly by a BCP solver. & State-of-the-art decomposition framework; operates over massive neighborhoods to escape local optima efficiently. \\ \midrule
 
 Particle Swarm Optimization (PSO) & Kennedy \& Eberhart (1995) & Canonical & Canonical Meta-heuristic (Swarm) & Swarm, Continuous & Velocity/Position updates & Particles move guided by personal bests and global swarm knowledge. & Foundational continuous swarm archetype; heavily plagiarized by animal-based metaphors. \\ \midrule
 
@@ -157,13 +169,17 @@ Reinforcement Learning B\&B (RL-B\&B) & Sun et al. (2020) & RL + B\&B & NCO: Pre
 
 Reinforcement Learning Great Deluge Hyper-Heuristic (RL-GD-HH) & Ozcan et al. (2010) & RL + Great Deluge & Hyper-heuristic (Learning) & Single-point, Combinatorial & Heuristic Selection, Level Update & Uses RL to dynamically select low-level heuristics and Great Deluge with a time-based linear level to accept moves. & A robust adaptive framework for managing operator neighborhoods; formally integrates online reinforcement learning with deterministic threshold acceptance. \\ \midrule
 
+Relaxation Induced Neighborhood Search (RINS) & Danna et al. (2005) & MILP & Matheuristic (Restricted Search) & Complete Tree, General & LP-fixed variable MILP & Fixes binary variables matching the continuous LP relaxation and solves a restricted MILP on the unfixed variables. & Exploits commercial solvers as black-box heuristic operators; highly effective for rapidly improving integer bounds. \\ \midrule
+
+Restricted Master Heuristics & Foster \& Ryan (1976) & Column Generation & Matheuristic (Set Partitioning) & Set, Routing & Heuristic pricing + Exact Master & Replaces exact ESPPRC pricing subproblems with fast metaheuristics to generate columns for a set partitioning MILP. & Overcomes the exponential column generation bottleneck in B\&P, rapidly establishing near-optimal continuous bounds. \\ \midrule
+
 Sequence-based Selection Hyper-Heuristic (SS-HH) & Ahmed Kheiri (2014) & Great Deluge (GD) & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & Great Deluge acceptance & Probabilistic SS-HH actively governs the threshold state transitions for the Great Deluge local search. & Legitimate parameter control; applies reinforcement learning to guide an existing thermodynamic heuristic. \\ \midrule
 
 Simulated Annealing (SA) & Kirkpatrick (1983) & MH & Canonical Meta-heuristic & Single-point, General & Probabilistic acceptance & Probabilistically accepts worse solutions based on a decreasing temperature $T$. & Foundational link between statistical mechanics and combinatorial optimization. \\ \midrule
 
 Simulated Annealing Neighborhood Search (SANS) & Jorge et al. (2022) & SA + LS & Hybrid Meta-heuristic & Single-point, Routing & Inter/intra-route swaps & Explores diverse neighborhood structures while utilizing SA's cooling schedule. & Transparent hybridization; correctly attributes its mathematical foundations. \\ \midrule
 
-Step Counting Hill Climbing (SCHC) & Burke \& Bykov (2016) & Threshold Accepting & Acceptance Criterion (Memory) & Single-point, General & Relies on external LS & Memory-based criterion where a cost bound remains fixed for a specific number of steps. & Scale-independent alternative to SA; offers high performance on examination timetabling benchmarks. \\ \midrule
+Step Counting Hill Climbing (SCHC) & Bykov \& Petrovic (2016) & Threshold Accepting & Acceptance Criterion (Memory) & Single-point, General & Relies on external LS & Memory-based criterion where a cost bound remains fixed for a specific number of steps. & Scale-independent alternative to SA; offers high performance on examination timetabling benchmarks. \\ \midrule
 
 Sine Cosine Algorithm (SCA) & Mirjalili (2016) & PSO / DE & Relabeled Meta-heuristic (Swarm) & Swarm, Continuous & Trigonometric updates & Fluctuates search agents toward/away from best solution using sine/cosine functions. & \textbf{Deceptive.} Meaningless trigonometric "math-washing" applied to standard vector translation operations. \\ \midrule
 

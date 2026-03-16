@@ -36,6 +36,7 @@ Attention Model with POMO & Kwon et al. (2020) & AM + Rollouts & NCO: Autoregres
 Branch-and-Bound (BB) & Land \& Doig (1960) & Foundational & Canonical Exact Algorithm & Complete Tree, General & Branching and Pruning \\ \midrule
 Branch-and-Price-and-Cut (BPC) & Laporte et al. (1998) & Branch-and-Bound & Exact Algorithm (Math. Prog.) & Complete Tree, Routing & Column gen., Cutting planes \\ \midrule
 Circuit-SAT GNN & Amizadeh et al. (2018) & GNN + DPLL & NCO: Predict-Many (UL) & Complete Tree, SAT / MILP & Unsupervised loss, DPLL \\ \midrule
+Cluster-First Route-Second & Fisher \& Jaikumar (1981) & GAP + TSP & Matheuristic (Decomposition) & Set, Routing & MILP Assignment, Heur. Routing \\ \midrule
 Deep Policy Dynamic Programming (DPDP) & Kool et al. (2022) & GNN + DP & NCO: Predict-Once (SL) & Complete Tree, Routing & Heatmap Gen., DP Bounds \\ \midrule
 DeepACO & Ye et al. (2023) & GNN + ACO & NCO: Non-AR Constructive (RL) & Swarm, Combinatorial & Neural Pheromone Init. \\ \midrule
 Differential Evolution (DE) & Storn \& Price (1997) & Canonical & Canonical Meta-heuristic & Population, Continuous & Vector difference mutation \\ \midrule
@@ -60,20 +61,24 @@ Hybrid Genetic Search with Ruin and Recreate (HGS-RR) & Simensen et al. (2022) &
 Hybrid Volleyball Premier League (HVPL) & Sun et al. (2023) & VPL + ACO + ALNS & Memetic Algorithm (Swarm + Traj.) & Population, Routing & Pheromones, Ruin \& Recreate \\ \midrule
 Hyper-Heuristic Ant Colony Optimization (HH-ACO) & Chen et al. (2007) & ACO & Hyper-heuristic (Swarm + Traj.) & Swarm, Combinatorial & Low-level generic heuristics \\ \midrule
 Hyper-heuristic with Us and LK (HULK) & Müller \& Bonilha (2022) & ACO / Local Search & Hyper-heuristic (Swarm + Traj.) & Population, Dynamic Routing & Unstringing/Stringing, Lin-Kernighan \\ \midrule
-Improving and Equal (IE) & Generic & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Accept $f(s') \le f(s)$ \\ \midrule
+Improving and Equal (IE) & Bykov (2012) & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Accept $f(s') \le f(s)$ \\ \midrule
 Iterated Local Search (ILS) & Lourenço (2003) & Local Search (LS) & Canonical Meta-heuristic (Traj.) & Single-point, Combinatorial & Neighborhood perturbation \\ \midrule
 ILS-RVND-SP & Subramanian et al. (2013) & ILS + VNS + SP & Matheuristic (Traj. + Exact) & Single-point / Set, Routing & Perturbation, RVND, SP formulation \\ \midrule
 K-Sparse Ant Colony Optimization (KS-ACO) & Hale (2021) & ACO & Algorithmic Regularization (Swarm) & Swarm, Combinatorial & Standard ACO routing \\ \midrule
+Kernel Search (KS) & Angelelli et al. (2010) & MILP & Matheuristic (Restricted Search) & Complete Tree, Combinatorial & Iterative MILP over subsets \\ \midrule
 Knowledge Guided Local Search (KGLS) & Arnold \& Sörensen (2018) & GLS & Domain-Specific Meta-heuristic & Single-point, Combinatorial & Steepest descent \\ \midrule
 Late Acceptance Hill-Climbing (LAHC) & Burke \& Bykov (2012) & Threshold Accepting & Acceptance Criterion (Memory) & Single-point, Combinatorial & History-based comparison \\ \midrule
 League Championship Algorithm (LCA) & Kashan (2014) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Artificial SWOT Analysis \\ \midrule
+Learning-Augmented Column Generation & Morabit et al. (2024) & B\&P + ML & Matheuristic (Learning) & Complete Tree, Routing & ML branching prediction \\ \midrule
 Lin-Kernighan-Helsgaun (LKH) & Helsgaun (2000) & Lin-Kernighan (1973) & Domain-Specific Heuristic (Traj.) & Single-point, TSP / Routing & Dynamic $k$-opt swap \\ \midrule
-Local Search (LS) & Generic (Croes 1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert \\ \midrule
+Local Branching (VNSB) & Fischetti \& Lodi (2003) & MILP + VNS & Matheuristic (Restricted Search) & Complete Tree, General & Hamming distance constraint \\ \midrule
+Local Search (LS) & Croes (1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert \\ \midrule
 Memetic Algorithm (MA) & Moscato et al. (2004) & GA + LS & Memetic Algorithm & Population, General & Evolution + Trajectory Search \\ \midrule
 Metropolis-Hastings (MH) & Metropolis et al. (1953) & Canonical & Statistical Acceptance & Single-point, General & Random perturbation \\ \midrule
 NeuRewriter & Chen et al. (2019) & LS + RL & NCO: Improvement Heuristic (RL) & Single-point, Combinatorial & MDP rewriting (swap/insert) \\ \midrule
 Old Bachelor Acceptance (OBA) & Hu et al. (1995) & Simulated Annealing & Acceptance Criterion (Threshold) & Single-point, Combinatorial & Non-monotone threshold \\ \midrule
-Only Improving (OI) & Generic & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Accept $f(s') < f(s)$ \\ \midrule
+Only Improving (OI) & Lin \& Kernighan (1973) & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Accept $f(s') < f(s)$ \\ \midrule
+POPMUSIC & Taillard (1995) & Local Search & Matheuristic (Decomposition) & Single-point, Routing & Route-based subproblem MILP \\ \midrule
 Particle Swarm Optimization (PSO) & Kennedy \& Eberhart (1995) & Canonical & Canonical Meta-heuristic (Swarm) & Swarm, Continuous & Velocity/Position updates \\ \midrule
 Particle Swarm Optimization Memetic Algorithm (PSOMA) & Liu et al. (2006) & PSO + Local Search & Memetic Algorithm (Swarm + Traj.) & Swarm, Continuous / TSP & 2-opt / Deterministic LS \\ \midrule
 Physics-Inspired GNN (PI-GNN) & Schuetz et al. (2022) & GNN + QUBO & NCO: Non-AR Constructive (UL) & Single-point, Combinatorial & QUBO energy formulation \\ \midrule
@@ -83,15 +88,18 @@ Reactive Tabu Search (RTS) & Battiti (1994) & Tabu Search (TS) & Canonical Meta-
 Record-to-Record Travel (RRT) & Dueck (1993) & Local Search / SA & Acceptance Criterion (Threshold) & Single-point, Combinatorial & Fixed scalar record margin \\ \midrule
 Reinforcement Learning B\&B (RL-B\&B) & Sun et al. (2020) & RL + B\&B & NCO: Predict-Many (RL) & Complete Tree, MILP & RL-based variable branching \\ \midrule
 Reinforcement Learning - Great Deluge Hyper-Heuristic (RL-GD-HH) & Ozcan et al. (2010) & RL + GD & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & RL selection, GD acceptance \\ \midrule
+Relaxation Induced Neighborhood Search (RINS) & Danna et al. (2005) & MILP & Matheuristic (Restricted Search) & Complete Tree, General & LP-fixed variable MILP \\ \midrule
+Restricted Master Heuristics & Foster \& Ryan (1976) & Column Generation & Matheuristic (Set Partitioning) & Set, Routing & Heuristic pricing + Exact Master \\ \midrule
 Sequence-based Selection Hyper-Heuristic (SS-HH) & Ahmed Kheiri (2014) & Great Deluge (GD) & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & Great Deluge acceptance \\ \midrule
 Simulated Annealing (SA) & Kirkpatrick (1983) & MH & Meta-heuristic / Criterion & Single-point, General & Boltzmann distribution \\ \midrule
 Simulated Annealing Neighborhood Search (SANS) & Jorge et al. (2022) & SA + LS & Hybrid Meta-heuristic & Single-point, Routing & Inter/intra-route swaps \\ \midrule
 Sine Cosine Algorithm (SCA) & Mirjalili (2016) & PSO / DE & Relabeled Meta-heuristic (Swarm) & Swarm, Continuous & Trigonometric updates \\ \midrule
 Slack Induction by String Removal (SISR) & Christiaens (2020) & R\&R & Domain-Specific Meta-heuristic & Single-point, Routing & String Removal \\ \midrule
 Soccer League Competition (SLC) & Moosavian \& Roodsari (2014) & GA & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Substitutes (stochastic restarts) \\ \midrule
-Step Counting Hill Climbing (SCHC) & Burke \& Bykov (2016) & Threshold Accepting & Acceptance Criterion (Memory) & Single-point, General & Fixed-bound steps \\ \midrule
+Step Counting Hill Climbing (SCHC) & Bykov \& Petrovic (2016) & Threshold Accepting & Acceptance Criterion (Memory) & Single-point, General & Fixed-bound steps \\ \midrule
 Threshold Accepting (TA) & Dueck \& Scheuer (1990) & Simulated Annealing & Acceptance Criterion (Threshold) & Single-point, General & Predefined threshold range \\ \midrule
 Variable Neighborhood Search (VNS) & Mladenović (1997) & LS & Canonical Meta-heuristic & Single-point, Combinatorial & Nested neighborhoods \\ \midrule
 Volleyball Premier League (VPL) & Moghdani \& Salimifard (2018) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Substitution (uniform mutation) \\
+\bottomrule
 \end{longtable}
 \end{center}

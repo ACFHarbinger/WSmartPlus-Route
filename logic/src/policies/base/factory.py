@@ -56,7 +56,6 @@ class PolicyFactory:
         import logic.src.policies.hybrid_memetic_search.policy_hms as policy_hms  # noqa
         import logic.src.policies.hybrid_volleyball_premier_league.policy_hvpl as policy_hvpl  # noqa
         import logic.src.policies.iterated_local_search.policy_ils as policy_ils  # noqa
-        import logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp as policy_ils_rvnd_sp  # noqa
         import logic.src.policies.knowledge_guided_local_search.policy_kgls as policy_kgls  # noqa
         import logic.src.policies.league_championship_algorithm.policy_lca as policy_lca  # noqa
         import logic.src.policies.memetic_algorithm.policy_ma as policy_ma  # noqa
@@ -68,6 +67,9 @@ class PolicyFactory:
         import logic.src.policies.particle_swarm_optimization_memetic_algorithm.policy_psoma as policy_psoma  # noqa
         import logic.src.policies.quantum_differential_evolution.policy_qde as policy_qde  # noqa
         import logic.src.policies.reactive_tabu_search.policy_rts as policy_rts  # noqa
+        import logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns as policy_rl_alns  # noqa
+        import logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl as policy_rl_ahvpl  # noqa
+        import logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league.policy_rl_hvpl as policy_rl_hvpl  # noqa
         import logic.src.policies.simulated_annealing_neighborhood_search.policy_sans as policy_sans  # noqa
         import logic.src.policies.sine_cosine_algorithm.policy_sca as policy_sca  # noqa
         import logic.src.policies.slack_induction_by_string_removal.policy_sisr as policy_sisr  # noqa
@@ -81,11 +83,12 @@ class PolicyFactory:
         import logic.src.policies.guided_indicators_hyper_heuristic.policy_gihh as policy_gihh  # noqa
         import logic.src.policies.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh as policy_hmm_gd_hh  # noqa
         import logic.src.policies.hyper_heuristic_us_lk.policy_hulk as policy_hulk  # noqa
-        import logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns as policy_rl_alns  # noqa
-        import logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl as policy_rl_ahvpl  # noqa
         import logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.policy_rl_gd_hh as policy_rl_gd_hh  # noqa
-        import logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league.policy_rl_hvpl as policy_rl_hvpl  # noqa
         import logic.src.policies.sequence_based_selection_hyper_heuristic.policy_ss_hh as policy_ss_hh  # noqa
+
+        # Matheuristics
+        import logic.src.policies.cluster_first_route_second.policy_cf_rs as policy_cf_rs  # noqa
+        import logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp as policy_ils_rvnd_sp  # noqa
 
         # Acceptance Criterion
         import logic.src.policies.ensemble_move_acceptance.policy_ema as policy_ema  # noqa
