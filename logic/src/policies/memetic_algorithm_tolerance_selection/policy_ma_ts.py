@@ -1,34 +1,34 @@
 """
-Memetic Algorithm with Tolerance-Based Selection (MA-TB) Policy Adapter.
+Memetic Algorithm with Tolerance-based Selection (MA-TS) Policy Adapter.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.ma_tb import MemeticAlgorithmToleranceBasedConfig
+from logic.src.configs.policies.ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .params import MemeticAlgorithmToleranceBasedParams
-from .solver import MemeticAlgorithmToleranceBasedSolver
+from .params import MemeticAlgorithmToleranceBasedSelectionParams
+from .solver import MemeticAlgorithmToleranceBasedSelectionSolver
 
 
-@PolicyRegistry.register("ma_tb")
-class MemeticAlgorithmToleranceBasedPolicy(BaseRoutingPolicy):
+@PolicyRegistry.register("ma_ts")
+class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
     """
-    Memetic Algorithm Tolerance Based policy class.
+    Memetic Algorithm Tolerance-based Selection policy class.
     """
 
-    def __init__(self, config: Optional[Union[MemeticAlgorithmToleranceBasedConfig, Dict[str, Any]]] = None):
+    def __init__(self, config: Optional[Union[MemeticAlgorithmToleranceBasedSelectionConfig, Dict[str, Any]]] = None):
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return MemeticAlgorithmToleranceBasedConfig
+        return MemeticAlgorithmToleranceBasedSelectionConfig
 
     def _get_config_key(self) -> str:
-        return "ma_tb"
+        return "ma_ts"
 
     def _run_solver(
         self,
@@ -41,7 +41,7 @@ class MemeticAlgorithmToleranceBasedPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        params = MemeticAlgorithmToleranceBasedParams(
+        params = MemeticAlgorithmToleranceBasedSelectionParams(
             population_size=values.get("population_size", 10),
             max_iterations=values.get("max_iterations", 100),
             tolerance_pct=values.get("tolerance_pct", 0.05),
@@ -51,7 +51,7 @@ class MemeticAlgorithmToleranceBasedPolicy(BaseRoutingPolicy):
             time_limit=values.get("time_limit", 60.0),
         )
 
-        solver = MemeticAlgorithmToleranceBasedSolver(
+        solver = MemeticAlgorithmToleranceBasedSelectionSolver(
             dist_matrix=sub_dist_matrix,
             wastes=sub_wastes,
             capacity=capacity,

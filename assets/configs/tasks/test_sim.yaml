@@ -44,7 +44,7 @@ defaults:
   - /policies@p.rl_alns: policy_rl_alns
   - /policies@p.vns: policy_vns
   - /policies@p.ma_im: policy_ma_im
-  - /policies@p.ma_tb: policy_ma_tb
+  - /policies@p.ma_ts: policy_ma_ts
   - /policies@p.ma_dp: policy_ma_dp
   - /policies@p.es_mpl: policy_es_mpl
   - /policies@p.es_mcl: policy_es_mcl
@@ -119,7 +119,7 @@ sim:
     - rl_alns: ${p.rl_alns.rl_alns}
     - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
     - ma_im: ${p.ma_im.ma_im}
-    - ma_tb: ${p.ma_tb.ma_tb}
+    - ma_ts: ${p.ma_ts.ma_ts}
     - ma_dp: ${p.ma_dp.ma_dp}
     - es_mpl: ${p.es_mpl.es_mpl}
     - es_mcl: ${p.es_mcl.es_mcl}

@@ -1,9 +1,9 @@
 """
-Memetic Algorithm Tolerance Based (MA-TB) for VRPP.
+Memetic Algorithm Tolerance-based Selection (MA-TS) for VRPP.
 
 EXACT COPY of League Championship Algorithm (LCA) with rigorous nomenclature.
 
-TERMINOLOGY MAPPING (LCA → MA-TB):
+TERMINOLOGY MAPPING (LCA → MA-TS):
 - "Teams" → Population (candidate solutions)
 - "League Schedule" → Round-Robin Pairwise Matching
 - "Playing Strength" → Fitness (objective function value)
@@ -51,12 +51,12 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
 from ..other.operators import greedy_insertion, worst_removal
-from .params import MemeticAlgorithmToleranceBasedParams
+from .params import MemeticAlgorithmToleranceBasedSelectionParams
 
 
-class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
+class MemeticAlgorithmToleranceBasedSelectionSolver(PolicyVizMixin):
     """
-    Memetic Algorithm with Tolerance-Based Selection for VRPP.
+    Memetic Algorithm with Tolerance-based Selection for VRPP.
     EXACT COPY of LCA with rigorous nomenclature.
     """
 
@@ -67,7 +67,7 @@ class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: MemeticAlgorithmToleranceBasedParams,
+        params: MemeticAlgorithmToleranceBasedSelectionParams,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):
@@ -101,7 +101,7 @@ class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run MA-TB and return the best feasible solution.
+        Run MA-TS and return the best feasible solution.
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -113,7 +113,7 @@ class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
 
         # Initialise population (routing solutions)
         # LCA: teams = [...]
-        # MA-TB: population = [...]
+        # MA-TS: population = [...]
         population: List[List[List[int]]] = [self._build_random_solution() for _ in range(self.params.population_size)]
         profits: List[float] = [self._evaluate(sol) for sol in population]
 
@@ -128,7 +128,7 @@ class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
 
             # Random round-robin schedule for this generation
             # LCA: order = [...]
-            # MA-TB: order = [...] (same name for exact match)
+            # MA-TS: order = [...] (same name for exact match)
             order = list(range(self.params.population_size))
             self.random.shuffle(order)
 
@@ -155,7 +155,7 @@ class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
 
                 # Loser generates new solution
                 # LCA: crossover_prob
-                # MA-TB: recombination_rate (aliased to crossover_prob in params)
+                # MA-TS: recombination_rate (aliased to crossover_prob in params)
                 if self.random.random() < self.params.recombination_rate:
                     new_solution = self._crossover(population[loser], population[winner])
                 else:
@@ -163,7 +163,7 @@ class MemeticAlgorithmToleranceBasedSolver(PolicyVizMixin):
 
                 new_profit = self._evaluate(new_solution)
 
-                # Accept new solution (MA-TB always updates the loser)
+                # Accept new solution (MA-TS always updates the loser)
                 population[loser] = new_solution
                 profits[loser] = new_profit
 

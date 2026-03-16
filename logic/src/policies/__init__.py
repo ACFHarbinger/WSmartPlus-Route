@@ -47,8 +47,8 @@ from .memetic_algorithm_dual_population.params import MemeticAlgorithmDualPopula
 from .memetic_algorithm_dual_population.solver import MemeticAlgorithmDualPopulationSolver
 from .memetic_algorithm_island_model.params import MemeticAlgorithmIslandModelParams
 from .memetic_algorithm_island_model.solver import MemeticAlgorithmIslandModelSolver
-from .memetic_algorithm_tolerance_based.params import MemeticAlgorithmToleranceBasedParams
-from .memetic_algorithm_tolerance_based.solver import MemeticAlgorithmToleranceBasedSolver
+from .memetic_algorithm_tolerance_based_selection.params import MemeticAlgorithmToleranceBasedSelectionParams
+from .memetic_algorithm_tolerance_based_selection.solver import MemeticAlgorithmToleranceBasedSelectionSolver
 from .neural_agent.policy_neural import NeuralAgent
 from .particle_swarm_optimization_distance.solver import DistancePSOParams, DistancePSOSolver
 from .travelling_salesman_problem.tsp import find_route
@@ -78,8 +78,8 @@ __all__ = [
     "HybridMemeticSearchParams",
     "MemeticAlgorithmIslandModelSolver",
     "MemeticAlgorithmIslandModelParams",
-    "MemeticAlgorithmToleranceBasedSolver",
-    "MemeticAlgorithmToleranceBasedParams",
+    "MemeticAlgorithmToleranceBasedSelectionSolver",
+    "MemeticAlgorithmToleranceBasedSelectionParams",
     "MemeticAlgorithmDualPopulationSolver",
     "MemeticAlgorithmDualPopulationParams",
 ]

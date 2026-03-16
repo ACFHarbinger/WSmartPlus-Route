@@ -1,14 +1,14 @@
 # Stochastic Tournament Genetic Algorithm Policy Configuration
 
 # =============================================================================
-# Memetic Algorithm Tolerance Based (MA-TB) Policy Configuration
+# Memetic Algorithm Tolerance-based Selection (MA-TS) Policy Configuration
 # =============================================================================
 # PURPOSE:
 #   Genetic algorithm with stochastic tournament selection using
 #   infeasibility tolerance. Replaces metaphor-based LCA.
 # =============================================================================
 
-ma_tb:
+ma_ts:
   custom:
     # ---------------------------------------------------------------------
     # Population Parameters
