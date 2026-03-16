@@ -1,5 +1,5 @@
 """
-Hybrid Genetic Search with Ruin-and-Recreate (HGSRR) policy module.
+Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) policy module.
 
 This module combines the evolutionary framework of HGS with the adaptive
 destroy/repair operators from ALNS (Ruin-and-Recreate paradigm).
@@ -9,7 +9,7 @@ Reference:
     In Handbook of metaheuristics (pp. 99-127). Springer, Cham.
 """
 
-from .hgsrr import run_hgsrr
+from .hgs_rr import run_hgs_rr
 from .params import HGSRRParams
 
-__all__ = ["run_hgsrr", "HGSRRParams"]
+__all__ = ["run_hgs_rr", "HGSRRParams"]

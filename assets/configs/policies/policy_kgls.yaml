@@ -12,4 +12,5 @@ kgls:
     - width
     - length
     - width_length
-  seed: ${seed}
+  must_go: ["other/mg_lookahead.yaml"]
+  post_processing: []

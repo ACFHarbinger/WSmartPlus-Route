@@ -39,24 +39,24 @@ sisr:
     # Runtime Control - PROFIT OPTIMIZED
     # ---------------------------------------------------------------------
     - time_limit: 60.0
-      # Maximum wall-clock seconds
-      # Range: 5-60 (10s = quick test, 30s = production, 60s = thorough)
-      # Note: Shorter than other policies due to slower iteration speed
+    # Maximum wall-clock seconds
+    # Range: 5-60 (10s = quick test, 30s = production, 60s = thorough)
+    # Note: Shorter than other policies due to slower iteration speed
 
     - max_iterations: 5000
-      # Maximum string removal/insertion cycles
-      # Range: 100-5000 (ENHANCED: 5x increase for thorough search)
+    # Maximum string removal/insertion cycles
+    # Range: 100-5000 (ENHANCED: 5x increase for thorough search)
 
     # ---------------------------------------------------------------------
     # Simulated Annealing Temperature - PROFIT OPTIMIZED
     # ---------------------------------------------------------------------
     - start_temp: 200.0
-      # Initial temperature T_0
-      # Range: 50-200 (ENHANCED: Higher for better initial exploration)
+    # Initial temperature T_0
+    # Range: 50-200 (ENHANCED: Higher for better initial exploration)
 
     - cooling_rate: 0.998
-      # Geometric cooling: T_new = cooling_rate * T_old
-      # Range: 0.90-0.999 (ENHANCED: Slower cooling for longer search)
+    # Geometric cooling: T_new = cooling_rate * T_old
+    # Range: 0.90-0.999 (ENHANCED: Slower cooling for longer search)
 
     # Acceptance: P(accept worse) = exp(-Δcost / T)
     # Standard SA criterion applied after each string reinsertion
@@ -64,14 +64,14 @@ sisr:
     # String Removal Parameters - PROFIT OPTIMIZED
     # ---------------------------------------------------------------------
     - max_string_len: 15
-      # Maximum number of consecutive nodes to remove
-      # Range: 3-20 (ENHANCED: Larger disruptions for better exploration)
-      # Actual length sampled from Poisson(avg_string_len), capped at max_string_len
+    # Maximum number of consecutive nodes to remove
+    # Range: 3-20 (ENHANCED: Larger disruptions for better exploration)
+    # Actual length sampled from Poisson(avg_string_len), capped at max_string_len
 
     - avg_string_len: 4.0
-      # Average string length (Poisson distribution parameter λ)
-      # Range: 1.0-10.0 (ENHANCED: Larger average for more aggressive search)
-      # Example: λ=4 → lengths typically 2-8, occasionally up to max_string_len
+    # Average string length (Poisson distribution parameter λ)
+    # Range: 1.0-10.0 (ENHANCED: Larger average for more aggressive search)
+    # Example: λ=4 → lengths typically 2-8, occasionally up to max_string_len
 
     # String selection: Random route, random starting position
     # Consecutive nodes removed from that position
@@ -79,14 +79,14 @@ sisr:
     # Diversification Mechanism - PROFIT OPTIMIZED
     # ---------------------------------------------------------------------
     - blink_rate: 0.02
-      # Probability of "blinking" (large random perturbation) per iteration
-      # Range: 0.001-0.1 (ENHANCED: More frequent diversification)
-      # Blink action: Remove destroy_ratio of all nodes, reinsert randomly
+    # Probability of "blinking" (large random perturbation) per iteration
+    # Range: 0.001-0.1 (ENHANCED: More frequent diversification)
+    # Blink action: Remove destroy_ratio of all nodes, reinsert randomly
 
     - destroy_ratio: 0.25
-      # Fraction of nodes to remove during blink
-      # Range: 0.1-0.5 (ENHANCED: More aggressive disruption)
-      # Example: 100-node instance, destroy_ratio=0.25 → remove 25 nodes
+    # Fraction of nodes to remove during blink
+    # Range: 0.1-0.5 (ENHANCED: More aggressive disruption)
+    # Example: 100-node instance, destroy_ratio=0.25 → remove 25 nodes
 
     # Blink helps escape deep local optima by introducing large randomness
     # ---------------------------------------------------------------------
@@ -101,14 +101,14 @@ sisr:
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/stochastic_iterative_solution_refinement.py
+    # Execution backend: logic/src/policies/stochastic_iterative_solution_refinement.py
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
-      # See: docs/MUST_GO_STRATEGIES.md
+    # Node selection strategy for waste collection problems
+    # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+    # See: docs/MUST_GO_STRATEGIES.md
 
     - post_processing: []
-      # String-based operators provide local search; no further refinement
-      # Empty = use SISR output directly
+    # String-based operators provide local search; no further refinement
+    # Empty = use SISR output directly
 # =============================================================================

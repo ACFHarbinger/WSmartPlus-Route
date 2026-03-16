@@ -1,5 +1,5 @@
 """
-Hybrid Genetic Search with Ruin-and-Recreate (HGSRR) implementation.
+Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) implementation.
 
 Combines evolutionary search with adaptive Large Neighborhood Search operators
 for solving the Capacitated Vehicle Routing Problem with Profits.
@@ -45,7 +45,7 @@ class HGSRRSolver:
         seed: Optional[int] = None,
     ):
         """
-        Initialize the HGSRR solver.
+        Initialize the HGS-RR solver.
 
         Args:
             dist_matrix: NxN distance matrix.
@@ -53,7 +53,7 @@ class HGSRRSolver:
             capacity: Maximum vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
-            params: HGSRR parameters.
+            params: HGS-RR parameters.
             mandatory_nodes: List of local node indices that MUST be visited.
             seed: Random seed for reproducibility.
         """
@@ -94,7 +94,7 @@ class HGSRRSolver:
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run the HGSRR algorithm.
+        Run the HGS-RR algorithm.
 
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
@@ -237,9 +237,9 @@ class HGSRRSolver:
         return self.params.score_sigma_3
 
 
-def run_hgsrr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
+def run_hgs_rr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
     """
-    Main HGSRR entry point.
+    Main HGS-RR entry point.
 
     Args:
         dist_matrix: Distance matrix.

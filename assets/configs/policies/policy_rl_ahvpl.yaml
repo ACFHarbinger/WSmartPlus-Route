@@ -254,7 +254,6 @@ rl_ahvpl:
     - gls_penalty_step: 10
     - gls_probability: 0.5
     - vrpp: true
-    - must_go: []
     - engine: "custom"
       # Execution backend: logic/src/policies/reinforcement_learning_augmented_hybrid_volleyball_premier_league/
 

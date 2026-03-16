@@ -1,5 +1,5 @@
 """
-HGSRR (Hybrid Genetic Search with Ruin-and-Recreate) configuration.
+HGS-RR (Hybrid Genetic Search with Ruin-and-Recreate) configuration.
 """
 
 from dataclasses import dataclass, field
@@ -11,7 +11,7 @@ from .other.post_processing import PostProcessingConfig
 
 @dataclass
 class HGSRRConfig:
-    """Configuration for Hybrid Genetic Search with Ruin-and-Recreate (HGSRR) policy.
+    """Configuration for Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) policy.
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.

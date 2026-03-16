@@ -138,6 +138,8 @@ de:
     # Time Limit
     # ---------------------------------------------------------------------
     - time_limit: 60.0
+    - must_go: ["other/mg_lookahead.yaml"]
+    - post_processing: []
       # Wall-clock time limit in seconds
       # Range: 30.0-300.0
       # Recommendation: 60.0 for quick experiments

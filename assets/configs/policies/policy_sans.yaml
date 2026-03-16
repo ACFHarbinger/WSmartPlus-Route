@@ -94,13 +94,12 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    must_go:
-      ["other/mg_lookahead.yaml"]
-      # Node selection strategy
-      # See: docs/MUST_GO_STRATEGIES.md
+    must_go: ["other/mg_lookahead.yaml"]
+    # Node selection strategy
+    # See: docs/MUST_GO_STRATEGIES.md
 
     post_processing: []
-      # SA local search is comprehensive; no further refinement needed
+    # SA local search is comprehensive; no further refinement needed
 
   # ===========================================================================
   # ORIGINAL ENGINE: LAC (Look-Ahead Collection) - Variant A
@@ -109,25 +108,21 @@ sans:
   # published results. Uses opaque numeric parameter array.
   # ===========================================================================
   og_a:
-    engine:
-      og
-      # Execution backend: logic/src/policies/look_ahead_collection.py (legacy)
+    engine: og
+    # Execution backend: logic/src/policies/look_ahead_collection.py (legacy)
 
-    combination:
-      a
-      # LAC tuning preset: "a" = conservative, "b" = aggressive
-      # Affects internal neighborhood operator weights
+    combination: a
+    # LAC tuning preset: "a" = conservative, "b" = aggressive
+    # Affects internal neighborhood operator weights
 
-    time_limit:
-      60
-      # Maximum wall-clock seconds
+    time_limit: 60
+    # Maximum wall-clock seconds
 
-    must_go:
-      ["other/mg_lookahead.yaml"]
-      # Node selection strategy
+    must_go: ["other/mg_lookahead.yaml"]
+    # Node selection strategy
 
     post_processing: []
-      # No post-processing
+    # No post-processing
 
     # LAC-specific numeric parameters (legacy format)
     # WARNING: Do not modify unless reproducing exact published results.
@@ -147,24 +142,20 @@ sans:
   # Same as og_a but with different parameter tuning for larger instances.
   # ===========================================================================
   og_b:
-    engine:
-      og
-      # Execution backend: logic/src/policies/look_ahead_collection.py (legacy)
+    engine: og
+    # Execution backend: logic/src/policies/look_ahead_collection.py (legacy)
 
-    combination:
-      b
-      # LAC tuning preset: "b" = more iterations, same temperature
+    combination: b
+    # LAC tuning preset: "b" = more iterations, same temperature
 
-    time_limit:
-      60
-      # Maximum wall-clock seconds
+    time_limit: 60
+    # Maximum wall-clock seconds
 
-    must_go:
-      ["other/mg_lookahead.yaml"]
-      # Node selection strategy
+    must_go: ["other/mg_lookahead.yaml"]
+    # Node selection strategy
 
     post_processing: []
-      # No post-processing
+    # No post-processing
 
     # LAC-specific numeric parameters (legacy format)
     params:

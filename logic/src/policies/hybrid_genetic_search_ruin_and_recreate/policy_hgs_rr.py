@@ -1,7 +1,7 @@
 """
-HGSRR Policy Adapter.
+HGS-RR Policy Adapter.
 
-Adapts the Hybrid Genetic Search with Ruin-and-Recreate (HGSRR) logic
+Adapts the Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) logic
 to the common policy interface.
 """
 
@@ -12,10 +12,10 @@ import numpy as np
 from logic.src.configs.policies import HGSRRConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr import run_hgsrr
+from logic.src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr import run_hgs_rr
 
 
-@PolicyRegistry.register("hgsrr")
+@PolicyRegistry.register("hgs_rr")
 class HGSRRPolicy(BaseRoutingPolicy):
     """
     Hybrid Genetic Search with Ruin-and-Recreate policy class.
@@ -25,7 +25,7 @@ class HGSRRPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[HGSRRConfig, Dict[str, Any]]] = None):
-        """Initialize HGSRR policy with optional config.
+        """Initialize HGS-RR policy with optional config.
 
         Args:
             config: HGSRRConfig dataclass, raw dict from YAML, or None.
@@ -37,8 +37,8 @@ class HGSRRPolicy(BaseRoutingPolicy):
         return HGSRRConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for HGSRR."""
-        return "hgsrr"
+        """Return config key for HGS-RR."""
+        return "hgs_rr"
 
     def _run_solver(
         self,
@@ -52,12 +52,12 @@ class HGSRRPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run HGSRR solver.
+        Run HGS-RR solver.
 
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        routes, profit, solver_cost = run_hgsrr(
+        routes, profit, solver_cost = run_hgs_rr(
             sub_dist_matrix,
             sub_wastes,
             capacity,

@@ -14,6 +14,9 @@ rl_alns:
     - max_removal_pct: 0.3
     - engine: "custom"
 
+    - must_go: ["other/mg_lookahead.yaml"]
+    - post_processing: []
+
     # Centralized RL Configuration
     - rl_config:
         _target_: logic.src.configs.policies.other.reinforcement_learning.RLConfig

@@ -1,7 +1,7 @@
 """
-Parameters for Hybrid Genetic Search with Ruin-and-Recreate (HGSRR).
+Parameters for Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR).
 
-This module defines the configuration parameters for the HGSRR algorithm,
+This module defines the configuration parameters for the HGS-RR algorithm,
 extending standard HGS with adaptive destroy/repair operator management.
 """
 
@@ -12,7 +12,7 @@ from typing import List, Optional
 @dataclass
 class HGSRRParams:
     """
-    Configuration parameters for HGSRR algorithm.
+    Configuration parameters for HGS-RR algorithm.
 
     Attributes:
         time_limit (float): Maximum execution time in seconds.
@@ -96,7 +96,5 @@ class HGSRRParams:
     score_sigma_1: float = 33.0  # New global best
     score_sigma_2: float = 9.0  # Improvement
     score_sigma_3: float = 3.0  # Accepted
-
-    seed: Optional[int] = None
 
     seed: Optional[int] = None

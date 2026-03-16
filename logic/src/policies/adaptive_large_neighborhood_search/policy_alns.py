@@ -63,5 +63,6 @@ class ALNSPolicy(BaseRoutingPolicy):
             cost_unit,
             values,
             mandatory_nodes,
+            recorder=self._viz,
         )
         return routes, profit, solver_cost

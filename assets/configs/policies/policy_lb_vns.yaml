@@ -71,6 +71,6 @@ lb_vns:
     - must_go: ["other/mg_lookahead.yaml"]
       # Selection logic for mandatory nodes.
 
-    - post_processing: null
+    - post_processing: []
       # Optional refinement step (e.g., local search) applied after completion.
 # =============================================================================

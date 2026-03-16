@@ -22,11 +22,8 @@ ie:
   # Whether to enable VRPP mode.
   vrpp: true
 
-  # Random seed for reproducibility.
-  seed: null
-
   # Must-go node selection strategies.
-  must_go: null
+  must_go: ["other/mg_lookahead.yaml"]
 
   # Post-processing refinement steps.
-  post_processing: null
+  post_processing: []

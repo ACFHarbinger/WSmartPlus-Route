@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
 from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
@@ -43,6 +44,7 @@ class ALNSSolver:
         params: ALNSParams,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
+        recorder: Optional[PolicyStateRecorder] = None,
     ):
         """
         Initialize the ALNS solver.
@@ -56,6 +58,7 @@ class ALNSSolver:
             params: Detailed ALNS parameters.
             mandatory_nodes: List of mandatory node indices.
             seed: Random seed for reproducibility.
+            recorder: Optional telemetry recorder.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -65,6 +68,10 @@ class ALNSSolver:
         self.params = params
         self.mandatory_nodes = mandatory_nodes
         self.random = random.Random(seed) if seed is not None else random.Random()
+
+        # If a recorder is passed, use it for visualization records
+        if recorder is not None:
+            self._viz_record = recorder.record
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))

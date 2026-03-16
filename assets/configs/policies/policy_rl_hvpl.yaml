@@ -50,6 +50,5 @@ policies:
 
     # Common policy fields
     vrpp: true
-    seed: null
-    must_go: []
+    must_go: ["other/mg_lookahead.yaml"]
     post_processing: []

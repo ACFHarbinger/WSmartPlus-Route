@@ -142,6 +142,28 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         """
         return "default"
 
+    def _parse_config(self, config: Any, config_cls: Type) -> Any:
+        """Helper to parse a config into a dataclass if it's a dict.
+
+        Args:
+            config: Configuration (dataclass or dict).
+            config_cls: The expected dataclass class.
+
+        Returns:
+            The parsed dataclass instance.
+        """
+        if config is None:
+            return config_cls()
+        if isinstance(config, config_cls):
+            return config
+        if isinstance(config, dict):
+            # Flatten and filter
+            flat = _flatten_raw_config(config)
+            valid_fields = {f.name for f in fields(config_cls)}
+            filtered = {k: v for k, v in flat.items() if k in valid_fields}
+            return config_cls(**filtered)
+        return config
+
     def _validate_must_go(self, must_go: Optional[List[int]]) -> Optional[Tuple[List[int], float, Any]]:
         """
         Validate must_go input. Returns early result if empty.

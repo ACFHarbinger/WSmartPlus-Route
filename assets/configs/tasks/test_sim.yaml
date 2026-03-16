@@ -59,7 +59,7 @@ defaults:
   - /policies@p.filo: policy_filo
   - /policies@p.gd: policy_gd
   - /policies@p.gihh: policy_gihh
-  - /policies@p.hgsrr: policy_hgsrr
+  - /policies@p.hgs_rr: policy_hgs_rr
   - /policies@p.hmm_gd_hh: policy_hmm_gd_hh
   - /policies@p.hulk: policy_hulk
   - /policies@p.ie: policy_ie
@@ -161,7 +161,7 @@ sim:
     - filo: ${p.filo.filo}
     - gd: ${p.gd.gd}
     - gihh: ${p.gihh.gihh}
-    - hgsrr: ${p.hgsrr.hgsrr}
+    - hgs_rr: ${p.hgs_rr.hgs_rr}
     - hmm_gd_hh: ${p.hmm_gd_hh.hmm_gd_hh}
     - hulk: ${p.hulk.hulk}
     - ie: ${p.ie.ie}

@@ -33,6 +33,7 @@ class ILSRVNDSPParams:
 
     time_limit: float
     seed: Optional[int]
+    local_search_iterations: int = 500
 
     @classmethod
     def from_config(cls, config: ILSRVNDSPConfig) -> "ILSRVNDSPParams":
@@ -55,4 +56,5 @@ class ILSRVNDSPParams:
             TDev_b=config.TDev_b,
             time_limit=config.time_limit,
             seed=seed,
+            local_search_iterations=getattr(config, "local_search_iterations", 500),
         )

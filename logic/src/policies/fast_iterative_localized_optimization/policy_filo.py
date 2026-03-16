@@ -4,6 +4,7 @@ FILO Policy Adapter.
 Adapts the Fast Iterative Localized Optimization (FILO) logic to the agnostic interface.
 """
 
+from dataclasses import fields as dc_fields
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -57,7 +58,9 @@ class FILOPolicy(BaseRoutingPolicy):
             Tuple of (routes, profit, solver_cost)
         """
         # Build configuration and extract structured params
-        filo_config = FILOConfig(**values)
+        valid_fields = {f.name for f in dc_fields(FILOConfig)}
+        filtered_values = {k: v for k, v in values.items() if k in valid_fields}
+        filo_config = FILOConfig(**filtered_values)
         params = FILOParams.from_config(filo_config)
 
         solver = FILOSolver(

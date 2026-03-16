@@ -46,48 +46,48 @@ ss_hh:
     # Sequence Selection Parameters
     # -------------------------------------------------------------------------
     - n_llh: 5
-      # Number of LLHs in the operator pool (fixed — do not change)
-      # Pool: [random+greedy, worst+regret2, cluster+greedy, worst+greedy, random+regret2]
+    # Number of LLHs in the operator pool (fixed — do not change)
+    # Pool: [random+greedy, worst+regret2, cluster+greedy, worst+greedy, random+regret2]
 
     - n_removal: 2
-      # Nodes removed per LLH destroy step
-      # Range: 1-5 (1 = micro perturbation, 3 = moderate shake)
+    # Nodes removed per LLH destroy step
+    # Range: 1-5 (1 = micro perturbation, 3 = moderate shake)
 
     # -------------------------------------------------------------------------
     # Threshold Acceptance (Eq. 4)
     # -------------------------------------------------------------------------
     - threshold_infeasible: 0.001
-      # Acceptance threshold T when best solution is infeasible
-      # Not typically active in VRPP (all solutions are feasible)
+    # Acceptance threshold T when best solution is infeasible
+    # Not typically active in VRPP (all solutions are feasible)
 
     - threshold_feasible_base: 0.0001
-      # Base acceptance threshold T for feasible solutions
-      # T = threshold_feasible_base + threshold_decay_rate * (1 - t/t_limit)
+    # Base acceptance threshold T for feasible solutions
+    # T = threshold_feasible_base + threshold_decay_rate * (1 - t/t_limit)
 
     - threshold_decay_rate: 0.01
-      # Time-decay coefficient for the feasible threshold
-      # Higher → more permissive early, tighter near time limit
+    # Time-decay coefficient for the feasible threshold
+    # Higher → more permissive early, tighter near time limit
 
     # -------------------------------------------------------------------------
     # Runtime Control
     # -------------------------------------------------------------------------
     - max_iterations: 500
-      # Total main-loop steps (each step either extends or applies a sequence)
-      # Range: 100-2000 (200 = quick, 500 = production, 1000 = benchmark)
+    # Total main-loop steps (each step either extends or applies a sequence)
+    # Range: 100-2000 (200 = quick, 500 = production, 1000 = benchmark)
 
     - time_limit: 60.0
-      # Maximum wall-clock seconds
-      # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
+    # Maximum wall-clock seconds
+    # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
 
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/sequence_based_selection_hyper_heuristic/
+    # Execution backend: logic/src/policies/sequence_based_selection_hyper_heuristic/
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
+    # Node selection strategy for waste collection problems
 
     - post_processing: []
-      # Empty = use SS-HH output directly
+    # Empty = use SS-HH output directly
 # =============================================================================

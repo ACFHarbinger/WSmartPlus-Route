@@ -1,7 +1,7 @@
-# HGSRR Policy Configuration
+# HGS-RR Policy Configuration
 
 # =============================================================================
-# HGSRR (Hybrid Genetic Search with Ruin-and-Recreate) Policy Configuration
+# HGS-RR (Hybrid Genetic Search with Ruin-and-Recreate) Policy Configuration
 # =============================================================================
 # PURPOSE:
 #   Advanced variant of HGS that replaces traditional mutation with adaptive
@@ -36,7 +36,7 @@
 #   - Benchmarking against ALNS and HGS baselines
 # =============================================================================
 
-hgsrr:
+hgs_rr:
   custom:
     # ---------------------------------------------------------------------
     # Runtime Control
@@ -45,10 +45,6 @@ hgsrr:
       # Maximum wall-clock seconds for optimization
       # Range: 30-600 (30s = quick, 300s = thorough, 600s = benchmark)
       # Recommendation: 60s for production (CONSERVATIVE)
-
-    - seed: null
-      # Random seed for reproducibility
-      # null = use system time; integer = fixed seed
 
     - vrpp: true
       # Enable VRPP mode (visit subset profitably)
@@ -219,8 +215,8 @@ hgsrr:
 
     - post_processing: []
       # Optional post-processing operations
-      # Empty = use HGSRR output directly
-      # HGSRR local search is comprehensive; external post-processing redundant
+      # Empty = use HGS-RR output directly
+      # HGS-RR local search is comprehensive; external post-processing redundant
 
 # =============================================================================
 # PARAMETER TUNING RECOMMENDATIONS
@@ -246,7 +242,7 @@ hgsrr:
 #   - noise_factor: 0.025 (more randomness in repair)
 #
 # Comparison to HGS:
-#   HGSRR: Better on heterogeneous, large, or multi-depot problems
+#   HGS-RR: Better on heterogeneous, large, or multi-depot problems
 #   HGS: Faster on homogeneous, small-medium CVRP instances
 #   Recommendation: Run both if time_limit > 120s, pick best solution
 # =============================================================================

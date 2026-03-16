@@ -44,53 +44,53 @@ slc:
     # League Structure
     # -------------------------------------------------------------------------
     - n_teams: 5
-      # Number of teams in the league
-      # Range: 3-10 (3 = small league, 5 = balanced, 10 = diverse competition)
+    # Number of teams in the league
+    # Range: 3-10 (3 = small league, 5 = balanced, 10 = diverse competition)
 
     - team_size: 4
-      # Players per team (solutions per team)
-      # Range: 2-8 (2 = minimal, 4 = balanced, 8 = deep per-team search)
-      # Total population = n_teams * team_size
+    # Players per team (solutions per team)
+    # Range: 2-8 (2 = minimal, 4 = balanced, 8 = deep per-team search)
+    # Total population = n_teams * team_size
 
     - n_removal: 1
-      # Nodes removed per intra-team perturbation step
-      # Range: 1-4 (1 = micro perturbation, 3 = moderate shake)
+    # Nodes removed per intra-team perturbation step
+    # Range: 1-4 (1 = micro perturbation, 3 = moderate shake)
 
     # -------------------------------------------------------------------------
     # Stagnation Management
     # -------------------------------------------------------------------------
     - stagnation_limit: 5
-      # Seasons without team-level improvement before full team regeneration
-      # Range: 3-20 (3 = aggressive restart, 10 = patient exploitation)
-      # Keeps diversity alive; lower values → more team churn
+    # Seasons without team-level improvement before full team regeneration
+    # Range: 3-20 (3 = aggressive restart, 10 = patient exploitation)
+    # Keeps diversity alive; lower values → more team churn
 
     # -------------------------------------------------------------------------
     # Runtime Control
     # -------------------------------------------------------------------------
     - max_iterations: 50
-      # Maximum seasons (main loop iterations)
-      # Range: 20-200 (50 = production, 100 = benchmark)
-      # Each season applies intra + inter competition for all teams
+    # Maximum seasons (main loop iterations)
+    # Range: 20-200 (50 = production, 100 = benchmark)
+    # Each season applies intra + inter competition for all teams
 
     - time_limit: 60.0
-      # Maximum wall-clock seconds
-      # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
+    # Maximum wall-clock seconds
+    # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
 
     - local_search_iterations: 500
-      # Number of local search iterations
-      # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
+    # Number of local search iterations
+    # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
 
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/soccer_league_competition/
+    # Execution backend: logic/src/policies/soccer_league_competition/
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+    # Node selection strategy for waste collection problems
+    # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
 
     - post_processing: []
-      # Intra-team local search and inter-team crossover are comprehensive
-      # Empty = use SLC output directly
+    # Intra-team local search and inter-team crossover are comprehensive
+    # Empty = use SLC output directly
 # =============================================================================

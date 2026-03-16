@@ -68,6 +68,20 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         """
         return "lb"
 
+    def _run_solver(
+        self,
+        sub_dist_matrix: Any,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """Not used - LB requires specialized execute()."""
+        return [], 0.0, 0.0
+
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
         Execute the Local Branching matheuristic on the current simulation state.

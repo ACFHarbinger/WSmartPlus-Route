@@ -14,4 +14,6 @@ ils_rvnd_sp:
   TDev_a: 0.05
   TDev_b: 0.005
   time_limit: 120.0
-  seed: ${seed}
+  local_search_iterations: 500
+  must_go: ["other/mg_lookahead.yaml"]
+  post_processing: []
