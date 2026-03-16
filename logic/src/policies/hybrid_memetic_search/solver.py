@@ -45,7 +45,7 @@ import numpy as np
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
-from ..ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
+from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
 from ..other.operators import greedy_insertion, random_removal
 from .params import HybridMemeticSearchParams
 

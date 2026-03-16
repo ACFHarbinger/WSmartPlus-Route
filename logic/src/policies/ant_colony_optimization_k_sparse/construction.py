@@ -9,7 +9,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
+    >>> from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
     >>> constructor = SolutionConstructor(...)
     >>> routes = constructor.construct()
 """

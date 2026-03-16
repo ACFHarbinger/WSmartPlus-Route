@@ -15,9 +15,9 @@ from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.ant_colony_optimization.k_sparse_aco.construction import SolutionConstructor
-from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
-from logic.src.policies.ant_colony_optimization.k_sparse_aco.pheromones import SparsePheromoneTau
+from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
+from logic.src.policies.ant_colony_optimization_k_sparse.params import ACOParams
+from logic.src.policies.ant_colony_optimization_k_sparse.pheromones import SparsePheromoneTau
 from logic.src.policies.other.local_search.local_search_manager import LocalSearchManager
 from logic.src.policies.other.operators.heuristics import build_nn_routes
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import QLearningAgent

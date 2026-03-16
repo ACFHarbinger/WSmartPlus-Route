@@ -604,65 +604,164 @@ best_routes, best_cost = solver.solve()
 
 1. Vidal, T. (2022). "Hybrid genetic search for the CVRP: Open-source implementation and SWAP\* neighborhood." Computers & Operations Research, 140, 105643.
 
-#### 5.2.1 HGS-ALNS Variant
+### 5.3 ACO (Ant Colony Optimization)
 
-Combines HGS with ALNS operators for enhanced exploration.
+Bio-inspired algorithm with pheromone-based learning, adapted for the WCVRP. The repository splits this into two primary variants: K-Sparse ACO (for efficient routing over large graphs) and Hyper-Heuristic ACO (for dynamic operator selection).
+
+#### 5.3.1 K-Sparse ACO (KS-ACO)
+
+**Location**: `logic/src/policies/ant_colony_optimization_k_sparse/`
+**Adapter**: `policy_ks_aco.py`
+
+Efficient ACO variant using a K-nearest neighbors graph to restrict the search space, significantly reducing algorithmic complexity and speeding up convergence on large-scale VRP variants.
+
+**Algorithm**
+
+```text
+Algorithm: K-Sparse Ant Colony Optimization (KS-ACO)
+1. Initialize pheromone matrix τ(i, j) = τ_0 for all edges (i, j)
+2. Compute K-nearest neighbors graph N_i^K for all nodes i
+3. While not termination condition:
+   a. For each ant k = 1 to n_ants:
+      i.   Construct route R_k iteratively:
+           - From current node i, select next node j ∈ N_i^K with probability
+             p(i,j) ∝ [τ(i,j)]^α * [η(i,j)]^β
+           - If N_i^K contains no unvisited nodes, select from all remaining unvisited nodes
+      ii.  Calculate fitness f(R_k)
+   b. Global Pheromone Update:
+      i.   Evaporate: τ(i, j) = (1 - ρ) * τ(i, j)
+      ii.  Deposit: Δτ(i, j) on edges of the best ant's route
+   c. Update global best route S_best
+4. Return S_best
+```
+
+**Key Features**
+
+- **K-Sparse Neighborhoods**: Restricts the next-node exploration to the $K$ nearest neighbors, changing the node selection complexity from $\mathcal{O}(n)$ to $\mathcal{O}(K)$.
+- **Pheromone-Based Learning**: Uses distributed learning where ants deposit pheromones on high-quality routes.
+- **Heuristic Guidance**: Balances learned pheromone values with greedy heuristic information (profitability / distance).
+
+**Mathematical Formulation**
+
+_Transition Probability:_
+
+$$
+p_{ij}^k = \frac{[\tau_{ij}]^\alpha [\eta_{ij}]^\beta}{\sum_{l \in N_i^K} [\tau_{il}]^\alpha [\eta_{il}]^\beta}
+$$
+
+_Pheromone Update:_
+
+$$
+\tau_{ij} \leftarrow (1 - \rho)\tau_{ij} + \sum_{k=1}^{n_{ants}} \Delta\tau_{ij}^k
+$$
+
+where $\Delta\tau_{ij}^k$ is inversely proportional to the route cost $f(R_k)$.
+
+**Key Parameters**
+
+- `n_ants`: The number of ants traversing the graph per iteration.
+- `alpha` ($\alpha$): Pheromone importance factor.
+- `beta` ($\beta$): Heuristic information importance factor.
+- `rho` ($\rho$): Evaporation rate.
+- `k_sparse` ($K$): Limits allowed moves to the $K$ closest nodes.
+
+**Complexity**
+
+- Time: $\mathcal{O}(I \times M \times n \times K)$, where $I$ is iterations, $M$ is ants, $n$ is nodes, and $K$ is the sparsity factor.
+- Space: $\mathcal{O}(n^2)$ for pheromone matrix, though effectively $\mathcal{O}(nK)$ if stored sparsely.
+
+**Usage Example**
 
 ```python
-hgs_alns_policy = PolicyFactory.get_adapter("hgs_alns")
-tour, cost, _ = hgs_alns_policy.execute(
-    must_go=must_go_bins,
-    bins=bins_state,
+ks_aco_policy = PolicyFactory.get_adapter("ks_aco")
+tour, cost, _ = ks_aco_policy.execute(
     distance_matrix=dist_matrix,
+    bins=bins_state,
     config={
-        "hgs_alns": {
-            "time_limit": 180.0,
-            "alns_education_iterations": 50  # ALNS improvement per individual
+        "ks_aco": {
+            "n_ants": 20,
+            "alpha": 1.0,
+            "beta": 2.0,
+            "rho": 0.1,
+            "k_sparse": 15
         }
     }
 )
 ```
 
-### 5.3 ACO (Ant Colony Optimization)
+#### 5.3.2 Hyper-Heuristic ACO (HH-ACO)
 
-**Directory**: `ant_colony_optimization/`
-**Adapters**: `policy_ks_aco.py`, `policy_hh_aco.py`
+**Location** `logic/src/policies/ant_colony_optimization_hyper_heuristic/`
+**Adapter**: `policy_hh_aco.py`
 
-Bio-inspired algorithm with pheromone-based learning.
+ACO variant that integrates an adaptive operator selection mechanism to apply different local search heuristics dynamically to constructed ant paths.
 
-#### K-Sparse ACO
+**Algorithm**
 
-Efficient ACO variant using K-nearest neighbors graph.
-
-```python
-from logic.src.policies import run_k_sparse_aco
-
-routes, cost = run_k_sparse_aco(
-    distance_matrix=dist_matrix,
-    wastes=wastes_dict,
-    capacity=200.0,
-    n_ants=20,
-    alpha=1.0,        # Pheromone importance
-    beta=2.0,         # Heuristic importance
-    rho=0.1,          # Evaporation rate
-    q0=0.9,           # Exploitation vs exploration
-    k_sparse=15       # K-nearest neighbors
-)
+```text
+Algorithm: Hyper-Heuristic Ant Colony Optimization (HH-ACO)
+1. Initialize pheromone matrix τ(i, j) = τ_0
+2. Initialize operator weights W(o) = 1.0 for o ∈ {2-opt, relocate, swap, ...}
+3. While not termination condition:
+   a. For each ant k = 1 to n_ants:
+      i.   Construct route R_k using standard ACO probability rules
+      ii.  Select a sequence of local search operators S = {o_1, o_2, ..., o_L}
+           using roulette wheel selection over weights W(o)
+      iii. Apply sequence S to R_k to get improved route R'_k
+      iv.  Calculate fitness f(R'_k)
+   b. Reward operators in sequence S that produced improvements by increasing their weight W(o)
+   c. Global Pheromone Update:
+      i.   Evaporate: τ(i, j) = (1 - ρ) * τ(i, j)
+      ii.  Deposit: Δτ(i, j) on edges of the best ant's route
+   d. Update global best route S_best
+4. Return S_best
 ```
 
-#### Hyper-Heuristic ACO
+**Key Features**
 
-ACO with dynamic operator selection.
+- **Adaptive Operator Selection**: Learns which local search operators are most effective during the search process and applies them more frequently.
+- **Operator Sequences**: Applies a predefined number (`sequence_length`) of operators back-to-back on each constructed ant route.
+- **Exploration vs. Exploitation**: Balances the global exploration of the ACO construction phase with the intensive local exploitation of the hyper-heuristic layer.
+
+**Mathematical Formulation**
+
+_Operator Selection Probability:_
+
+$$
+p(o) = \frac{W(o)}{\sum_{o' \in \mathcal{O}} W(o')}
+$$
+
+_Operator Weight Update:_
+
+$$
+W(o) \leftarrow W(o) + \Delta W(o)
+$$
+
+where $\Delta W(o)$ is the reward given if application of operator $o$ led to an improvement.
+
+**Key Parameters**
+
+- `n_ants`: Number of ants per iteration.
+- `sequence_length` ($L$): The number of heuristic operators applied in sequence to each ant's route.
+
+**Complexity**
+
+- Time: $\mathcal{O}(I \times M \times [n^2 + L \cdot T_{LS}])$, where $T_{LS}$ is the complexity of the applied local search operators (often $\mathcal{O}(n^2)$).
+- Space: $\mathcal{O}(n^2)$ for pheromone/heuristic matrices.
+
+**Usage Example**
 
 ```python
-from logic.src.policies import run_hyper_heuristic_aco
-
-routes, cost = run_hyper_heuristic_aco(
+hh_aco_policy = PolicyFactory.get_adapter("hh_aco")
+tour, cost, _ = hh_aco_policy.execute(
     distance_matrix=dist_matrix,
-    wastes=wastes_dict,
-    capacity=200.0,
-    n_ants=20,
-    operator_pool=["2opt", "relocate", "swap", "or_opt"]
+    bins=bins_state,
+    config={
+        "hh_aco": {
+            "n_ants": 20,
+            "sequence_length": 3
+        }
+    }
 )
 ```
 
@@ -1759,6 +1858,7 @@ v_i(t+1) = w(t) × v_i(t) + c₁ × r₁ × (pbest_i - x_i) + c₂ × β(d_ij) �
 ```
 
 Where:
+
 - **Inertia term (w×v)**: Maintains previous movement direction
 - **Cognitive term (c₁·(pbest - x))**: Learns from personal best
 - **Social term (c₂·β(d)·(gbest - x))**: Learns from swarm best with distance weighting

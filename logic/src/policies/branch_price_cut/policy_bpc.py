@@ -15,7 +15,7 @@ from logic.src.policies.branch_price_cut import run_bpc
 
 
 @PolicyRegistry.register("bpc")
-class BPCPolicy(BaseRoutingPolicy):
+class BCPPolicy(BaseRoutingPolicy):
     """
     Branch-and-Price-and-Cut policy class.
 

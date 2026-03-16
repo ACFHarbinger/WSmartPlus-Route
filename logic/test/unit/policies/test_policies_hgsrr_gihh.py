@@ -7,7 +7,6 @@ and the Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 
 import numpy as np
 import pytest
-
 from logic.src.policies import run_gihh, run_hgsrr
 from logic.src.policies.base import PolicyFactory
 
