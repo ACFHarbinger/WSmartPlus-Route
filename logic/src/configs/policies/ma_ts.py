@@ -12,13 +12,13 @@ from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
-class MemeticAlgorithmToleranceBasedConfig:
-    """Configuration for Memetic Algorithm Tolerance Based (MA-TB) policy.
+class MemeticAlgorithmToleranceBasedSelectionConfig:
+    """Configuration for Memetic Algorithm Tolerance-based Selection (MA-TS) policy.
 
     GA with sigmoid-based pairwise tournament selection.
     """
 
-    engine: str = "ma_tb"
+    engine: str = "ma_ts"
     population_size: int = 10
     max_iterations: int = 100
     tolerance_pct: float = 0.05

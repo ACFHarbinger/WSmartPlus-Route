@@ -4,7 +4,7 @@ Configuration parameters for Stochastic Tournament Genetic Algorithm (STGA).
 This is the rigorous parameter mapping for the League Championship Algorithm (LCA)
 with proper Operations Research terminology.
 
-TERMINOLOGY MAPPING (LCA → MA-TB):
+TERMINOLOGY MAPPING (LCA → MA-TS):
 - n_teams → population_size
 - tolerance_pct → tolerance_pct (UNCHANGED - critical LCA feature)
 - crossover_prob → recombination_rate
@@ -23,9 +23,9 @@ from dataclasses import dataclass
 
 
 @dataclass
-class MemeticAlgorithmToleranceBasedParams:
+class MemeticAlgorithmToleranceBasedSelectionParams:
     """
-    Parameters for Memetic Algorithm with Tolerance-Based Selection (MA-TB).
+    Parameters for Memetic Algorithm with Tolerance-based Selection (MA-TS).
 
     Algorithm Structure:
         1. Initialize population of N solutions

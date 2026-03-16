@@ -21,52 +21,24 @@ from logic.src.constants import DAY_METRICS
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.utils.functions import move_to
 
-# Metaphor-Rigorous Algorithm Mapping for RNG Seeding
-# Maps rigorous algorithm names to their metaphor equivalents
-# This ensures equivalent algorithms use the SAME RNG seed for perfect matching
-METAPHOR_RIGOROUS_SEED_MAP = {
-    # Rigorous -> Metaphor (canonical)
-    "es_mcl": "abc",  # Evolution Strategy (μ,λ) -> Artificial Bee Colony
-    "psoda": "fa",  # Distance-Based PSO -> Firefly Algorithm
-    "es_mpl": "hs",  # Evolution Strategy (μ+λ) -> Harmony Search
-    "ma_im": "slc",  # Memetic Algorithm Island Model -> Soccer League Competition
-    "hms": "hvpl",  # Hybrid Memetic Search -> Hybrid Volleyball Premier League
-    "ma_dp": "vpl",  # Memetic Algorithm Dual Population -> Volleyball Premier League
-    "ma_tb": "lca",  # Memetic Algorithm Tolerance-Based -> League Championship Algorithm
-    "cls": "sca",  # Continuous Local Search -> Sine Cosine Algorithm
-}
-
 
 def get_canonical_policy_name(policy_name: str) -> str:
     """
-    Get canonical (metaphor) algorithm name for RNG seeding.
+    Get canonical algorithm name for RNG seeding.
 
-    This ensures that metaphor-rigorous algorithm pairs use the SAME RNG seed,
-    producing identical results when given the same configuration.
+    This extracts the base algorithm name from the policy string to ensure
+    consistent seeding across different selection strategies.
 
     Args:
-        policy_name: Full policy name (e.g., 'lookahead_ma_im_custom_gamma3')
+        policy_name: Full policy name (e.g., 'lookahead_ma_ts_custom_gamma3')
 
     Returns:
-        Canonical name for seeding (e.g., 'slc' for ma_im)
+        Canonical name for seeding (e.g., 'ma_ts')
 
     Examples:
-        >>> get_canonical_policy_name('lookahead_ma_im_custom_gamma3')
-        'slc'
-        >>> get_canonical_policy_name('lookahead_abc_custom_gamma3')
-        'abc'
+        >>> get_canonical_policy_name('lookahead_ma_ts_custom_gamma3')
+        'ma_ts'
     """
-    policy_lower = policy_name.lower()
-
-    # Check each rigorous name and return its metaphor equivalent
-    for rigorous, metaphor in METAPHOR_RIGOROUS_SEED_MAP.items():
-        if rigorous in policy_lower:
-            return metaphor
-
-    # If not in map, extract base algorithm name from policy string
-    # Examples:
-    #   'lookahead_abc_custom_gamma3' -> 'abc'
-    #   'policy_regular3_gamma1' -> 'regular3'
     parts = policy_name.lower().split("_")
 
     # Try to find algorithm name (typically after lookahead/policy prefix)
@@ -292,17 +264,8 @@ def get_daily_results(
 def run_day(context: SimulationDayContext) -> SimulationDayContext:
     """
     Orchestrates a single simulation day using the Command Pattern.
-
-    CRITICAL: Uses per-policy RNG isolation to ensure deterministic equivalence.
-    Each policy gets its own isolated RNG state derived from:
-        policy_seed = base_seed + hash(policy_name)
-
-    This ensures that metaphor-rigorous algorithm pairs produce IDENTICAL results
-    regardless of execution order in the simulation.
     """
     # Compute policy-specific seed for RNG isolation
-    # CRITICAL: Use canonical name to ensure metaphor-rigorous pairs get SAME seed
-    # Example: 'lookahead_ma_im_custom_gamma3' -> 'slc' (its metaphor equivalent)
     import zlib
 
     canonical_name = get_canonical_policy_name(context.policy_name)
