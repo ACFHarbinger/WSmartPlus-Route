@@ -22,7 +22,7 @@ class Distance(BaseDistribution):
         self.depot, self.loc = graph
 
     def _sample_array(
-        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.default_rng]] = None
+        self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.Generator]] = None
     ) -> np.ndarray:
         """Sample from distance-based distribution.
 

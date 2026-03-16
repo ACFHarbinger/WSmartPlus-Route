@@ -4,6 +4,7 @@ Facade for sampling distributions.
 
 from typing import Any, Callable
 
+from .base import BaseDistribution
 from .spatial_cluster import Cluster as Cluster
 from .spatial_distance import Distance as Distance
 from .spatial_gaussian_mixture import GaussianMixture as GaussianMixture
@@ -32,6 +33,7 @@ DISTRIBUTION_REGISTRY: dict[str, Callable[..., Any]] = {
 }
 
 __all__ = [
+    "BaseDistribution",
     "Cluster",
     "Mixed",
     "Gaussian_Mixture",

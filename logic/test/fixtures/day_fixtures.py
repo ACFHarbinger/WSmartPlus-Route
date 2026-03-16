@@ -100,17 +100,16 @@ def make_day_context():
         full_policy = kwargs.get("full_policy", "regular_lvl3_cvrp_ortools_gamma1")
 
             # Determine policy_name and policy if not provided
-        if "policy_name" not in kwargs or "policy" not in kwargs:
+        if "policy_name" not in kwargs:
             # Simple policy (without gamma/threshold)
             p_simple = full_policy.split("_gamma")[0] if "_gamma" in full_policy else full_policy
 
             kwargs.setdefault("policy_name", p_simple)
-            kwargs.setdefault("policy", p_simple)
 
         defaults = {
             "graph_size": 3,
             "full_policy": "regular_lvl3_cvrp_ortools_gamma1",
-            "policy": "regular_lvl3_cvrp_ortools",
+
             "policy_name": "regular_lvl3_cvrp_ortools",
             "bins": MagicMock(),
             "new_data": MagicMock(),

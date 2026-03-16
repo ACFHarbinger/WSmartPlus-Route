@@ -83,7 +83,7 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
                     max_iterations=kwargs.get("n_iterations", self.max_iterations),
                     waste=waste_arr,
                     capacity=capacity,
-                    np_rng=np.random.RandomState(kwargs.get("seed", 42)),
+                    np_rng=np.random.default_rng(kwargs.get("seed", 42)),
                 )
                 # Strip depot from result
                 refined_tour.extend([n for n in optimized if n != 0])

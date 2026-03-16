@@ -111,8 +111,12 @@ class SimulationContext:
 
         # 1. Handle case where raw_policy is just a string (common in expanded test-sim)
         if isinstance(sanitized_policy, str):
-            sim = cfg.sim
-            config_paths = sim.config_path if sim.config_path else {}
+            try:
+                config_paths = cfg.sim.config_path
+                if config_paths is None:
+                    config_paths = {}
+            except Exception:
+                config_paths = {}
             # Try to find the config for this policy name in the config_path map
             if self.pol_name in config_paths:
                 loaded_cfg = deep_sanitize(config_paths[self.pol_name])

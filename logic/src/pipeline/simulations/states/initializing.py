@@ -80,13 +80,23 @@ class InitializingState(SimState):
         ctx.transition_to(RunningState())
 
     def _setup_logging_and_dirs(self, ctx):
-        log_file = ctx.cfg.tracking.log_file
+        def _safe_get(obj, path, default=None):
+            try:
+                for part in path.split("."):
+                    obj = getattr(obj, part)
+                return obj
+            except Exception:
+                return default
+
+        log_file = _safe_get(ctx.cfg, "tracking.log_file")
         if log_file is None:
             from datetime import datetime
 
-            log_file = Path(ctx.cfg.tracking.log_dir) / f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
+            log_dir = _safe_get(ctx.cfg, "tracking.log_dir", "logs")
+            log_file = Path(log_dir) / f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
 
-        setup_system_logger(log_file, ctx.cfg.tracking.log_level)
+        log_level = _safe_get(ctx.cfg, "tracking.log_level", "INFO")
+        setup_system_logger(log_file, log_level)
 
         # Redirect stderr to the simulation log file for the main process
         from logic.src.tracking.logging.logger_writer import setup_logger_redirection
@@ -107,8 +117,16 @@ class InitializingState(SimState):
 
     def _load_all_configurations(self, ctx):
         ctx.config = {}
-        sim = ctx.cfg.sim
-        config_paths = sim.config_path if sim.config_path else None
+
+        def _safe_get(obj, path, default=None):
+            try:
+                for part in path.split("."):
+                    obj = getattr(obj, part)
+                return obj
+            except Exception:
+                return default
+
+        config_paths = _safe_get(ctx.cfg, "sim.config_path")
 
         if config_paths and hasattr(config_paths, "items") and hasattr(config_paths, "keys"):
             for key, path in config_paths.items():
@@ -174,7 +192,6 @@ class InitializingState(SimState):
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
-        sim = ctx.cfg.sim
         sim = ctx.cfg.sim
         pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
         is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
