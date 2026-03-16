@@ -236,7 +236,13 @@ class RuinRecreateOperator:
         # 5. Convert routes back to giant tour
         new_giant_tour = self._routes_to_giant_tour(repaired_routes)
 
-        # 6. If giant tour is empty or too small, return original individual
+        # 6. Ensure the giant tour contains ALL nodes (permutation property)
+        # Any nodes not selected for routes are appended at the end
+        all_nodes_set = set(range(1, len(self.dist_matrix)))
+        visited_set = set(new_giant_tour)
+        missing_nodes = sorted(list(all_nodes_set - visited_set))
+        new_giant_tour.extend(missing_nodes)
+
         if len(new_giant_tour) == 0:
             return individual
 
@@ -274,20 +280,37 @@ class RuinRecreateOperator:
             # Fallback to random removal
             operator_func = destroy_operators.random_removal
 
+        all_nodes = list(range(1, len(self.dist_matrix)))
+
         # Call the operator
         try:
-            modified_routes, removed = operator_func(
-                routes=routes,
-                n=n_remove,
-                dist_matrix=self.dist_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                rng=self.rng,
-            )
+            # We use kwargs to match different operator signatures
+            kwargs = {
+                "routes": routes,
+                "n_remove": n_remove,
+                "dist_matrix": self.dist_matrix,
+                "rng": self.rng,
+            }
+
+            # Add operator-specific arguments
+            if operator_name in ["shaw_removal", "cluster_removal"]:
+                kwargs["nodes"] = all_nodes
+
+            if "profit" in operator_name or operator_name in ["shaw_removal", "worst_removal"]:
+                kwargs["wastes"] = self.wastes
+
+            # Clean kwargs based on actual function inspection or just use a safer approach
+            # Using common argument names used in the package
+            modified_routes, removed = operator_func(**kwargs)
             return modified_routes, removed
         except Exception:
-            # Fallback: return original routes and empty removed list
-            return routes, []
+            # Fallback: try positional call for very basic ones if kwargs fail
+            try:
+                modified_routes, removed = operator_func(routes, n_remove, self.dist_matrix)
+                return modified_routes, removed
+            except Exception:
+                # Absolute fallback: return original routes and empty removed list
+                return routes, []
 
     def _apply_repair(self, routes: List[List[int]], removed_nodes: List[int], operator_name: str) -> List[List[int]]:
         """
