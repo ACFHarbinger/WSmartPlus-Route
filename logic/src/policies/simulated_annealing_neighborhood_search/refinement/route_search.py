@@ -36,7 +36,7 @@ def find_solutions(
         points (Dict): Coordinates map.
         time_limit (float): Max execution time.
         rng (random.Random): Random number generator.
-        np_rng (np.random.default_rng): Numpy random number generator.
+        np_rng (np.random.Generator): Numpy random number generator.
 
     Returns:
         List[List[int]]: Optimized routing solution.

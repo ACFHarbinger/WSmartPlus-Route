@@ -41,15 +41,15 @@ class MixMultiDistributions(BaseDistribution):
             (Mixed, {"n_cluster_mix": 4}),
         ]
 
-    def _sample_tensor(self, size: Tuple[int, int, int], generator: Optional[torch.Generator] = None) -> torch.Tensor:
+    def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
         """Sample.
 
         Args:
-            size (Tuple[int, int, int]): Description of size.
+            size (Tuple[int, ...]): Description of size.
             generator (Optional[torch.Generator], optional): Description of generator.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Sampled values.
         """
         if generator is None:
             generator = torch.Generator().manual_seed(42)
@@ -72,7 +72,7 @@ class MixMultiDistributions(BaseDistribution):
 
         return coords.clamp_(0, 1)
 
-    def _sample_array(self, size: Tuple[int, int, int], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """NumPy version of the distribution-mixing sampler."""
         if rng is None:
             rng = np.random.default_rng(42)
@@ -82,7 +82,7 @@ class MixMultiDistributions(BaseDistribution):
         coords = np.zeros((batch_size, num_loc, 2))
 
         # Sample distribution indices for each batch item
-        dist_indices = rng.randint(0, len(self.distributions), size=batch_size)
+        dist_indices = rng.integers(0, len(self.distributions), size=batch_size)
 
         for i, (cls, kwargs) in enumerate(self.distributions):
             # Boolean mask for all batch items assigned to this distribution
@@ -94,7 +94,7 @@ class MixMultiDistributions(BaseDistribution):
 
             if cls is None:
                 # Fallback to standard uniform [0, 1)
-                coords[mask] = rng.rand(n_samples, num_loc, 2)
+                coords[mask] = rng.random(size=(n_samples, num_loc, 2))
             else:
                 # Instantiate the distribution class and call its array strategy
                 dist = cls(**kwargs)

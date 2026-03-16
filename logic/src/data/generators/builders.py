@@ -75,7 +75,7 @@ class VRPInstanceBuilder:
     def set_seed(self, seed: int):
         """Sets the random seed for reproducibility."""
         self._seed = seed
-        self.np_rng.seed(seed)
+        self.np_rng = np.random.default_rng(seed)
         self.generator.manual_seed(seed)
         return self
 

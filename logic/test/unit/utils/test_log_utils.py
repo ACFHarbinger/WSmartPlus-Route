@@ -130,9 +130,11 @@ class TestLogUtils:
         assert isinstance(std, dict)
         assert mock_dump.called
 
+    @patch("logic.src.tracking.logging.modules.analysis.os.path.exists")
     @patch("logic.src.tracking.logging.modules.analysis.read_json")
-    def test_runs_per_policy(self, mock_read):
+    def test_runs_per_policy(self, mock_read, mock_exists):
         """Test runs_per_policy function."""
+        mock_exists.return_value = True
         mock_read.return_value = [{"policy1": "res"}, {}]
         res = runs_per_policy("home", 1, [50], "out", "area", [100], ["policy1"], print_output=True)    # type: ignore
         assert isinstance(res, list)

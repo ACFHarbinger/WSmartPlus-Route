@@ -48,7 +48,6 @@ defaults:
   - /policies@p.ma_dp: policy_ma_dp
   - /policies@p.es_mpl: policy_es_mpl
   - /policies@p.es_mcl: policy_es_mcl
-  - /policies@p.cls: policy_cls
   - /policies@p.psoda: policy_psoda
   - /policies@p.hms: policy_hms
   - _self_
@@ -123,6 +122,5 @@ sim:
     - ma_dp: ${p.ma_dp.ma_dp}
     - es_mpl: ${p.es_mpl.es_mpl}
     - es_mcl: ${p.es_mcl.es_mcl}
-    - cls: ${p.cls.cls}
     - psoda: ${p.psoda.psoda}
     - hms: ${p.hms.hms}

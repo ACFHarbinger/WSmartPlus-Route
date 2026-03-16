@@ -94,7 +94,7 @@ class Empirical(BaseDistribution):
             raise ValueError("No grid or dataset found.")
         return torch.clip(vals_tensor, 0, 1)
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample from empirical dataset.
 
         Args:
@@ -105,7 +105,7 @@ class Empirical(BaseDistribution):
             np.ndarray: Sampled values
         """
         if rng is None:
-            rng = cast(np.random.default_rng, np.random)
+            rng = cast(np.random.Generator, np.random)
 
         n_samples = size[0]
         if self.dataset is not None:

@@ -35,7 +35,7 @@ class Constant(BaseDistribution):
             return self.value.expand(size)
         return torch.full(size, float(self.value))
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """Return constant array.
 
         Args:

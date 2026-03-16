@@ -38,7 +38,7 @@ class Uniform(BaseDistribution):
         res = torch.randint(self.low, self.high, size, generator=generator)
         return res.float() / 100.0
 
-    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.default_rng] = None) -> np.ndarray:
+    def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample from discrete uniform distribution.
 
         Args:
@@ -49,5 +49,5 @@ class Uniform(BaseDistribution):
             np.ndarray: Sampled values in range [1, 100].
         """
         if rng is None:
-            rng = cast(np.random.default_rng, np.random)
-        return rng.randint(self.low, self.high, size=size)
+            rng = cast(np.random.Generator, np.random.default_rng(42))
+        return rng.integers(self.low, self.high, size=size)
