@@ -75,6 +75,7 @@ class PolicyFactory:
         import logic.src.policies.record_to_record_travel.policy_rrt as policy_rrt  # noqa
         import logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns as policy_rl_alns  # noqa
         import logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl as policy_rl_ahvpl  # noqa
+        import logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.policy_rl_gd_hh as policy_rl_gd_hh  # noqa
         import logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league.policy_rl_hvpl as policy_rl_hvpl  # noqa
         import logic.src.policies.sequence_based_selection_hyper_heuristic.policy_ss_hh as policy_ss_hh  # noqa
         import logic.src.policies.simulated_annealing.policy_sa as policy_sa  # noqa
