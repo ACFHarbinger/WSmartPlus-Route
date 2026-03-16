@@ -60,7 +60,7 @@ MAX_WASTE: float = 1.0  # [0.0, 1.0] capacity range (bins can exceed this, trigg
 # Gurobi MIP Solver Parameters
 # -----------------------------
 # Tuned for VRP-class problems. Trade-off: solution quality vs runtime.
-# Used in: logic/src/policies/adapters/policy_bpc.py, policy_vrpp.py
+# Used in: logic/src/policies/adapters/policy_bpc.py, policy_swc_tcf.py
 
 # MIP optimality gap tolerance (ratio)
 # Solver stops when: (best_bound - incumbent) / incumbent ≤ MIP_GAP

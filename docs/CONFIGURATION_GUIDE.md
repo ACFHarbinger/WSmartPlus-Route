@@ -264,7 +264,7 @@ assets/configs/
     ├── policy_sans.yaml       # SANS (Scheduling ANS)
     ├── policy_sisr.yaml       # SISR (Simple Insertion)
     ├── policy_tsp.yaml        # TSP solvers
-    ├── policy_vrpp.yaml       # VRPP-specific policies
+    ├── policy_swc_tcf.yaml    # SWC-TCF policies
     ├── policy_cvrp.yaml       # CVRP-specific policies
     └── other/                 # Auxiliary configurations
         ├── mg_lookahead.yaml       # Must-go: Lookahead strategy

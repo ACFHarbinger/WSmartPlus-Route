@@ -8,7 +8,7 @@ from logic.src.envs.problems import VRPP
 from logic.src.models import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
 from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
-from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
 def get_dummy_model(device="cpu"):
@@ -76,7 +76,7 @@ def benchmark_solvers(seed=42):
 
     for backend in ["gurobi", "hexaly"]:
         start = time.time()
-        run_vrpp_optimizer(
+        run_swc_tcf_optimizer(
             bins=bins,
             distance_matrix=dist_matrix,
             param=0.0,

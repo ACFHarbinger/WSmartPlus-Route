@@ -15,7 +15,7 @@ from logic.src.models.policies.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from logic.src.tracking.logging.structured_logging import log_benchmark_metric
-from logic.src.policies.base.policy_vrpp import run_vrpp_optimizer
+from logic.src.policies.smart_waste_collection_two_commodity_flow import run_swc_tcf_optimizer
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
 
 
@@ -104,7 +104,7 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2, seed: int =
     for solver in ["gurobi", "hexaly"]:
         try:
             start = time.time()
-            tour, profit, cost = run_vrpp_optimizer(
+            tour, profit, cost = run_swc_tcf_optimizer(
                 bins=bins,
                 distance_matrix=dist_mat,
                 param=1.0,
