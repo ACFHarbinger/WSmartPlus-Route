@@ -1,0 +1,91 @@
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{0.14\textwidth}
+  >{\raggedright\arraybackslash}p{0.14\textwidth}
+  >{\raggedright\arraybackslash}p{0.12\textwidth}
+  >{\raggedright\arraybackslash}p{0.18\textwidth}
+  >{\raggedright\arraybackslash}p{0.16\textwidth}
+  >{\raggedright\arraybackslash}p{0.16\textwidth}
+}
+\caption{Taxonomic Deconstruction of Optimization Algorithms: Classification and Search Logic. Detailed descriptions and critiques are provided in Appendix A.} \label{tab:main_taxonomy} \\
+\toprule
+\textbf{Algorithm} & \textbf{Origin Ref.} & \textbf{Basis Archetype} & \textbf{Classification \& Paradigm} & \textbf{State \& Target Domain} & \textbf{Operators / Search Logic} \\
+\midrule
+\endfirsthead
+
+\multicolumn{6}{c}%
+{{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+\toprule
+\textbf{Algorithm} & \textbf{Origin Ref.} & \textbf{Basis Archetype} & \textbf{Classification \& Paradigm} & \textbf{State \& Target Domain} & \textbf{Operators / Search Logic} \\
+\midrule
+\endhead
+
+\midrule \multicolumn{6}{r}{{Continued on next page}} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Adaptive Large Neighborhood Search (ALNS) & Ropke \& Pisinger (2006) & LNS & Domain-Specific Meta-heuristic & Single-point, Routing & Ruin and Recreate \\ \midrule
+Ant Colony Optimization (ACO) & Dorigo (1992) & Canonical & Canonical Meta-heuristic (Swarm) & Swarm, Combinatorial & Pheromone update \\ \midrule
+Artificial Bee Colony (ABC) & Karaboga (2005) & DE / ES & Relabeled Meta-heuristic (Swarm) & Swarm, Continuous & Vector mutation \\ \midrule
+Attention Model (AM) & Kool et al. (2018) & Seq2Seq / REINFORCE & NCO: Autoregressive Constructive (RL) & Sequence, Combinatorial & Graph Attention, RL Policy \\ \midrule
+Attention Model with POMO & Kwon et al. (2020) & AM + Rollouts & NCO: Autoregressive Constructive (RL) & Sequence, Combinatorial & Policy Optimization, Rollouts \\ \midrule
+Branch-and-Price-and-Cut (BPC) & Laporte et al. (1998) & Branch-and-Bound & Exact Algorithm (Math. Prog.) & Complete Tree, Routing & Column gen., Cutting planes \\ \midrule
+Circuit-SAT GNN & Amizadeh et al. (2018) & GNN + DPLL & NCO: Predict-Many (UL) & Complete Tree, SAT / MILP & Unsupervised loss, DPLL \\ \midrule
+Deep Policy Dynamic Programming (DPDP) & Kool et al. (2022) & GNN + DP & NCO: Predict-Once (SL) & Complete Tree, Routing & Heatmap Gen., DP Bounds \\ \midrule
+DeepACO & Ye et al. (2023) & GNN + ACO & NCO: Non-AR Constructive (RL) & Swarm, Combinatorial & Neural Pheromone Init. \\ \midrule
+Differential Evolution (DE) & Storn \& Price (1997) & Canonical & Canonical Meta-heuristic & Population, Continuous & Vector difference mutation \\ \midrule
+Efficient Active Search (EAS) & Hottung et al. (2021) & AM + Active Search & NCO: Predict-Once (RL) & Sequence, Combinatorial & Test-time weight update \\ \midrule
+Erdős Goes Neural (EGN) & Karalias \& Loukas (2020) & GNN + Decoding & NCO: Predict-Once (UL) & Single-point, Combinatorial & Probabilistic penalty loss \\ \midrule
+Evolution Strategy Mu Plus Lambda (ES-MPL) & Rechenberg (1973) & Canonical & Canonical Meta-heuristic (Evol.) & Population, Continuous & Gaussian mutation \\ \midrule
+Evolution Strategy Mu, Kappa, Lambda (ES-MKL) & Bäck \& Schwefel (1993) & ES-MCL & Canonical Meta-heuristic (Evol.) & Population, Continuous & Gaussian mutation, age param. \\ \midrule
+Evolution Strategy Mu, Lambda (ES-MCL) & Schwefel (1977) & Canonical & Canonical Meta-heuristic (Evol.) & Population, Continuous & Gaussian mutation \\ \midrule
+Exact Learning to Branch (GNN-B\&B) & Gasse et al. (2019) & GNN + B\&B & NCO: Predict-Many (SL) & Complete Tree, MILP & GCN variable selection \\ \midrule
+Fast Iterative Localized Optimization (FILO) & Accorsi et al. (2021) & ILS & Domain-Specific Heuristic & Single-point, Routing & Granular swap \& relocate \\ \midrule
+Firefly Algorithm (FA) & Yang (2008) & PSO & Relabeled Meta-heuristic (Swarm) & Swarm, Continuous & Gaussian / random walk \\ \midrule
+Genetic Algorithm (GA) & Holland (1975) & Canonical & Canonical Meta-heuristic (Evol.) & Population, General & Crossover \& Mutation \\ \midrule
+Genetic Programming Hyper-Heuristic (GPHH) & Burke et al. (2009) & GP / HH & Hyper-heuristic (Generation) & Complete Tree, Combinatorial & GP Crossover \& Mutation \\ \midrule
+Great Deluge (GD) & Dueck (1993) & Local Search (LS) & Canonical Acceptance Criterion & Single-point, Combinatorial & Relies on external LS \\ \midrule
+Guided Indicators Hyper-Heuristic (GIHH) & Chen et al. (2018) & Hyper-heuristic & Hyper-heuristic (Selection) & Single-point, Routing & Indicator-based selection \\ \midrule
+Guided Local Search (GLS) & Voudouris \& Tsang (1997) & Local Search (LS) & Canonical Meta-heuristic (Penalty) & Single-point, Combinatorial & Generic neighborhood search \\ \midrule
+Harmony Search (HS) & Geem et al. (2001) & ES & Relabeled Meta-heuristic & Population, General & Pitch Adjustment (mutation) \\ \midrule
+Hopfield Neural Network (HNN) & Hopfield \& Tank (1985) & Canonical & NCO: Improvement Heuristic (UL) & Single-point, General & Energy minimization \\ \midrule
+Hybrid Genetic Search (HGS) & Vidal et al. (2012) & Memetic Algorithm & Memetic Algorithm & Population, Routing & Swap, 2-opt, Cross-exchange \\ \midrule
+Hybrid Genetic Search with Ruin and Recreate (HGS-RR) & Simensen et al. (2022) & HGS + ALNS/SISR & Memetic Algorithm (Evol. + Traj.) & Population, Routing & ALNS / SISR destruction \\ \midrule
+Hybrid Volleyball Premier League (HVPL) & Sun et al. (2023) & VPL + ACO + ALNS & Memetic Algorithm (Swarm + Traj.) & Population, Routing & Pheromones, Ruin \& Recreate \\ \midrule
+Hyper-Heuristic Ant Colony Optimization (HH-ACO) & Chen et al. (2007) & ACO & Hyper-heuristic (Swarm + Traj.) & Swarm, Combinatorial & Low-level generic heuristics \\ \midrule
+Hyper-heuristic with Us and LK (HULK) & Müller \& Bonilha (2022) & ACO / Local Search & Hyper-heuristic (Swarm + Traj.) & Population, Dynamic Routing & Unstringing/Stringing, Lin-Kernighan \\ \midrule
+Iterated Local Search (ILS) & Lourenço (2003) & Local Search (LS) & Canonical Meta-heuristic (Traj.) & Single-point, Combinatorial & Neighborhood perturbation \\ \midrule
+ILS - Randomized Variable Neighborhood Descent - Set Partitioning (ILS-RVND-SP) & Subramanian et al. (2013) & ILS + VNS + SP & Matheuristic (Traj. + Exact) & Single-point / Set, Routing & Perturbation, RVND, SP formulation \\ \midrule
+Knowledge Guided Local Search (KGLS) & Arnold \& Sörensen (2018) & GLS & Domain-Specific Meta-heuristic & Single-point, Combinatorial & Steepest descent \\ \midrule
+K-Sparse Ant Colony Optimization (KS-ACO) & Hale (2021) & ACO & Algorithmic Regularization (Swarm) & Swarm, Combinatorial & Standard ACO routing \\ \midrule
+Late Acceptance Hill-Climbing (LAHC) & Burke \& Bykov (2008) & Threshold Accepting & Acceptance Criterion (Thermo.) & Single-point, Combinatorial & Relies on external LS \\ \midrule
+League Championship Algorithm (LCA) & Kashan (2014) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Artificial SWOT Analysis \\ \midrule
+Lin-Kernighan-Helsgaun (LKH) & Helsgaun (2000) & Lin-Kernighan (1973) & Domain-Specific Heuristic (Traj.) & Single-point, TSP / Routing & Dynamic $k$-opt swap \\ \midrule
+Local Search (LS) / Neighborhood Search & Generic (Croes 1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert \\ \midrule
+Memetic Algorithm (MA) & Moscato et al. (2004) & GA + LS & Memetic Algorithm & Population, General & Evolution + Trajectory Search \\ \midrule
+Metropolis-Hastings (MH) & Metropolis et al. (1953) & Canonical & Statistical Acceptance & Single-point, General & Random perturbation \\ \midrule
+NeuRewriter & Chen et al. (2019) & LS + RL & NCO: Improvement Heuristic (RL) & Single-point, Combinatorial & MDP rewriting (swap/insert) \\ \midrule
+Old Bachelor Acceptance (OBA) & Hu et al. (1995) & Simulated Annealing & Acceptance Criterion (Thermo.) & Single-point, Combinatorial & Relies on external LS \\ \midrule
+Particle Swarm Optimization (PSO) & Kennedy \& Eberhart (1995) & Canonical & Canonical Meta-heuristic (Swarm) & Swarm, Continuous & Velocity/Position updates \\ \midrule
+Particle Swarm Optimization Memetic Algorithm (PSOMA) & Liu et al. (2006) & PSO + Local Search & Memetic Algorithm (Swarm + Traj.) & Swarm, Continuous / TSP & 2-opt / Deterministic LS \\ \midrule
+Physics-Inspired GNN (PI-GNN) & Schuetz et al. (2022) & GNN + QUBO & NCO: Non-AR Constructive (UL) & Single-point, Combinatorial & QUBO energy formulation \\ \midrule
+Pointer Network (Ptr-Net) & Vinyals et al. (2015) & Seq2Seq & NCO: Autoregressive Constructive (SL) & Sequence, Combinatorial & Attention mechanism \\ \midrule
+Quantum Differential Evolution (QDE) & Li \& Li (2015) & DE & Parameter Tuning Strategy (Evol.) & Population, Continuous & DE difference vectors \\ \midrule
+Reactive Tabu Search (RTS) & Battiti (1994) & Tabu Search (TS) & Canonical Meta-heuristic (Memory) & Single-point, Combinatorial & Generic neighborhood search \\ \midrule
+Record-to-Record Travel (RRT) & Dueck (1993) & Local Search / SA & Canonical Acceptance Criterion & Single-point, Combinatorial & Relies on external LS \\ \midrule
+Reinforcement Learning B\&B (RL-B\&B) & Sun et al. (2020) & RL + B\&B & NCO: Predict-Many (RL) & Complete Tree, MILP & RL-based variable branching \\ \midrule
+Reinforcement Learning - Great Deluge Hyper-Heuristic (RL-GD-HH) & Ozcan et al. (2010) & RL + GD & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & RL selection, GD acceptance \\ \midrule
+Sequence-based Selection Hyper-Heuristic (SS-HH) & Ahmed Kheiri (2014) & Great Deluge (GD) & Hyper-heuristic Parameter Controller & Single-point, Combinatorial & Great Deluge acceptance \\ \midrule
+Simulated Annealing (SA) & Kirkpatrick (1983) & MH & Canonical Meta-heuristic & Single-point, General & Probabilistic acceptance \\ \midrule
+Simulated Annealing Neighborhood Search (SANS) & Jorge et al. (2022) & SA + LS & Hybrid Meta-heuristic & Single-point, Routing & Inter/intra-route swaps \\ \midrule
+Sine Cosine Algorithm (SCA) & Mirjalili (2016) & PSO / DE & Relabeled Meta-heuristic (Swarm) & Swarm, Continuous & Trigonometric updates \\ \midrule
+Slack Induction by String Removal (SISR) & Christiaens (2020) & R\&R & Domain-Specific Meta-heuristic & Single-point, Routing & String Removal \\ \midrule
+Soccer League Competition (SLC) & Moosavian \& Roodsari (2014) & GA & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Substitutes (stochastic restarts) \\ \midrule
+Variable Neighborhood Search (VNS) & Mladenović (1997) & LS & Canonical Meta-heuristic & Single-point, Combinatorial & Nested neighborhoods \\ \midrule
+Volleyball Premier League (VPL) & Moghdani \& Salimifard (2018) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Substitution (uniform mutation) \\
+\end{longtable}
+\end{center}

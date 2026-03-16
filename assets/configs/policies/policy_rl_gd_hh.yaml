@@ -1,0 +1,49 @@
+# Policy Configuration
+# =============================================================================
+# RL-GD-HH (Reinforcement Learning Great Deluge Hyper-Heuristic)
+# =============================================================================
+# REFERENCE:
+#   Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. (2010).
+#   "A Reinforcement Learning – Great-Deluge Hyper-heuristic for Examination Timetabling".
+#
+# ALGORITHMIC SUMMARY:
+#   A hyper-heuristic that uses Reinforcement Learning (RL) to select low-level
+#   heuristics dynamically from a pool, and a Great Deluge algorithm to determine
+#   move acceptance based on a time-dependent linear threshold (water level).
+# =============================================================================
+
+rl_gd_hh:
+  custom:
+    # --- Search Control ---
+    # Total search steps allowed per problem instance.
+    - max_iterations: 10000
+
+    # Computational time limit in seconds (T in linear level equation).
+    - time_limit: 120.0
+
+    # --- Reinforcement Learning (RL1 Adaptation) ---
+    # Value added to heuristic utility when it improves the solution.
+    - reward_improvement: 1.0
+
+    # Value subtracted from utility for worsening/rejected moves.
+    - penalty_worsening: 1.0
+
+    # Maximum utility score (UB). High values increase memory of past successes.
+    - utility_upper_bound: 40.0
+
+    # Minimum utility score to ensure heuristics remain selectable.
+    - min_utility: 0.0
+
+    # --- Great Deluge (Threshold Control) ---
+    # Expected profit improvement at the end of the search (Multiplier of f0).
+    # 1.25 implies targeting a 25% increase over the initial construction.
+    - target_fitness_multiplier: 1.25
+
+    # --- Meta Configuration ---
+    - engine: "custom"
+
+    # Selection algorithm for mandatory bin visited nodes.
+    - must_go: ["other/mg_lookahead.yaml"]
+
+    # Optional post-processing passes.
+    - post_processing: []
