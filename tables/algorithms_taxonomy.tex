@@ -75,6 +75,8 @@ Differential Evolution (DE) & Storn \& Price (1997) & Canonical & Canonical Meta
 
 Efficient Active Search (EAS) & Hottung et al. (2021) & AM + Active Search & NCO: Predict-Once (RL) & Sequence, Combinatorial & Test-time weight update & Predicts a baseline policy once, then uses RL at test-time to update the weights for the instance. & Novel Predict-Once RL application; blurs the line between inference and local trajectory search. \\ \midrule
 
+Ensemble Move Acceptance & Ahmed Kheiri (2016) & Hyper-heuristic & Acceptance Criterion (Ensemble) & General & G-VOT / G-AND / G-OR & A group decision-making approach where multiple criteria are combined for joint decisions. & Mitigates individual weaknesses of standalone criteria; majority rule (G-VOT) is often the most robust. \\ \midrule
+
 Erdős Goes Neural (EGN) & Karalias \& Loukas (2020) & GNN + Decoding & NCO: Predict-Once (UL) & Single-point, Combinatorial & Probabilistic penalty loss & Unsupervised GNN outputs soft probabilities processed by sequential decoding for guarantees. & Rigorous bridging of DL probabilities with deterministic, discrete mathematical guarantees. \\ \midrule
 
 Evolution Strategy Mu Plus Lambda (ES-MPL) & Rechenberg (1973) & Canonical & Canonical Meta-heuristic (Evol.) & Population, Continuous & Gaussian mutation & $\mu$ parents generate $\lambda$ offspring; deterministic elitist selection occurs from the combined $\mu + \lambda$ pool. & Foundational archetype establishing elitist survival principles for numerical optimization. \\ \midrule
@@ -109,6 +111,8 @@ Hyper-Heuristic Ant Colony Optimization (HH-ACO) & Chen et al. (2007) & ACO & Hy
 
 Hyper-heuristic with Us and LK (HULK) & Müller \& Bonilha (2022) & ACO / Local Search & Hyper-heuristic (Swarm + Traj.) & Population, Dynamic Routing & Unstringing/Stringing, Lin-Kernighan & ACO-based selector managing US and LK operators for dynamic optimization. & Advanced adaptive operator management; avoids metaphor by explicitly stating its hybrid components. \\ \midrule
 
+Improving and Equal (IE) & Generic & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Relies on external LS & Elitist strategy accepting candidates better than or equal to current solutions. & Gatekeeper mechanism; crucial for navigating high levels of neutrality in heuristic search spaces. \\ \midrule
+
 Iterated Local Search (ILS) & Lourenço (2003) & Local Search (LS) & Canonical Meta-heuristic (Traj.) & Single-point, Combinatorial & Neighborhood perturbation & Iterates local search by systematically applying perturbation operators to escape local optima basins. & Foundational trajectory archetype utilizing intelligent mathematical restarts rather than total randomization. \\ \midrule
 
 ILS - Randomized Variable Neighborhood Descent - Set Partitioning (ILS-RVND-SP) & Subramanian et al. (2013) & ILS + VNS + SP & Matheuristic (Traj. + Exact) & Single-point / Set, Routing & Perturbation, RVND, SP formulation & Uses ILS and randomized VNS to populate a pool of routes, subsequently solved exactly via Set Partitioning. & Gold-standard matheuristic; explicitly combines rigorous local search trajectories with exact Integer Linear Programming models. \\ \midrule
@@ -132,6 +136,8 @@ Metropolis-Hastings (MH) & Metropolis et al. (1953) & Canonical & Statistical Ac
 NeuRewriter & Chen et al. (2019) & LS + RL & NCO: Improvement Heuristic (RL) & Single-point, Combinatorial & MDP rewriting (swap/insert) & Uses an actor-critic RL framework to iteratively refine a solution by selecting rewrite rules. & Directly maps classical trajectory search into an RL framework. \\ \midrule
 
 Old Bachelor Acceptance (OBA) & Hu et al. (1995) & Simulated Annealing & Acceptance Criterion (Thermo.) & Single-point, Combinatorial & Relies on external LS & Uses a non-monotone threshold that tightens on accepted moves and loosens on rejected moves. & Valid dynamic tuning schedule for Simulated Annealing/Threshold Accepting cooling pipelines. \\ \midrule
+
+Only Improving (OI) & Generic & Local Search (LS) & Acceptance Criterion (Elitist) & Single-point, General & Relies on external LS & Accepts a candidate move only if the objective cost is strictly better than the current. & Purely exploitative gatekeeper; incapable of traversing neutral plateaus or escaping local minima. \\ \midrule
 
 Particle Swarm Optimization (PSO) & Kennedy \& Eberhart (1995) & Canonical & Canonical Meta-heuristic (Swarm) & Swarm, Continuous & Velocity/Position updates & Particles move guided by personal bests and global swarm knowledge. & Foundational continuous swarm archetype; heavily plagiarized by animal-based metaphors. \\ \midrule
 
@@ -157,11 +163,15 @@ Simulated Annealing (SA) & Kirkpatrick (1983) & MH & Canonical Meta-heuristic & 
 
 Simulated Annealing Neighborhood Search (SANS) & Jorge et al. (2022) & SA + LS & Hybrid Meta-heuristic & Single-point, Routing & Inter/intra-route swaps & Explores diverse neighborhood structures while utilizing SA's cooling schedule. & Transparent hybridization; correctly attributes its mathematical foundations. \\ \midrule
 
+Step Counting Hill Climbing (SCHC) & Burke \& Bykov (2016) & Threshold Accepting & Acceptance Criterion (Memory) & Single-point, General & Relies on external LS & Memory-based criterion where a cost bound remains fixed for a specific number of steps. & Scale-independent alternative to SA; offers high performance on examination timetabling benchmarks. \\ \midrule
+
 Sine Cosine Algorithm (SCA) & Mirjalili (2016) & PSO / DE & Relabeled Meta-heuristic (Swarm) & Swarm, Continuous & Trigonometric updates & Fluctuates search agents toward/away from best solution using sine/cosine functions. & \textbf{Deceptive.} Meaningless trigonometric "math-washing" applied to standard vector translation operations. \\ \midrule
 
 Slack Induction by String Removal (SISR) & Christiaens (2020) & R\&R & Domain-Specific Meta-heuristic & Single-point, Routing & String Removal & Removes spatial sequences of variables and reinserts them to minimize slack. & Genuinely novel spatial meta-heuristic; achieved state-of-the-art results in large-scale routing. \\ \midrule
 
 Soccer League Competition (SLC) & Moosavian \& Roodsari (2014) & GA & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Substitutes (stochastic restarts) & Simulates matches, substitute players, and league standings to optimize real-valued networks. & \textbf{Deceptive.} Convoluted, inefficient multi-population Genetic Algorithm burdened with unnecessary sports rule constraints. \\ \midrule
+
+Threshold Accepting (TA) & Dueck \& Scheuer (1990) & Simulated Annealing & Acceptance Criterion (Threshold) & Single-point, General & Relies on external LS & Accepts deteriorating moves if they fall within a predefined threshold range. & Deterministic alternative to SA; allows reorganization of sequences to find globally efficient tours. \\ \midrule
 
 Variable Neighborhood Search (VNS) & Mladenović (1997) & LS & Canonical Meta-heuristic & Single-point, Combinatorial & Nested neighborhoods & Systematically switches neighborhoods when trapped in local optima. & Foundational framework establishing rules for trajectory diversification. \\ \midrule
 

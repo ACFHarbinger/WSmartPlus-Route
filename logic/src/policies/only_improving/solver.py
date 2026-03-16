@@ -4,7 +4,7 @@ Only Improving (OI) solver for VRPP.
 Accepts a candidate move if and only if it strictly improves the current solution.
 """
 
-from ..other.local_search.base_acceptance_criteria import BaseAcceptanceSolver
+from ..base.base_acceptance_criteria import BaseAcceptanceSolver
 
 
 class OISolver(BaseAcceptanceSolver):

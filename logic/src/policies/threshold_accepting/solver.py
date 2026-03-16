@@ -5,7 +5,7 @@ Accepts deteriorating moves as long as they fall within a specific,
 predefined threshold range that decays over time.
 """
 
-from ..other.local_search.base_acceptance_criteria import BaseAcceptanceSolver
+from ..base.base_acceptance_criteria import BaseAcceptanceSolver
 
 
 class TASolver(BaseAcceptanceSolver):
