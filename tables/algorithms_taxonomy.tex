@@ -61,6 +61,8 @@ Attention Model (AM) & Kool et al. (2018) & Seq2Seq / REINFORCE & NCO: Autoregre
 
 Attention Model with POMO & Kwon et al. (2020) & AM + Rollouts & NCO: Autoregressive Constructive (RL) & Sequence, Combinatorial & Policy Optimization, Rollouts & Forces the AM to start from multiple roots, generating diverse trajectories to exploit symmetry. & Highly effective RL training technique; mathematically sound exploitation of graph symmetries. \\ \midrule
 
+Branch-and-Bound (BB) & Land \& Doig (1960) & Foundational & Canonical Exact Algorithm & Complete Tree, General & Branching and Pruning & Systematic enumeration of candidate solutions via state-space search, represented as a tree. Uses bounds to "prune" non-optimal sub-trees. & The foundational mathematical procedure for exact optimization. Guaranteed global optimality but suffers from exponential time complexity in large VRPP instances. \\ \midrule
+
 Branch-and-Price-and-Cut (BPC) & Laporte et al. (1998) & Branch-and-Bound & Exact Algorithm (Math. Prog.) & Complete Tree, Routing & Column gen., Cutting planes & Solves LP relaxations via pricing, tightens bounds with cuts, and branches for integrality. & The gold standard for exact optimization; rigorously proves global optimality without heuristics. \\ \midrule
 
 Circuit-SAT GNN & Amizadeh et al. (2018) & GNN + DPLL & NCO: Predict-Many (UL) & Complete Tree, SAT / MILP & Unsupervised loss, DPLL & Iteratively predicts variable assignments to restrict the search tree via continuous circuit loss. & Purely mathematical Unsupervised Learning application for iterative state-space reduction. \\ \midrule
