@@ -197,7 +197,7 @@ Items are marked as:
   - [x] Formalize `benchmark_ls.py` into automated suite
   - [x] Add latency/throughput tracking for neural decoders
 - [x] Contract tests for solver integrations
-  - [x] `run_vrpp_optimizer` (Gurobi/Hexaly) interface validation
+  - [x] `run_swc_tcf_optimizer` (Gurobi/Hexaly) interface validation
   - [x] `find_routes` (OR-Tools/PyVRP) consistency tests
   - [x] Multi-engine parity verification for common instances
   - [x] Edge case stability (N=0, N=1, exact capacity)
