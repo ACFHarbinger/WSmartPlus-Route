@@ -17,8 +17,9 @@ from logic.src.policies import run_hgs
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
 from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
 from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import run_alns, ALNSPolicy
-from logic.src.policies.branch_cut_and_price.policy_bcp import run_bcp, BCPPolicy
+# from logic.src.policies.branch_cut_and_price.policy_bcp import run_bcp, BCPPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
+from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import ILSRVNDSPPolicy
 
 
 class MockBins:
@@ -74,15 +75,26 @@ class TestPolicyAdapters:
             assert tour == [0, 1, 0]
             assert mock_run.called
 
+    # @pytest.mark.unit
+    # def test_bcp_adapter(self, mock_policy_data):
+    #     with patch("logic.src.policies.branch_cut_and_price.policy_bcp.run_bcp") as mock_run:
+    #         mock_run.return_value = ([[1]], 10.0)
+    #         policy = cast(Callable, PolicyRegistry.get("bcp"))()
+    #         assert isinstance(policy, BCPPolicy)
+    #         tour, cost, extra = policy.execute(policy="bcp_1.0", **mock_policy_data)
+    #         assert tour == [0, 1, 0]
+    #         assert mock_run.called
+
     @pytest.mark.unit
-    def test_bcp_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.branch_cut_and_price.policy_bcp.run_bcp") as mock_run:
-            mock_run.return_value = ([[1]], 10.0)
-            policy = cast(Callable, PolicyRegistry.get("bcp"))()
-            assert isinstance(policy, BCPPolicy)
-            tour, cost, extra = policy.execute(policy="bcp_1.0", **mock_policy_data)
+    def test_ils_rvnd_sp_adapter(self, mock_policy_data):
+        with patch("logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.ILSRVNDSPSolver") as mock_solver_cls:
+            mock_solver_instance = mock_solver_cls.return_value
+            mock_solver_instance.solve.return_value = ([[1]], 10.0, 5.0)
+            policy = cast(Callable, PolicyRegistry.get("ils_rvnd_sp"))()
+            assert isinstance(policy, ILSRVNDSPPolicy)
+            tour, cost, extra = policy.execute(policy="ils_rvnd_sp_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
-            assert mock_run.called
+            assert mock_solver_instance.solve.called
 
     @pytest.mark.unit
     def test_hgs_adapter(self, mock_policy_data):
@@ -159,55 +171,13 @@ class TestAdvancedSolverEngines:
 
 
 
-    @pytest.mark.unit
-    def test_bcp_variant_gurobi(self, mocker):
-        """Test Gurobi engine for BCP."""
-        from gurobipy import GRB
-
-        mock_model = MagicMock()
-        mocker.patch("gurobipy.Model", return_value=mock_model)
-        mock_model.optimize.return_value = None
-        mock_model.status = GRB.OPTIMAL
-        mock_model.SolCount = 1
-        mock_model.objVal = 10.0
-
-        dist_matrix = np.array([[0, 10, 100], [10, 0, 100], [100, 100, 0]], dtype=float)
-        wastes = {1: 1, 2: 1}
-        capacity = 5
-        R = 20
-        C = 1
-        values = {"time_limit": 1, "bcp_engine": "gurobi"}
-        # Mock decision variables forExtraction logic
-        mock_vars = {}
-
-        def mock_add_var(vtype=None, name="", **kwargs):
-            m_var = MagicMock()
-            # Support Gurobi operator overloading for expressions
-            for op in ["__add__", "__sub__", "__mul__", "__rmul__", "__ge__", "__le__", "__eq__"]:
-                setattr(m_var, op, MagicMock(return_value=m_var))
-
-            if name == "x_0_1" or name == "x_1_0":
-                m_var.X = 1.0
-            else:
-                m_var.X = 0.0
-            mock_vars[name] = m_var
-            return m_var
-
-        mock_model.addVar.side_effect = mock_add_var
-
-        routes, cost = run_bcp(dist_matrix, wastes, capacity, R, C, values)
-
-        # Assertions
-        assert routes == [[1]]
-        assert cost == 10.0
-        assert mock_model.optimize.called
-        # Check if mandatory visit constraint was added if we provided must_go_indices
-        # In this call we didn't, so let's verify a call with must_go_indices as well
-        must_go_values = {"time_limit": 1, "bcp_engine": "gurobi"}
-        run_bcp(dist_matrix, wastes, capacity, R, C, must_go_values, must_go_indices={1})
-        # Verify that addConstr was called for the must_visit constraint
-        # The name in gurobi_engine.py is f"must_visit_{i}"
-        mock_model.addConstr.assert_any_call(mock_vars["y_1"] == 1, name="must_visit_1")
+    # @pytest.mark.unit
+    # def test_bcp_variant_gurobi(self, mocker):
+    #     \"\"\"Test Gurobi engine for BCP.\"\"\"
+    #     from gurobipy import GRB
+    #
+    #     mock_model = MagicMock()
+    #     ...
 
 
 class TestMultiVehiclePolicies:

@@ -19,12 +19,12 @@ from .gphh import GPHHConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
 from .hgsrr import HGSRRConfig
-from .hils import HILSConfig
 from .hmm_gd import HMMGDConfig
 from .hms import HybridMemeticSearchConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
+from .ils_rvnd_sp import ILSRVNDSPConfig
 from .kgls import KGLSConfig
 from .lca import LCAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
@@ -60,7 +60,7 @@ __all__ = [
     "HGSConfig",
     "HGSALNSConfig",
     "HGSRRConfig",
-    "HILSConfig",
+    "ILSRVNDSPConfig",
     "HVPLConfig",
     "KGLSConfig",
     "LKHConfig",
