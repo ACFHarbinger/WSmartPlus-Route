@@ -6,7 +6,7 @@ threshold that stays fixed for a specific number of steps before
 updating to the current solution's cost.
 """
 
-from ..other.local_search.base_acceptance_criteria import BaseAcceptanceSolver
+from ..base.base_acceptance_criteria import BaseAcceptanceSolver
 
 
 class SCHCSolver(BaseAcceptanceSolver):

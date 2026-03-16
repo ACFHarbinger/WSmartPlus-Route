@@ -9,7 +9,7 @@ G-VOT, or G-PVO.
 import math
 import time
 
-from ..other.local_search.base_acceptance_criteria import BaseAcceptanceSolver
+from ..base.base_acceptance_criteria import BaseAcceptanceSolver
 
 
 class EMASolver(BaseAcceptanceSolver):

@@ -5,7 +5,7 @@ Accepts candidate moves if their profit is greater than or equal to the current 
 Allows traversing plateau regions in the search space.
 """
 
-from ..other.local_search.base_acceptance_criteria import BaseAcceptanceSolver
+from ..base.base_acceptance_criteria import BaseAcceptanceSolver
 
 
 class IESolver(BaseAcceptanceSolver):
