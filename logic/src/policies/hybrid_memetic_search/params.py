@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..adaptive_large_neighborhood_search import ALNSParams
-from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import ACOParams
 
 
 @dataclass

@@ -8,10 +8,11 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies import ACOConfig
-from logic.src.policies.ant_colony_optimization.k_sparse_aco import run_k_sparse_aco
+from logic.src.configs.policies import KSparseACOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
+
+from .runner import run_k_sparse_aco
 
 
 @PolicyRegistry.register("aco")
@@ -22,17 +23,17 @@ class ACOPolicy(BaseRoutingPolicy):
     Uses ACS with sparse pheromone matrix for efficient VRP solving.
     """
 
-    def __init__(self, config: Optional[Union[ACOConfig, Dict[str, Any]]] = None):
+    def __init__(self, config: Optional[Union[KSparseACOConfig, Dict[str, Any]]] = None):
         """Initialize ACO policy with optional config.
 
         Args:
-            config: ACOConfig dataclass, raw dict from YAML, or None.
+            config: KSparseACOConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return ACOConfig
+        return KSparseACOConfig
 
     def _get_config_key(self) -> str:
         """Return config key for ACO."""

@@ -1,25 +1,21 @@
 """Tests for policy implementations and solver engines."""
 
-import sys
-from unittest.mock import MagicMock, PropertyMock, patch
+from typing import Callable, cast
+from unittest.mock import patch
 
-import networkx as nx
 import numpy as np
-import pandas as pd
 import pytest
-import torch
-from typing import cast, Callable
-
-from logic.src.policies.travelling_salesman_problem import tsp
-from logic.src.policies.capacitated_vehicle_routing_problem import cvrp
-from logic.src.policies.base import PolicyRegistry
 from logic.src.policies import run_hgs
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import run_vrpp_optimizer
-from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import run_alns, ALNSPolicy
-# from logic.src.policies.branch_cut_and_price.policy_bcp import run_bcp, BCPPolicy
+from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
+from logic.src.policies.base import PolicyRegistry
+from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
+
+# from logic.src.policies.branch_price_cut.policy_bcp import run_bcp, BCPPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
-from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import ILSRVNDSPPolicy
+from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import (
+    ILSRVNDSPPolicy,
+)
+from logic.src.policies.travelling_salesman_problem import tsp
 
 
 class MockBins:
@@ -77,7 +73,7 @@ class TestPolicyAdapters:
 
     # @pytest.mark.unit
     # def test_bcp_adapter(self, mock_policy_data):
-    #     with patch("logic.src.policies.branch_cut_and_price.policy_bcp.run_bcp") as mock_run:
+    #     with patch("logic.src.policies.branch_price_cut.policy_bcp.run_bcp") as mock_run:
     #         mock_run.return_value = ([[1]], 10.0)
     #         policy = cast(Callable, PolicyRegistry.get("bcp"))()
     #         assert isinstance(policy, BCPPolicy)

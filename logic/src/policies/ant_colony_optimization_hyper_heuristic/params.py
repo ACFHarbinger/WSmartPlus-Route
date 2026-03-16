@@ -9,7 +9,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco.params import HyperACOParams
+    >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic.params import HyperACOParams
     >>> params = HyperACOParams(n_ants=10, alpha=1.0)
 """
 
@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from logic.src.configs.policies import ACOConfig
+    from logic.src.configs.policies import HyperHeuristicACOConfig
 
 from .hyper_operators import OPERATOR_NAMES
 
@@ -65,11 +65,11 @@ class HyperACOParams:
             raise ValueError(f"Exploitation probability q0 must be in [0, 1], got {self.q0}")
 
     @classmethod
-    def from_config(cls, config: ACOConfig) -> HyperACOParams:
-        """Create HyperACOParams from an ACOConfig dataclass.
+    def from_config(cls, config: HyperHeuristicACOConfig) -> HyperACOParams:
+        """Create HyperACOParams from an HyperHeuristicACOConfig dataclass.
 
         Args:
-            config: ACOConfig dataclass with solver parameters.
+            config: HyperHeuristicACOConfig dataclass with solver parameters.
 
         Returns:
             HyperACOParams instance with values from config.

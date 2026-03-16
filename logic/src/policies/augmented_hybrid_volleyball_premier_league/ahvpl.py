@@ -25,7 +25,7 @@ from logic.src.policies.other.operators.crossover import ordered_crossover
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
-from ..ant_colony_optimization.k_sparse_aco.solver import KSparseACOSolver
+from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
 from ..hybrid_genetic_search.evolution import (
     evaluate,
     update_biased_fitness,

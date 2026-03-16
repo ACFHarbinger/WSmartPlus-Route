@@ -56,7 +56,7 @@ class PSOMAsSolver(PolicyVizMixin):
         self.random = random.Random(seed) if seed is not None else random.Random()
 
         # Initialize Local Search once for reuse
-        from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+        from ..ant_colony_optimization_k_sparse.params import ACOParams
 
         aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
         self.ls = ACOLocalSearch(

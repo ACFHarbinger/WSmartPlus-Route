@@ -20,7 +20,7 @@ from logic.src.policies.reinforcement_learning_hybrid_volleyball_premier_league.
 )
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+from ..ant_colony_optimization_k_sparse.params import ACOParams
 
 
 @PolicyRegistry.register("rl_hvpl")

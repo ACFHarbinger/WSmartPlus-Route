@@ -8,10 +8,11 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies import ACOConfig
-from logic.src.policies.ant_colony_optimization.hyper_heuristic_aco import run_hyper_heuristic_aco
+from logic.src.configs.policies import HyperHeuristicACOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
+
+from .runner import run_hyper_heuristic_aco
 
 
 @PolicyRegistry.register("hyper_aco")
@@ -22,17 +23,17 @@ class HyperACOPolicy(BaseRoutingPolicy):
     Uses ACO to construct sequences of local search operators.
     """
 
-    def __init__(self, config: Optional[Union[ACOConfig, Dict[str, Any]]] = None):
+    def __init__(self, config: Optional[Union[HyperHeuristicACOConfig, Dict[str, Any]]] = None):
         """Initialize Hyper-ACO policy with optional config.
 
         Args:
-            config: ACOConfig dataclass, raw dict from YAML, or None.
+            config: HyperHeuristicACOConfig dataclass, raw dict from YAML, or None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return ACOConfig
+        return HyperHeuristicACOConfig
 
     def _get_config_key(self) -> str:
         """Return config key for Hyper-ACO."""

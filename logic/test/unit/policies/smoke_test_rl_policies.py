@@ -1,9 +1,10 @@
 import numpy as np
 
+
 def test_rl_alns_solver():
     print("\n=== Testing RLALNSSolver ===")
-    from logic.src.policies.rl_alns.solver import RLALNSSolver
     from logic.src.policies.rl_alns.params import RLALNSParams
+    from logic.src.policies.rl_alns.solver import RLALNSSolver
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
@@ -34,9 +35,11 @@ def test_rl_alns_solver():
 
 def test_ahvpl_rl_solver():
     print("\n=== Testing AHVPLRLSolver ===")
-    from logic.src.policies.rl_ahvpl.solver import RLAHVPLSolver as AHVPLRLSolver
-    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import RLAHVPLParams
     from logic.src.policies.ant_colony_optimization.k_sparse_aco.params import ACOParams
+    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
+        RLAHVPLParams,
+    )
+    from logic.src.policies.rl_ahvpl.solver import RLAHVPLSolver as AHVPLRLSolver
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])

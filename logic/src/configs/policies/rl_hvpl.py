@@ -5,7 +5,7 @@ RL-HVPL (Reinforcement Learning Hybrid Volleyball Premier League) configuration 
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .aco import ACOConfig
+from .aco_ks import KSparseACOConfig
 from .alns import ALNSConfig
 from .other import RLConfig
 
@@ -33,7 +33,7 @@ class RLHVPLConfig:
     profit_weight: float = 1.0
 
     # Nested component configs
-    aco: ACOConfig = field(default_factory=ACOConfig)
+    aco: KSparseACOConfig = field(default_factory=KSparseACOConfig)
     alns: ALNSConfig = field(default_factory=ALNSConfig)
 
     # RL Configuration (Centralized)

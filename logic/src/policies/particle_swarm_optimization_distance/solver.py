@@ -35,7 +35,6 @@ References:
     Computers & Operations Research, 36(6), 1693-1702.
 """
 
-import contextlib
 import copy
 import random
 import time
@@ -101,7 +100,7 @@ class DistancePSOSolver(PolicyVizMixin):
         self.personal_best_fitness: List[float] = []  # f(pbest) for each particle
 
         # Initialize Local Search once for reuse
-        from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+        from ..ant_colony_optimization_k_sparse.params import ACOParams
         from ..other.local_search.local_search_aco import ACOLocalSearch
 
         aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)

@@ -2,10 +2,11 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.other.must_go.selection_regular import RegularSelection
+from logic.src.policies.other.must_go.base.selection_context import SelectionContext
 from logic.src.policies.other.must_go.selection_last_minute import LastMinuteSelection
 from logic.src.policies.other.must_go.selection_lookahead import LookaheadSelection
-from logic.src.policies.other.must_go.base.selection_context import SelectionContext
+from logic.src.policies.other.must_go.selection_regular import RegularSelection
+
 
 @pytest.fixture
 def base_context():

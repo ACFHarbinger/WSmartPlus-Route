@@ -10,7 +10,7 @@ Reference:
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .aco import ACOConfig
+from .aco_ks import KSparseACOConfig
 from .alns import ALNSConfig
 
 
@@ -45,8 +45,8 @@ class HVPLConfig:
     seed: Optional[int] = None
 
     # Nested component configs
-    aco: ACOConfig = field(
-        default_factory=lambda: ACOConfig(
+    aco: KSparseACOConfig = field(
+        default_factory=lambda: KSparseACOConfig(
             n_ants=20,
             k_sparse=10,
             alpha=1.0,

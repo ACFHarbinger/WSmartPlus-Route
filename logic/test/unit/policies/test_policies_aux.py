@@ -7,30 +7,41 @@ This module consolidates tests for:
 - ALNS (Adaptive Large Neighborhood Search) auxiliary functions (destroy, repair)
 """
 
-from unittest.mock import patch
 
-from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
-    find_initial_solution, compute_initial_solution
-)
 import random
-from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.sans import (
-    improved_simulated_annealing,
-)
+
 import numpy as np
 import pandas as pd
 import pytest
-
-# HGS and ALNS auxiliary imports
-from logic.src.policies.other.operators import destroy as destroy_operators, repair as repair_operators
-from logic.src.policies.hybrid_genetic_search import evolution, params as hgs_params, individual
-from logic.src.policies.other.operators.crossover import ordered_crossover
+from logic.src.policies.hybrid_genetic_search import evolution, individual
+from logic.src.policies.hybrid_genetic_search import params as hgs_params
 from logic.src.policies.hybrid_genetic_search import split as split_module
 from logic.src.policies.other.local_search import local_search_base
+
+# HGS and ALNS auxiliary imports
+from logic.src.policies.other.operators import destroy as destroy_operators
+from logic.src.policies.other.operators import repair as repair_operators
+from logic.src.policies.other.operators.crossover import ordered_crossover
 
 # Look-ahead auxiliary imports
 from logic.src.policies.simulated_annealing_neighborhood_search.common.check import (
     check_bins_overflowing_feasibility,
     check_solution_admissibility,
+)
+from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
+    compute_initial_solution,
+    find_initial_solution,
+)
+from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.sans import (
+    improved_simulated_annealing,
+)
+from logic.src.policies.simulated_annealing_neighborhood_search.operators import (
+    swap_1_route,
+    swap_2_routes,
+    swap_n_2_routes_consecutive,
+    swap_n_2_routes_random,
+    swap_n_route_consecutive,
+    swap_n_route_random,
 )
 from logic.src.policies.simulated_annealing_neighborhood_search.operators.move import (
     move_1_route,
@@ -47,14 +58,6 @@ from logic.src.policies.simulated_annealing_neighborhood_search.select import (
     add_route_with_removed_bins_random,
     remove_bin,
     remove_n_bins_random,
-)
-from logic.src.policies.simulated_annealing_neighborhood_search.operators import (
-    swap_1_route,
-    swap_2_routes,
-    swap_n_2_routes_consecutive,
-    swap_n_2_routes_random,
-    swap_n_route_consecutive,
-    swap_n_route_random,
 )
 
 # ============================================================================

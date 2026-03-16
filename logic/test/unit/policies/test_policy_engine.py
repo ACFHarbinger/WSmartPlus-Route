@@ -5,10 +5,10 @@ import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvp
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.base import PolicyFactory
-from logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
 from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
-from logic.src.policies.branch_cut_and_price.policy_bcp import BCPPolicy
+from logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
+from logic.src.policies.base import PolicyFactory
+from logic.src.policies.branch_price_cut.policy_bpc import BCPPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
 from logic.src.policies.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
 from logic.src.policies.vehicle_routing_problem_with_profits.policy_vrpp import VRPPPolicy
@@ -53,7 +53,7 @@ def mock_engine_data():
         "new_data": new_data,
         "coords": coords,
         "config": {
-            "bcp": {"bcp_engine": "ortools"},
+            "bpc": {"bcp_engine": "ortools"},
             "hgs": {"engine": None},
             "alns": {"engine": None},
             "vrpp": {},
@@ -79,14 +79,14 @@ def test_policy_factory_standardized():
 
 @pytest.mark.unit
 def test_bcp_engine_override(mock_engine_data):
-    with patch("logic.src.policies.branch_cut_and_price.policy_bcp.run_bcp") as mock_run:
+    with patch("logic.src.policies.branch_price_cut.policy_bpc.run_bpc") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0)
 
-        policy = PolicyFactory.get_adapter("bcp")
+        policy = PolicyFactory.get_adapter("bpc")
         assert isinstance(policy, BCPPolicy)
         policy.execute(**mock_engine_data)
 
-        # Verify run_bcp was called
+        # Verify run_bpc was called
         assert mock_run.called
         args, kwargs = mock_run.call_args
         # kwargs['env'] should be present

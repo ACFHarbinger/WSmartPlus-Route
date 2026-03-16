@@ -3,7 +3,8 @@ Policy configuration dataclasses.
 """
 
 from .abc import ABCConfig
-from .aco import ACOConfig
+from .aco_hh import HyperHeuristicACOConfig
+from .aco_ks import KSparseACOConfig
 from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
 from .bpc import BPCConfig
@@ -48,7 +49,8 @@ from .vpl import VPLConfig
 from .vrpp import VRPPConfig
 
 __all__ = [
-    "ACOConfig",
+    "KSparseACOConfig",
+    "HyperHeuristicACOConfig",
     "AHVPLConfig",
     "ALNSConfig",
     "BPCConfig",

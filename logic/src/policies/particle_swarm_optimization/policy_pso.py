@@ -7,6 +7,7 @@ Policy adapter for Particle Swarm Optimization (PSO).
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
 from logic.src.interfaces.adapter import IPolicyAdapter
 from logic.src.policies.base.registry import PolicyRegistry
 
