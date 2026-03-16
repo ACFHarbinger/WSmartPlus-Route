@@ -123,7 +123,7 @@ THRESHOLD_POLICIES = [
     "sans",   # Cooling rate (e.g., "sans_0.95")
     "hgs",    # Max iterations (e.g., "hgs_10000")
     "alns",   # Max iterations (e.g., "alns_5000")
-    "bcp",    # Time limit (e.g., "bcp_300" → 300 seconds)
+    "bpc",    # Time limit (e.g., "bpc_300" → 300 seconds)
 ]
 ```
 
@@ -172,7 +172,7 @@ SIMPLE_POLICIES = {
     ("regular",): "regular",
 
     # Classical solvers → direct mapping
-    ("bcp",): "bcp",
+    ("bpc",): "bpc",
     ("lkh",): "lkh",
     ("tsp",): "tsp",
     ("cvrp",): "cvrp",
@@ -631,7 +631,7 @@ def forward(self, x):
 #### `n_nodes` (Customer Nodes in Solvers)
 
 **Excludes**: Depot
-**Usage**: Classical solvers (HGS, ALNS, BCP) - local/instance variables
+**Usage**: Classical solvers (HGS, ALNS, BPC) - local/instance variables
 **Computed**: `n_nodes = len(dist_matrix) - 1`
 
 ```python

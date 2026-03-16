@@ -1,7 +1,5 @@
 """
 (μ+λ) Evolution Strategy for VRPP.
-
-Rigorous implementation replacing metaphor-based "Harmony Search".
 """
 
 from .params import MuPlusLambdaESParams

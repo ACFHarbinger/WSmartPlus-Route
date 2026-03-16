@@ -1,5 +1,5 @@
 """
-BCP (Branch-Cut-and-Price) configuration.
+BPC (Branch-and-Price-and-Cut) configuration.
 """
 
 from dataclasses import dataclass
@@ -10,8 +10,8 @@ from .other.post_processing import PostProcessingConfig
 
 
 @dataclass
-class BCPConfig:
-    """Configuration for Branch-Cut-and-Price (BCP) policy.
+class BPCConfig:
+    """Configuration for Branch-and-Price-and-Cut (BPC) policy.
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.

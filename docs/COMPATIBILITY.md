@@ -89,7 +89,7 @@ Best-practice configurations for different problem types.
 | **TSP**       | `tsp`          | Heuristic         | ✅  | ✅¹  |  -   |   -   |    -    |
 | **LKH**       | `lkh`          | Heuristic         | ✅  | ✅¹  |  -   |   -   |    -    |
 | **CVRP**      | `cvrp`         | MV Solver         |  -  |  ✅  |  ✅  |  ✅   |    -    |
-| **BCP**       | `bcp`          | Exact / Heuristic |  -  |  ✅  |  ✅  |  ✅   |    -    |
+| **BPC**       | `bpc`          | Exact / Heuristic |  -  |  ✅  |  ✅  |  ✅   |    -    |
 | **VRPP**      | `vrpp`         | Exact / Heuristic |  -  |  -   |  ✅  |   -   |    -    |
 | **ALNS**      | `alns`         | Metaheuristic     |  -  |  ✅  |  ✅  |  ✅   |    -    |
 | **HGS**       | `hgs`          | Metaheuristic     |  -  |  ✅  |  ✅  |  ✅   |    -    |
@@ -110,7 +110,7 @@ Several policies expose multiple backend engines:
 | Policy   | Engine Options           | Default |
 | :------- | :----------------------- | :------ |
 | **CVRP** | PyVRP, OR-Tools          | PyVRP   |
-| **BCP**  | Gurobi, OR-Tools, VRPy   | Gurobi  |
+| **BPC**  | Gurobi, OR-Tools, VRPy   | Gurobi  |
 | **VRPP** | Gurobi, Hexaly           | Gurobi  |
 | **ALNS** | custom, package, ortools | custom  |
 | **HGS**  | custom, PyVRP            | custom  |
@@ -120,7 +120,7 @@ Several policies expose multiple backend engines:
 
 | Category                 | Policies                                             |
 | :----------------------- | :--------------------------------------------------- |
-| **Exact**                | BCP (Gurobi), VRPP (Gurobi)                          |
+| **Exact**                | BPC (Gurobi), VRPP (Gurobi)                          |
 | **Heuristic**            | TSP (`fast_tsp`), LKH (Lin-Kernighan), VRPP (Hexaly) |
 | **Multi-Vehicle Solver** | CVRP (PyVRP / OR-Tools)                              |
 | **Metaheuristic**        | ALNS, HGS, ACO, SISR, SANS                           |

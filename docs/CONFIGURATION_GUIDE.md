@@ -256,7 +256,7 @@ assets/configs/
     ├── policy_hgs.yaml        # Hybrid Genetic Search
     ├── policy_alns.yaml       # Adaptive Large Neighborhood Search
     ├── policy_hgs_alns.yaml   # HGS-ALNS Hybrid
-    ├── policy_bcp.yaml        # Branch-Cut-and-Price (exact)
+    ├── policy_bpc.yaml        # Branch-and-Price-and-Cut (exact)
     ├── policy_hh_aco.yaml     # Hyper-Heuristic ACO
     ├── policy_ks_aco.yaml     # K-Sparse ACO
     ├── policy_lkh.yaml        # Lin-Kernighan-Helsgaun
@@ -667,7 +667,7 @@ hgs_alns:
 
 **Performance:** Often 0.5-1.5% better than pure HGS, at 50-100% higher runtime.
 
-#### 5.4 Branch-Cut-and-Price: `policies/policy_bcp.yaml`
+#### 5.4 Branch-and-Price-and-Cut: `policies/policy_bpc.yaml`
 
 **Algorithm:** Exact optimization via integer programming.
 

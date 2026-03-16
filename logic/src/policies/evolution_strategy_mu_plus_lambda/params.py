@@ -1,9 +1,8 @@
 """
-Configuration parameters for the (μ+λ) Evolution Strategy solver.
+Configuration parameters for the (μ+λ) Evolution Strategy.
 
-This replaces the metaphor-based "Harmony Search" with rigorous terminology.
-
-IMPORTANT: To exactly match Harmony Search, set λ=1 (offspring_size=1).
+This module adheres to the standard notation where μ represents
+the parent population and λ represents the offspring population.
 """
 
 from __future__ import annotations
@@ -13,47 +12,38 @@ from dataclasses import dataclass
 
 @dataclass
 class MuPlusLambdaESParams:
-    """
-    Parameters for (μ+λ) Evolution Strategy.
+    r"""
+    Parameters for the (μ+λ) Evolution Strategy.
 
-    A (μ+λ)-ES maintains a population of μ parent solutions. Each iteration:
-    1. Select parents to create λ offspring.
-    2. Create offspring via recombination (using archive solutions).
-    3. Apply mutation operator (local perturbation).
-    4. Combine parents and offspring (μ+λ individuals).
-    5. Select the best μ individuals to survive to the next generation.
-
-    This is the canonical interpretation of what "Harmony Search" actually implements
-    when λ=1. The Harmony Search algorithm generates exactly 1 new harmony per
-    iteration and replaces the worst if better, which is equivalent to (μ+1)-ES.
+    A (μ+λ)-ES maintains a population of μ parent solutions. In each iteration,
+    it generates λ offspring through recombination and mutation.
+    The selection operator then selects the absolute best μ individuals from the
+    combined pool of μ parents and λ offspring to form the next generation.
 
     Attributes:
-        population_size (μ): Number of parent solutions in archive.
-                             Equivalent to Harmony Search "hm_size".
-        offspring_size (λ): Number of offspring generated per iteration.
-                           Set to 1 for exact Harmony Search equivalence.
-        recombination_rate: Probability of using archive solutions (vs. random).
-                           Equivalent to Harmony Search "HMCR".
-        mutation_rate: Probability of applying local mutation after recombination.
-                      Equivalent to Harmony Search "PAR".
-        max_iterations: Maximum number of evolution cycles.
-        local_search_iterations: Number of local search improvement steps.
-        time_limit: Wall-clock time limit in seconds (0 = no limit).
+        mu (int): The number of parent individuals maintained in the population ($\mu$).
+            This acts as an archive of the best-found solutions, guaranteeing
+            strong elitism and monotonic improvement.
 
-    Complexity:
-        - Space: O(μ × n) for population storage
-        - Time per iteration: O(λ × n²) for offspring generation and evaluation
+        lambda_ (int): The number of offspring generated per generation ($\lambda$).
+            This defines the exploration capacity per cycle.
 
-    Note:
-        The default λ=1 ensures exact equivalence with Harmony Search.
-        Larger λ values create a generalized (μ+λ)-ES with faster convergence
-        but may reduce diversity compared to the original HS algorithm.
+        n_removal (int): The mutation strength parameter. Defines the number
+            of nodes removed during the destroy-repair mutation phase.
+
+        max_iterations (int): The generational loop limit. Serves as a
+            primary termination criterion for the search process.
+
+        local_search_iterations (int): The intensity of the local optimization
+            applied to each offspring.
+
+        time_limit (float): Wall-clock duration in seconds. The algorithm
+            will terminate early if the process time exceeds this threshold.
     """
 
-    population_size: int = 10  # μ parameter (equivalent to hm_size)
-    offspring_size: int = 1  # λ parameter
-    recombination_rate: float = 0.95  # Equivalent to HMCR
-    mutation_rate: float = 0.3  # Equivalent to PAR
+    mu: int = 10  # Parent population size (μ)
+    lambda_: int = 5  # Offspring population size (λ)
+    n_removal: int = 3  # Mutation strength
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0

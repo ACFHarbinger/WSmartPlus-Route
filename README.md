@@ -254,7 +254,7 @@ We provide a comprehensive library of neural architectures and classical policie
 | -------------- | --------------- | ---------------------------------------------- |
 | **LookAhead**  | Rolling Horizon | N-day planning with sub-optimization           |
 | **ALNS**       | Metaheuristic   | Destroy-repair operators with adaptive weights |
-| **BCP**        | Exact           | Branch-Cut-and-Price via Gurobi/OR-Tools       |
+| **BPC**        | Exact           | Branch-and-Price-and-Cut via Gurobi/OR-Tools   |
 | **HGS**        | Genetic         | Evolutionary operators with local search       |
 | **Regular**    | Baseline        | Fixed-schedule periodic collection             |
 | **LastMinute** | Reactive        | Threshold-triggered collection                 |

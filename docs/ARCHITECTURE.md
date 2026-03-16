@@ -70,7 +70,7 @@ The system operates on a **hybrid architecture** where DRL agents learn to const
 | -------------------------- | ----------------------------------------------------------------------------------------- |
 | **Simulation**             | Event-driven simulator for waste collection logistics over temporal horizons (1-365 days) |
 | **Neural Optimization**    | Attention-based models for constructive routing (AM, TAM, DDAM)                           |
-| **Classical Optimization** | Suite of solvers: exact (BCP), metaheuristics (ALNS, HGS), heuristics                     |
+| **Classical Optimization** | Suite of solvers: exact (BPC), metaheuristics (ALNS, HGS), heuristics                     |
 | **Hierarchical RL**        | Manager-Worker architecture for multi-level decision making                               |
 | **Interactive GUI**        | PySide6 application for visualization and control                                         |
 | **CLI/TUI**                | Modular command-line interface with interactive terminal UI                               |

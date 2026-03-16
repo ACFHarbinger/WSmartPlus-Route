@@ -1,7 +1,9 @@
 """
 Configuration parameters for (μ,λ) Evolution Strategy.
 
-This replaces the metaphor-based "Artificial Bee Colony" with rigorous terminology.
+This module defines the structural constraints and hyper-parameters required to
+instantiate a generational Evolution Strategy. It follows the standard notation
+where μ represents the parent population and λ represents the offspring population.
 """
 
 from __future__ import annotations
@@ -12,53 +14,50 @@ from dataclasses import dataclass
 @dataclass
 class MuCommaLambdaESParams:
     """
-    Parameters for (μ,λ) Evolution Strategy with multi-phase random search.
+    Parameters for (μ,λ) Evolution Strategy with deterministic truncation selection.
 
-    A (μ,λ)-ES maintains μ parents and generates λ offspring each iteration:
-    1. **Local Search Phase**: Each parent generates offspring via localized mutation
-    2. **Probabilistic Selection Phase**: Offspring compete via fitness-proportional selection
-    3. **Random Restart Phase**: Stagnant solutions are replaced with new random samples
-
-    This is the canonical interpretation of what "Artificial Bee Colony" actually implements
-    when stripped of bee metaphors:
-    - "Employed bees" → Local search agents (exploitation)
-    - "Onlooker bees" → Probabilistic selection mechanism
-    - "Scout bees" → Random restart mechanism (exploration)
+    A (μ,λ)-ES maintains a parent population of size μ and generates λ offspring
+    each iteration. This configuration ensures a memoryless stochastic process
+    (Markov process), where the next parent population is derived strictly from
+    the current offspring pool.
 
     Attributes:
-        population_size (μ): Number of parent solutions maintained.
-        offspring_per_parent (λ/μ): Number of offspring per parent.
-        n_removal: Perturbation strength (nodes removed during mutation).
-        stagnation_limit: Restart threshold for solutions without improvement.
-        max_iterations: Maximum number of evolution cycles.
-        local_search_iterations: Number of local search improvement steps.
-        time_limit: Wall-clock time limit in seconds (0 = no limit).
+        mu (int): The number of parent individuals maintained in the population (μ).
+            A larger μ improves collective hillclimbing and reliability in
+            multi-modal landscapes.
+            Default follows standard big population settings.
 
-    Complexity:
-        - Space: O(μ × n) for parent storage + O(λ × n) for offspring
-        - Time per iteration: O(λ × n²) for offspring generation and evaluation
+        lambda_ (int): The number of offspring generated in each generation (λ).
+            Standard (μ,λ) theory suggests that λ should be significantly
+            larger than μ (e.g., λ ≈ 7μ) to ensure efficient step-size
+            self-adaptation.
+
+        n_removal (int): The mutation strength parameter. Defines the number
+            of nodes removed during the destroy-repair mutation phase. This acts
+            as the random perturbation added to components of the candidate
+            solution.
+
+        max_iterations (int): The generational loop limit. Serves as a
+            primary termination criterion for the search process.
+
+        local_search_iterations (int): The intensity of the local optimization
+            applied to each offspring. This governs the fine-tuning of
+            candidate solutions post-mutation.
+
+        time_limit (float): Wall-clock duration in seconds. The algorithm
+            will terminate early if the process time exceeds this threshold
+            to ensure compliance with real-time operational constraints.
 
     Mathematical Foundation:
-        Each iteration:
-        1. Generate λ offspring from μ parents (λ ≥ μ)
-        2. Select best μ from offspring (non-elitist: parents discarded)
-        3. Restart stagnant solutions after limit iterations without improvement
+        1. Variation: λ offspring are produced through recombination (averaging
+           or discrete selection) and mutation.
+        2. Selection: The parent population P_{t+1} is formed by selecting the
+           absolute best μ individuals from the λ offspring pool.
     """
 
-    population_size: int = 20  # μ parameter
-    offspring_per_parent: int = 1  # λ = μ × offspring_per_parent
+    mu: int = 15  # Parent population size (μ)
+    lambda_: int = 100  # Offspring population size (λ)
     n_removal: int = 3  # Mutation strength
-    stagnation_limit: int = 10  # Random restart threshold
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0
-
-    @property
-    def n_sources(self) -> int:
-        """Alias for population_size to match ABC exactly."""
-        return self.population_size
-
-    @property
-    def limit(self) -> int:
-        """Alias for stagnation_limit to match ABC exactly."""
-        return self.stagnation_limit

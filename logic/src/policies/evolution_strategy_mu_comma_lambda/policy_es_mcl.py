@@ -1,7 +1,7 @@
 """
 (μ,λ) Evolution Strategy Policy Adapter.
 
-Adapts the rigorous (μ,λ)-ES implementation (replaces Artificial Bee Colony).
+Adapts the rigorous (μ,λ)-ES implementation into the overarching policy registry.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -19,11 +19,12 @@ class MuCommaLambdaESPolicy(BaseRoutingPolicy):
     """
     (μ,λ) Evolution Strategy policy class.
 
-    Multi-phase ES with random restart. Replaces Artificial Bee Colony.
+    Executes a strict generational evolutionary algorithm with truncation selection.
     """
 
     def __init__(self, config: Optional[Union[MuCommaLambdaESConfig, Dict[str, Any]]] = None):
-        """Initialize (μ,λ)-ES policy with optional config.
+        """
+        Initialize (μ,λ)-ES policy with optional config.
 
         Args:
             config: MuCommaLambdaESConfig dataclass, raw dict from YAML, or None.
@@ -55,13 +56,13 @@ class MuCommaLambdaESPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
+        # Map configuration dictionary to strict ES parameters
         params = MuCommaLambdaESParams(
-            population_size=values.get("population_size", 20),
-            offspring_per_parent=values.get("offspring_per_parent", 1),
+            mu=values.get("mu", 15),
+            lambda_=values.get("lambda_", 100),
             n_removal=values.get("n_removal", 3),
-            stagnation_limit=values.get("stagnation_limit", 10),
             max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 500),
+            local_search_iterations=values.get("local_search_iterations", 100),
             time_limit=values.get("time_limit", 60.0),
         )
 

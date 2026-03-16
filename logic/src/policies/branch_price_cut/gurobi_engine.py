@@ -1,5 +1,5 @@
 """
-Gurobi engine for Branch-Cut-and-Price module.
+Gurobi engine for Branch-and-Price-and-Cut module.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -128,7 +128,7 @@ def _extract_solution(
     return routes, model.objVal
 
 
-def run_bcp_gurobi(
+def run_bpc_gurobi(
     dist_matrix: Any,
     wastes: Dict[int, float],
     capacity: float,

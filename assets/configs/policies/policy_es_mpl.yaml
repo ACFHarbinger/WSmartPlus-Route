@@ -1,127 +1,84 @@
-# (μ+1) Evolution Strategy Policy Configuration
+# (μ+λ) Evolution Strategy Policy Configuration
 
 # =============================================================================
-# (μ+1) Evolution Strategy Policy Configuration
+# (μ+λ) Evolution Strategy Policy Configuration
 # =============================================================================
 # PURPOSE:
-#   Canonical (μ+1) evolution strategy maintaining a population of μ parent
-#   solutions. Each iteration generates one offspring via recombination and
-#   mutation, replacing the worst parent if offspring is better.
+#   Canonical (μ+λ) evolution strategy. Maintains a population of μ parent
+#   solutions. Each iteration generates λ offspring via recombination and
+#   mutation, and selects the absolute best μ individuals from the combined
+#   pool of parents and offspring.
 #
 # ALGORITHM:
-#   1. Select parent(s) uniformly or via fitness-proportional selection
-#   2. Create offspring via recombination (using archived solutions)
-#   3. Apply mutation operator (local perturbation)
-#   4. Replace worst parent if offspring fitness is superior (elitist)
+#   1. Variation: Create λ offspring via recombination and mutative local perturbation.
+#   2. Pool: Combine the μ parents and λ offspring into a single group of size (μ+λ).
+#   3. Selection: Elitist truncation selection; keep only the top μ individuals.
 #
 # PERFORMANCE:
 #   Steady-state evolutionary algorithm with strong elitism. Convergence
-#   typically slower than (μ,λ)-ES but guaranteed monotonic improvement.
+#   is typically slower but guarantees monotonic improvement since the best
+#   parents are never lost unless strictly outperformed.
 #
 # REFERENCE:
 #   Beyer, H. G., & Schwefel, H. P. (2002). "Evolution strategies–A comprehensive
 #   introduction." Natural Computing, 1(1), 3-52.
-#
-# NOTE:
-#   Originally mislabeled as "Harmony Search" due to musical metaphor.
-#   This is fundamentally a (μ+1)-ES with archive-based recombination.
-#
-# TYPICAL USE CASES:
-#   - Problems requiring guaranteed solution quality improvement
-#   - Small to medium routing instances (20-100 nodes)
-#   - Scenarios where population diversity is less critical
 # =============================================================================
 
 es_mpl:
   custom:
     # ---------------------------------------------------------------------
-    # Population Parameters (μ+1)
+    # Population Parameters (μ+λ)
     # ---------------------------------------------------------------------
-    - population_size: 10
+    - mu: 10
       # Number of parent solutions in archive (μ parameter)
       # Range: 5-30
-      # Recommendation: 10 for balanced diversity/convergence
+      # Recommendation: 10 for balanced diversity and convergence
 
-    - offspring_size: 1
+    - lambda_: 5
       # Number of offspring generated per cycle (λ parameter)
-      # IMPORTANT: MUST be 1 for exact Harmony Search equivalence
-      # Larger values create a generalized (μ+λ)-ES with faster convergence
-      # but break algorithmic equivalence with Harmony Search
+      # Range: 1-10
+      # Recommendation: 5. (If set to 1, this operates as a pure (μ+1)-ES).
 
     # ---------------------------------------------------------------------
     # Genetic Operators
     # ---------------------------------------------------------------------
-    - recombination_rate: 0.9
-      # Probability of using archive solutions (vs. random generation)
-      # Range: 0.5-1.0
-      # Recommendation: 0.95 for strong exploitation of archive
-      # Higher values increase reliance on existing solutions
-
-    - mutation_rate: 0.3
-      # Probability of applying local mutation after recombination
-      # Range: 0.1-0.5
-      # Recommendation: 0.3 for moderate perturbation
-      # Balances exploitation (recombination) with exploration (mutation)
+    - n_removal: 3
+      # Perturbation strength (number of nodes removed during mutation)
+      # Range: 1-10
+      # Recommendation: 3 for moderate perturbation
 
     # ---------------------------------------------------------------------
     # Local Search Parameters
     # ---------------------------------------------------------------------
     - local_search_iterations: 100
       # Number of local search improvement steps per offspring
-      # Range: 50-200
-      # Recommendation: 100 for balanced improvement
 
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
     - max_iterations: 500
       # Maximum number of evolution cycles
-      # Range: 100-1000
-      # Recommendation: 500 for production
 
     - time_limit: 60.0
       # Maximum wall-clock seconds for optimization
-      # Range: 10-600 (0 = unlimited)
-      # Recommendation: 60s for production
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: logic/src/policies/evolution_strategy_mu_plus_one/
-
     - must_go: ["other/mg_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
-      # See: docs/MUST_GO_STRATEGIES.md
-
     - post_processing: []
-      # Route refinement heuristics applied after optimization
-      # Empty list = use raw output
-      # Options: ["2opt_intra", "relocate", "swap"]
 
 # =============================================================================
 # ALGORITHM STRUCTURE
 # =============================================================================
 # Each iteration:
-#   1. Select parent(s) from population
-#   2. Recombination:
-#      - With probability recombination_rate: combine archive solutions
-#      - Otherwise: generate random solution
-#   3. Mutation:
-#      - With probability mutation_rate: apply local perturbation
-#   4. Local search improvement
-#   5. Replacement:
-#      - If offspring fitness > worst parent fitness: replace worst
-#      - Otherwise: discard offspring (elitist strategy)
+#   1. Recombination & Mutation -> λ Offspring
+#   2. Evaluate all offspring
+#   3. Sort Pool of (μ + λ)
+#   4. Retain top μ.
 #
 # Complexity:
-#   - Space: O(μ × n) for population storage
-#   - Time per iteration: O(n) for mutation + O(n²) for evaluation
-#
-# Interpretation of "Harmony Search" Metaphor:
-#   - "Harmony Memory" → Population archive (μ solutions)
-#   - "Harmony Memory Consideration Rate" → Recombination rate
-#   - "Pitch Adjustment Rate" → Mutation rate
-#   - "Improvisation" → Offspring generation process
+#   - Space: O((μ+λ) × n) for population storage
+#   - Time per iteration: O(λ × n²) for offspring generation and evaluation
 # =============================================================================

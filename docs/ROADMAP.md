@@ -37,7 +37,7 @@ Items are marked as:
 | ------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | **RL Algorithms**        | 12 (REINFORCE, PPO, A2C, SAPO, GSPO, GDPO, DR-GRPO, POMO, SymNCO, StepwisePPO, IL, Adaptive IL) | 5 (REINFORCE, PPO, StepwisePPO, n-step PPO, A2C) |
 | **Meta-Learning**        | MetaRNN, HyperNet, Contextual Bandits, Multi-Objective, TD-Learning, HRL                        | Reptile callback only                            |
-| **Classical Solvers**    | Gurobi, HGS, ALNS, PyVRP, OR-Tools, LK, BCP, ACO, SISR, HyperACO, HGS-ALNS                      | PyVRP, OR-Tools, LKH (MTVRP only)                |
+| **Classical Solvers**    | Gurobi, HGS, ALNS, PyVRP, OR-Tools, LK, BPC, ACO, SISR, HyperACO, HGS-ALNS                      | PyVRP, OR-Tools, LKH (MTVRP only)                |
 | **Selection Strategies** | Regular, LastMinute, LookAhead, Revenue, ServiceLevel, Combined, Manager                        | None                                             |
 | **Multi-Day Simulation** | Full event-driven simulator with stochastic bins, checkpointing, 6 distance strategies          | None                                             |
 | **Desktop GUI**          | Full PySide6 application with visualization, analysis tabs, file management                     | None                                             |

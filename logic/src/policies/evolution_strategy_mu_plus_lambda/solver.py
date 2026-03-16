@@ -1,32 +1,19 @@
 """
 (μ+λ) Evolution Strategy for VRPP.
 
-Canonical evolution strategy with population-based search. Replaces the
-metaphor-based "Harmony Search" with proper mathematical terminology:
-- "Harmony Memory" → Population/Archive
-- "Improvisation" → Offspring generation via recombination + mutation
-- "HMCR" → Recombination rate
-- "Pitch Adjustment" → Mutation operator
-- "Offspring size" → λ (number of candidates generated per cycle)
+This module implements a rigorous, elitist (μ+λ) Evolution Strategy.
+The search in Evolution Strategies is characterized by the alternating
+application of variation and selection operators.
 
 Algorithm:
-    1. Initialize population of μ solutions
-    2. For each iteration:
-        a. Create λ offspring via recombination + mutation
-        b. Evaluate offspring fitness
-        c. Combine μ parents and λ offspring (μ+λ population)
-        d. Select best μ individuals for the next generation (elitist selection)
-
-Complexity:
-    - Time: O(T × (n + n² × eval_cost)) where T = max_iterations
-    - Space: O(μ × n) for population storage
-    - Evaluation: O(n²) for distance matrix lookups
-
-Reference:
-    Rechenberg, I. (1973). "Evolutionsstrategie: Optimierung technischer
-    Systeme nach Prinzipien der biologischen Evolution."
-    Schwefel, H.-P. (1981). "Numerical Optimization of Computer Models."
-    John Wiley & Sons.
+    1. Initialize a parent population of μ solutions.
+    2. For each generation:
+        a. Variation: Generate λ offspring by recombining parents and
+           applying mutative perturbations.
+        b. Evaluation: Calculate the net profit for all λ offspring.
+        c. Selection: Combine the μ parents and λ offspring into a single
+           pool, sort by fitness, and select the top μ individuals to survive
+           into the next generation.
 """
 
 import copy
@@ -38,18 +25,17 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
-from ..other.operators import greedy_insertion
+from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
+from ..other.operators import greedy_insertion, random_removal
 from .params import MuPlusLambdaESParams
 
 
 class MuPlusLambdaESSolver(PolicyVizMixin):
     """
-    (μ+λ) Evolution Strategy solver for VRPP.
+    (μ+λ) Evolution Strategy solver for the Vehicle Routing Problem with Profits.
 
-    Maintains a population of μ solutions and evolves them via:
-    - Recombination: Probabilistically select solution components from archive
-    - Mutation: Local perturbation of candidate solutions
-    - (μ+λ) Selection: Elitist selection of best μ individuals from combined pool
+    This solver enforces strict elitism by allowing parent solutions to compete
+    directly with their offspring for survival into the next generation.
     """
 
     def __init__(
@@ -63,18 +49,18 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):
-        """
-        Initialize the Evolution Strategy solver.
+        r"""
+        Initializes the (μ+λ)-ES solver and pre-allocates the local search operator.
 
         Args:
-            dist_matrix: Distance matrix [n+1 × n+1] including depot at index 0.
-            wastes: Dictionary mapping node IDs to waste quantities.
-            capacity: Vehicle capacity constraint.
-            R: Revenue per unit waste collected.
-            C: Cost per unit distance traveled.
-            params: ES configuration parameters.
-            mandatory_nodes: Nodes that must be visited.
-            seed: Random seed for reproducibility.
+            dist_matrix: Distance matrix of shape (n+1, n+1), where index 0 is the depot.
+            wastes: Mapping of node IDs to their available waste quantities.
+            capacity: Maximum capacity constraint for a single vehicle route.
+            R: Revenue generated per unit of waste collected.
+            C: Cost incurred per unit of distance traveled.
+            params: Configuration dataclass defining $\mu$, $\lambda$, and limits.
+            mandatory_nodes: List of node IDs that must be included in any feasible solution.
+            seed: Optional integer to seed the random number generator for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -85,11 +71,10 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.rng = random.Random(seed) if seed is not None else random.Random()
 
-        # Initialize Local Search once for reuse
-        from ..ant_colony_optimization.k_sparse_aco.params import ACOParams
-        from ..other.local_search.local_search_aco import ACOLocalSearch
+        # Pre-instantiate local search for reuse to prevent instantiation overhead
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
         aco_params = ACOParams(local_search_iterations=self.params.local_search_iterations)
         self.ls = ACOLocalSearch(
@@ -104,86 +89,81 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Execute the (μ+λ) Evolution Strategy.
+        Executes the (μ+λ) Evolution Strategy optimization loop.
 
         Returns:
-            Tuple of (best_routes, best_profit, best_cost).
+            A tuple containing:
+                - best_routes: The routing sequence of the best solution found.
+                - best_profit: The net profit (fitness) of the best solution.
+                - best_cost: The total routing distance of the best solution.
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
         start = time.process_time()
 
-        # Initialize population (μ individuals)
-        population: List[List[List[int]]] = [self._initialize_solution() for _ in range(self.params.population_size)]
-        fitness_values = [self._evaluate(solution) for solution in population]
+        # Initialize parent population (μ)
+        parents = [self._initialize_solution() for _ in range(self.params.mu)]
+        parent_fitnesses = [self._evaluate(p) for p in parents]
 
-        # Track best solution across all generations
-        best_idx = int(np.argmax(fitness_values))
-        best_routes = copy.deepcopy(population[best_idx])
-        best_profit = fitness_values[best_idx]
-        best_cost = self._cost(best_routes)
+        best_routes = []
+        best_profit = -float("inf")
+        best_cost = 0.0
 
-        # Evolution loop
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Generate λ offspring
-            offspring_pool: List[List[List[int]]] = []
-            offspring_fitness: List[float] = []
+            offspring_population = []
+            offspring_fitnesses = []
 
-            for _ in range(self.params.offspring_size):
-                candidate = self._generate_offspring(population)
-                offspring_pool.append(candidate)
-                offspring_fitness.append(self._evaluate(candidate))
+            # --- Variation: Generate λ offspring ---
+            for _ in range(self.params.lambda_):
+                # Uniform random selection of 2 parents for recombination
+                p1, p2 = self.rng.sample(parents, 2)
 
-            # (μ+λ) Selection: Combine parents and offspring
-            combined_population = population + offspring_pool
-            combined_fitness = fitness_values + offspring_fitness
+                offspring = self._recombine_and_mutate(p1, p2)
+                offspring_fitness = self._evaluate(offspring)
 
-            # Select best μ individuals
-            sorted_indices = np.argsort(combined_fitness)[::-1]  # Sort descending
-            survivor_indices = sorted_indices[: self.params.population_size]
+                offspring_population.append(offspring)
+                offspring_fitnesses.append(offspring_fitness)
 
-            population = [combined_population[i] for i in survivor_indices]
-            fitness_values = [combined_fitness[i] for i in survivor_indices]
+            # --- Selection: Elitist (μ+λ) ---
+            # Combine the current μ parents and λ offspring into a single pool
+            combined_population = parents + offspring_population
+            combined_fitness = parent_fitnesses + offspring_fitnesses
 
-            # Update global best
-            current_best_idx = survivor_indices[0]
-            if combined_fitness[current_best_idx] > best_profit:
-                best_routes = copy.deepcopy(combined_population[current_best_idx])
-                best_profit = combined_fitness[current_best_idx]
+            # Sort combined descending by fitness
+            sorted_indices = np.argsort(combined_fitness)[::-1]
+
+            # Select the top μ individuals to survive to the next generation
+            survivor_indices = sorted_indices[: self.params.mu]
+            parents = [copy.deepcopy(combined_population[i]) for i in survivor_indices]
+            parent_fitnesses = [combined_fitness[i] for i in survivor_indices]
+
+            # Update global best tracking
+            current_best_fit = parent_fitnesses[0]
+            if current_best_fit > best_profit:
+                best_profit = current_best_fit
+                best_routes = copy.deepcopy(parents[0])
                 best_cost = self._cost(best_routes)
 
             self._viz_record(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,
-                population_size=self.params.population_size,
+                population_size=self.params.mu,
             )
 
         return best_routes, best_profit, best_cost
 
-    # ------------------------------------------------------------------
-    # Solution Initialization
-    # ------------------------------------------------------------------
-
     def _initialize_solution(self) -> List[List[int]]:
         """
-        Initialize a single solution using nearest-neighbor construction.
-
-        Uses randomized node ordering to create diverse initial solutions,
-        ensuring the population explores different regions of the search space.
-
-        Returns:
-            A feasible routing solution as list of routes.
-
-        Complexity: O(n²) for nearest-neighbor heuristic.
+        Initializes a single solution using a nearest-neighbor heuristic.
         """
         from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
-        routes = build_nn_routes(
+        return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
             wastes=self.wastes,
@@ -191,153 +171,70 @@ class MuPlusLambdaESSolver(PolicyVizMixin):
             dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
-            rng=self.random,
+            rng=self.rng,
         )
-        return routes
 
-    # ------------------------------------------------------------------
-    # Offspring Generation (Recombination + Mutation)
-    # ------------------------------------------------------------------
-
-    def _generate_offspring(self, population: List[List[List[int]]]) -> List[List[int]]:
+    def _recombine_and_mutate(self, parent1: List[List[int]], parent2: List[List[int]]) -> List[List[int]]:
         """
-        Create offspring via recombination and mutation.
+        Applies discrete recombination and mutation to generate a single offspring.
 
-        Recombination Phase:
-            With probability p_recomb, select node components from archive solutions.
-            Otherwise, select nodes randomly (exploration).
-
-        Mutation Phase:
-            With probability p_mut, apply local search perturbation to selected nodes.
+        Recombination mimics discrete selection by extracting components
+        from `parent2` and removing them from `parent1`. Mutation then applies a small
+        random perturbation via random removal, followed by a greedy insertion.
 
         Args:
-            population: Current population (archive of μ solutions).
+            parent1: The primary base solution for the offspring.
+            parent2: The donor solution providing structural material.
 
         Returns:
-            Offspring solution as list of routes.
-
-        Complexity: O(n) for node selection + O(n²) for greedy insertion.
+            A newly generated and locally optimized offspring solution.
         """
-        candidate_nodes: List[int] = []
+        if not parent1 or not parent2:
+            return copy.deepcopy(parent1)
 
-        # Flatten population into node pool for recombination
-        archive_node_pool: List[List[int]] = []
-        for solution in population:
-            flat = [n for route in solution for n in route]
-            archive_node_pool.append(flat)
+        n_remove = max(3, self.params.n_removal)
+        p2_nodes = [node for route in parent2 for node in route]
 
-        unvisited = set(self.nodes)
+        if not p2_nodes:
+            return copy.deepcopy(parent1)
 
-        # Build candidate node sequence via recombination
-        for _ in self.nodes:
-            if not unvisited:
-                break
+        # Crossover/Recombination
+        selected_p2_nodes = self.rng.sample(p2_nodes, min(n_remove, len(p2_nodes)))
 
-            if self.random.random() < self.params.recombination_rate:
-                # Recombination: Select from archive solutions
-                source_solution = self.random.choice(archive_node_pool)
-                if source_solution:
-                    archive_node = self.random.choice(source_solution)
-                    selected = archive_node if archive_node in unvisited else self.random.choice(list(unvisited))
-                else:
-                    selected = self.random.choice(list(unvisited))
+        offspring = copy.deepcopy(parent1)
+        for route in offspring:
+            for node in selected_p2_nodes:
+                if node in route:
+                    route.remove(node)
+        offspring = [route for route in offspring if route]
 
-                # Mutation: Local neighborhood perturbation
-                if self.random.random() < self.params.mutation_rate:
-                    neighbors = self._get_nearest_neighbors(selected, unvisited - {selected})
-                    if neighbors:
-                        selected = neighbors[0]
-            else:
-                # Random exploration
-                selected = self.random.choice(list(unvisited))
-
-            candidate_nodes.append(selected)
-            unvisited.discard(selected)
-
-        # Ensure mandatory nodes are included
-        for mandatory_node in self.mandatory_nodes:
-            if mandatory_node not in candidate_nodes:
-                candidate_nodes.append(mandatory_node)
-
-        if not candidate_nodes:
-            return []
-
-        # Construct routes via greedy insertion
+        # Mutation: Random destruction and greedy repair
         try:
-            routes = greedy_insertion(
-                [],
-                candidate_nodes,
+            partial_routes, additional_removed = random_removal(offspring, n_remove, rng=self.rng)
+            nodes_to_insert = sorted(list(set(selected_p2_nodes + additional_removed)))
+
+            repaired_routes = greedy_insertion(
+                partial_routes,
+                nodes_to_insert,
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            # Apply local search refinement
-            routes = self.ls.optimize(routes)
+            return self.ls.optimize(repaired_routes)
         except Exception:
-            routes = []
-
-        return routes
-
-    def _get_nearest_neighbors(self, node: int, unvisited: set) -> List[int]:
-        """
-        Return unvisited nodes sorted by Euclidean distance to given node.
-
-        Used for local mutation operator (nearest-neighbor perturbation).
-
-        Args:
-            node: Reference node index.
-            unvisited: Set of unvisited node indices.
-
-        Returns:
-            Sorted list of unvisited nodes (nearest first).
-
-        Complexity: O(n log n) for sorting.
-        """
-        if not unvisited:
-            return []
-        return sorted(list(unvisited), key=lambda n: self.dist_matrix[node][n])
-
-    # ------------------------------------------------------------------
-    # Fitness Evaluation
-    # ------------------------------------------------------------------
+            return copy.deepcopy(parent1)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """
-        Compute fitness (net profit) for a routing solution.
-
-        Fitness = Revenue - Cost × C
-        Revenue = Σ(waste_collected × R)
-        Cost = Total distance traveled
-
-        Args:
-            routes: List of routes (each route is a list of node IDs).
-
-        Returns:
-            Net profit (higher is better).
-
-        Complexity: O(n) for route traversal.
-        """
+        """Evaluates the fitness (net profit) of a given solution."""
         if not routes:
             return 0.0
         revenue = sum(self.wastes.get(n, 0.0) * self.R for route in routes for n in route)
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculate total routing distance (cost).
-
-        Includes depot-to-first-node, inter-node, and last-node-to-depot distances.
-
-        Args:
-            routes: List of routes.
-
-        Returns:
-            Total distance traveled.
-
-        Complexity: O(n) for route traversal.
-        """
+        """Calculates the total routing distance for a given solution."""
         total = 0.0
         for route in routes:
             if not route:

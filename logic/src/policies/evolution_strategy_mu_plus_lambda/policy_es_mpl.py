@@ -1,7 +1,7 @@
 """
 (μ+λ) Evolution Strategy Policy Adapter.
 
-Adapts the rigorous (μ+λ)-ES implementation (replaces Harmony Search).
+Adapts the rigorous (μ+λ)-ES implementation into the overarching policy registry.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -19,15 +19,11 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
     """
     (μ+λ) Evolution Strategy policy class.
 
-    Canonical ES with recombination and mutation. Replaces Harmony Search.
+    Executes a steady-state evolutionary algorithm with strong elitism.
     """
 
     def __init__(self, config: Optional[Union[MuPlusLambdaESConfig, Dict[str, Any]]] = None):
-        """Initialize (μ+λ)-ES policy with optional config.
-
-        Args:
-            config: MuPlusLambdaESConfig dataclass, raw dict from YAML, or None.
-        """
+        """Initialize (μ+λ)-ES policy with optional config."""
         super().__init__(config)
 
     @classmethod
@@ -56,12 +52,11 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
             Tuple of (routes, profit, solver_cost)
         """
         params = MuPlusLambdaESParams(
-            population_size=values.get("population_size", 10),
-            offspring_size=values.get("offspring_size", 5),
-            recombination_rate=values.get("recombination_rate", 0.95),
-            mutation_rate=values.get("mutation_rate", 0.3),
+            mu=values.get("mu", 10),
+            lambda_=values.get("lambda_", 5),
+            n_removal=values.get("n_removal", 3),
             max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 500),
+            local_search_iterations=values.get("local_search_iterations", 100),
             time_limit=values.get("time_limit", 60.0),
         )
 

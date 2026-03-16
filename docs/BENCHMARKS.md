@@ -31,12 +31,12 @@ This document provides detailed performance benchmarks for WSmart+ Route across 
 
 ### 1.1 Hardware Configurations
 
-| Configuration | CPU                     | GPU              | RAM   | VRAM  | Storage |
-|---------------|-------------------------|------------------|-------|-------|---------|
-| **Config A**  | AMD Ryzen 9 5900X       | RTX 3090 Ti      | 32 GB | 24 GB | NVMe    |
-| **Config B**  | Intel i7-12700H         | RTX 4080 (laptop)| 32 GB | 12 GB | SSD     |
-| **Config C**  | AMD EPYC 7742           | RTX A6000        | 128GB | 48 GB | NVMe    |
-| **CPU Only**  | AMD Ryzen 9 5900X       | None             | 64 GB | -     | NVMe    |
+| Configuration | CPU               | GPU               | RAM   | VRAM  | Storage |
+| ------------- | ----------------- | ----------------- | ----- | ----- | ------- |
+| **Config A**  | AMD Ryzen 9 5900X | RTX 3090 Ti       | 32 GB | 24 GB | NVMe    |
+| **Config B**  | Intel i7-12700H   | RTX 4080 (laptop) | 32 GB | 12 GB | SSD     |
+| **Config C**  | AMD EPYC 7742     | RTX A6000         | 128GB | 48 GB | NVMe    |
+| **CPU Only**  | AMD Ryzen 9 5900X | None              | 64 GB | -     | NVMe    |
 
 ### 1.2 Software Versions
 
@@ -54,15 +54,15 @@ PyVRP:          0.9.1
 
 ### 1.3 Benchmark Datasets
 
-| Problem | Size | Instances | Distribution  | Source                    |
-|---------|------|-----------|---------------|---------------------------|
-| VRPP    | 20   | 10,000    | Uniform       | Generated (seed=42)       |
-| VRPP    | 50   | 10,000    | Uniform       | Generated (seed=42)       |
-| VRPP    | 100  | 10,000    | Uniform       | Generated (seed=42)       |
-| WCVRP   | 50   | 1,000     | Gamma(2,2)    | Real-world inspired       |
-| WCVRP   | 100  | 1,000     | Empirical     | Santander dataset         |
-| TSP     | 50   | 10,000    | Uniform       | TSPLIB-style              |
-| CVRP    | 100  | 1,000     | Uchoa         | CVRPLIB                   |
+| Problem | Size | Instances | Distribution | Source              |
+| ------- | ---- | --------- | ------------ | ------------------- |
+| VRPP    | 20   | 10,000    | Uniform      | Generated (seed=42) |
+| VRPP    | 50   | 10,000    | Uniform      | Generated (seed=42) |
+| VRPP    | 100  | 10,000    | Uniform      | Generated (seed=42) |
+| WCVRP   | 50   | 1,000     | Gamma(2,2)   | Real-world inspired |
+| WCVRP   | 100  | 1,000     | Empirical    | Santander dataset   |
+| TSP     | 50   | 10,000    | Uniform      | TSPLIB-style        |
+| CVRP    | 100  | 1,000     | Uchoa        | CVRPLIB             |
 
 ---
 
@@ -73,20 +73,20 @@ PyVRP:          0.9.1
 **Configuration**: embed_dim=128, num_layers=3, n_heads=8
 
 | Problem Size | Greedy Obj | Sampling Obj | Beam-8 Obj | Inference (ms/inst) | GPU Memory |
-|--------------|------------|--------------|------------|---------------------|------------|
+| ------------ | ---------- | ------------ | ---------- | ------------------- | ---------- |
 | 20 nodes     | 4.23       | 4.18         | 4.15       | 1.2                 | 0.3 GB     |
 | 50 nodes     | 7.45       | 7.32         | 7.25       | 3.8                 | 0.8 GB     |
 | 100 nodes    | 10.89      | 10.58        | 10.42      | 12.4                | 2.1 GB     |
 | 200 nodes    | 15.32      | 14.87        | 14.56      | 42.3                | 6.8 GB     |
 
-*Lower is better. Batch size = 1. Config A (RTX 3090 Ti).*
+_Lower is better. Batch size = 1. Config A (RTX 3090 Ti)._
 
 ### 2.2 Deep Decoder Attention Model (DDAM)
 
 **Configuration**: embed_dim=128, encoder_layers=3, decoder_layers=6, n_heads=8
 
 | Problem Size | Greedy Obj | Sampling Obj | Inference (ms/inst) | vs AM (Speed) | vs AM (Quality) |
-|--------------|------------|--------------|---------------------|---------------|-----------------|
+| ------------ | ---------- | ------------ | ------------------- | ------------- | --------------- |
 | 20 nodes     | 4.19       | 4.14         | 1.8                 | 1.5x slower   | 0.9% better     |
 | 50 nodes     | 7.38       | 7.25         | 5.6                 | 1.5x slower   | 1.0% better     |
 | 100 nodes    | 10.75      | 10.45        | 18.7                | 1.5x slower   | 1.3% better     |
@@ -96,24 +96,24 @@ PyVRP:          0.9.1
 **Configuration**: embed_dim=128, num_layers=3, n_heads=8, multi-day=7
 
 | Problem Size | Avg Daily Cost | Overflows | Inference (ms/day) | Memory |
-|--------------|----------------|-----------|-------------------|--------|
-| 50 bins      | 42.3           | 0.12      | 4.2               | 1.1 GB |
-| 100 bins     | 78.5           | 0.34      | 14.5              | 2.8 GB |
-| 200 bins     | 145.7          | 0.89      | 51.2              | 8.4 GB |
+| ------------ | -------------- | --------- | ------------------ | ------ |
+| 50 bins      | 42.3           | 0.12      | 4.2                | 1.1 GB |
+| 100 bins     | 78.5           | 0.34      | 14.5               | 2.8 GB |
+| 200 bins     | 145.7          | 0.89      | 51.2               | 8.4 GB |
 
 ### 2.4 Model Family Comparison (VRPP-50)
 
-| Model       | Greedy Obj | Training Time | Inference Speed | Parameters | Memory |
-|-------------|------------|---------------|-----------------|------------|--------|
-| AM          | 7.45       | 6.2 hours     | 3.8 ms/inst     | 612K       | 0.8 GB |
-| DDAM        | 7.38       | 9.1 hours     | 5.6 ms/inst     | 1.2M       | 1.2 GB |
-| TAM         | 7.42       | 7.8 hours     | 4.1 ms/inst     | 730K       | 0.9 GB |
-| PointerNet  | 7.89       | 5.1 hours     | 2.1 ms/inst     | 420K       | 0.5 GB |
-| MatNet      | 7.31       | 11.3 hours    | 7.2 ms/inst     | 1.8M       | 1.6 GB |
-| MDAM        | 7.28       | 13.5 hours    | 8.9 ms/inst     | 2.1M       | 1.9 GB |
-| PolyNet     | 7.35       | 10.2 hours    | 6.5 ms/inst     | 1.5M       | 1.4 GB |
+| Model      | Greedy Obj | Training Time | Inference Speed | Parameters | Memory |
+| ---------- | ---------- | ------------- | --------------- | ---------- | ------ |
+| AM         | 7.45       | 6.2 hours     | 3.8 ms/inst     | 612K       | 0.8 GB |
+| DDAM       | 7.38       | 9.1 hours     | 5.6 ms/inst     | 1.2M       | 1.2 GB |
+| TAM        | 7.42       | 7.8 hours     | 4.1 ms/inst     | 730K       | 0.9 GB |
+| PointerNet | 7.89       | 5.1 hours     | 2.1 ms/inst     | 420K       | 0.5 GB |
+| MatNet     | 7.31       | 11.3 hours    | 7.2 ms/inst     | 1.8M       | 1.6 GB |
+| MDAM       | 7.28       | 13.5 hours    | 8.9 ms/inst     | 2.1M       | 1.9 GB |
+| PolyNet    | 7.35       | 10.2 hours    | 6.5 ms/inst     | 1.5M       | 1.4 GB |
 
-*Training: 100 epochs, batch_size=512, 100K instances. Config A (RTX 3090 Ti).*
+_Training: 100 epochs, batch_size=512, 100K instances. Config A (RTX 3090 Ti)._
 
 ---
 
@@ -123,17 +123,17 @@ PyVRP:          0.9.1
 
 #### Gurobi (Branch-and-Cut)
 
-| Problem Size | Optimal Obj | Time (s) | Gap    | Status    |
-|--------------|-------------|----------|--------|-----------|
-| 20 nodes     | 4.12        | 0.3      | 0.00%  | Optimal   |
-| 50 nodes     | 7.18        | 12.5     | 0.00%  | Optimal   |
-| 100 nodes    | 10.35       | 342.7    | 0.00%  | Optimal   |
-| 200 nodes    | 14.32       | 7200+    | 1.2%   | Time Limit|
+| Problem Size | Optimal Obj | Time (s) | Gap   | Status     |
+| ------------ | ----------- | -------- | ----- | ---------- |
+| 20 nodes     | 4.12        | 0.3      | 0.00% | Optimal    |
+| 50 nodes     | 7.18        | 12.5     | 0.00% | Optimal    |
+| 100 nodes    | 10.35       | 342.7    | 0.00% | Optimal    |
+| 200 nodes    | 14.32       | 7200+    | 1.2%  | Time Limit |
 
-#### Branch-Cut-and-Price (BCP)
+#### Branch-and-Price-and-Cut (BPC)
 
 | Problem Size | Optimal Obj | Time (s) | Columns | Nodes |
-|--------------|-------------|----------|---------|-------|
+| ------------ | ----------- | -------- | ------- | ----- |
 | 20 nodes     | 4.12        | 0.8      | 45      | 1     |
 | 50 nodes     | 7.18        | 45.2     | 203     | 12    |
 | 100 nodes    | 10.35       | 1205.3   | 847     | 89    |
@@ -143,7 +143,7 @@ PyVRP:          0.9.1
 #### ALNS (Adaptive Large Neighborhood Search)
 
 | Problem Size | Best Obj | Avg Obj | Time (s) | Iterations | Gap vs Optimal |
-|--------------|----------|---------|----------|------------|----------------|
+| ------------ | -------- | ------- | -------- | ---------- | -------------- |
 | 20 nodes     | 4.14     | 4.18    | 2.3      | 500        | 0.5%           |
 | 50 nodes     | 7.22     | 7.28    | 8.7      | 500        | 0.6%           |
 | 100 nodes    | 10.41    | 10.52   | 32.4     | 500        | 0.6%           |
@@ -152,7 +152,7 @@ PyVRP:          0.9.1
 #### HGS (Hybrid Genetic Search)
 
 | Problem Size | Best Obj | Time (s) | Generations | Gap vs Optimal |
-|--------------|----------|----------|-------------|----------------|
+| ------------ | -------- | -------- | ----------- | -------------- |
 | 20 nodes     | 4.13     | 1.8      | 150         | 0.2%           |
 | 50 nodes     | 7.20     | 12.3     | 150         | 0.3%           |
 | 100 nodes    | 10.38    | 58.7     | 150         | 0.3%           |
@@ -161,13 +161,13 @@ PyVRP:          0.9.1
 #### LKH-3 (Lin-Kernighan-Helsgaun)
 
 | Problem Size | Best Obj | Time (s) | Iterations | Gap vs Optimal |
-|--------------|----------|----------|------------|----------------|
+| ------------ | -------- | -------- | ---------- | -------------- |
 | 20 nodes     | 4.12     | 0.9      | 100        | 0.0%           |
 | 50 nodes     | 7.19     | 6.2      | 100        | 0.1%           |
 | 100 nodes    | 10.36    | 28.4     | 100        | 0.1%           |
 | 200 nodes    | 14.34    | 118.7    | 100        | 0.1%           |
 
-*All metaheuristics run for fixed time budget or iteration limit, averaged over 100 instances.*
+_All metaheuristics run for fixed time budget or iteration limit, averaged over 100 instances._
 
 ---
 
@@ -175,45 +175,45 @@ PyVRP:          0.9.1
 
 ### 4.1 Solution Quality (Gap to Optimal %)
 
-| Solver/Model | VRPP-20 | VRPP-50 | VRPP-100 | VRPP-200 |
-|--------------|---------|---------|----------|----------|
-| **Exact**    |         |         |          |          |
-| Gurobi       | 0.00    | 0.00    | 0.00     | ~0.00    |
-| BCP          | 0.00    | 0.00    | 0.00     | -        |
-| **Classical**|         |         |          |          |
-| LKH-3        | 0.00    | 0.14    | 0.10     | 0.14     |
-| HGS          | 0.24    | 0.28    | 0.29     | 0.49     |
-| ALNS         | 0.49    | 0.56    | 0.58     | 0.91     |
-| **Neural**   |         |         |          |          |
-| MDAM         | 1.65    | 1.39    | 3.87     | -        |
-| MatNet       | 1.89    | 1.81    | 3.96     | -        |
-| PolyNet      | 2.16    | 2.37    | 4.25     | -        |
-| DDAM         | 1.70    | 2.79    | 3.88     | -        |
-| TAM          | 2.43    | 2.94    | 4.52     | -        |
-| AM           | 2.67    | 3.76    | 5.22     | 6.95     |
-| PointerNet   | 4.37    | 5.30    | 6.12     | -        |
+| Solver/Model  | VRPP-20 | VRPP-50 | VRPP-100 | VRPP-200 |
+| ------------- | ------- | ------- | -------- | -------- |
+| **Exact**     |         |         |          |          |
+| Gurobi        | 0.00    | 0.00    | 0.00     | ~0.00    |
+| BPC           | 0.00    | 0.00    | 0.00     | -        |
+| **Classical** |         |         |          |          |
+| LKH-3         | 0.00    | 0.14    | 0.10     | 0.14     |
+| HGS           | 0.24    | 0.28    | 0.29     | 0.49     |
+| ALNS          | 0.49    | 0.56    | 0.58     | 0.91     |
+| **Neural**    |         |         |          |          |
+| MDAM          | 1.65    | 1.39    | 3.87     | -        |
+| MatNet        | 1.89    | 1.81    | 3.96     | -        |
+| PolyNet       | 2.16    | 2.37    | 4.25     | -        |
+| DDAM          | 1.70    | 2.79    | 3.88     | -        |
+| TAM           | 2.43    | 2.94    | 4.52     | -        |
+| AM            | 2.67    | 3.76    | 5.22     | 6.95     |
+| PointerNet    | 4.37    | 5.30    | 6.12     | -        |
 
 ### 4.2 Speed Comparison (instances/second)
 
-| Solver/Model | VRPP-20 | VRPP-50 | VRPP-100 | VRPP-200 |
-|--------------|---------|---------|----------|----------|
-| **Neural (GPU)** |     |         |          |          |
-| PointerNet   | 833     | 476     | 145      | -        |
-| AM           | 833     | 263     | 81       | 24       |
-| TAM          | 714     | 244     | 69       | 20       |
-| DDAM         | 556     | 179     | 53       | 15       |
-| MatNet       | 435     | 139     | 38       | -        |
-| MDAM         | 385     | 112     | 29       | -        |
-| **Neural (Batch=512)** | | |   |          |
-| AM (greedy)  | 42,667  | 13,474  | 3,413    | 867      |
-| **Classical**|         |         |          |          |
-| LKH-3        | 1.11    | 0.16    | 0.035    | 0.008    |
-| HGS          | 0.56    | 0.081   | 0.017    | 0.004    |
-| ALNS         | 0.43    | 0.115   | 0.031    | 0.008    |
-| **Exact**    |         |         |          |          |
-| Gurobi       | 3.33    | 0.080   | 0.003    | < 0.001  |
+| Solver/Model           | VRPP-20 | VRPP-50 | VRPP-100 | VRPP-200 |
+| ---------------------- | ------- | ------- | -------- | -------- |
+| **Neural (GPU)**       |         |         |          |          |
+| PointerNet             | 833     | 476     | 145      | -        |
+| AM                     | 833     | 263     | 81       | 24       |
+| TAM                    | 714     | 244     | 69       | 20       |
+| DDAM                   | 556     | 179     | 53       | 15       |
+| MatNet                 | 435     | 139     | 38       | -        |
+| MDAM                   | 385     | 112     | 29       | -        |
+| **Neural (Batch=512)** |         |         |          |          |
+| AM (greedy)            | 42,667  | 13,474  | 3,413    | 867      |
+| **Classical**          |         |         |          |          |
+| LKH-3                  | 1.11    | 0.16    | 0.035    | 0.008    |
+| HGS                    | 0.56    | 0.081   | 0.017    | 0.004    |
+| ALNS                   | 0.43    | 0.115   | 0.031    | 0.008    |
+| **Exact**              |         |         |          |          |
+| Gurobi                 | 3.33    | 0.080   | 0.003    | < 0.001  |
 
-*Neural models use greedy decoding on RTX 3090 Ti. Classical solvers on AMD Ryzen 9 5900X.*
+_Neural models use greedy decoding on RTX 3090 Ti. Classical solvers on AMD Ryzen 9 5900X._
 
 ---
 
@@ -222,19 +222,19 @@ PyVRP:          0.9.1
 ### 5.1 Training Time vs Quality (VRPP-50)
 
 | Model  | 10 Epochs | 50 Epochs | 100 Epochs | 200 Epochs | Best Obj (100 Epochs) |
-|--------|-----------|-----------|------------|------------|-----------------------|
+| ------ | --------- | --------- | ---------- | ---------- | --------------------- |
 | AM     | 0.6 h     | 3.1 h     | 6.2 h      | 12.4 h     | 7.45                  |
 | DDAM   | 0.9 h     | 4.6 h     | 9.1 h      | 18.2 h     | 7.38                  |
 | TAM    | 0.8 h     | 3.9 h     | 7.8 h      | 15.6 h     | 7.42                  |
 | MatNet | 1.1 h     | 5.7 h     | 11.3 h     | 22.6 h     | 7.31                  |
 | MDAM   | 1.4 h     | 6.8 h     | 13.5 h     | 27.0 h     | 7.28                  |
 
-*Training: batch_size=512, 100K instances, Config A (RTX 3090 Ti), mixed precision (16-mixed).*
+_Training: batch_size=512, 100K instances, Config A (RTX 3090 Ti), mixed precision (16-mixed)._
 
 ### 5.2 Algorithm Comparison (100 epochs, VRPP-50, AM model)
 
 | Algorithm | Training Time | Final Obj | Peak GPU Memory |
-|-----------|---------------|-----------|-----------------|
+| --------- | ------------- | --------- | --------------- |
 | REINFORCE | 6.2 h         | 7.45      | 8.4 GB          |
 | PPO       | 8.7 h         | 7.38      | 10.2 GB         |
 | A2C       | 7.1 h         | 7.42      | 9.1 GB          |
@@ -244,7 +244,7 @@ PyVRP:          0.9.1
 ### 5.3 Scaling with Batch Size (VRPP-50, AM)
 
 | Batch Size | Throughput (inst/s) | GPU Memory | Training Time (100 epochs) |
-|------------|---------------------|------------|----------------------------|
+| ---------- | ------------------- | ---------- | -------------------------- |
 | 64         | 3,200               | 2.1 GB     | 8.7 h                      |
 | 128        | 5,867               | 3.4 GB     | 4.7 h                      |
 | 256        | 9,956               | 5.9 GB     | 2.8 h                      |
@@ -252,7 +252,7 @@ PyVRP:          0.9.1
 | 1024       | 15,238              | 19.2 GB    | 1.8 h                      |
 | 2048       | OOM                 | > 24 GB    | -                          |
 
-*Config A (RTX 3090 Ti, 24GB VRAM).*
+_Config A (RTX 3090 Ti, 24GB VRAM)._
 
 ---
 
@@ -261,7 +261,7 @@ PyVRP:          0.9.1
 ### 6.1 Model Memory Footprint (VRPP-50, greedy inference)
 
 | Model      | Parameters | Model Size | Activation Memory | Peak GPU Memory |
-|------------|------------|------------|-------------------|-----------------|
+| ---------- | ---------- | ---------- | ----------------- | --------------- |
 | PointerNet | 420K       | 1.7 MB     | 0.3 GB            | 0.5 GB          |
 | AM         | 612K       | 2.4 MB     | 0.6 GB            | 0.8 GB          |
 | TAM        | 730K       | 2.9 MB     | 0.7 GB            | 0.9 GB          |
@@ -273,13 +273,13 @@ PyVRP:          0.9.1
 ### 6.2 Training Memory Scaling
 
 | Batch Size | VRPP-20 | VRPP-50 | VRPP-100 | VRPP-200 |
-|------------|---------|---------|----------|----------|
+| ---------- | ------- | ------- | -------- | -------- |
 | 64         | 1.8 GB  | 2.1 GB  | 3.4 GB   | 7.2 GB   |
 | 128        | 2.4 GB  | 3.4 GB  | 5.9 GB   | 13.1 GB  |
 | 256        | 3.8 GB  | 5.9 GB  | 10.8 GB  | 23.4 GB  |
 | 512        | 6.7 GB  | 10.8 GB | 19.2 GB  | OOM      |
 
-*AM model, REINFORCE, Config A (RTX 3090 Ti).*
+_AM model, REINFORCE, Config A (RTX 3090 Ti)._
 
 ---
 
@@ -288,7 +288,7 @@ PyVRP:          0.9.1
 ### 7.1 Problem Size Scaling (AM Greedy)
 
 | Problem Size | Inference Time | Memory | Quality Gap | Speedup vs LKH-3 |
-|--------------|----------------|--------|-------------|------------------|
+| ------------ | -------------- | ------ | ----------- | ---------------- |
 | 20           | 1.2 ms         | 0.3 GB | 2.67%       | 750x             |
 | 50           | 3.8 ms         | 0.8 GB | 3.76%       | 1,632x           |
 | 100          | 12.4 ms        | 2.1 GB | 5.22%       | 2,290x           |
@@ -298,13 +298,13 @@ PyVRP:          0.9.1
 ### 7.2 Multi-GPU Scaling (Training, VRPP-50, AM)
 
 | GPUs | Effective Batch | Throughput (inst/s) | Training Time (100 epochs) | Scaling Efficiency |
-|------|-----------------|---------------------|----------------------------|--------------------|
+| ---- | --------------- | ------------------- | -------------------------- | ------------------ |
 | 1x   | 512             | 13,474              | 2.1 h                      | 100%               |
 | 2x   | 1024            | 24,832              | 1.1 h                      | 92%                |
 | 4x   | 2048            | 45,123              | 0.6 h                      | 84%                |
 | 8x   | 4096            | 81,445              | 0.35 h                     | 76%                |
 
-*DDP training on Config C (8x RTX A6000).*
+_DDP training on Config C (8x RTX A6000)._
 
 ---
 
@@ -313,7 +313,7 @@ PyVRP:          0.9.1
 ### 8.1 Vectorized Local Search Operators (VRPP-100, batch=128)
 
 | Operator             | Time (ms/batch) | Improvement | Speedup vs Classical |
-|----------------------|-----------------|-------------|----------------------|
+| -------------------- | --------------- | ----------- | -------------------- |
 | 2-opt                | 12.3            | 1.8%        | 145x                 |
 | 3-opt                | 45.7            | 2.9%        | 78x                  |
 | Or-opt               | 18.4            | 1.2%        | 92x                  |
@@ -326,19 +326,19 @@ PyVRP:          0.9.1
 | Type IV Unstringing  | 96.4            | 3.8%        | 24x                  |
 | LKH-3                | 142.5           | 4.2%        | 18x                  |
 
-*Batch operations on GPU (RTX 3090 Ti). Classical baseline: sequential CPU operations.*
+_Batch operations on GPU (RTX 3090 Ti). Classical baseline: sequential CPU operations._
 
 ### 8.2 Destroy/Repair Operators (ALNS, VRPP-50)
 
-| Destroy Operator  | Time (ms) | Removal Quality | Repair Operator   | Time (ms) | Insertion Quality |
-|-------------------|-----------|-----------------|-------------------|-----------|-------------------|
-| Random            | 0.8       | N/A             | Greedy            | 2.1       | 85%               |
-| Worst             | 1.2       | Good            | Regret-2          | 3.8       | 92%               |
-| Shaw              | 4.5       | Excellent       | Regret-3          | 5.2       | 94%               |
-| Cluster           | 3.2       | Very Good       | Regret-4          | 6.7       | 95%               |
-| String (SISR)     | 2.7       | Good            | -                 | -         | -                 |
+| Destroy Operator | Time (ms) | Removal Quality | Repair Operator | Time (ms) | Insertion Quality |
+| ---------------- | --------- | --------------- | --------------- | --------- | ----------------- |
+| Random           | 0.8       | N/A             | Greedy          | 2.1       | 85%               |
+| Worst            | 1.2       | Good            | Regret-2        | 3.8       | 92%               |
+| Shaw             | 4.5       | Excellent       | Regret-3        | 5.2       | 94%               |
+| Cluster          | 3.2       | Very Good       | Regret-4        | 6.7       | 95%               |
+| String (SISR)    | 2.7       | Good            | -               | -         | -                 |
 
-*Single-threaded CPU performance. Quality measured as solution improvement percentage.*
+_Single-threaded CPU performance. Quality measured as solution improvement percentage._
 
 ---
 
@@ -346,23 +346,23 @@ PyVRP:          0.9.1
 
 ### 9.1 GPU Comparison (VRPP-100, AM, batch=512, greedy)
 
-| GPU             | VRAM | Throughput (inst/s) | Training (100 epochs) | Inference (ms/inst) |
-|-----------------|------|---------------------|-----------------------|---------------------|
-| RTX 3090 Ti     | 24GB | 3,413               | 6.2 h                 | 12.4                |
-| RTX 4080 (M)    | 12GB | 2,847               | 7.4 h                 | 14.8                |
-| RTX A6000       | 48GB | 3,856               | 5.5 h                 | 11.0                |
-| Tesla V100      | 32GB | 2,123               | 10.0 h                | 19.8                |
-| RTX 3070        | 8GB  | 1,984               | 10.7 h                | 21.2                |
+| GPU          | VRAM | Throughput (inst/s) | Training (100 epochs) | Inference (ms/inst) |
+| ------------ | ---- | ------------------- | --------------------- | ------------------- |
+| RTX 3090 Ti  | 24GB | 3,413               | 6.2 h                 | 12.4                |
+| RTX 4080 (M) | 12GB | 2,847               | 7.4 h                 | 14.8                |
+| RTX A6000    | 48GB | 3,856               | 5.5 h                 | 11.0                |
+| Tesla V100   | 32GB | 2,123               | 10.0 h                | 19.8                |
+| RTX 3070     | 8GB  | 1,984               | 10.7 h                | 21.2                |
 
 ### 9.2 CPU vs GPU Performance (VRPP-50, AM)
 
 | Device          | Greedy (inst/s) | Sampling (inst/s) | Beam-4 (inst/s) | Training (100 epochs) |
-|-----------------|-----------------|-------------------|-----------------|------------------------|
-| RTX 3090 Ti     | 13,474          | 8,932             | 3,245           | 6.2 h                  |
-| AMD Ryzen 9     | 12              | 8                 | 3               | 782 h                  |
-| Intel i7-12700H | 9               | 6                 | 2               | 1,047 h                |
+| --------------- | --------------- | ----------------- | --------------- | --------------------- |
+| RTX 3090 Ti     | 13,474          | 8,932             | 3,245           | 6.2 h                 |
+| AMD Ryzen 9     | 12              | 8                 | 3               | 782 h                 |
+| Intel i7-12700H | 9               | 6                 | 2               | 1,047 h               |
 
-*Speedup: ~1,100x for inference, ~126x for training (GPU vs CPU).*
+_Speedup: ~1,100x for inference, ~126x for training (GPU vs CPU)._
 
 ---
 
@@ -417,6 +417,7 @@ tensorboard --logdir=logs/profile
 ### 10.3 Reproducing Specific Benchmarks
 
 #### Neural Model Comparison
+
 ```bash
 # Train all models for 100 epochs
 for model in am ddam tam matnet mdam polynet; do
@@ -430,12 +431,14 @@ done
 ```
 
 #### Classical Solver Comparison
+
 ```bash
 python scripts/benchmark_classical.py --problem vrpp --sizes 20 50 100 200 \
-    --solvers gurobi bcp hgs alns lkh --instances 100 --timeout 3600
+    --solvers gurobi bpc hgs alns lkh --instances 100 --timeout 3600
 ```
 
 #### Memory Scaling
+
 ```bash
 python scripts/benchmark_memory.py --model am --problem_size 50 \
     --batch_sizes 64 128 256 512 1024 --algorithm reinforce
@@ -465,6 +468,7 @@ python scripts/benchmark_memory.py --model am --problem_size 50 \
 ---
 
 **For more details, see**:
+
 - [DEVELOPMENT.md](DEVELOPMENT.md) for running benchmarks
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for performance issues
 - [ARCHITECTURE.md](ARCHITECTURE.md) for system design
