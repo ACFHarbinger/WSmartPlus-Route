@@ -1,12 +1,12 @@
 """
-Hybrid Iterated Local Search (HILS) solver.
+ILS-RVND-SP solver.
 
 Combines the Iterated Local Search (ILS) metaheuristic with Randomized
 Variable Neighborhood Descent (RVND) and an exact Set Partitioning (SP) formulation.
 
 Reference:
-    Ropke, S., & Pisinger, D. "A unified heuristic for a large
-    class of Vehicle Routing Problems with Backhauls", 2006
+    Subramanian et al. "A hybrid algorithm for a class of vehicle routing problems",
+    Computers & Operations Research, 2013.
 """
 
 import copy
@@ -18,8 +18,10 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
-from logic.src.policies.hybrid_iterated_local_search.params import HILSParams
-from logic.src.policies.hybrid_iterated_local_search.rvnd import RVND
+from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import (
+    ILSRVNDSPParams,
+)
+from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd import RVND
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
 )
@@ -28,9 +30,9 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 logger = logging.getLogger(__name__)
 
 
-class HILSSolver(PolicyVizMixin):
+class ILSRVNDSPSolver(PolicyVizMixin):
     """
-    HILS solver executing ILS with RVND and resolving via Set Partitioning.
+    ILS-RVND-SP solver executing ILS with RVND and resolving via Set Partitioning.
     """
 
     def __init__(
@@ -40,11 +42,11 @@ class HILSSolver(PolicyVizMixin):
         capacity: float,
         R: float,
         C: float,
-        params: HILSParams,
+        params: ILSRVNDSPParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
         """
-        Initialize the HILS solver.
+        Initialize the ILS-RVND-SP solver.
 
         Args:
             dist_matrix: NxN distance matrix.
@@ -90,25 +92,24 @@ class HILSSolver(PolicyVizMixin):
         revenue = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return revenue - cost
 
-    def _add_to_pool(self, routes: List[List[int]]):
+    def _add_to_pool(self, routes: List[List[int]], pool: Optional[Set[Tuple[int, ...]]] = None):
         """Standardize and hash routes to add to the unique pool."""
+        target_pool = pool if pool is not None else self.route_pool
         for route in routes:
             if not route:
                 continue
-            # Keep original orientation if that maps to a specific sequential distance cost
-            # But technically for symmetric graphs we could sort boundaries
-            self.route_pool.add(tuple(route))
+            target_pool.add(tuple(route))
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
         """
         Perturbation mechanism for generating neighborhood jumps.
-        Randomly removes perturbation_size nodes and greedily reinserts them.
+        Randomly removes perturbation_strength nodes and greedily reinserts them.
         """
         all_nodes = [n for r in routes for n in r]
         if not all_nodes:
             return routes
 
-        num_remove = min(len(all_nodes), self.params.perturbation_size)
+        num_remove = min(len(all_nodes), getattr(self.params, "perturbation_strength", 2))
         removed_nodes = list(self.rng.choice(all_nodes, size=num_remove, replace=False))
 
         new_routes = []
@@ -178,19 +179,21 @@ class HILSSolver(PolicyVizMixin):
             routes.append(curr_route)
         return routes
 
-    def solve_set_partitioning(self) -> Tuple[List[List[int]], float, float]:
+    def solve_set_partitioning(
+        self, pool: Optional[Set[Tuple[int, ...]]] = None
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Solve the Set Partitioning Problem exactly using Gurobi over the route pool.
         Finds the optimal combination of valid routes that visits mandatory nodes
         exactly once, and optional nodes at most once, while maximizing global profit.
         """
-        pool = list(self.route_pool)
-        n_routes = len(pool)
+        target_pool = list(pool) if pool is not None else list(self.route_pool)
+        n_routes = len(target_pool)
 
         if n_routes == 0:
             return [], 0.0, 0.0
 
-        logger.info(f"HILS solving Set Partitioning over {n_routes} unique routes.")
+        logger.info(f"ILS-RVND-SP solving Set Partitioning over {n_routes} unique routes.")
 
         # Precompute costs and node incidence
         route_costs = np.zeros(n_routes)
@@ -199,7 +202,7 @@ class HILSSolver(PolicyVizMixin):
         # Map node to the indices of routes that contain it
         node_to_routes = {n: [] for n in self.nodes}
 
-        for i, route in enumerate(pool):
+        for i, route in enumerate(target_pool):
             cost = self.dist_matrix[0][route[0]]
             for j in range(len(route) - 1):
                 cost += self.dist_matrix[route[j]][route[j + 1]]
@@ -216,10 +219,10 @@ class HILSSolver(PolicyVizMixin):
         env = gp.Env(empty=True)
         env.setParam("OutputFlag", 0)
         env.start()
-        model = gp.Model("HILS_SetPartitioning", env=env)
+        model = gp.Model("ILSRVNDSP_SetPartitioning", env=env)
 
-        model.setParam("TimeLimit", self.params.sp_time_limit)
-        model.setParam("MIPGap", self.params.sp_mip_gap)
+        model.setParam("TimeLimit", getattr(self.params, "mip_time_limit", 60.0))
+        model.setParam("MIPGap", getattr(self.params, "sp_mip_gap", 0.01))
 
         # Variables: x[i] = 1 if route i is selected
         x = model.addVars(n_routes, vtype=GRB.BINARY, name="x")
@@ -245,7 +248,7 @@ class HILSSolver(PolicyVizMixin):
             best_routes = []
             for i in range(n_routes):
                 if x[i].X > 0.5:
-                    best_routes.append(list(pool[i]))
+                    best_routes.append(list(target_pool[i]))
 
             best_cost = self.calculate_cost(best_routes)
             best_profit = self.calculate_profit(best_routes)
@@ -254,54 +257,41 @@ class HILSSolver(PolicyVizMixin):
         logger.warning("SP failed to find a valid combination. Falling back to best ILS solution.")
         return [], -float("inf"), float("inf")
 
-    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """Main HILS execution loop."""
+    def run_ils_rvnd(
+        self,
+        initial_routes: List[List[int]],
+        max_iterations: int,
+        max_ils_iterations: int,
+        target_pool: Set[Tuple[int, ...]],
+        tolerance: float,
+        start_time: float,
+        rvnd: RVND,
+    ) -> Tuple[List[List[int]], float]:
+        """Execute ILS-RVND metaheuristic iterations."""
+        best_routes = copy.deepcopy(initial_routes)
+        best_profit = self.calculate_profit(best_routes)
+        current_profit = best_profit
 
-        # 1. Initialize
-        current_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
-        best_routes = copy.deepcopy(current_routes)
+        self._add_to_pool(best_routes, target_pool)
 
-        current_profit = self.calculate_profit(current_routes)
-        best_profit = current_profit
-
-        ls_manager = ACOLocalSearch(
-            dist_matrix=self.dist_matrix,
-            waste=self.wastes,
-            capacity=self.capacity,
-            R=self.R,
-            C=self.C,
-            params=self.params,
-            seed=self.params.seed,
-        )
-        rvnd = RVND(ls_manager=ls_manager, rng=self.rng)
-
-        start_time = time.process_time()
-
-        self._add_to_pool(current_routes)
-
-        # 2. Outer Loop (Multi-start equivalents)
-        for iteration in range(self.params.max_iterations):
+        for iteration in range(max_iterations):
             if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
                 break
 
             iter_routes = copy.deepcopy(best_routes)
 
-            # 3. Inner Loop (Iterated Local Search using RVND)
-            for _ in range(self.params.ils_iterations):
+            for _ in range(max_ils_iterations):
                 if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
                     break
 
-                # Perturbation
                 perturbed = self._perturb(iter_routes)
-
-                # RVND Local Search
                 ls_routes = rvnd.apply(perturbed)
-                self._add_to_pool(ls_routes)
-
                 ls_profit = self.calculate_profit(ls_routes)
 
-                # Acceptance Criterion: Simple simulated annealing or strict descent
-                # Here we apply strict improvement or minor worsening acceptance typical in strict ILS
+                # Dynamic tolerance pool addition
+                if len(ls_routes) > 0 and (best_profit - ls_profit) / abs(best_profit + 1e-9) <= tolerance:
+                    self._add_to_pool(ls_routes, target_pool)
+
                 if ls_profit > current_profit - 1e-4:
                     iter_routes = copy.deepcopy(ls_routes)
                     current_profit = ls_profit
@@ -314,15 +304,129 @@ class HILSSolver(PolicyVizMixin):
                 iteration=iteration,
                 best_profit=best_profit,
                 current_profit=current_profit,
-                score=3 if ls_profit >= best_profit else 0,
+                score=3 if best_profit > current_profit else 0,
             )
 
-        # 4. Set Partitioning Refinement mapping Global Combinations
-        if self.params.use_set_partitioning and self.route_pool:
-            sp_routes, sp_profit, sp_cost = self.solve_set_partitioning()
-            if sp_routes and sp_profit > best_profit:
-                best_routes = sp_routes
-                best_profit = sp_profit
+        return best_routes, best_profit
 
-        best_cost = self.calculate_cost(best_routes)
-        return best_routes, best_profit, best_cost
+    def _run_strategy_a(
+        self,
+        initial_solution: Optional[List[List[int]]],
+        start_time: float,
+        rvnd: RVND,
+    ) -> Tuple[List[List[int]], float]:
+        """Execute Strategy A for smaller instances (n <= N)."""
+        global_best_routes = []
+        global_best_profit = -float("inf")
+
+        max_restarts = getattr(self.params, "max_restarts", 10)
+        max_iter_a = getattr(self.params, "MaxIter_a", 50)
+        iter_count = max_iter_a if max_iter_a > 0 else max_restarts
+        ils_count = int(self.n_nodes + 0.5 * (self.n_nodes / 10))
+        tolerance = getattr(self.params, "TDev_a", 0.05)
+
+        for _ in range(iter_count):
+            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+                break
+            init_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
+            iter_best_routes, iter_best_profit = self.run_ils_rvnd(
+                init_routes, 1, ils_count, self.route_pool, tolerance, start_time, rvnd
+            )
+            if iter_best_profit > global_best_profit:
+                global_best_profit = iter_best_profit
+                global_best_routes = iter_best_routes
+
+        if getattr(self.params, "use_set_partitioning", True) and self.route_pool:
+            sp_routes, sp_profit, _ = self.solve_set_partitioning(self.route_pool)
+            if sp_routes and sp_profit > global_best_profit:
+                global_best_routes = sp_routes
+                global_best_profit = sp_profit
+
+        return global_best_routes, global_best_profit
+
+    def _run_strategy_b(
+        self,
+        initial_solution: Optional[List[List[int]]],
+        start_time: float,
+        rvnd: RVND,
+    ) -> Tuple[List[List[int]], float]:
+        """Execute Strategy B for larger instances (n > N)."""
+        global_best_routes = []
+        global_best_profit = -float("inf")
+
+        max_restarts = getattr(self.params, "max_restarts", 10)
+        max_iter_b = getattr(self.params, "MaxIter_b", 100)
+        max_iter_ils = getattr(self.params, "max_iter_ils", 50)
+        max_ils_b = getattr(self.params, "MaxIterILS_b", 2000)
+        a_ratio = getattr(self.params, "A", 11.0)
+        tdev_b = getattr(self.params, "TDev_b", 0.005)
+        mip_time_limit = getattr(self.params, "mip_time_limit", 60.0)
+
+        iter_count = max_iter_b if max_iter_b > 0 else max_restarts
+        ils_count = max_ils_b if max_ils_b > 0 else max_iter_ils
+
+        for _ in range(iter_count):
+            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+                break
+
+            init_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
+            num_vehicles_approx = len(init_routes) if len(init_routes) > 0 else 1
+
+            tolerance = tdev_b if (self.n_nodes / num_vehicles_approx) < a_ratio else 1.0
+
+            temp_pool: Set[Tuple[int, ...]] = set()
+            iter_best_routes, iter_best_profit = self.run_ils_rvnd(
+                init_routes, 1, ils_count, temp_pool, tolerance, start_time, rvnd
+            )
+
+            combined_pool = self.route_pool.union(temp_pool)
+
+            if getattr(self.params, "use_set_partitioning", True) and combined_pool:
+                sp_time = time.process_time()
+                sp_routes, sp_profit, _ = self.solve_set_partitioning(combined_pool)
+                sp_duration = time.process_time() - sp_time
+
+                if sp_routes and sp_profit > iter_best_profit:
+                    iter_best_routes = sp_routes
+                    iter_best_profit = sp_profit
+
+                if not (sp_routes and sp_profit > iter_best_profit):
+                    temp_pool.clear()
+
+                if (self.n_nodes / num_vehicles_approx) < a_ratio:
+                    if sp_duration > mip_time_limit:
+                        tolerance -= 0.1 * tdev_b
+                    elif sp_duration < 1.0:
+                        tolerance += 0.1 * tdev_b
+
+            if iter_best_profit > global_best_profit:
+                global_best_profit = iter_best_profit
+                global_best_routes = iter_best_routes
+                self.route_pool.update(temp_pool)
+
+        return global_best_routes, global_best_profit
+
+    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
+        """Main ILS-RVND-SP execution loop with dual strategy handling."""
+        start_time = time.process_time()
+
+        ls_manager = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=self.params,
+            seed=self.params.seed,
+        )
+        rvnd = RVND(ls_manager=ls_manager, rng=self.rng)
+
+        n_limit = getattr(self.params, "N", 150)
+
+        if self.n_nodes <= n_limit:
+            global_best_routes, global_best_profit = self._run_strategy_a(initial_solution, start_time, rvnd)
+        else:
+            global_best_routes, global_best_profit = self._run_strategy_b(initial_solution, start_time, rvnd)
+
+        best_cost = self.calculate_cost(global_best_routes)
+        return global_best_routes, global_best_profit, best_cost

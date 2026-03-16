@@ -34,7 +34,8 @@ class PolicyFactory:
         import logic.src.policies.ant_colony_optimization.policy_ks_aco as policy_ks_aco  # noqa
         import logic.src.policies.artificial_bee_colony.policy_abc as policy_abc  # noqa
         import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl  # noqa
-        import logic.src.policies.branch_cut_and_price.policy_bcp as policy_bcp  # noqa
+
+        # import logic.src.policies.branch_cut_and_price.policy_bcp as policy_bcp  # noqa
         import logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp as policy_cvrp  # noqa
         import logic.src.policies.continuous_local_search.policy_cls as policy_cls  # noqa
         import logic.src.policies.evolution_strategy_mu_comma_lambda.policy_es_mcl as policy_es_mcl  # noqa
@@ -55,7 +56,7 @@ class PolicyFactory:
         import logic.src.policies.hybrid_genetic_search.policy_hgs as policy_hgs  # noqa
         import logic.src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns as policy_hgs_alns  # noqa
         import logic.src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr as policy_hgsrr  # noqa
-        import logic.src.policies.hybrid_iterated_local_search.policy_hils as policy_hils  # noqa
+        import logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp as policy_ils_rvnd_sp  # noqa
         import logic.src.policies.hybrid_volleyball_premier_league.policy_hvpl as policy_hvpl  # noqa
         import logic.src.policies.hyper_heuristic_us_lk.policy_hulk as policy_hulk  # noqa
         import logic.src.policies.iterated_local_search.policy_ils as policy_ils  # noqa
