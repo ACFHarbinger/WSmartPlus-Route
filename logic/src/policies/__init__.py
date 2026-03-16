@@ -34,6 +34,8 @@ from .adaptive_large_neighborhood_search.params import ALNSParams
 from .adaptive_large_neighborhood_search.policy_alns import run_alns
 from .base import IPolicy, PolicyFactory, PolicyRegistry
 from .capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from .differential_evolution.params import DEParams
+from .differential_evolution.solver import DESolver
 from .evolution_strategy_mu_comma_lambda.solver import MuCommaLambdaESParams, MuCommaLambdaESSolver
 from .evolution_strategy_mu_plus_lambda.solver import MuPlusLambdaESParams, MuPlusLambdaESSolver
 from .guided_indicators_hyper_heuristic.policy_gihh import run_gihh
@@ -68,6 +70,8 @@ __all__ = [
     "MuPlusLambdaESParams",
     "DistancePSOSolver",
     "DistancePSOParams",
+    "DESolver",
+    "DEParams",
     "MuCommaLambdaESSolver",
     "MuCommaLambdaESParams",
     "HybridMemeticSearchSolver",

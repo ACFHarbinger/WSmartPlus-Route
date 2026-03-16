@@ -36,6 +36,7 @@ class PolicyFactory:
         import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl  # noqa
         import logic.src.policies.branch_price_cut.policy_bpc as policy_bpc  # noqa
         import logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp as policy_cvrp  # noqa
+        import logic.src.policies.differential_evolution.policy_de as policy_de  # noqa
         import logic.src.policies.evolution_strategy_mu_comma_lambda.policy_es_mcl as policy_es_mcl  # noqa
         import logic.src.policies.evolution_strategy_mu_kappa_lambda.policy_es_mkl as policy_es_mkl  # noqa
         import logic.src.policies.evolution_strategy_mu_plus_lambda.policy_es_mpl as policy_es_mpl  # noqa
