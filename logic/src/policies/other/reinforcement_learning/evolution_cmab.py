@@ -117,7 +117,7 @@ class CMABEvolution:
         self.improvement_weight = improvement_weight
         self.diversity_weight = diversity_weight
         self.novelty_weight = novelty_weight
-        self.reward_threshold = reward_threshold
+        self.reward_threshold = float(reward_threshold)
         self.default_reward = default_reward
 
         # Tracking

@@ -13,8 +13,8 @@ defaults:
   - /policies@p.cvrp: policy_cvrp
   - /policies@p.hgs: policy_hgs
   - /policies@p.hgs_alns: policy_hgs_alns
-  - /policies@p.hh_aco: policy_hh_aco
-  - /policies@p.ks_aco: policy_ks_aco
+  - /policies@p.aco_hh: policy_aco_hh
+  - /policies@p.aco_ks: policy_aco_ks
   - /policies@p.neural: policy_neural
   - /policies@p.sans: policy_sans
   - /policies@p.sisr: policy_sisr
@@ -122,8 +122,8 @@ sim:
     - cvrp: ${p.cvrp.cvrp}
     - bpc: ${p.bpc.bpc}
     - neural: ${p.neural.neural}
-    - ks_aco: ${p.ks_aco.ks_aco}
-    - hh_aco: ${p.hh_aco.hh_aco}
+    - aco_ks: ${p.aco_ks.aco_ks}
+    - aco_hh: ${p.aco_hh.aco_hh}
     - qde: ${p.qde.qde}
     - psoma: ${p.psoma.psoma}
     - abc: ${p.abc.abc}

@@ -135,7 +135,7 @@ class InitializingState(SimState):
                     ctx.config[key] = loaded
                     print(f"\n[INFO] Loaded configuration for '{key}' from {path}")
                 except (OSError, ValueError) as e:
-                    print(f"\n[Warning] Failed to load config file {path}: {e}")
+                    print(f"\n[Warning] Failed to load config file {path} for {key}: {e}")
 
         self._load_neural_configs(ctx)
 
