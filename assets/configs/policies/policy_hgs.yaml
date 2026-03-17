@@ -34,10 +34,10 @@ hgs:
     # ---------------------------------------------------------------------
     # Runtime Control (Vidal 2022)
     # ---------------------------------------------------------------------
-    - time_limit: 0
+    - time_limit: 60
       # Maximum wall-clock seconds for optimization (0 = unlimited)
       # Range: 0 (unlimited), 30-600 (30s = quick, 300s = thorough)
-      # Recommendation: 0 for iteration-based stopping (Vidal 2022 default)
+      # Recommendation: 60s for simulation (iteration-based stopping is too slow)
 
     - n_iterations_no_improvement: 20000
       # Maximum iterations without improvement before stopping

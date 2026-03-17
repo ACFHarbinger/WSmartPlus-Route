@@ -140,28 +140,54 @@ class PolicySummaryCallback:
 
         item_obj: object = item
         if isinstance(item_obj, MustGoConfig):
-            name = str(item_obj.strategy)  # type: ignore[assignment]
-            if item_obj.strategy == "regular":
-                params = f"(freq={item_obj.frequency})"
-            elif item_obj.strategy == "revenue":
-                params = f"(thresh={item_obj.revenue_threshold})"
+            name = str(item_obj.strategy)
+            params = self._parse_must_go_config_params(item_obj)
+
         elif isinstance(item_obj, ITraversable):
             if "strategy" in item_obj:
                 name = str(item_obj.get("strategy") or "Unknown")
-                if "threshold" in item_obj:
-                    params = f"(t={item_obj['threshold']})"
+                params = self._parse_traversable_params(item_obj)
             else:
                 item_keys = list(item_obj.keys())
                 if item_keys:
                     name = str(item_keys[0])
                     val = item_obj[name]
-                    val_obj: object = val
-                    if isinstance(val_obj, ITraversable) and "threshold" in val_obj:
-                        params = f"(t={val_obj['threshold']})"
+                    if isinstance(val, ITraversable):
+                        params = self._parse_traversable_params(val)
+
         elif isinstance(item_obj, str):
             name = item_obj
 
         return name, params
+
+    def _parse_must_go_config_params(self, config: MustGoConfig) -> str:
+        """Extract formatted parameters from a MustGoConfig object."""
+        strategy = config.strategy
+        if strategy == "regular":
+            return f"(freq={config.frequency})"
+        if strategy == "revenue":
+            return f"(thresh={config.revenue_threshold})"
+        if strategy == "service_level":
+            return f"(cf={config.confidence_factor})"
+        if strategy in ("deadline", "multi_day_prob"):
+            return f"(horizon={config.horizon_days}, t={config.threshold})"
+        if strategy in ("pareto_front", "profit_per_km", "stochastic_regret", "last_minute", "lookahead"):
+            return f"(t={config.threshold})"
+        if strategy == "spatial_synergy":
+            return f"(crit={config.critical_threshold}, syn={config.synergy_threshold}, r={config.radius})"
+        return ""
+
+    def _parse_traversable_params(self, item: ITraversable) -> str:
+        """Extract formatted parameters from an ITraversable (Config/Dict) object."""
+        if "threshold" in item:
+            return f"(t={item['threshold']})"
+        if "horizon_days" in item:
+            return f"(h={item['horizon_days']})"
+        if "frequency" in item:
+            return f"(f={item['frequency']})"
+        if "critical_threshold" in item:
+            return f"(c={item['critical_threshold']}, s={item.get('synergy_threshold')})"
+        return ""
 
     def _extract_post_processing(self, config: Dict[str, Any]) -> str:
         """Extract post processing steps."""

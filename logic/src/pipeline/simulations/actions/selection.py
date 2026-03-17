@@ -88,6 +88,18 @@ class MustGoSelectionAction(SimulationAction):
 
             # Basic sanitization
             final_thresh = float(thresh) if thresh is not None else 0.0
+
+            # Extract optional advanced parameters from strategy params (avoids closure-in-loop)
+            _p = s_params if hasattr(s_params, "get") else {}
+
+            def _pf(key: str, default: float, _params: Any = _p) -> float:
+                v = _params.get(key) if hasattr(_params, "get") else None
+                return float(v) if v is not None else default
+
+            def _pi(key: str, default: int, _params: Any = _p) -> int:
+                v = _params.get(key) if hasattr(_params, "get") else None
+                return int(v) if v is not None else default
+
             sel_ctx = SelectionContext(
                 bin_ids=np.arange(0, n_bins, dtype="int32"),
                 current_fill=np.array(current_fill) if current_fill is not None else np.array([]),
@@ -103,6 +115,11 @@ class MustGoSelectionAction(SimulationAction):
                 bin_density=context.get("bin_density", 1.0),
                 bin_volume=context.get("bin_volume", 2.5),
                 max_fill=MAX_CAPACITY_PERCENT,
+                # New fields for advanced strategies
+                horizon_days=_pi("horizon_days", 3),
+                critical_threshold=_pf("critical_threshold", 0.90),
+                synergy_threshold=_pf("synergy_threshold", 0.60),
+                radius=_pf("radius", 10.0),
             )
 
             if "config" in strat_info:

@@ -39,3 +39,11 @@ class SelectionContext:
     bin_density: float = 0.0
     bin_volume: float = 0.0
     max_fill: float = 100.0
+
+    # --- New fields for advanced strategies ---
+    # DeadlineDrivenSelection / MultiDayOverflowSelection
+    horizon_days: int = 3
+    # SpatialSynergySelection
+    critical_threshold: float = 0.90
+    synergy_threshold: float = 0.60
+    radius: float = 10.0

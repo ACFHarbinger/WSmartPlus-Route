@@ -33,11 +33,17 @@ class MustGoSelectionFactory:
         """
         # Lazy imports to avoid circular dependencies and keep strategies separated
         from ..selection_combined import CombinedSelection
+        from ..selection_deadline import DeadlineDrivenSelection
         from ..selection_last_minute import LastMinuteSelection
         from ..selection_lookahead import LookaheadSelection
+        from ..selection_multi_day_prob import MultiDayOverflowSelection
+        from ..selection_pareto import ParetoFrontSelection
+        from ..selection_profit_per_km import ProfitPerKmSelection
         from ..selection_regular import RegularSelection
         from ..selection_revenue import RevenueThresholdSelection
         from ..selection_service_level import ServiceLevelSelection
+        from ..selection_spatial_synergy import SpatialSynergySelection
+        from ..selection_stochastic_regret import StochasticRegretSelection
 
         default_map = {
             "service_level": ServiceLevelSelection,
@@ -47,6 +53,12 @@ class MustGoSelectionFactory:
             "revenue": RevenueThresholdSelection,
             "revenue_threshold": RevenueThresholdSelection,
             "combined": CombinedSelection,
+            "deadline": DeadlineDrivenSelection,
+            "multi_day_prob": MultiDayOverflowSelection,
+            "pareto_front": ParetoFrontSelection,
+            "profit_per_km": ProfitPerKmSelection,
+            "spatial_synergy": SpatialSynergySelection,
+            "stochastic_regret": StochasticRegretSelection,
         }
 
         # Check explicit registry first
@@ -105,5 +117,26 @@ class MustGoSelectionFactory:
             )
         elif config.strategy == "combined":
             params.update({"strategies": config.combined_strategies, "logic": config.logic})
+        elif config.strategy in ("deadline", "multi_day_prob"):
+            params.update({"horizon_days": config.horizon_days, "threshold": config.threshold})
+        elif config.strategy == "pareto_front":
+            params["threshold"] = config.threshold
+        elif config.strategy == "profit_per_km":
+            params.update(
+                {
+                    "threshold": config.threshold,
+                    "revenue_kg": config.revenue_kg,
+                }
+            )
+        elif config.strategy == "spatial_synergy":
+            params.update(
+                {
+                    "critical_threshold": config.critical_threshold,
+                    "synergy_threshold": config.synergy_threshold,
+                    "radius": config.radius,
+                }
+            )
+        elif config.strategy == "stochastic_regret":
+            params["threshold"] = config.threshold
 
         return cls.create_strategy(config.strategy, **params)
