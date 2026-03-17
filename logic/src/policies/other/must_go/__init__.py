@@ -42,6 +42,12 @@ from logic.src.models.policies.selection import (
 )
 
 from .base import MustGoSelectionFactory, MustGoSelectionRegistry, SelectionContext
+from .selection_deadline import DeadlineDrivenSelection
+from .selection_multi_day_prob import MultiDayOverflowSelection
+from .selection_pareto import ParetoFrontSelection
+from .selection_profit_per_km import ProfitPerKmSelection
+from .selection_spatial_synergy import SpatialSynergySelection
+from .selection_stochastic_regret import StochasticRegretSelection
 
 __all__ = [
     # Vectorized selectors for training
@@ -59,4 +65,11 @@ __all__ = [
     "MustGoSelectionFactory",
     "MustGoSelectionRegistry",
     "SelectionContext",
+    # New simulation strategies
+    "DeadlineDrivenSelection",
+    "MultiDayOverflowSelection",
+    "ParetoFrontSelection",
+    "ProfitPerKmSelection",
+    "SpatialSynergySelection",
+    "StochasticRegretSelection",
 ]
