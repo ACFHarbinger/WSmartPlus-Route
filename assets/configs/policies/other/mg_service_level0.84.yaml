@@ -28,4 +28,5 @@
 
 strategy: service_level
 confidence_factor: 0.84
+horizon_days: 1
 max_fill: 100.0

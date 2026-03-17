@@ -24,21 +24,37 @@ class MustGoConfig:
             - "lookahead": Predictive (collect if overflow within N days)
             - "revenue": Revenue-based (collect if revenue exceeds threshold)
             - "service_level": Statistical overflow prediction
+            - "deadline": Deterministic days-to-overflow (floor-based)
+            - "multi_day_prob": Stochastic overflow risk over K days
+            - "pareto_front": Multi-objective (urgency x distance) optimization
+            - "profit_per_km": Spatial ROI (Expected revenue / distance)
+            - "spatial_synergy": Critical bins + opportunistic neighbors
+            - "stochastic_regret": Expected overflow volume minimization
             - "manager": Neural network-based selection (MustGoManager)
             - "combined": Combine multiple strategies with OR logic
             - None: No must-go constraint (default behavior)
-        threshold: Fill level threshold for last_minute/manager strategy (0-1).
+        threshold: General parameter used as:
+            - Fill level threshold for last_minute (0-1).
+            - Lookahead horizon for deadline (days).
+            - Risk probability for multi_day_prob (0-1).
+            - Lookahead days filter for pareto_front.
+            - Economic threshold for profit_per_km.
+            - Expected overflow tolerance for stochastic_regret.
         frequency: Collection frequency for regular strategy (days).
         confidence_factor: Standard deviations for service_level strategy.
-        revenue_kg: Revenue per kg for revenue strategy.
+        revenue_kg: Revenue per kg for revenue/profit_per_km strategies.
         bin_capacity: Bin capacity for revenue calculation.
         revenue_threshold: Minimum revenue threshold for revenue strategy.
         max_fill: Maximum fill level (overflow threshold).
+        horizon_days: Lookahead window (days) for deadline/multi_day_prob.
+        critical_threshold: Fill level for marking a bin as "critical" (spatial_synergy).
+        synergy_threshold: Fill level for "opportunistic" neighbors (spatial_synergy).
+        radius: Distance radius for opportunistic collection (spatial_synergy).
         combined_strategies: List of strategy configs for combined selector.
         hidden_dim: Hidden dimension for manager network.
         lstm_hidden: LSTM hidden dimension for manager network.
         history_length: Temporal history length for manager network.
-        critical_threshold: Critical fill threshold for manager network.
+        manager_critical_threshold: Critical fill threshold for manager network.
         manager_weights: Path to pre-trained manager weights.
         device: Device for manager computation ('cpu' or 'cuda').
         params: Additional strategy-specific parameters.
@@ -63,6 +79,14 @@ class MustGoConfig:
     # Common parameters
     max_fill: float = 1.0
 
+    # Multi-day horizon (multi_day_prob, deadline strategies)
+    horizon_days: int = 3
+
+    # SpatialSynergy parameters
+    critical_threshold: float = 0.90
+    synergy_threshold: float = 0.60
+    radius: float = 10.0
+
     # Combined strategy configs (list of dicts with strategy configs)
     combined_strategies: Optional[list] = None
     logic: str = "or"
@@ -71,7 +95,7 @@ class MustGoConfig:
     hidden_dim: int = 128
     lstm_hidden: int = 64
     history_length: int = 10
-    critical_threshold: float = 0.9
+    manager_critical_threshold: float = 0.9
     manager_weights: Optional[str] = None
     device: str = "cuda"
 

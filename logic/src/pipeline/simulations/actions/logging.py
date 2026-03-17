@@ -28,6 +28,7 @@ class LogAction(SimulationAction):
         day = context["day"]
         sum_lost = context["sum_lost"]
         time = context["time"]
+        day = context["day"]
 
         dlog = get_daily_results(
             total_collected,
@@ -44,12 +45,12 @@ class LogAction(SimulationAction):
 
         context["daily_log"] = dlog
         policy_name = context["policy_name"]
-        print(f"\n[INFO] Logging daily results for {policy_name} policy.")
+        print(f"\n[INFO] Logging day {day} results for {policy_name} policy.")
         send_daily_output_to_gui(
             dlog,
             policy_name,
             context["sample_id"],
-            context["day"],
+            day,
             context["total_fill"],
             context["collected"],
             context["bins"].real_c,
