@@ -41,6 +41,7 @@ class KernelSearchConfig:
             Defaults to 0.01 (1%).
         seed (int): Random seed for Gurobi's internal heuristics and algorithmic
             variations to ensure deterministic behavior. Defaults to 42.
+        vrpp (bool): Whether the problem is a VRP with Profits.
         engine (str): Identifier for the optimization engine. Use "custom" for
             the WSmart+ implementation.
         must_go (Optional[MustGoConfig]): Logic for pre-selecting mandatory bins
@@ -56,6 +57,7 @@ class KernelSearchConfig:
     mip_limit_nodes: int = 5000
     mip_gap: float = 0.01
     seed: int = 42
+    vrpp: bool = True
 
     # Infrastructure
     engine: str = "custom"

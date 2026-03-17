@@ -27,5 +27,6 @@ class MemeticAlgorithmIslandModelConfig:
     local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
+    vrpp: bool = True
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

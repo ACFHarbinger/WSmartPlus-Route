@@ -31,6 +31,7 @@ class ILSRVNDSPConfig(ABCConfig):
     TDev_b: float = 0.005
 
     # Global parameters
+    vrpp: bool = True
     time_limit: float = 120.0
     seed: int = 42
     local_search_iterations: int = 500

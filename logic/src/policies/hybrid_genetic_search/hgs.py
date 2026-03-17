@@ -134,11 +134,11 @@ class HGSSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
         """
+        start_time = time.process_time()
+
         # Initialize dual subpopulations and penalty
         penalty_capacity = self.params.initial_penalty_capacity
         pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
-
-        start_time = time.process_time()
         it = 0
         it_no_improvement = 0
         best_profit_so_far = max(ind.profit_score for ind in pop_feasible) if pop_feasible else -float("inf")

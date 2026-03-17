@@ -29,6 +29,7 @@ class AHVPLConfig:
     alns_elite_iterations: int = 500
     alns_not_coached_iterations: int = 100
     seed: Optional[int] = None
+    vrpp: bool = True
 
     # Nested component configs
     hgs: HGSConfig = field(default_factory=HGSConfig)

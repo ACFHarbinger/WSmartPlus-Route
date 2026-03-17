@@ -29,39 +29,35 @@ rens:
     # Time Management
     # ---------------------------------------------------------------------
     - time_limit: 60.0
-      # Maximum wall-clock time (seconds) allowed for the entire matheuristic.
-      # If the sub-MIP is complex, it will return the best solution found
-      # within this limit.
+    # Maximum wall-clock time (seconds) allowed for the entire matheuristic.
+    # If the sub-MIP is complex, it will return the best solution found
+    # within this limit.
 
     - lp_time_limit: 10.0
-      # Maximum time (seconds) for the initial LP relaxation solve.
-      # Usually very fast for VRPP, but limited here for safety on large graphs.
+    # Maximum time (seconds) for the initial LP relaxation solve.
+    # Usually very fast for VRPP, but limited here for safety on large graphs.
 
     # ---------------------------------------------------------------------
     # Sub-MIP Precision & Depth
     # ---------------------------------------------------------------------
     - mip_limit_nodes: 1000
-      # Limit on the number of branch-and-bound nodes for the sub-MIP phase.
-      # Low values prioritize speed; higher values allow deeper exploration.
+    # Limit on the number of branch-and-bound nodes for the sub-MIP phase.
+    # Low values prioritize speed; higher values allow deeper exploration.
 
     - mip_gap: 0.05
-      # Relative optimality gap tolerance for the sub-MIP.
-      # 0.05 (5%) is a good balance for a "start heuristic" to avoid stall.
-
-    - seed: 42
-      # Deterministic seed for Gurobi to ensure reproducible results across
-      # identical simulation runs.
+    # Relative optimality gap tolerance for the sub-MIP.
+    # 0.05 (5%) is a good balance for a "start heuristic" to avoid stall.
 
     # ---------------------------------------------------------------------
     # Structural Integration
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Indicates the internal Python-Gurobi integration (solver.py).
+    # Indicates the internal Python-Gurobi integration (solver.py).
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Selection strategy for nodes that MUST be visited (e.g., overflow risk).
-      # Composes with the RENS solver to ensure these nodes are collected.
+    # Selection strategy for nodes that MUST be visited (e.g., overflow risk).
+    # Composes with the RENS solver to ensure these nodes are collected.
 
     - post_processing: []
-      # Optional local search or cleanup settings applied after RENS.
+    # Optional local search or cleanup settings applied after RENS.
 # =============================================================================

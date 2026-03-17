@@ -32,4 +32,3 @@ methods:
 
 # Fast TSP parameters (implicit from library)
 time_limit: 10.0
-iterations: 1000

@@ -27,6 +27,7 @@ class HybridMemeticSearchConfig:
     elitism_count: int = 3
     aco_init_iterations: int = 50
     time_limit: float = 300.0
+    vrpp: bool = True
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

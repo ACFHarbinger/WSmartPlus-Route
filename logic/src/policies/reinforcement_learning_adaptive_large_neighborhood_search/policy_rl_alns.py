@@ -58,7 +58,10 @@ class RLALNSPolicy(BaseRoutingPolicy):
             # Safe way to convert nested dict to RLConfig
             rl_config = RLConfig(
                 agent_type=rl_vals.get("agent_type", "bandit"),
-                bandit=BanditConfig(**{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"}),
+                bandit=BanditConfig(
+                    **{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"},
+                    seed=values.get("seed"),
+                ),
                 td_learning=TDLearningConfig(
                     **{k: v for k, v in rl_vals.get("td_learning", {}).items() if k != "_target_"}
                 ),
@@ -78,7 +81,7 @@ class RLALNSPolicy(BaseRoutingPolicy):
                 bandit=BanditConfig(
                     algorithm=values.get("rl_algorithm", "ucb1"),
                     c=values.get("ucb_c", 2.0),
-                    seed=kwargs.get("seed"),
+                    seed=values.get("seed"),
                 ),
                 td_learning=TDLearningConfig(
                     alpha=values.get("alpha", 0.1),

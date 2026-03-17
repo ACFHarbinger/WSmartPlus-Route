@@ -1,8 +1,11 @@
 """
 Ruin and Recreate operator for Fast Iterative Localized Optimization (FILO).
+
+Upgraded to be strictly Profit-Aware for the VRPP.
 """
 
-from typing import Dict, List, Tuple
+import copy
+from typing import Dict, List, Set, Tuple
 
 import numpy as np
 
@@ -10,7 +13,7 @@ import numpy as np
 class RuinAndRecreate:
     """
     Operator that applies localized Ruin & Recreate (shaking) to a solution.
-    Based on the FILO algorithm.
+    Modified to evaluate insertions based on economic profit (Revenue - Cost).
     """
 
     def __init__(
@@ -18,18 +21,21 @@ class RuinAndRecreate:
         dist_matrix: np.ndarray,
         wastes: Dict[int, float],
         capacity: float,
+        R: float,
+        C: float,
         rng: np.random.Generator,
     ):
-        """Initialize RuinAndRecreate operator."""
+        """Initialize Profit-Aware RuinAndRecreate operator."""
         self.d = dist_matrix
         self.waste = wastes
         self.Q = capacity
+        self.R = R
+        self.C = C
         self.rng = rng
 
         # Pre-compute neighbors list (omitting depot) sorted by distance for each node
         self.neighbors: List[List[int]] = []
         for i in range(len(self.d)):
-            # Sort neighbors by distance, exclude depot (index 0) and self
             sorted_neighbors = np.argsort(self.d[i])
             filtered = [int(n) for n in sorted_neighbors if n != 0 and n != i]
             self.neighbors.append(filtered)
@@ -39,142 +45,73 @@ class RuinAndRecreate:
         routes: List[List[int]],
         omega: List[int],
         all_customers: List[int],
+        mandatory_nodes: List[int],
     ) -> Tuple[List[List[int]], int, List[int]]:
         """
         Apply Ruin and Recreate to the current routing solution.
 
         Args:
-            routes: Current routes. Will NOT be modified in-place; deep copy used.
-            omega: Array/List of shaking intensities per node (1-indexed for customers).
-            all_customers: List of all valid customer IDs.
+            routes: Current routes.
+            omega: Subset of active localized nodes to pick the seed from.
+            all_customers: List of all valid nodes in the environment.
+            mandatory_nodes: Nodes that must be collected regardless of profit.
 
         Returns:
-            Tuple of (new_routes, seed_node, ruined_customers)
+            Tuple of (new_routes, number_of_nodes_ruined, list_of_ruined_nodes)
         """
-        # Deep copy to avoid mutating the original
-        working_routes = [r[:] for r in routes if r]
+        working_routes = copy.deepcopy(routes)
+        current_loads = [sum(self.waste.get(node, 0.0) for node in route) for route in working_routes]
+        mandatory_set: Set[int] = set(mandatory_nodes)
 
-        # Select a random seed node
-        seed = self.rng.choice(all_customers)
-        # Omega might be 1-indexed based or sized up to len(distance_matrix)
-        N = omega[seed]
+        # --- 1. RUIN PHASE (Spatial Localization) ---
+        n_remove = self.rng.integers(5, max(6, int(len(all_customers) * 0.15)))
+        removed_customers: List[int] = []
 
-        removed = []
-        visited_routes = set()
-        curr = seed
+        if omega:
+            seed = int(self.rng.choice(omega))
+            removed_customers.append(seed)
+            for neighbor in self.neighbors[seed]:
+                if len(removed_customers) >= n_remove:
+                    break
+                removed_customers.append(neighbor)
 
-        # Helpers for routing queries
-        def _build_route_map() -> Dict[int, Tuple[int, int]]:
-            """Build map from customer ID -> (route_index, position_index)."""
-            rmap = {}
-            for r_idx, route in enumerate(working_routes):
-                for p_idx, node in enumerate(route):
-                    rmap[node] = (r_idx, p_idx)
-            return rmap
+        # Add a few completely random customers to guarantee ergodicity
+        random_additions = min(3, len(all_customers))
+        random_nodes = self.rng.choice(all_customers, size=random_additions, replace=False)
+        for rn in random_nodes:
+            if int(rn) not in removed_customers:
+                removed_customers.append(int(rn))
 
-        route_map = _build_route_map()
+        # Actually remove them from routes
+        for r_idx, route in enumerate(working_routes):
+            working_routes[r_idx] = [n for n in route if n not in removed_customers]
+            current_loads[r_idx] = sum(self.waste.get(n, 0.0) for n in working_routes[r_idx])
 
-        for _ in range(N):
-            if curr == 0 or curr not in route_map:
-                break
+        # --- 2. RECREATE PHASE (Profit-Aware Greedy) ---
+        # Shuffle removed customers to avoid deterministic insertion traps
+        self.rng.shuffle(removed_customers)
 
-            r_idx, p_idx = route_map[curr]
-            route = working_routes[r_idx]
-
-            removed.append(curr)
-            visited_routes.add(r_idx)
-
-            next_node = -1
-
-            if len(route) > 1 and self.rng.random() < 0.5:
-                # Move within the current route
-                if self.rng.random() < 0.5:
-                    # Next vertex
-                    next_p = p_idx + 1
-                    if next_p >= len(route):
-                        next_p = 0 if len(route) > 1 else -1
-                    if next_p != -1 and route[next_p] == curr:
-                        # Should not happen if len > 1, but safeguard
-                        next_p = (next_p + 1) % len(route)
-                    next_node = route[next_p] if next_p != -1 else -1
-                else:
-                    # Prev vertex
-                    prev_p = p_idx - 1
-                    if prev_p < 0:
-                        prev_p = len(route) - 1 if len(route) > 1 else -1
-                    if prev_p != -1 and route[prev_p] == curr:
-                        prev_p = (prev_p - 1) % len(route)
-                    next_node = route[prev_p] if prev_p != -1 else -1
-            else:
-                # Jump to neighbor route
-                if self.rng.random() < 0.5:
-                    # Unvisited routes
-                    for neighbor in self.neighbors[curr]:
-                        if neighbor not in route_map:
-                            continue
-                        neighbor_r_idx = route_map[neighbor][0]
-                        if neighbor_r_idx not in visited_routes:
-                            next_node = neighbor
-                            break
-                else:
-                    # Any valid customer
-                    for neighbor in self.neighbors[curr]:
-                        if neighbor in route_map:
-                            next_node = neighbor
-                            break
-
-            # Remove `curr` from route_map and the actual route
-            # For simplicity without breaking p_idx of others, we update later.
-            # Actually, removing alters index. Better to just mark as removed in route_map
-            del route_map[curr]
-
-            if next_node == -1 or next_node not in route_map:
-                break
-            curr = next_node
-
-        # Physically remove from routes based on `removed`
-        removed_set = set(removed)
-        new_routes = []
-        for r in working_routes:
-            filtered_r = [n for n in r if n not in removed_set]
-            if filtered_r:
-                new_routes.append(filtered_r)
-
-        working_routes = new_routes
-
-        # Determine removal insertion order
-        order_type = self.rng.integers(0, 4)
-        if order_type == 0:
-            self.rng.shuffle(removed)
-        elif order_type == 1:
-            # Descending demand/waste
-            removed.sort(key=lambda x: self.waste.get(x, 0.0), reverse=True)
-        elif order_type == 2:
-            # Descending cost to depot
-            removed.sort(key=lambda x: self.d[x, 0], reverse=True)
-        elif order_type == 3:
-            # Ascending cost to depot
-            removed.sort(key=lambda x: self.d[x, 0])
-
-        # Re-insert dynamically
-        for customer in removed:
-            best_r_idx = -1
+        for customer in removed_customers:
+            best_profit = -float("inf")
+            best_r_idx = -2
             best_p_idx = -1
-            best_cost = float("inf")
-            c_waste = self.waste.get(customer, 0.0)
+
+            customer_waste = self.waste.get(customer, 0.0)
+            revenue = customer_waste * self.R
+            is_mandatory = customer in mandatory_set
 
             for r_idx, route in enumerate(working_routes):
-                current_load = sum(self.waste.get(n, 0.0) for n in route)
-                if current_load + c_waste > self.Q:
+                if current_loads[r_idx] + customer_waste > self.Q:
                     continue
 
-                # Try inserting before each point (including the depot at start, which means beginning of route)
-                # i.e. 0 -> route[0] -> route[1] -> ... -> route[-1] -> 0
+                if len(route) == 0:
+                    continue
 
                 # Insert at the beginning: 0 -> customer -> route[0]
-                cost_start = -self.d[0, route[0]] + self.d[0, customer] + self.d[customer, route[0]]
-                if cost_start < best_cost:
-                    best_cost = cost_start
+                dist_start = self.d[0, customer] + self.d[customer, route[0]] - self.d[0, route[0]]
+                profit_start = revenue - (dist_start * self.C)
+                if profit_start > best_profit:
+                    best_profit = profit_start
                     best_r_idx = r_idx
                     best_p_idx = 0
 
@@ -182,23 +119,47 @@ class RuinAndRecreate:
                 for p_idx in range(1, len(route)):
                     prev_node = route[p_idx - 1]
                     next_node = route[p_idx]
-                    cost = -self.d[prev_node, next_node] + self.d[prev_node, customer] + self.d[customer, next_node]
-                    if cost < best_cost:
-                        best_cost = cost
+                    dist_mid = self.d[prev_node, customer] + self.d[customer, next_node] - self.d[prev_node, next_node]
+                    profit_mid = revenue - (dist_mid * self.C)
+                    if profit_mid > best_profit:
+                        best_profit = profit_mid
                         best_r_idx = r_idx
                         best_p_idx = p_idx
 
                 # Insert at the end: route[-1] -> customer -> 0
-                cost_end = -self.d[route[-1], 0] + self.d[route[-1], customer] + self.d[customer, 0]
-                if cost_end < best_cost:
-                    best_cost = cost_end
+                dist_end = self.d[route[-1], customer] + self.d[customer, 0] - self.d[route[-1], 0]
+                profit_end = revenue - (dist_end * self.C)
+                if profit_end > best_profit:
+                    best_profit = profit_end
                     best_r_idx = r_idx
                     best_p_idx = len(route)
 
-            if best_r_idx == -1:
-                # Build new route
-                working_routes.append([customer])
-            else:
-                working_routes[best_r_idx].insert(best_p_idx, customer)
+            # Check creating an entirely new route: 0 -> customer -> 0
+            dist_new = self.d[0, customer] + self.d[customer, 0]
+            profit_new = revenue - (dist_new * self.C)
+            if profit_new > best_profit:
+                best_profit = profit_new
+                best_r_idx = -1
 
-        return working_routes, seed, removed
+            # --- ECONOMIC TERMINATION / EVALUATION ---
+            if best_r_idx != -2:
+                # If the insertion creates a financial loss, AND it's not a mandatory node, we drop it.
+                if not is_mandatory and best_profit < -1e-4:
+                    continue  # Node stays unassigned (opportunistic starvation prevented!)
+
+                if best_r_idx == -1:
+                    working_routes.append([customer])
+                    current_loads.append(customer_waste)
+                else:
+                    working_routes[best_r_idx].insert(best_p_idx, customer)
+                    current_loads[best_r_idx] += customer_waste
+
+            elif is_mandatory:
+                # Mandatory node could not fit in any existing route; force open a new route
+                working_routes.append([customer])
+                current_loads.append(customer_waste)
+
+        # Cleanup any empty routes generated by the ruin phase
+        working_routes = [r for r in working_routes if r]
+
+        return working_routes, len(removed_customers), removed_customers

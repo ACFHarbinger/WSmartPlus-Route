@@ -27,8 +27,9 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "bpc,popmusic,hgs,hgs_rr,alns,filo,sisr,rl_gd_hh,gphh,sa,ema"
+policies := "bpc,popmusic,hgs,filo"
 
+#policies := "bpc,popmusic,hgs,hgs_rr,alns,filo,sisr,rl_gd_hh,gphh,sa,ema"
 #policies := "swc_tcf,bpc,ils_rvnd_sp,popmusic,aks,hgs,hgs_rr,alns,filo,sisr,rl_gd_hh,gphh,sa,ema"
 # --- Setup & Environment ---
 

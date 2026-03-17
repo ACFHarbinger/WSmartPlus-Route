@@ -27,35 +27,122 @@ popmusic:
     # Decomposition Parameters
     # ---------------------------------------------------------------------
     - subproblem_size: 3
-      # Number of neighboring routes (R) to include in each subproblem.
-      # Smaller values → faster execution, likely to get stuck in local optima.
-      # Larger values → more intensive search, slower iterations.
-      # Range: 2-10 (Recommendation: 3-5)
+    # Number of neighboring routes (R) to include in each subproblem.
+    # Smaller values → faster execution, likely to get stuck in local optima.
+    # Larger values → more intensive search, slower iterations.
+    # Range: 2-10 (Recommendation: 3-5)
 
     - max_iterations: 100
-      # Maximum number of subproblem optimization attempts without improvement.
-      # Prevents excessive runtime on very large instances.
+    # Maximum number of subproblem optimization attempts without improvement.
+    # Prevents excessive runtime on very large instances.
 
     # ---------------------------------------------------------------------
     # Optimization Backend
     # ---------------------------------------------------------------------
-    - base_solver: "fast_tsp"
-      # The solver used to optimize identified subproblems.
-      # fast_tsp: High-speed heuristic suitable for frequent subproblem calls.
+    - base_solver: "alns"
+    # The solver used to optimize identified subproblems.
+    # Supported: "fast_tsp", "hgs", "alns"
+
+    - base_solver_config:
+        # ---------------------------------------------------------------------
+        # Sub-Solver Parameters (ALNS / HGS / FastTSP)
+        # ---------------------------------------------------------------------
+        # These override the defaults of the selected base_solver.
+        # Structure mirrored from policy_hms.yaml
+
+        fast_tsp:
+          time_limit: 1.0
+          # seed: 42
+
+        alns:
+          time_limit: 1.0
+          max_iterations: 1000
+          start_temp: 100
+          cooling_rate: 0.995
+          reaction_factor: 0.1
+          min_removal: 1
+          max_removal_pct: 0.3
+
+        hgs:
+          time_limit: 1.0
+          mu: 25 # Min population size
+          lambda_param: 40 # Generation size
+          nb_elite: 4 # Elite solutions preserved
+          nb_close: 5 # Number of close solutions to generate
+          nb_granular: 20 # Granular search parameter
+          n_iterations_no_improvement: 20000
+          local_search_iterations: 500
+          target_feasible: 0.2
+          alpha_diversity: 0.5
+          diversity_change_rate: 0.05
+          min_diversity: 0.2
+          mutation_rate: 1.0
+          crossover_rate: 1.0
+          repair_probability: 0.5
+          initial_penalty_capacity: 1.0
+          penalty_increase: 1.2
+          penalty_decrease: 0.85
+          use_cross_exchange: false
+          use_lambda_interchange: false
+          lambda_max: 2
+          use_ejection_chains: false
+
+    - cluster_solver: "fast_tsp"
+    # The solver used to optimize the inital route clusters.
+
+    - cluster_solver_config:
+        # ---------------------------------------------------------------------
+        # Pre-Optimization Parameters (FastTSP Recommended)
+        # ---------------------------------------------------------------------
+        # Configures the solver used for initial cluster construction.
+        # Use short time limits here to ensure fast simulation startup.
+
+        fast_tsp:
+          time_limit: 0.1
+
+        alns:
+          time_limit: 1.0
+          max_iterations: 1000
+          start_temp: 100
+          cooling_rate: 0.995
+          reaction_factor: 0.1
+          min_removal: 1
+          max_removal_pct: 0.3
+
+        hgs:
+          time_limit: 1.0
+          mu: 25 # Min population size
+          lambda_param: 40 # Generation size
+          nb_elite: 4 # Elite solutions preserved
+          nb_close: 5 # Number of close solutions to generate
+          nb_granular: 20 # Granular search parameter
+          n_iterations_no_improvement: 20000
+          local_search_iterations: 500
+          target_feasible: 0.2
+          alpha_diversity: 0.5
+          diversity_change_rate: 0.05
+          min_diversity: 0.2
+          mutation_rate: 1.0
+          crossover_rate: 1.0
+          repair_probability: 0.5
+          initial_penalty_capacity: 1.0
+          penalty_increase: 1.2
+          penalty_decrease: 0.85
+          use_cross_exchange: false
+          use_lambda_interchange: false
+          lambda_max: 2
+          use_ejection_chains: false
 
     - initial_solver: "nearest_neighbor"
-      # Heuristic used to construct the initial set of routes for decomposition.
-
-    - seed: 42
-      # Determinism control for stochastic elements in backend solvers.
+    # Heuristic used to construct the initial set of routes for decomposition.
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Implementation: logic/src/policies/popmusic/
+    # Implementation: logic/src/policies/popmusic/
 
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []
-      # Node selection strategy for waste collection.
+    # Node selection and final refinement strategies.
 # =============================================================================

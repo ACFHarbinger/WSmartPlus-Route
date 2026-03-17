@@ -62,9 +62,6 @@ aks:
     - mip_gap: 0.01
       # Relative optimality gap for sub-problems (0.01 = 1%).
 
-    - seed: 42
-      # Ensures the Gurobi internal search tree remains deterministic.
-
     # ---------------------------------------------------------------------
     # Integration & Feature Extensions
     # ---------------------------------------------------------------------

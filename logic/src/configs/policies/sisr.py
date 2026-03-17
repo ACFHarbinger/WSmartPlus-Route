@@ -23,6 +23,7 @@ class SISRConfig:
         blink_rate: Probability of 'blinking' during insertion.
         destroy_ratio: Fraction of solution to destroy per iteration.
         engine: Solver engine to use.
+        vrpp: Whether this is a VRPP problem.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
     """
@@ -37,5 +38,6 @@ class SISRConfig:
     blink_rate: float = 0.01
     destroy_ratio: float = 0.2
     engine: str = "custom"
+    vrpp: bool = True
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
