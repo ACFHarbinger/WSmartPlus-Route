@@ -341,17 +341,32 @@ class RuinRecreateOperator:
 
         # Call the operator
         try:
-            repaired_routes = operator_func(
-                routes=routes,
-                removed=removed_nodes,
-                dist_matrix=self.dist_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                revenue=self.revenue,
-                cost_unit=self.cost_unit,
-                noise=self.params.noise_factor,
-                rng=self.rng,
-            )
+            # Common parameters for all operators
+            kwargs = {
+                "routes": routes,
+                "removed_nodes": removed_nodes,
+                "dist_matrix": self.dist_matrix,
+                "wastes": self.wastes,
+                "capacity": self.capacity,
+            }
+
+            # Map specific parameters based on operator type
+            if "blink" in operator_name:
+                kwargs["blink_rate"] = self.params.noise_factor
+                kwargs["rng"] = self.rng
+                if "profit" in operator_name:
+                    kwargs["R"] = self.revenue
+                    kwargs["C"] = self.cost_unit
+                    kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
+            else:
+                # Standard greedy or regret operators
+                kwargs["R"] = self.revenue
+                kwargs["cost_unit"] = self.cost_unit
+                kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
+                if operator_name == "greedy_insertion":
+                    kwargs["expand_pool"] = True
+
+            repaired_routes = operator_func(**kwargs)
             return repaired_routes
         except Exception:
             # Fallback: append uninserted nodes as new routes if capacity allows

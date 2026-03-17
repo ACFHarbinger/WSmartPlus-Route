@@ -171,6 +171,7 @@ class ALNSSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
         """
+        start_time = time.process_time()
         (
             current_routes,
             best_routes,
@@ -178,9 +179,8 @@ class ALNSSolver:
             best_cost,
         ) = self._initialize_solve(initial_solution)
         current_profit = best_profit
-
         T = self.params.start_temp
-        start_time = time.process_time()
+
         for _it in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break

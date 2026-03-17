@@ -99,6 +99,7 @@ class HGSRRSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
         """
+        start_time = time.process_time()
         population: List[Individual] = []
 
         # 1. Initial Population
@@ -112,7 +113,6 @@ class HGSRRSolver:
         current_alpha = self.params.alpha_diversity
         update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
 
-        start_time = time.process_time()
         it = 0
         last_improvement_it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)

@@ -23,6 +23,8 @@ class FILOConfig(ABCConfig):
         gamma_base: Base probability for neighborhood evaluation.
         omega_base_multiplier: Base shaking intensity multiplier.
         seed: Random seed for reproducibility.
+        local_search_iterations: Number of local search iterations.
+        vrpp: Whether this is a VRPP problem.
     """
 
     time_limit: float = 60.0
@@ -36,3 +38,4 @@ class FILOConfig(ABCConfig):
     omega_base_multiplier: float = 1.0
     seed: int = 42
     local_search_iterations: int = 500
+    vrpp: bool = True

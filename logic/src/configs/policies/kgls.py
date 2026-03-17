@@ -23,3 +23,4 @@ class KGLSConfig(ABCConfig):
     penalization_cycle: List[str] = field(default_factory=lambda: ["width", "length", "width_length"])
 
     seed: int = 42
+    vrpp: bool = True

@@ -21,6 +21,8 @@ class NeuralConfig:
         reward: Objective/reward weights configuration.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
+        seed: Random seed for reproducibility.
+        vrpp: Whether the problem is a VRP with Profits.
     """
 
     model: ModelConfig = field(default_factory=ModelConfig)
@@ -28,3 +30,4 @@ class NeuralConfig:
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
     seed: Optional[int] = None
+    vrpp: bool = True

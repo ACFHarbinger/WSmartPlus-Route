@@ -11,6 +11,7 @@ References:
 
 import copy
 import math
+import random
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -22,6 +23,11 @@ from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate impo
 )
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
+)
+
+# Ensure you place your greedy_initialization.py file in this path or adjust accordingly
+from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+    build_greedy_routes,
 )
 
 
@@ -50,225 +56,230 @@ class FILOSolver:
             dist_matrix: NxN distance matrix.
             wastes: Dictionary of node wastes.
             capacity: Maximum vehicle capacity.
-            R: Revenue multiplier.
-            C: Cost multiplier.
-            params: Detailed FILO parameters.
-            mandatory_nodes: List of mandatory node indices.
+            R: Revenue multiplier per kg.
+            C: Cost multiplier per km.
+            params: Algorithm hyperparameters.
+            mandatory_nodes: List of mandatory nodes.
         """
-        self.dist_matrix = dist_matrix
-        self.wastes = wastes
-        self.capacity = capacity
+        self.d = dist_matrix
+        self.waste = wastes
+        self.Q = capacity
         self.R = R
         self.C = C
         self.params = params
-        self.mandatory_nodes = mandatory_nodes
-        self.rng = np.random.default_rng(params.seed)
+
+        self.mandatory_nodes = mandatory_nodes or []
+        self.mandatory_nodes_set = set(self.mandatory_nodes)
 
         self.n_nodes = len(dist_matrix) - 1
-        self.nodes = list(range(1, self.n_nodes + 1))
+        self.all_customers = [n for n in self.waste.keys() if n != 0]
 
-        # Calculate mean arc cost
-        total_arcs = max(1, self.n_nodes * (self.n_nodes - 1))
-        self.mean_arc_cost = float(np.sum(self.dist_matrix)) / total_arcs
+        # Use fixed numpy generator for reproducibility
+        self.random = random.Random(self.params.seed)
+        self.rng = np.random.default_rng(self.params.seed)
 
-        # Setup R&R
-        self.rr = RuinAndRecreate(
-            dist_matrix=self.dist_matrix,
-            wastes=self.wastes,
-            capacity=self.capacity,
+        # Initialize the Profit-Aware Ruin & Recreate operator
+        self.ruin_recreate = RuinAndRecreate(
+            dist_matrix=self.d,
+            wastes=self.waste,
+            capacity=self.Q,
+            R=self.R,
+            C=self.C,
             rng=self.rng,
         )
 
-        # Base structures setup
-        omega_base = max(1, int(math.ceil(math.log(self.n_nodes + 1))))
-        self.omega = [omega_base] * (self.n_nodes + 1)
-        self.gamma = [self.params.gamma_base] * (self.n_nodes + 1)
-        self.gamma_counter = [0] * (self.n_nodes + 1)
-
-        self.sa_start_temp = self.mean_arc_cost / max(1.0, self.params.initial_temperature_factor)
-        self.sa_final_temp = self.sa_start_temp / max(1.0, self.params.final_temperature_factor)
-
-    def calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
-        total_dist = 0.0
-        for route in routes:
-            if not route:
-                continue
-            dist = self.dist_matrix[0][route[0]]
-            for i in range(len(route) - 1):
-                dist += self.dist_matrix[route[i]][route[i + 1]]
-            dist += self.dist_matrix[route[-1]][0]
-            total_dist += dist
-        return total_dist * self.C
-
-    def build_initial_solution(self) -> List[List[int]]:
-        """Greedy constructive heuristic."""
-        nodes = self.nodes[:]
-        self.rng.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
-        mandatory_set = set(self.mandatory_nodes) if self.mandatory_nodes else set()
-
-        for node in nodes:
-            waste = self.wastes.get(node, 0.0)
-            revenue = waste * self.R
-            is_mandatory = node in mandatory_set
-
-            if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
-                continue
-
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-        if curr_route:
-            routes.append(curr_route)
-        return routes
-
-    def apply_local_search(self, routes: List[List[int]]) -> List[List[int]]:
-        """Apply a fast local search loop using standard operators."""
-        # For simplicity in python we wrap the generic LS manager.
-        # A fully optimized version would pass gamma into the C++ style RVND logic.
-        ls_manager = ACOLocalSearch(
-            dist_matrix=self.dist_matrix,
-            waste=self.wastes,
-            capacity=self.capacity,
+        # Local search (reordering) runs on distances, so ACO is still valid
+        self.local_search = ACOLocalSearch(
+            dist_matrix=self.d,
+            waste=self.waste,
+            capacity=self.Q,
             R=self.R,
             C=self.C,
             params=self.params,
             seed=self.params.seed,
         )
-        return ls_manager.optimize(routes)
 
-    def _update_gamma(self, is_new_best: bool, max_non_improving: int) -> None:
-        """Update localized gamma parameters based on improvement."""
-        for node in range(1, self.n_nodes + 1):
-            if is_new_best:
-                self.gamma[node] = self.params.gamma_base
-                self.gamma_counter[node] = 0
-            else:
-                self.gamma_counter[node] += 1
-                if self.gamma_counter[node] >= max_non_improving:
-                    self.gamma[node] = min(self.gamma[node] * 2.0, 1.0)
-                    self.gamma_counter[node] = 0
+        self.gamma_base = self.params.gamma_base
+        self.gamma = [self.gamma_base] * (self.n_nodes + 1)
+
+        omega_base = max(1, int(math.ceil(self.params.omega_base_multiplier * math.log(self.n_nodes + 1))))
+        self.omega = [omega_base] * (self.n_nodes + 1)
+
+    def _evaluate_routes(self, routes: List[List[int]]) -> Tuple[float, float]:
+        """Evaluate VRPP cost and profit."""
+        total_cost = 0.0
+        total_revenue = 0.0
+        for route in routes:
+            if not route:
+                continue
+
+            # Distance calculations
+            prev = 0
+            for node in route:
+                total_cost += self.d[prev, node] * self.C
+                total_revenue += self.waste.get(node, 0.0) * self.R
+                prev = node
+            total_cost += self.d[prev, 0] * self.C
+
+        return total_cost, total_revenue - total_cost
+
+    def _get_omega(self, current_routes: List[List[int]]) -> List[int]:
+        """Extract spatial neighborhood bound omega."""
+        visited = []
+        for r in current_routes:
+            visited.extend(r)
+
+        if not visited:
+            return []
+
+        probs = []
+        for n in visited:
+            p = self.gamma[n]
+            probs.append(p)
+
+        probs_arr = np.array(probs, dtype=np.float64)
+        probs_arr /= probs_arr.sum()
+
+        num_omega = min(len(visited), max(1, int(len(visited) * 0.2)))
+        omega = self.rng.choice(visited, size=num_omega, p=probs_arr, replace=False).tolist()
+        return omega
+
+    def _update_gamma(self, is_new_best: bool, accepted: bool, ruined: List[int]) -> None:
+        """Update localized gamma parameters based on improvement and involvement."""
+        if is_new_best:
+            # Reset ALL gamma when a new global best is found (as per paper)
+            for i in range(1, self.n_nodes + 1):
+                self.gamma[i] = self.params.gamma_base
+            return
+
+        # If not accepted, increase gamma for the ruined (involved) nodes
+        if not accepted:
+            for i in ruined:
+                self.gamma[i] = min(1.0, self.gamma[i] + self.params.delta_gamma)
+        else:
+            # If accepted but not new best, we might choose to reset gamma for ruined nodes
+            # to keep the search localized in the new successful region
+            for i in ruined:
+                self.gamma[i] = self.params.gamma_base
 
     def _update_omega(
         self,
+        is_new_best: bool,
+        accepted: bool,
         ruined: List[int],
-        walk_seed: int,
-        ls_cost: float,
-        current_cost: float,
-        shaking_lb: float,
-        shaking_ub: float,
     ) -> None:
         """Update dynamic shaking parameters (omega)."""
-        seed_shake_val = self.omega[walk_seed]
-        if ls_cost > current_cost + shaking_ub:
-            for customer in ruined:
-                if self.omega[customer] > seed_shake_val - 1:
-                    self.omega[customer] = max(1, self.omega[customer] - 1)
-        elif current_cost <= ls_cost < current_cost + shaking_lb:
-            for customer in ruined:
-                if self.omega[customer] < seed_shake_val + 1:
-                    self.omega[customer] += 1
+        omega_base = max(1, int(math.ceil(self.params.omega_base_multiplier * math.log(self.n_nodes + 1))))
+
+        if is_new_best:
+            # Reset ALL omega when a new global best is found
+            for i in range(1, self.n_nodes + 1):
+                self.omega[i] = omega_base
+            return
+
+        if not accepted:
+            # Increase shaking intensity for ruined nodes that failed to improve
+            for i in ruined:
+                # Randomly shaked in the range [omega_base, 2*omega_base] as a diversification proxy
+                self.omega[i] = min(self.n_nodes // 2, self.omega[i] + self.rng.integers(1, 3))
         else:
-            for customer in ruined:
-                if self.rng.random() < 0.5:
-                    if self.omega[customer] > seed_shake_val - 1:
-                        self.omega[customer] = max(1, self.omega[customer] - 1)
-                else:
-                    if self.omega[customer] < seed_shake_val + 1:
-                        self.omega[customer] += 1
+            # Reset for successful nodes
+            for i in ruined:
+                self.omega[i] = omega_base
 
-    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """Run the FILO algorithm main inner loop."""
+    def solve(self) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the FILO heuristic.
 
-        current_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
-        best_routes = copy.deepcopy(current_routes)
-
-        current_cost = self.calculate_cost(current_routes)
-        best_cost = current_cost
-
-        overall_customers = sum(len(r) for r in current_routes)
-        avg_route_cost = current_cost / max(1.0, (overall_customers + 2.0 * len(current_routes)))
-
-        shaking_lb = avg_route_cost * self.params.shaking_lb_factor
-        shaking_ub = avg_route_cost * self.params.shaking_ub_factor
-
-        temperature = self.sa_start_temp
+        Returns:
+            Tuple of (Best Routes, Best Profit, Best Cost)
+        """
         start_time = time.process_time()
 
-        # Max non-improving iterations depends on the expected length of search
-        expected_iterations = self.params.max_iterations
-        max_non_improving = math.ceil(self.params.delta_gamma * expected_iterations)
+        # Step 1: Constructive Initialization (Profit Aware & Mandatory Respecting)
+        current_routes = build_greedy_routes(
+            dist_matrix=self.d,
+            wastes=self.waste,
+            capacity=self.Q,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+        )
+
+        current_cost, current_profit = self._evaluate_routes(current_routes)
+
+        best_routes = copy.deepcopy(current_routes)
+        best_profit = current_profit
+        best_cost = current_cost
+
+        # Simulated Annealing Setup
+        if current_cost > 0:
+            self.sa_start_temp = current_cost / self.params.initial_temperature_factor
+            self.sa_final_temp = current_cost / self.params.final_temperature_factor
+        else:
+            self.sa_start_temp = 100.0
+            self.sa_final_temp = 1.0
+
+        temperature = self.sa_start_temp
 
         for iteration in range(self.params.max_iterations):
             elapsed = time.process_time() - start_time
             if self.params.time_limit > 0 and elapsed > self.params.time_limit:
                 break
 
-            shaken_routes, walk_seed, ruined = self.rr.apply(current_routes, self.omega, self.nodes)
+            omega = self._get_omega(current_routes)
 
-            # Sub-sample Local search based on gamma to proxy sparsification
-            # Note: actual LS Manager loops everywhere, but we trigger the optimization
-            ls_routes = self.apply_local_search(shaken_routes)
-            ls_cost = self.calculate_cost(ls_routes)
+            # --- SHAKING ---
+            new_routes, num_ruined, ruined = self.ruin_recreate.apply(
+                current_routes, omega, self.all_customers, self.mandatory_nodes
+            )
 
-            delta_cost = ls_cost - current_cost
+            # --- LOCAL SEARCH ---
+            ls_routes = self.local_search.optimize(new_routes)
 
-            # Acceptance criteria (minimizing cost)
+            # --- EVALUATION ---
+            ls_cost, ls_profit = self._evaluate_routes(ls_routes)
+            delta_profit = ls_profit - current_profit
+
+            # Simulated Annealing Move Acceptance
             accept = False
-            if delta_cost < -1e-6:
+            if delta_profit > 1e-6:
                 accept = True
             elif temperature > 0:
-                prob = math.exp(-delta_cost / temperature)
+                # delta_profit is negative here, so math.exp(delta_profit / temperature) is <= 1
+                prob = math.exp(delta_profit / temperature)
                 if self.rng.random() < prob:
                     accept = True
 
             is_new_best = False
-            if ls_cost < best_cost - 1e-6:
+            if ls_profit > best_profit + 1e-6:
                 best_routes = copy.deepcopy(ls_routes)
+                best_profit = ls_profit
                 best_cost = ls_cost
                 is_new_best = True
 
-            self._update_gamma(is_new_best, max_non_improving)
-            self._update_omega(ruined, walk_seed, ls_cost, current_cost, shaking_lb, shaking_ub)
+            self._update_gamma(is_new_best, accept, ruined)
+            self._update_omega(is_new_best, accept, ruined)
 
             if accept:
                 current_routes = ls_routes
+                current_profit = ls_profit
                 current_cost = ls_cost
-
-                # Recalibrate dynamic bounds
-                overall_customers = sum(len(r) for r in current_routes)
-                avg_route_cost = current_cost / max(1.0, (overall_customers + 2.0 * len(current_routes)))
-                shaking_lb = avg_route_cost * self.params.shaking_lb_factor
-                shaking_ub = avg_route_cost * self.params.shaking_ub_factor
 
             # Annealing Schedule
             if temperature > self.sa_final_temp:
                 cooling_factor = (self.sa_final_temp / self.sa_start_temp) ** (1.0 / self.params.max_iterations)
                 temperature *= cooling_factor
 
-            # Profit formulation
-            best_revenue = sum(self.wastes.get(n, 0.0) * self.R for r in best_routes for n in r)
-            best_profit = best_revenue - best_cost
-
-            # Visualization
+            # Visualization Support
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
-                current_profit=sum(self.wastes.get(n, 0.0) * self.R for r in current_routes for n in r) - current_cost,
+                current_profit=current_profit,
                 temperature=temperature,
                 accepted=int(accept),
-                score=3 if ls_cost < best_cost else (1 if accept else 0),
+                score=3 if is_new_best else (1 if accept else 0),
             )
-
-        best_revenue = sum(self.wastes.get(n, 0.0) * self.R for r in best_routes for n in r)
-        best_profit = best_revenue - best_cost
 
         return best_routes, best_profit, best_cost
