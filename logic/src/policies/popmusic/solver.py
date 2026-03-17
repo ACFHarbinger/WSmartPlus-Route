@@ -16,11 +16,18 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from logic.src.configs.policies.alns import ALNSConfig
+from logic.src.configs.policies.hgs import HGSConfig
+from logic.src.policies.adaptive_large_neighborhood_search.alns import ALNSSolver
+from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
+from logic.src.policies.hybrid_genetic_search.hgs import HGSSolver
+from logic.src.policies.hybrid_genetic_search.params import HGSParams
+from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 from logic.src.policies.travelling_salesman_problem.tsp import find_route, get_route_cost
 
 
-def run_popmusic(
+def run_popmusic(  # noqa: C901
     coords: pd.DataFrame,
     must_go: List[int],
     distance_matrix: np.ndarray,
@@ -28,13 +35,16 @@ def run_popmusic(
     subproblem_size: int = 3,
     max_iterations: int = 100,
     base_solver: str = "fast_tsp",
+    base_solver_config: Optional[Any] = None,
+    cluster_solver: str = "fast_tsp",
+    cluster_solver_config: Optional[Any] = None,
+    initial_solver: str = "nearest_neighbor",
     seed: int = 42,
-    # New parameters for NN initialization
     wastes: Optional[Dict[int, float]] = None,
     capacity: float = 1.0e9,
     R: float = 1.0,
     C: float = 0.0,
-) -> Tuple[List[int], float, Dict[str, Any]]:
+) -> Tuple[List[List[int]], float, float, Dict[str, Any]]:
     """
     Solve VRPP using POPMUSIC matheuristic.
 
@@ -46,44 +56,71 @@ def run_popmusic(
         subproblem_size: Number of neighboring routes to optimize (R).
         max_iterations: Max subproblem attempts.
         base_solver: Solver for subproblems.
+        base_solver_config: Configuration for base_solver.
+        cluster_solver: Solver for cluster initialization.
+        cluster_solver_config: Configuration for cluster initialization solver.
+        initial_solver: Initial solution generation method.
         seed: Random seed.
-        wastes: Dictionary of node wastes.
-        capacity: Maximum vehicle capacity.
-        R: Revenue multiplier for NN initialization.
-        C: Cost multiplier for NN initialization.
+        wastes: Node wastes.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
 
     Returns:
-        Combined tour, cost, and metadata.
+        Tuple of (routes, total_cost, total_profit, info_dict).
     """
     if not must_go:
-        return [0, 0], 0.0, {}
+        return [0, 0], 0.0, 0.0, {}
 
-    # 1. INITIAL SOLUTION: Nearest Neighbor Initialization
-    # build_nn_routes creates geographically compact routes based on capacity
-    rng = Random(seed)
-    wastes_dict = wastes if wastes is not None else {i: 0.0 for i in must_go}
+    # 1. INITIAL SOLUTION
+    wastes_dict = wastes if wastes is not None else {}
 
-    # We treat all must_go bins as mandatory for initialization
-    initial_clusters = build_nn_routes(
-        nodes=must_go,
-        mandatory_nodes=must_go,
-        wastes=wastes_dict,
-        capacity=capacity,
-        dist_matrix=distance_matrix,
-        R=R,
-        C=C,
-        rng=rng,
-    )
+    if initial_solver == "greedy":
+        initial_clusters = build_greedy_routes(
+            nodes=list(range(1, len(distance_matrix))),
+            mandatory_nodes=must_go,
+            wastes=wastes_dict,
+            capacity=capacity,
+            dist_matrix=distance_matrix,
+            R=R,
+            C=C,
+            rng=Random(seed),
+        )
+    elif initial_solver == "nearest_neighbor":
+        initial_clusters = build_nn_routes(
+            nodes=list(range(1, len(distance_matrix))),
+            mandatory_nodes=must_go,
+            wastes=wastes_dict,
+            capacity=capacity,
+            dist_matrix=distance_matrix,
+            R=R,
+            C=C,
+            rng=Random(seed),
+        )
+    else:
+        raise ValueError(f"Unknown initial solver: {initial_solver}")
 
-    # Limit number of routes to n_vehicles if necessary (though POPMUSIC handles n_vehicles)
-    # If build_nn_routes produces more than n_vehicles, we might need a different handling,
-    # but typically for VRPP/WCVRP we use what's generated.
+    # Convert clusters to initial routes using _optimize_subproblem
     routes = []
     for cluster in initial_clusters:
         if cluster:
             # Add depot prefix/suffix and optimize the local cluster tour
-            route = find_route(distance_matrix, cluster, seed=seed)
-            routes.append(route)
+            # using _optimize_subproblem for consistency
+            sub_routes, _ = _optimize_subproblem(
+                base_solver=cluster_solver,
+                base_solver_config=cluster_solver_config,
+                subproblem_nodes=cluster,
+                distance_matrix=distance_matrix,
+                wastes_dict=wastes_dict,
+                capacity=capacity,
+                R=R,
+                C=C,
+                neighborhood_indices=[0],  # Dummy for initial
+                must_go=must_go,
+                seed=seed,
+            )
+            # _optimize_subproblem returns List[List[int]], we expect one or more routes
+            routes.extend(sub_routes)
 
     # 2. POPMUSIC ITERATIONS
     improved = True
@@ -116,14 +153,24 @@ def run_popmusic(
 
             # Optimize subproblem
             old_cost = sum(get_route_cost(distance_matrix, routes[idx]) for idx in neighborhood_indices)
+            old_rev = sum(wastes_dict.get(n, 0) * R for idx in neighborhood_indices for n in routes[idx] if n != 0)
+            old_profit = old_rev - old_cost * C
 
-            # Simple re-routing for now (could use ALNS if configured)
-            new_tour = find_route(distance_matrix, subproblem_nodes, seed=seed)
-            # Re-split (greedy simplified split)
-            new_routes = split_tour(new_tour, len(neighborhood_indices), distance_matrix)
-            new_cost = sum(get_route_cost(distance_matrix, r) for r in new_routes)
-
-            if new_cost < old_cost - 1e-6:
+            # Optimize subproblem using selected base_solver
+            new_routes, new_profit = _optimize_subproblem(
+                base_solver=base_solver,
+                base_solver_config=base_solver_config,
+                subproblem_nodes=subproblem_nodes,
+                distance_matrix=distance_matrix,
+                wastes_dict=wastes_dict,
+                capacity=capacity,
+                R=R,
+                C=C,
+                neighborhood_indices=neighborhood_indices,
+                must_go=must_go,
+                seed=seed,
+            )
+            if new_profit > old_profit + 1e-6:
                 # Update solution
                 # In a real implementation, we'd replace the old routes with new ones
                 # Here we just update the specific routes in the list
@@ -137,14 +184,181 @@ def run_popmusic(
 
         iteration += 1
 
-    # Flatten routes into a single tour
-    full_tour = [0]
-    for r in routes:
-        full_tour.extend(r[1:])
+    # Calculate final summary metrics across all routes
+    total_cost = sum(get_route_cost(distance_matrix, r) for r in routes) * C
+    total_rev = sum(wastes_dict.get(n, 0.0) * R for r in routes for n in r if n != 0)
+    total_profit = total_rev - total_cost
 
-    total_cost = get_route_cost(distance_matrix, full_tour)
+    return routes, total_cost, total_profit, {"iterations": iteration, "num_routes": len(routes)}
 
-    return full_tour, total_cost, {"iterations": iteration, "num_routes": len(routes)}
+
+def _optimize_subproblem(
+    base_solver: Optional[str],
+    base_solver_config: Optional[Any],
+    subproblem_nodes: List[int],
+    distance_matrix: np.ndarray,
+    wastes_dict: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    neighborhood_indices: List[int],
+    must_go: List[int],
+    seed: int,
+) -> Tuple[List[List[int]], float]:
+    """Optimize subproblem using the selected base_solver."""
+    time_limit = 1.0
+
+    # Extract the relevant config if it's nested (POPMUSICSubSolverConfig or dict)
+    actual_config = base_solver_config
+    if base_solver and base_solver_config:
+        if hasattr(base_solver_config, base_solver):
+            actual_config = getattr(base_solver_config, base_solver)
+        elif isinstance(base_solver_config, dict) and base_solver in base_solver_config:
+            actual_config = base_solver_config[base_solver]
+            # Handle list-of-dicts style from Hydra configuration if necessary
+            if isinstance(actual_config, list) and len(actual_config) > 0 and isinstance(actual_config[0], dict):
+                actual_config = actual_config[0]
+
+    if base_solver == "fast_tsp" or base_solver is None:
+        return _optimize_with_fast_tsp(
+            subproblem_nodes, distance_matrix, wastes_dict, capacity, R, C, actual_config, time_limit, seed
+        )
+    elif base_solver == "hgs":
+        return _optimize_with_hgs(
+            distance_matrix, wastes_dict, capacity, R, C, neighborhood_indices, must_go, actual_config, time_limit, seed
+        )
+    elif base_solver == "alns":
+        return _optimize_with_alns(
+            distance_matrix, wastes_dict, capacity, R, C, must_go, actual_config, time_limit, seed
+        )
+    else:
+        raise ValueError(f"Unsupported base_solver: {base_solver}")
+
+
+def _optimize_with_fast_tsp(
+    subproblem_nodes: List[int],
+    distance_matrix: np.ndarray,
+    wastes_dict: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    config: Optional[Any],
+    time_limit: float,
+    seed: int,
+) -> Tuple[List[List[int]], float]:
+    """Optimize subproblem using FastTSP and greedy split."""
+    from logic.src.policies.hybrid_genetic_search.split import LinearSplit
+
+    actual_time_limit = time_limit
+    if config and hasattr(config, "time_limit"):
+        actual_time_limit = config.time_limit
+    elif isinstance(config, dict):
+        actual_time_limit = config.get("time_limit", actual_time_limit)
+
+    new_tour = find_route(distance_matrix, subproblem_nodes, time_limit=actual_time_limit, seed=seed)
+    # find_route returns [0, n1, n2, ..., 0]. LinearSplit expects the giant tour EXCLUDING depot.
+    giant_tour = [n for n in new_tour if n != 0]
+
+    # Re-split using LinearSplit (optimal capacity-aware splitting)
+    splitter = LinearSplit(
+        dist_matrix=distance_matrix,
+        wastes=wastes_dict,
+        capacity=capacity,
+        R=R,
+        C=C,
+    )
+    new_routes, new_profit = splitter.split(giant_tour)
+    return new_routes, new_profit
+
+
+def _optimize_with_hgs(
+    distance_matrix: np.ndarray,
+    wastes_dict: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    neighborhood_indices: List[int],
+    must_go: List[int],
+    config: Optional[Any],
+    time_limit: float,
+    seed: int,
+) -> Tuple[List[List[int]], float]:
+    """Optimize subproblem using Hybrid Genetic Search (HGS)."""
+    if isinstance(config, HGSConfig):
+        params = HGSParams.from_config(config)
+    elif isinstance(config, dict):
+        # Filter for only valid HGSParams fields to avoid errors
+        import inspect
+
+        valid_keys = set(inspect.signature(HGSParams).parameters.keys())
+        params_dict = {k: v for k, v in config.items() if k in valid_keys}
+        params = HGSParams(**params_dict)
+    else:
+        params = HGSParams(max_vehicles=len(neighborhood_indices), time_limit=time_limit)
+
+    # Ensure max_vehicles and time_limit are set correctly if not in config
+    if params.max_vehicles <= 0:
+        params.max_vehicles = len(neighborhood_indices)
+    if params.time_limit < 0:
+        params.time_limit = time_limit
+
+    solver = HGSSolver(
+        dist_matrix=distance_matrix,
+        wastes=wastes_dict,
+        capacity=capacity,
+        R=R,
+        C=C,
+        params=params,
+        mandatory_nodes=must_go,
+        seed=seed,
+    )
+    routes, profit, _ = solver.solve()
+    return routes, profit
+
+
+def _optimize_with_alns(
+    distance_matrix: np.ndarray,
+    wastes_dict: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    must_go: List[int],
+    config: Optional[Any],
+    time_limit: float,
+    seed: int,
+) -> Tuple[List[List[int]], float]:
+    """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS)."""
+    if config:
+        if isinstance(config, ALNSConfig):
+            params = ALNSParams.from_config(config)
+        elif isinstance(config, dict):
+            # Filter for only valid ALNSParams fields
+            import inspect
+
+            valid_keys = set(inspect.signature(ALNSParams).parameters.keys())
+            params_dict = {k: v for k, v in config.items() if k in valid_keys}
+            params = ALNSParams(**params_dict)
+        else:
+            params = ALNSParams(max_iterations=1000, time_limit=time_limit)
+    else:
+        params = ALNSParams(max_iterations=1000, time_limit=time_limit)
+
+    # Ensure time_limit is set correctly if not in config
+    if params.time_limit < 0:
+        params.time_limit = time_limit
+
+    solver = ALNSSolver(
+        dist_matrix=distance_matrix,
+        wastes=wastes_dict,
+        capacity=capacity,
+        R=R,
+        C=C,
+        params=params,
+        mandatory_nodes=must_go,
+        seed=seed,
+    )
+    routes, profit, _ = solver.solve()
+    return routes, profit
 
 
 def find_route_neighbors(seed_idx: int, centroids: List[np.ndarray], k: int) -> List[int]:

@@ -15,13 +15,13 @@ Three metric lists serve different scopes:
   Used in: Daily log files, per-day CSV output
   Example: {"day": 5, "kg": 125.3, "km": 45.2, "tour": [0, 3, 7, 0]}
 
-- **METRICS**: Core performance metrics (overflows, kg, km, cost, profit)
+- **METRICS**: Core performance metrics (overflows, kg, km, reward, profit, time)
   Used in: Summary tables, per-policy comparisons, HPO objectives
-  Example: {"kg": 5234.1, "km": 1230.5, "cost": 615.25, "profit": 2617.05}
+  Example: {"kg": 5234.1, "km": 1230.5, "reward": 615.25, "profit": 2617.05, "time": 3.42,}
 
-- **SIM_METRICS**: Overall simulation statistics (adds "days" and "time")
+- **SIM_METRICS**: Overall simulation statistics (adds "days")
   Used in: Final summary reports, simulation metadata
-  Example: {"days": 31, "time": 3.42, "kg": 5234.1, ...}
+  Example: {"days": 31 "kg": 5234.1, ...}
 
 - **LOSS_KEYS**: Neural network training metrics
   Used in: Training logs, TensorBoard/WandB logging

@@ -25,7 +25,6 @@ rl_alns:
         bandit:
           algorithm: ucb1
           c: 2.0
-          seed: 42
 
         td_learning:
           algorithm: q_learning

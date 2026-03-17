@@ -135,7 +135,10 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             # Safe way to convert nested dict to RLConfig
             rl_config = RLConfig(
                 agent_type=rl_vals.get("agent_type", "bandit"),
-                bandit=BanditConfig(**{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"}),
+                bandit=BanditConfig(
+                    **{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"},
+                    seed=values.get("seed"),
+                ),
                 td_learning=TDLearningConfig(
                     **{k: v for k, v in rl_vals.get("td_learning", {}).items() if k != "_target_"}
                 ),
@@ -161,6 +164,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
                 agent_type=values.get("bandit_algorithm", "linucb"),
                 bandit=BanditConfig(
                     algorithm=values.get("bandit_algorithm", "linucb"),
+                    seed=values.get("seed"),
                 ),
                 td_learning=TDLearningConfig(
                     alpha=values.get("qlearning_alpha", 0.1),

@@ -38,41 +38,27 @@ class POPMUSICPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - POPMUSIC requires specialized execute()."""
-        return [], 0.0, 0.0
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
-        Execute POPMUSIC on the current collection problem.
+        Run POPMUSIC solver.
         """
-        cfg = self._parse_config(self.config, POPMUSICConfig)
-
-        coords = kwargs["coords"]
-        must_go = kwargs["must_go"]
-        distance_matrix = kwargs["distance_matrix"]
-        n_vehicles = kwargs.get("n_vehicles", 1)
-        seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
-
-        # Environmental parameters for NN initialization
-        wastes = kwargs.get("wastes", {})
-        capacity = kwargs.get("capacity", 1.0e9)
-        # Use standard multipliers for VRPP
-        R = kwargs.get("R", 1.0)
-        C = kwargs.get("C", 1.0)
-
-        tour, cost, extra_data = run_popmusic(
-            coords=coords,
-            must_go=must_go,
-            distance_matrix=distance_matrix,
-            n_vehicles=n_vehicles,
-            subproblem_size=cfg.subproblem_size,
-            max_iterations=cfg.max_iterations,
-            base_solver=cfg.base_solver,
-            seed=seed,
-            wastes=wastes,
+        routes, total_cost, profit, info = run_popmusic(
+            coords=kwargs["coords"],
+            must_go=mandatory_nodes,
+            distance_matrix=sub_dist_matrix,
+            n_vehicles=kwargs.get("n_vehicles", 1),
+            subproblem_size=values.get("subproblem_size", 3),
+            max_iterations=values.get("max_iterations", 10),
+            base_solver=values.get("base_solver", "fast_tsp"),
+            base_solver_config=values.get("base_solver_config"),
+            cluster_solver=values.get("cluster_solver", "fast_tsp"),
+            cluster_solver_config=values.get("cluster_solver_config"),
+            initial_solver=values.get("initial_solver", "nearest_neighbor"),
+            seed=values.get("seed", 42),
+            wastes=sub_wastes,
             capacity=capacity,
-            R=R,
-            C=C,
+            R=revenue,
+            C=cost_unit,
         )
 
-        return tour, cost, extra_data
+        # return routes as List[List[int]]
+        return routes, profit, total_cost

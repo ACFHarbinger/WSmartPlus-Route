@@ -14,7 +14,9 @@ class RLALNSConfig(ALNSConfig):
 
     Attributes:
         rl_config: Centralized Reinforcement Learning configuration.
+        vrpp: Whether the problem is a VRP with Profits.
     """
 
     rl_config: RLConfig = field(default_factory=RLConfig)
+    vrpp: bool = True
     engine: str = "rl_alns"

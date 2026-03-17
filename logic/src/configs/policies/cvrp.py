@@ -16,6 +16,7 @@ class CVRPConfig:
     Attributes:
         cache: Whether to cache solutions.
         time_limit: Maximum time in seconds for the solver.
+        seed: Random seed for reproducibility.
         engine: Solver engine to use ('ortools', 'gurobi').
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.

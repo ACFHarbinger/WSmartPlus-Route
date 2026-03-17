@@ -3,7 +3,7 @@ Hydra configuration for HULK hyper-heuristic.
 """
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 from hydra.core.config_store import ConfigStore
 
@@ -13,6 +13,8 @@ class HULKConfig:
     """Hydra config for HULK hyper-heuristic."""
 
     # Search parameters
+    seed: Optional[int] = None
+    vrpp: bool = True
     max_iterations: int = 1000
     time_limit: float = 300.0
     restarts: int = 3

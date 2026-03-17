@@ -52,6 +52,7 @@ class AdaptiveKernelSearchConfig:
             theoretical optimum for that restricted MIP. Defaults to 0.01.
         seed (int): Random seed for Gurobi's internal algorithms, ensuring
             computational reproducibility across different runs. Defaults to 42.
+        vrpp (bool): Whether the problem is a VRP with Profits.
 
         # Adaptive Features (AKS)
         bucket_growth_factor (float): The factor by which `current_bucket_size`
@@ -79,6 +80,7 @@ class AdaptiveKernelSearchConfig:
     mip_limit_nodes: int = 10000
     mip_gap: float = 0.01
     seed: int = 42
+    vrpp: bool = True
 
     # Adaptive Features (AKS)
     bucket_growth_factor: float = 1.2

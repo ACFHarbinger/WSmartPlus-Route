@@ -23,6 +23,7 @@ class HGSALNSConfig:
     # HGS-ALNS specific parameters
     alns_education_iterations: int = 50
     hgs_max_iter: int = 100
+    vrpp: bool = True
 
     # Nested component configs
     hgs: HGSConfig = field(default_factory=HGSConfig)

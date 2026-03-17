@@ -28,49 +28,46 @@ lb_vns:
     # VNS Neighborhood Sequence Control
     # ---------------------------------------------------------------------
     - k_min: 10
-      # The starting Hamming distance for the VNS loop.
-      # Smaller values yield faster local intensification early on.
+    # The starting Hamming distance for the VNS loop.
+    # Smaller values yield faster local intensification early on.
 
     - k_max: 60
-      # The maximum permitted Hamming distance for shaking/exploration.
-      # Higher values allow deeper diversification but increase sub-MIP complexity.
+    # The maximum permitted Hamming distance for shaking/exploration.
+    # Higher values allow deeper diversification but increase sub-MIP complexity.
 
     - k_step: 10
-      # The increment for k when no improvement is found in the current neighborhood.
-      # Low values (e.g., 2-5) provide a finer search; higher values (10+) speed up exploration.
+    # The increment for k when no improvement is found in the current neighborhood.
+    # Low values (e.g., 2-5) provide a finer search; higher values (10+) speed up exploration.
 
     # ---------------------------------------------------------------------
     # Inner Solver Intensity (Local Branching Phase)
     # ---------------------------------------------------------------------
     - time_limit_per_lb: 30.0
-      # Hard limit (in seconds) for each individual Local Branching sub-problem.
-      # Essential to prevent the solver from stalling on a single neighborhood.
+    # Hard limit (in seconds) for each individual Local Branching sub-problem.
+    # Essential to prevent the solver from stalling on a single neighborhood.
 
     - max_lb_iterations: 15
-      # Iteration cap for the internal Local Branching improvement loop.
-      # Each iteration solves a restricted MILP to move within the local neighborhood.
+    # Iteration cap for the internal Local Branching improvement loop.
+    # Each iteration solves a restricted MILP to move within the local neighborhood.
 
     - mip_gap: 0.01
-      # Relative optimality tolerance (1%) for sub-problem termination.
+    # Relative optimality tolerance (1%) for sub-problem termination.
 
     # ---------------------------------------------------------------------
     # Global Runtime & Reproducibility
     # ---------------------------------------------------------------------
     - time_limit: 300.0
-      # Overall time budget for the entire LB-VNS procedure.
-
-    - seed: 42
-      # Deterministic seed for shaking (randomization) and Gurobi engine.
+    # Overall time budget for the entire LB-VNS procedure.
 
     # ---------------------------------------------------------------------
     # Infrastructure & Pipeline
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # The solver abstraction name.
+    # The solver abstraction name.
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Selection logic for mandatory nodes.
+    # Selection logic for mandatory nodes.
 
     - post_processing: []
-      # Optional refinement step (e.g., local search) applied after completion.
+    # Optional refinement step (e.g., local search) applied after completion.
 # =============================================================================

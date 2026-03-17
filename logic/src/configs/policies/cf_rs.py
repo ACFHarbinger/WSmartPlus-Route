@@ -24,6 +24,7 @@ class CFRSConfig:
     distributed service areas.
 
     Attributes:
+        vrpp: Whether the problem is a VRP with Profits.
         seed: Random seed for reproducibility in the TSP routing phase.
             Ensures that the stochastic elements of the TSP solver (e.g., 2-opt
             initialization) yield consistent results.
@@ -35,6 +36,8 @@ class CFRSConfig:
         post_processing: List of post-processing operations (e.g., local search)
             to apply to the resulting tours for further refinement.
     """
+
+    vrpp: bool = True
 
     # Reproducibility seed for Routing phase
     seed: Optional[int] = None

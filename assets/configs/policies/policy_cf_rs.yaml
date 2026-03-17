@@ -38,11 +38,6 @@ cluster_first_route_second:
       #       of vehicle availability (useful for predefined service territories).
       # Recommendation: Use 0 for dynamic fleet environments.
 
-    - seed: 42
-      # Determinism control for the stochastic TSP solver used in Phase 2.
-      # Range: Any positive integer.
-      # Recommendation: 42 (Standard project value).
-
     # ---------------------------------------------------------------------
     # Infrastructure & Pipeline
     # ---------------------------------------------------------------------

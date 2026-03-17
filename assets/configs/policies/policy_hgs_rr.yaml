@@ -69,10 +69,10 @@ hgs_rr:
       # Range: 5-25 (typically 20% of population_size)
       # Elite solutions drive intensification (exploitation)
 
-    - n_generations: 100
+    - n_generations: 10000
       # Number of generations to evolve
-      # Range: 50-500
-      # Recommendation: 100 for stable optimization (CONSERVATIVE)
+      # Range: 50-10000
+      # Recommendation: 10000 for stable optimization (COMPREHENSIVE)
 
     - mutation_rate: 0.3
       # Probability of applying ruin-recreate mutation after crossover

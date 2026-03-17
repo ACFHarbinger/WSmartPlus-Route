@@ -19,7 +19,7 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
     Refines tours using the Lin-Kernighan-Helsgaun heuristic.
 
     Splits the tour into sub-tours by depot, re-optimizes each segment
-    with LKH (2-opt / 3-opt + double-bridge kicks), and reconstructs.
+    with LKH (2-opt / 3-opt + double-bridge kicks), and reconstruct.
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
@@ -80,7 +80,7 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
                 optimized, _ = solve_lkh(
                     distance_matrix,
                     initial_tour=sub_tour,
-                    max_iterations=kwargs.get("n_iterations", self.max_iterations),
+                    max_iterations=kwargs.get("max_iterations", 1000),
                     waste=waste_arr,
                     capacity=capacity,
                     np_rng=np.random.default_rng(kwargs.get("seed", 42)),

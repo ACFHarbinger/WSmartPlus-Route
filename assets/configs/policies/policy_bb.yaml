@@ -29,9 +29,6 @@ bb:
   # - false: The solver only visits nodes specified in 'must_go'.
   vrpp: true
 
-  # Random seed for reproducibility (passed to Gurobi environment).
-  seed: 42
-
   # List of must-go strategy configuration files.
   # These strategies define which nodes MUST be visited regardless of profit.
   # Example:

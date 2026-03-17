@@ -31,6 +31,7 @@ class RENSConfig:
             primal solution quickly.
         seed (int): Random seed for the underlying Gurobi solver to ensure
             deterministic and reproducible results.
+        vrpp (bool): Whether the problem is a VRP with Profits.
         engine (str): Internal solver engine identifier. Defaults to "custom".
         must_go (Optional[MustGoConfig]): Composition handle for bin selection
             strategies (e.g., collecting bins at risk of overflow).
@@ -43,6 +44,7 @@ class RENSConfig:
     mip_limit_nodes: int = 1000
     mip_gap: float = 0.01
     seed: int = 42
+    vrpp: bool = True
 
     # Infrastructure
     engine: str = "custom"

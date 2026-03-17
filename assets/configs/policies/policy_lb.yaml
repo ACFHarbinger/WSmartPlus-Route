@@ -20,40 +20,37 @@ lb:
     # Neighborhood Control
     # ---------------------------------------------------------------------
     - k: 25
-      # Hamming distance (max variable flips) defining the search vicinity.
-      # Setting this too high makes sub-problems as hard as the original.
-      # Setting it too low might prevent the solver from finding improvements.
+    # Hamming distance (max variable flips) defining the search vicinity.
+    # Setting this too high makes sub-problems as hard as the original.
+    # Setting it too low might prevent the solver from finding improvements.
 
     - max_iterations: 20
-      # Limit on the number of successful improvement 'jumps'.
+    # Limit on the number of successful improvement 'jumps'.
 
     # ---------------------------------------------------------------------
     # Solver Performance
     # ---------------------------------------------------------------------
     - time_limit: 300.0
-      # Maximum wall-clock time for the entire solver run in the simulator.
+    # Maximum wall-clock time for the entire solver run in the simulator.
 
     - time_limit_per_iteration: 20.0
-      # Time budget for searching a single neighborhood.
+    # Time budget for searching a single neighborhood.
 
     - node_limit_per_iteration: 5000
-      # Hard branch-and-bound node limit for each sub-problem.
+    # Hard branch-and-bound node limit for each sub-problem.
 
     - mip_gap: 0.01
-      # Relative optimality target (0.01 = 1% gap) for sub-problems.
-
-    - seed: 42
-      # Deterministic seed for Gurobi's search tree.
+    # Relative optimality target (0.01 = 1% gap) for sub-problems.
 
     # ---------------------------------------------------------------------
     # Infrastructure & Rules
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Identifier for the Local Branching solver engine.
+    # Identifier for the Local Branching solver engine.
 
     - must_go: ["other/mg_lookahead.yaml"]
-      # Defines which bins are prioritized for mandatory collection.
+    # Defines which bins are prioritized for mandatory collection.
 
     - post_processing: []
-      # External local search refinements (e.g., 2-opt) applied to the tour.
+    # External local search refinements (e.g., 2-opt) applied to the tour.
 # =============================================================================

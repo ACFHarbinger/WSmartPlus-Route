@@ -22,7 +22,7 @@ class BPCConfig:
 
     time_limit: float = 60.0
     engine: str = "ortools"
-    vrpp: bool = False
+    vrpp: bool = True
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
