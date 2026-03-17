@@ -441,6 +441,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
             cost_unit,
             values,
             mandatory_nodes,
+            subset_indices=subset_indices,
             **kwargs,
         )
 

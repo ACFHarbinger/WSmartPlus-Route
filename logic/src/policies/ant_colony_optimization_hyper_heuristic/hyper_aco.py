@@ -148,7 +148,7 @@ class HyperHeuristicACO:
         ctx = HyperOperatorContext(
             routes=copy.deepcopy(self.initial_solution),
             dist_matrix=self.dist_matrix,
-            wastes=self.wastes,
+            waste=self.wastes,
             capacity=self.capacity,
             R=self.R,
             C=self.C,

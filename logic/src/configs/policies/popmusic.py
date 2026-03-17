@@ -8,7 +8,8 @@ from typing import List, Optional
 from .alns import ALNSConfig
 from .hgs import HGSConfig
 from .other.must_go import MustGoConfig
-from .other.post_processing import FastTSPPostConfig, PostProcessingConfig
+from .other.post_processing import PostProcessingConfig
+from .tsp import TSPConfig
 
 
 @dataclass
@@ -21,7 +22,7 @@ class POPMUSICSubSolverConfig:
         hgs: Configuration for HGS solver.
     """
 
-    fast_tsp: Optional[FastTSPPostConfig] = field(default_factory=FastTSPPostConfig)
+    fast_tsp: Optional[TSPConfig] = field(default_factory=TSPConfig)
     alns: Optional[ALNSConfig] = field(default_factory=ALNSConfig)
     hgs: Optional[HGSConfig] = field(default_factory=HGSConfig)
 

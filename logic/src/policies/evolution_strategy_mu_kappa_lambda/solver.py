@@ -273,8 +273,8 @@ class MuKappaLambdaESSolver:
         mutant = individual.copy()
 
         # Step 1: Self-Adapt Strategy Parameter (Eq. 5)
-        n_global = self.np_rng.randn()
-        n_local = self.np_rng.randn()
+        n_global = self.np_rng.standard_normal()
+        n_local = self.np_rng.standard_normal()
 
         mutant.mutation_strength *= np.exp(self.params.tau_global * n_global + self.params.tau_local * n_local)
         # Boundary control for strategy parameter

@@ -15,7 +15,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from .runner import run_hyper_heuristic_aco
 
 
-@PolicyRegistry.register("hyper_aco")
+@PolicyRegistry.register("aco_hh")
 class HyperACOPolicy(BaseRoutingPolicy):
     """
     Hyper-Heuristic ACO policy class.

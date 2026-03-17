@@ -4,19 +4,20 @@ Policy adapter for Particle Swarm Optimization (PSO).
 **Replaces SCA** - Proper PSO with velocity momentum.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.interfaces.adapter import IPolicyAdapter
-from logic.src.policies.base.registry import PolicyRegistry
+from logic.src.configs.policies.pso import PSOConfig
+from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.base.factory import PolicyRegistry
 
 from .params import PSOParams
 from .solver import PSOSolver
 
 
 @PolicyRegistry.register("pso")
-class PSOPolicyAdapter(IPolicyAdapter):
+class PSOPolicyAdapter(BaseRoutingPolicy):
     """
     Policy adapter for Particle Swarm Optimization with velocity momentum.
 
@@ -33,51 +34,62 @@ class PSOPolicyAdapter(IPolicyAdapter):
         expensive transcendental computation and no periodicity exploitation.
     """
 
-    def __init__(self, **config: Any):
+    def __init__(self, config: Optional[Union[PSOConfig, Dict[str, Any]]] = None):
         """
         Initialize PSO policy adapter.
 
         Args:
-            **config: Configuration parameters matching PSOParams fields.
+            config: Configuration parameters matching PSOParams fields.
         """
-        self.params = PSOParams(**config)
+        super().__init__(config)
 
-    def __call__(
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return PSOConfig
+
+    def _get_config_key(self) -> str:
+        return "pso"
+
+    def _run_solver(
         self,
-        dist_matrix: np.ndarray,
-        wastes: Dict[int, float],
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
         capacity: float,
-        R: float,
-        C: float,
-        mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Execute PSO to solve the routing problem.
 
-        Args:
-            dist_matrix: Distance matrix [n+1 × n+1] including depot at index 0.
-            wastes: Dictionary mapping node IDs to waste quantities.
-            capacity: Vehicle capacity constraint.
-            R: Revenue per unit waste collected.
-            C: Cost per unit distance traveled.
-            mandatory_nodes: Nodes that must be visited.
-            seed: Random seed for reproducibility.
-            **kwargs: Additional arguments (ignored).
-
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
+        cfg = self._parse_config(values, PSOConfig)
+        params = PSOParams(
+            pop_size=cfg.pop_size,
+            inertia_weight_start=cfg.inertia_weight_start,
+            inertia_weight_end=cfg.inertia_weight_end,
+            cognitive_coef=cfg.cognitive_coef,
+            social_coef=cfg.social_coef,
+            position_min=cfg.position_min,
+            position_max=cfg.position_max,
+            velocity_max=cfg.velocity_max,
+            max_iterations=cfg.max_iterations,
+            time_limit=cfg.time_limit,
+        )
+
         solver = PSOSolver(
-            dist_matrix=dist_matrix,
-            wastes=wastes,
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
             capacity=capacity,
-            R=R,
-            C=C,
-            params=self.params,
+            R=revenue,
+            C=cost_unit,
+            params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
+            seed=cfg.seed if cfg.seed is not None else kwargs.get("seed"),
         )
         return solver.solve()
 

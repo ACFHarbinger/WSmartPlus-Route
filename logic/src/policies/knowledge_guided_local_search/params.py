@@ -20,6 +20,7 @@ class KGLSParams:
     neighborhood_size: int
     moves: List[str]
     penalization_cycle: List[str]
+    local_search_iterations: int
     seed: Optional[int]
 
     @classmethod
@@ -33,5 +34,6 @@ class KGLSParams:
             neighborhood_size=config.neighborhood_size,
             moves=config.moves,
             penalization_cycle=config.penalization_cycle,
+            local_search_iterations=config.local_search_iterations,
             seed=seed,
         )
