@@ -15,7 +15,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from .runner import run_k_sparse_aco
 
 
-@PolicyRegistry.register("aco")
+@PolicyRegistry.register("aco_ks")
 class ACOPolicy(BaseRoutingPolicy):
     """
     K-Sparse Ant Colony Optimization policy class.

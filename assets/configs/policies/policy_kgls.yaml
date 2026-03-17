@@ -1,6 +1,7 @@
 # @package _global_
 kgls:
   time_limit: 60.0
+  local_search_iterations: 100
   num_perturbations: 3
   neighborhood_size: 20
   moves:

@@ -150,7 +150,7 @@ class HGSALNSSolver(HGSSolver):
             elif it - last_improvement_it > self.hgs_alns_params.hgs_params.n_iterations_no_improvement:
                 current_alpha = max(0.0, current_alpha - self.hgs_alns_params.hgs_params.diversity_change_rate)
 
-            self._viz_record(
+            getattr(self, "_viz_record", lambda **k: None)(
                 iteration=it,
                 best_profit=best_profit_so_far,
                 child_profit=child.profit_score,

@@ -13,6 +13,8 @@ Pattern:
 
 from typing import Any, Dict, List, Optional, Tuple, Type
 
+import numpy as np
+
 from logic.src.configs.policies.cf_rs import CFRSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
@@ -65,49 +67,60 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         """
         return "cluster_first_route_second"
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
         """
-        Execute the CF-RS algorithm within a simulation day context.
-
-        This method acts as the primary entry point for the simulator. It extracts
-        environmental data (coordinates, selected nodes, distances) and executes
-         the angular clustering logic.
-
-        Args:
-            **kwargs: Flexible keyword arguments representing the simulation state:
-                - coords (pd.DataFrame): Geographical coordinates of all nodes.
-                    Must contain 'Lat' and 'Lng' columns.
-                - must_go (List[int]): Global indices of bins designated for collection.
-                - distance_matrix (np.ndarray): Full distance matrix between nodes.
-                - n_vehicles (int): Number of available vehicles for routing.
-                - seed (int, optional): Global simulation seed for deterministic runs.
+        Run the Cluster-First Route-Second solver.
 
         Returns:
-            A tuple of (tour, cost, extra_data):
-                - tour (List[int]): A sequence of node indices representing the optimized collection route.
-                - cost (float): Total routing distance computed from the tour.
-                - extra_data (Any): Secondary outputs (e.g., sector visual data or cluster mappings).
+            Tuple of (routes, profit, solver_cost)
         """
-        # Load and validate structured configuration
-        cfg = self._parse_config(self.config, CFRSConfig)
-
-        # Extract environment state from simulation context
+        cfg = self._parse_config(values, CFRSConfig)
         coords = kwargs["coords"]
-        must_go = kwargs["must_go"]
-        distance_matrix = kwargs["distance_matrix"]
+        subset_indices = kwargs.get("subset_indices", list(range(sub_dist_matrix.shape[0])))
         n_vehicles = kwargs.get("n_vehicles", 1)
+
+        # Subset coordinates matching the sub_dist_matrix nodes
+        sub_coords = coords.iloc[subset_indices]
 
         # Priority-aware seeding (Config seed > Simulation seed)
         seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
 
-        # Delegate execution to the core algorithm logic
-        tour, cost, extra_data = run_cf_rs(
-            coords=coords,
-            must_go=must_go,
-            distance_matrix=distance_matrix,
+        # Run core algorithm.
+        tour, solver_cost, extra_data = run_cf_rs(
+            coords=sub_coords,
+            must_go=mandatory_nodes,
+            distance_matrix=sub_dist_matrix,
             n_vehicles=n_vehicles,
             seed=seed,
             num_clusters=cfg.num_clusters,
         )
 
-        return tour, cost, extra_data
+        # extra_data contains 'clusters' (list of lists of local indices)
+        # However, run_cf_rs already solved the TSPs.
+        # To reuse _map_tour_to_global, we need to return segments between 0s as routes.
+        routes = []
+        current_route: List[int] = []
+        for node in tour:
+            if node == 0:
+                if current_route:
+                    routes.append(current_route)
+                    current_route = []
+            else:
+                current_route.append(node)
+
+        # Profit is not directly returned by run_cf_rs (it returns cost),
+        # but BaseRoutingPolicy computes profit based on collected waste.
+        # We need to return a profit estimate for the solver return.
+        total_profit = sum(sub_wastes.get(n, 0.0) for r in routes for n in r) * revenue - solver_cost
+
+        return routes, total_profit, solver_cost

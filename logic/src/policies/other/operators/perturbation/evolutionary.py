@@ -212,10 +212,10 @@ def _sequence_profit(ls: Any, seq: List[int]) -> float:
     if not seq:
         return 0.0
     dist = ls.d[0, seq[0]]
-    revenue = ls.wastes.get(seq[0], 0) * ls.R
+    revenue = ls.waste.get(seq[0], 0) * ls.R
     for i in range(len(seq) - 1):
         dist += ls.d[seq[i], seq[i + 1]]
-        revenue += ls.wastes.get(seq[i + 1], 0) * ls.R
+        revenue += ls.waste.get(seq[i + 1], 0) * ls.R
     dist += ls.d[seq[-1], 0]
     return float(revenue - dist * ls.C)
 

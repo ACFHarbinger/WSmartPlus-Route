@@ -29,7 +29,7 @@
 #   effective operator sequences for new problem variants.
 # =============================================================================
 
-hh_aco:
+aco_hh:
   custom:
     # ---------------------------------------------------------------------
     # Colony Parameters

@@ -56,7 +56,7 @@ class KGLSPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        kgls_config = KGLSConfig(**values)
+        kgls_config = self._parse_config(values, KGLSConfig)
         params = KGLSParams.from_config(kgls_config)
 
         # We need the locations for the Cost Evaluator to compute edge widths

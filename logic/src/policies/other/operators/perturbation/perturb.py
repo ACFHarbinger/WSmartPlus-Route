@@ -57,11 +57,11 @@ def perturb(
                 continue
             r_u, p_u = u_loc
 
-            dem_u = ctx.wastes.get(u, 0)
-            dem_v = ctx.wastes.get(v, 0)
+            dem_u = ctx.waste.get(u, 0)
+            dem_v = ctx.waste.get(v, 0)
 
             # Check capacity
-            current_load = sum(ctx.wastes.get(node, 0) for node in ctx.routes[r_u])
+            current_load = sum(ctx.waste.get(node, 0) for node in ctx.routes[r_u])
             if current_load - dem_u + dem_v <= ctx.Q:
                 ctx.routes[r_u][p_u] = v
                 ctx._update_map({r_u})
@@ -93,8 +93,8 @@ def perturb(
                     ctx._update_map({r_u})
                     performed = True
             else:
-                dem_u = ctx.wastes.get(u, 0)
-                dem_v = ctx.wastes.get(v, 0)
+                dem_u = ctx.waste.get(u, 0)
+                dem_v = ctx.waste.get(v, 0)
                 if (
                     ctx._get_load_cached(r_u) - dem_u + dem_v <= ctx.Q
                     and ctx._get_load_cached(r_v) - dem_v + dem_u <= ctx.Q
@@ -145,11 +145,11 @@ def perturb_profit(
                 continue
             r_u, p_u = u_loc
 
-            dem_u = ctx.wastes.get(u, 0)
-            dem_v = ctx.wastes.get(v, 0)
+            dem_u = ctx.waste.get(u, 0)
+            dem_v = ctx.waste.get(v, 0)
 
             # Check capacity
-            current_load = sum(ctx.wastes.get(node, 0) for node in ctx.routes[r_u])
+            current_load = sum(ctx.waste.get(node, 0) for node in ctx.routes[r_u])
             if current_load - dem_u + dem_v <= ctx.Q:
                 # Calculate profit delta
                 # delta_dist = d(prev, v) + d(v, nxt) - (d(prev, u) + d(u, nxt))
@@ -194,8 +194,8 @@ def perturb_profit(
                     ctx._update_map({r_u})
                     performed = True
             else:
-                dem_u = ctx.wastes.get(u, 0)
-                dem_v = ctx.wastes.get(v, 0)
+                dem_u = ctx.waste.get(u, 0)
+                dem_v = ctx.waste.get(v, 0)
                 if (
                     ctx._get_load_cached(r_u) - dem_u + dem_v <= ctx.Q
                     and ctx._get_load_cached(r_v) - dem_v + dem_u <= ctx.Q

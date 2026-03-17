@@ -64,7 +64,7 @@ def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Optional[Random] = None) -> 
 
         for ri, route in enumerate(ctx.routes):
             current_load = ctx._get_load_cached(ri)
-            node_waste = ctx.wastes.get(node, 0)
+            node_waste = ctx.waste.get(node, 0)
             if current_load + node_waste > ctx.Q:
                 continue
 
@@ -126,7 +126,7 @@ def kick_profit(
         nxt = route[pi + 1] if pi < len(route) - 1 else 0
 
         detour = ctx.d[prev, node] + ctx.d[node, nxt] - ctx.d[prev, nxt]
-        revenue = ctx.wastes.get(node, 0) * ctx.R
+        revenue = ctx.waste.get(node, 0) * ctx.R
         profit = revenue - (detour * ctx.C)
         node_profits.append((node, profit))
 
@@ -176,7 +176,7 @@ def _profit_reinsertion(ctx: Any, nodes: List[int]) -> None:
         best_ri = -1
         best_pos = -1
 
-        node_waste = ctx.wastes.get(node, 0)
+        node_waste = ctx.waste.get(node, 0)
         revenue = node_waste * ctx.R
 
         for ri, route in enumerate(ctx.routes):
@@ -208,4 +208,4 @@ def _profit_reinsertion(ctx: Any, nodes: List[int]) -> None:
             # Else: node remains unvisited
 
     ctx._build_structures()
-    return True
+    return
