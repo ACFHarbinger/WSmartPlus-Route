@@ -195,7 +195,7 @@ class BBSolver:
         Returns:
             A tuple of (Optimal Integer Routes, Total Objective Value).
         """
-        self.start_time = time.time()
+        self.start_time = time.process_time()
 
         # Initialize root subproblem
         root_model, root_x, root_y, root_u = self._setup_relaxation_model(Node(bound=0.0))
@@ -206,7 +206,7 @@ class BBSolver:
         pq = [Node(bound=root_model.ObjVal)]
 
         nodes_explored = 0
-        while pq and (time.time() - self.start_time < self.time_limit):
+        while pq and (time.process_time() - self.start_time < self.time_limit):
             node = heapq.heappop(pq)
             nodes_explored += 1
 
@@ -260,7 +260,7 @@ class BBSolver:
                 engine="bb_land_doig",
                 nodes_explored=nodes_explored,
                 obj_val=self.incumbent_obj,
-                time=time.time() - self.start_time,
+                time=time.process_time() - self.start_time,
             )
 
         return self.incumbent_routes, self.incumbent_obj

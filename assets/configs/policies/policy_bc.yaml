@@ -58,7 +58,7 @@ bc:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
-    - time_limit: 300
+    - time_limit: 60
       # Maximum wall-clock seconds before termination
       # Range: 30-3600 (30s = quick test, 3600s = thorough search)
       # BC may prove optimality early and stop before time_limit

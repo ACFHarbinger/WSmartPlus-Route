@@ -15,7 +15,7 @@ ga:
     - mutation_rate: 0.15
     - tournament_size: 4
     - n_removal: 3
-    - time_limit: 120.0
+    - time_limit: 60.0
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

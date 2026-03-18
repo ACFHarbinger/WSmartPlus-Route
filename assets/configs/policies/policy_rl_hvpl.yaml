@@ -8,7 +8,7 @@ policies:
     n_teams: 10
     max_iterations: 100
     sub_rate: 0.2
-    time_limit: 120.0
+    time_limit: 60.0
     elite_coaching_iterations: 300
     regular_coaching_iterations: 100
     elite_size: 3

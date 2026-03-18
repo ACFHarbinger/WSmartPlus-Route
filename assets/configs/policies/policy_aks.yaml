@@ -52,7 +52,7 @@ aks:
     # ---------------------------------------------------------------------
     # Solver Control
     # ---------------------------------------------------------------------
-    - time_limit: 300.0
+    - time_limit: 60.0
       # Total wall-clock time limit for the policy within the simulator.
 
     - mip_limit_nodes: 10000

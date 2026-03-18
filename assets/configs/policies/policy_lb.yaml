@@ -30,7 +30,7 @@ lb:
     # ---------------------------------------------------------------------
     # Solver Performance
     # ---------------------------------------------------------------------
-    - time_limit: 300.0
+    - time_limit: 60.0
     # Maximum wall-clock time for the entire solver run in the simulator.
 
     - time_limit_per_iteration: 20.0

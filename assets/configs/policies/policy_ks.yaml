@@ -50,7 +50,7 @@ ks:
     # ---------------------------------------------------------------------
     # Solver Parameters
     # ---------------------------------------------------------------------
-    - time_limit: 300.0
+    - time_limit: 60.0
     # Maximum total time (seconds) for the entire kernel search process.
     # The solver attempts to partition this budget across all sub-problems.
 
