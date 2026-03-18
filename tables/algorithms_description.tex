@@ -42,6 +42,10 @@ Attention Model with POMO & Forces the AM to start from multiple roots, generati
 
 Branch-and-Bound (BB) & Systematic enumeration of candidate solutions via state-space search, using bounds to "prune" non-optimal sub-trees. & The foundational mathematical procedure for exact optimization; guaranteed global optimality but computationally prohibitive at scale. \\ \midrule
 
+Branch-and-Cut (BC) & Solves LP relaxations and tightens bounds by dynamically generating valid inequalities (cuts) at search tree nodes. & A foundational exact method for MILPs; aggressively prunes the search space and serves as the core engine for commercial exact solvers. \\ \midrule
+
+Branch-and-Price (BP) & Solves LP relaxations using column generation at each node of the B\&B tree to handle exponentially many variables. & The standard exact solver for Set Partitioning models; highly effective for routing but requires specialized branching rules (e.g., Ryan-Foster). \\ \midrule
+
 Branch-and-Price-and-Cut (BPC) & Solves LP relaxations via pricing, tightens bounds with cuts, and branches for integrality. & The gold standard for exact multicommodity flow; rigorously proves optimality via simultaneous column and row generation. \\ \midrule
 
 Circuit-SAT GNN & Iteratively predicts variable assignments to restrict the search tree via continuous circuit loss. & Purely mathematical Unsupervised Learning application for iterative state-space reduction. \\ \midrule
@@ -175,8 +179,6 @@ Step Counting Hill Climbing (SCHC) & Memory-based criterion where a cost bound r
 Threshold Accepting (TA) & Accepts deteriorating moves if they fall within a predefined threshold range. & Deterministic alternative to SA; allows reorganization of sequences to find globally efficient tours. \\ \midrule
 
 Variable Neighborhood Search (VNS) & Systematically switches neighborhood structures when trapped in local optima. & Foundational framework establishing rigorous rules for trajectory diversification. \\ \midrule
-
-Vehicle Routing Problem with Profits Optimizer (VRPP) & Data-driven exact optimizer maximizing collection profits via a rolling horizon MILP. & Exact solver implementation; utilizes HMMs to handle uncertainty while proving global daily optimality. \\ \midrule
 
 Volleyball Premier League (VPL) & Mimics volleyball coaching via substitution, coaching, and learning phases. & \textbf{Deceptive.} Fundamentally flawed GA/ES hybrid that relies on thematic phases rather than rigorous exploitation. \\ \bottomrule
 \end{longtable}

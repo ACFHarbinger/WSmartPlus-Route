@@ -9,6 +9,8 @@ from .ahvpl import AHVPLConfig
 from .aks import AdaptiveKernelSearchConfig
 from .alns import ALNSConfig
 from .bb import BBConfig
+from .bc import BCConfig
+from .bp import BPConfig
 from .bpc import BPCConfig
 from .cf_rs import CFRSConfig
 from .cvrp import CVRPConfig
@@ -81,6 +83,8 @@ __all__ = [
     "AHVPLConfig",
     "ALNSConfig",
     "BBConfig",
+    "BCConfig",
+    "BPConfig",
     "BPCConfig",
     "CFRSConfig",
     "CVRPConfig",
