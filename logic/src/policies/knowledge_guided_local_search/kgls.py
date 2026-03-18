@@ -12,6 +12,7 @@ Reference:
 
 import copy
 import logging
+import random
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -19,9 +20,8 @@ import numpy as np
 
 from logic.src.policies.knowledge_guided_local_search.cost_evaluator import CostEvaluator
 from logic.src.policies.knowledge_guided_local_search.params import KGLSParams
-from logic.src.policies.other.local_search.local_search_aco import (
-    ACOLocalSearch,
-)
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +63,7 @@ class KGLSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
+        self.random = random.Random(params.seed)
         self.rng = np.random.default_rng(params.seed)
 
         self.n_nodes = len(dist_matrix) - 1
@@ -92,32 +93,15 @@ class KGLSSolver:
 
     def build_initial_solution(self) -> List[List[int]]:
         """Greedy constructive heuristic. Can be replaced with generalized parallel savings."""
-        nodes = self.nodes[:]
-        self.rng.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
-        mandatory_set = set(self.mandatory_nodes)
-
-        for node in nodes:
-            waste = self.wastes.get(node, 0.0)
-            revenue = waste * self.R
-            is_mandatory = node in mandatory_set
-
-            if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
-                continue
-
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-        if curr_route:
-            routes.append(curr_route)
-        return routes
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+        )
 
     def apply_local_search(
         self, routes: List[List[int]], ls_manager: ACOLocalSearch, targeted_nodes: Optional[List[int]] = None

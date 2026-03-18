@@ -38,6 +38,11 @@ cluster_first_route_second:
       #       of vehicle availability (useful for predefined service territories).
       # Recommendation: Use 0 for dynamic fleet environments.
 
+    - time_limit: 2.0
+      # Maximum time in seconds for the routing phase (per sector).
+      # Default: 60.0 (1 minute). High values allow for more thorough search
+      # in complex sectors.
+
     # ---------------------------------------------------------------------
     # Infrastructure & Pipeline
     # ---------------------------------------------------------------------

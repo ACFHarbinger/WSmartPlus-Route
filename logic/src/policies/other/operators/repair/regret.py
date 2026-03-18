@@ -28,6 +28,7 @@ def regret_2_insertion(
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
     cost_unit: float = 1.0,
+    expand_pool: bool = True,
 ) -> List[List[int]]:
     """
     Insert removed nodes based on the regret-2 criterion.
@@ -58,6 +59,7 @@ def regret_2_insertion(
         R=R,
         mandatory_nodes=mandatory_nodes,
         cost_unit=cost_unit,
+        expand_pool=expand_pool,
     )
 
 
@@ -71,6 +73,7 @@ def regret_k_insertion(  # noqa: C901
     R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
     cost_unit: float = 1.0,
+    expand_pool: bool = True,
 ) -> List[List[int]]:
     """
     Insert removed nodes using the regret-k heuristic.
@@ -100,9 +103,12 @@ def regret_k_insertion(  # noqa: C901
         loads.append(sum(wastes.get(node, 0) for node in route))
         visited.update(route)
 
-    # All unvisited nodes (including those previously removed) are candidates
-    n_nodes = len(dist_matrix) - 1
-    unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    if expand_pool:
+        # All unvisited nodes (including those previously removed) are candidates
+        n_nodes = len(dist_matrix) - 1
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    else:
+        unassigned = sorted(list(removed_nodes))
 
     while unassigned:
         all_candidates = []
@@ -201,6 +207,7 @@ def regret_profit_insertion(
     C: float,
     k: int = 2,
     mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
 ) -> List[List[int]]:
     """
     Regret-k insertion maximizing profit (revenue - cost).
@@ -230,9 +237,12 @@ def regret_profit_insertion(
     for r in routes:
         visited.update(r)
 
-    # All unvisited nodes (including those previously removed) are candidates
-    n_nodes = len(dist_matrix) - 1
-    unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    if expand_pool:
+        # All unvisited nodes (including those previously removed) are candidates
+        n_nodes = len(dist_matrix) - 1
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    else:
+        unassigned = sorted(list(removed_nodes))
 
     while unassigned:
         all_candidates = []

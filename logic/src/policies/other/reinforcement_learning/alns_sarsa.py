@@ -75,28 +75,19 @@ from logic.src.policies.other.operators.repair import (
     regret_k_insertion as regret_k_insertion_op,
 )
 from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_i_s as type_i_insertion_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
     apply_type_i_us as type_i_removal_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_ii_s as type_ii_insertion_op,
 )
 from logic.src.policies.other.operators.unstringing_stringing import (
     apply_type_ii_us as type_ii_removal_op,
 )
 from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_iii_s as type_iii_insertion_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
     apply_type_iii_us as type_iii_removal_op,
 )
 from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_iv_s as type_iv_insertion_op,
+    apply_type_iv_us as type_iv_removal_op,
 )
 from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_iv_us as type_iv_removal_op,
+    stringing_insertion,
 )
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import SarsaAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
@@ -322,134 +313,61 @@ class ALNSSARSASolver:
             rng=self.random,
         )
 
-    # ===== Stringing Repair Operators =====
-
-    def _apply_stringing_op(self, route: List[int], node: int, op_type: int, params: Tuple) -> List[int]:
-        """Apply the specified stringing operation."""
-        if op_type == 1:
-            i, j, k = params
-            return type_i_insertion_op(route, node, i, j, k)
-        elif op_type == 2:
-            i, j, k, l = params
-            return type_ii_insertion_op(route, node, i, j, k, l)
-        elif op_type == 3:
-            i, j, k = params
-            return type_iii_insertion_op(route, node, i, j, k)
-        else:  # op_type == 4
-            i, j, k, l = params
-            return type_iv_insertion_op(route, node, i, j, k, l)
-
-    def _try_string_insertion(
-        self, routes: List[List[int]], node: int, r_idx: int, op_type: int
-    ) -> Optional[Tuple[List[List[int]], float]]:
-        """Try inserting a node using stringing operator, return best result."""
-        route = routes[r_idx]
-        if len(route) < 3:
-            return None
-
-        best_routes = None
-        best_profit = float("-inf")
-
-        # Try multiple random configurations
-        for _ in range(min(5, len(route))):
-            valid_positions = list(range(len(route)))
-            if len(valid_positions) < (4 if op_type in (2, 4) else 3):
-                continue
-
-            try:
-                # Sample required parameters
-                i = self.random.choice(valid_positions)
-                valid_j = [p for p in valid_positions if p != i]
-                if not valid_j:
-                    continue
-                j = self.random.choice(valid_j)
-                valid_k = [p for p in valid_positions if p not in (i, j)]
-                if not valid_k:
-                    continue
-                k = self.random.choice(valid_k)
-
-                # For Type II and IV, need additional parameter
-                if op_type in (2, 4):
-                    valid_l = [p for p in valid_positions if p not in (i, j, k)]
-                    if not valid_l:
-                        continue
-                    l = self.random.choice(valid_l)
-                    params = (i, j, k, l)
-                else:
-                    params = (i, j, k)
-
-                # Apply stringing operation
-                test_routes = [list(r) for r in routes]
-                new_route = self._apply_stringing_op(test_routes[r_idx], node, op_type, params)
-
-                # Validate insertion
-                if node not in new_route:
-                    continue
-                route_waste = sum(self.wastes.get(n, 0) for n in new_route)
-                if route_waste > self.capacity:
-                    continue
-
-                test_routes[r_idx] = new_route
-                cost = self.calculate_cost(test_routes)
-                rev = sum(self.wastes.get(n, 0) * self.R for r in test_routes for n in r)
-                profit = rev - cost
-
-                if profit > best_profit:
-                    best_profit = profit
-                    best_routes = test_routes
-
-            except Exception:
-                continue
-
-        return (best_routes, best_profit) if best_routes is not None else None
-
-    def _string_wrapper(self, routes: List[List[int]], removed: List[int], op_type: int) -> List[List[int]]:
-        """Wrapper to apply stringing moves as a repair operator."""
-        if not removed:
-            return routes
-
-        for node in removed:
-            best_routes = None
-            best_profit = float("-inf")
-
-            # Try inserting into each route
-            for r_idx in range(len(routes)):
-                result = self._try_string_insertion(routes, node, r_idx, op_type)
-                if result and result[1] > best_profit:
-                    best_routes, best_profit = result
-
-            # Apply best insertion or fallback to greedy
-            if best_routes is not None:
-                routes = best_routes
-            else:
-                routes = greedy_insertion_op(
-                    routes,
-                    [node],
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    R=self.R,
-                    mandatory_nodes=self.mandatory_nodes,
-                    cost_unit=self.C,
-                )
-
-        return routes
-
     def _repair_string_type_i(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-I stringing repair."""
-        return self._string_wrapper(routes, removed, 1)
+        return stringing_insertion(
+            routes,
+            removed,
+            1,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+            expand_pool=False,
+        )
 
     def _repair_string_type_ii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-II stringing repair."""
-        return self._string_wrapper(routes, removed, 2)
+        return stringing_insertion(
+            routes,
+            removed,
+            2,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+            expand_pool=False,
+        )
 
     def _repair_string_type_iii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-III stringing repair."""
-        return self._string_wrapper(routes, removed, 3)
+        return stringing_insertion(
+            routes,
+            removed,
+            3,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+            expand_pool=False,
+        )
 
     def _repair_string_type_iv(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-IV stringing repair."""
-        return self._string_wrapper(routes, removed, 4)
+        return stringing_insertion(
+            routes,
+            removed,
+            4,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+            expand_pool=False,
+        )
 
     # ===== Unstringing Operators =====
 

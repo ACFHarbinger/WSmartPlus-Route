@@ -52,7 +52,6 @@ popmusic:
 
         fast_tsp:
           time_limit: 1.0
-          # seed: 42
 
         alns:
           time_limit: 1.0

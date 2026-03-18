@@ -95,19 +95,25 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         # Priority-aware seeding (Config seed > Simulation seed)
         seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
 
+        # Map global mandatory_nodes to local subset indices
+        global_to_local = {idx: i for i, idx in enumerate(subset_indices)}
+        local_must_go = [global_to_local[idx] for idx in mandatory_nodes if idx in global_to_local]
+
         # Run core algorithm.
         tour, solver_cost, extra_data = run_cf_rs(
             coords=sub_coords,
-            must_go=mandatory_nodes,
+            must_go=local_must_go,
             distance_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
             n_vehicles=n_vehicles,
             seed=seed,
             num_clusters=cfg.num_clusters,
+            time_limit=cfg.time_limit,
         )
 
-        # extra_data contains 'clusters' (list of lists of local indices)
-        # However, run_cf_rs already solved the TSPs.
-        # To reuse _map_tour_to_global, we need to return segments between 0s as routes.
         routes = []
         current_route: List[int] = []
         for node in tour:
@@ -118,9 +124,5 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
             else:
                 current_route.append(node)
 
-        # Profit is not directly returned by run_cf_rs (it returns cost),
-        # but BaseRoutingPolicy computes profit based on collected waste.
-        # We need to return a profit estimate for the solver return.
         total_profit = sum(sub_wastes.get(n, 0.0) for r in routes for n in r) * revenue - solver_cost
-
         return routes, total_profit, solver_cost

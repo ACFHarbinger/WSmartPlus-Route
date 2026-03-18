@@ -1,6 +1,6 @@
 # Standard library
 from dataclasses import dataclass, field
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 # Local imports
 from logic.src.configs.policies.other import RLConfig
@@ -56,217 +56,199 @@ class RLAHVPLParams:
     # These properties allow existing code to access RL parameters without modification,
     # while transitioning to the new centralized RLConfig structure.
 
+    def _get_val(self, category: str, key: str, default: Any = None) -> Any:
+        # Resolve the category (e.g. td_learning, sarsa)
+        if isinstance(self.rl_config, dict):
+            cat_obj = self.rl_config.get(category, {})
+        else:
+            cat_obj = getattr(self.rl_config, category, None)
+
+        # If no category found but we asked for sarsa, fallback to td_learning
+        if not cat_obj and category == "sarsa":
+            return self._get_val("td_learning", key, default)
+
+        if isinstance(cat_obj, dict):
+            return cat_obj.get(key, default)
+        return getattr(cat_obj, key, default)
+
+    def _get_param(self, key: str, default: Any = None) -> Any:
+        if isinstance(self.rl_config, dict):
+            return self.rl_config.get("params", {}).get(key, default)
+        return self.rl_config.params.get(key, default)
+
     @property
     def bandit_algorithm(self) -> str:
-        """Name of the bandit algorithm to use."""
-        return self.rl_config.bandit.algorithm
+        return self._get_val("bandit", "algorithm", "ucb1")
 
     @property
     def bandit_max_iterations(self) -> int:
-        """Maximum iterations for the bandit."""
-        return self.rl_config.params.get("bandit_max_iterations", 1000)
+        return self._get_param("bandit_max_iterations", 1000)
 
     @property
     def bandit_quality_weight(self) -> float:
-        """Weight for solution quality in bandit reward."""
-        return self.rl_config.evolution_cmab.quality_weight
+        return self._get_val("evolution_cmab", "quality_weight", 0.5)
 
     @property
     def bandit_improvement_weight(self) -> float:
-        """Weight for solution improvement in bandit reward."""
-        return self.rl_config.evolution_cmab.improvement_weight
+        return self._get_val("evolution_cmab", "improvement_weight", 1.0)
 
     @property
     def bandit_diversity_weight(self) -> float:
-        """Weight for solution diversity in bandit reward."""
-        return self.rl_config.evolution_cmab.diversity_weight
+        return self._get_val("evolution_cmab", "diversity_weight", 0.2)
 
     @property
     def bandit_novelty_weight(self) -> float:
-        """Weight for solution novelty in bandit reward."""
-        return self.rl_config.evolution_cmab.novelty_weight
+        return self._get_val("evolution_cmab", "novelty_weight", 1.0)
 
     @property
     def bandit_reward_threshold(self) -> float:
-        """Threshold for rewarding an operator."""
-        return self.rl_config.evolution_cmab.reward_threshold
+        return self._get_val("evolution_cmab", "reward_threshold", 1e-6)
 
     @property
     def bandit_default_reward(self) -> float:
-        """Default reward for an operator."""
-        return self.rl_config.evolution_cmab.default_reward
+        return self._get_val("evolution_cmab", "default_reward", 5.0)
 
     @property
     def cfe_alpha(self) -> float:
-        """Alpha parameter for context feature extraction."""
-        return self.rl_config.context_features.alpha
+        return self._get_val("context_features", "alpha", 0.1)
 
     @property
     def cfe_feature_dim(self) -> int:
-        """Dimension of extracted features."""
-        return self.rl_config.context_features.feature_dim
+        return self._get_val("context_features", "feature_dim", 8)
 
     @property
     def cfe_operator_selection_threshold(self) -> float:
-        """Threshold for operator selection."""
-        return self.rl_config.context_features.selection_threshold
+        return self._get_val("context_features", "selection_threshold", 1e-9)
 
     @property
     def cfe_lambda_prior(self) -> float:
-        """Prior for lambda in feature extraction."""
-        return self.rl_config.context_features.lambda_prior
+        return self._get_val("context_features", "lambda_prior", 1.0)
 
     @property
     def cfe_noise_variance(self) -> float:
-        """Noise variance for feature extraction."""
-        return self.rl_config.context_features.noise_variance
+        return self._get_val("context_features", "noise_variance", 0.1)
 
     @property
     def cfe_epsilon(self) -> float:
-        """Exploration rate for context-aware solvers."""
-        return self.rl_config.context_features.epsilon
+        return self._get_val("context_features", "epsilon", 0.15)
 
     @property
     def cfe_epsilon_decay(self) -> float:
-        """Decay rate for epsilon."""
-        return self.rl_config.context_features.epsilon_decay
+        return self._get_val("context_features", "epsilon_decay", 0.995)
 
     @property
     def cfe_epsilon_decay_step(self) -> int:
-        """Steps between epsilon decay."""
-        return self.rl_config.context_features.epsilon_decay_step
+        return self._get_val("context_features", "epsilon_decay_step", 20)
 
     @property
     def cfe_epsilon_min(self) -> float:
-        """Minimum epsilon value."""
-        return self.rl_config.context_features.epsilon_min
+        return self._get_val("context_features", "epsilon_min", 0.05)
 
     @property
     def cfe_diversity_history_size(self) -> int:
-        """History size for diversity tracking."""
-        return self.rl_config.features.diversity_history_size
+        return self._get_val("features", "diversity_history_size", 10)
 
     @property
     def cfe_improvement_history_size(self) -> int:
-        """History size for improvement tracking."""
-        return self.rl_config.features.improvement_history_size
+        return self._get_val("features", "improvement_history_size", 10)
 
     @property
     def cfe_operator_reward_size(self) -> int:
-        """History size for operator rewards."""
-        return self.rl_config.params.get("cfe_operator_reward_size", 50)
+        return self._get_param("cfe_operator_reward_size", 50)
 
     @property
     def cfe_improvement_threshold(self) -> float:
-        """Threshold for considering an improvement significant."""
-        return self.rl_config.reward.improvement_threshold
+        return float(self._get_val("reward", "improvement_threshold", 1e-6))
 
     @property
     def qlearning_alpha(self) -> float:
-        """Learning rate for Q-Learning."""
-        return self.rl_config.td_learning.alpha
+        return self._get_val("td_learning", "alpha", 0.1)
 
     @property
     def qlearning_gamma(self) -> float:
-        """Discount factor for Q-Learning."""
-        return self.rl_config.td_learning.gamma
+        return self._get_val("td_learning", "gamma", 0.95)
 
     @property
     def qlearning_epsilon(self) -> float:
-        """Exploration rate for Q-Learning."""
-        return self.rl_config.td_learning.epsilon
+        return self._get_val("td_learning", "epsilon", 0.1)
 
     @property
     def qlearning_epsilon_decay(self) -> float:
-        """Decay rate for epsilon."""
-        return self.rl_config.td_learning.epsilon_decay
+        return self._get_val("td_learning", "epsilon_decay", 0.995)
 
     @property
     def qlearning_epsilon_decay_step(self) -> int:
-        """Steps between epsilon decay."""
-        return self.rl_config.td_learning.epsilon_decay_step
+        return self._get_val("td_learning", "epsilon_decay_step", 20)
 
     @property
     def qlearning_epsilon_min(self) -> float:
-        """Minimum epsilon value."""
-        return self.rl_config.td_learning.epsilon_min
+        return self._get_val("td_learning", "epsilon_min", 0.05)
 
     @property
     def qlearning_history_size(self) -> int:
-        """History size for Q-Learning."""
-        return self.rl_config.td_learning.history_size
+        return self._get_val("td_learning", "history_size", 100)
 
     @property
     def qlearning_rewards_size(self) -> int:
-        """Size of rewards history."""
-        return self.rl_config.params.get("qlearning_rewards_size", 100)
+        return self._get_param("qlearning_rewards_size", 100)
 
     @property
     def qlearning_improvement_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for improvement classification."""
-        return self.rl_config.params.get("qlearning_improvement_thresholds", (1e-4, 1e-2))
+        val = self._get_param("qlearning_improvement_thresholds", (1e-4, 1e-2))
+        return float(val[0]), float(val[1])
 
     @property
     def sarsa_alpha(self) -> float:
-        """Learning rate for SARSA."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).alpha
+        return self._get_val("sarsa", "alpha", 0.1)
 
     @property
     def sarsa_gamma(self) -> float:
-        """Discount factor for SARSA."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).gamma
+        return self._get_val("sarsa", "gamma", 0.95)
 
     @property
     def sarsa_epsilon(self) -> float:
-        """Exploration rate for SARSA."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon
+        return self._get_val("sarsa", "epsilon", 0.1)
 
     @property
     def sarsa_epsilon_decay(self) -> float:
-        """Decay rate for epsilon."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon_decay
+        return self._get_val("sarsa", "epsilon_decay", 0.995)
 
     @property
     def sarsa_epsilon_decay_step(self) -> int:
-        """Steps between epsilon decay."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon_decay_step
+        return self._get_val("sarsa", "epsilon_decay_step", 20)
 
     @property
     def sarsa_epsilon_min(self) -> float:
-        """Minimum epsilon value."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon_min
+        return self._get_val("sarsa", "epsilon_min", 0.05)
 
     @property
     def sarsa_diversity_size(self) -> int:
-        """History size for diversity tracking in SARSA."""
-        return self.rl_config.params.get("sarsa_diversity_size", 50)
+        return self._get_param("sarsa_diversity_size", 50)
 
     @property
     def sarsa_scores_size(self) -> int:
-        """History size for scores in SARSA."""
-        return self.rl_config.params.get("sarsa_scores_size", 100)
+        return self._get_param("sarsa_scores_size", 100)
 
     @property
     def sarsa_qtable_size_rate(self) -> float:
-        """Size rate for the Q-Table."""
-        return self.rl_config.params.get("sarsa_qtable_size_rate", 0.5)
+        return self._get_param("sarsa_qtable_size_rate", 0.5)
 
     @property
     def sarsa_improvement_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for improvement classification in SARSA."""
-        return self.rl_config.params.get("sarsa_improvement_thresholds", (1e-4, 1e-2))
+        val = self._get_param("sarsa_improvement_thresholds", (1e-4, 1e-2))
+        return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_progress_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for progress classification."""
-        return self.rl_config.params.get("sarsa_operator_progress_thresholds", (0.3, 0.7))
+        val = self._get_param("sarsa_operator_progress_thresholds", (0.3, 0.7))
+        return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_stagnation_thresholds(self) -> Tuple[int, int]:
-        """Thresholds for stagnation classification."""
-        return self.rl_config.params.get("sarsa_operator_stagnation_thresholds", (10, 50))
+        val = self._get_param("sarsa_operator_stagnation_thresholds", (10, 50))
+        return int(val[0]), int(val[1])
 
     @property
     def sarsa_operator_diversity_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for diversity classification."""
-        return self.rl_config.params.get("sarsa_operator_diversity_thresholds", (0.2, 0.5))
+        val = self._get_param("sarsa_operator_diversity_thresholds", (0.2, 0.5))
+        return float(val[0]), float(val[1])
