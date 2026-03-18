@@ -64,6 +64,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.kgls.KGLSConfig.local_search_iterations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.configs.policies.kgls.KGLSConfig.local_search_iterations
+```
+
+````
+
 ````{py:attribute} moves
 :canonical: src.configs.policies.kgls.KGLSConfig.moves
 :type: typing.List[str]
@@ -93,6 +104,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
    42
 
 ```{autodoc2-docstring} src.configs.policies.kgls.KGLSConfig.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.kgls.KGLSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.kgls.KGLSConfig.vrpp
 ```
 
 ````

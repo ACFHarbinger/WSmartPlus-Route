@@ -23,10 +23,10 @@
 
 ### API
 
-`````{py:class} PSOPolicyAdapter(**config: typing.Any)
+`````{py:class} PSOPolicyAdapter(config: typing.Optional[typing.Union[logic.src.configs.policies.pso.PSOConfig, typing.Dict[str, typing.Any]]] = None)
 :canonical: src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter
 
-Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
+Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter
 ```
@@ -37,10 +37,21 @@ Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.__init__
 ```
 
-````{py:method} __call__(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.__call__
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._config_class
+:classmethod:
 
-```{autodoc2-docstring} src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.__call__
+````
+
+````{py:method} _get_config_key() -> str
+:canonical: src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._get_config_key
+
+````
+
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._run_solver
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._run_solver
 ```
 
 ````

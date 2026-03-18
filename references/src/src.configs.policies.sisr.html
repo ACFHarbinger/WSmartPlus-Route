@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -537,6 +539,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.blink_rate"><code class="docutils literal notranslate"><span class="pre">SISRConfig.blink_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.destroy_ratio"><code class="docutils literal notranslate"><span class="pre">SISRConfig.destroy_ratio</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.engine"><code class="docutils literal notranslate"><span class="pre">SISRConfig.engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">SISRConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.must_go"><code class="docutils literal notranslate"><span class="pre">SISRConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">SISRConfig.post_processing</span></code></a></li>
 </ul>
@@ -588,6 +591,7 @@ avg_string_len: Average length of strings to remove.
 blink_rate: Probability of ‘blinking’ during insertion.
 destroy_ratio: Fraction of solution to destroy per iteration.
 engine: Solver engine to use.
+vrpp: Whether this is a VRPP problem.
 must_go: List of must-go strategy config files.
 post_processing: List of post-processing operations to apply.</p>
 <dl class="py attribute">
@@ -648,6 +652,12 @@ post_processing: List of post-processing operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.sisr.SISRConfig.engine">
 <span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.sisr.SISRConfig.engine" title="Link to this definition">#</a></dt>
 <dd><p>‘custom’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.sisr.SISRConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.sisr.SISRConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -727,6 +737,7 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.blink_rate"><code class="docutils literal notranslate"><span class="pre">SISRConfig.blink_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.destroy_ratio"><code class="docutils literal notranslate"><span class="pre">SISRConfig.destroy_ratio</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.engine"><code class="docutils literal notranslate"><span class="pre">SISRConfig.engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">SISRConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.must_go"><code class="docutils literal notranslate"><span class="pre">SISRConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sisr.SISRConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">SISRConfig.post_processing</span></code></a></li>
 </ul>

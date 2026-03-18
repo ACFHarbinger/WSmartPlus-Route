@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp
+```
+
+````
+
 ````{py:attribute} bucket_growth_factor
 :canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.bucket_growth_factor
 :type: float

@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.other.operators.repair.deep
+src.policies.other.operators.repair.farthest
 src.policies.other.operators.repair.savings
 src.policies.other.operators.repair.regret
 src.policies.other.operators.repair.greedy_blink
@@ -39,7 +40,7 @@ src.policies.other.operators.repair.greedy
 ````{py:data} __all__
 :canonical: src.policies.other.operators.repair.__all__
 :value: >
-   ['greedy_insertion', 'greedy_profit_insertion', 'regret_2_insertion', 'regret_k_insertion', 'regret_...
+   ['greedy_insertion', 'greedy_profit_insertion', 'farthest_insertion', 'farthest_profit_insertion', '...
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.__all__
 ```

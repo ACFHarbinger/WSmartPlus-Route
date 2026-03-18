@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.vrpp
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

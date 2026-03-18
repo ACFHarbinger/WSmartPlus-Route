@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.pso.PSOConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.pso.PSOConfig.vrpp
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.pso.PSOConfig.seed
 :type: typing.Optional[int]

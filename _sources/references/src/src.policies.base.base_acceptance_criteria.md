@@ -26,7 +26,7 @@
 `````{py:class} BaseAcceptanceSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
 :canonical: src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver
 
-Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
+Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
 
 ```{autodoc2-docstring} src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver
 ```

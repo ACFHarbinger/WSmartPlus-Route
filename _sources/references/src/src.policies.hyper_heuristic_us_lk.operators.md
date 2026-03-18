@@ -75,7 +75,7 @@
 
 ````
 
-````{py:method} apply_string_repair(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, removed: typing.List[int], string_type: str) -> src.policies.hyper_heuristic_us_lk.solution.Solution
+````{py:method} apply_string_repair(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, removed: typing.List[int], string_type: str, expand_pool: bool = False) -> src.policies.hyper_heuristic_us_lk.solution.Solution
 :canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_string_repair
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_string_repair
@@ -83,7 +83,7 @@
 
 ````
 
-````{py:method} _greedy_repair(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, removed: typing.List[int]) -> src.policies.hyper_heuristic_us_lk.solution.Solution
+````{py:method} _greedy_repair(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, removed: typing.List[int], expand_pool: bool = False) -> src.policies.hyper_heuristic_us_lk.solution.Solution
 :canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair

@@ -42,6 +42,17 @@ Bases: {py:obj}`src.configs.policies.alns.ALNSConfig`
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.rl_alns.RLALNSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.rl_alns.RLALNSConfig.vrpp
+```
+
+````
+
 ````{py:attribute} engine
 :canonical: src.configs.policies.rl_alns.RLALNSConfig.engine
 :type: str

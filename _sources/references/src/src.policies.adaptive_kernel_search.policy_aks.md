@@ -54,6 +54,14 @@ Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
 ````
 
+````{py:method} _run_solver(sub_dist_matrix: typing.Any, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.adaptive_kernel_search.policy_aks.AdaptiveKernelSearchPolicy._run_solver
+
+```{autodoc2-docstring} src.policies.adaptive_kernel_search.policy_aks.AdaptiveKernelSearchPolicy._run_solver
+```
+
+````
+
 ````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
 :canonical: src.policies.adaptive_kernel_search.policy_aks.AdaptiveKernelSearchPolicy.execute
 

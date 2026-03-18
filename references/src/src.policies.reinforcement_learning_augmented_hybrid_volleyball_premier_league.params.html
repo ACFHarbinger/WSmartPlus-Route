@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -545,6 +547,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_penalty_alpha"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.gls_penalty_alpha</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_penalty_step"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.gls_penalty_step</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_probability"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.gls_probability</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_val"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams._get_val()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_param"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams._get_param()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_algorithm"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.bandit_algorithm</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_max_iterations"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.bandit_max_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_quality_weight"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.bandit_quality_weight</span></code></a></li>
@@ -736,263 +740,230 @@ management / crossover, all using Reinforcement Learning (RL) for adaptive opera
 <dd><p>0.5</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_val">
+<span class="sig-name descname"><span class="pre">_get_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_val" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_param">
+<span class="sig-name descname"><span class="pre">_get_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_param" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_algorithm">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_algorithm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_algorithm" title="Link to this definition">#</a></dt>
-<dd><p>Name of the bandit algorithm to use.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_max_iterations">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_max_iterations" title="Link to this definition">#</a></dt>
-<dd><p>Maximum iterations for the bandit.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_quality_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_quality_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_quality_weight" title="Link to this definition">#</a></dt>
-<dd><p>Weight for solution quality in bandit reward.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_improvement_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_improvement_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_improvement_weight" title="Link to this definition">#</a></dt>
-<dd><p>Weight for solution improvement in bandit reward.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_diversity_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_diversity_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_diversity_weight" title="Link to this definition">#</a></dt>
-<dd><p>Weight for solution diversity in bandit reward.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_novelty_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_novelty_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_novelty_weight" title="Link to this definition">#</a></dt>
-<dd><p>Weight for solution novelty in bandit reward.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_reward_threshold">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_reward_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_reward_threshold" title="Link to this definition">#</a></dt>
-<dd><p>Threshold for rewarding an operator.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_default_reward">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandit_default_reward</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_default_reward" title="Link to this definition">#</a></dt>
-<dd><p>Default reward for an operator.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_alpha" title="Link to this definition">#</a></dt>
-<dd><p>Alpha parameter for context feature extraction.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_feature_dim">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_feature_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_feature_dim" title="Link to this definition">#</a></dt>
-<dd><p>Dimension of extracted features.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_operator_selection_threshold">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_operator_selection_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_operator_selection_threshold" title="Link to this definition">#</a></dt>
-<dd><p>Threshold for operator selection.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_lambda_prior">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_lambda_prior</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_lambda_prior" title="Link to this definition">#</a></dt>
-<dd><p>Prior for lambda in feature extraction.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_noise_variance">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_noise_variance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_noise_variance" title="Link to this definition">#</a></dt>
-<dd><p>Noise variance for feature extraction.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon" title="Link to this definition">#</a></dt>
-<dd><p>Exploration rate for context-aware solvers.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon_decay">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_epsilon_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon_decay" title="Link to this definition">#</a></dt>
-<dd><p>Decay rate for epsilon.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon_decay_step">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_epsilon_decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon_decay_step" title="Link to this definition">#</a></dt>
-<dd><p>Steps between epsilon decay.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon_min">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_epsilon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_epsilon_min" title="Link to this definition">#</a></dt>
-<dd><p>Minimum epsilon value.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_diversity_history_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_diversity_history_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_diversity_history_size" title="Link to this definition">#</a></dt>
-<dd><p>History size for diversity tracking.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_improvement_history_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_improvement_history_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_improvement_history_size" title="Link to this definition">#</a></dt>
-<dd><p>History size for improvement tracking.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_operator_reward_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_operator_reward_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_operator_reward_size" title="Link to this definition">#</a></dt>
-<dd><p>History size for operator rewards.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_improvement_threshold">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cfe_improvement_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.cfe_improvement_threshold" title="Link to this definition">#</a></dt>
-<dd><p>Threshold for considering an improvement significant.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_alpha" title="Link to this definition">#</a></dt>
-<dd><p>Learning rate for Q-Learning.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_gamma" title="Link to this definition">#</a></dt>
-<dd><p>Discount factor for Q-Learning.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon" title="Link to this definition">#</a></dt>
-<dd><p>Exploration rate for Q-Learning.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon_decay">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon_decay" title="Link to this definition">#</a></dt>
-<dd><p>Decay rate for epsilon.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon_decay_step">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon_decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon_decay_step" title="Link to this definition">#</a></dt>
-<dd><p>Steps between epsilon decay.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon_min">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_epsilon_min" title="Link to this definition">#</a></dt>
-<dd><p>Minimum epsilon value.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_history_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_history_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_history_size" title="Link to this definition">#</a></dt>
-<dd><p>History size for Q-Learning.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_rewards_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_rewards_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_rewards_size" title="Link to this definition">#</a></dt>
-<dd><p>Size of rewards history.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_improvement_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_improvement_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.qlearning_improvement_thresholds" title="Link to this definition">#</a></dt>
-<dd><p>Thresholds for improvement classification.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_alpha" title="Link to this definition">#</a></dt>
-<dd><p>Learning rate for SARSA.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_gamma" title="Link to this definition">#</a></dt>
-<dd><p>Discount factor for SARSA.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon" title="Link to this definition">#</a></dt>
-<dd><p>Exploration rate for SARSA.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon_decay">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon_decay" title="Link to this definition">#</a></dt>
-<dd><p>Decay rate for epsilon.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon_decay_step">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon_decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon_decay_step" title="Link to this definition">#</a></dt>
-<dd><p>Steps between epsilon decay.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon_min">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_epsilon_min" title="Link to this definition">#</a></dt>
-<dd><p>Minimum epsilon value.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_diversity_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_diversity_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_diversity_size" title="Link to this definition">#</a></dt>
-<dd><p>History size for diversity tracking in SARSA.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_scores_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_scores_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_scores_size" title="Link to this definition">#</a></dt>
-<dd><p>History size for scores in SARSA.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_qtable_size_rate">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_qtable_size_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_qtable_size_rate" title="Link to this definition">#</a></dt>
-<dd><p>Size rate for the Q-Table.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_improvement_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_improvement_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_improvement_thresholds" title="Link to this definition">#</a></dt>
-<dd><p>Thresholds for improvement classification in SARSA.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_operator_progress_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_operator_progress_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_operator_progress_thresholds" title="Link to this definition">#</a></dt>
-<dd><p>Thresholds for progress classification.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_operator_stagnation_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_operator_stagnation_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_operator_stagnation_thresholds" title="Link to this definition">#</a></dt>
-<dd><p>Thresholds for stagnation classification.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_operator_diversity_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_operator_diversity_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.sarsa_operator_diversity_thresholds" title="Link to this definition">#</a></dt>
-<dd><p>Thresholds for diversity classification.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1067,6 +1038,8 @@ management / crossover, all using Reinforcement Learning (RL) for adaptive opera
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_penalty_alpha"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.gls_penalty_alpha</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_penalty_step"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.gls_penalty_step</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_probability"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.gls_probability</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_val"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams._get_val()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_param"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams._get_param()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_algorithm"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.bandit_algorithm</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_max_iterations"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.bandit_max_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_quality_weight"><code class="docutils literal notranslate"><span class="pre">RLAHVPLParams.bandit_quality_weight</span></code></a></li>

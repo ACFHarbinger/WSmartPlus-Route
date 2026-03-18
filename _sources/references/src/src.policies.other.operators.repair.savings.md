@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} savings_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, depot: int = 0) -> typing.List[typing.List[int]]
+````{py:function} savings_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = False) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.repair.savings.savings_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.savings.savings_insertion
 ```
 ````
 
-````{py:function} savings_profit_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, depot: int = 0) -> typing.List[typing.List[int]]
+````{py:function} savings_profit_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, depot: int = 0, expand_pool: bool = False) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.repair.savings.savings_profit_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.savings.savings_profit_insertion

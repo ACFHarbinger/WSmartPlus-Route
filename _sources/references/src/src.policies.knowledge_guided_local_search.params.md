@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.knowledge_guided_local_search.params.KGLSParams.local_search_iterations
+:type: int
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.knowledge_guided_local_search.params.KGLSParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.policies.knowledge_guided_local_search.params.KGLSParams.seed
 :type: typing.Optional[int]

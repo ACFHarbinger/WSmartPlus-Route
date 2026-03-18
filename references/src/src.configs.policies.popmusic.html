@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -526,12 +528,22 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig.fast_tsp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.alns"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig.alns</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.hgs"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig.hgs</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.subproblem_size"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.subproblem_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.max_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.base_solver"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.base_solver</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.base_solver_config"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.base_solver_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.cluster_solver"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.cluster_solver</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.cluster_solver_config"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.cluster_solver_config</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.initial_solver"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.initial_solver</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.seed"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.must_go"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.post_processing</span></code></a></li>
 </ul>
@@ -560,7 +572,10 @@ document.write(`
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.popmusic.POPMUSICConfig" title="src.configs.policies.popmusic.POPMUSICConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POPMUSICConfig</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig" title="src.configs.policies.popmusic.POPMUSICSubSolverConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig</span></code></a></p></td>
+<td><p>Nested configuration for sub-solvers within POPMUSIC.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.popmusic.POPMUSICConfig" title="src.configs.policies.popmusic.POPMUSICConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POPMUSICConfig</span></code></a></p></td>
 <td><p>Configuration for POPMUSIC matheuristic.
 Based on Taillard &amp; Voss (2002).</p></td>
 </tr>
@@ -571,6 +586,34 @@ Based on Taillard &amp; Voss (2002).</p></td>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICSubSolverConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.popmusic.</span></span><span class="sig-name descname"><span class="pre">POPMUSICSubSolverConfig</span></span><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig" title="Link to this definition">#</a></dt>
+<dd><p>Nested configuration for sub-solvers within POPMUSIC.</p>
+<p>Attributes:
+fast_tsp: Configuration for Fast TSP solver.
+alns: Configuration for ALNS solver.
+hgs: Configuration for HGS solver.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp">
+<span class="sig-name descname"><span class="pre">fast_tsp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.policies.tsp.html#src.configs.policies.tsp.TSPConfig" title="src.configs.policies.tsp.TSPConfig"><span class="pre">src.configs.policies.tsp.TSPConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICSubSolverConfig.alns">
+<span class="sig-name descname"><span class="pre">alns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig" title="src.configs.policies.alns.ALNSConfig"><span class="pre">src.configs.policies.alns.ALNSConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.alns" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICSubSolverConfig.hgs">
+<span class="sig-name descname"><span class="pre">hgs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.policies.hgs.html#src.configs.policies.hgs.HGSConfig" title="src.configs.policies.hgs.HGSConfig"><span class="pre">src.configs.policies.hgs.HGSConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.hgs" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.popmusic.</span></span><span class="sig-name descname"><span class="pre">POPMUSICConfig</span></span><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for POPMUSIC matheuristic.
@@ -579,8 +622,12 @@ Based on Taillard &amp; Voss (2002).</p>
 subproblem_size: Number of neighboring routes to optimize (R).
 max_iterations: Maximum number of sub-problem attempts without improvement.
 base_solver: The solver configuration used for subproblem optimization.
+base_solver_config: Detailed configuration for the subproblem solver.
+cluster_solver: The solver configuration used for clustering.
+cluster_solver_config: Detailed configuration for the clustering solver.
 initial_solver: Solver used to generate the initial solution (e.g., ‘nearest_neighbor’).
 seed: Random seed for reproducibility.
+vrpp: Whether this is a VRPP problem.
 must_go: List of must-go strategy config files.
 post_processing: List of post-processing operations to apply.</p>
 <dl class="py attribute">
@@ -602,6 +649,24 @@ post_processing: List of post-processing operations to apply.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig.base_solver_config">
+<span class="sig-name descname"><span class="pre">base_solver_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig" title="src.configs.policies.popmusic.POPMUSICSubSolverConfig"><span class="pre">src.configs.policies.popmusic.POPMUSICSubSolverConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig.base_solver_config" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig.cluster_solver">
+<span class="sig-name descname"><span class="pre">cluster_solver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig.cluster_solver" title="Link to this definition">#</a></dt>
+<dd><p>‘fast_tsp’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig.cluster_solver_config">
+<span class="sig-name descname"><span class="pre">cluster_solver_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig" title="src.configs.policies.popmusic.POPMUSICSubSolverConfig"><span class="pre">src.configs.policies.popmusic.POPMUSICSubSolverConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig.cluster_solver_config" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig.initial_solver">
 <span class="sig-name descname"><span class="pre">initial_solver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig.initial_solver" title="Link to this definition">#</a></dt>
 <dd><p>‘nearest_neighbor’</p>
@@ -611,6 +676,12 @@ post_processing: List of post-processing operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.popmusic.POPMUSICConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.popmusic.POPMUSICConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -679,12 +750,22 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig.fast_tsp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.alns"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig.alns</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICSubSolverConfig.hgs"><code class="docutils literal notranslate"><span class="pre">POPMUSICSubSolverConfig.hgs</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.subproblem_size"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.subproblem_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.max_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.base_solver"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.base_solver</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.base_solver_config"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.base_solver_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.cluster_solver"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.cluster_solver</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.cluster_solver_config"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.cluster_solver_config</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.initial_solver"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.initial_solver</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.seed"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.must_go"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.popmusic.POPMUSICConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">POPMUSICConfig.post_processing</span></code></a></li>
 </ul>

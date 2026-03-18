@@ -131,30 +131,6 @@
 
 ````
 
-````{py:method} _apply_stringing_op(route: typing.List[int], node: int, op_type: int, params: typing.Tuple) -> typing.List[int]
-:canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._apply_stringing_op
-
-```{autodoc2-docstring} src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._apply_stringing_op
-```
-
-````
-
-````{py:method} _try_string_insertion(routes: typing.List[typing.List[int]], node: int, r_idx: int, op_type: int) -> typing.Optional[typing.Tuple[typing.List[typing.List[int]], float]]
-:canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._try_string_insertion
-
-```{autodoc2-docstring} src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._try_string_insertion
-```
-
-````
-
-````{py:method} _string_wrapper(routes: typing.List[typing.List[int]], removed: typing.List[int], op_type: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._string_wrapper
-
-```{autodoc2-docstring} src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._string_wrapper
-```
-
-````
-
 ````{py:method} _repair_string_type_i(routes: typing.List[typing.List[int]], removed: typing.List[int]) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_i
 

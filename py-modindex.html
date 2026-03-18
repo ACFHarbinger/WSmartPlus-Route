@@ -617,11 +617,13 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -1024,6 +1026,16 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.configs.policies.bc.html#module-src.configs.policies.bc"><code class="xref">src.configs.policies.bc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.configs.policies.bp.html#module-src.configs.policies.bp"><code class="xref">src.configs.policies.bp</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.configs.policies.bpc.html#module-src.configs.policies.bpc"><code class="xref">src.configs.policies.bpc</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -1109,7 +1121,7 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.configs.policies.hgsrr.html#module-src.configs.policies.hgsrr"><code class="xref">src.configs.policies.hgsrr</code></a></td><td>
+       <a href="references/src/src.configs.policies.hgs_rr.html#module-src.configs.policies.hgs_rr"><code class="xref">src.configs.policies.hgs_rr</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -4334,12 +4346,12 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.adaptive_kernel_search.policy_aks.html#module-src.policies.adaptive_kernel_search.policy_aks"><code class="xref">src.policies.adaptive_kernel_search.policy_aks</code></a></td><td>
+       <a href="references/src/src.policies.adaptive_kernel_search.aks.html#module-src.policies.adaptive_kernel_search.aks"><code class="xref">src.policies.adaptive_kernel_search.aks</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.adaptive_kernel_search.solver.html#module-src.policies.adaptive_kernel_search.solver"><code class="xref">src.policies.adaptive_kernel_search.solver</code></a></td><td>
+       <a href="references/src/src.policies.adaptive_kernel_search.policy_aks.html#module-src.policies.adaptive_kernel_search.policy_aks"><code class="xref">src.policies.adaptive_kernel_search.policy_aks</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -4514,6 +4526,16 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_bound.bb.html#module-src.policies.branch_and_bound.bb"><code class="xref">src.policies.branch_and_bound.bb</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_bound.bb_simple.html#module-src.policies.branch_and_bound.bb_simple"><code class="xref">src.policies.branch_and_bound.bb_simple</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.branch_and_bound.node.html#module-src.policies.branch_and_bound.node"><code class="xref">src.policies.branch_and_bound.node</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -4524,7 +4546,67 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.branch_and_bound.solver.html#module-src.policies.branch_and_bound.solver"><code class="xref">src.policies.branch_and_bound.solver</code></a></td><td>
+       <a href="references/src/src.policies.branch_and_cut.html#module-src.policies.branch_and_cut"><code class="xref">src.policies.branch_and_cut</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_cut.bc.html#module-src.policies.branch_and_cut.bc"><code class="xref">src.policies.branch_and_cut.bc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_cut.heuristics.html#module-src.policies.branch_and_cut.heuristics"><code class="xref">src.policies.branch_and_cut.heuristics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_cut.policy_bc.html#module-src.policies.branch_and_cut.policy_bc"><code class="xref">src.policies.branch_and_cut.policy_bc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_cut.separation.html#module-src.policies.branch_and_cut.separation"><code class="xref">src.policies.branch_and_cut.separation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_cut.vrpp_model.html#module-src.policies.branch_and_cut.vrpp_model"><code class="xref">src.policies.branch_and_cut.vrpp_model</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.html#module-src.policies.branch_and_price"><code class="xref">src.policies.branch_and_price</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.bp.html#module-src.policies.branch_and_price.bp"><code class="xref">src.policies.branch_and_price.bp</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.master_problem.html#module-src.policies.branch_and_price.master_problem"><code class="xref">src.policies.branch_and_price.master_problem</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.policy_bp.html#module-src.policies.branch_and_price.policy_bp"><code class="xref">src.policies.branch_and_price.policy_bp</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.pricing_subproblem.html#module-src.policies.branch_and_price.pricing_subproblem"><code class="xref">src.policies.branch_and_price.pricing_subproblem</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.rcspp_dp.html#module-src.policies.branch_and_price.rcspp_dp"><code class="xref">src.policies.branch_and_price.rcspp_dp</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price.ryan_foster_branching.html#module-src.policies.branch_and_price.ryan_foster_branching"><code class="xref">src.policies.branch_and_price.ryan_foster_branching</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -4964,7 +5046,7 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr.html#module-src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr"><code class="xref">src.policies.hybrid_genetic_search_ruin_and_recreate.hgsrr</code></a></td><td>
+       <a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.html#module-src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr"><code class="xref">src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -4974,7 +5056,7 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr.html#module-src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr"><code class="xref">src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr</code></a></td><td>
+       <a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr.html#module-src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr"><code class="xref">src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -5209,12 +5291,12 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.local_branching.policy_lb.html#module-src.policies.local_branching.policy_lb"><code class="xref">src.policies.local_branching.policy_lb</code></a></td><td>
+       <a href="references/src/src.policies.local_branching.lb.html#module-src.policies.local_branching.lb"><code class="xref">src.policies.local_branching.lb</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.local_branching.solver.html#module-src.policies.local_branching.solver"><code class="xref">src.policies.local_branching.solver</code></a></td><td>
+       <a href="references/src/src.policies.local_branching.policy_lb.html#module-src.policies.local_branching.policy_lb"><code class="xref">src.policies.local_branching.policy_lb</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -5224,12 +5306,12 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.html#module-src.policies.local_branching_variable_neighborhood_search.policy_lb_vns"><code class="xref">src.policies.local_branching_variable_neighborhood_search.policy_lb_vns</code></a></td><td>
+       <a href="references/src/src.policies.local_branching_variable_neighborhood_search.lb_vns.html#module-src.policies.local_branching_variable_neighborhood_search.lb_vns"><code class="xref">src.policies.local_branching_variable_neighborhood_search.lb_vns</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="references/src/src.policies.local_branching_variable_neighborhood_search.solver.html#module-src.policies.local_branching_variable_neighborhood_search.solver"><code class="xref">src.policies.local_branching_variable_neighborhood_search.solver</code></a></td><td>
+       <a href="references/src/src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.html#module-src.policies.local_branching_variable_neighborhood_search.policy_lb_vns"><code class="xref">src.policies.local_branching_variable_neighborhood_search.policy_lb_vns</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -5439,12 +5521,32 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.must_go.selection_deadline.html#module-src.policies.other.must_go.selection_deadline"><code class="xref">src.policies.other.must_go.selection_deadline</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.other.must_go.selection_last_minute.html#module-src.policies.other.must_go.selection_last_minute"><code class="xref">src.policies.other.must_go.selection_last_minute</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.other.must_go.selection_lookahead.html#module-src.policies.other.must_go.selection_lookahead"><code class="xref">src.policies.other.must_go.selection_lookahead</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.must_go.selection_multi_day_prob.html#module-src.policies.other.must_go.selection_multi_day_prob"><code class="xref">src.policies.other.must_go.selection_multi_day_prob</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.must_go.selection_pareto.html#module-src.policies.other.must_go.selection_pareto"><code class="xref">src.policies.other.must_go.selection_pareto</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.must_go.selection_profit_per_km.html#module-src.policies.other.must_go.selection_profit_per_km"><code class="xref">src.policies.other.must_go.selection_profit_per_km</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -5460,6 +5562,16 @@ document.write(`
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.other.must_go.selection_service_level.html#module-src.policies.other.must_go.selection_service_level"><code class="xref">src.policies.other.must_go.selection_service_level</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.must_go.selection_spatial_synergy.html#module-src.policies.other.must_go.selection_spatial_synergy"><code class="xref">src.policies.other.must_go.selection_spatial_synergy</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.must_go.selection_stochastic_regret.html#module-src.policies.other.must_go.selection_stochastic_regret"><code class="xref">src.policies.other.must_go.selection_stochastic_regret</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -5679,6 +5791,11 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.operators.repair.farthest.html#module-src.policies.other.operators.repair.farthest"><code class="xref">src.policies.other.operators.repair.farthest</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.other.operators.repair.greedy.html#module-src.policies.other.operators.repair.greedy"><code class="xref">src.policies.other.operators.repair.greedy</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -5720,6 +5837,11 @@ document.write(`
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.other.operators.unstringing_stringing.stringing_iv.html#module-src.policies.other.operators.unstringing_stringing.stringing_iv"><code class="xref">src.policies.other.operators.unstringing_stringing.stringing_iv</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.other.operators.unstringing_stringing.stringing_wrapper.html#module-src.policies.other.operators.unstringing_stringing.stringing_wrapper"><code class="xref">src.policies.other.operators.unstringing_stringing.stringing_wrapper</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>

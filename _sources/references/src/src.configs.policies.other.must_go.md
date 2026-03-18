@@ -117,6 +117,50 @@
 
 ````
 
+````{py:attribute} horizon_days
+:canonical: src.configs.policies.other.must_go.MustGoConfig.horizon_days
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.configs.policies.other.must_go.MustGoConfig.horizon_days
+```
+
+````
+
+````{py:attribute} critical_threshold
+:canonical: src.configs.policies.other.must_go.MustGoConfig.critical_threshold
+:type: float
+:value: >
+   0.9
+
+```{autodoc2-docstring} src.configs.policies.other.must_go.MustGoConfig.critical_threshold
+```
+
+````
+
+````{py:attribute} synergy_threshold
+:canonical: src.configs.policies.other.must_go.MustGoConfig.synergy_threshold
+:type: float
+:value: >
+   0.6
+
+```{autodoc2-docstring} src.configs.policies.other.must_go.MustGoConfig.synergy_threshold
+```
+
+````
+
+````{py:attribute} radius
+:canonical: src.configs.policies.other.must_go.MustGoConfig.radius
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.configs.policies.other.must_go.MustGoConfig.radius
+```
+
+````
+
 ````{py:attribute} combined_strategies
 :canonical: src.configs.policies.other.must_go.MustGoConfig.combined_strategies
 :type: typing.Optional[list]
@@ -172,13 +216,13 @@
 
 ````
 
-````{py:attribute} critical_threshold
-:canonical: src.configs.policies.other.must_go.MustGoConfig.critical_threshold
+````{py:attribute} manager_critical_threshold
+:canonical: src.configs.policies.other.must_go.MustGoConfig.manager_critical_threshold
 :type: float
 :value: >
    0.9
 
-```{autodoc2-docstring} src.configs.policies.other.must_go.MustGoConfig.critical_threshold
+```{autodoc2-docstring} src.configs.policies.other.must_go.MustGoConfig.manager_critical_threshold
 ```
 
 ````

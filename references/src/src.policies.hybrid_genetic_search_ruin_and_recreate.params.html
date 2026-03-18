@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.params';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr" href="src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr.html" />
-    <link rel="prev" title="src.policies.hybrid_genetic_search_ruin_and_recreate" href="src.policies.hybrid_genetic_search_ruin_and_recreate.html" />
+    <link rel="next" title="src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate" href="src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html" />
+    <link rel="prev" title="src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr" href="src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -572,8 +574,8 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.hybrid_genetic_search_ruin_and_recreate.params">
 <span id="src-policies-hybrid-genetic-search-ruin-and-recreate-params"></span><h1><a class="reference internal" href="#module-src.policies.hybrid_genetic_search_ruin_and_recreate.params" title="src.policies.hybrid_genetic_search_ruin_and_recreate.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate.params</span></code></a><a class="headerlink" href="#module-src.policies.hybrid_genetic_search_ruin_and_recreate.params" title="Link to this heading">#</a></h1>
-<p>Parameters for Hybrid Genetic Search with Ruin-and-Recreate (HGSRR).</p>
-<p>This module defines the configuration parameters for the HGSRR algorithm,
+<p>Parameters for Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR).</p>
+<p>This module defines the configuration parameters for the HGS-RR algorithm,
 extending standard HGS with adaptive destroy/repair operator management.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -582,7 +584,7 @@ extending standard HGS with adaptive destroy/repair operator management.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams" title="src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HGSRRParams</span></code></a></p></td>
-<td><p>Configuration parameters for HGSRR algorithm.</p></td>
+<td><p>Configuration parameters for HGS-RR algorithm.</p></td>
 </tr>
 </tbody>
 </table>
@@ -593,7 +595,7 @@ extending standard HGS with adaptive destroy/repair operator management.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate.params.</span></span><span class="sig-name descname"><span class="pre">HGSRRParams</span></span><a class="headerlink" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams" title="Link to this definition">#</a></dt>
-<dd><p>Configuration parameters for HGSRR algorithm.</p>
+<dd><p>Configuration parameters for HGS-RR algorithm.</p>
 <p>Attributes:
 time_limit (float): Maximum execution time in seconds.
 mu (int): Minimum population size (for each subpopulation).
@@ -802,20 +804,20 @@ seed (Optional[int]): Random seed for reproducibility.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.hybrid_genetic_search_ruin_and_recreate.html"
+       href="src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr.html"
+       href="src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgsrr</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

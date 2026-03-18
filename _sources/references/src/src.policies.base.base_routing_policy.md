@@ -91,6 +91,14 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`logic.src
 
 ````
 
+````{py:method} _parse_config(config: typing.Any, config_cls: typing.Type) -> typing.Any
+:canonical: src.policies.base.base_routing_policy.BaseRoutingPolicy._parse_config
+
+```{autodoc2-docstring} src.policies.base.base_routing_policy.BaseRoutingPolicy._parse_config
+```
+
+````
+
 ````{py:method} _validate_must_go(must_go: typing.Optional[typing.List[int]]) -> typing.Optional[typing.Tuple[typing.List[int], float, typing.Any]]
 :canonical: src.policies.base.base_routing_policy.BaseRoutingPolicy._validate_must_go
 

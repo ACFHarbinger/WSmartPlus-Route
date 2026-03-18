@@ -172,6 +172,22 @@
 
 ````
 
+````{py:method} _get_val(category: str, key: str, default: typing.Any = None) -> typing.Any
+:canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_val
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_val
+```
+
+````
+
+````{py:method} _get_param(key: str, default: typing.Any = None) -> typing.Any
+:canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_param
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_param
+```
+
+````
+
 ````{py:property} qlearning_alpha
 :canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_alpha
 :type: float
@@ -231,6 +247,15 @@
 :type: typing.Tuple[float, float]
 
 ```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_improvement_thresholds
+```
+
+````
+
+````{py:property} qlearning_history_size
+:canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_history_size
+:type: int
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_history_size
 ```
 
 ````

@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.hms.HybridMemeticSearchConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.hms.HybridMemeticSearchConfig.vrpp
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.hms.HybridMemeticSearchConfig.seed
 :type: typing.Optional[int]

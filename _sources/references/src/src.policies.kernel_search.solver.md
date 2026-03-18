@@ -15,8 +15,16 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_dfj_subtour_elimination_callback <src.policies.kernel_search.solver._dfj_subtour_elimination_callback>`
+  - ```{autodoc2-docstring} src.policies.kernel_search.solver._dfj_subtour_elimination_callback
+    :summary:
+    ```
 * - {py:obj}`_setup_ks_model <src.policies.kernel_search.solver._setup_ks_model>`
   - ```{autodoc2-docstring} src.policies.kernel_search.solver._setup_ks_model
+    :summary:
+    ```
+* - {py:obj}`_set_mip_start <src.policies.kernel_search.solver._set_mip_start>`
+  - ```{autodoc2-docstring} src.policies.kernel_search.solver._set_mip_start
     :summary:
     ```
 * - {py:obj}`_get_partitioned_vars <src.policies.kernel_search.solver._get_partitioned_vars>`
@@ -39,14 +47,28 @@
 
 ### API
 
-````{py:function} _setup_ks_model(model: gurobipy.Model, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.List[int]) -> typing.Tuple[typing.Dict[typing.Tuple[int, int], gurobipy.Var], typing.Dict[int, gurobipy.Var], typing.Dict[int, gurobipy.Var]]
+````{py:function} _dfj_subtour_elimination_callback(model, where)
+:canonical: src.policies.kernel_search.solver._dfj_subtour_elimination_callback
+
+```{autodoc2-docstring} src.policies.kernel_search.solver._dfj_subtour_elimination_callback
+```
+````
+
+````{py:function} _setup_ks_model(model: gurobipy.Model, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.List[int], use_binary_vars: bool = False) -> typing.Tuple[typing.Dict[typing.Tuple[int, int], gurobipy.Var], typing.Dict[int, gurobipy.Var]]
 :canonical: src.policies.kernel_search.solver._setup_ks_model
 
 ```{autodoc2-docstring} src.policies.kernel_search.solver._setup_ks_model
 ```
 ````
 
-````{py:function} _get_partitioned_vars(model: gurobipy.Model, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], y: typing.Dict[int, gurobipy.Var], initial_kernel_size: int, bucket_size: int) -> typing.Tuple[typing.List[gurobipy.Var], typing.List[gurobipy.Var], typing.List[typing.List[gurobipy.Var]]]
+````{py:function} _set_mip_start(model: gurobipy.Model, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], y: typing.Dict[int, gurobipy.Var], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.List[int])
+:canonical: src.policies.kernel_search.solver._set_mip_start
+
+```{autodoc2-docstring} src.policies.kernel_search.solver._set_mip_start
+```
+````
+
+````{py:function} _get_partitioned_vars(model: gurobipy.Model, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], y: typing.Dict[int, gurobipy.Var], initial_kernel_size: int, bucket_size: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.List[int]) -> typing.Tuple[typing.List[gurobipy.Var], typing.List[gurobipy.Var], typing.List[typing.List[gurobipy.Var]]]
 :canonical: src.policies.kernel_search.solver._get_partitioned_vars
 
 ```{autodoc2-docstring} src.policies.kernel_search.solver._get_partitioned_vars
@@ -60,7 +82,7 @@
 ```
 ````
 
-````{py:function} _reconstruct_tour(num_nodes: int, x: typing.Dict[typing.Tuple[int, int], gurobipy.Var], dist_matrix: numpy.ndarray) -> typing.Tuple[typing.List[int], float]
+````{py:function} _reconstruct_tour(num_nodes: int, x: typing.Dict[typing.Tuple[int, int], typing.Any], dist_matrix: numpy.ndarray) -> typing.Tuple[typing.List[int], float]
 :canonical: src.policies.kernel_search.solver._reconstruct_tour
 
 ```{autodoc2-docstring} src.policies.kernel_search.solver._reconstruct_tour

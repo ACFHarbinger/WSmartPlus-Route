@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.local_branching_variable_neighborhood_search.lb_vns
 src.policies.local_branching_variable_neighborhood_search.policy_lb_vns
-src.policies.local_branching_variable_neighborhood_search.solver
 ```
 
 ## Package Contents

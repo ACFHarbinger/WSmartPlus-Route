@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.seed
 :type: typing.Optional[int]

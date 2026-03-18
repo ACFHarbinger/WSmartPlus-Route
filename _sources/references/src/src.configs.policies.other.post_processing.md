@@ -15,6 +15,26 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`FastTSPPostConfig <src.configs.policies.other.post_processing.FastTSPPostConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.post_processing.FastTSPPostConfig
+    :summary:
+    ```
+* - {py:obj}`LKHPostConfig <src.configs.policies.other.post_processing.LKHPostConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.post_processing.LKHPostConfig
+    :summary:
+    ```
+* - {py:obj}`LocalSearchPostConfig <src.configs.policies.other.post_processing.LocalSearchPostConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig
+    :summary:
+    ```
+* - {py:obj}`PathPostConfig <src.configs.policies.other.post_processing.PathPostConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.post_processing.PathPostConfig
+    :summary:
+    ```
+* - {py:obj}`RandomLocalSearchPostConfig <src.configs.policies.other.post_processing.RandomLocalSearchPostConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig
+    :summary:
+    ```
 * - {py:obj}`PostProcessingConfig <src.configs.policies.other.post_processing.PostProcessingConfig>`
   - ```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig
     :summary:
@@ -22,6 +42,167 @@
 ````
 
 ### API
+
+`````{py:class} FastTSPPostConfig
+:canonical: src.configs.policies.other.post_processing.FastTSPPostConfig
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.FastTSPPostConfig
+```
+
+````{py:attribute} time_limit
+:canonical: src.configs.policies.other.post_processing.FastTSPPostConfig.time_limit
+:type: float
+:value: >
+   2.0
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.FastTSPPostConfig.time_limit
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.other.post_processing.FastTSPPostConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.FastTSPPostConfig.seed
+```
+
+````
+
+`````
+
+`````{py:class} LKHPostConfig
+:canonical: src.configs.policies.other.post_processing.LKHPostConfig
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LKHPostConfig
+```
+
+````{py:attribute} max_iterations
+:canonical: src.configs.policies.other.post_processing.LKHPostConfig.max_iterations
+:type: int
+:value: >
+   1000
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LKHPostConfig.max_iterations
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.other.post_processing.LKHPostConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LKHPostConfig.seed
+```
+
+````
+
+`````
+
+`````{py:class} LocalSearchPostConfig
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig
+```
+
+````{py:attribute} operator_name
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name
+:type: str
+:value: >
+   '2opt'
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name
+```
+
+````
+
+````{py:attribute} n_iterations
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.seed
+```
+
+````
+
+`````
+
+`````{py:class} PathPostConfig
+:canonical: src.configs.policies.other.post_processing.PathPostConfig
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PathPostConfig
+```
+
+````{py:attribute} vehicle_capacity
+:canonical: src.configs.policies.other.post_processing.PathPostConfig.vehicle_capacity
+:type: float
+:value: >
+   100.0
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PathPostConfig.vehicle_capacity
+```
+
+````
+
+`````
+
+`````{py:class} RandomLocalSearchPostConfig
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig
+```
+
+````{py:attribute} n_iterations
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations
+```
+
+````
+
+````{py:attribute} op_probs
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs
+:type: typing.Dict[str, float]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed
+```
+
+````
+
+`````
 
 `````{py:class} PostProcessingConfig
 :canonical: src.configs.policies.other.post_processing.PostProcessingConfig
@@ -40,97 +221,64 @@
 
 ````
 
-````{py:attribute} iterations
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.iterations
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.iterations
-```
-
-````
-
-````{py:attribute} n_restarts
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts
-```
-
-````
-
-````{py:attribute} perturbation_strength
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength
-```
-
-````
-
-````{py:attribute} ls_operator
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator
-:type: str
-:value: >
-   '2opt'
-
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator
-```
-
-````
-
-````{py:attribute} perturbation_type
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type
-:type: str
-:value: >
-   'double_bridge'
-
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type
-```
-
-````
-
-````{py:attribute} op_probs
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.op_probs
-:type: typing.Dict[str, float]
+````{py:attribute} fast_tsp
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.fast_tsp
+:type: src.configs.policies.other.post_processing.FastTSPPostConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.op_probs
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.fast_tsp
 ```
 
 ````
 
-````{py:attribute} perturb_probs
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs
-:type: typing.Dict[str, float]
+````{py:attribute} lkh
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.lkh
+:type: src.configs.policies.other.post_processing.LKHPostConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.lkh
 ```
 
 ````
 
-````{py:attribute} time_limit
-:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.time_limit
-:type: float
+````{py:attribute} local_search
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.local_search
+:type: src.configs.policies.other.post_processing.LocalSearchPostConfig
 :value: >
-   10.0
+   'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.time_limit
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.local_search
+```
+
+````
+
+````{py:attribute} random_local_search
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.random_local_search
+:type: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.random_local_search
+```
+
+````
+
+````{py:attribute} path
+:canonical: src.configs.policies.other.post_processing.PostProcessingConfig.path
+:type: src.configs.policies.other.post_processing.PathPostConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.PostProcessingConfig.path
 ```
 
 ````
 
 ````{py:attribute} params
 :canonical: src.configs.policies.other.post_processing.PostProcessingConfig.params
-:type: typing.Dict[str, typing.Union[int, float, str, bool]]
+:type: typing.Dict[str, typing.Any]
 :value: >
    'field(...)'
 

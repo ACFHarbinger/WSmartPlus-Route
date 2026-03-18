@@ -25,11 +25,13 @@ src.policies.genetic_programming_hyper_heuristic
 src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search
 src.policies.hybrid_memetic_search
 src.policies.only_improving
+src.policies.branch_and_price
 src.policies.kernel_search
 src.policies.local_branching
 src.policies.ant_colony_optimization_k_sparse
 src.policies.branch_and_price_and_cut
 src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league
+src.policies.branch_and_cut
 src.policies.slack_induction_by_string_removal
 src.policies.capacitated_vehicle_routing_problem
 src.policies.variable_neighborhood_search

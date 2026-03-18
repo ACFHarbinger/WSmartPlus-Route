@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -532,6 +534,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.mip_limit_nodes"><code class="docutils literal notranslate"><span class="pre">RENSConfig.mip_limit_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">RENSConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.seed"><code class="docutils literal notranslate"><span class="pre">RENSConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">RENSConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.engine"><code class="docutils literal notranslate"><span class="pre">RENSConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">RENSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">RENSConfig.post_processing</span></code></a></li>
@@ -590,6 +593,7 @@ slightly higher (e.g., 0.05) often helps find a “good enough”
 primal solution quickly.
 seed (int): Random seed for the underlying Gurobi solver to ensure
 deterministic and reproducible results.
+vrpp (bool): Whether the problem is a VRP with Profits.
 engine (str): Internal solver engine identifier. Defaults to “custom”.
 must_go (Optional[MustGoConfig]): Composition handle for bin selection
 strategies (e.g., collecting bins at risk of overflow).
@@ -623,6 +627,12 @@ post-optimization refinement (e.g., Local Search or Route-Smoothing).</p>
 <dt class="sig sig-object py" id="src.configs.policies.rens.RENSConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.rens.RENSConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.rens.RENSConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.rens.RENSConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -703,6 +713,7 @@ post-optimization refinement (e.g., Local Search or Route-Smoothing).</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.mip_limit_nodes"><code class="docutils literal notranslate"><span class="pre">RENSConfig.mip_limit_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">RENSConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.seed"><code class="docutils literal notranslate"><span class="pre">RENSConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">RENSConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.engine"><code class="docutils literal notranslate"><span class="pre">RENSConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">RENSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.rens.RENSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">RENSConfig.post_processing</span></code></a></li>

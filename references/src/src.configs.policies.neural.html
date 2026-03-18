@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -532,6 +534,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.must_go"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.post_processing</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.seed"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.vrpp</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -576,7 +579,9 @@ model: Model configuration (architecture and load path).
 decoding: Decoding strategy configuration.
 reward: Objective/reward weights configuration.
 must_go: List of must-go strategy config files.
-post_processing: List of post-processing operations to apply.</p>
+post_processing: List of post-processing operations to apply.
+seed: Random seed for reproducibility.
+vrpp: Whether the problem is a VRP with Profits.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.neural.NeuralConfig.model">
 <span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.models.model.html#src.configs.models.model.ModelConfig" title="src.configs.models.model.ModelConfig"><span class="pre">src.configs.models.model.ModelConfig</span></a></em><a class="headerlink" href="#src.configs.policies.neural.NeuralConfig.model" title="Link to this definition">#</a></dt>
@@ -605,6 +610,12 @@ post_processing: List of post-processing operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.neural.NeuralConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.neural.NeuralConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.neural.NeuralConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.neural.NeuralConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 </dd></dl>
@@ -667,6 +678,7 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.must_go"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.post_processing</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.seed"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.neural.NeuralConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">NeuralConfig.vrpp</span></code></a></li>
 </ul>
 </li>
 </ul>

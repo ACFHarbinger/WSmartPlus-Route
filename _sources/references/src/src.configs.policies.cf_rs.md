@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig
 ```
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.cf_rs.CFRSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.vrpp
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.cf_rs.CFRSConfig.seed
 :type: typing.Optional[int]
@@ -47,6 +58,17 @@
    0
 
 ```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.num_clusters
+```
+
+````
+
+````{py:attribute} time_limit
+:canonical: src.configs.policies.cf_rs.CFRSConfig.time_limit
+:type: float
+:value: >
+   60.0
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.time_limit
 ```
 
 ````

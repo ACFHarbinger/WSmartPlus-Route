@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.sisr.SISRConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.sisr.SISRConfig.vrpp
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.sisr.SISRConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

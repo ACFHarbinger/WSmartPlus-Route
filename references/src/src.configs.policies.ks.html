@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -534,6 +536,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.mip_limit_nodes"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.mip_limit_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.seed"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.engine"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.must_go"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.post_processing</span></code></a></li>
@@ -601,6 +604,7 @@ mip_gap (float): The targeted relative optimality gap for each sub-problem.
 Defaults to 0.01 (1%).
 seed (int): Random seed for Gurobi’s internal heuristics and algorithmic
 variations to ensure deterministic behavior. Defaults to 42.
+vrpp (bool): Whether the problem is a VRP with Profits.
 engine (str): Identifier for the optimization engine. Use “custom” for
 the WSmart+ implementation.
 must_go (Optional[MustGoConfig]): Logic for pre-selecting mandatory bins
@@ -647,6 +651,12 @@ localized refinement (e.g., 2-opt, Or-opt) to the final matheuristic tour.</p>
 <dt class="sig sig-object py" id="src.configs.policies.ks.KernelSearchConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.ks.KernelSearchConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ks.KernelSearchConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.ks.KernelSearchConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -729,6 +739,7 @@ localized refinement (e.g., 2-opt, Or-opt) to the final matheuristic tour.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.mip_limit_nodes"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.mip_limit_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.seed"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.engine"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.must_go"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ks.KernelSearchConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">KernelSearchConfig.post_processing</span></code></a></li>

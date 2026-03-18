@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.rens.RENSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.rens.RENSConfig.vrpp
+```
+
+````
+
 ````{py:attribute} engine
 :canonical: src.configs.policies.rens.RENSConfig.engine
 :type: str

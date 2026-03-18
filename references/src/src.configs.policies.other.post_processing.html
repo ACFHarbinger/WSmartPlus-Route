@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -526,16 +528,39 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.FastTSPPostConfig"><code class="docutils literal notranslate"><span class="pre">FastTSPPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.FastTSPPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">FastTSPPostConfig.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.FastTSPPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">FastTSPPostConfig.seed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.seed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.operator_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.n_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.seed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PathPostConfig"><code class="docutils literal notranslate"><span class="pre">PathPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PathPostConfig.vehicle_capacity"><code class="docutils literal notranslate"><span class="pre">PathPostConfig.vehicle_capacity</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.n_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.seed</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.methods"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.methods</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.iterations"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.n_restarts</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_strength</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.ls_operator</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_type</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.op_probs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturb_probs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.fast_tsp"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.fast_tsp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.lkh"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.lkh</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.local_search"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.local_search</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.random_local_search"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.random_local_search</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.path"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.path</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.params"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.params</span></code></a></li>
 </ul>
 </li>
@@ -556,15 +581,32 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.other.post_processing">
 <span id="src-configs-policies-other-post-processing"></span><h1><a class="reference internal" href="#module-src.configs.policies.other.post_processing" title="src.configs.policies.other.post_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.other.post_processing</span></code></a><a class="headerlink" href="#module-src.configs.policies.other.post_processing" title="Link to this heading">#</a></h1>
-<p>Post-processing configuration.</p>
+<p>Post-processing configuration module.</p>
+<p>Defines structured configurations for route refinement and post-processing strategies,
+mirroring the reinforcement learning configuration pattern.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.PostProcessingConfig" title="src.configs.policies.other.post_processing.PostProcessingConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PostProcessingConfig</span></code></a></p></td>
-<td><p>Configuration for route refinement and post-processing strategies.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.FastTSPPostConfig" title="src.configs.policies.other.post_processing.FastTSPPostConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FastTSPPostConfig</span></code></a></p></td>
+<td><p>Configuration for Fast TSP optimization refinement.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.LKHPostConfig" title="src.configs.policies.other.post_processing.LKHPostConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LKHPostConfig</span></code></a></p></td>
+<td><p>Configuration for Lin-Kernighan-Helsgaun (LKH) refinement.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig" title="src.configs.policies.other.post_processing.LocalSearchPostConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocalSearchPostConfig</span></code></a></p></td>
+<td><p>Configuration for classical local search refinement.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.PathPostConfig" title="src.configs.policies.other.post_processing.PathPostConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathPostConfig</span></code></a></p></td>
+<td><p>Configuration for path-based refinement (opportunistic pickups).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig" title="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig</span></code></a></p></td>
+<td><p>Configuration for stochastic (random) local search refinement.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.other.post_processing.PostProcessingConfig" title="src.configs.policies.other.post_processing.PostProcessingConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PostProcessingConfig</span></code></a></p></td>
+<td><p>Unified configuration for route refinement and post-processing strategies.</p></td>
 </tr>
 </tbody>
 </table>
@@ -573,18 +615,131 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.FastTSPPostConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">FastTSPPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.FastTSPPostConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for Fast TSP optimization refinement.</p>
+<p>Attributes:
+time_limit: Maximum time in seconds for the solver.
+seed: Random seed for reproducibility.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.FastTSPPostConfig.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.FastTSPPostConfig.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>2.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.FastTSPPostConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.FastTSPPostConfig.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LKHPostConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">LKHPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.LKHPostConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for Lin-Kernighan-Helsgaun (LKH) refinement.</p>
+<p>Attributes:
+max_iterations: Maximum number of LKH iterations.
+seed: Random seed for reproducibility.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LKHPostConfig.max_iterations">
+<span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LKHPostConfig.max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>1000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LKHPostConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LKHPostConfig.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">LocalSearchPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for classical local search refinement.</p>
+<p>Attributes:
+operator_name: Local search operator (e.g., ‘2opt’, ‘swap’, ‘relocate’).
+n_iterations: Maximum number of local search iterations.
+seed: Random seed for reproducibility.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name">
+<span class="sig-name descname"><span class="pre">operator_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name" title="Link to this definition">#</a></dt>
+<dd><p>‘2opt’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations">
+<span class="sig-name descname"><span class="pre">n_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PathPostConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">PathPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.PathPostConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for path-based refinement (opportunistic pickups).</p>
+<p>Attributes:
+vehicle_capacity: Maximum vehicle capacity for picking up extra nodes.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PathPostConfig.vehicle_capacity">
+<span class="sig-name descname"><span class="pre">vehicle_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PathPostConfig.vehicle_capacity" title="Link to this definition">#</a></dt>
+<dd><p>100.0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">RandomLocalSearchPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for stochastic (random) local search refinement.</p>
+<p>Attributes:
+n_iterations: Number of random local search iterations.
+op_probs: Probabilities for selecting different local search operators.
+seed: Random seed for reproducibility.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations">
+<span class="sig-name descname"><span class="pre">n_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs">
+<span class="sig-name descname"><span class="pre">op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">PostProcessingConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig" title="Link to this definition">#</a></dt>
-<dd><p>Configuration for route refinement and post-processing strategies.</p>
+<dd><p>Unified configuration for route refinement and post-processing strategies.</p>
+<p>Composes algorithm-specific parameters and execution settings into a single object.</p>
 <p>Attributes:
 methods: List of post-processing methods to apply in sequence.
-Supported: ‘fast_tsp’, ‘ils’, ‘2opt’, ‘swap’, ‘relocate’, ‘3opt’, etc.
-iterations: Maximum number of local search iterations for refinement.
-n_restarts: Number of restarts/perturbations for Iterated Local Search (ILS).
-perturbation_strength: Strength of perturbation fraction for ILS escaping.
-ls_operator: Preferred local search operator (e.g., ‘2opt’, ‘swap_star’).
-perturbation_type: Perturbation strategy (e.g., ‘double_bridge’, ‘random’).
-time_limit: Soft time limit for post-processing operations in seconds.
+Supported: ‘fast_tsp’, ‘lkh’, ‘classical_local_search’, ‘random_local_search’, ‘path’.
+fast_tsp: Configuration for Fast TSP solver.
+lkh: Configuration for Lin-Kernighan-Helsgaun solver.
+local_search: Configuration for classical local search.
+random_local_search: Configuration for random local search.
+path: Configuration for path-based refinement.
+time_limit: Soft global time limit for post-processing operations.
 params: Additional strategy-specific parameters as a dictionary.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.methods">
@@ -593,56 +748,38 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.iterations">
-<span class="sig-name descname"><span class="pre">iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.iterations" title="Link to this definition">#</a></dt>
-<dd><p>50</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts">
-<span class="sig-name descname"><span class="pre">n_restarts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts" title="Link to this definition">#</a></dt>
-<dd><p>5</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength">
-<span class="sig-name descname"><span class="pre">perturbation_strength</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator">
-<span class="sig-name descname"><span class="pre">ls_operator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator" title="Link to this definition">#</a></dt>
-<dd><p>‘2opt’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type">
-<span class="sig-name descname"><span class="pre">perturbation_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type" title="Link to this definition">#</a></dt>
-<dd><p>‘double_bridge’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.op_probs">
-<span class="sig-name descname"><span class="pre">op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.fast_tsp">
+<span class="sig-name descname"><span class="pre">fast_tsp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.post_processing.FastTSPPostConfig" title="src.configs.policies.other.post_processing.FastTSPPostConfig"><span class="pre">src.configs.policies.other.post_processing.FastTSPPostConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.fast_tsp" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs">
-<span class="sig-name descname"><span class="pre">perturb_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.lkh">
+<span class="sig-name descname"><span class="pre">lkh</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.post_processing.LKHPostConfig" title="src.configs.policies.other.post_processing.LKHPostConfig"><span class="pre">src.configs.policies.other.post_processing.LKHPostConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.lkh" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.time_limit">
-<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit" title="Link to this definition">#</a></dt>
-<dd><p>10.0</p>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.local_search">
+<span class="sig-name descname"><span class="pre">local_search</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig" title="src.configs.policies.other.post_processing.LocalSearchPostConfig"><span class="pre">src.configs.policies.other.post_processing.LocalSearchPostConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.local_search" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.random_local_search">
+<span class="sig-name descname"><span class="pre">random_local_search</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig" title="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig"><span class="pre">src.configs.policies.other.post_processing.RandomLocalSearchPostConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.random_local_search" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.path">
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.post_processing.PathPostConfig" title="src.configs.policies.other.post_processing.PathPostConfig"><span class="pre">src.configs.policies.other.post_processing.PathPostConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.path" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.post_processing.PostProcessingConfig.params">
-<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.params" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.PostProcessingConfig.params" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
@@ -700,16 +837,39 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.FastTSPPostConfig"><code class="docutils literal notranslate"><span class="pre">FastTSPPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.FastTSPPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">FastTSPPostConfig.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.FastTSPPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">FastTSPPostConfig.seed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.seed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.operator_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.n_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.seed</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PathPostConfig"><code class="docutils literal notranslate"><span class="pre">PathPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PathPostConfig.vehicle_capacity"><code class="docutils literal notranslate"><span class="pre">PathPostConfig.vehicle_capacity</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.n_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.seed</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.methods"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.methods</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.iterations"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.n_restarts"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.n_restarts</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_strength"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_strength</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.ls_operator"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.ls_operator</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturbation_type"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturbation_type</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.op_probs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.perturb_probs"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.perturb_probs</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.fast_tsp"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.fast_tsp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.lkh"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.lkh</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.local_search"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.local_search</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.random_local_search"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.random_local_search</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.path"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.path</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.PostProcessingConfig.params"><code class="docutils literal notranslate"><span class="pre">PostProcessingConfig.params</span></code></a></li>
 </ul>
 </li>

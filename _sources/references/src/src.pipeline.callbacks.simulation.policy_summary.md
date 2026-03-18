@@ -61,6 +61,22 @@
 
 ````
 
+````{py:method} _parse_must_go_config_params(config: logic.src.configs.MustGoConfig) -> str
+:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_must_go_config_params
+
+```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_must_go_config_params
+```
+
+````
+
+````{py:method} _parse_traversable_params(item: logic.src.interfaces.ITraversable) -> str
+:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_traversable_params
+
+```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_traversable_params
+```
+
+````
+
 ````{py:method} _extract_post_processing(config: typing.Dict[str, typing.Any]) -> str
 :canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_post_processing
 

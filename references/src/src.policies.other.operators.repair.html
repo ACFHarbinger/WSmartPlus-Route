@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.other.operators.repair.deep" href="src.policies.other.operators.repair.deep.html" />
-    <link rel="prev" title="src.policies.other.operators.unstringing_stringing.stringing_i" href="src.policies.other.operators.unstringing_stringing.stringing_i.html" />
+    <link rel="prev" title="src.policies.other.operators.unstringing_stringing.stringing_wrapper" href="src.policies.other.operators.unstringing_stringing.stringing_wrapper.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -556,6 +558,7 @@ partial solutions. Includes greedy, regret-based, savings-based, and deep heuris
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.repair.deep.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.deep</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.repair.farthest.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.farthest</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.repair.savings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.savings</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.repair.regret.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.regret</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.repair.greedy_blink.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.greedy_blink</span></code></a></li>
@@ -581,7 +584,7 @@ partial solutions. Includes greedy, regret-based, savings-based, and deep heuris
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.other.operators.repair.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.repair.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.other.operators.repair.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘greedy_insertion’, ‘greedy_profit_insertion’, ‘regret_2_insertion’, ‘regret_k_insertion’, ‘regret_…</p>
+<dd><p>[‘greedy_insertion’, ‘greedy_profit_insertion’, ‘farthest_insertion’, ‘farthest_profit_insertion’, ‘…</p>
 </dd></dl>
 
 </section>
@@ -600,12 +603,12 @@ partial solutions. Includes greedy, regret-based, savings-based, and deep heuris
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.other.operators.unstringing_stringing.stringing_i.html"
+       href="src.policies.other.operators.unstringing_stringing.stringing_wrapper.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.unstringing_stringing.stringing_i</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.unstringing_stringing.stringing_wrapper</span></code></p>
       </div>
     </a>
     <a class="right-next"

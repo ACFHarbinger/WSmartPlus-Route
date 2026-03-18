@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations
+```
+
+````
+
 ````{py:method} from_config(config: logic.src.configs.policies.filo.FILOConfig) -> src.policies.fast_iterative_localized_optimization.params.FILOParams
 :canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config
 :classmethod:

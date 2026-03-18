@@ -41,6 +41,28 @@
 ```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig
 ```
 
+````{py:attribute} seed
+:canonical: src.configs.policies.hulk.HULKConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.hulk.HULKConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.vrpp
+```
+
+````
+
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.hulk.HULKConfig.max_iterations
 :type: int

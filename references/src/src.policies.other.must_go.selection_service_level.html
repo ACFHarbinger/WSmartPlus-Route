@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.other.must_go.selection_last_minute" href="src.policies.other.must_go.selection_last_minute.html" />
-    <link rel="prev" title="src.policies.other.must_go.selection_combined" href="src.policies.other.must_go.selection_combined.html" />
+    <link rel="prev" title="src.policies.other.must_go.selection_deadline" href="src.policies.other.must_go.selection_deadline.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -548,13 +550,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.other.must_go.selection_service_level">
 <span id="src-policies-other-must-go-selection-service-level"></span><h1><a class="reference internal" href="#module-src.policies.other.must_go.selection_service_level" title="src.policies.other.must_go.selection_service_level"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.must_go.selection_service_level</span></code></a><a class="headerlink" href="#module-src.policies.other.must_go.selection_service_level" title="Link to this heading">#</a></h1>
 <p>Service Level Selection Strategy Module.</p>
-<p>This module implements a robust optimization strategy that selects bins
-to maintain a service level guarantee. It uses fill rate uncertainty (std dev)
-to ensure bins are collected before they have a high probability of overflow.</p>
-<p>Attributes:
-None</p>
+<p>This module implements a robust optimization baseline that selects bins
+to maintain a service level guarantee. It uses a linear projection of
+the expected accumulation and standard deviation over a defined horizon
+to ensure bins are collected before their worst-case prediction hits capacity.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.must_go.selection_service_level import ServiceLevelSelection
+&gt;&gt;&gt; from logic.src.policies.other.must_go.selection_service_level import ServiceLevelSelection
 &gt;&gt;&gt; strategy = ServiceLevelSelection()
 &gt;&gt;&gt; bins = strategy.select_bins(context)</p>
 <section id="module-contents">
@@ -564,7 +565,7 @@ None</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.must_go.selection_service_level.ServiceLevelSelection" title="src.policies.other.must_go.selection_service_level.ServiceLevelSelection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ServiceLevelSelection</span></code></a></p></td>
-<td><p>Statistical overflow prediction strategy.</p></td>
+<td><p>Statistical overflow prediction strategy using linear confidence bounds.</p></td>
 </tr>
 </tbody>
 </table>
@@ -576,13 +577,14 @@ None</p>
 <dt class="sig sig-object py" id="src.policies.other.must_go.selection_service_level.ServiceLevelSelection">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.other.must_go.selection_service_level.</span></span><span class="sig-name descname"><span class="pre">ServiceLevelSelection</span></span><a class="headerlink" href="#src.policies.other.must_go.selection_service_level.ServiceLevelSelection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.must_go.IMustGoSelectionStrategy</span></code></p>
-<p>Statistical overflow prediction strategy.</p>
+<p>Statistical overflow prediction strategy using linear confidence bounds.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.other.must_go.selection_service_level.ServiceLevelSelection.select_bins">
 <span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.other.must_go.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.must_go.selection_service_level.ServiceLevelSelection.select_bins" title="Link to this definition">#</a></dt>
-<dd><p>Select bins that are statistically likely to overflow.</p>
+<dd><p>Select bins that are statistically likely to overflow within the horizon.</p>
 <p>Args:
-context: Selection context containing fill levels, rates, and std devs.</p>
+context: Selection context containing fill levels, accumulation_rates,
+std_deviations, confidence threshold, and horizon_days.</p>
 <p>Returns:
 List[int]: List of bin IDs (1-based) predicted to overflow.</p>
 </dd></dl>
@@ -605,12 +607,12 @@ List[int]: List of bin IDs (1-based) predicted to overflow.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.other.must_go.selection_combined.html"
+       href="src.policies.other.must_go.selection_deadline.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.must_go.selection_combined</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.must_go.selection_deadline</span></code></p>
       </div>
     </a>
     <a class="right-next"

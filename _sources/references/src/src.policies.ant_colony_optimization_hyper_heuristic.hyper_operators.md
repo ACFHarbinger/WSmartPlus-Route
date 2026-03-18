@@ -79,7 +79,7 @@
 
 ### API
 
-`````{py:class} HyperOperatorContext(routes: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None)
+`````{py:class} HyperOperatorContext(routes: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None)
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext

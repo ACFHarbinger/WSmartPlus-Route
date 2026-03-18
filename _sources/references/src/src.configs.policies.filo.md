@@ -141,4 +141,26 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.filo.FILOConfig.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.local_search_iterations
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.filo.FILOConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.vrpp
+```
+
+````
+
 `````

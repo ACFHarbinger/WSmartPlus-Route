@@ -183,4 +183,48 @@
 
 ````
 
+````{py:attribute} horizon_days
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.horizon_days
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.horizon_days
+```
+
+````
+
+````{py:attribute} critical_threshold
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.critical_threshold
+:type: float
+:value: >
+   0.9
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.critical_threshold
+```
+
+````
+
+````{py:attribute} synergy_threshold
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.synergy_threshold
+:type: float
+:value: >
+   0.6
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.synergy_threshold
+```
+
+````
+
+````{py:attribute} radius
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.radius
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.radius
+```
+
+````
+
 `````

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ALNSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.adaptive_large_neighborhood_search.params.ALNSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} ALNSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.adaptive_large_neighborhood_search.params.ALNSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver

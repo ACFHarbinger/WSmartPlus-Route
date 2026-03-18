@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -562,12 +564,12 @@ document.write(`
 <li><p><strong>DAY_METRICS</strong>: Single-day statistics (includes “day” and “tour” fields)
 Used in: Daily log files, per-day CSV output
 Example: {“day”: 5, “kg”: 125.3, “km”: 45.2, “tour”: [0, 3, 7, 0]}</p></li>
-<li><p><strong>METRICS</strong>: Core performance metrics (overflows, kg, km, cost, profit)
+<li><p><strong>METRICS</strong>: Core performance metrics (overflows, kg, km, reward, profit, time)
 Used in: Summary tables, per-policy comparisons, HPO objectives
-Example: {“kg”: 5234.1, “km”: 1230.5, “cost”: 615.25, “profit”: 2617.05}</p></li>
-<li><p><strong>SIM_METRICS</strong>: Overall simulation statistics (adds “days” and “time”)
+Example: {“kg”: 5234.1, “km”: 1230.5, “reward”: 615.25, “profit”: 2617.05, “time”: 3.42,}</p></li>
+<li><p><strong>SIM_METRICS</strong>: Overall simulation statistics (adds “days”)
 Used in: Final summary reports, simulation metadata
-Example: {“days”: 31, “time”: 3.42, “kg”: 5234.1, …}</p></li>
+Example: {“days”: 31 “kg”: 5234.1, …}</p></li>
 <li><p><strong>LOSS_KEYS</strong>: Neural network training metrics
 Used in: Training logs, TensorBoard/WandB logging
 Example: {“nll”: 0.523, “reinforce_loss”: 1.234, “baseline_loss”: 0.711}</p></li>

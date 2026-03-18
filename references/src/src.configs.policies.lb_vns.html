@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -535,6 +537,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.max_lb_iterations"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.max_lb_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.seed"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.engine"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.post_processing</span></code></a></li>
@@ -613,6 +616,8 @@ mip_gap (float): Relative optimality gap targeted for each sub-problem solve.
 seed (int): Global random seed for both the Shaking mechanism (random perturbation)
     and the underlying Gurobi solver, ensuring deterministic and reproducible results.
 
+vrpp (bool): Whether the problem is a VRP with Profits.
+
 # Infrastructure Settings
 # -----------------------
 engine (str): Identifier for the optimization engine backend (default: &quot;custom&quot;).
@@ -671,6 +676,12 @@ post_processing (Optional[PostProcessingConfig]): Optional local search or
 <dt class="sig sig-object py" id="src.configs.policies.lb_vns.LocalBranchingVNSConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.lb_vns.LocalBranchingVNSConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -754,6 +765,7 @@ post_processing (Optional[PostProcessingConfig]): Optional local search or
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.max_lb_iterations"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.max_lb_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.seed"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.engine"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lb_vns.LocalBranchingVNSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSConfig.post_processing</span></code></a></li>

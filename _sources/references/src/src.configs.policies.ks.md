@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.ks.KernelSearchConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.ks.KernelSearchConfig.vrpp
+```
+
+````
+
 ````{py:attribute} engine
 :canonical: src.configs.policies.ks.KernelSearchConfig.engine
 :type: str

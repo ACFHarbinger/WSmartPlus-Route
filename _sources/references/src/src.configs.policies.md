@@ -72,7 +72,6 @@ src.configs.policies.bpc
 src.configs.policies.vns
 src.configs.policies.hgs_alns
 src.configs.policies.es_mcl
-src.configs.policies.hgsrr
 src.configs.policies.ta
 src.configs.policies.oba
 src.configs.policies.hvpl
@@ -87,10 +86,13 @@ src.configs.policies.sans
 src.configs.policies.ma_im
 src.configs.policies.filo
 src.configs.policies.psoma
+src.configs.policies.hgs_rr
 src.configs.policies.swc_tcf
 src.configs.policies.psoda
+src.configs.policies.bp
 src.configs.policies.de
 src.configs.policies.abc
+src.configs.policies.bc
 src.configs.policies.gihh
 ```
 

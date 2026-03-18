@@ -13,9 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.branch_and_bound.bb
 src.policies.branch_and_bound.node
+src.policies.branch_and_bound.bb_simple
 src.policies.branch_and_bound.policy_bb
-src.policies.branch_and_bound.solver
 ```
 
 ## Package Contents

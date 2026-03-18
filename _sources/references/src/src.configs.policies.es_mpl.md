@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.es_mpl.MuPlusLambdaESConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.es_mpl.MuPlusLambdaESConfig.vrpp
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.es_mpl.MuPlusLambdaESConfig.seed
 :type: typing.Optional[int]

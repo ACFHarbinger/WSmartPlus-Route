@@ -84,4 +84,15 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.neural.NeuralConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.neural.NeuralConfig.vrpp
+```
+
+````
+
 `````

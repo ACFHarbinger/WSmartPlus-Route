@@ -194,6 +194,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.local_search_iterations
+```
+
+````
+
 ````{py:method} from_config(config: logic.src.configs.policies.ILSRVNDSPConfig) -> src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.from_config
 :classmethod:

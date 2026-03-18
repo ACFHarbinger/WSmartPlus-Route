@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -527,8 +529,10 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig"><code class="docutils literal notranslate"><span class="pre">CFRSConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.seed"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.num_clusters"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.num_clusters</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.post_processing</span></code></a></li>
 </ul>
@@ -578,16 +582,25 @@ routing policy, following the project’s standard configuration architecture.</
 relative to a central depot, which is highly effective for radially
 distributed service areas.</p>
 <p>Attributes:
+vrpp: Whether the problem is a VRP with Profits.
 seed: Random seed for reproducibility in the TSP routing phase.
 Ensures that the stochastic elements of the TSP solver (e.g., 2-opt
 initialization) yield consistent results.
 num_clusters: Number of angular sectors to partition nodes into.
 If set to 0, the policy defaults to using the number of vehicles
 available in the simulation day (<code class="docutils literal notranslate"><span class="pre">n_vehicles</span></code>).
+time_limit: Maximum time in seconds allowed for the routing phase
+(total across all sectors).
 must_go: List of must-go strategy configuration files or dicts.
 Controls which bins are selected for collection on a given day.
 post_processing: List of post-processing operations (e.g., local search)
 to apply to the resulting tours for further refinement.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.cf_rs.CFRSConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.cf_rs.CFRSConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.cf_rs.CFRSConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.cf_rs.CFRSConfig.seed" title="Link to this definition">#</a></dt>
@@ -598,6 +611,12 @@ to apply to the resulting tours for further refinement.</p>
 <dt class="sig sig-object py" id="src.configs.policies.cf_rs.CFRSConfig.num_clusters">
 <span class="sig-name descname"><span class="pre">num_clusters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.cf_rs.CFRSConfig.num_clusters" title="Link to this definition">#</a></dt>
 <dd><p>0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.cf_rs.CFRSConfig.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.cf_rs.CFRSConfig.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>60.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -667,8 +686,10 @@ to apply to the resulting tours for further refinement.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig"><code class="docutils literal notranslate"><span class="pre">CFRSConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.seed"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.num_clusters"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.num_clusters</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.cf_rs.CFRSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">CFRSConfig.post_processing</span></code></a></li>
 </ul>

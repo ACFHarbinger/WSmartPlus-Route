@@ -35,31 +35,23 @@
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver.__init__
 ```
 
-````{py:method} calculate_cost(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver.calculate_cost
+````{py:method} _evaluate_routes(routes: typing.List[typing.List[int]]) -> typing.Tuple[float, float]
+:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._evaluate_routes
 
-```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver.calculate_cost
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._evaluate_routes
 ```
 
 ````
 
-````{py:method} build_initial_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver.build_initial_solution
+````{py:method} _get_omega(current_routes: typing.List[typing.List[int]]) -> typing.List[int]
+:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._get_omega
 
-```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver.build_initial_solution
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._get_omega
 ```
 
 ````
 
-````{py:method} apply_local_search(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver.apply_local_search
-
-```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver.apply_local_search
-```
-
-````
-
-````{py:method} _update_gamma(is_new_best: bool, max_non_improving: int) -> None
+````{py:method} _update_gamma(is_new_best: bool, accepted: bool, ruined: typing.List[int]) -> None
 :canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma
@@ -67,7 +59,7 @@
 
 ````
 
-````{py:method} _update_omega(ruined: typing.List[int], walk_seed: int, ls_cost: float, current_cost: float, shaking_lb: float, shaking_ub: float) -> None
+````{py:method} _update_omega(is_new_best: bool, accepted: bool, ruined: typing.List[int]) -> None
 :canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_omega
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_omega
@@ -75,7 +67,7 @@
 
 ````
 
-````{py:method} solve(initial_solution: typing.Optional[typing.List[typing.List[int]]] = None) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver.solve
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver.solve

@@ -227,6 +227,22 @@
 
 ````
 
+````{py:method} _get_val(category: str, key: str, default: typing.Any = None) -> typing.Any
+:canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_val
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_val
+```
+
+````
+
+````{py:method} _get_param(key: str, default: typing.Any = None) -> typing.Any
+:canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_param
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams._get_param
+```
+
+````
+
 ````{py:property} bandit_algorithm
 :canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.bandit_algorithm
 :type: str

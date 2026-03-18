@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`POPMUSICSubSolverConfig <src.configs.policies.popmusic.POPMUSICSubSolverConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig
+    :summary:
+    ```
 * - {py:obj}`POPMUSICConfig <src.configs.policies.popmusic.POPMUSICConfig>`
   - ```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig
     :summary:
@@ -22,6 +26,47 @@
 ````
 
 ### API
+
+`````{py:class} POPMUSICSubSolverConfig
+:canonical: src.configs.policies.popmusic.POPMUSICSubSolverConfig
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig
+```
+
+````{py:attribute} fast_tsp
+:canonical: src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp
+:type: typing.Optional[src.configs.policies.tsp.TSPConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp
+```
+
+````
+
+````{py:attribute} alns
+:canonical: src.configs.policies.popmusic.POPMUSICSubSolverConfig.alns
+:type: typing.Optional[src.configs.policies.alns.ALNSConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig.alns
+```
+
+````
+
+````{py:attribute} hgs
+:canonical: src.configs.policies.popmusic.POPMUSICSubSolverConfig.hgs
+:type: typing.Optional[src.configs.policies.hgs.HGSConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig.hgs
+```
+
+````
+
+`````
 
 `````{py:class} POPMUSICConfig
 :canonical: src.configs.policies.popmusic.POPMUSICConfig
@@ -62,6 +107,39 @@
 
 ````
 
+````{py:attribute} base_solver_config
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.base_solver_config
+:type: typing.Optional[src.configs.policies.popmusic.POPMUSICSubSolverConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.base_solver_config
+```
+
+````
+
+````{py:attribute} cluster_solver
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.cluster_solver
+:type: str
+:value: >
+   'fast_tsp'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.cluster_solver
+```
+
+````
+
+````{py:attribute} cluster_solver_config
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.cluster_solver_config
+:type: typing.Optional[src.configs.policies.popmusic.POPMUSICSubSolverConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.cluster_solver_config
+```
+
+````
+
 ````{py:attribute} initial_solver
 :canonical: src.configs.policies.popmusic.POPMUSICConfig.initial_solver
 :type: str
@@ -80,6 +158,17 @@
    None
 
 ```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.vrpp
 ```
 
 ````

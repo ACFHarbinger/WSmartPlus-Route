@@ -117,6 +117,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.ahvpl.AHVPLConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.ahvpl.AHVPLConfig.vrpp
+```
+
+````
+
 ````{py:attribute} hgs
 :canonical: src.configs.policies.ahvpl.AHVPLConfig.hgs
 :type: src.configs.policies.hgs.HGSConfig

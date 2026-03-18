@@ -174,6 +174,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.vrpp
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.time_limit
 :type: float
@@ -192,6 +203,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
    42
 
 ```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.seed
+```
+
+````
+
+````{py:attribute} local_search_iterations
+:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.local_search_iterations
 ```
 
 ````

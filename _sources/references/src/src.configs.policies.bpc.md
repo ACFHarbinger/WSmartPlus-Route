@@ -55,7 +55,7 @@
 :canonical: src.configs.policies.bpc.BPCConfig.vrpp
 :type: bool
 :value: >
-   False
+   True
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.vrpp
 ```

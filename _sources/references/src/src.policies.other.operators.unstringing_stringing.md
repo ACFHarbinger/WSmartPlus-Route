@@ -21,6 +21,7 @@ src.policies.other.operators.unstringing_stringing.unstringing_iv
 src.policies.other.operators.unstringing_stringing.unstringing_ii
 src.policies.other.operators.unstringing_stringing.stringing_iv
 src.policies.other.operators.unstringing_stringing.stringing_i
+src.policies.other.operators.unstringing_stringing.stringing_wrapper
 ```
 
 ## Package Contents

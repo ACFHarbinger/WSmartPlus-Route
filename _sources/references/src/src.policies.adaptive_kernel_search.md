@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.adaptive_kernel_search.aks
 src.policies.adaptive_kernel_search.policy_aks
-src.policies.adaptive_kernel_search.solver
 ```
 
 ## Package Contents

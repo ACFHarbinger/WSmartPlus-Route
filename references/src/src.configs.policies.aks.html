@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -534,6 +536,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.mip_limit_nodes"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.mip_limit_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.seed"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.bucket_growth_factor"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.bucket_growth_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.time_limit_stage_1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.engine"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.engine</span></code></a></li>
@@ -615,7 +618,8 @@ mip_gap (float): The relative optimality gap target for each sub-problem solve.
 A value of 0.01 means the solver stops when it is within 1% of the
 theoretical optimum for that restricted MIP. Defaults to 0.01.
 seed (int): Random seed for Gurobi’s internal algorithms, ensuring
-computational reproducibility across different runs. Defaults to 42.</p>
+computational reproducibility across different runs. Defaults to 42.
+vrpp (bool): Whether the problem is a VRP with Profits.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Adaptive Features (AKS)
 bucket_growth_factor (float): The factor by which `current_bucket_size`
     is multiplied when an objective improvement is found.
@@ -675,6 +679,12 @@ post_processing (Optional[PostProcessingConfig]): Optional configuration
 <dt class="sig sig-object py" id="src.configs.policies.aks.AdaptiveKernelSearchConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -769,6 +779,7 @@ post_processing (Optional[PostProcessingConfig]): Optional configuration
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.mip_limit_nodes"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.mip_limit_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.seed"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.bucket_growth_factor"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.bucket_growth_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.time_limit_stage_1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.engine"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.engine</span></code></a></li>

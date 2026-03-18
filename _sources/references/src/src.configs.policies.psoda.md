@@ -172,6 +172,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.psoda.DistancePSOConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.psoda.DistancePSOConfig.vrpp
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.psoda.DistancePSOConfig.seed
 :type: typing.Optional[int]

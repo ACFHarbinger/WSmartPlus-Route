@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.lb.LocalBranchingConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.lb.LocalBranchingConfig.vrpp
+```
+
+````
+
 ````{py:attribute} engine
 :canonical: src.configs.policies.lb.LocalBranchingConfig.engine
 :type: str

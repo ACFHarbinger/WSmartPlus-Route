@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.local_branching_variable_neighborhood_search.policy_lb_vns';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.local_branching_variable_neighborhood_search.solver" href="src.policies.local_branching_variable_neighborhood_search.solver.html" />
-    <link rel="prev" title="src.policies.local_branching_variable_neighborhood_search" href="src.policies.local_branching_variable_neighborhood_search.html" />
+    <link rel="next" title="src.policies.particle_swarm_optimization_memetic_algorithm" href="src.policies.particle_swarm_optimization_memetic_algorithm.html" />
+    <link rel="prev" title="src.policies.local_branching_variable_neighborhood_search.lb_vns" href="src.policies.local_branching_variable_neighborhood_search.lb_vns.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -250,11 +250,13 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
@@ -529,6 +531,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy._run_solver()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy.execute"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy.execute()</span></code></a></li>
 </ul>
 </li>
@@ -607,6 +610,12 @@ str: “lb_vns”</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._run_solver">
+<span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._run_solver" title="Link to this definition">#</a></dt>
+<dd><p>Not used - LB-VNS requires specialized execute().</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy.execute" title="Link to this definition">#</a></dt>
 <dd><p>Extract the current problem state and execute the LB-VNS metaheuristic.</p>
@@ -646,20 +655,20 @@ Tuple[List[int], float, Dict[str, Any]]:
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.local_branching_variable_neighborhood_search.html"
+       href="src.policies.local_branching_variable_neighborhood_search.lb_vns.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search.lb_vns</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.local_branching_variable_neighborhood_search.solver.html"
+       href="src.policies.particle_swarm_optimization_memetic_algorithm.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search.solver</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -685,6 +694,7 @@ Tuple[List[int], float, Dict[str, Any]]:
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy._run_solver()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy.execute"><code class="docutils literal notranslate"><span class="pre">LocalBranchingVNSPolicy.execute()</span></code></a></li>
 </ul>
 </li>

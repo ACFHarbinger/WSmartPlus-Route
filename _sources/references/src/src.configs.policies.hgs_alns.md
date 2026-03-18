@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
+```
+
+````
+
 ````{py:attribute} hgs
 :canonical: src.configs.policies.hgs_alns.HGSALNSConfig.hgs
 :type: src.configs.policies.hgs.HGSConfig

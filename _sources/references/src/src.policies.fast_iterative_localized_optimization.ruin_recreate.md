@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} RuinAndRecreate(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, rng: numpy.random.Generator)
+`````{py:class} RuinAndRecreate(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, rng: numpy.random.Generator)
 :canonical: src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate
@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.__init__
 ```
 
-````{py:method} apply(routes: typing.List[typing.List[int]], omega: typing.List[int], all_customers: typing.List[int]) -> typing.Tuple[typing.List[typing.List[int]], int, typing.List[int]]
+````{py:method} apply(routes: typing.List[typing.List[int]], omega: typing.List[int], all_customers: typing.List[int], mandatory_nodes: typing.List[int]) -> typing.Tuple[typing.List[typing.List[int]], int, typing.List[int]]
 :canonical: src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.apply
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.apply
