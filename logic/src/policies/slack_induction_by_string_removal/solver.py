@@ -105,9 +105,10 @@ class SISRSolver:
                 removed,
                 self.dist_matrix,
                 self.wastes,
-                self.capacity,
+                capacity=self.capacity,
                 blink_rate=self.params.blink_rate,
                 rng=self.random,
+                expand_pool=True,
             )
 
             # Calculate profit instead of cost for maximizing
@@ -159,16 +160,15 @@ class SISRSolver:
 
     def _build_initial_solution(self) -> List[List[int]]:
         """Greedy constructive heuristic."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 
-        routes = build_nn_routes(
-            nodes=list(self.wastes.keys()),
-            mandatory_nodes=self.mandatory_nodes,
+        routes = build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
         )
         return routes

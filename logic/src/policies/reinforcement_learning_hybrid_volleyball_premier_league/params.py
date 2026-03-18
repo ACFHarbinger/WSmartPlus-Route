@@ -7,7 +7,7 @@ without the full genetic evolution complexity.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 from logic.src.configs.policies.other import RLConfig
 
@@ -83,92 +83,107 @@ class RLHVPLParams:
     # These properties allow existing code to access RL parameters without modification,
     # maintaining consistency with RL-AHVPL interface.
 
+    # --- Legacy / Compatibility Properties ---
+    # These properties allow existing code to access RL parameters without modification,
+    # maintaining consistency with RL-AHVPL interface.
+
+    def _get_val(self, category: str, key: str, default: Any = None) -> Any:
+        # Resolve the category (e.g. td_learning, sarsa)
+        if isinstance(self.rl_config, dict):
+            cat_obj = self.rl_config.get(category, {})
+        else:
+            cat_obj = getattr(self.rl_config, category, None)
+
+        # If no category found but we asked for sarsa, fallback to td_learning
+        if not cat_obj and category == "sarsa":
+            return self._get_val("td_learning", key, default)
+
+        if isinstance(cat_obj, dict):
+            return cat_obj.get(key, default)
+        return getattr(cat_obj, key, default)
+
+    def _get_param(self, key: str, default: Any = None) -> Any:
+        if isinstance(self.rl_config, dict):
+            return self.rl_config.get("params", {}).get(key, default)
+        return self.rl_config.params.get(key, default)
+
     @property
     def qlearning_alpha(self) -> float:
-        """Learning rate for Q-Learning."""
-        return self.rl_config.td_learning.alpha
+        return float(self._get_val("td_learning", "alpha", 0.1))
 
     @property
     def qlearning_gamma(self) -> float:
-        """Discount factor for Q-Learning."""
-        return self.rl_config.td_learning.gamma
+        return float(self._get_val("td_learning", "gamma", 0.95))
 
     @property
     def qlearning_epsilon(self) -> float:
-        """Exploration rate for Q-Learning."""
-        return self.rl_config.td_learning.epsilon
+        return float(self._get_val("td_learning", "epsilon", 0.1))
 
     @property
     def qlearning_epsilon_decay(self) -> float:
-        """Decay rate for epsilon."""
-        return self.rl_config.td_learning.epsilon_decay
+        return float(self._get_val("td_learning", "epsilon_decay", 0.995))
 
     @property
     def qlearning_epsilon_decay_step(self) -> int:
-        """Steps between epsilon decay."""
-        return self.rl_config.td_learning.epsilon_decay_step
+        return self._get_val("td_learning", "epsilon_decay_step", 20)
 
     @property
     def qlearning_epsilon_min(self) -> float:
-        """Minimum epsilon value."""
-        return self.rl_config.td_learning.epsilon_min
+        return float(self._get_val("td_learning", "epsilon_min", 0.05))
 
     @property
     def qlearning_improvement_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for improvement classification."""
-        return self.rl_config.params.get("qlearning_improvement_thresholds", (1e-4, 1e-2))
+        val = self._get_param("qlearning_improvement_thresholds", (1e-4, 1e-2))
+        return float(val[0]), float(val[1])
+
+    @property
+    def qlearning_history_size(self) -> int:
+        return self._get_param("qlearning_history_size", 50)
 
     @property
     def sarsa_alpha(self) -> float:
-        """Learning rate for SARSA."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).alpha
+        return float(self._get_val("sarsa", "alpha", 0.1))
 
     @property
     def sarsa_gamma(self) -> float:
-        """Discount factor for SARSA."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).gamma
+        return float(self._get_val("sarsa", "gamma", 0.95))
 
     @property
     def sarsa_epsilon(self) -> float:
-        """Exploration rate for SARSA."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon
+        return float(self._get_val("sarsa", "epsilon", 0.1))
 
     @property
     def sarsa_epsilon_decay(self) -> float:
-        """Decay rate for epsilon."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon_decay
+        return float(self._get_val("sarsa", "epsilon_decay", 0.995))
 
     @property
     def sarsa_epsilon_decay_step(self) -> int:
-        """Steps between epsilon decay."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon_decay_step
+        return self._get_val("sarsa", "epsilon_decay_step", 20)
 
     @property
     def sarsa_epsilon_min(self) -> float:
-        """Minimum epsilon value."""
-        return (self.rl_config.sarsa or self.rl_config.td_learning).epsilon_min
+        return float(self._get_val("sarsa", "epsilon_min", 0.05))
 
     @property
     def sarsa_diversity_size(self) -> int:
-        """History size for diversity tracking in SARSA."""
-        return self.rl_config.params.get("sarsa_diversity_size", 50)
+        return self._get_param("sarsa_diversity_size", 50)
 
     @property
     def sarsa_improvement_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for improvement classification in SARSA."""
-        return self.rl_config.params.get("sarsa_improvement_thresholds", (1e-4, 1e-2))
+        val = self._get_param("sarsa_improvement_thresholds", (1e-4, 1e-2))
+        return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_progress_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for progress classification."""
-        return self.rl_config.params.get("sarsa_operator_progress_thresholds", (0.3, 0.7))
+        val = self._get_param("sarsa_operator_progress_thresholds", (0.3, 0.7))
+        return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_stagnation_thresholds(self) -> Tuple[int, int]:
-        """Thresholds for stagnation classification."""
-        return self.rl_config.params.get("sarsa_operator_stagnation_thresholds", (10, 50))
+        val = self._get_param("sarsa_operator_stagnation_thresholds", (10, 50))
+        return int(val[0]), int(val[1])
 
     @property
     def sarsa_operator_diversity_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for diversity classification."""
-        return self.rl_config.params.get("sarsa_operator_diversity_thresholds", (0.2, 0.5))
+        val = self._get_param("sarsa_operator_diversity_thresholds", (0.2, 0.5))
+        return float(val[0]), float(val[1])

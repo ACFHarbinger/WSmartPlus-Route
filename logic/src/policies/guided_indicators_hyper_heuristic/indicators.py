@@ -65,6 +65,8 @@ class ImprovementRateIndicator:
             if global_std > 0:
                 # Z-score normalization, then sigmoid to [0, 1]
                 z_score = (avg_improvement - global_mean) / global_std
+                # Clip to avoid overflow in np.exp
+                z_score = np.clip(z_score, -20.0, 20.0)
                 return 1.0 / (1.0 + np.exp(-z_score))
             else:
                 return 0.5 if avg_improvement == global_mean else (1.0 if avg_improvement > global_mean else 0.0)
@@ -125,6 +127,8 @@ class TimeBasedIndicator:
             if global_std > 0:
                 # Z-score normalization (inverted: faster is better)
                 z_score = (global_mean - avg_time) / global_std
+                # Clip to avoid overflow in np.exp
+                z_score = np.clip(z_score, -20.0, 20.0)
                 return 1.0 / (1.0 + np.exp(-z_score))
             else:
                 return 0.5 if avg_time == global_mean else (1.0 if avg_time < global_mean else 0.0)

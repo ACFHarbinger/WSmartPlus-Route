@@ -34,6 +34,7 @@ def deep_insertion(
     wastes: Dict[int, float],
     capacity: float,
     alpha: float = 0.3,
+    expand_pool: bool = False,
 ) -> List[List[int]]:
     """
     Deep insertion: cost-delta minus capacity-utility scoring.
@@ -50,7 +51,13 @@ def deep_insertion(
         Updated routes with nodes inserted.
     """
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
-    unassigned = sorted(list(removed_nodes))
+
+    if expand_pool:
+        visited = {n for r in routes for n in r}
+        n_nodes = len(dist_matrix) - 1
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    else:
+        unassigned = sorted(list(removed_nodes))
 
     while unassigned:
         best_score = float("inf")
@@ -104,6 +111,7 @@ def deep_profit_insertion(
     C: float,
     alpha: float = 0.3,
     mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
 ) -> List[List[int]]:
     """
     Deep profit-driven insertion: profit plus capacity-utility scoring.
@@ -124,7 +132,13 @@ def deep_profit_insertion(
     """
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
-    unassigned = sorted(list(removed_nodes))
+
+    if expand_pool:
+        visited = {n for r in routes for n in r}
+        n_nodes = len(dist_matrix) - 1
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    else:
+        unassigned = sorted(list(removed_nodes))
 
     while unassigned:
         best_score = -float("inf")

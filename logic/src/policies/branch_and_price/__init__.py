@@ -19,10 +19,10 @@ Key Components:
 """
 
 from .master_problem import VRPPMasterProblem
+from .policy_bp import PolicyBP, run_branch_and_price
 from .pricing_subproblem import PricingSubproblem
 from .rcspp_dp import RCSPPSolver
 from .solver import BranchAndPriceSolver
-from .policy_bp import PolicyBP, run_branch_and_price
 
 __all__ = [
     "VRPPMasterProblem",

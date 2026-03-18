@@ -17,7 +17,9 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from ..other.operators.destroy.string import string_removal
 from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
+from ..other.operators.repair.greedy_blink import greedy_insertion_with_blinks
 from .indicators import ImprovementRateIndicator, TimeBasedIndicator
 from .params import GIHHParams
 from .solution import Solution
@@ -280,25 +282,52 @@ class GIHHSolver:
         candidate = solution.copy()
 
         if "removal" in operator:
-            # Remove random nodes
+            # 1. Ruin (Removal)
             all_nodes = [node for route in candidate.routes for node in route]
             if len(all_nodes) > 0:
-                n_remove = max(1, min(len(all_nodes) // 4, 5))
-                to_remove = self.rng.sample(all_nodes, n_remove)
+                if "string" in operator:
+                    candidate.routes, _ = string_removal(
+                        candidate.routes,
+                        max(1, min(len(all_nodes) // 4, 10)),
+                        self.d,
+                        rng=self.rng,
+                    )
+                else:
+                    n_remove = max(1, min(len(all_nodes) // 4, 5))
+                    to_remove = self.rng.sample(all_nodes, n_remove)
+                    for route in candidate.routes:
+                        for node in to_remove:
+                            if node in route:
+                                route.remove(node)
 
-                # Remove from routes
-                for route in candidate.routes:
-                    for node in to_remove:
-                        if node in route:
-                            route.remove(node)
-
-                # Remove empty routes
-                candidate.routes = [r for r in candidate.routes if len(r) > 0]
+                # 2. Recreate (Re-insertion)
+                # Use expand_pool=True to allow adding nodes not in current greedy solution
+                candidate.routes = greedy_insertion_with_blinks(
+                    candidate.routes,
+                    [],  # removed_nodes is empty because expand_pool will gather all unvisited
+                    self.d,
+                    self.wastes,
+                    self.Q,
+                    blink_rate=self.params.accept_worse_prob,  # Reuse acceptance probability as blink rate
+                    rng=self.rng,
+                    expand_pool=True,
+                )
 
         elif "route" in operator:
-            # Remove entire route
+            # Remove entire route and re-insert nodes
             if len(candidate.routes) > 1:
                 candidate.routes.pop(self.rng.randint(0, len(candidate.routes) - 1))
+                # Re-fill
+                candidate.routes = greedy_insertion_with_blinks(
+                    candidate.routes,
+                    [],
+                    self.d,
+                    self.wastes,
+                    self.Q,
+                    blink_rate=self.params.accept_worse_prob,
+                    rng=self.rng,
+                    expand_pool=True,
+                )
 
         candidate.evaluate()
         return candidate
