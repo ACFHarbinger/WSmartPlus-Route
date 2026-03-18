@@ -33,6 +33,8 @@ class PolicyFactory:
 
         # Exact Solvers
         import logic.src.policies.branch_and_bound.policy_bb as policy_bb  # noqa
+        import logic.src.policies.branch_and_cut.policy_bc as policy_bc  # noqa
+        import logic.src.policies.branch_and_price.policy_bp as policy_bp  # noqa
         import logic.src.policies.branch_and_price_and_cut.policy_bpc as policy_bpc  # noqa
         import logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf as policy_swc_tcf  # noqa
 

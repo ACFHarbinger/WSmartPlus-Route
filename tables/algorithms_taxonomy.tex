@@ -65,6 +65,10 @@ Attention Model with POMO & Kwon et al. (2020) & AM + Rollouts & NCO: Autoregres
 
 Branch-and-Bound (BB) & Land \& Doig (1960) & Foundational & Canonical Exact Algorithm & Complete Tree, General & Branching and Pruning & Systematic enumeration of candidate solutions via state-space search, represented as a tree. Uses bounds to "prune" non-optimal sub-trees. & The foundational mathematical procedure for exact optimization. Guaranteed global optimality but suffers from exponential time complexity in large VRPP instances. \\ \midrule
 
+Branch-and-Cut (BC) & Padberg \& Rinaldi (1991) & Branch-and-Bound & Exact Algorithm (Math. Prog.) & Complete Tree, General & Branching, Cutting planes & Solves LP relaxations and tightens bounds by dynamically generating valid inequalities (cuts) at search tree nodes. & A foundational exact method for MILPs; aggressively prunes the search space and serves as the core engine for commercial exact solvers. \\ \midrule
+
+Branch-and-Price (BP) & Barnhart et al. (1998) & Branch-and-Bound & Exact Algorithm (Math. Prog.) & Complete Tree, Routing & Column generation, Branching & Solves LP relaxations using column generation at each node of the B\&B tree to handle exponentially many variables. & The standard exact solver for Set Partitioning models; highly effective for routing but requires specialized branching rules. \\ \midrule
+
 Branch-and-Price-and-Cut (BPC) & Laporte et al. (1998) & Branch-and-Bound & Exact Algorithm (Math. Prog.) & Complete Tree, Routing & Column gen., Cutting planes & Solves LP relaxations via pricing, tightens bounds with cuts, and branches for integrality. & The gold standard for exact optimization; rigorously proves global optimality without heuristics. \\ \midrule
 
 Circuit-SAT GNN & Amizadeh et al. (2018) & GNN + DPLL & NCO: Predict-Many (UL) & Complete Tree, SAT / MILP & Unsupervised loss, DPLL & Iteratively predicts variable assignments to restrict the search tree via continuous circuit loss. & Purely mathematical Unsupervised Learning application for iterative state-space reduction. \\ \midrule
@@ -127,7 +131,7 @@ ILS - Randomized Variable Neighborhood Descent - Set Partitioning (ILS-RVND-SP) 
 
 K-Sparse Ant Colony Optimization (KS-ACO) & Hale (2021) & ACO & Algorithmic Regularization (Swarm) & Swarm, Combinatorial & Standard ACO routing & Modifies standard ACO pheromone updates to maintain a strictly $K$-sparse probability distribution. & Effective structural constraint preventing premature convergence; a rigorous mathematical modifier. \\ \midrule
 
-Kernel Search (KS) & Angelelli et al. & MILP & Matheuristic (Restricted Search) & Complete Tree, Combinatorial & Iterative MILP over subsets & Decomposes the problem by intelligently restricting the active binary variables available to an iterative MILP solver. & Guarantees structural feasibility implicitly via the exact solver; superior to pure metaheuristics in tight polyhedra. \\ \midrule
+Kernel Search (KS) & Angelelli et al. (2010) & MILP & Matheuristic (Restricted Search) & Complete Tree, Combinatorial & Iterative MILP over subsets & Decomposes the problem by intelligently restricting the active binary variables available to an iterative MILP solver. & Guarantees structural feasibility implicitly via the exact solver; superior to pure metaheuristics in tight polyhedra. \\ \midrule
 
 Knowledge Guided Local Search (KGLS) & Arnold \& Sörensen (2018) & GLS & Domain-Specific Meta-heuristic & Single-point, Combinatorial & Steepest descent & Uses data mining to group variables prior to deterministic local search. & Data-driven execution of GLS; precise, honest, and completely devoid of metaphor. \\ \midrule
 
@@ -135,13 +139,13 @@ Late Acceptance Hill-Climbing (LAHC) & Burke \& Bykov (2008) & Threshold Accepti
 
 League Championship Algorithm (LCA) & Kashan (2014) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Artificial SWOT Analysis & Models a sports schedule where teams adapt "formations" based on win/loss fitness. & \textbf{Deceptive.} Functionally an exhaustive, deterministic steady-state Genetic Algorithm obscured by convoluted sports schedule terminology. \\ \midrule
 
-Learning-Augmented Column Generation & Generic (2024) & B\&P + ML & Matheuristic (Learning) & Complete Tree, Routing & ML branching prediction & Uses Graph Neural Networks to predict strong branching outcomes, filtering candidates before MILP execution. & Traverses the B\&P search tree exponentially faster by replacing computationally exorbitant LP solver tests with ML inference. \\ \midrule
+Learning-Augmented Column Generation & Morabit et al. (2024) & B\&P + ML & Matheuristic (Learning) & Complete Tree, Routing & ML branching prediction & Uses Graph Neural Networks to predict strong branching outcomes, filtering candidates before MILP execution. & Traverses the B\&P search tree exponentially faster by replacing computationally exorbitant LP solver tests with ML inference. \\ \midrule
 
 Lin-Kernighan-Helsgaun (LKH) & Helsgaun (2000) & Lin-Kernighan (1973) & Domain-Specific Heuristic (Traj.) & Single-point, TSP / Routing & Dynamic $k$-opt swap & Searches for improving $k$-opt moves by restricting the search space via minimum spanning trees. & The pinnacle of TSP trajectory heuristics; purely mathematical, completely devoid of metaphor. \\ \midrule
 
 Local Branching (VNSB) & Fischetti \& Lodi (2003) & MILP + VNS & Matheuristic (Restricted Search) & Complete Tree, General & Hamming distance constraint & Restricts the MILP search space by enforcing a strict mathematical bound on the Hamming distance from the incumbent. & Turns the exact solver into an aggressive neighborhood explorer, pruning millions of variables and nodes instantaneously. \\ \midrule
 
-Local Search (LS) / Neighborhood Search & Generic (Croes 1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert & Iteratively moves to a strictly improving neighboring solution until a local optimum is reached. & The absolute foundational trajectory-based optimization mechanism. \\ \midrule
+Local Search (LS) / Neighborhood Search & Croes (1958) & Canonical & Canonical Heuristic (Traj.) & Single-point, General & $k$-opt, swap, insert & Iteratively moves to a strictly improving neighboring solution until a local optimum is reached. & The absolute foundational trajectory-based optimization mechanism. \\ \midrule
 
 Memetic Algorithm (MA) & Moscato et al. (2004) & GA + Local Search & Meta-heuristic (Hybrid) & Population, General & Selection, Crossover, Hill-climbing & Synergistic combination of population-level evolution and individual-level intensive refinement (local improver). & The absolute foundational archetype for modern hybrid meta-heuristics; formalizes the synergy between global search and local optimization. \\ \midrule
 
@@ -198,8 +202,6 @@ Step Counting Hill Climbing (SCHC) & Bykov \& Petrovic (2016) & Threshold Accept
 Threshold Accepting (TA) & Dueck \& Scheuer (1990) & Simulated Annealing & Acceptance Criterion (Threshold) & Single-point, General & Relies on external LS & Accepts deteriorating moves if they fall within a predefined threshold range. & Deterministic alternative to SA; allows reorganization of sequences to find globally efficient tours. \\ \midrule
 
 Variable Neighborhood Search (VNS) & Mladenović (1997) & LS & Canonical Meta-heuristic & Single-point, Combinatorial & Nested neighborhoods & Systematically switches neighborhoods when trapped in local optima. & Foundational framework establishing rules for trajectory diversification. \\ \midrule
-
-Vehicle Routing Problem with Profits Optimizer (VRPP) & de Morais et al. (2024) & MILP + HMM & Exact Solver (Math. Prog.) & Single-point, Routing & Rolling Horizon MILP & Maximizes waste collection profit while minimizing distance via a data-driven MILP. & Exact solver implementation; utilizes HMMs to handle uncertainty while proving global daily optimality. \\ \midrule
 
 Volleyball Premier League (VPL) & Moghdani \& Salimifard (2018) & GA / ES & Relabeled Meta-heuristic (Evol.) & Population, Continuous & Substitution (uniform mutation) & Mimics volleyball coaching and interactions via substitution, coaching, and learning phases. & \textbf{Deceptive.} Fundamentally flawed GA/ES hybrid that relies on overly constrained, thematic "coaching" phases instead of rigorous exploitation. \\
 
