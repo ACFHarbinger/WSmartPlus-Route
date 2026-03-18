@@ -31,6 +31,8 @@ class CFRSConfig:
         num_clusters: Number of angular sectors to partition nodes into.
             If set to 0, the policy defaults to using the number of vehicles
             available in the simulation day (`n_vehicles`).
+        time_limit: Maximum time in seconds allowed for the routing phase
+            (total across all sectors).
         must_go: List of must-go strategy configuration files or dicts.
             Controls which bins are selected for collection on a given day.
         post_processing: List of post-processing operations (e.g., local search)
@@ -44,6 +46,9 @@ class CFRSConfig:
 
     # Clustering granularity
     num_clusters: int = 0
+
+    # Routing time limit (seconds)
+    time_limit: float = 60.0
 
     # Bin selection strategies (VRPP/WCVRP specific)
     must_go: Optional[List[MustGoConfig]] = None

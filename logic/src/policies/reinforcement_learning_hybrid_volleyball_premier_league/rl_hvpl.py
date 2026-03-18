@@ -191,7 +191,7 @@ class RLHVPLSolver:
                 best_cost=best_cost,
                 iter_best_profit=iter_best_profit,
                 population_size=len(population),
-                aco_epsilon=self.aco_solver.ls_manager.agent.epsilon,
+                aco_epsilon=self.aco_solver.agent.epsilon,
                 alns_epsilon=self.alns_solver.agent.epsilon,
             )
 

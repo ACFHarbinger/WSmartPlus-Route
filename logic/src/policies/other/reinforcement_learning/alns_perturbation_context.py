@@ -26,7 +26,7 @@ class ALNSPerturbationContext:
         self.routes = copy.deepcopy(routes)
         self.dist_matrix = dist_matrix
         self.d = dist_matrix
-        self.wastes = wastes
+        self.waste = wastes
         self.Q = capacity
         self._build_structures()
 
@@ -56,4 +56,4 @@ class ALNSPerturbationContext:
         Returns:
             float: Sum of waste for all nodes in the route.
         """
-        return sum(self.wastes.get(n, 0) for n in self.routes[ri])
+        return sum(self.waste.get(n, 0) for n in self.routes[ri])

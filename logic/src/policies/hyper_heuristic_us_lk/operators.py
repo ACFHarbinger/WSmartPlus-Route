@@ -12,14 +12,11 @@ import numpy as np
 # Local search operators are implemented directly in this module
 from ..other.operators.repair import greedy_insertion as greedy_insertion_op
 from ..other.operators.unstringing_stringing import (
-    apply_type_i_s,
     apply_type_i_us,
-    apply_type_ii_s,
     apply_type_ii_us,
-    apply_type_iii_s,
     apply_type_iii_us,
-    apply_type_iv_s,
     apply_type_iv_us,
+    stringing_insertion,
 )
 from .solution import Solution
 
@@ -122,7 +119,9 @@ class HULKOperators:
 
     # ===== Stringing Operators (Repair) =====
 
-    def apply_string_repair(self, solution: Solution, removed: List[int], string_type: str) -> Solution:
+    def apply_string_repair(
+        self, solution: Solution, removed: List[int], string_type: str, expand_pool: bool = False
+    ) -> Solution:
         """
         Apply stringing operator to reinsert removed nodes.
 
@@ -130,104 +129,40 @@ class HULKOperators:
             solution: Current solution.
             removed: Nodes to reinsert.
             string_type: Type of stringing ("type_i", "type_ii", "type_iii", "type_iv").
+            expand_pool: Includes globally unassigned pool for VRPP support.
 
         Returns:
             Repaired solution.
         """
-        # Map type to function
-        string_funcs = {
-            "type_i": apply_type_i_s,
-            "type_ii": apply_type_ii_s,
-            "type_iii": apply_type_iii_s,
-            "type_iv": apply_type_iv_s,
+        string_map = {
+            "type_i": 1,
+            "type_ii": 2,
+            "type_iii": 3,
+            "type_iv": 4,
         }
 
-        if string_type not in string_funcs:
+        if string_type not in string_map:
             # Fallback to greedy
-            return self._greedy_repair(solution, removed)
+            return self._greedy_repair(solution, removed, expand_pool=expand_pool)
 
-        string_func = string_funcs[string_type]
+        op_type = string_map[string_type]
         routes = [list(r) for r in solution.routes]
 
-        for node in removed:
-            best_routes = None
-            best_profit = float("-inf")
-
-            # Try each route
-            for r_idx, route in enumerate(routes):
-                if len(route) < 3:
-                    continue
-
-                # Try a few random configurations
-                for _ in range(min(5, len(route))):
-                    try:
-                        positions = list(range(len(route)))
-                        i = self.rng.choice(positions)
-                        valid_j = [p for p in positions if p != i]
-                        if not valid_j:
-                            continue
-                        j = self.rng.choice(valid_j)
-                        valid_k = [p for p in positions if p not in (i, j)]
-                        if not valid_k:
-                            continue
-                        k = self.rng.choice(valid_k)
-
-                        # For type II and IV
-                        if string_type in ("type_ii", "type_iv"):
-                            valid_l = [p for p in positions if p not in (i, j, k)]
-                            if not valid_l:
-                                continue
-                            l = self.rng.choice(valid_l)
-                            new_route = string_func(routes[r_idx], node, i, j, k, l)
-                        else:
-                            new_route = string_func(routes[r_idx], node, i, j, k)
-
-                        # Check if insertion succeeded
-                        if node not in new_route:
-                            continue
-
-                        # Check capacity
-                        route_waste = sum(self.wastes.get(n, 0) for n in new_route)
-                        if route_waste > self.capacity:
-                            continue
-
-                        # Evaluate
-                        test_routes = [list(r) for r in routes]
-                        test_routes[r_idx] = new_route
-                        test_sol = Solution(
-                            test_routes,
-                            self.dist_matrix,
-                            self.wastes,
-                            self.capacity,
-                            self.R,
-                            self.C,
-                        )
-
-                        if test_sol.profit > best_profit:
-                            best_profit = test_sol.profit
-                            best_routes = test_routes
-
-                    except Exception:
-                        continue
-
-            if best_routes:
-                routes = best_routes
-            else:
-                # Fallback: greedy insert this node
-                routes = greedy_insertion_op(
-                    routes,
-                    [node],
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    R=self.R,
-                    mandatory_nodes=self.mandatory_nodes,
-                    cost_unit=self.C,
-                )
+        routes = stringing_insertion(
+            routes=routes,
+            removed_nodes=removed,
+            string_type=op_type,
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.rng,
+            expand_pool=expand_pool,
+        )
 
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
-    def _greedy_repair(self, solution: Solution, removed: List[int]) -> Solution:
+    def _greedy_repair(self, solution: Solution, removed: List[int], expand_pool: bool = False) -> Solution:
         """Greedy repair fallback."""
         routes = greedy_insertion_op(
             [list(r) for r in solution.routes],
@@ -238,6 +173,7 @@ class HULKOperators:
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
             cost_unit=self.C,
+            expand_pool=expand_pool,
         )
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 

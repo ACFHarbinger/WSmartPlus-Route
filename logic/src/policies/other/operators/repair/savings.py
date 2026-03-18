@@ -23,6 +23,7 @@ def savings_insertion(
     R: float,
     C: float,
     mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
 ) -> List[List[int]]:
     """
     Insert removed nodes based on maximum savings versus a dedicated route.
@@ -40,7 +41,13 @@ def savings_insertion(
     Returns:
         List[List[int]]: Updated routes.
     """
-    unassigned = removed_nodes.copy()
+    if expand_pool:
+        visited = {n for r in routes for n in r}
+        n_nodes = len(dist_matrix) - 1
+        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+    else:
+        unassigned = removed_nodes.copy()
+
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
 
     loads = [sum(wastes.get(n, 0.0) for n in r) for r in routes]
@@ -116,6 +123,7 @@ def savings_profit_insertion(
     C: float,
     mandatory_nodes: Optional[List[int]] = None,
     depot: int = 0,
+    expand_pool: bool = False,
 ) -> List[List[int]]:
     """
     Insert nodes using the Profit-Aware Clarke-Wright (PACW) principle.
@@ -138,7 +146,12 @@ def savings_profit_insertion(
         List[List[int]]: Solution with nodes re-inserted into routes.
     """
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
-    unassigned = set(removed_nodes)
+    if expand_pool:
+        visited = {n for r in routes for n in r}
+        n_nodes = len(dist_matrix) - 1
+        unassigned = set(range(1, n_nodes + 1)) - visited
+    else:
+        unassigned = set(removed_nodes)
 
     # Pre-calculate loads to avoid repeated sum() calls
     loads = [sum(wastes.get(n, 0.0) for n in r) for r in routes]

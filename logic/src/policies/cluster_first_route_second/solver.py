@@ -29,9 +29,14 @@ def run_cf_rs(
     coords: pd.DataFrame,
     must_go: List[int],
     distance_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
     n_vehicles: int,
     seed: int = 42,
     num_clusters: int = 0,
+    time_limit: float = 60.0,
 ) -> Tuple[List[int], float, Dict[str, Any]]:
     """
     Solve VRPP using Cluster-First Route-Second angular partitioning.
@@ -61,19 +66,18 @@ def run_cf_rs(
     k = num_clusters if num_clusters > 0 else n_vehicles
 
     # STAGE 1: CLUSTERING
-    # Group bins by their angular coordinate relative to the depot
-    clusters = angular_clustering(coords, must_go, k)
+    # Group bins by their angular coordinate relative to the depot, applying capacity/profit checks
+    clusters = angular_clustering(coords, must_go, k, wastes, capacity, R, C, distance_matrix)
 
     # STAGE 2: ROUTING
     # Solve a separate TSP for each cluster. Tours start and end at the depot (0).
     full_tour = [0]
-
     for _i, cluster in enumerate(clusters):
         if not cluster:
             continue
 
         # Solve TSP for the current sector
-        cluster_tour = find_route(distance_matrix, cluster, seed=seed)
+        cluster_tour = find_route(distance_matrix, cluster, time_limit=time_limit, seed=seed)
 
         # Append the cluster tour to the master tour.
         # Since find_route returns [0, n1, n2, ..., 0], we skip the leading 0
@@ -86,54 +90,156 @@ def run_cf_rs(
     return full_tour, total_cost, {"clusters": clusters, "num_sectors": len(clusters)}
 
 
-def angular_clustering(coords: pd.DataFrame, must_go: List[int], k: int) -> List[List[int]]:
+def angular_clustering(
+    coords: pd.DataFrame,
+    must_go: List[int],
+    k: int,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    distance_matrix: np.ndarray,
+) -> List[List[int]]:
     """
-    Partition bins into k angular sectors based on their position relative to the depot.
-
-    This implements the 'Cluster-First' stage using polar angle sorting.
-    It splits the 360-degree space around the depot into sectors such that
-    each sector contains a balanced number of nodes.
+    Partition bins into angular sectors based on their position relative to the depot,
+    while enforcing capacity constraints and ensuring profitability of optional nodes.
+    Creates as many clusters as needed to maintain clean sector independence.
 
     Args:
         coords: DataFrame with 'Lat' and 'Lng'. Depot is at index 0.
         must_go: Global node indices of the collection targets.
-        k: Maximum number of clusters (sectors) to create.
+        k: Maximum number of clusters (sectors) to create. (Present for legacy API compatibility, but unbounded).
+        wastes: Demand of each node.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        distance_matrix: Distance matrix.
 
     Returns:
-        List[List[int]]: A list of K clusters, where each cluster is a list of node indices.
+        List[List[int]]: A list of clusters.
     """
-    if k <= 1 or len(must_go) < k:
-        return [must_go]
+    mandatory_set = set(must_go)
+    pool = []
+
+    # 1. Gather Candidate Pool
+    n_nodes = len(distance_matrix) - 1
+    for node in range(1, n_nodes + 1):
+        if node in mandatory_set:
+            pool.append(node)
+        else:
+            waste = wastes.get(node, 0.0)
+            revenue = waste * R
+            one_way_cost = distance_matrix[0, node] * C
+            # Node-level Hurdle: Aggressive pool gathering for sweeping.
+            # Revenue only needs to cover 5% of one-way cost to be considered.
+            if revenue > 0.05 * one_way_cost:
+                pool.append(node)
+
+    if not pool:
+        return []
 
     # Reference point is the depot
     depot_lat = coords.iloc[0]["Lat"]
     depot_lng = coords.iloc[0]["Lng"]
 
-    # Calculate polar angles (in radians) for all bins relative to the depot
+    # Calculate polar angles (in radians) for all pool bins relative to the depot
     bin_angles = []
-    for idx in must_go:
+    for idx in pool:
         lat = coords.iloc[idx]["Lat"]
         lng = coords.iloc[idx]["Lng"]
-        # math.atan2 provides angle in range (-pi, pi]
         angle = math.atan2(lat - depot_lat, lng - depot_lng)
         bin_angles.append((idx, angle))
 
-    # Sort bins by their angular position to ensure contiguous sector partitioning
+    # Sort bins by their angular position for contiguous sector sweeping
     bin_angles.sort(key=lambda x: x[1])
     sorted_indices = [x[0] for x in bin_angles]
 
-    # Partition the sorted list into k roughly equal-sized clusters
-    clusters = []
-    n = len(sorted_indices)
-    base_size = n // k
-    remainder = n % k
+    # 3. Partitioning
+    if k > 0:
+        clusters = _bounded_partition(sorted_indices, k, wastes, capacity, mandatory_set)
+    else:
+        clusters = _unbounded_partition(sorted_indices, wastes, capacity, mandatory_set)
 
-    start = 0
-    for i in range(k):
-        # Distribute the remainder nodes across the first clusters to maintain balance
-        cluster_size = base_size + (1 if i < remainder else 0)
-        clusters.append(sorted_indices[start : start + cluster_size])
-        start += cluster_size
+    # 4. Cluster Pruning: ensure clusters are meaningful
+    final_clusters = []
+    for cluster in clusters:
+        if not cluster:
+            continue
+
+        # Mandatory nodes must always be collected
+        if any(node in mandatory_set for node in cluster):
+            final_clusters.append(cluster)
+            continue
+
+        cluster_waste = sum(wastes.get(node, 0.0) for node in cluster)
+        cluster_revenue = cluster_waste * R
+
+        # Estimate trip cost: depot to furthest node and back
+        max_dist = max(distance_matrix[0, node] for node in cluster)
+        est_cost = 2.0 * max_dist * C
+
+        # Opportunistic Cluster Hurdle:
+        # Revenue must cover 1.05x of round-trip OR cluster is 40% full.
+        # This encourages more thorough routes to prevent future trips.
+        if (cluster_revenue > 1.05 * est_cost) or (cluster_waste > 0.4 * capacity):
+            final_clusters.append(cluster)
+
+    return final_clusters
+
+
+def _bounded_partition(
+    sorted_indices: List[int],
+    k: int,
+    wastes: Dict[int, float],
+    capacity: float,
+    mandatory_set: set,
+) -> List[List[int]]:
+    """Helper for capacity-aware bounded partitioning (Inclusive)."""
+    clusters: List[List[int]] = [[] for _ in range(k)]
+    loads = [0.0] * k
+    cluster_idx = 0
+
+    for node in sorted_indices:
+        waste = wastes.get(node, 0.0)
+
+        # If adding this node exceeds current cluster capacity
+        if loads[cluster_idx] + waste > capacity:
+            # Try to move to the next available cluster
+            if cluster_idx + 1 < k:
+                cluster_idx += 1
+                clusters[cluster_idx].append(node)
+                loads[cluster_idx] += waste
+            else:
+                # No more clusters available.
+                # Append to current (last) cluster instead of dropping.
+                # Supports Aggressive Sweep by ensuring 100% pool coverage.
+                clusters[cluster_idx].append(node)
+                loads[cluster_idx] += waste
+        else:
+            # Fits in current cluster
+            clusters[cluster_idx].append(node)
+            loads[cluster_idx] += waste
+
+    return clusters
+
+
+def _unbounded_partition(
+    sorted_indices: List[int], wastes: Dict[int, float], capacity: float, mandatory_set: set
+) -> List[List[int]]:
+    """Helper for capacity-aware unbounded partitioning (Inclusive)."""
+    clusters: List[List[int]] = [[]]
+    loads = [0.0]
+
+    for node in sorted_indices:
+        waste = wastes.get(node, 0.0)
+
+        # If it doesn't fit in the current "trip", start a new one
+        if loads[-1] + waste > capacity and clusters[-1]:
+            clusters.append([])
+            loads.append(0.0)
+
+        clusters[-1].append(node)
+        loads[-1] += waste
 
     return clusters
 

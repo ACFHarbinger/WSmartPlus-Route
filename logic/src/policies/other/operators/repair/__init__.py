@@ -18,8 +18,11 @@ from ..unstringing_stringing import (
     apply_type_iii_s_profit,
     apply_type_iv_s,
     apply_type_iv_s_profit,
+    stringing_insertion,
+    stringing_profit_insertion,
 )
 from .deep import deep_insertion, deep_profit_insertion
+from .farthest import farthest_insertion, farthest_profit_insertion
 from .greedy import greedy_insertion, greedy_profit_insertion
 from .greedy_blink import greedy_insertion_with_blinks, greedy_profit_insertion_with_blinks
 from .regret import regret_2_insertion, regret_k_insertion, regret_profit_insertion
@@ -28,6 +31,8 @@ from .savings import savings_insertion, savings_profit_insertion
 __all__ = [
     "greedy_insertion",
     "greedy_profit_insertion",
+    "farthest_insertion",
+    "farthest_profit_insertion",
     "regret_2_insertion",
     "regret_k_insertion",
     "regret_profit_insertion",
@@ -46,4 +51,6 @@ __all__ = [
     "apply_type_ii_s_profit",
     "apply_type_iii_s_profit",
     "apply_type_iv_s_profit",
+    "stringing_insertion",
+    "stringing_profit_insertion",
 ]
