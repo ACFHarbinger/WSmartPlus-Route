@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 from ...configs.policies.lb import LocalBranchingConfig
 from ..base.base_routing_policy import BaseRoutingPolicy
 from ..base.factory import PolicyRegistry
-from .solver import run_local_branching_gurobi
+from .lb import run_local_branching_gurobi
 
 
 @PolicyRegistry.register("lb")

@@ -10,7 +10,7 @@ Linear Programming (LP) relaxations to provide rigorous mathematical bounds duri
 tree exploration.
 """
 
+from .bb import run_bb
 from .policy_bb import BranchAndBoundPolicy
-from .solver import run_bb
 
 __all__ = ["BranchAndBoundPolicy", "run_bb"]
