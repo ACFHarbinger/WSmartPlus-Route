@@ -7,15 +7,17 @@ Reference:
     European Journal of Operational Research.
 """
 
+import random
 from typing import Dict, List, Optional, Set, Tuple
 
 import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
+from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
-from ..kernel_search.solver import _reconstruct_tour, _setup_ks_model
+from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
 
 
 def _get_partitioned_vars_aks(
@@ -24,6 +26,12 @@ def _get_partitioned_vars_aks(
     y: Dict[int, gp.Var],
     initial_kernel_size: int,
     bucket_size: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    mandatory_nodes: List[int],
 ) -> Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]:
     """
     Solve the LP relaxation of the VRPP model and partition variables into Kernel and Buckets.
@@ -38,6 +46,12 @@ def _get_partitioned_vars_aks(
         y (Dict[int, gp.Var]): Map of customer IDs to Gurobi binary selection variables.
         initial_kernel_size (int): Targeted number of variables for the starting Kernel.
         bucket_size (int): Targeted number of variables per initial partition bucket.
+        dist_matrix: Cost matrix.
+        wastes: Waste dict.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: Nodes that must be visited.
 
     Returns:
         Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]:
@@ -50,23 +64,56 @@ def _get_partitioned_vars_aks(
     if model.Status not in [GRB.OPTIMAL, GRB.TIME_LIMIT] or model.SolCount == 0:
         return [], [], []
 
+    # 1.5 Compute a totally feasible heuristic route
+    rng = random.Random(42)
+    heuristic_routes = build_greedy_routes(
+        dist_matrix=dist_matrix, wastes=wastes, capacity=capacity, R=R, C=C, mandatory_nodes=mandatory_nodes, rng=rng
+    )
+
+    heuristic_edges = set()
+    heuristic_nodes = set()
+    for route in heuristic_routes:
+        if not route:
+            continue
+        heuristic_edges.add((0, route[0]))
+        for i in range(len(route) - 1):
+            heuristic_edges.add((route[i], route[i + 1]))
+            heuristic_nodes.add(route[i])
+        heuristic_edges.add((route[-1], 0))
+        heuristic_nodes.add(route[-1])
+
     # 2. Extract and sort variables by their fractional values (nearness to 1.0)
     all_vars = []
-    for var in x.values():
-        all_vars.append((var, var.X))
-    for var in y.values():
-        all_vars.append((var, var.X))
+    for (i, j), var in x.items():
+        all_vars.append((var, var.X, "x", (i, j)))
+    for i, var in y.items():
+        all_vars.append((var, var.X, "y", i))
 
     # Sort descending: Variables with value 1.0 are most likely to be in the integer optimum
     all_vars.sort(key=lambda item: item[1], reverse=True)
 
     # 3. Restore variable types to BINARY for the subsequent MIP stages
-    for v_obj, _ in all_vars:
+    for v_obj, _, _, _ in all_vars:
         v_obj.vtype = GRB.BINARY
 
     # 4. Partition variables based on the sorted ranking
-    kernel_vars = [v for v, _ in all_vars[:initial_kernel_size]]
-    remaining_vars = [v for v, _ in all_vars[initial_kernel_size:]]
+    # Ensure the kernel captures at least the entire LP support to avoid immediate infeasibility
+    lp_support_size = sum(1 for _, val, _, _ in all_vars if val > 1e-4)
+    actual_kernel_size = max(initial_kernel_size, lp_support_size)
+
+    kernel_vars = []
+    remaining_vars = []
+
+    # We must unconditionally include heuristic variables to guarantee ILP feasibility
+    for v_obj, _, _, _ in all_vars[:actual_kernel_size]:
+        kernel_vars.append(v_obj)
+
+    for v_obj, _, vtype, idx in all_vars[actual_kernel_size:]:
+        # If it belongs to the heuristic solution, force it into the kernel
+        if (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes):
+            kernel_vars.append(v_obj)
+        else:
+            remaining_vars.append(v_obj)
 
     # Organize remaining variables into sequential buckets for the iterative improvement phase
     buckets = [remaining_vars[i : i + bucket_size] for i in range(0, len(remaining_vars), bucket_size)]
@@ -113,11 +160,11 @@ def _solve_aks_iterations(
     used_vars = set()
     start_time = model.Runtime
 
-    # PHASE 1: Initial Kernel Solve
+    # PHASE 1: Initial Kernel Solve with DFJ callback
     # Find the best possible solution using only nodes/edges in the initial kernel.
     model.setParam("TimeLimit", max(5.0, time_limit * 0.1))
     model.setParam("NodeLimit", mip_limit_nodes)
-    model.optimize()
+    model.optimize(_dfj_subtour_elimination_callback)
 
     if model.SolCount > 0:
         best_obj = model.ObjVal
@@ -148,7 +195,7 @@ def _solve_aks_iterations(
         iter_time = max(2.0, remaining_time / max(1, remaining_buckets))
         model.setParam("TimeLimit", iter_time)
 
-        model.optimize()
+        model.optimize(_dfj_subtour_elimination_callback)
 
         improved = False
         if model.SolCount > 0:
@@ -243,11 +290,13 @@ def run_adaptive_kernel_search_gurobi(
     model.setParam("MIPGap", mip_gap)
 
     # 2. Setup the core mathematical formulation (Variables and Constraints)
-    # This includes the VRPP profit model + MTZ/Miller-Tucker-Zemlin subtour elimination.
-    x, y, _ = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+    # This includes the VRPP profit model with DFJ lazy constraints (no MTZ).
+    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
 
     # 3. Perform Selection Phase via LP Relaxation
-    kernel_vars, remaining_vars, _ = _get_partitioned_vars_aks(model, x, y, initial_kernel_size, bucket_size)
+    kernel_vars, remaining_vars, _ = _get_partitioned_vars_aks(
+        model, x, y, initial_kernel_size, bucket_size, dist_matrix, wastes, capacity, R, C, mandatory_nodes
+    )
 
     if not kernel_vars:
         return [0, 0], 0.0, 0.0
@@ -266,7 +315,11 @@ def run_adaptive_kernel_search_gurobi(
     # previous steps. This ensures the best combination is found and feasible.
     for v in used_vars:
         v.ub = 1
-    model.optimize()
+
+    # Warm-start with greedy heuristic to ensure feasibility
+    _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+
+    model.optimize(_dfj_subtour_elimination_callback)
 
     if model.SolCount == 0:
         return [0, 0], 0.0, 0.0

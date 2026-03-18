@@ -14,7 +14,7 @@ from logic.src.configs.policies import BBConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .solver import run_bb
+from .bb_simple import run_bb_simple as run_bb
 
 
 @PolicyRegistry.register("bb")

@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import numpy as np
 import pytest
-from logic.src.policies.adaptive_kernel_search.solver import run_adaptive_kernel_search_gurobi
+from logic.src.policies.adaptive_kernel_search.aks import run_adaptive_kernel_search_gurobi
 
 
 def mock_run_aks(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
