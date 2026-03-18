@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 from ...configs.policies.lb_vns import LocalBranchingVNSConfig
 from ..base.base_routing_policy import BaseRoutingPolicy
 from ..base.factory import PolicyRegistry
-from .solver import run_lb_vns_gurobi
+from .lb_vns import run_lb_vns_gurobi
 
 
 @PolicyRegistry.register("lb_vns")

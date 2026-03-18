@@ -18,11 +18,11 @@ Key Components:
 - PolicyBP: Policy adapter for WSmart+ Route framework
 """
 
+from .bp import BranchAndPriceSolver
 from .master_problem import VRPPMasterProblem
 from .policy_bp import PolicyBP, run_branch_and_price
 from .pricing_subproblem import PricingSubproblem
 from .rcspp_dp import RCSPPSolver
-from .solver import BranchAndPriceSolver
 
 __all__ = [
     "VRPPMasterProblem",

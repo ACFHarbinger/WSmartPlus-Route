@@ -5,6 +5,8 @@ Implements the Land and Doig (1960) methodology for exact integer programming.
 The solver uses Gurobi for Linear Programming (LP) relaxations and manages a
 search tree to ensure global optimality for VRPP/CWC VRP problems.
 
+**REFACTORED**: Now uses DFJ lazy constraints instead of MTZ for subtour elimination.
+
 Reference:
     Land, A. H., & Doig, A. (1960). "An automatic method for solving discrete
     programming problems". Econometrica, 28(3), 497-520.
@@ -15,8 +17,9 @@ import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import gurobipy as gp
+import networkx as nx
 import numpy as np
-from gurobipy import GRB
+from gurobipy import GRB, quicksum
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -84,9 +87,43 @@ class BBSolver:
         self.incumbent_routes: List[List[int]] = []
         self.start_time = 0.0
 
-    def _setup_relaxation_model(self, node: Node) -> Tuple[gp.Model, Dict, Dict, Dict]:
+    def _dfj_callback_bb(self, model, where):
+        """
+        DFJ subtour elimination callback for Branch-and-Bound.
+
+        This is a simplified version for the BB solver that detects subtours
+        in integer solutions during the branch-and-bound tree search.
+        """
+        if where == GRB.Callback.MIPSOL:
+            # Build graph from active edges
+            G = nx.Graph()
+            G.add_nodes_from(range(self.num_nodes))
+
+            for (i, j), var in self._current_x_vars.items():
+                val = model.cbGetSolution(var)
+                if val > 0.5:
+                    G.add_edge(i, j)
+
+            # Find connected components
+            components = list(nx.connected_components(G))
+
+            # Add cuts for subtours (components not containing depot)
+            for component in components:
+                if 0 not in component and len(component) >= 2:
+                    subtour_edges = []
+                    for i in component:
+                        for j in component:
+                            if i != j and (i, j) in self._current_x_vars:
+                                subtour_edges.append(self._current_x_vars[(i, j)])
+
+                    if subtour_edges:
+                        model.cbLazy(quicksum(subtour_edges) <= len(component) - 1)
+
+    def _setup_relaxation_model(self, node: Node) -> Tuple[gp.Model, Dict, Dict]:
         """
         Construct and solve the Linear Programming relaxation for a search node.
+
+        **REFACTORED**: Now uses DFJ lazy constraints instead of MTZ variables.
 
         Variable fixing is enforced via lower and upper bounds in the LP model,
         reflecting the integrity constraints of the current search branch.
@@ -95,15 +132,16 @@ class BBSolver:
             node: The current search node containing fixed variable states.
 
         Returns:
-            A tuple of (Solved Model, X-variables, Y-variables, U-variables).
+            A tuple of (Solved Model, X-variables, Y-variables).
         """
         model = gp.Model("BB_Relaxation", env=self.env) if self.env else gp.Model("BB_Relaxation")
         model.setParam("OutputFlag", 0)  # Silence Gurobi output for sub-solves
         model.setParam("Threads", 1)  # Single-threaded sub-solves for better control
+        model.Params.LazyConstraints = 1  # Enable lazy constraint mode
 
-        # --- Decision Variables (Continuous [0, 1] for Relaxation) ---
+        # --- Decision Variables (Binary for exact MIP) ---
 
-        # x[i,j]: Edge usage probability
+        # x[i,j]: Edge usage
         x = {}
         for i in self.nodes_range:
             for j in self.nodes_range:
@@ -111,9 +149,9 @@ class BBSolver:
                     lb, ub = 0.0, 1.0
                     if (i, j) in node.fixed_x:
                         lb = ub = float(node.fixed_x[(i, j)])
-                    x[i, j] = model.addVar(lb=lb, ub=ub, vtype=GRB.CONTINUOUS, name=f"x_{i}_{j}")
+                    x[i, j] = model.addVar(lb=lb, ub=ub, vtype=GRB.BINARY, name=f"x_{i}_{j}")
 
-        # y[i]: Node visit probability (VRPP/CWC)
+        # y[i]: Node visit (VRPP/CWC)
         y = {}
         for i in self.customers:
             lb, ub = 0.0, 1.0
@@ -121,32 +159,32 @@ class BBSolver:
                 lb = ub = float(node.fixed_y[i])
             elif i in self.must_go_indices:
                 lb = 1.0
-            y[i] = model.addVar(lb=lb, ub=ub, vtype=GRB.CONTINUOUS, name=f"y_{i}")
-
-        # u[i]: Miller-Tucker-Zemlin (MTZ) cumulative load variables
-        u = {}
-        for i in self.customers:
-            u[i] = model.addVar(lb=self.wastes.get(i, 0), ub=self.capacity, vtype=GRB.CONTINUOUS, name=f"u_{i}")
+            y[i] = model.addVar(lb=lb, ub=ub, vtype=GRB.BINARY, name=f"y_{i}")
 
         # --- Objective: Minimize (Travel Cost + Opportunity Costs) ---
-        travel_cost = gp.quicksum(self.dist_matrix[i][j] * self.C * x[i, j] for (i, j) in x)
-        revenue_penalty = gp.quicksum((1 - y[i]) * self.wastes.get(i, 0) * self.R for i in self.customers)
+        travel_cost = quicksum(self.dist_matrix[i][j] * self.C * x[i, j] for (i, j) in x)
+        revenue_penalty = quicksum((1 - y[i]) * self.wastes.get(i, 0) * self.R for i in self.customers)
         model.setObjective(travel_cost + revenue_penalty, GRB.MINIMIZE)
 
         # --- Base Constraints (Flow and Integrity) ---
         for i in self.customers:
-            model.addConstr(gp.quicksum(x[i, j] for j in self.nodes_range if (i, j) in x) == y[i], name=f"out_{i}")
-            model.addConstr(gp.quicksum(x[j, i] for j in self.nodes_range if (j, i) in x) == y[i], name=f"in_{i}")
+            model.addConstr(quicksum(x[i, j] for j in self.nodes_range if (i, j) in x) == y[i], name=f"out_{i}")
+            model.addConstr(quicksum(x[j, i] for j in self.nodes_range if (j, i) in x) == y[i], name=f"in_{i}")
 
-        # --- MTZ Subtour Elimination ---
-        for i in self.customers:
-            for j in self.customers:
-                if i != j:
-                    d_j = self.wastes.get(j, 0)
-                    model.addConstr(u[j] >= u[i] + d_j - self.capacity * (1 - x[i, j]), name=f"mtz_{i}_{j}")
+        # Depot flow constraint
+        model.addConstr(quicksum(x[0, j] for j in self.customers if (0, j) in x) <= 1, name="depot_out")
+        model.addConstr(
+            quicksum(x[j, 0] for j in self.customers if (j, 0) in x)
+            == quicksum(x[0, j] for j in self.customers if (0, j) in x),
+            name="depot_balance",
+        )
 
-        model.optimize()
-        return model, x, y, u
+        # Store x_vars for callback
+        self._current_x_vars = x
+
+        # Optimize with DFJ callback
+        model.optimize(self._dfj_callback_bb)
+        return model, x, y
 
     def _is_integer(self, val: float, tol: float = 1e-6) -> bool:
         """Heuristic check for integer feasibility of a continuous variable."""
@@ -198,7 +236,7 @@ class BBSolver:
         self.start_time = time.process_time()
 
         # Initialize root subproblem
-        root_model, root_x, root_y, root_u = self._setup_relaxation_model(Node(bound=0.0))
+        root_model, root_x, root_y = self._setup_relaxation_model(Node(bound=0.0))
         if root_model.status != GRB.OPTIMAL:
             return [], 0.0
 
@@ -215,7 +253,7 @@ class BBSolver:
                 continue
 
             # Solve the subproblem at this node
-            model, x, y, u = self._setup_relaxation_model(node)
+            model, x, y = self._setup_relaxation_model(node)
             if model.status != GRB.OPTIMAL:
                 continue
 

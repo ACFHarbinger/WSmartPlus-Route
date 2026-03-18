@@ -28,8 +28,8 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
-from ..kernel_search.solver import _reconstruct_tour, _setup_ks_model
-from ..local_branching.solver import _add_local_branching_constraint
+from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
+from ..local_branching.lb import _add_local_branching_constraint
 
 
 def _shake_solution_gurobi(
@@ -184,19 +184,27 @@ def run_lb_vns_gurobi(
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
 
-    # 1. Setup mathematical formulation (MTZ-based VRPP)
+    # 1. Setup mathematical formulation with DFJ lazy constraints (no MTZ)
     # This creates the variables x (edges) and y (nodes) and the base constraints.
-    x, y, _ = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+    # CRITICAL: use_binary_vars=True because LB-VNS needs integer solutions, not LP relaxation
+    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes, use_binary_vars=True)
+
+    # 1.5. Warm-start with greedy heuristic
+    # This is CRITICAL for LB-VNS: we need an incumbent to define the k-neighborhood
+    _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
 
     # 2. Find an initial feasible solution
     # A short initial B&B run to establish a baseline (incumbent).
-    model.setParam("TimeLimit", min(20.0, time_limit * 0.1))
-    model.optimize()
+    # We allocate up to 30% of the budget (or at least 20s if budget allows) for this critical step
+    initial_alloc = min(time_limit * 0.8, max(20.0, time_limit * 0.3))
+    model.setParam("TimeLimit", initial_alloc)
+    model.optimize(_dfj_subtour_elimination_callback)
 
     if model.SolCount == 0:
         # If no solution found, try a slightly longer emergency solve.
-        model.setParam("TimeLimit", 10.0)
-        model.optimize()
+        fallback_alloc = min(time_limit * 0.8, max(15.0, time_limit * 0.5))
+        model.setParam("TimeLimit", fallback_alloc)
+        model.optimize(_dfj_subtour_elimination_callback)
         if model.SolCount == 0:
             return [0, 0], 0.0, 0.0
 
@@ -240,7 +248,7 @@ def run_lb_vns_gurobi(
         remaining_time = time_limit - (time.process_time() - start_time)
         iter_time = min(time_limit_per_lb, remaining_time)
         model.setParam("TimeLimit", iter_time)
-        model.optimize()
+        model.optimize(_dfj_subtour_elimination_callback)
 
         # --- PHASE 3: NEIGHBORHOOD CHANGE (Move Acceptance) ---
         # Check if the intensification phase yielded a solution better than the GLOBAL incumbent.
@@ -262,6 +270,6 @@ def run_lb_vns_gurobi(
     # 4. FINAL SOLUTION EXTRACTION
     # =========================================================================
     # After the loop terminates, reconstruct the best found tour sequence.
-    tour, cost = _reconstruct_tour(len(dist_matrix), x, dist_matrix)
+    tour, cost = _reconstruct_tour(len(dist_matrix), incumbent_x, dist_matrix)
 
     return tour, float(current_best_obj), float(cost)

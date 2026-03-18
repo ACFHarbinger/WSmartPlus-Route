@@ -8,7 +8,7 @@ from logic.src.configs.policies.aks import AdaptiveKernelSearchConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .solver import run_adaptive_kernel_search_gurobi
+from .aks import run_adaptive_kernel_search_gurobi
 
 
 @PolicyRegistry.register("aks")

@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 import pandas as pd
 
-from logic.src.policies.branch_and_cut.solver import GUROBI_AVAILABLE, BranchAndCutSolver
+from logic.src.policies.branch_and_cut.bc import GUROBI_AVAILABLE, BranchAndCutSolver
 from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
 
 
