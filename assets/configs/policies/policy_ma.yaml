@@ -48,7 +48,7 @@ ma:
       # Magnitude of the mutation perturbation (number of nodes to relocate).
 
     # --- Runtime Control ---
-    - time_limit: 120.0
+    - time_limit: 60.0
       # Hard wall-clock limit in seconds. Search exits once reached.
 
     # --- Simulation Infrastructure ---

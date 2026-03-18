@@ -206,11 +206,11 @@ def run_lb_vns_gurobi(
 
     # 3. MAIN VARIABLE NEIGHBORHOOD SEARCH LOOP
     # =========================================================================
-    start_time = time.time()
+    start_time = time.process_time()
     k = k_min
 
     while k <= k_max:
-        elapsed = time.time() - start_time
+        elapsed = time.process_time() - start_time
         if elapsed > time_limit:
             # Terminate if the global budget is exhausted.
             break
@@ -237,7 +237,7 @@ def run_lb_vns_gurobi(
         for key, var in y.items():
             var.Start = shaken_y.get(key, 0.0)
 
-        remaining_time = time_limit - (time.time() - start_time)
+        remaining_time = time_limit - (time.process_time() - start_time)
         iter_time = min(time_limit_per_lb, remaining_time)
         model.setParam("TimeLimit", iter_time)
         model.optimize()

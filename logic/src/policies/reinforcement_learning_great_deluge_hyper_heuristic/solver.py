@@ -73,7 +73,7 @@ class RLGDHHSolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(seed) if seed is not None else random.Random()
-        self.start_time = time.time()
+        self.start_time = time.process_time()
 
         # Define our pool of Low-Level Heuristics (LLHs)
         self.heuristics: List[Callable] = [
@@ -118,7 +118,7 @@ class RLGDHHSolver:
 
         # Main search loop
         for iteration in range(self.params.max_iterations):
-            elapsed = time.time() - self.start_time
+            elapsed = time.process_time() - self.start_time
             if elapsed > self.params.time_limit:
                 break
 

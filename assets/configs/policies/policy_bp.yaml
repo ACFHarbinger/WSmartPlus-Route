@@ -78,7 +78,7 @@ bp:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
-    - time_limit: 300
+    - time_limit: 60
       # Maximum wall-clock seconds before termination
       # Range: 60-3600 (60s = quick test, 3600s = thorough search)
       # BP may converge early if no new columns with positive reduced cost

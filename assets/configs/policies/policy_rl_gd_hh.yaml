@@ -19,7 +19,7 @@ rl_gd_hh:
     - max_iterations: 10000
 
     # Computational time limit in seconds (T in linear level equation).
-    - time_limit: 120.0
+    - time_limit: 60.0
 
     # --- Reinforcement Learning (RL1 Adaptation) ---
     # Value added to heuristic utility when it improves the solution.
