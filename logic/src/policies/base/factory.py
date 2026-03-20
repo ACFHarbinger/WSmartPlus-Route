@@ -76,6 +76,7 @@ class PolicyFactory:
         import logic.src.policies.sine_cosine_algorithm.policy_sca as policy_sca  # noqa
         import logic.src.policies.slack_induction_by_string_removal.policy_sisr as policy_sisr  # noqa
         import logic.src.policies.soccer_league_competition.policy_slc as policy_slc  # noqa
+        import logic.src.policies.tabu_search.policy_ts as policy_ts  # noqa
         import logic.src.policies.variable_neighborhood_search.policy_vns as policy_vns  # noqa
         import logic.src.policies.volleyball_premier_league.policy_vpl as policy_vpl  # noqa
 

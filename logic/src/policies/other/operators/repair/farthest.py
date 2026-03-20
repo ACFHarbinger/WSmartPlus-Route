@@ -21,9 +21,109 @@ Example:
     >>> routes = farthest_insertion(routes, removed, dist_matrix, wastes, capacity, R, C)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+
+
+def _get_farthest_node(
+    unassigned: List[int],
+    routes: List[List[int]],
+    dist_matrix: np.ndarray,
+) -> Optional[int]:
+    """Find the unassigned node farthest from any current route or depot."""
+    farthest_node = None
+    max_min_distance = -1.0
+
+    for node in unassigned:
+        min_distance = float("inf")
+        # Distance to existing nodes in routes
+        for route in routes:
+            for route_node in route:
+                min_distance = min(min_distance, dist_matrix[node, route_node])
+        # Distance to depot
+        min_distance = min(min_distance, dist_matrix[node, 0])
+
+        if min_distance > max_min_distance:
+            max_min_distance = min_distance
+            farthest_node = node
+    return farthest_node
+
+
+def _find_cheapest_insertion(
+    farthest_node: int,
+    routes: List[List[int]],
+    loads: List[float],
+    dist_matrix: np.ndarray,
+    capacity: float,
+    node_waste: float,
+    revenue: float,
+    is_mandatory: bool,
+    R: Optional[float] = None,
+    C: Optional[float] = None,
+) -> Tuple[int, int, float]:
+    """Find the cheapest insertion position for a node."""
+    best_cost = float("inf")
+    best_route_idx = -1
+    best_pos = -1
+
+    for i, route in enumerate(routes):
+        if loads[i] + node_waste > capacity:
+            continue
+
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+
+            cost_increase = dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
+
+            if R is not None and C is not None and not is_mandatory and cost_increase * C > revenue:
+                continue
+
+            if cost_increase < best_cost:
+                best_cost = cost_increase
+                best_route_idx = i
+                best_pos = pos
+
+    return best_route_idx, best_pos, best_cost
+
+
+def _find_best_profit_insertion(
+    farthest_node: int,
+    routes: List[List[int]],
+    loads: List[float],
+    dist_matrix: np.ndarray,
+    capacity: float,
+    node_waste: float,
+    revenue: float,
+    is_mandatory: bool,
+    C: float,
+) -> Tuple[int, int, float]:
+    """Find the insertion position that maximizes profit."""
+    best_profit = -float("inf")
+    best_route_idx = -1
+    best_pos = -1
+
+    for i, route in enumerate(routes):
+        if loads[i] + node_waste > capacity:
+            continue
+
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+
+            cost_increase = dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
+            profit = revenue - (cost_increase * C)
+            effective_profit = profit + (1e9 if is_mandatory else 0)
+
+            if effective_profit > best_profit:
+                if not is_mandatory and profit < -1e-4:
+                    continue
+                best_profit = effective_profit
+                best_route_idx = i
+                best_pos = pos
+
+    return best_route_idx, best_pos, best_profit
 
 
 def farthest_insertion(
@@ -69,14 +169,9 @@ def farthest_insertion(
           a new route is created for mandatory nodes.
     """
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
-
-    # Calculate current loads and track visited nodes
     loads = [sum(wastes.get(node, 0.0) for node in route) for route in routes]
-    visited = set()
-    for route in routes:
-        visited.update(route)
 
-    # Determine candidate pool
+    visited = {node for route in routes for node in route}
     if expand_pool:
         n_nodes = len(dist_matrix) - 1
         unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
@@ -84,81 +179,26 @@ def farthest_insertion(
         unassigned = sorted(list(removed_nodes))
 
     while unassigned:
-        # Step 1: Find the farthest unassigned node from any route
-        farthest_node = None
-        max_min_distance = -1.0
-
-        for node in unassigned:
-            # Compute minimum distance from this node to any node in any route
-            min_distance = float("inf")
-
-            for route in routes:
-                for route_node in route:
-                    distance = dist_matrix[node, route_node]
-                    min_distance = min(min_distance, distance)
-
-            # Also consider distance to depot (for empty routes or depot-only routes)
-            depot_distance = dist_matrix[node, 0]
-            min_distance = min(min_distance, depot_distance)
-
-            # Track node with maximum minimum distance
-            if min_distance > max_min_distance:
-                max_min_distance = min_distance
-                farthest_node = node
-
+        farthest_node = _get_farthest_node(unassigned, routes, dist_matrix)
         if farthest_node is None:
             break
 
-        # Step 2: Find cheapest insertion position for the farthest node
         node_waste = wastes.get(farthest_node, 0.0)
         revenue = node_waste * R if R is not None else float("inf")
         is_mandatory = farthest_node in mandatory_set
 
-        best_cost = float("inf")
-        best_route_idx = -1
-        best_pos = -1
+        best_route_idx, best_pos, _ = _find_cheapest_insertion(
+            farthest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, R, C
+        )
 
-        for i, route in enumerate(routes):
-            # Check capacity feasibility
-            if loads[i] + node_waste > capacity:
-                continue
-
-            # Try all insertion positions
-            for pos in range(len(route) + 1):
-                # Compute cost increase: d(prev, node) + d(node, next) - d(prev, next)
-                prev = route[pos - 1] if pos > 0 else 0
-                nxt = route[pos] if pos < len(route) else 0
-
-                cost_increase = (
-                    dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
-                )
-
-                # VRPP profitability check (if R and C are provided)
-                if R is not None and C is not None:
-                    insertion_cost = cost_increase * C
-                    if not is_mandatory and insertion_cost > revenue:
-                        continue  # Skip unprofitable insertions
-
-                if cost_increase < best_cost:
-                    best_cost = cost_increase
-                    best_route_idx = i
-                    best_pos = pos
-
-        # Step 3: Insert the farthest node at the best position
         if best_route_idx != -1:
             routes[best_route_idx].insert(best_pos, farthest_node)
             loads[best_route_idx] += node_waste
-            unassigned.remove(farthest_node)
-        else:
-            # No feasible insertion found
-            # If mandatory, create a new route
-            if is_mandatory:
-                routes.append([farthest_node])
-                loads.append(node_waste)
-                unassigned.remove(farthest_node)
-            else:
-                # For optional nodes, if no profitable/feasible insertion exists, skip it
-                unassigned.remove(farthest_node)
+        elif is_mandatory:
+            routes.append([farthest_node])
+            loads.append(node_waste)
+
+        unassigned.remove(farthest_node)
 
     return routes
 
@@ -198,10 +238,7 @@ def farthest_profit_insertion(
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(node, 0.0) for node in route) for route in routes]
 
-    visited = set()
-    for route in routes:
-        visited.update(route)
-
+    visited = {node for route in routes for node in route}
     if expand_pool:
         n_nodes = len(dist_matrix) - 1
         unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
@@ -209,69 +246,25 @@ def farthest_profit_insertion(
         unassigned = sorted(list(removed_nodes))
 
     while unassigned:
-        # Find farthest node
-        farthest_node = None
-        max_min_distance = -1.0
-
-        for node in unassigned:
-            min_distance = float("inf")
-            for route in routes:
-                for route_node in route:
-                    min_distance = min(min_distance, dist_matrix[node, route_node])
-            min_distance = min(min_distance, dist_matrix[node, 0])
-
-            if min_distance > max_min_distance:
-                max_min_distance = min_distance
-                farthest_node = node
-
+        farthest_node = _get_farthest_node(unassigned, routes, dist_matrix)
         if farthest_node is None:
             break
 
-        # Find best insertion position based on profit
         node_waste = wastes.get(farthest_node, 0.0)
         revenue = node_waste * R
         is_mandatory = farthest_node in mandatory_set
 
-        best_profit = -float("inf")
-        best_route_idx = -1
-        best_pos = -1
+        best_route_idx, best_pos, _ = _find_best_profit_insertion(
+            farthest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, C
+        )
 
-        for i, route in enumerate(routes):
-            if loads[i] + node_waste > capacity:
-                continue
-
-            for pos in range(len(route) + 1):
-                prev = route[pos - 1] if pos > 0 else 0
-                nxt = route[pos] if pos < len(route) else 0
-
-                cost_increase = (
-                    dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
-                )
-                profit = revenue - (cost_increase * C)
-
-                # Boost mandatory nodes
-                effective_profit = profit + (1e9 if is_mandatory else 0)
-
-                if effective_profit > best_profit:
-                    if not is_mandatory and profit < -1e-4:
-                        continue
-                    best_profit = effective_profit
-                    best_route_idx = i
-                    best_pos = pos
-
-        # Insert at best position
         if best_route_idx != -1:
             routes[best_route_idx].insert(best_pos, farthest_node)
             loads[best_route_idx] += node_waste
-            unassigned.remove(farthest_node)
-        else:
-            # Handle mandatory nodes
-            if is_mandatory:
-                routes.append([farthest_node])
-                loads.append(node_waste)
-                unassigned.remove(farthest_node)
-            else:
-                # Skip unprofitable optional node
-                unassigned.remove(farthest_node)
+        elif is_mandatory:
+            routes.append([farthest_node])
+            loads.append(node_waste)
+
+        unassigned.remove(farthest_node)
 
     return routes
