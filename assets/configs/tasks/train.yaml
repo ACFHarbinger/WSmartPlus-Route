@@ -115,6 +115,25 @@ rl:
     epsilon: 1.0e-6 # Minimum IL weight (prevents complete IL shutdown)
     loss_fn: "weighted_nll" # Loss function. Options: nll, weighted_nll, kl, reverse_kl
 
+  dr_alns:
+    max_iterations: 100
+    n_destroy_ops: 3
+    n_repair_ops: 2
+
+    # PPO Hyperparameters
+    lr: 0.0003
+    gamma: 0.99
+    gae_lambda: 0.95
+    clip_epsilon: 0.2
+    value_loss_coef: 0.5
+    entropy_coef: 0.01
+    max_grad_norm: 0.5
+
+    # Training Control
+    n_steps_per_epoch: 2048
+    batch_size: 64
+    n_epochs: 10
+
 # =============================================================================
 # Model Settings (Defaults - Override with model=<config>)
 # =============================================================================
