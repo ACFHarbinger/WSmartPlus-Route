@@ -47,6 +47,67 @@ def _dfj_callback(model, where):
                     model.cbLazy(quicksum(subtour_edges) <= len(component) - 1)
 
 
+def _setup_bb_model(
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    must_go_indices: Set[int],
+    time_limit: float,
+    mip_gap: float,
+    seed: int,
+    env: Optional[gp.Env] = None,
+) -> Tuple[gp.Model, Dict[Tuple[int, int], gp.Var], Dict[int, gp.Var]]:
+    """Set up the Gurobi model for VRPP."""
+    num_nodes = len(dist_matrix)
+    nodes = range(num_nodes)
+    customers = list(range(1, num_nodes))
+
+    model = gp.Model("BB_Simple", env=env) if env else gp.Model("BB_Simple")
+    model.setParam("OutputFlag", 0)
+    model.setParam("TimeLimit", time_limit)
+    model.setParam("MIPGap", mip_gap)
+    model.setParam("Seed", seed)
+    model.Params.LazyConstraints = 1
+
+    # Decision variables (BINARY)
+    x = {}
+    for i in nodes:
+        for j in nodes:
+            if i != j:
+                x[i, j] = model.addVar(lb=0, ub=1, vtype=GRB.BINARY, name=f"x_{i}_{j}")
+
+    y = {}
+    for i in customers:
+        y[i] = model.addVar(lb=0, ub=1, vtype=GRB.BINARY, name=f"y_{i}")
+
+    # Objective and constraints set in run_bb_simple to keep params local if needed,
+    # but we can pass R and C here or just return the variables.
+    return model, x, y
+
+
+def _extract_routes_from_adj(adj: Dict[int, List[int]], num_nodes: int) -> List[List[int]]:
+    """Extract routes starting from the depot using an adjacency list."""
+    routes = []
+    for start in adj[0]:
+        route = [start]
+        current = start
+        visited = {0, start}
+
+        while current != 0 and adj[current]:
+            next_node = adj[current][0]
+            if next_node in visited and next_node != 0:
+                break
+            if next_node != 0:
+                route.append(next_node)
+                visited.add(next_node)
+            current = next_node
+            if current == 0:
+                break
+
+        if route:
+            routes.append(route)
+    return routes
+
+
 def run_bb_simple(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
@@ -88,24 +149,8 @@ def run_bb_simple(
     mip_gap = values.get("mip_gap", 0.01)
     seed = values.get("seed", 42)
 
-    # Create model
-    model = gp.Model("BB_Simple", env=env) if env else gp.Model("BB_Simple")
-    model.setParam("OutputFlag", 0)
-    model.setParam("TimeLimit", time_limit)
-    model.setParam("MIPGap", mip_gap)
-    model.setParam("Seed", seed)
-    model.Params.LazyConstraints = 1
-
-    # Decision variables (BINARY)
-    x = {}
-    for i in nodes:
-        for j in nodes:
-            if i != j:
-                x[i, j] = model.addVar(lb=0, ub=1, vtype=GRB.BINARY, name=f"x_{i}_{j}")
-
-    y = {}
-    for i in customers:
-        y[i] = model.addVar(lb=0, ub=1, vtype=GRB.BINARY, name=f"y_{i}")
+    # Setup basic model structure
+    model, x, y = _setup_bb_model(dist_matrix, wastes, must_go_indices, time_limit, mip_gap, seed, env)
 
     # Objective: Maximize (Revenue - Cost)
     travel_cost = quicksum(dist_matrix[i][j] * C * x[i, j] for i in nodes for j in nodes if i != j)
@@ -137,40 +182,16 @@ def run_bb_simple(
     if model.SolCount == 0:
         return [], 0.0
 
-    # Build routes from solution
-    active_edges = []
-    for (i, j), var in x.items():
-        if var.X > 0.5:
-            active_edges.append((i, j))
-
+    active_edges = [(i, j) for (i, j), var in x.items() if var.X > 0.5]
     if not active_edges:
         return [], 0.0
 
-    # Build adjacency list
+    # Build adjacency list and extract routes
     adj = {i: [] for i in nodes}
     for i, j in active_edges:
         adj[i].append(j)
 
-    # Extract routes starting from depot
-    routes = []
-    for start in adj[0]:
-        route = [start]
-        current = start
-        visited = {0, start}
-
-        while current != 0 and adj[current]:
-            next_node = adj[current][0]
-            if next_node in visited and next_node != 0:
-                break
-            if next_node != 0:
-                route.append(next_node)
-                visited.add(next_node)
-            current = next_node
-            if current == 0:
-                break
-
-        if route:
-            routes.append(route)
+    routes = _extract_routes_from_adj(adj, num_nodes)
 
     # Record stats
     if recorder:
