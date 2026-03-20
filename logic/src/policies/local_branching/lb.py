@@ -8,8 +8,17 @@ Reference:
 
 from typing import Dict, List, Optional, Tuple
 
-import gurobipy as gp
 import numpy as np
+
+try:
+    import gurobipy as gp
+    from gurobipy import GRB
+
+    GUROBI_AVAILABLE = True
+except ImportError:
+    GUROBI_AVAILABLE = False
+    gp = None
+    GRB = None
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 

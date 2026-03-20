@@ -7,19 +7,11 @@ Run with: python -m pytest logic/src/policies/branch_and_cut/test_bc.py -v
 import numpy as np
 import pandas as pd
 import pytest
-
-try:
-    from logic.src.policies.branch_and_cut import PolicyBC, VRPPModel
-    from logic.src.policies.branch_and_cut.heuristics import construct_initial_solution
-    from logic.src.policies.branch_and_cut.solver import GUROBI_AVAILABLE
-
-    IMPORTS_AVAILABLE = True
-except ImportError as e:
-    IMPORTS_AVAILABLE = False
-    IMPORT_ERROR = str(e)
+from logic.src.policies.branch_and_cut import PolicyBC, VRPPModel
+from logic.src.policies.branch_and_cut.heuristics import construct_initial_solution
+from logic.src.policies.branch_and_cut.bc import GUROBI_AVAILABLE
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason=f"Import failed: {IMPORT_ERROR if not IMPORTS_AVAILABLE else ''}")
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")
 def test_vrpp_model_creation():
     """Test VRPP model initialization."""
@@ -47,7 +39,6 @@ def test_vrpp_model_creation():
     assert model.depot == 0
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason=f"Import failed: {IMPORT_ERROR if not IMPORTS_AVAILABLE else ''}")
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")
 def test_heuristic_solution():
     """Test heuristic solution construction."""
@@ -83,7 +74,6 @@ def test_heuristic_solution():
     assert 1 in tour  # Mandatory node included
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason=f"Import failed: {IMPORT_ERROR if not IMPORTS_AVAILABLE else ''}")
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")
 def test_small_instance_solve():
     """Test solving a small VRPP instance."""
@@ -138,23 +128,3 @@ def test_small_instance_solve():
     print(f"  Nodes visited: {len(set(tour)) - 1}")
     print(f"  Total cuts: {stats.get('total_cuts', 0)}")
     print(f"  Solve time: {stats.get('solve_time', 0):.2f}s")
-
-
-if __name__ == "__main__":
-    if IMPORTS_AVAILABLE and GUROBI_AVAILABLE:
-        print("Running Branch-and-Cut tests...")
-        test_vrpp_model_creation()
-        print("✓ Model creation test passed")
-
-        test_heuristic_solution()
-        print("✓ Heuristic solution test passed")
-
-        test_small_instance_solve()
-        print("✓ Small instance solve test passed")
-
-        print("\nAll tests passed!")
-    else:
-        if not IMPORTS_AVAILABLE:
-            print(f"Cannot run tests: {IMPORT_ERROR}")
-        elif not GUROBI_AVAILABLE:
-            print("Cannot run tests: Gurobi not available")
