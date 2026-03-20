@@ -24,9 +24,17 @@ Reference:
 import time
 from typing import Dict, List, Optional, Tuple
 
-import gurobipy as gp
 import numpy as np
-from gurobipy import GRB
+
+try:
+    import gurobipy as gp
+    from gurobipy import GRB
+
+    GUROBI_AVAILABLE = True
+except ImportError:
+    GUROBI_AVAILABLE = False
+    gp = None
+    GRB = None
 
 from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
 from ..local_branching.lb import _add_local_branching_constraint

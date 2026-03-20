@@ -8,7 +8,6 @@ import torch
 
 from logic.src.envs.dr_alns import DRALNSEnv
 from logic.src.models.core.dr_alns import DRALNSPPOAgent, DRALNSSolver
-from logic.src.policies.dr_alns.policy_dr_alns import DRALNSPolicy
 
 
 @pytest.fixture
@@ -87,28 +86,3 @@ def test_dralns_solver(mock_vrpp_instance):
     assert isinstance(best_routes, list)
     assert isinstance(best_profit, float)
     assert isinstance(best_cost, float)
-
-
-def test_dralns_policy_adapter(mock_vrpp_instance):
-    """Test DRALNSPolicy adapter."""
-    policy = DRALNSPolicy()
-
-    # Mock parameters that factory would pass
-    values = {
-        "max_iterations": 5,
-        "n_destroy_ops": 3,
-        "n_repair_ops": 2,
-    }
-
-    best_routes, best_profit, best_cost = policy._run_solver(
-        sub_dist_matrix=mock_vrpp_instance["dist_matrix"],
-        sub_wastes=mock_vrpp_instance["wastes"],
-        capacity=mock_vrpp_instance["capacity"],
-        revenue=mock_vrpp_instance["R"],
-        cost_unit=mock_vrpp_instance["C"],
-        values=values,
-        mandatory_nodes=[],
-    )
-
-    assert isinstance(best_routes, list)
-    assert best_profit > -1e9

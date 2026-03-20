@@ -118,8 +118,6 @@ class BranchAndCutSolver:
             initial_tour, initial_profit = construct_initial_solution(self.model)
             if initial_tour:
                 self._set_start_solution(initial_tour)
-                if self.verbose:
-                    print(f"Heuristic solution profit: {initial_profit:.2f}")
 
         # Step 3: Enable lazy constraint callback for cutting planes
         self.gurobi_model.Params.LazyConstraints = 1
@@ -134,20 +132,6 @@ class BranchAndCutSolver:
         self.stats["mip_gap"] = self.gurobi_model.MIPGap if self.gurobi_model.SolCount > 0 else 1.0
         self.stats["nodes_explored"] = int(self.gurobi_model.NodeCount)
 
-        if self.verbose:
-            print("=" * 60)
-            print("Solution Statistics:")
-            print(f"  Profit: {profit:.2f}")
-            print(f"  Tour length: {len(tour)}")
-            print(f"  Nodes visited: {len(set(tour)) - 1}")  # Exclude depot
-            print(f"  Total cuts added: {self.stats['total_cuts']}")
-            print(f"    - SEC cuts: {self.stats['sec_cuts']}")
-            print(f"    - Capacity cuts: {self.stats['capacity_cuts']}")
-            print(f"  Nodes explored: {self.stats['nodes_explored']}")
-            print(f"  MIP gap: {self.stats['mip_gap']:.2%}")
-            print(f"  Runtime: {self.stats['solve_time']:.2f}s")
-            print("=" * 60)
-
         return tour, profit, self.stats
 
     def _build_initial_model(self):
@@ -160,17 +144,15 @@ class BranchAndCutSolver:
         # Decision variables
         # x[i,j]: Edge (i,j) is in the tour
         for i, j in self.model.edges:
-            self.x_vars[(i, j)] = self.gurobi_model.addVar(vtype=GRB.BINARY, name=f"x_{i}_{j}")
+            # Special case for depot edges: allow value 2 for [0, i, 0] trips
+            if i == self.model.depot or j == self.model.depot:
+                self.x_vars[(i, j)] = self.gurobi_model.addVar(lb=0, ub=2, vtype=GRB.INTEGER, name=f"x_{i}_{j}")
+            else:
+                self.x_vars[(i, j)] = self.gurobi_model.addVar(vtype=GRB.BINARY, name=f"x_{i}_{j}")
 
         # y[i]: Node i is visited
         for i in self.model.customers:
             self.y_vars[i] = self.gurobi_model.addVar(vtype=GRB.BINARY, name=f"y_{i}")
-
-        # u[i]: Cumulative load after visiting i (MTZ variables)
-        for i in self.model.customers:
-            self.u_vars[i] = self.gurobi_model.addVar(
-                lb=0.0, ub=self.model.capacity, vtype=GRB.CONTINUOUS, name=f"u_{i}"
-            )
 
         # Objective: Maximize profit = waste collected - travel cost
         # Gurobi minimizes by default, so negate
@@ -201,18 +183,13 @@ class BranchAndCutSolver:
             if i in self.y_vars:
                 self.gurobi_model.addConstr(self.y_vars[i] == 1, name=f"mandatory_{i}")
 
-        # 3. MTZ capacity constraints (basic subtour elimination)
-        for i in self.model.customers:
-            for j in self.model.customers:
-                if i != j:
-                    edge_ij = tuple(sorted([i, j]))
-                    if edge_ij in self.x_vars:
-                        demand_j = self.model.get_node_demand(j)
-                        self.gurobi_model.addConstr(
-                            self.u_vars[j]
-                            >= self.u_vars[i] + demand_j - self.model.capacity * (1 - self.x_vars[edge_ij]),
-                            name=f"mtz_{i}_{j}",
-                        )
+        # 3. Global capacity constraint (Knapsack)
+        # sum of demands of visited nodes <= capacity
+        self.gurobi_model.addConstr(
+            gp.quicksum(self.model.get_node_demand(i) * self.y_vars[i] for i in self.model.customers)
+            <= self.model.capacity,
+            name="global_capacity",
+        )
 
         self.gurobi_model.update()
 
@@ -230,10 +207,11 @@ class BranchAndCutSolver:
         """Add violated cuts at integer solutions."""
         # Get current solution values
         x_vals = np.array([model.cbGetSolution(self.x_vars[(i, j)]) for i, j in self.model.edges])
+        y_vals = np.array([model.cbGetSolution(self.y_vars[i]) for i in self.model.customers])
 
         # Separate violated inequalities
         iteration = self.stats["lp_iterations"]
-        cuts = self.separator.separate(x_vals, max_cuts=self.max_cuts_per_round, iteration=iteration)
+        cuts = self.separator.separate(x_vals, y_vals=y_vals, max_cuts=self.max_cuts_per_round, iteration=iteration)
 
         # Add cuts as lazy constraints
         for cut in cuts:
@@ -273,7 +251,11 @@ class BranchAndCutSolver:
         for idx in range(len(tour) - 1):
             edge = tuple(sorted([tour[idx], tour[idx + 1]]))
             if edge in self.x_vars:
-                self.x_vars[edge].Start = 1.0
+                # Increment start value to handle using same edge twice (e.g. [0, 1, 0])
+                current_start = getattr(self.x_vars[edge], "Start", 0.0)
+                if np.isnan(current_start):  # Gurobi might initialize with NaN
+                    current_start = 0.0
+                self.x_vars[edge].Start = current_start + 1.0
 
         # Set y variables based on visited nodes
         visited_nodes = set(tour) - {self.model.depot}
@@ -285,10 +267,13 @@ class BranchAndCutSolver:
         if self.gurobi_model.SolCount == 0:
             return [], 0.0
 
-        # Extract active edges
+        # Extract active edges (handling multigraph edges from depot)
         active_edges = []
         for (i, j), var in self.x_vars.items():
-            if var.X > 0.5:
+            val = round(var.X)
+            if val >= 1:
+                active_edges.append((i, j))
+            if val >= 2:
                 active_edges.append((i, j))
 
         if not active_edges:
@@ -304,18 +289,22 @@ class BranchAndCutSolver:
         tour = [self.model.depot]
         current = self.model.depot
 
-        visited_edges = set()
+        # Use list of edges to handle multigraph (edges from depot used twice)
+        remaining_edges = list(active_edges)
         while True:
-            next_nodes = [
-                n for n in adj[current] if (current, n) not in visited_edges and (n, current) not in visited_edges
-            ]
+            next_node = None
+            edge_to_remove = None
 
-            if not next_nodes:
+            for edge in remaining_edges:
+                if current in edge:
+                    next_node = edge[1] if edge[0] == current else edge[0]
+                    edge_to_remove = edge
+                    break
+
+            if next_node is None:
                 break
 
-            next_node = next_nodes[0]
-            visited_edges.add((current, next_node))
-            visited_edges.add((next_node, current))
+            remaining_edges.remove(edge_to_remove)
             tour.append(next_node)
             current = next_node
 

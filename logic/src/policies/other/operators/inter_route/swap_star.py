@@ -8,8 +8,8 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.other.operators.route.swap_star import SwapStar
-    >>> operator = SwapStar(...)
+    >>> from logic.src.policies.other.operators.inter_route.swap_star import move_swap_star
+    >>> applied = move_swap_star(...)
     >>> new_solution = operator.apply(solution)
 
 Removes u from route r_u and v from route r_v, then reinserts each node

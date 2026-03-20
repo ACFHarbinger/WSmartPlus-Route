@@ -14,20 +14,19 @@ import copy
 import random
 import time
 from collections import defaultdict, deque
-from typing import DefaultDict, Deque, Dict, List, Optional, Tuple
+from typing import DefaultDict, Deque, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from ..other.operators import (
+from ..other.operators.destroy import (
     cluster_removal,
-    greedy_insertion,
     random_removal,
-    regret_2_insertion,
     worst_removal,
 )
-from ..other.operators.route.exchange import exchange_inter_route, exchange_intra_route
-from ..other.operators.route.relocate import relocate_inter_route, relocate_intra_route
-from ..other.operators.route.two_opt import two_opt
+from ..other.operators.intra_route.k_opt import move_2opt_intra
+from ..other.operators.intra_route.relocate import move_relocate
+from ..other.operators.intra_route.swap import move_swap
+from ..other.operators.repair import greedy_insertion, regret_2_insertion
 from .params import TSParams
 
 
@@ -160,11 +159,12 @@ class TSSolver:
                 current_profit = best_candidate_profit
 
                 # Update tabu list
-                self._add_to_tabu_list(best_move_desc)
+                if best_move_desc is not None:
+                    self._add_to_tabu_list(best_move_desc)
+                    self._update_move_frequency(best_move_desc)
 
                 # Update frequency memory
                 self._update_frequency_memory(current_routes)
-                self._update_move_frequency(best_move_desc)
 
                 # Update best solution
                 if current_profit > best_profit:
@@ -538,7 +538,9 @@ class TSSolver:
                         node1 = new_routes[r1_idx][pos1]
                         node2 = new_routes[r2_idx][pos2]
 
-                        new_routes = exchange_inter_route(new_routes, r1_idx, pos1, r2_idx, pos2)
+                        adapter = TSLSAdapter(new_routes, self.dist_matrix, self.wastes, self.capacity, -1e9)
+                        move_swap(adapter, node1, node2, r1_idx, pos1, r2_idx, pos2)
+                        new_routes = adapter.routes
                         move_desc = ("swap_inter", (node1, node2))
                         candidates.append((new_routes, move_desc))
                 except Exception:
@@ -554,7 +556,9 @@ class TSSolver:
                         if pos1 != pos2:
                             node1 = new_routes[r_idx][pos1]
                             node2 = new_routes[r_idx][pos2]
-                            new_routes = exchange_intra_route(new_routes, r_idx, pos1, pos2)
+                            adapter = TSLSAdapter(new_routes, self.dist_matrix, self.wastes, self.capacity, -1e9)
+                            move_swap(adapter, node1, node2, r_idx, pos1, r_idx, pos2)
+                            new_routes = adapter.routes
                             move_desc = ("swap_intra", (node1, node2))
                             candidates.append((new_routes, move_desc))
                 except Exception:
@@ -581,7 +585,14 @@ class TSSolver:
                         node = new_routes[r1_idx][pos1]
                         pos2 = self.random.randint(0, len(new_routes[r2_idx]))
 
-                        new_routes = relocate_inter_route(new_routes, r1_idx, pos1, r2_idx, pos2)
+                        adapter = TSLSAdapter(new_routes, self.dist_matrix, self.wastes, self.capacity, -1e9)
+                        if pos2 == 0:
+                            v, p_v = 0, -1
+                        else:
+                            v, p_v = new_routes[r2_idx][pos2 - 1], pos2 - 1
+                        move_relocate(adapter, node, v, r1_idx, pos1, r2_idx, p_v)
+                        new_routes = adapter.routes
+
                         move_desc = ("relocate_inter", (node, r1_idx, r2_idx))
                         candidates.append((new_routes, move_desc))
                 except Exception:
@@ -596,7 +607,14 @@ class TSSolver:
                         pos2 = self.random.randint(0, len(new_routes[r_idx]))
                         if pos1 != pos2:
                             node = new_routes[r_idx][pos1]
-                            new_routes = relocate_intra_route(new_routes, r_idx, pos1, pos2)
+                            adapter = TSLSAdapter(new_routes, self.dist_matrix, self.wastes, self.capacity, -1e9)
+                            if pos2 == 0:
+                                v, p_v = 0, -1
+                            else:
+                                v, p_v = new_routes[r_idx][pos2 - 1], pos2 - 1
+                            move_relocate(adapter, node, v, r_idx, pos1, r_idx, p_v)
+                            new_routes = adapter.routes
+
                             move_desc = ("relocate_intra", (node, pos1, pos2))
                             candidates.append((new_routes, move_desc))
                 except Exception:
@@ -616,7 +634,17 @@ class TSSolver:
             try:
                 r_idx = self.random.randint(0, len(new_routes) - 1)
                 if len(new_routes[r_idx]) >= 4:
-                    new_routes = two_opt(new_routes, r_idx, self.dist_matrix)
+                    # For 2-opt, we need two edges (u, next_u) and (v, next_v)
+                    # We'll pick random pos1, pos2
+                    pos1 = self.random.randint(0, len(new_routes[r_idx]) - 2)
+                    pos2 = self.random.randint(pos1 + 2, len(new_routes[r_idx]) - 1)
+                    u = new_routes[r_idx][pos1]
+                    v = new_routes[r_idx][pos2]
+
+                    adapter = TSLSAdapter(new_routes, self.dist_matrix, self.wastes, self.capacity, -1e9)
+                    move_2opt_intra(adapter, u, v, r_idx, pos1, r_idx, pos2)
+                    new_routes = adapter.routes
+
                     move_desc = ("2opt", (r_idx, self.iteration))
                     candidates.append((new_routes, move_desc))
             except Exception:
@@ -629,7 +657,7 @@ class TSSolver:
     # ========================================================================
 
     def _llh_random_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n, self.random)
+        partial, removed = random_removal(routes, n, rng=self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -638,6 +666,7 @@ class TSSolver:
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            cost_unit=self.C,
         )
 
     def _llh_worst_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
@@ -650,10 +679,11 @@ class TSSolver:
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            cost_unit=self.C,
         )
 
     def _llh_cluster_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes)
+        partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
         return greedy_insertion(
             partial,
             removed,
@@ -662,6 +692,7 @@ class TSSolver:
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            cost_unit=self.C,
         )
 
     def _llh_worst_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
@@ -674,10 +705,11 @@ class TSSolver:
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            cost_unit=self.C,
         )
 
     def _llh_random_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n, self.random)
+        partial, removed = random_removal(routes, n, rng=self.random)
         return regret_2_insertion(
             partial,
             removed,
@@ -686,6 +718,7 @@ class TSSolver:
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            cost_unit=self.C,
         )
 
     # ========================================================================
@@ -724,3 +757,29 @@ class TSSolver:
                 total += self.dist_matrix[route[k]][route[k + 1]]
             total += self.dist_matrix[route[-1]][0]
         return total
+
+
+class TSLSAdapter:
+    """Adapter for HGS-style operators to work with TSSolver."""
+
+    def __init__(self, routes, dist_matrix, wastes, capacity, cost_unit):
+        self.routes = routes
+        self.d = dist_matrix
+        self.waste = wastes
+        self.Q = capacity
+        self.C = cost_unit
+        self.params = type("Params", (), {"use_relocate_chain": False})()
+        self._load_cache = {}
+
+    def _get_load_cached(self, r_idx: int) -> float:
+        if r_idx not in self._load_cache:
+            self._load_cache[r_idx] = sum(self.waste.get(n, 0) for n in self.routes[r_idx])
+        return self._load_cache[r_idx]
+
+    def _update_map(self, affected_indices: Set[int]):
+        for r_idx in affected_indices:
+            if r_idx in self._load_cache:
+                del self._load_cache[r_idx]
+
+    def _calc_load_fresh(self, r: List[int]) -> float:
+        return sum(self.waste.get(n, 0) for n in r)
