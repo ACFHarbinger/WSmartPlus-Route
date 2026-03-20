@@ -72,6 +72,7 @@ from .slc import SLCConfig
 from .ss_hh import SSHHConfig
 from .swc_tcf import SWCTCFConfig
 from .ta import TAConfig
+from .ts import TSConfig
 from .tsp import TSPConfig
 from .vns import VNSConfig
 from .vpl import VPLConfig
@@ -139,6 +140,7 @@ __all__ = [
     "IEConfig",
     "GDConfig",
     "TAConfig",
+    "TSConfig",
     "SCHCConfig",
     "EMAConfig",
     "SAConfig",
