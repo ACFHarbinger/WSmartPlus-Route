@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import numpy as np
 import pytest
-from logic.src.policies.local_branching.solver import run_local_branching_gurobi
+from logic.src.policies.local_branching.lb import GUROBI_AVAILABLE, run_local_branching_gurobi
 
 
 def mock_run_lb(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
@@ -20,6 +20,7 @@ def mock_run_lb(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
     return tour, 100.0, 20.0
 
 
+@pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")
 def test_lb_basic():
     """Test Local Branching on a small VRPP instance."""
     # 4 nodes: 0 (depot), 1, 2, 3

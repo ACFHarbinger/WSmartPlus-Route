@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import numpy as np
 import pytest
-from logic.src.policies.local_branching_variable_neighborhood_search.solver import run_lb_vns_gurobi
+from logic.src.policies.local_branching_variable_neighborhood_search.lb_vns import GUROBI_AVAILABLE, run_lb_vns_gurobi
 
 
 def mock_run_lb_vns(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
@@ -20,6 +20,7 @@ def mock_run_lb_vns(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwar
     return tour, 100.0, 20.0
 
 
+@pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")
 def test_lb_vns_basic():
     """Test LB-VNS on a small VRPP instance."""
     # 4 nodes: 0 (depot), 1, 2, 3

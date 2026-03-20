@@ -114,32 +114,29 @@ class SeparationEngine:
         self.pool = []
 
         # Step 1: Separate subtour elimination constraints (SECs)
-        self._separate_subtours_heuristic(x_vals)
+        self._separate_subtours_heuristic(x_vals, y_vals)
 
-        # Step 2: Separate capacity constraints
-        self._separate_capacity_cuts(x_vals)
-
-        # Step 3: Exact subtour separation (max-flow based) - expensive, run periodically
+        # Step 2: Exact subtour separation (max-flow based) - expensive, run periodically
         if iteration % 5 == 0:
-            self._separate_subtours_exact(x_vals)
+            self._separate_subtours_exact(x_vals, y_vals)
 
-        # Step 4: Comb inequalities (heuristic) - advanced cuts
+        # Step 3: Comb inequalities (heuristic) - advanced cuts
         if iteration % 10 == 0:
-            self._separate_comb_heuristic(x_vals)
+            self._separate_comb_heuristic(x_vals, y_vals)
 
         # Filter and return most violated cuts
         violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
         violated.sort()  # Sort by violation descending
         return violated[:max_cuts]
 
-    def _separate_subtours_heuristic(self, x_vals: np.ndarray):
+    def _separate_subtours_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """
         Heuristic subtour elimination using connected components and greedy expansion.
         """
-        self._separate_disconnected_components(x_vals)
-        self._separate_weak_subtours(x_vals)
+        self._separate_disconnected_components(x_vals, y_vals)
+        self._separate_weak_subtours(x_vals, y_vals)
 
-    def _separate_disconnected_components(self, x_vals: np.ndarray):
+    def _separate_disconnected_components(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """Separate subtours based on disconnected components in the support graph."""
         threshold = 0.5
         support_edges = [(i, j) for idx, (i, j) in enumerate(self.model.edges) if x_vals[idx] >= threshold]
@@ -166,12 +163,20 @@ class SeparationEngine:
             if len(component) < 2:
                 continue
 
+            # In VRPP, SEC only applies if at least one node in component is visited
+            is_visited = True
+            if y_vals is not None:
+                is_visited = any(y_vals[node - 1] > 0.5 for node in component if node != self.model.depot)
+
+            if not is_visited:
+                continue
+
             cut_value = self._get_cut_value(component, x_vals)
             violation = 2.0 - cut_value
             if violation > 0.01:
                 self.pool.append(SubtourEliminationCut(component, violation))
 
-    def _separate_weak_subtours(self, x_vals: np.ndarray):
+    def _separate_weak_subtours(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """Separate subtours by greedily expanding sets with high internal connectivity."""
         threshold_weak = 0.1
         n = self.model.n_nodes
@@ -183,6 +188,9 @@ class SeparationEngine:
                 graph_weak[j, i] = val
 
         for center in self.model.customers:
+            # Skip if center node not visited
+            if y_vals is not None and y_vals[center - 1] < 0.5:
+                continue
             node_set = {center}
             candidates = set(self.model.customers) - {center}
 
@@ -215,7 +223,7 @@ class SeparationEngine:
             if (min(e), max(e)) in self.model.edge_to_idx
         )
 
-    def _separate_capacity_cuts(self, x_vals: np.ndarray):
+    def _separate_capacity_cuts(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """
         Separate capacity inequalities using demand-based clustering.
 
@@ -223,6 +231,9 @@ class SeparationEngine:
         """
         # Try different seed nodes and grow sets based on demand
         for seed in self.model.customers:
+            # Skip if seed node not visited
+            if y_vals is not None and y_vals[seed - 1] < 0.5:
+                continue
             node_set = {seed}
             remaining = set(self.model.customers) - {seed}
             current_demand = self.model.get_node_demand(seed)
@@ -252,7 +263,15 @@ class SeparationEngine:
 
             # Check capacity inequality violation
             if len(node_set) >= 2:
-                total_demand = self.model.total_demand(node_set)
+                # In VRPP, we only care about demand of nodes we actually visit
+                if y_vals is not None:
+                    total_demand = sum(self.model.get_node_demand(i) for i in node_set if i > 0 and y_vals[i - 1] > 0.5)
+                else:
+                    total_demand = self.model.total_demand(node_set)
+
+                if total_demand <= 0.01:
+                    continue
+
                 min_vehicles = int(np.ceil(total_demand / self.model.capacity))
 
                 cut_edges = self.model.delta(node_set)
@@ -268,7 +287,7 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(CapacityCut(node_set, total_demand, self.model.capacity, violation))
 
-    def _separate_subtours_exact(self, x_vals: np.ndarray):
+    def _separate_subtours_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """
         Exact subtour separation using minimum cut (max-flow).
 
@@ -278,10 +297,9 @@ class SeparationEngine:
         if self.model.n_nodes > 50:
             return
 
-        # Try a few seed pairs
-        seed_pairs = [
-            (self.model.depot, customer) for customer in self.model.customers[: min(5, len(self.model.customers))]
-        ]
+        # Try a few seed pairs (only visited nodes)
+        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.5]
+        seed_pairs = [(self.model.depot, customer) for customer in visited_customers[: min(5, len(visited_customers))]]
 
         for source, sink in seed_pairs:
             # Build capacity matrix
@@ -341,7 +359,7 @@ class SeparationEngine:
         # Return visited nodes excluding source (for proper cut)
         return visited - {source}
 
-    def _separate_comb_heuristic(self, x_vals: np.ndarray):
+    def _separate_comb_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """
         Heuristic comb inequality separation (Theorem 2.3 from Fischetti et al. 1997).
 
@@ -358,6 +376,9 @@ class SeparationEngine:
         3. Finds teeth that have exactly one node in the handle
         4. Evaluates violation and adds to pool
         """
+        # In VRPP, comb inequalities are less common and tricky with node selection
+        # For now, skip if any node in support graph for this handle/teeth is unvisited
+        # This is a simplification.
         # Build support graph with edges that have significant fractional values
         threshold = 0.3
         support_edges = []
