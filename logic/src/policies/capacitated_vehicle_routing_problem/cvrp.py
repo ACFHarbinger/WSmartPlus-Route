@@ -36,6 +36,7 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
 
 from logic.src.constants.routing import SCALE
+from logic.src.policies.capacitated_vehicle_routing_problem.clark_wright import clarke_wright_solve
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
@@ -49,14 +50,10 @@ def find_routes(
     depot=0,
     time_limit=2.0,
     seed=42,
+    engine="pyvrp",  # Added engine param
     recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
-    Solve multi-vehicle VRP using PyVRP.
-
-    Constructs routes for multiple vehicles visiting a subset of nodes,
-    respecting capacity constraints. Uses PyVRP's Hybrid Genetic Search.
-
     Args:
         dist_mat (np.ndarray): Full distance matrix (N x N)
         wastes (np.ndarray): waste for each node (0-indexed, depot waste = 0)
@@ -71,6 +68,10 @@ def find_routes(
     Returns:
         List[int]: Flattened tour with depot separators. Format: [0, route1..., 0, route2..., 0]
     """
+    if engine == "internal":
+        # Mapper for wastes dict
+        w_dict = {i: wastes[i - 1] for i in to_collect}
+        return clarke_wright_solve(dist_mat, w_dict, max_caps, to_collect, depot)
     # Mapping: subset index -> original index
     subset_indices = [depot] + list(to_collect)
 

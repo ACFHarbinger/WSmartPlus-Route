@@ -36,15 +36,11 @@ import torch
 from networkx.algorithms.shortest_paths.weighted import dijkstra_path
 
 from logic.src.constants.routing import SCALE
+from logic.src.policies.travelling_salesman_problem.two_opt import solve_tsp_2opt
 
 
-def find_route(C, to_collect, time_limit=2.0, seed=42):
+def find_route(C, to_collect, time_limit=2.0, seed=42, engine="fast_tsp"):
     """
-    Solve TSP for a subset of nodes using the fast_tsp library.
-
-    Constructs a tour visiting all nodes in to_collect, starting and ending at depot (0).
-    Uses fast_tsp's heuristic TSP solver for quick solutions.
-
     Args:
         C (np.ndarray): Distance matrix (N x N) with depot at index 0
         to_collect (array-like): Node IDs to visit (excluding depot)
@@ -54,6 +50,8 @@ def find_route(C, to_collect, time_limit=2.0, seed=42):
     Returns:
         List[int]: Tour starting and ending at depot. Format: [0, node1, node2, ..., 0]
     """
+    if engine == "internal":
+        return solve_tsp_2opt(C, list(to_collect), depot=0)
     to_collect_tmp = [0] + list(to_collect)
     tmpC = C[to_collect_tmp, :][:, to_collect_tmp]
     # fast_tsp requires integer distance matrix

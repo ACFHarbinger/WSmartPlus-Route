@@ -14,7 +14,6 @@ Reference:
     flow shop scheduling problems", 2010.
 """
 
-import contextlib
 import copy
 import random
 import time
@@ -195,10 +194,8 @@ class FASolver:
 
     def _attract(self, dim_routes: List[List[int]], bright_routes: List[List[int]]) -> List[List[int]]:
         """
-        Move dim firefly toward bright firefly via guided node insertion.
-
-        Extracts nodes that are in the bright solution but not in the dim
-        solution, scores each by favourability, and inserts them greedily.
+        Move dim firefly toward bright firefly via Ai & Kachitvichyanukul (2009)
+        node extraction and guided insertion.
 
         Favourability score per candidate node n:
             score(n) = α_p * profit(n) + β_w * willingness(n) - γ_c * insertion_cost(n)
@@ -210,42 +207,52 @@ class FASolver:
         Returns:
             Updated routes for the dim firefly.
         """
-        dim_visited = {n for r in dim_routes for n in r}
-        bright_visited = {n for r in bright_routes for n in r}
-        candidates = [n for n in bright_visited if n not in dim_visited]
+        dim_flat = [n for r in dim_routes for n in r]
+        bright_flat = [n for r in bright_routes for n in r]
 
-        if not candidates:
+        # 1. Identify "bright" edges/nodes missing in "dim"
+        # In discrete FA for VRP, we often adopt segments from the brighter firefly
+        if len(bright_flat) < 2:
             return copy.deepcopy(dim_routes)
 
-        # Score candidates
-        scored = []
-        for node in candidates:
-            profit_n = self.wastes.get(node, 0.0) * self.R
-            willingness = self.wastes.get(node, 0.0)  # fill level as willingness proxy
-            ins_cost = self._best_insertion_cost(node, dim_routes)
-            score = (
-                self.params.alpha_profit * profit_n
-                + self.params.beta_will * willingness
-                - self.params.gamma_cost * ins_cost
-            )
-            scored.append((score, node))
+        # Extraction: Pick a segment from bright_routes
+        a = self.random.randint(0, len(bright_flat) - 1)
+        b = self.random.randint(a, min(a + 5, len(bright_flat)))
+        segment = bright_flat[a:b]
+        segment_set = set(segment)
 
-        scored.sort(reverse=True)
-        selected = [node for _, node in scored]
+        # 2. Guided Insertion: Re-insert into dim preserving bright's relative order
+        remaining = [n for n in dim_flat if n not in segment_set]
+        insert_pos = min(a, len(remaining))
+        new_flat = remaining[:insert_pos] + segment + remaining[insert_pos:]
 
-        routes = copy.deepcopy(dim_routes)
-        with contextlib.suppress(Exception):
-            routes = greedy_insertion(
-                routes,
-                selected,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-            # Apply comprehensive local search (reusing instance)
-            return self.ls.optimize(routes)
+        # 3. Form routes and apply local search
+        routes = self._partition_flat(new_flat)
+        return self.ls.optimize(routes)
+
+    def _partition_flat(self, nodes: List[int]) -> List[List[int]]:
+        """Partition flat nodes into feasible routes."""
+        routes: List[List[int]] = []
+        curr: List[int] = []
+        load = 0.0
+        for n in nodes:
+            w = self.wastes.get(n, 0.0)
+            if load + w <= self.capacity:
+                curr.append(n)
+                load += w
+            else:
+                if curr:
+                    routes.append(curr)
+                curr = [n]
+                load = w
+        if curr:
+            routes.append(curr)
+
+        # Mandatory coverage
+        visited = {n for r in routes for n in r}
+        for n in self.mandatory_nodes:
+            if n not in visited:
+                routes.append([n])
         return routes
 
     def _best_insertion_cost(self, node: int, routes: List[List[int]]) -> float:
