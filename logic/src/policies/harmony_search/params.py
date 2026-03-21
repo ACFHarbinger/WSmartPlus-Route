@@ -29,6 +29,7 @@ class HSParams:
     hm_size: int = 10
     HMCR: float = 0.95
     PAR: float = 0.3
+    BW: float = 0.05  # Bandwidth for continuous adjustment (or discrete neighbor range)
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0
