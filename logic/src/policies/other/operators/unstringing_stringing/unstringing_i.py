@@ -53,18 +53,24 @@ def apply_type_i_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     except ValueError:
         return route  # Fallback
 
-    # Segments:
-    # S1: V_{i+1}...V_k -> indices [2, k_new + 1)
+    # Reconnection Logic per Müller & Bonilha (2022):
+    # Broken arcs: (v_{i-1}, v_i), (v_i, v_{i+1}), (v_j, v_{j+1}), (v_k, v_{k+1})
+    # Reconnect: (v_{i-1}, v_{k+1}), (v_k, v_{j+1}), (v_j, v_{i+1})
+    # Segment [v_{i+1}...v_k] is reversed.
+    # Segments in rotated route:
+    # Index 0: v_{i-1}
+    # Index 1: v_i (removed)
+    # Index 2: v_{i+1}
+    # Indices [2...k_new]: s1 (v_{i+1}...v_k)
+    # Indices [k_new+1...j_new]: s2 (v_{k+1}...v_j)
+    # Indices [j_new+1...]: remainder (v_{j+1}...v_{i-1})
+
     s1 = rot_route[2 : k_new + 1]
-
-    # S2: V_{k+1}...V_j -> indices [k_new + 1, j_new + 1)
     s2 = rot_route[k_new + 1 : j_new + 1]
-
-    # Remainder: V_{j+1}...V_{i-1} (start) -> indices [j_new + 1, end]
     remainder = rot_route[j_new + 1 :]
 
-    # Reconnection Logic:
-    new_rot = [rot_route[0]] + s1[::-1] + s2[::-1] + remainder
+    # New sequence: v_{i-1} -> s2 -> s1_reversed -> remainder
+    new_rot = [rot_route[0]] + s2 + s1[::-1] + remainder
 
     # Rotate back to align with original depot position?
     # Find depot 0 and rotate it to front.

@@ -183,23 +183,31 @@ class ALNSSolver:
             new_profit = new_rev - new_cost
 
             accept = self._accept_solution(current_profit, new_profit, T)
+            # Pisinger & Ropke (2007) score rewards:
+            # σ1: New global best found
+            # σ2: Better than current
+            # σ3: Accepted worse
             score = 0
             if accept:
-                current_routes = new_routes
-                current_profit = new_profit
                 if new_profit > best_profit + 1e-6:
                     best_routes = copy.deepcopy(new_routes)
                     best_profit = new_profit
                     best_cost = new_cost
-                    score = 10  # New best global
+                    score = 15  # σ1
+                elif new_profit > current_profit + 1e-6:
+                    score = 9  # σ2
                 else:
-                    score = 5  # Improved current
+                    score = 2  # σ3
+                current_routes = new_routes
+                current_profit = new_profit
             else:
-                score = 1  # Not accepted
+                score = 0
 
             self._update_weights(d_idx, r_idx, score)
             if (_it + 1) % self.segment_size == 0:
                 self._end_segment()
+
+            # Cooling schedule
             T *= self.params.cooling_rate
 
             getattr(self, "_viz_record", lambda **k: None)(
