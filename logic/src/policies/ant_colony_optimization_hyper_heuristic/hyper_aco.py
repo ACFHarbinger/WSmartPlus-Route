@@ -101,36 +101,46 @@ class HyperHeuristicACO:
         """
         best_routes = copy.deepcopy(self.initial_solution)
         best_cost = self._calculate_cost(best_routes)
+        best_profit = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r) - best_cost
 
         start_time = time.process_time()
         for _it in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
-            ant_solutions = []
+            # 1. Ant solutions construction
+            ant_results: List[Tuple[List[List[int]], float, List[str]]] = []
             for _ant in range(self.params.n_ants):
-                routes = self.build_solution()
+                routes, sequence = self.build_solution()
                 cost = self._calculate_cost(routes)
-                ant_solutions.append((routes, cost))
+                ant_results.append((routes, cost, sequence))
 
-            # Sort by cost and pick best
-            ant_solutions.sort(key=lambda x: x[1])
-            iter_best_routes, iter_best_cost = ant_solutions[0]
+            # 2. Identify iteration best
+            ant_results.sort(key=lambda x: x[1])  # Sort by cost
+            iter_best_routes, iter_best_cost, iter_best_sequence = ant_results[0]
+            iter_best_profit = sum(self.wastes.get(n, 0) * self.R for r in iter_best_routes for n in r) - iter_best_cost
 
-            if iter_best_cost < best_cost:
+            if iter_best_profit > best_profit:
+                best_profit = iter_best_profit
                 best_cost = iter_best_cost
                 best_routes = copy.deepcopy(iter_best_routes)
 
-            # Update pheromones
+            # 3. Pheromone updates
             self._evaporate_pheromones()
-            # In Hyper-ACO, we deposit based on sequence quality.
-            # This is simplified here.
 
-            # Update Success-based Heuristics
+            # Pheromone deposit: tau[i][j] += Q / cost for the iteration-best sequence
+            current_op_idx = self.n_operators  # Start state
+            for op_name in iter_best_sequence:
+                next_op_idx = self.op_to_idx[op_name]
+                self.tau[current_op_idx][next_op_idx] += self.params.Q / max(iter_best_cost, 1e-9)
+                current_op_idx = next_op_idx
+
+            # 4. Success-based Heuristics & Meta-data updates
             self._update_heuristics()
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_it,
+                best_profit=best_profit,
                 best_cost=best_cost,
                 iter_best_cost=iter_best_cost,
                 tau_mean=float(self.tau.mean()),
@@ -138,11 +148,15 @@ class HyperHeuristicACO:
             )
 
         collected_rev = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r)
-        return best_routes, collected_rev - best_cost, best_cost / self.C if self.C > 0 else best_cost
+        final_cost = best_cost / self.C if self.C > 0 else best_cost
+        return best_routes, collected_rev - best_cost, final_cost
 
-    def build_solution(self) -> List[List[int]]:
+    def build_solution(self) -> Tuple[List[List[int]], List[str]]:
         """
         Build a solution by applying a sequence of operators.
+
+        Returns:
+            Tuple[List[List[int]], List[str]]: Modified routes and the operator sequence.
         """
         sequence = self._select_sequence()
         ctx = HyperOperatorContext(
@@ -165,17 +179,18 @@ class HyperHeuristicACO:
                 if improved:
                     self.success_counts[op_idx] += 1
 
-        return ctx.routes
+        return ctx.routes, sequence
 
     def _select_sequence(self) -> List[str]:
         """Construct an operator sequence using ACO rules."""
         sequence = []
-        current_op_idx = self.n_operators  # Start state
+        current_op_idx = self.n_operators  # Start state (index n_operators in tau)
 
         for _ in range(self.params.sequence_length):
-            # Proportional selection logic
-            probs = (self.tau[current_op_idx] ** self.params.alpha) * (self.eta**self.params.beta)
-            probs /= np.sum(probs)
+            # Proportional selection logic (tau[prev][next] * eta[next])
+            numerator = (self.tau[current_op_idx] ** self.params.alpha) * (self.eta**self.params.beta)
+            denom = np.sum(numerator)
+            probs = numerator / denom if denom > 1e-12 else np.ones(self.n_operators) / self.n_operators
 
             next_op_idx = self.np_rng.choice(self.n_operators, p=probs)
             sequence.append(self.operator_names[next_op_idx])

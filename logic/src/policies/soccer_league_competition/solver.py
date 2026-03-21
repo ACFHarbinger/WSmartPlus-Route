@@ -94,48 +94,48 @@ class SLCSolver:
         team_best: List[float] = [max(p for _, p in team) for team in teams]
 
         # Global best (superstar)
-        best_routes, best_profit = self._league_best(teams)
-        best_cost = self._cost(best_routes)
+        self.superstars: List[Tuple[List[List[int]], float]] = []
+        self._update_superstars(teams)
 
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # --- Intra-team competition: local perturbation ---
-            for _t_idx, team in enumerate(teams):
+            # 1. Racing and Interplays (Intra-team competition)
+            for t_idx, team in enumerate(teams):
                 for p_idx in range(len(team)):
                     routes, profit = team[p_idx]
+                    # Each player locally perturbs its own solution
                     new_routes = self._perturb(routes)
                     new_profit = self._evaluate(new_routes)
                     if new_profit > profit:
                         team[p_idx] = (new_routes, new_profit)
 
-            # --- Inter-team competition: probabilistic match ---
+            # 2. Inter-team competition: Weekly Matches
+            # Teams are ranked and play matches (implied by inter-team recombination)
             team_indices = list(range(self.params.n_teams))
             self.random.shuffle(team_indices)
             for k in range(0, len(team_indices) - 1, 2):
-                a_idx = team_indices[k]
-                b_idx = team_indices[k + 1]
+                a_idx, b_idx = team_indices[k], team_indices[k + 1]
+                self._play_match(teams[a_idx], teams[b_idx])
 
-                fit_a: float = float(sum(p for _, p in teams[a_idx]))
-                fit_b: float = float(sum(p for _, p in teams[b_idx]))
+            # 3. Coaching and Learning Phase
+            # Weaker players learn from the global superstars (Top 3)
+            self._update_superstars(teams)
+            for t_idx, team in enumerate(teams):
+                # Coaching: Apply weighted learning from superstars to help team improve
+                for p_idx in range(len(team)):
+                    if self.random.random() < 0.2:  # Paper-inspired coaching probability
+                        team[p_idx] = self._coach(team[p_idx])
 
-                total = abs(fit_a) + abs(fit_b) + 1e-9
-                p_win_a = (fit_a - min(fit_a, fit_b) + 1e-9) / total
+            # 4. Substitution Operator (Diversity injection)
+            # Replace the worst players globally with new learners
+            for t_idx in range(self.params.n_teams):
+                if stagnation[t_idx] >= self.params.stagnation_limit:
+                    teams[t_idx] = self._new_team()
+                    stagnation[t_idx] = 0
 
-                if self.random.random() < p_win_a:
-                    winner, loser = a_idx, b_idx
-                else:
-                    winner, loser = b_idx, a_idx
-
-                # Weakest player in losing team adopts structure from winner's best
-                winner_best_routes = max(teams[winner], key=lambda x: x[1])[0]
-                loser_worst_idx = int(np.argmin([p for _, p in teams[loser]]))
-                child = self._recombine(teams[loser][loser_worst_idx][0], winner_best_routes)
-                child_profit = self._evaluate(child)
-                teams[loser][loser_worst_idx] = (child, child_profit)
-
-            # --- Stagnation check and team regeneration ---
+            # Stagnation tracking (simplified)
             for t_idx, team in enumerate(teams):
                 current_best = max(p for _, p in team)
                 if current_best > team_best[t_idx] + 1e-9:
@@ -143,17 +143,9 @@ class SLCSolver:
                     stagnation[t_idx] = 0
                 else:
                     stagnation[t_idx] += 1
-                    if stagnation[t_idx] >= self.params.stagnation_limit:
-                        teams[t_idx] = self._new_team()
-                        stagnation[t_idx] = 0
-                        team_best[t_idx] = max(p for _, p in teams[t_idx])
 
-            # Update superstar
-            iter_best_routes, iter_best_profit = self._league_best(teams)
-            if iter_best_profit > best_profit:
-                best_routes = copy.deepcopy(iter_best_routes)
-                best_profit = iter_best_profit
-                best_cost = self._cost(best_routes)
+            best_routes, best_profit = self.superstars[0]
+            best_cost = self._cost(best_routes)
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
@@ -163,6 +155,44 @@ class SLCSolver:
             )
 
         return best_routes, best_profit, best_cost
+
+    def _update_superstars(self, teams: List[List[Tuple[List[List[int]], float]]]):
+        """Maintain top 3 global solutions (Superstars)."""
+        all_players = [p for team in teams for p in team]
+        all_players.sort(key=lambda x: x[1], reverse=True)
+        self.superstars = all_players[:3]
+
+    def _play_match(self, team_a: List[Tuple[List[List[int]], float]], team_b: List[Tuple[List[List[int]], float]]):
+        """Teams compete; loser's weakest player learns from winner's best."""
+        fit_a = sum(p for _, p in team_a)
+        fit_b = sum(p for _, p in team_b)
+
+        if fit_a >= fit_b:
+            winner, loser = team_a, team_b
+        else:
+            winner, loser = team_b, team_a
+
+        winner_best = max(winner, key=lambda x: x[1])[0]
+        loser_worst_idx = int(np.argmin([p for _, p in loser]))
+
+        # Learning via Recombination
+        child = self._recombine(loser[loser_worst_idx][0], winner_best)
+        child_profit = self._evaluate(child)
+        loser[loser_worst_idx] = (child, child_profit)
+
+    def _coach(self, player: Tuple[List[List[int]], float]) -> Tuple[List[List[int]], float]:
+        """Weighted learning from Top-3 Superstars: w1*T1 + w2*T2 + w3*T3."""
+        if not self.superstars:
+            return player
+
+        # In discrete space, weighted learning is sequential recombination
+        child_routes = copy.deepcopy(player[0])
+        # weights 0.5, 0.3, 0.2
+        for i, weight in enumerate([0.5, 0.3, 0.2]):
+            if i < len(self.superstars) and self.random.random() < weight:
+                child_routes = self._recombine(child_routes, self.superstars[i][0])
+
+        return child_routes, self._evaluate(child_routes)
 
     # ------------------------------------------------------------------
     # Private helpers
