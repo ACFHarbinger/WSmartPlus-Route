@@ -141,11 +141,12 @@ class RLGDHHSolver:
 
             # 3. Dynamic Move Acceptance (Great Deluge Figure 2, Step 19)
             # Level(t) = f0 + (TargetF - f0) * (t/T)
+            # Ozcan et al. (2010) Step 19-20: If f(S') >= f(S) OR f(S') >= Level, accept.
             progress = min(1.0, elapsed / self.params.time_limit)
             water_level = f0 + (target_f - f0) * progress
 
-            if candidate_fitness > current_fitness:
-                # Improving Move: Always Accept (Paper Step 14)
+            if candidate_fitness >= current_fitness:
+                # Improving or Equal Move: Always Accept (Paper Step 14)
                 current_solution = candidate_solution
                 current_fitness = candidate_fitness
 
@@ -159,7 +160,6 @@ class RLGDHHSolver:
                 if current_fitness > best_fitness:
                     best_solution = copy.deepcopy(current_solution)
                     best_fitness = current_fitness
-
             elif candidate_fitness >= water_level:
                 # Worsening but Acceptable Move (Paper Step 19-20)
                 current_solution = candidate_solution
@@ -170,7 +170,6 @@ class RLGDHHSolver:
                     self.params.min_utility,
                     self.utilities[chosen_idx] - self.params.penalty_worsening,
                 )
-
             else:
                 # Move Rejected (Below Water Level)
                 # RL Penalty (Step 18: "u_i = punish(u_i)")
@@ -260,7 +259,7 @@ class RLGDHHSolver:
     def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
         """Shaw removal + regret-2 insertion."""
         n = max(1, min(len(self.nodes) // 4, 10))
-        partial, removed = shaw_removal(routes, n, self.dist_matrix)
+        partial, removed = shaw_removal(routes, n, self.dist_matrix, nodes=self.nodes)
         return regret_2_insertion(
             partial,
             removed,
