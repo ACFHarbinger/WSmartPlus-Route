@@ -42,9 +42,9 @@ from ..other.operators import (
     random_removal,
     regret_2_insertion,
     shaw_removal,
-    string_removal,
     worst_removal,
 )
+from ..other.operators.destroy.string import string_removal
 from .params import SSHHParams
 
 

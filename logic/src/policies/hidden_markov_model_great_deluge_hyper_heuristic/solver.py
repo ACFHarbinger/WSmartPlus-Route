@@ -209,7 +209,7 @@ class HMMGDHHSolver:
             # Compute observation likelihood P(Δ_norm | state) for each state
             obs_likelihood = self._gaussian_pdf(delta_norm)
 
-            # Forward step: belief'[s'] = Σ_s belief[s] * T[s][s'] * P(obs | s')
+            # Forward step: belief'[s'] = P(obs | s') * Σ_s belief[s] * T[s][s']
             new_belief = np.zeros(_N_STATES)
             for s_next in range(_N_STATES):
                 new_belief[s_next] = obs_likelihood[s_next] * np.dot(self._belief, self._T[:, s_next])
@@ -218,7 +218,9 @@ class HMMGDHHSolver:
             if belief_sum > 1e-12:
                 new_belief /= belief_sum
             else:
-                new_belief = np.ones(_N_STATES) / _N_STATES
+                # Revert to priors if likelihood is zero everywhere
+                new_belief = self._belief @ self._T
+                new_belief /= new_belief.sum() + 1e-12
 
             self._belief = new_belief
 
@@ -226,14 +228,17 @@ class HMMGDHHSolver:
             # Weight each state's contribution by the current belief
             for s in range(_N_STATES):
                 self._llh_counts[s][llh_idx] += self._belief[s]
+                # Reward only if improvement occurs (Onsem et al. 2014 Section 4.2)
                 if delta_norm > 0:
                     self._llh_reward[s][llh_idx] += self._belief[s] * delta_norm
 
             # Recompute B[s] from accumulated rewards
             lr = self.params.learning_rate
             for s in range(_N_STATES):
-                reward_rate = self._llh_reward[s][llh_idx] / self._llh_counts[s][llh_idx]
-                self._B[s][llh_idx] = (1.0 - lr) * self._B[s][llh_idx] + lr * reward_rate
+                # Update B[s][llh_idx] using a moving average of rewards
+                current_rate = self._llh_reward[s][llh_idx] / max(self._llh_counts[s][llh_idx], 1e-9)
+                self._B[s][llh_idx] = (1.0 - lr) * self._B[s][llh_idx] + lr * current_rate
+
                 # Re-normalise row so it sums to 1
                 row_sum = self._B[s].sum()
                 if row_sum > 1e-12:
@@ -341,7 +346,7 @@ class HMMGDHHSolver:
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L5: shaw_removal + greedy_insertion."""
-        partial, removed = shaw_removal(routes, n, self.dist_matrix)
+        partial, removed = shaw_removal(routes, n, self.dist_matrix, nodes=self.nodes)
         return greedy_insertion(
             partial,
             removed,

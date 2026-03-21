@@ -234,7 +234,7 @@ class GPHHSolver:
 
     def _build_context(self, routes: List[List[int]], step: int, total: int) -> Dict[str, float]:
         """
-        Build feature context for the GP tree.
+        Build feature context for the GP tree (Burke et al., 2009).
 
         Args:
             routes: Current routing solution.
@@ -246,13 +246,28 @@ class GPHHSolver:
         """
         all_nodes = [n for r in routes for n in r]
         n = max(len(all_nodes), 1)
-        avg_profit = sum(self.wastes.get(nd, 0.0) * self.R for nd in all_nodes) / n
+        profit = sum(self.wastes.get(nd, 0.0) * self.R for nd in all_nodes)
+        avg_profit = profit / n
         total_load = sum(self.wastes.get(nd, 0.0) for nd in all_nodes)
+
+        # Track relative improvement
+        if not hasattr(self, "_last_profit"):
+            self._last_profit = profit
+            self._best_profit_found = profit
+
+        delta_profit = profit - self._last_profit
+        best_ratio = profit / max(self._best_profit_found, 1e-9)
+        self._last_profit = profit
+        if profit > self._best_profit_found:
+            self._best_profit_found = profit
+
         return {
             "avg_node_profit": avg_profit,
             "load_factor": total_load / max(self.capacity, 1e-9),
             "route_count": float(len(routes)),
             "iter_progress": float(step) / max(float(total), 1.0),
+            "delta_profit": delta_profit,
+            "best_profit_ratio": best_ratio,
         }
 
     def _tournament(self, pop: List[GPNode], fitness: List[float]) -> GPNode:

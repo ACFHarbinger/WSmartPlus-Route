@@ -92,55 +92,50 @@ class LCASolver:
         teams: List[List[List[int]]] = [self._build_random_solution() for _ in range(self.params.n_teams)]
         profits: List[float] = [self._evaluate(t) for t in teams]
 
-        best_idx = int(np.argmax(profits))
-        best_routes = copy.deepcopy(teams[best_idx])
-        best_profit = profits[best_idx]
+        # Global best
+        best_routes = copy.deepcopy(teams[int(np.argmax(profits))])
+        best_profit = max(profits)
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Random round-robin schedule for this week
+            # Weekly Matches: Multi-round Robin (Random pairs per iteration)
+            # In standard LCA, teams play one match per week.
             order = list(range(self.params.n_teams))
             self.random.shuffle(order)
 
             for k in range(0, len(order) - 1, 2):
-                a_idx = order[k]
-                b_idx = order[k + 1]
+                a_idx, b_idx = order[k], order[k + 1]
+                pa, pb = profits[a_idx], profits[b_idx]
 
-                pa = profits[a_idx]
-                pb = profits[b_idx]
-
-                # Determine winner/loser with infeasibility tolerance
-                # A team within `tolerance_pct` of its opponent is allowed
-                # to win based on diversity (random coin flip)
-                delta = abs(pa - pb)
-                tolerance = self.params.tolerance_pct * (abs(pa) + abs(pb) + 1e-9) / 2.0
-
-                if delta <= tolerance:
-                    # Close match — random winner
-                    winner, loser = (a_idx, b_idx) if self.random.random() < 0.5 else (b_idx, a_idx)
-                elif pa >= pb:
+                # Determine winner/loser via fitness comparison (Kashan 2011/2013)
+                # Winner stays, Loser generates new formation by learning from winner
+                if pa > pb:
                     winner, loser = a_idx, b_idx
-                else:
+                elif pb > pa:
                     winner, loser = b_idx, a_idx
-
-                # Loser generates new formation
-                if self.random.random() < self.params.crossover_prob:
-                    new_team = self._crossover(teams[loser], teams[winner])
                 else:
-                    new_team = self._perturb(teams[loser])
+                    winner, loser = (a_idx, b_idx) if self.random.random() < 0.5 else (b_idx, a_idx)
 
-                new_profit = self._evaluate(new_team)
+                # Formation Update (Learning from Winner)
+                if self.random.random() < self.params.crossover_prob:
+                    # Loser adopts winner's formation features (segment injection)
+                    new_formation = self._crossover(teams[loser], teams[winner])
+                else:
+                    # Loser perturbs its own formation (Random walk)
+                    new_formation = self._perturb(teams[loser])
+
+                new_profit = self._evaluate(new_formation)
 
                 # Accept new formation (LCA always updates the loser)
-                teams[loser] = new_team
+                teams[loser] = new_formation
                 profits[loser] = new_profit
 
-                # Track best feasible solution
+                # Track global best
                 if new_profit > best_profit:
-                    best_routes = copy.deepcopy(new_team)
+                    best_routes = copy.deepcopy(new_formation)
                     best_profit = new_profit
                     best_cost = self._cost(best_routes)
 

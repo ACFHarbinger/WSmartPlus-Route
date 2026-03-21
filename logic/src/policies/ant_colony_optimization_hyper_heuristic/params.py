@@ -55,6 +55,7 @@ class HyperACOParams:
     time_limit: float = 30.0
     sequence_length: int = 5
     q0: float = 0.9
+    Q: float = 100.0
     operators: List[str] = field(default_factory=lambda: OPERATOR_NAMES.copy())
 
     def __post_init__(self) -> None:
@@ -86,5 +87,6 @@ class HyperACOParams:
             time_limit=config.time_limit,
             sequence_length=config.sequence_length,
             q0=config.q0,
+            Q=getattr(config, "Q", 100.0),
             operators=config.operators.copy() if config.operators else OPERATOR_NAMES.copy(),
         )
