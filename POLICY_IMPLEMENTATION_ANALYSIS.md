@@ -852,7 +852,7 @@ This report documents differences between published algorithm formulations and t
    - CR (crossover_rate): Binomial crossover probability (line 153)
    - **Match**: ✅ Standard DE parameters
 
-**Overall Assessment**: **Exemplary discrete adaptation of continuous DE**. The implementation rigorously maps DE's continuous operators to discrete routing space while preserving algorithmic spirit. Comments (lines 1-26) demonstrate deep understanding of DE theory. The discrete mutation formula (set-based differential with probabilistic scaling) is mathematically sound and creative.
+**Overall Assessment**: **Exemplary discrete adaptation of continuous DE**. The implementation rigorously maps DE's continuous operators to discrete routing space while preserving algorithmic spirit. The refined binomial crossover now strictly enforces the `j_rand` requirement from Storn & Price (1997), ensuring at least one component from the mutant survives.
 
 ---
 
@@ -2466,7 +2466,7 @@ This report documents differences between published algorithm formulations and t
 
 - VPL framework + intensive local search
 
-**Assessment**: VPL + LS hybrid.
+**Assessment**: VPL + LS hybrid. Fully aligned with Sun et al. (2023) tripartite structure.
 
 ---
 
