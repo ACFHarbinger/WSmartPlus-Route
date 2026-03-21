@@ -52,16 +52,45 @@ def _run_gurobi_optimizer(  # noqa: C901
     mdl.Params.Seed = seed
 
     x = mdl.addVars(pares_viaveis, vtype=GRB.BINARY, name="x")
-    y = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="y")
-    f = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f")
     g = mdl.addVars(nodes, vtype=GRB.BINARY, name="g")
-    k_var = mdl.addVar(lb=0, vtype=GRB.INTEGER, name="k_var")
-    for i, j in pares_viaveis:
-        mdl.addConstr(y[i, j] <= Q * x[i, j])
-        mdl.addConstr(f[i, j] <= len(nodes) * x[i, j])
 
+    # Two-Commodity Flow Variables
+    # f_ij: flow of waste (commodity 1)
+    # h_ij: flow of empty capacity (commodity 2)
+    f = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="f")
+    h = mdl.addVars(pares_viaveis, vtype=GRB.CONTINUOUS, lb=0, name="h")
+
+    k_var = mdl.addVar(lb=0, vtype=GRB.INTEGER, name="k_var")
+
+    # 1. Capacity constraints on arcs
+    for i, j in pares_viaveis:
+        mdl.addConstr(f[i, j] + h[i, j] == Q * x[i, j])
+
+    # 2. Flow balance for waste (Commodity 1)
+    # At each visited node i, inflow - outflow = waste[i]
     for i in nodes_real:
-        mdl.addConstr(quicksum(y[i, j] - y[j, i] for j in nodes if (i, j) in y or (j, i) in y) == S_dict[i] * g[i])
+        mdl.addConstr(
+            quicksum(f[j, i] for j in nodes if (j, i) in f) - quicksum(f[i, j] for j in nodes if (i, j) in f)
+            == S_dict[i] * g[i]
+        )
+
+    # 3. Flow balance for empty capacity (Commodity 2)
+    # At each visited node i, outflow - inflow = waste[i]
+    for i in nodes_real:
+        mdl.addConstr(
+            quicksum(h[i, j] for j in nodes if (i, j) in h) - quicksum(h[j, i] for j in nodes if (j, i) in h)
+            == S_dict[i] * g[i]
+        )
+
+    # 4. Depot balance
+    # Total waste collected = outflow from nodes to depot
+    mdl.addConstr(
+        quicksum(f[i, 0] for i in nodes_real if (i, 0) in f) == quicksum(S_dict[i] * g[i] for i in nodes_real)
+    )
+    # Total empty capacity = sum of (Q - total_waste_on_route)
+    mdl.addConstr(
+        quicksum(h[0, j] for j in nodes_real if (0, j) in h) == quicksum(Q * x[0, j] for j in nodes_real if (0, j) in x)
+    )
 
     if number_vehicles == 0:
         number_vehicles = len(binsids)
@@ -94,11 +123,8 @@ def _run_gurobi_optimizer(  # noqa: C901
         mdl.addConstr(quicksum(x[i, j] for i in nodes if (i, j) in x) == g[j])
         mdl.addConstr(quicksum(x[j, k] for k in nodes if (j, k) in x) == g[j])
 
-    mdl.addConstr(quicksum(f[0, j] for j in nodes_real if (0, j) in f) == quicksum(g[j] for j in nodes_real))
-    for j in nodes_real:
-        mdl.addConstr(
-            quicksum(f[i, j] for i in nodes if (i, j) in f) - quicksum(f[j, k] for k in nodes if (j, k) in f) == g[j]
-        )
+    # Two-commodity flow handles subtour elimination and capacity automatically.
+    # No need for the old 'f' based commodity flow here.
 
     mdl.setObjective(
         R * quicksum(S_dict[i] * g[i] for i in nodes_real)
