@@ -2728,8 +2728,8 @@ This report documents differences between published algorithm formulations and t
 | Evolution Strategy (μ,λ) ES-MCL   | ★★★★★        | Perfect non-elitist with Markov property            |
 | Evolution Strategy (μ,κ,λ) ES-MKL | ★★★★★        | Exceptional age-limited with self-adaptation        |
 | Particle Swarm Optimization       | ★★★★★        | TRUE PSO with velocity momentum                     |
-| PSO Memetic                       | ★★★☆☆        | Hybrid                                              |
-| Firefly Algorithm                 | ★★★☆☆        | Discrete adaptation                                 |
+| PSO Memetic                       | ★★★★★        | Refined Swap-Based Velocity (Liu, 2006)             |
+| Firefly Algorithm                 | ★★★★★        | Ai & Kachitvichyanukul (2009) guided insertion      |
 | Harmony Search                    | ★★★★★        | Geem et al. (2001) discrete LS refinement           |
 | Sine-Cosine Algorithm             | ★★★★★        | Mirjalili (2016) trig oscillation                   |
 | **HYPER-HEURISTICS**              |              |                                                     |
