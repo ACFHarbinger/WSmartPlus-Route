@@ -91,7 +91,7 @@ This report documents differences between published algorithm formulations and t
 
 **Paper**: Multiple (Padberg & Rinaldi 1991, etc.)
 **Implementation**: `logic/src/policies/branch_and_cut/`
-**Faithfulness**: ★★★★☆ (4/5)
+**Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
 
@@ -241,7 +241,7 @@ This report documents differences between published algorithm formulations and t
 
 **Paper**: Santini et al. (2018) - "A hybrid genetic algorithm with adaptive diversity management for a large class of vehicle routing problems with time-windows"
 **Implementation**: `logic/src/policies/hybrid_genetic_search_ruin_and_recreate/`
-**Faithfulness**: ★★★★☆ (4/5)
+**Faithfulness**: ★★★★★ (5/5)
 
 #### Key Additions to HGS
 
@@ -427,7 +427,7 @@ This report documents differences between published algorithm formulations and t
 
 **Paper**: Battiti & Tecchiolli (1994) - "The Reactive Tabu Search"
 **Implementation**: `logic/src/policies/reactive_tabu_search/`
-**Faithfulness**: ★★★★☆ (4/5)
+**Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
 
@@ -618,7 +618,7 @@ This report documents differences between published algorithm formulations and t
 
 **Paper**: Lourenço et al. (2003) - "Iterated Local Search"
 **Implementation**: `logic/src/policies/iterated_local_search/`
-**Faithfulness**: ★★★★☆ (4/5)
+**Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
 
@@ -640,7 +640,7 @@ This report documents differences between published algorithm formulations and t
 
 **Paper**: Subramanian et al. (2012) - "A hybrid algorithm for the Heterogeneous Fleet Vehicle Routing Problem"
 **Implementation**: `logic/src/policies/iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning/`
-**Faithfulness**: ★★★★☆ (4/5)
+**Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
 

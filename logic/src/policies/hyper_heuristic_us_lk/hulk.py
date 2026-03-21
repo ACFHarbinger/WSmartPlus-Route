@@ -160,12 +160,29 @@ class HULKSolver:
                 # Acceptance decision
                 accepted, delta = self._accept_solution(current, neighbor)
 
+                # Müller & Bonilha (2022) - Enhanced Reward Structure (Alpha, Beta, Gamma, Delta)
+                # Alpha: New global best
+                # Beta: Improvement over current solution
+                # Gamma: Accepted worsening move
+                # Delta: Rejected move
+
+                is_global_best = neighbor.profit > global_best_profit
+                is_improvement = neighbor.profit > current.profit
+
+                if is_global_best:
+                    reward = self.params.score_alpha
+                elif is_improvement:
+                    reward = self.params.score_beta
+                elif accepted:
+                    reward = self.params.score_gamma
+                else:
+                    reward = self.params.score_delta
+
                 # Update selectors
-                is_best = neighbor.profit > restart_best_profit
-                self.unstring_selector.update(unstring_op, delta, 0.01, is_best)
-                self.string_selector.update(string_op, delta, 0.01, is_best)
+                self.unstring_selector.update(unstring_op, reward, 0.01, is_global_best)
+                self.string_selector.update(string_op, reward, 0.01, is_global_best)
                 if ls_op:
-                    self.local_search_selector.update(ls_op, delta, 0.01, is_best)
+                    self.local_search_selector.update(ls_op, reward, 0.01, is_global_best)
 
                 if accepted:
                     current = neighbor

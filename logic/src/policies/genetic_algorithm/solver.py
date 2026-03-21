@@ -108,6 +108,12 @@ class GASolver:
 
             # Update global best
             gen_best_idx = int(np.argmax(fitnesses))
+
+            # Prins (2004): Local search improvement on the best individual of the generation
+            # This ensures the population "drifts" towards local optima
+            population[gen_best_idx] = self._local_search(population[gen_best_idx])
+            fitnesses[gen_best_idx] = self._evaluate(population[gen_best_idx])
+
             if fitnesses[gen_best_idx] > best_profit:
                 best_routes = copy.deepcopy(population[gen_best_idx])
                 best_profit = fitnesses[gen_best_idx]
@@ -206,10 +212,55 @@ class GASolver:
                 self.capacity,
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
+                cost_unit=self.C,
             )
             return new_routes
         except Exception:
             return routes
+
+    def _local_search(self, routes: List[List[int]]) -> List[List[int]]:
+        """
+        Prins (2004) style local search (2-opt).
+
+        Systematically improves the best individual to a local optimum.
+        """
+        improved = True
+        current_routes = [list(r) for r in routes]
+        current_profit = self._evaluate(current_routes)
+
+        while improved:
+            improved = False
+            # Try 2-opt on each route
+            for r_idx in range(len(current_routes)):
+                route = current_routes[r_idx]
+                if len(route) < 2:
+                    continue
+
+                # Full 2-opt on this route
+                n = len(route)
+                for i in range(n - 1):
+                    for j in range(i + 1, n):
+                        # Reverse segment
+                        new_route = route[:i] + route[i : j + 1][::-1] + route[j + 1 :]
+
+                        # Calculate profit delta without full re-evaluation for efficiency
+                        # Delta distance = d(i-1, i) + d(j, j+1) - d(i-1, j) - d(j, i+1)
+                        # But since it's only one route, we can just re-evaluate if needed or use a helper
+                        test_routes = [list(r) for r in current_routes]
+                        test_routes[r_idx] = new_route
+                        new_profit = self._evaluate(test_routes)
+
+                        if new_profit > current_profit + 1e-6:
+                            current_routes[r_idx] = new_route
+                            current_profit = new_profit
+                            improved = True
+                            break
+                    if improved:
+                        break
+                if improved:
+                    break
+
+        return current_routes
 
     # ------------------------------------------------------------------
     # Helpers
