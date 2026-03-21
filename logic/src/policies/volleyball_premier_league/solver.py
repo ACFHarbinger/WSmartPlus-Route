@@ -140,6 +140,7 @@ class VPLSolver:
             active_teams = self._substitution_phase(active_teams, passive_teams)
 
             # Phase 4: Coaching and Learning
+            # Moghdani (2018): Teams learn from the Top-3 leaders.
             active_teams = self._coaching_phase(active_teams)
 
             # Re-evaluate all teams after modifications

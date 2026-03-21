@@ -6,7 +6,7 @@ dispatching to specialized implementations based on configuration.
 
 Reference:
     Pisinger, D., & Ropke, S. "An Adaptive Large Neighborhood Search
-    Heuristic for the Pickup and Delivery Problem with Time Windows.", 2004.
+    Heuristic for the Pickup and Delivery Problem with Time Windows.", 2005.
 """
 
 import copy
@@ -32,6 +32,7 @@ from .params import ALNSParams
 class ALNSSolver:
     """
     Custom implementation of Adaptive Large Neighborhood Search for CVRP.
+    Follows Pisinger & Ropke (2007) with segment-based weight updates and noise.
     """
 
     def __init__(
@@ -48,17 +49,6 @@ class ALNSSolver:
     ):
         """
         Initialize the ALNS solver.
-
-        Args:
-            dist_matrix: NxN distance matrix.
-            wastes: Dictionary of node wastes.
-            capacity: Maximum vehicle capacity.
-            R: Revenue multiplier.
-            C: Cost multiplier.
-            params: Detailed ALNS parameters.
-            mandatory_nodes: List of mandatory node indices.
-            seed: Random seed for reproducibility.
-            recorder: Optional telemetry recorder.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -69,7 +59,6 @@ class ALNSSolver:
         self.mandatory_nodes = mandatory_nodes
         self.random = random.Random(seed) if seed is not None else random.Random()
 
-        # If a recorder is passed, use it for visualization records
         if recorder is not None:
             self._viz_record = recorder.record
 
@@ -82,6 +71,9 @@ class ALNSSolver:
             lambda r, n: worst_removal(r, n, self.dist_matrix),
             lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
         ]
+
+        # Repair with Noise (Pisinger & Ropke, 2007)
+        noise_factor = 0.1
         self.repair_ops = [
             lambda r, n: greedy_insertion(
                 r,
@@ -92,6 +84,7 @@ class ALNSSolver:
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 cost_unit=self.C,
+                noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
             ),
             lambda r, n: regret_2_insertion(
                 r,
@@ -102,82 +95,81 @@ class ALNSSolver:
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 cost_unit=self.C,
+                noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
             ),
         ]
 
+        # Segment-based weight update logic
+        self.segment_size = 100
         self.destroy_weights = [1.0] * len(self.destroy_ops)
         self.repair_weights = [1.0] * len(self.repair_ops)
+        self.destroy_scores = [0.0] * len(self.destroy_ops)
+        self.repair_scores = [0.0] * len(self.repair_ops)
+        self.destroy_counts = [0] * len(self.destroy_ops)
+        self.repair_counts = [0] * len(self.repair_ops)
+        self.lambda_decay = 0.8
 
     def _initialize_solve(self, initial_solution: Optional[List[List[int]]]):
-        """Initialize the solution and metrics for the solve process."""
         current_routes = initial_solution or self.build_initial_solution()
         best_routes = copy.deepcopy(current_routes)
-
-        # Calculate initial metrics
         best_cost = self.calculate_cost(best_routes)
         best_rev = sum(self.wastes.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
         best_profit = best_rev - best_cost
-
         return current_routes, best_routes, best_profit, best_cost
 
     def _select_and_apply_operators(self, current_routes):
-        """Select destroy/repair operators and generate a new solution."""
         d_idx = self.select_operator(self.destroy_weights)
         r_idx = self.select_operator(self.repair_weights)
-
         destroy_op = self.destroy_ops[d_idx]
         repair_op = self.repair_ops[r_idx]
 
         current_n_nodes = sum(len(route) for route in current_routes)
-
         if current_n_nodes == 0:
             n_remove = 0
         else:
-            # Scale removal percentage but ensure a minimum of 2 nodes if available
-            # to allow meaningful resequencing.
             lower_bound = min(current_n_nodes, 2)
             max_pct_remove = int(current_n_nodes * self.params.max_removal_pct)
-            upper_bound = max(lower_bound + 1, max_pct_remove)
-            upper_bound = min(upper_bound, current_n_nodes)
-
+            upper_bound = min(current_n_nodes, max(lower_bound + 1, max_pct_remove))
             n_remove = self.random.randint(lower_bound, upper_bound)
-        partial_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
-        new_routes = repair_op(partial_routes, removed)
 
+        new_routes, removed = destroy_op(copy.deepcopy(current_routes), n_remove)
+        new_routes = repair_op(new_routes, removed)
         return new_routes, d_idx, r_idx
 
     def _accept_solution(self, current_profit, new_profit, T):
-        """Determine whether to accept the new solution based on SA criteria."""
         delta = current_profit - new_profit
         if delta < -1e-6:
             return True
-        else:
-            prob = safe_exp(-delta / T) if T > 0 else 0
-            return self.random.random() < prob
+        prob = safe_exp(-delta / T) if T > 0 else 0
+        return self.random.random() < prob
 
     def _update_weights(self, d_idx, r_idx, score):
-        """Update the weights of the used operators."""
-        lambda_decay = 0.8
-        self.destroy_weights[d_idx] = lambda_decay * self.destroy_weights[d_idx] + (1 - lambda_decay) * max(0.1, score)
-        self.repair_weights[r_idx] = lambda_decay * self.repair_weights[r_idx] + (1 - lambda_decay) * max(0.1, score)
+        self.destroy_scores[d_idx] += score
+        self.repair_scores[r_idx] += score
+        self.destroy_counts[d_idx] += 1
+        self.repair_counts[r_idx] += 1
+
+    def _end_segment(self):
+        for i in range(len(self.destroy_weights)):
+            if self.destroy_counts[i] > 0:
+                avg_score = self.destroy_scores[i] / self.destroy_counts[i]
+                self.destroy_weights[i] = (
+                    self.lambda_decay * self.destroy_weights[i] + (1 - self.lambda_decay) * avg_score
+                )
+            self.destroy_scores[i] = 0.0
+            self.destroy_counts[i] = 0
+        for i in range(len(self.repair_weights)):
+            if self.repair_counts[i] > 0:
+                avg_score = self.repair_scores[i] / self.repair_counts[i]
+                self.repair_weights[i] = (
+                    self.lambda_decay * self.repair_weights[i] + (1 - self.lambda_decay) * avg_score
+                )
+            self.repair_scores[i] = 0.0
+            self.repair_counts[i] = 0
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """
-        Run the ALNS algorithm.
-
-        Args:
-            initial_solution: Optional starting solution. If None, a constructive heuristic is used.
-
-        Returns:
-            Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
-        """
         start_time = time.process_time()
-        (
-            current_routes,
-            best_routes,
-            best_profit,
-            best_cost,
-        ) = self._initialize_solve(initial_solution)
+        current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
         T = self.params.start_temp
 
@@ -186,15 +178,12 @@ class ALNSSolver:
                 break
 
             new_routes, d_idx, r_idx = self._select_and_apply_operators(current_routes)
-
-            # Calculate new metrics
             new_cost = self.calculate_cost(new_routes)
             new_rev = sum(self.wastes.get(node_idx, 0) * self.R for route in new_routes for node_idx in route)
             new_profit = new_rev - new_cost
 
             accept = self._accept_solution(current_profit, new_profit, T)
             score = 0
-
             if accept:
                 current_routes = new_routes
                 current_profit = new_profit
@@ -202,11 +191,15 @@ class ALNSSolver:
                     best_routes = copy.deepcopy(new_routes)
                     best_profit = new_profit
                     best_cost = new_cost
-                    score = 3
+                    score = 10  # New best global
                 else:
-                    score = 1
+                    score = 5  # Improved current
+            else:
+                score = 1  # Not accepted
 
             self._update_weights(d_idx, r_idx, score)
+            if (_it + 1) % self.segment_size == 0:
+                self._end_segment()
             T *= self.params.cooling_rate
 
             getattr(self, "_viz_record", lambda **k: None)(
@@ -219,19 +212,9 @@ class ALNSSolver:
                 accepted=int(accept),
                 score=score,
             )
-
         return best_routes, best_profit, best_cost
 
     def select_operator(self, weights: List[float]) -> int:
-        """
-        Select an operator index based on their weights using roulette wheel selection.
-
-        Args:
-            weights: List of operator weights.
-
-        Returns:
-            int: Index of the selected operator.
-        """
         total = sum(weights)
         r = self.random.uniform(0, total)
         curr = 0.0
@@ -242,15 +225,6 @@ class ALNSSolver:
         return len(weights) - 1
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculate the total routing cost for a set of routes.
-
-        Args:
-            routes: List of routes.
-
-        Returns:
-            float: Total distance * cost multiplier.
-        """
         total_dist = 0
         for route in routes:
             if not route:
@@ -263,42 +237,24 @@ class ALNSSolver:
         return total_dist * self.C
 
     def build_initial_solution(self) -> List[List[int]]:
-        """
-        Build a basic feasible solution using a greedy constructive heuristic.
-        For VRPP, it only includes profitable nodes.
-
-        Returns:
-            List[List[int]]: Initial routes.
-        """
         nodes = self.nodes[:]
         self.random.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
+        routes, curr_route, load = [], [], 0.0
         mandatory_set = set(self.mandatory_nodes) if self.mandatory_nodes else set()
-
         for node in nodes:
             waste = self.wastes.get(node, 0)
             revenue = waste * self.R
-            is_mandatory = node in mandatory_set
-
-            # Basic VRPP check for initial solution: is node potentially profitable?
-            # (Heuristic: revenue > cost to depot and back)
-            if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
+            if node not in mandatory_set and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
                 continue
-
             if waste > self.capacity:
-                print(f"ALNS Greedy: Node {node} exceeds capacity {self.capacity}. Skipping.")
                 continue
-
             if load + waste <= self.capacity:
                 curr_route.append(node)
                 load += waste
             else:
                 if curr_route:
                     routes.append(curr_route)
-                curr_route = [node]
-                load = waste
+                curr_route, load = [node], waste
         if curr_route:
             routes.append(curr_route)
         return routes
