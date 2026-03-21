@@ -186,23 +186,24 @@ def _solve_aks_iterations(
             else:
                 v.ub = 0
 
-        iter_time = max(2.0, (time_limit - elapsed) / (max_buckets - buckets_solved))
+        # Iteration-specific time limit
+        iter_time = max(2.0, (time_limit - elapsed) / max(1, max_buckets - buckets_solved))
         model.setParam("TimeLimit", iter_time)
         model.optimize(_dfj_subtour_elimination_callback)
 
-        success = False
         if model.SolCount > 0 and model.ObjVal > best_obj + 1e-4:
             best_obj = model.ObjVal
-            success = True
-            # Promotion logic
+            # Promotion: Add variables with X > 0.5 to active_kernel
             active_vars = {v for v in current_bucket if v.X > 0.5}
-            active_kernel = _update_kernel_aks(active_kernel, current_bucket, active_vars, success)
+            active_kernel.update(active_vars)
 
-            # Growth
+            # Growth: Increase bucket size on success (Guastaroba 2017)
             current_bucket_size = int(current_bucket_size * bucket_growth_factor)
         else:
-            # Contraction/Maintenance: we don't add failed variables to kernel
-            pass
+            # Contraction: If no improvement, we might reduce bucket size or skip
+            # specific variable types to intensify elsewhere.
+            # Here we follow a simple adaptive rule: stabilize or slightly reduce
+            current_bucket_size = max(initial_bucket_size, int(current_bucket_size / bucket_growth_factor))
 
         current_idx = end_idx
         buckets_solved += 1

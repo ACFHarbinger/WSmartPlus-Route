@@ -264,13 +264,11 @@ class DESolver:
         for node in all_nodes:
             # Inherit from mutant if node is j_rand OR rand < CR
             if node == j_rand or self.rng.random() < CR:
+                # If inherited from mutant, the node is in trial if it's in mutant_nodes
                 if node in mutant_nodes:
                     trial_nodes.add(node)
-                elif node == j_rand:
-                    # In DE, j_rand is a parameter of the vector.
-                    # If the mutant doesn't have it but it's j_rand,
-                    # it means the 'mutant' value for that dimension is 'absent'.
-                    pass
+                # Note: if node == j_rand and node not in mutant_nodes, we don't add it.
+                # This correctly reflects the mutant vector's state for that "dimension".
             else:
                 # Inherit from target
                 if node in target_nodes:
