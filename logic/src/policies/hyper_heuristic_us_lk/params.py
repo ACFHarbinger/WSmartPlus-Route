@@ -1,12 +1,6 @@
 """
 HULK (Hyper-heuristic Using unstringing/stringing with Local search and K-opt) Parameters.
 
-Configuration for the HULK hyper-heuristic that combines:
-- Unstringing operators for destruction
-- Stringing operators for reconstruction
-- Local search for improvement
-- Adaptive operator selection based on performance
-
 Reference:
     Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO
     and Local Search for Dynamic Optimization Problems."
@@ -23,17 +17,17 @@ class HULKParams:
 
     # Search parameters
     max_iterations: int = 1000
-    time_limit: float = 300.0  # seconds
+    time_limit: float = 300.0
     restarts: int = 3
-    restart_threshold: int = 100  # iterations without improvement
+    restart_threshold: int = 100
 
     # Operator selection parameters
-    epsilon: float = 0.3  # exploration rate
+    epsilon: float = 0.3
     epsilon_decay: float = 0.995
     min_epsilon: float = 0.05
 
     # Performance tracking
-    memory_size: int = 50  # window for operator performance
+    memory_size: int = 50
 
     # Acceptance criteria
     accept_worse_prob: float = 0.1
@@ -46,7 +40,7 @@ class HULKParams:
 
     # Unstringing/Stringing parameters
     min_destroy_size: int = 2
-    max_destroy_pct: float = 0.3  # max percentage of nodes to destroy
+    max_destroy_pct: float = 0.3
 
     # Local search parameters
     ls_intensity: int = 5
@@ -80,22 +74,25 @@ class HULKParams:
         ]
     )
 
-    # Operator weights (initial, will be adapted)
+    # Müller & Bonilha (2022) Performance scoring (Alpha, Beta, Gamma, Delta)
+    score_alpha: float = 20.0
+    score_beta: float = 10.0
+    score_gamma: float = 5.0
+    score_delta: float = 0.5
+
+    # Aliases
+    score_best: float = 20.0
+    score_improvement: float = 10.0
+    score_accept: float = 5.0
+    score_reject: float = 0.5
+
+    # Operator weights
     operator_weights: dict = field(default_factory=dict)
-
-    # Performance scoring
-    score_improvement: float = 10.0  # points for improvement
-    score_accept: float = 5.0  # points for accepted move
-    score_reject: float = -1.0  # penalty for rejection
-    score_best: float = 20.0  # bonus for new best solution
-
-    # Adaptive weight learning
     weight_learning_rate: float = 0.1
-    weight_decay: float = 0.95  # decay old weights over time
+    weight_decay: float = 0.95
 
     def __post_init__(self):
         """Initialize operator weights if not provided."""
         if not self.operator_weights:
-            # Initialize all operators with equal weights
             all_ops = self.unstring_operators + self.string_operators + self.local_search_operators
             self.operator_weights = {op: 1.0 for op in all_ops}

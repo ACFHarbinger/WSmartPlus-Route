@@ -124,30 +124,54 @@ def fisher_jaikumar_clustering(
     df_nodes = df_nodes.sort_values("angle")
 
     # Divide into K sectors and pick furthest node in each as seed
-    sector_size = math.ceil(len(df_nodes) / k) if k > 0 else len(df_nodes)
+    # Fisher & Jaikumar (1981): Seeds should be the most "difficult" nodes to serve,
+    # typically those furthest from the depot in distinct angular regions.
+    # We use actual distance to depot for robustness.
     seeds = []
+
+    # Sort by angle first to partition
+    df_sorted = df_nodes.sort_values("angle")
+
     for i in range(k):
-        sector = df_nodes.iloc[i * sector_size : (i + 1) * sector_size]
+        start_angle = -math.pi + (i * 2 * math.pi / k)
+        end_angle = -math.pi + ((i + 1) * 2 * math.pi / k)
+
+        sector = df_sorted[(df_sorted["angle"] >= start_angle) & (df_sorted["angle"] < end_angle)]
         if not sector.empty:
-            # Fisher-Jaikumar: Seeds should be furthest nodes (most difficult to insert)
+            # Fisher-Jaikumar: Seeds should be furthest nodes in each sector
             seed_idx = int(sector.loc[sector["dist"].idxmax(), "idx"])
             seeds.append(seed_idx)
+        else:
+            # If sector is empty, pick the furthest unassigned node overall to keep K seeds
+            assigned_seeds = [s for s in seeds]
+            available = df_sorted[~df_sorted["idx"].isin(assigned_seeds)]
+            if not available.empty:
+                seed_idx = int(available.loc[available["dist"].idxmax(), "idx"])
+                seeds.append(seed_idx)
 
-    # 2. Assignment based on insertion cost
+    # 2. Assignment based on Generalized Assignment Problem (GAP) cost approximation
+    # Fisher & Jaikumar (1981) insertion cost: c_ik = d(0, i) + d(i, k) - d(0, k)
     clusters = [[] for _ in range(len(seeds))]
     loads = [0.0] * len(seeds)
 
-    # Sort nodes by distance to depot (furthest first to ensure they get feasible assignments)
+    # Sort nodes by distance to depot (furthest first) to prioritize difficult nodes
     remaining_nodes = sorted(must_go, key=lambda x: distance_matrix[0, x], reverse=True)
 
     for node in remaining_nodes:
-        # Calculate assignment cost for each seed
-        # d_ik = d(0, i) + d(i, k) - d(0, k)
+        if node in seeds:
+            # Seeds are already at the "center" of their clusters
+            s_idx = seeds.index(node)
+            clusters[s_idx].append(node)
+            loads[s_idx] += wastes.get(node, 0)
+            continue
+
         best_seed_idx = -1
         min_insertion = float("inf")
 
         for s_idx, seed in enumerate(seeds):
-            # Generalized Assignment Problem (GAP) cost approximation
+            # Fisher & Jaikumar (1981) Equation (3):
+            # f(i, k) = d(0, i) + d(i, k) - d(0, k)
+            # This represents the additional distance to visit node i given seed k is visited.
             insertion_cost = distance_matrix[0, node] + distance_matrix[node, seed] - distance_matrix[0, seed]
 
             if insertion_cost < min_insertion and loads[s_idx] + wastes.get(node, 0) <= capacity:
@@ -158,10 +182,18 @@ def fisher_jaikumar_clustering(
             clusters[best_seed_idx].append(node)
             loads[best_seed_idx] += wastes.get(node, 0)
         else:
-            # Fallback for overflows: start a new cluster if possible or add to least filled
-            min_load_idx = int(np.argmin(loads))
-            clusters[min_load_idx].append(node)
-            loads[min_load_idx] += wastes.get(node, 0)
+            # Fallback: find the cluster with most remaining capacity
+            best_fallback = -1
+            max_remaining = -1.0
+            for s_idx in range(len(seeds)):
+                rem = capacity - loads[s_idx]
+                if rem > max_remaining:
+                    max_remaining = rem
+                    best_fallback = s_idx
+
+            if best_fallback != -1:
+                clusters[best_fallback].append(node)
+                loads[best_fallback] += wastes.get(node, 0)
 
     return [c for c in clusters if c]
 
