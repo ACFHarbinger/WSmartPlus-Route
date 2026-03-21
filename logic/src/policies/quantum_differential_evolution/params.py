@@ -30,4 +30,5 @@ class QDEParams:
     CR: float = 0.9
     max_iterations: int = 200
     time_limit: float = 60.0
-    n_removal: int = 2
+    delta_theta: float = 0.01 * 3.14159  # Rotation gate step size (e.g., 0.01*pi)
+    local_search_iterations: int = 100

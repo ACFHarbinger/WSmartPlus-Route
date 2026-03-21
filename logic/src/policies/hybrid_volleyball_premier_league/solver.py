@@ -153,8 +153,10 @@ class HVPLSolver:
             active_teams = self._substitution_phase(active_teams, passive_teams)
 
             # ═══════════════════════════════════════════════════════════
-            # PHASE 3: ALNS COACHING REFINEMENT
+            # PHASE 3: ALNS COACHING REFINEMENT (Exploitation)
             # ═══════════════════════════════════════════════════════════
+            # Applying intensive local search to the top solutions to ensure
+            # we reach the local optima of the current attraction basins.
             active_teams = self._alns_coaching(active_teams)
 
             # Re-evaluate after coaching

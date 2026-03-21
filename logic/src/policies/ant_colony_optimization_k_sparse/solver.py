@@ -168,6 +168,7 @@ class KSparseACOSolver:
             iteration_best_cost = float("inf")
 
             # Each ant constructs a solution
+            iteration_solutions = []
             for _ in range(self.params.n_ants):
                 # Use delegated constructor
                 routes = self.constructor.construct()
@@ -177,18 +178,24 @@ class KSparseACOSolver:
                     routes = self.ls.optimize(routes)
 
                 cost = self._calculate_cost(routes)
+                iteration_solutions.append((routes, cost))
 
                 if cost < iteration_best_cost:
                     iteration_best_cost = cost
                     iteration_best_routes = routes
+
+            # Sort iteration solutions by cost
+            iteration_solutions.sort(key=lambda x: x[1])
 
             # Update global best
             if iteration_best_cost < best_cost:
                 best_cost = iteration_best_cost
                 best_routes = iteration_best_routes
 
-            # Global pheromone update
-            self._global_pheromone_update(best_routes, best_cost)
+            # Global pheromone update: strictly limit to best-so-far and iteration-best
+            # or top-k ants if k_sparse specifies it.
+            # Following Leguizamon (1999), we update using the rank-based scheme.
+            self._global_pheromone_update(best_routes, best_cost, iteration_solutions)
 
             _tau_vals = [v for nbrs in self.pheromone._pheromone.values() for v in nbrs.values()]
             getattr(self, "_viz_record", lambda **k: None)(
@@ -205,11 +212,16 @@ class KSparseACOSolver:
 
         return best_routes, profit, best_cost
 
-    def _global_pheromone_update(self, best_routes: List[List[int]], best_cost: float) -> None:
+    def _global_pheromone_update(
+        self, best_routes: List[List[int]], best_cost: float, iteration_solutions: List[Tuple[List[List[int]], float]]
+    ) -> None:
         """
-        Apply ACS global pheromone update on best-so-far solution.
+        Apply rank-based global pheromone update.
 
-        Only edges in the best solution receive pheromone deposit.
+        Reference: Leguizamon et al. (1999)
+        - Deposit pheromone for best-so-far (elitist)
+        - Deposit pheromone for top (w-1) ants of current iteration
+        - Weight delta by rank: (w - rank) / best_cost
         """
         if not best_routes or best_cost <= 0:
             return
@@ -217,22 +229,27 @@ class KSparseACOSolver:
         # Evaporate all pheromones
         self.pheromone.evaporate_all(self.params.rho)
 
-        # Deposit on best solution edges
-        delta = self.params.elitist_weight / best_cost
+        # Weight for best-so-far
+        w = 10  # Number of elite ants (common value)
+        delta_bs = w / best_cost
+        self._deposit_solution(best_routes, delta_bs)
 
-        for route in best_routes:
+        # Weight for top ants in iteration
+        for rank, (routes, cost) in enumerate(iteration_solutions[: w - 1]):
+            delta = (w - (rank + 1)) / cost
+            self._deposit_solution(routes, delta)
+
+    def _deposit_solution(self, routes: List[List[int]], delta: float) -> None:
+        """Helper to deposit pheromone on all edges of a solution."""
+        for route in routes:
             if not route:
                 continue
 
-            # Depot to first node
-            self.pheromone.update_edge(0, route[0], delta, evaporate=False)
-
-            # Route edges
-            for k in range(len(route) - 1):
-                self.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
-
-            # Last node back to depot
-            self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+            prev = 0
+            for node in route:
+                self.pheromone.update_edge(prev, node, delta, evaporate=False)
+                prev = node
+            self.pheromone.update_edge(prev, 0, delta, evaporate=False)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
         """Calculate total routing cost."""

@@ -116,43 +116,64 @@ def run_local_branching_gurobi(
     incumbent_x = {key: var.X for key, var in x.items()}
     incumbent_y = {key: var.X for key, var in y.items()}
 
-    # 3. Local Branching Loop
+    # 3. Local Branching Loop (Fischetti & Lodi, 2003)
+    # This implements the standard LB logic with intensification/diversification
     start_time = model.Runtime
     iterations = 0
-    lb_cut = None
+    k_current = k
 
     while iterations < max_iterations:
         elapsed = model.Runtime - start_time
         if elapsed > time_limit:
             break
 
-        # Remove previous LB cut if it exists
-        if lb_cut:
-            model.remove(lb_cut)
+        # --- Phase 1: Intensification (Search in k-neighborhood) ---
+        # Add the local branching constraint: delta(x, incumbent) <= k
+        lb_cut = _add_local_branching_constraint(model, x, y, incumbent_x, incumbent_y, k_current)
 
-        # Add new LB cut relative to current incumbent
-        lb_cut = _add_local_branching_constraint(model, x, y, incumbent_x, incumbent_y, k)
-
-        # Solve restricted sub-MIP with DFJ callback
         remaining_time = time_limit - elapsed
         iter_time = min(time_limit_per_iteration, remaining_time)
         model.setParam("TimeLimit", iter_time)
-        model.setParam("NodeLimit", mip_limit_nodes)
 
         model.optimize(_dfj_subtour_elimination_callback)
 
         if model.SolCount > 0 and model.ObjVal > current_best_obj + 1e-4:
-            # Improvement found! Update incumbent and move to new neighborhood
+            # OPTIMAL OR SUBOPTIMAL IMPROVEMENT FOUND
+            # Prepare for next iteration: add left branch (diversification cut)
+            # F&L 2003: If we find a new incumbent, we "move" the neighborhood
             current_best_obj = model.ObjVal
-            incumbent_x = {key: var.X for key, var in x.items()}
-            incumbent_y = {key: var.X for key, var in y.items()}
-            # Option: could dynamically adjust k here (e.g., reset if it was increased)
+
+            # Record best for next center
+            new_incumbent_x = {key: var.X for key, var in x.items()}
+            new_incumbent_y = {key: var.X for key, var in y.items()}
+
+            # Diversification: Add the "left branch" constraint for previous neighborhood
+            # sum_{j in B1} (1-xj) + sum_{j in B0} xj >= 1
+            # Effectively: delta(x, old_incumbent) >= 1
+            model.remove(lb_cut)
+            model.addConstr(
+                gp.quicksum(1 - x[k] for k, v in incumbent_x.items() if v > 0.5)
+                + gp.quicksum(x[k] for k, v in incumbent_x.items() if v <= 0.5)
+                >= 1
+            )
+
+            incumbent_x = new_incumbent_x
+            incumbent_y = new_incumbent_y
+            k_current = k  # Reset k
         else:
-            # No improvement found in the k-neighborhood.
-            # Diversification: in simple LB, we might just stop or try a different constraint.
-            # Here we follow the basic scheme: try to move to the other side of the cut if possible,
-            # but for our simple implementation, we'll just stop if no progress is made.
-            break
+            # NO IMPROVEMENT OR TIME LIMIT IN SUB-MIP
+            model.remove(lb_cut)
+            # Diversification per Paper: Increase k or branch
+            if k_current < k + 10:  # Allow some expansion
+                k_current += 2
+            else:
+                # Add hard branch: we finished searching this neighborhood
+                model.addConstr(
+                    gp.quicksum(1 - x[k] for k, v in incumbent_x.items() if v > 0.5)
+                    + gp.quicksum(x[k] for k, v in incumbent_x.items() if v <= 0.5)
+                    >= k_current + 1
+                )
+                break  # Or try to continue from another point
 
         iterations += 1
 

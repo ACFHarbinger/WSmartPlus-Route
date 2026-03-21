@@ -33,7 +33,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, random_removal
+from ..other.operators import greedy_insertion
 from .params import DEParams
 
 
@@ -187,72 +187,50 @@ class DESolver:
         F: float,
     ) -> List[List[int]]:
         """
-        DE mutation operator: v = x_r1 + F × (x_r2 - x_r3).
+        DE mutation operator: v = x_r1 + F * (x_r2 - x_r3).
 
-        In discrete routing space, we implement this as:
-        1. Extract nodes from diff1 (x_r2) that are NOT in diff2 (x_r3) → differential
-        2. Scale by F (probabilistically select F fraction of differential nodes)
-        3. Add to base (x_r1) via destroy-repair
-
-        Args:
-            base: Base vector (x_r1)
-            diff1: First difference vector (x_r2)
-            diff2: Second difference vector (x_r3)
-            F: Mutation factor (differential weight)
-
-        Returns:
-            Mutant vector v_i
+        Discrete mapping using weighted set symmetric differences:
+        1. Identify nodes present in diff1 but NOT in diff2 (positive differential).
+        2. Identify nodes present in diff2 but NOT in diff1 (negative differential).
+        3. Probabilistically (factor F) extract nodes from the positive differential
+           to add to the base, and from the negative differential to remove from the base.
+        4. This simulates a 'direction' in the discrete search space.
         """
-        # Extract node sets
-        diff1_nodes = set(node for route in diff1 for node in route)
-        diff2_nodes = set(node for route in diff2 for node in route)
+        base_nodes = set(n for r in base for n in r)
+        diff1_nodes = set(n for r in diff1 for n in r)
+        diff2_nodes = set(n for r in diff2 for n in r)
 
-        # Compute differential: nodes in diff1 but not in diff2
-        differential = diff1_nodes - diff2_nodes
+        # Vector differential: d = (x_r2 - x_r3)
+        pos_diff = diff1_nodes - diff2_nodes
+        neg_diff = diff2_nodes - diff1_nodes
 
-        # Scale by F (probabilistically select F fraction of differential)
-        scaled_differential = {node for node in differential if self.rng.random() < F} if differential else set()
+        # Scaled differential: F * d
+        to_add = {n for n in pos_diff if self.rng.random() < F}
+        to_remove = {n for n in neg_diff if self.rng.random() < F}
 
-        # Also compute reverse differential for diversity
-        reverse_differential = diff2_nodes - diff1_nodes
-        scaled_reverse = (
-            {node for node in reverse_differential if self.rng.random() < (1.0 - F)} if reverse_differential else set()
-        )
+        # Vector addition: v = x_r1 + F * d
+        mutant_nodes = (base_nodes - to_remove) | to_add
 
-        # Combine differentials
-        mutation_nodes = scaled_differential | scaled_reverse
+        if not mutant_nodes:
+            # Ensure the mutant is not empty if the problem has mandatory nodes
+            if self.mandatory_nodes:
+                mutant_nodes = set(self.mandatory_nodes)
+            else:
+                return copy.deepcopy(base)
 
-        # If no differential, fall back to random perturbation
-        if not mutation_nodes:
-            mutation_nodes = set(self.rng.sample(self.nodes, min(self.params.n_removal, len(self.nodes))))
-
-        # Apply differential mutation to base
-        mutant = copy.deepcopy(base)
-
-        # Remove mutation_nodes from base
-        for route in mutant:
-            for node in list(route):
-                if node in mutation_nodes:
-                    route.remove(node)
-        mutant = [r for r in mutant if r]
-
-        # Also remove some random nodes for additional perturbation
+        # Build solution using greedy insertion for feasibility
         try:
-            partial, removed = random_removal(mutant, self.params.n_removal, rng=self.rng)
-            to_insert = sorted(list(mutation_nodes | set(removed)))
-
-            repaired = greedy_insertion(
-                partial,
-                to_insert,
+            mutant = greedy_insertion(
+                [],
+                sorted(list(mutant_nodes)),
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-
-            # Apply local search to mutant
-            return self.ls.optimize(repaired)
+            # Local search is an extension common in VRP-DE
+            return self.ls.optimize(mutant)
         except Exception:
             return copy.deepcopy(base)
 
@@ -284,8 +262,8 @@ class DESolver:
 
         trial_nodes = set()
         for node in all_nodes:
-            # Inherit from mutant if rand < CR or this is j_rand
-            if self.rng.random() < CR or node == j_rand:
+            # Inherit from mutant if rand < CR or this is the forced j_rand node
+            if node == j_rand or self.rng.random() < CR:
                 if node in mutant_nodes:
                     trial_nodes.add(node)
             else:

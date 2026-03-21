@@ -49,6 +49,7 @@ class HULKParams:
     max_destroy_pct: float = 0.3  # max percentage of nodes to destroy
 
     # Local search parameters
+    ls_intensity: int = 5
     local_search_iterations: int = 10
     local_search_operators: List[str] = field(
         default_factory=lambda: [

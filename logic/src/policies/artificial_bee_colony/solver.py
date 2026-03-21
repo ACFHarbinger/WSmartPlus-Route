@@ -24,6 +24,8 @@ from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import (
     greedy_insertion,
     random_removal,
+    regret_2_insertion,
+    worst_removal,
 )
 from .params import ABCParams
 
@@ -116,14 +118,18 @@ class ABCSolver:
                     trials[i] += 1
 
             # --- Onlooker bee phase ---
-            # Fitness for roulette wheel (shift to keep positive)
+            # Fitness for roulette wheel (Karaboga 2005: P_i = fit_i / Sum fit_j)
+            # We ensure fitness is non-negative and represents quality
             min_p = min(profits)
-            shifted = [p - min_p + 1e-9 for p in profits]
-            total = sum(shifted)
-            probs = [s / total for s in shifted]
+            shifted = [max(0.0, p - min_p) + 1e-9 for p in profits]
+            total_fit = sum(shifted)
+            probs = [s / total_fit for s in shifted]
 
             for _ in range(self.params.n_sources):
+                # Select source i based on probability P_i
                 i = self._roulette(probs, self.rng)
+
+                # Perturb and evaluate
                 peer_idx = self.rng.choice([x for x in range(self.params.n_sources) if x != i])
                 neighbour = self._perturb(sources[i], sources[peer_idx])
                 nb_profit = self._evaluate(neighbour)
@@ -212,12 +218,19 @@ class ABCSolver:
 
         current_copy = [r for r in current_copy if r]
 
-        # Also randomly remove some additional nodes for diversity
-        try:
-            partial, additional_removed = random_removal(current_copy, n, rng=self.rng)
-            to_insert = sorted(list(set(selected_peer_nodes + additional_removed)))
+        # Randomly choose between greedy and regret-2 insertion for diversity
+        reinsert_op = self.rng.choice([greedy_insertion, regret_2_insertion])
+        removal_op = self.rng.choice([random_removal, worst_removal])
 
-            repaired = greedy_insertion(
+        try:
+            if removal_op == random_removal:
+                partial, removed = removal_op(current_copy, n, rng=self.rng)
+            else:
+                partial, removed = removal_op(current_copy, n, self.dist_matrix)
+
+            to_insert = sorted(list(set(selected_peer_nodes + removed)))
+
+            repaired = reinsert_op(
                 partial,
                 to_insert,
                 self.dist_matrix,
@@ -225,6 +238,7 @@ class ABCSolver:
                 self.capacity,
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
+                cost_unit=self.C,
             )
             # Apply comprehensive local search (reusing instance)
             return self.ls.optimize(repaired)

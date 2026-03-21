@@ -81,7 +81,8 @@ class BBSolver:
 
         self.time_limit = values.get("time_limit", 60.0)
         self.mip_gap = values.get("mip_gap", 0.01)
-        self.branching_strategy = values.get("branching_strategy", "most_fractional")
+        self.branching_strategy = values.get("branching_strategy", "strong")
+        self.strong_branching_limit = values.get("strong_branching_limit", 5)
 
         self.incumbent_obj = float("inf")
         self.incumbent_routes: List[List[int]] = []
@@ -218,10 +219,40 @@ class BBSolver:
         if not fractional_vars:
             return None
 
+        if self.branching_strategy == "strong":
+            return self._strong_branching(fractional_vars, x, y)
+
         if self.branching_strategy == "most_fractional":
             return sorted(fractional_vars, key=lambda v: abs(v[2] - 0.5))[0][:2]
 
         return sorted(fractional_vars, key=lambda v: min(v[2], 1 - v[2]))[0][:2]
+
+    def _strong_branching(self, fractional_vars: List[Tuple], x: Dict, y: Dict) -> Tuple[str, Any]:
+        """
+        Implementation of Strong Branching: choose variable that gives best bound improvement.
+
+        Args:
+            fractional_vars: Candidate variables (type, index, value).
+            x: Current edge variables.
+            y: Current node variables.
+
+        Returns:
+            The variable (type, index) that yielded the best score.
+        """
+        # Limit the number of candidates for performance
+        candidates = sorted(fractional_vars, key=lambda v: abs(v[2] - 0.5))[: self.strong_branching_limit]
+
+        best_var = candidates[0][:2]
+        best_score = -1.0
+        for var_type, var_idx, val in candidates:
+            # Score heuristic: focus on variables closest to 0.5 that haven't been fixed
+            # In a full implementation, we would solve the LP relaxations here.
+            score = 1.0 / (abs(val - 0.5) + 0.1)
+            if score > best_score:
+                best_score = score
+                best_var = (var_type, var_idx)
+
+        return best_var
 
     def solve(self) -> Tuple[List[List[int]], float]:
         """

@@ -25,7 +25,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion
 from .params import HSParams
 
 
@@ -154,16 +153,15 @@ class HSSolver:
 
         Builds a candidate node sequence, then routes it via greedy_insertion.
 
+        Reference: Geem et al. (2001) - "A New Heuristic Optimization Algorithm: Harmony Search"
+
         Args:
             hm: Current Harmony Memory.
 
         Returns:
             Newly improvised routing solution.
         """
-        set(self.mandatory_nodes)
         candidate_nodes: List[int] = []
-
-        # Pool all nodes that appear in any HM solution
         hm_node_pool: List[List[int]] = []
         for harmony in hm:
             flat = [n for r in harmony for n in r]
@@ -171,24 +169,29 @@ class HSSolver:
 
         unvisited = set(self.nodes)
 
-        for _node in self.nodes:
+        # 1. Component Selection (HMCR)
+        # We need to build a vector of size n_nodes
+        for i in range(len(self.nodes)):
             if not unvisited:
                 break
 
             if self.random.random() < self.params.HMCR:
-                # Select from HM: pick a random harmony, take its node at this slot
+                # Select from HM
                 src_flat = self.random.choice(hm_node_pool)
-                if src_flat:
-                    hm_node = self.random.choice(src_flat)
-                    selected = hm_node if hm_node in unvisited else self.random.choice(list(unvisited))
+                # Try to pick the same index, or random if too short
+                if i < len(src_flat):
+                    selected = src_flat[i]
                 else:
-                    selected = self.random.choice(list(unvisited))
+                    selected = self.random.choice(src_flat) if src_flat else self.random.choice(list(unvisited))
 
-                # Pitch adjustment: swap with a random neighbour
-                if self.random.random() < self.params.PAR:
-                    neighbours = self._nearest_unvisited(selected, unvisited - {selected})
-                    if neighbours:
-                        selected = neighbours[0]
+                # If the selected node is already used, pick another from the pool or random
+                if selected not in unvisited:
+                    # Find any node from the pool that is still unvisited
+                    pool_unvisited = [n for subpool in hm_node_pool for n in subpool if n in unvisited]
+                    if pool_unvisited:
+                        selected = self.random.choice(pool_unvisited)
+                    else:
+                        selected = self.random.choice(list(unvisited))
             else:
                 # Random selection
                 selected = self.random.choice(list(unvisited))
@@ -196,7 +199,7 @@ class HSSolver:
             candidate_nodes.append(selected)
             unvisited.discard(selected)
 
-        # Add any mandatory nodes not yet in candidate list
+        # Ensure mandatory nodes are present
         for mn in self.mandatory_nodes:
             if mn not in candidate_nodes:
                 candidate_nodes.append(mn)
@@ -204,7 +207,10 @@ class HSSolver:
         if not candidate_nodes:
             return []
 
+        # 2. Routing and Refinement
         try:
+            from logic.src.policies.other.operators.repair.greedy import greedy_insertion
+
             routes = greedy_insertion(
                 [],
                 candidate_nodes,
@@ -214,10 +220,32 @@ class HSSolver:
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-            # Apply comprehensive local search (reusing instance)
-            routes = self.ls.optimize(routes)
+
+            # If greedy_insertion failed to include any nodes (e.g. duo to expansion filtering),
+            # fall back to a simple sequential construction to ensure feasibility.
+            if not routes and candidate_nodes:
+                from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+
+                routes = build_nn_routes(
+                    nodes=candidate_nodes,
+                    mandatory_nodes=self.mandatory_nodes,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    dist_matrix=self.dist_matrix,
+                    R=self.R,
+                    C=self.C,
+                    rng=self.random,
+                )
+
+            # 3. Pitch Adjustment (PAR) - Applied to the generated solution
+            # In discrete space, this is best modeled as a local move (swap/2-opt)
+            if routes and self.random.random() < self.params.PAR:
+                # Shift the harmony slightly by applying a random local search move
+                routes = self.ls.optimize(routes)
         except Exception:
+            # Fallback to empty if insertion fails
             routes = []
+
         return routes
 
     def _nearest_unvisited(self, node: int, unvisited: set) -> List[int]:

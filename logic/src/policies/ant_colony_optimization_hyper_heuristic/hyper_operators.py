@@ -20,6 +20,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 import numpy as np
 
 from ..other.operators import (
+    greedy_insertion,
     kick,
     move_2opt_intra,
     move_2opt_star,
@@ -28,6 +29,8 @@ from ..other.operators import (
     move_swap,
     move_swap_star,
     perturb,
+    shaw_removal,
+    string_removal,
 )
 
 
@@ -283,6 +286,48 @@ def apply_kick(ctx: HyperOperatorContext, destroy_ratio: float = 0.2) -> bool:
     return kick(ctx, destroy_ratio)
 
 
+def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
+    """Wrapper for shaw removal followed by greedy insertion."""
+    n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
+    try:
+        partial, removed = shaw_removal(ctx.routes, n_remove, ctx.d)
+        ctx.routes = greedy_insertion(
+            partial,
+            removed,
+            ctx.d,
+            ctx.waste,
+            ctx.Q,
+            R=ctx.R,
+            mandatory_nodes=list(ctx.mandatory_nodes),
+            cost_unit=ctx.C,
+        )
+        ctx._build_structures()
+        return True
+    except Exception:
+        return False
+
+
+def apply_string_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
+    """Wrapper for string removal followed by greedy insertion."""
+    n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
+    try:
+        partial, removed = string_removal(ctx.routes, n_remove, ctx.d, rng=ctx.rng)
+        ctx.routes = greedy_insertion(
+            partial,
+            removed,
+            ctx.d,
+            ctx.waste,
+            ctx.Q,
+            R=ctx.R,
+            mandatory_nodes=list(ctx.mandatory_nodes),
+            cost_unit=ctx.C,
+        )
+        ctx._build_structures()
+        return True
+    except Exception:
+        return False
+
+
 # Registry of available operators
 HYPER_OPERATORS: Dict[str, Callable[[HyperOperatorContext], bool]] = {
     "2opt_intra": apply_2opt_intra,
@@ -293,6 +338,8 @@ HYPER_OPERATORS: Dict[str, Callable[[HyperOperatorContext], bool]] = {
     "relocate": apply_relocate,
     "perturb": apply_perturb,
     "kick": apply_kick,
+    "shaw_removal": apply_shaw_removal,
+    "string_removal": apply_string_removal,
 }
 
 OPERATOR_NAMES = list(HYPER_OPERATORS.keys())
