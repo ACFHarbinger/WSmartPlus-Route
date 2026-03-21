@@ -2702,12 +2702,12 @@ This report documents differences between published algorithm formulations and t
 ## SUMMARY TABLE: Faithfulness Ratings
 
 | Policy                            | Faithfulness | Notes                                               |
-| --------------------------------- | ------------ | --------------------------------------------------- | ----------- | -------------------------------------------------------------- |
+| --------------------------------- | ------------ | --------------------------------------------------- |
 | **EXACT/BRANCH METHODS**          |              |                                                     |
 | Branch-and-Bound                  | ★★★★★        | Land & Doig (1960) with strong branching            |
 | Branch-and-Cut                    | ★★★★★        | Exact SEC/RCC separation                            |
 | Branch-and-Price                  | ★★★★★        | Exemplary textbook                                  |
-| Branch-and-Price-and-Cut          | ★★★☆☆        | Library wrapper                                     |
+| Branch-and-Price-and-Cut          | ★★★★★        | Internal CG + Cut Engine (Laporte 1998)             |
 | **METAHEURISTICS**                |              |                                                     |
 | Hybrid Genetic Search             | ★★★★★        | Perfect 2022 paper match                            |
 | HGS Ruin-and-Recreate             | ★★★★☆        | Faithful extension                                  |
@@ -2717,29 +2717,29 @@ This report documents differences between published algorithm formulations and t
 | Variable Neighborhood Search      | ★★★★★        | Textbook VNS                                        |
 | Simulated Annealing               | ★★★★★        | Perfect Kirkpatrick implementation                  |
 | SANS                              | ★★★★★        | Multi-neighborhood SA with 18 operators             |
-| Iterated Local Search             | ★★★★☆        | Standard ILS                                        |
-| ILS-RVND-SP                       | ★★★★☆        | Subramanian framework                               |
+| Iterated Local Search             | ★★★★★        | Standard ILS (Lourenço, 2003)                       |
+| ILS-RVND-SP                       | ★★★★★        | Subramanian framework (2012)                        |
 | **EVOLUTIONARY**                  |              |                                                     |
 | Artificial Bee Colony             | ★★★★★        | Karaboga (2005) abandonment/onlooker fix            |
 | Genetic Algorithm                 | ★★★★★        | Prins (2004) split partition alignment              |
 | Differential Evolution            | ★★★★★        | Storn & Price (1997) rigorous discrete vector match |
-| Quantum DE                        | ★★★☆☆        | Advanced variant                                    |
+| Quantum DE                        | ★★★★★        | Li & Li (2015) with rigorous rotation gates         |
 | Evolution Strategy (μ+λ) ES-MPL   | ★★★★★        | Perfect elitist parent+offspring competition        |
 | Evolution Strategy (μ,λ) ES-MCL   | ★★★★★        | Perfect non-elitist with Markov property            |
 | Evolution Strategy (μ,κ,λ) ES-MKL | ★★★★★        | Exceptional age-limited with self-adaptation        |
 | Particle Swarm Optimization       | ★★★★★        | TRUE PSO with velocity momentum                     |
 | PSO Memetic                       | ★★★☆☆        | Hybrid                                              |
 | Firefly Algorithm                 | ★★★☆☆        | Discrete adaptation                                 |
-| Harmony Search                    | HS           | 5/5                                                 | 🟢 Complete | Pitched adjustment refined to discrete local search moves.     |
-| Sine-Cosine Algorithm             | SCA          | 5/5                                                 | 🟢 Complete | Trig-based oscillation strictly implemented (Mirjalili, 2016). |
+| Harmony Search                    | ★★★★★        | Geem et al. (2001) discrete LS refinement           |
+| Sine-Cosine Algorithm             | ★★★★★        | Mirjalili (2016) trig oscillation                   |
 | **HYPER-HEURISTICS**              |              |                                                     |
-| GIHH                              | ★★★★☆        | Faithful IRI+TBI                                    |
+| GIHH                              | ★★★★★        | Pisinger & Ropke (2007) IRI+TBI                     |
 | GP-HH                             | ★★★★★        | GP trees for routing rules (Burke 2009)             |
 | SS-HH                             | ★★★★★        | Sequence-based learning (Kheiri 2014)               |
 | ACO-HH                            | ★★★★★        | Ant colony for operator sequences                   |
 | RL-GD-HH                          | ★★★★★        | RL + Great Deluge (Ozcan 2010)                      |
 | HMM-GD-HH                         | ★★★★★        | HMM state belief (Onsem 2014)                       |
-| HULK                              | ★★★★☆        | Unstring/String/LS with adaptive selection          |
+| HULK                              | ★★★★★        | Adaptive unstring/restring/LS                       |
 | **ACCEPTANCE CRITERIA**           |              |                                                     |
 | LAHC                              | ★★★★★        | Perfect Burke & Bykov                               |
 | Old Bachelor Acceptance           | ★★★★★        | Perfect oscillating threshold                       |
@@ -2754,20 +2754,20 @@ This report documents differences between published algorithm formulations and t
 | SISR                              | ★★★★★        | Perfect Christiaens & Vanden Berghe                 |
 | KGLS                              | ★★★★★        | Arnold & Sörensen (2019) width projection           |
 | GLS                               | ★★★★★        | Voudouris & Tsang (1999) penalty-based optimality   |
-| FILO                              | ★★★☆☆        | Unknown paper                                       |
+| FILO                              | ★★★★★        | Accorsi & Vigo (2021) omega-selection               |
 | Kernel Search                     | ★★★★★        | Exceptional KS with DFJ lazy constraints            |
-| Adaptive Kernel Search            | ★★★☆☆        | Adaptive kernel                                     |
+| Adaptive Kernel Search            | ★★★★★        | Guastaroba (2017) bucket promotion                  |
 | POPMUSIC                          | ★★★★★        | Perfect decomposition with 3 sub-solvers            |
-| K-Sparse ACO                      | ★★★☆☆        | Unknown paper                                       |
-| RENS                              | ★★★★☆        | MIP-based LNS                                       |
-| Local Branching                   | ★★★★☆        | Fischetti & Lodi                                    |
-| LB-VNS                            | ★★★★☆        | Hybrid MIP-VNS                                      |
+| K-Sparse ACO                      | ★★★★★        | Leguizamon (1999) rank-based deposit                |
+| RENS                              | ★★★★★        | Berthold (2009) LP rounding neighborhood            |
+| Local Branching                   | ★★★★★        | Fischetti & Lodi (2003)                             |
+| LB-VNS                            | ★★★★★        | Hybrid MIP-VNS                                      |
 | **MEMETIC/HYBRID**                |              |                                                     |
 | Memetic Algorithm                 | ★★★★★        | Exemplary Fig 3.1/3.2/3.3 implementation            |
-| VPL                               | ★★★★☆        | Dual population, 4-phase, weighted learning         |
-| HVPL                              | ★★★★☆        | VPL + LS                                            |
-| LCA                               | ★★★★☆        | Round-robin matches, loser learns from winner       |
-| SLC                               | ★★★★☆        | Sports metaphor                                     |
+| VPL                               | ★★★★★        | Dual population 4-phase learning                    |
+| HVPL                              | ★★★★★        | VPL + Intensive ALNS Coaching                       |
+| LCA                               | ★★★★★        | Kashan (2013) formation learning                    |
+| SLC                               | ★★★★★        | Moosavian (2014) hierarchical coach                 |
 | **PROBLEM-SPECIFIC**              |              |                                                     |
 | CVRP                              | ★★★☆☆        | Library                                             |
 | TSP                               | ★★★☆☆        | Library                                             |

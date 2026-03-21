@@ -102,7 +102,7 @@ class SLCSolver:
                 break
 
             # 1. Racing and Interplays (Intra-team competition)
-            for t_idx, team in enumerate(teams):
+            for _t_idx, team in enumerate(teams):
                 for p_idx in range(len(team)):
                     routes, profit = team[p_idx]
                     # Each player locally perturbs its own solution
@@ -122,7 +122,7 @@ class SLCSolver:
             # 3. Coaching and Learning Phase
             # Weaker players learn from the global superstars (Top 3)
             self._update_superstars(teams)
-            for t_idx, team in enumerate(teams):
+            for _t_idx, team in enumerate(teams):
                 # Coaching: Apply weighted learning from superstars to help team improve
                 for p_idx in range(len(team)):
                     if self.random.random() < 0.2:  # Paper-inspired coaching probability
@@ -136,7 +136,7 @@ class SLCSolver:
                     stagnation[t_idx] = 0
 
             # Stagnation tracking (simplified)
-            for t_idx, team in enumerate(teams):
+            for _t_idx, team in enumerate(teams):
                 current_best = max(p for _, p in team)
                 if current_best > team_best[t_idx] + 1e-9:
                     team_best[t_idx] = current_best
