@@ -11,7 +11,6 @@ References:
     algorithm for the vehicle routing problem", 2004.
 """
 
-import contextlib
 import copy
 import random
 import time
@@ -19,7 +18,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..other.operators import greedy_insertion
+from logic.src.policies.hybrid_genetic_search.individual import Individual
+from logic.src.policies.other.operators.crossover.ordered import ordered_crossover
+from logic.src.policies.other.operators.destroy.random import random_removal
+from logic.src.policies.other.operators.repair.greedy import greedy_insertion
+
 from .params import GAParams
 
 
@@ -80,7 +83,7 @@ class GASolver:
 
             new_population: List[List[List[int]]] = []
 
-            # Elitism: carry forward the best
+            # Prins (2004) Style Elitism: carry forward the best individual
             new_population.append(copy.deepcopy(best_routes))
 
             while len(new_population) < self.params.pop_size:
@@ -88,12 +91,13 @@ class GASolver:
                 p1 = self._tournament_select(population, fitnesses)
                 p2 = self._tournament_select(population, fitnesses)
 
-                # Crossover
-                child = (
-                    self._crossover(p1, p2) if self.random.random() < self.params.crossover_rate else copy.deepcopy(p1)
-                )
+                # OX Crossover (standard for VRP)
+                if self.random.random() < self.params.crossover_rate:
+                    child = self._crossover(p1, p2)
+                else:
+                    child = copy.deepcopy(p1)
 
-                # Mutation
+                # Mutation (Inversion/Relocate)
                 if self.random.random() < self.params.mutation_rate:
                     child = self._mutate(child)
 
@@ -102,6 +106,7 @@ class GASolver:
             population = new_population
             fitnesses = [self._evaluate(ind) for ind in population]
 
+            # Update global best
             gen_best_idx = int(np.argmax(fitnesses))
             if fitnesses[gen_best_idx] > best_profit:
                 best_routes = copy.deepcopy(population[gen_best_idx])
@@ -165,62 +170,46 @@ class GASolver:
         p1_flat = [n for r in parent1 for n in r]
         p2_flat = [n for r in parent2 for n in r]
 
-        if len(p2_flat) < 2:
+        if not p1_flat or not p2_flat:
             return copy.deepcopy(parent1)
 
-        a = self.random.randint(0, len(p2_flat) - 1)
-        b = self.random.randint(a, min(a + max(1, len(p2_flat) // 3), len(p2_flat)))
-        segment = p2_flat[a:b]
-        segment_set = set(segment)
-
-        remaining = [n for n in p1_flat if n not in segment_set]
-        insert_pos = min(a, len(remaining))
-        child_flat = remaining[:insert_pos] + segment + remaining[insert_pos:]
+        ind1 = Individual(p1_flat)
+        ind2 = Individual(p2_flat)
+        child_ind = ordered_crossover(ind1, ind2, self.random)
+        child_flat = child_ind.giant_tour
 
         # Rebuild routes respecting capacity
-        child_routes: List[List[int]] = []
-        curr_route: List[int] = []
-        load = 0.0
-        for node in child_flat:
-            waste = self.wastes.get(node, 0.0)
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    child_routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-        if curr_route:
-            child_routes.append(curr_route)
-
-        # Ensure mandatory nodes are present
-        visited = {n for r in child_routes for n in r}
-        for n in self.mandatory_nodes:
-            if n not in visited:
-                child_routes.append([n])
+        child_routes = greedy_insertion(
+            [],
+            child_flat,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
 
         return child_routes
 
     def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
-        """Random relocate mutation."""
-        flat = [n for r in routes for n in r]
-        if not flat:
+        """Random relocate mutation using shared ruin/recreate."""
+        if not any(routes):
             return routes
-        node = self.random.choice(flat)
-        new_routes = [[n for n in r if n != node] for r in routes]
-        new_routes = [r for r in new_routes if r]
-        with contextlib.suppress(Exception):
+
+        partial, removed = random_removal(routes, 1, self.random)
+        try:
             new_routes = greedy_insertion(
-                new_routes,
-                [node],
+                partial,
+                removed,
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
                 R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
-        return new_routes
+            return new_routes
+        except Exception:
+            return routes
 
     # ------------------------------------------------------------------
     # Helpers

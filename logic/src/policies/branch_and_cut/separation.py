@@ -116,11 +116,15 @@ class SeparationEngine:
         # Step 1: Separate subtour elimination constraints (SECs)
         self._separate_subtours_heuristic(x_vals, y_vals)
 
-        # Step 2: Exact subtour separation (max-flow based) - expensive, run periodically
+        # Step 2: Separate capacity cuts (heuristic and exact)
+        self._separate_capacity_cuts(x_vals, y_vals)
+
+        # Step 3: Exact subtour separation (max-flow based) - expensive, run periodically
         if iteration % 5 == 0:
             self._separate_subtours_exact(x_vals, y_vals)
+            self._separate_capacity_cuts_exact(x_vals, y_vals)
 
-        # Step 3: Comb inequalities (heuristic) - advanced cuts
+        # Step 4: Comb inequalities (heuristic) - advanced cuts
         if iteration % 10 == 0:
             self._separate_comb_heuristic(x_vals, y_vals)
 
@@ -287,77 +291,143 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(CapacityCut(node_set, total_demand, self.model.capacity, violation))
 
+    def _separate_capacity_cuts_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
+        """
+        Exact separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.
+
+        Uses max-flow between depot and all visited nodes to find promising cuts.
+        For each cut, we check if the Rounded Capacity Inequality is violated.
+        """
+        if self.model.n_nodes > 100:  # Cap for performance
+            return
+
+        n = self.model.n_nodes
+        # Build support graph adjacency
+        adj = np.zeros((n, n))
+        for idx, (i, j) in enumerate(self.model.edges):
+            val = x_vals[idx]
+            if val > 1e-4:
+                adj[i, j] = val
+                adj[j, i] = val
+
+        # Only check nodes that have significant visit probability
+        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.1]
+
+        if y_vals is not None:
+            visited_customers.sort(key=lambda c: y_vals[c - 1], reverse=True)
+
+        for sink in visited_customers[:20]:  # Check top 20 most visited nodes
+            try:
+                flow_result = maximum_flow(csr_matrix(adj), self.model.depot, sink)
+                cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), self.model.depot, sink)
+
+                if not cut_set or self.model.depot in cut_set:
+                    continue
+
+                current_y_vals = y_vals if y_vals is not None else np.ones(len(self.model.customers))
+                total_demand = sum(
+                    self.model.get_node_demand(i) for i in cut_set if i > 0 and current_y_vals[i - 1] > 0.1
+                )
+
+                if total_demand <= 1e-4:
+                    continue
+
+                min_vehicles = int(np.ceil(total_demand / self.model.capacity))
+                if min_vehicles < 1:
+                    continue
+
+                cut_val = self._get_cut_value(cut_set, x_vals)
+                required_val = 2.0 * min_vehicles
+
+                violation = required_val - cut_val
+                if violation > 0.01 and not any(
+                    set(cut_set) == set(existing.node_set)
+                    for existing in self.pool
+                    if isinstance(existing, CapacityCut)
+                ):
+                    self.pool.append(CapacityCut(set(cut_set), total_demand, self.model.capacity, violation))
+            except Exception:
+                continue
+
     def _separate_subtours_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """
         Exact subtour separation using minimum cut (max-flow).
 
         For selected seed pairs, compute minimum cut to find most violated SEC.
         """
-        # This is expensive O(n³), so limit to small problems
-        if self.model.n_nodes > 50:
+        if self.model.n_nodes > 100:
             return
 
-        # Try a few seed pairs (only visited nodes)
-        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.5]
-        seed_pairs = [(self.model.depot, customer) for customer in visited_customers[: min(5, len(visited_customers))]]
+        n = self.model.n_nodes
+        adj = np.zeros((n, n))
+        for idx, (i, j) in enumerate(self.model.edges):
+            val = x_vals[idx]
+            if val > 1e-4:
+                adj[i, j] = val
+                adj[j, i] = val
 
-        for source, sink in seed_pairs:
-            # Build capacity matrix
-            n = self.model.n_nodes
-            capacity = np.zeros((n, n))
+        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.1]
 
-            for idx, (i, j) in enumerate(self.model.edges):
-                cap = x_vals[idx]
-                capacity[i, j] = cap
-                capacity[j, i] = cap
-
-            # Compute max-flow from source to sink
+        for customer in visited_customers[:20]:
             try:
-                flow_result = maximum_flow(csr_matrix(capacity), source, sink)
+                flow_result = maximum_flow(csr_matrix(adj), self.model.depot, customer)
                 max_flow_value = flow_result.flow_value
 
-                # If max_flow < 2, we found a violated SEC
-                if max_flow_value < 2.0 - 0.01:
-                    violation = 2.0 - max_flow_value
+                target_value = 2.0
+                if y_vals is not None:
+                    target_value = 2.0 * y_vals[customer - 1]
 
-                    # Extract minimum cut
-                    cut_set = self._extract_min_cut(capacity, flow_result.flow.toarray(), source, sink)
+                if max_flow_value < target_value - 0.01:
+                    violation = target_value - max_flow_value
+                    cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), self.model.depot, customer)
 
-                    if cut_set and len(cut_set) >= 2 and self.model.depot not in cut_set:
-                        self.pool.append(SubtourEliminationCut(cut_set, violation))
+                    if (
+                        cut_set
+                        and self.model.depot not in cut_set
+                        and not any(
+                            set(cut_set) == set(existing.node_set)
+                            for existing in self.pool
+                            if isinstance(existing, SubtourEliminationCut)
+                        )
+                    ):
+                        self.pool.append(SubtourEliminationCut(set(cut_set), violation))
             except Exception:
-                # max_flow can fail for some inputs
-                pass
+                continue
 
     def _extract_min_cut(self, capacity: np.ndarray, flow: np.ndarray, source: int, sink: int) -> Set[int]:
         """
-        Extract source-side of minimum cut using BFS on residual graph.
+        Extract sink-side of minimum cut using BFS on residual graph.
 
         Args:
-            capacity: Capacity matrix.
-            flow: Flow matrix.
-            source: Source node.
-            sink: Sink node.
+            capacity: Capacity matrix (support graph edges).
+            flow: Flow matrix from max-flow result.
+            source: Source node index (depot).
+            sink: Sink node index (customer).
 
         Returns:
-            Set of nodes reachable from source in residual graph.
+            Set of nodes reachable from sink in the residual graph (sink-side of cut).
         """
+        # Residual capacity: capacity - flow
         residual = capacity - flow
+
+        # We find nodes reachable FROM the sink in the residual graph
+        # This gives us the S-T cut set containing the sink
         visited = set()
-        stack = [source]
+        queue = [sink]
+        visited.add(sink)
 
-        while stack:
-            node = stack.pop()
-            if node in visited:
-                continue
-            visited.add(node)
+        while queue:
+            u = queue.pop(0)
+            for v in range(len(residual)):
+                # If there's capacity in the reverse edge (v -> u) in residual graph
+                # OR if you prefer the standard source-side BFS:
+                # Standard source-side: visited = nodes reachable from source in residual
+                # Here we do sink-side for simplicity since we want the cut set NOT containing depot
+                if residual[v, u] > 1e-6 and v not in visited:
+                    visited.add(v)
+                    queue.append(v)
 
-            for neighbor in range(len(residual)):
-                if residual[node, neighbor] > 1e-6 and neighbor not in visited:
-                    stack.append(neighbor)
-
-        # Return visited nodes excluding source (for proper cut)
-        return visited - {source}
+        return visited
 
     def _separate_comb_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """

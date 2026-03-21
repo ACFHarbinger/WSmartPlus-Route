@@ -9,8 +9,14 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-# Local search operators are implemented directly in this module
-from ..other.operators.repair import greedy_insertion as greedy_insertion_op
+from ..other.operators import (
+    greedy_insertion as greedy_insertion_op,
+)
+from ..other.operators import (
+    regret_2_insertion,
+    shaw_removal,
+    string_removal,
+)
 from ..other.operators.unstringing_stringing import (
     apply_type_i_us,
     apply_type_ii_us,
@@ -71,6 +77,20 @@ class HULKOperators:
     def apply_unstring_type_iv(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
         """Apply Type IV unstringing."""
         return self._apply_unstring(solution, n_remove, apply_type_iv_us)
+
+    def apply_unstring_shaw(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Apply Shaw removal."""
+        routes = [list(r) for r in solution.routes]
+        partial, removed = shaw_removal(routes, n_remove, self.dist_matrix)
+        new_solution = Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
+        return new_solution, removed
+
+    def apply_unstring_string(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Apply String removal."""
+        routes = [list(r) for r in solution.routes]
+        partial, removed = string_removal(routes, n_remove, self.dist_matrix, rng=self.rng)
+        new_solution = Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
+        return new_solution, removed
 
     def _apply_unstring(self, solution: Solution, n_remove: int, unstring_func) -> Tuple[Solution, List[int]]:
         """Helper to apply unstringing operations."""
@@ -142,6 +162,9 @@ class HULKOperators:
         }
 
         if string_type not in string_map:
+            # New types
+            if string_type == "regret_2":
+                return self._regret_2_repair(solution, removed, expand_pool=expand_pool)
             # Fallback to greedy
             return self._greedy_repair(solution, removed, expand_pool=expand_pool)
 
@@ -165,6 +188,21 @@ class HULKOperators:
     def _greedy_repair(self, solution: Solution, removed: List[int], expand_pool: bool = False) -> Solution:
         """Greedy repair fallback."""
         routes = greedy_insertion_op(
+            [list(r) for r in solution.routes],
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+            cost_unit=self.C,
+            expand_pool=expand_pool,
+        )
+        return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
+
+    def _regret_2_repair(self, solution: Solution, removed: List[int], expand_pool: bool = False) -> Solution:
+        """Regret-2 repair."""
+        routes = regret_2_insertion(
             [list(r) for r in solution.routes],
             removed,
             self.dist_matrix,
@@ -228,11 +266,57 @@ class HULKOperators:
         return solution
 
     def apply_3_opt(self, solution: Solution) -> Solution:
-        """Apply 3-opt local search (simplified version)."""
-        # For simplicity, apply 2-opt twice
-        result = self.apply_2_opt(solution)
-        result2 = self.apply_2_opt(result)
-        return result2 if result2.cost < result.cost else result
+        """
+        Apply 3-opt (K-opt) local search.
+
+        Follows the 3-opt reconnection logic for VRP tours.
+        """
+        routes = [list(r) for r in solution.routes]
+        improved = False
+
+        for r_idx in range(len(routes)):
+            route = routes[r_idx]
+            if len(route) < 4:
+                continue
+
+            # Simplified 3-opt: try random 3-edge reconnections
+            for _ in range(self.params.ls_intensity):
+                if len(route) < 4:
+                    break
+                i, j, k = sorted(self.rng.sample(range(len(route)), 3))
+
+                # There are several ways to reconnect 3 segments:
+                # A-B, C-D, E-F can become A-C, B-E, D-F or others
+                # We apply a standard 3-opt move:
+                best_r = route
+                best_d = self._calc_route_distance(route)
+
+                # Case 1: 2-opt swaps (covered by apply_2_opt, but 3-opt includes them)
+                # Case 2: Pure 3-opt reconnections
+                # Segment 1: [0, i], Segment 2: [i+1, j], Segment 3: [j+1, k], Segment 4: [k+1, N]
+                s1, s2, s3, s4 = route[: i + 1], route[i + 1 : j + 1], route[j + 1 : k + 1], route[k + 1 :]
+
+                options = [
+                    s1 + s2[::-1] + s3[::-1] + s4,
+                    s1 + s3 + s2 + s4,
+                    s1 + s3[::-1] + s2 + s4,
+                    s1 + s2 + s3[::-1] + s4,
+                    s1 + s3 + s2[::-1] + s4,
+                ]
+
+                for opt in options:
+                    d = self._calc_route_distance(opt)
+                    if d < best_d - 1e-6:
+                        best_d = d
+                        best_r = opt
+                        improved = True
+
+                route = best_r
+            routes[r_idx] = route
+
+        if improved:
+            return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
+        return solution
 
     def apply_swap(self, solution: Solution) -> Solution:
         """Apply swap move between routes."""

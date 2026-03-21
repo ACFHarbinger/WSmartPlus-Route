@@ -24,6 +24,8 @@ from ..other.operators import (
     greedy_insertion,
     random_removal,
     regret_2_insertion,
+    shaw_removal,
+    string_removal,
     worst_removal,
 )
 from .params import RTSParams
@@ -62,6 +64,8 @@ class RTSSolver:
             self._llh2,
             self._llh3,
             self._llh4,
+            self._llh5,
+            self._llh6,
         ]
 
     # ------------------------------------------------------------------
@@ -146,24 +150,29 @@ class RTSSolver:
                 best_routes = copy.deepcopy(routes)
                 best_profit = profit
 
-            # Reactive tenure adjustment via cycle detection
+            # Reactive tenure adjustment via cycle detection (Battiti & Tecchiolli 1994)
             if sol_hash in hash_history:
-                # Cycle detected — increase tenure
+                # Cycle detected: increase tenure
+                # The paper suggests multiplying by a constant (e.g., 1.1)
+                prev_iteration = hash_history[sol_hash]
+
                 tenure = min(
-                    self.params.max_tenure,
-                    int(tenure * self.params.tenure_increase),
+                    self.params.max_tenure, max(self.params.min_tenure, int(tenure * self.params.tenure_increase))
                 )
+
+                # Reset the 'moving window' check
                 no_repeat_count = 0
+
+                # Escape mechanism: if we stay in a same cycle length/state too long
+                # (Optional: specialized diversification can be triggered here)
             else:
                 no_repeat_count += 1
+                # If we go 2*tenure iterations without any repetition, we contract
                 if no_repeat_count > 2 * tenure:
-                    # Long non-cycling — decrease tenure
-                    tenure = max(
-                        self.params.min_tenure,
-                        int(tenure * self.params.tenure_decrease),
-                    )
+                    tenure = max(self.params.min_tenure, int(tenure * self.params.tenure_decrease))
                     no_repeat_count = 0
 
+            # Update hash history with the latest iteration seen
             hash_history[sol_hash] = iteration
 
             getattr(self, "_viz_record", lambda **k: None)(
@@ -231,6 +240,30 @@ class RTSSolver:
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
         partial, removed = random_removal(routes, n, self.random)
         return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        partial, removed = shaw_removal(routes, n, self.dist_matrix, self.wastes)
+        return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _llh6(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
+        return greedy_insertion(
             partial,
             removed,
             self.dist_matrix,

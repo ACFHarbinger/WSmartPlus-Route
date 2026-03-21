@@ -216,7 +216,12 @@ class HULKSolver:
 
     def _apply_operators(self, solution: Solution) -> Tuple[Solution, str, str, Optional[str]]:
         """
-        Apply the full operator cycle: unstring -> string -> local search.
+        Apply the full operator cycle: unstring -> string -> local search (LKS/K-opt).
+
+        Follows Müller & Bonilha (2022) three-phase cycle:
+        1. Destruction (Unstringing)
+        2. Reconstruction (Stringing)
+        3. Improvement (Local Search / K-opt)
 
         Returns:
             (new_solution, unstring_op_name, string_op_name, ls_op_name)
@@ -225,12 +230,13 @@ class HULKSolver:
         unstring_op = self.unstring_selector.select_operator()
         n_remove = self._calculate_removal_size(solution)
 
-        # Map operator name to function
         unstring_funcs = {
             "type_i": self.ops.apply_unstring_type_i,
             "type_ii": self.ops.apply_unstring_type_ii,
             "type_iii": self.ops.apply_unstring_type_iii,
             "type_iv": self.ops.apply_unstring_type_iv,
+            "shaw": self.ops.apply_unstring_shaw,
+            "string": self.ops.apply_unstring_string,
         }
 
         destroyed, removed = unstring_funcs[unstring_op](solution, n_remove)
@@ -239,11 +245,12 @@ class HULKSolver:
         string_op = self.string_selector.select_operator()
         repaired = self.ops.apply_string_repair(destroyed, removed, string_op)
 
-        # 3. Optionally apply local search
-        ls_op = None
-        if self.rng.random() < 0.5:  # 50% chance to apply local search
-            ls_op = self.local_search_selector.select_operator()
+        # 3. Apply Local Search (LKS / K-opt)
+        # In HULK, LS is applied to intensified areas or as a general improvement step
+        ls_op = self.local_search_selector.select_operator()
 
+        # Consistent with paper, we apply LS with a certain probability or on best
+        if self.rng.random() < 0.5:
             ls_funcs = {
                 "2-opt": self.ops.apply_2_opt,
                 "3-opt": self.ops.apply_3_opt,

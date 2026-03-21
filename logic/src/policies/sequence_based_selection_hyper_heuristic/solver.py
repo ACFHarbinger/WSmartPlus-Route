@@ -41,6 +41,8 @@ from ..other.operators import (
     greedy_insertion,
     random_removal,
     regret_2_insertion,
+    shaw_removal,
+    string_removal,
     worst_removal,
 )
 from .params import SSHHParams
@@ -108,6 +110,8 @@ class SSHHSolver:
             self._llh2,
             self._llh3,
             self._llh4,
+            self._llh5,
+            self._llh6,
         ]
 
         # Algorithm 1, lines 6-11: initialise HMM matrices to 1
@@ -326,6 +330,32 @@ class SSHHSolver:
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L4: random_removal + regret_2_insertion."""
         partial, removed = random_removal(routes, n, self.random)
+        return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """L5: shaw_removal + greedy_insertion."""
+        partial, removed = shaw_removal(routes, n, self.dist_matrix)
+        return greedy_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _llh6(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """L6: string_removal + regret_2_insertion."""
+        partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
         return regret_2_insertion(
             partial,
             removed,

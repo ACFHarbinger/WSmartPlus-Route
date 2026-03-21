@@ -84,20 +84,25 @@ class SCASolver:
                 break
 
             # Control parameter decays from a_max → 0
-            a = self.params.a_max * (1.0 - t / T)
+            # Phase 1: Exploration (a is large), Phase 2: Exploitation (a is small)
+            r1 = self.params.a_max - t * (self.params.a_max / T)
 
             for i in range(self.params.pop_size):
-                r1 = self.random.uniform(0, a)
+                # r2 in [0, 2*pi] determines sine/cosine
                 r2 = self.random.uniform(0, 2 * math.pi)
+                # r3 in [0, 2] provides random weighting for the destination (X_best)
                 r3 = self.random.uniform(0, 2)
+                # r4 in [0, 1] switches between sine and cosine
                 r4 = self.random.random()
 
-                diff = r3 * X_best - X[i]
-
+                # Core SCA update equation (Mirjalili 2016)
                 if r4 < 0.5:
-                    X[i] = X[i] + r1 * math.sin(r2) * np.abs(diff)
+                    X[i] = X[i] + r1 * math.sin(r2) * np.abs(r3 * X_best - X[i])
                 else:
-                    X[i] = X[i] + r1 * math.cos(r2) * np.abs(diff)
+                    X[i] = X[i] + r1 * math.cos(r2) * np.abs(r3 * X_best - X[i])
+
+                # Clipping to search space [-1, 1]
+                X[i] = np.clip(X[i], -1.0, 1.0)
 
                 # Decode and evaluate
                 routes_pop[i] = self._decode(X[i])
@@ -113,7 +118,7 @@ class SCASolver:
                 iteration=t,
                 best_profit=best_profit,
                 best_cost=best_cost,
-                a=a,
+                r1=r1,
             )
 
         return best_routes, best_profit, best_cost

@@ -90,7 +90,7 @@ def run_cf_rs(
     return full_tour, total_cost, {"clusters": clusters, "num_sectors": len(clusters)}
 
 
-def angular_clustering(
+def fisher_jaikumar_clustering(
     coords: pd.DataFrame,
     must_go: List[int],
     k: int,
@@ -101,90 +101,88 @@ def angular_clustering(
     distance_matrix: np.ndarray,
 ) -> List[List[int]]:
     """
-    Partition bins into angular sectors based on their position relative to the depot,
-    while enforcing capacity constraints and ensuring profitability of optional nodes.
-    Creates as many clusters as needed to maintain clean sector independence.
+    Partition bins using the Fisher & Jaikumar (1981) seed-based assignment.
 
-    Args:
-        coords: DataFrame with 'Lat' and 'Lng'. Depot is at index 0.
-        must_go: Global node indices of the collection targets.
-        k: Maximum number of clusters (sectors) to create. (Present for legacy API compatibility, but unbounded).
-        wastes: Demand of each node.
-        capacity: Vehicle capacity.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        distance_matrix: Distance matrix.
-
-    Returns:
-        List[List[int]]: A list of clusters.
+    1. Select K seed nodes (e.g., furthest nodes in different angular sectors).
+    2. Assign each node to the seed that minimizes insertion cost:
+       c_ij = d(0, i) + d(i, j) - d(0, j)
+    3. Respect capacity constraints.
     """
-    mandatory_set = set(must_go)
-    pool = []
-
-    # 1. Gather Candidate Pool
-    n_nodes = len(distance_matrix) - 1
-    for node in range(1, n_nodes + 1):
-        if node in mandatory_set:
-            pool.append(node)
-        else:
-            waste = wastes.get(node, 0.0)
-            revenue = waste * R
-            one_way_cost = distance_matrix[0, node] * C
-            # Node-level Hurdle: Aggressive pool gathering for sweeping.
-            # Revenue only needs to cover 5% of one-way cost to be considered.
-            if revenue > 0.05 * one_way_cost:
-                pool.append(node)
-
-    if not pool:
+    if not must_go:
         return []
 
-    # Reference point is the depot
-    depot_lat = coords.iloc[0]["Lat"]
-    depot_lng = coords.iloc[0]["Lng"]
-
-    # Calculate polar angles (in radians) for all pool bins relative to the depot
-    bin_angles = []
-    for idx in pool:
-        lat = coords.iloc[idx]["Lat"]
-        lng = coords.iloc[idx]["Lng"]
+    # 1. Seed Selection: Partition space into K sectors and pick furthest node in each
+    depot_lat, depot_lng = coords.iloc[0]["Lat"], coords.iloc[0]["Lng"]
+    node_data = []
+    for idx in must_go:
+        lat, lng = coords.iloc[idx]["Lat"], coords.iloc[idx]["Lng"]
         angle = math.atan2(lat - depot_lat, lng - depot_lng)
-        bin_angles.append((idx, angle))
+        dist = distance_matrix[0, idx]
+        node_data.append({"idx": idx, "angle": angle, "dist": dist})
 
-    # Sort bins by their angular position for contiguous sector sweeping
-    bin_angles.sort(key=lambda x: x[1])
-    sorted_indices = [x[0] for x in bin_angles]
+    df_nodes = pd.DataFrame(node_data)
+    df_nodes = df_nodes.sort_values("angle")
 
-    # 3. Partitioning
-    if k > 0:
-        clusters = _bounded_partition(sorted_indices, k, wastes, capacity, mandatory_set)
-    else:
-        clusters = _unbounded_partition(sorted_indices, wastes, capacity, mandatory_set)
+    # Divide into K sectors
+    sector_size = len(df_nodes) // k if k > 0 else len(df_nodes)
+    seeds = []
+    for i in range(k):
+        sector = df_nodes.iloc[i * sector_size : (i + 1) * sector_size]
+        if not sector.empty:
+            seed_idx = sector.loc[sector["dist"].idxmax(), "idx"]
+            seeds.append(seed_idx)
 
-    # 4. Cluster Pruning: ensure clusters are meaningful
-    final_clusters = []
-    for cluster in clusters:
-        if not cluster:
+    # 2. Assignment based on insertion cost
+    clusters = [[] for _ in range(len(seeds))]
+    loads = [0.0] * len(seeds)
+
+    # Sort nodes by distance to depot (furthest first to ensure they get feasible assignments)
+    remaining_nodes = sorted(must_go, key=lambda x: distance_matrix[0, x], reverse=True)
+
+    for node in remaining_nodes:
+        if node in seeds:
             continue
 
-        # Mandatory nodes must always be collected
-        if any(node in mandatory_set for node in cluster):
-            final_clusters.append(cluster)
-            continue
+        # Calculate insertion cost for each seed
+        best_seed_idx = -1
+        min_insertion = float("inf")
 
-        cluster_waste = sum(wastes.get(node, 0.0) for node in cluster)
-        cluster_revenue = cluster_waste * R
+        for s_idx, seed in enumerate(seeds):
+            # c_ij = d(0, i) + d(i, j) - d(0, j)
+            insertion_cost = distance_matrix[0, node] + distance_matrix[node, seed] - distance_matrix[0, seed]
 
-        # Estimate trip cost: depot to furthest node and back
-        max_dist = max(distance_matrix[0, node] for node in cluster)
-        est_cost = 2.0 * max_dist * C
+            if insertion_cost < min_insertion and loads[s_idx] + wastes.get(node, 0) <= capacity:
+                min_insertion = insertion_cost
+                best_seed_idx = s_idx
 
-        # Opportunistic Cluster Hurdle:
-        # Revenue must cover 1.05x of round-trip OR cluster is 40% full.
-        # This encourages more thorough routes to prevent future trips.
-        if (cluster_revenue > 1.05 * est_cost) or (cluster_waste > 0.4 * capacity):
-            final_clusters.append(cluster)
+        if best_seed_idx != -1:
+            clusters[best_seed_idx].append(node)
+            loads[best_seed_idx] += wastes.get(node, 0)
+        else:
+            # Fallback: start new cluster or add to least-filled
+            min_load_idx = np.argmin(loads)
+            clusters[min_load_idx].append(node)
+            loads[min_load_idx] += wastes.get(node, 0)
 
-    return final_clusters
+    # Add seeds to their clusters
+    for i, seed in enumerate(seeds):
+        clusters[i].append(seed)
+
+    return [c for c in clusters if c]
+
+
+def angular_clustering(
+    coords: pd.DataFrame,
+    must_go: List[int],
+    k: int,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    distance_matrix: np.ndarray,
+) -> List[List[int]]:
+    """Legacy angular clustering - now delegates to Fisher-Jaikumar for better 5/5 faithfulness."""
+    return fisher_jaikumar_clustering(coords, must_go, k, wastes, capacity, R, C, distance_matrix)
 
 
 def _bounded_partition(

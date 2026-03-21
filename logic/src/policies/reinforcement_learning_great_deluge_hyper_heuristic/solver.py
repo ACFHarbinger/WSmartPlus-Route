@@ -20,7 +20,12 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..other.operators import greedy_insertion
+from ..other.operators import (
+    greedy_insertion,
+    regret_2_insertion,
+    shaw_removal,
+    string_removal,
+)
 from .params import RLGDHHParams
 
 
@@ -80,6 +85,9 @@ class RLGDHHSolver:
             self._llh_swap,
             self._llh_relocate,
             self._llh_2opt,
+            self._llh_shaw,
+            self._llh_string,
+            self._llh_regret2,
         ]
 
         # 1. Optimistic Initialization (Paper p. 16: "set all utilities to 0.75 * UB")
@@ -248,6 +256,50 @@ class RLGDHHSolver:
             routes[ridx] = route[:i] + route[i:j][::-1] + route[j:]
 
         return routes
+
+    def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
+        """Shaw removal + regret-2 insertion."""
+        n = max(1, min(len(self.nodes) // 4, 10))
+        partial, removed = shaw_removal(routes, n, self.dist_matrix)
+        return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _llh_string(self, routes: List[List[int]]) -> List[List[int]]:
+        """String removal + greedy insertion."""
+        n = max(1, min(len(self.nodes) // 4, 10))
+        partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
+        return greedy_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+
+    def _llh_regret2(self, routes: List[List[int]]) -> List[List[int]]:
+        """Random removal + regret-2 insertion."""
+        n = max(1, min(len(self.nodes) // 5, 5))
+        from ..other.operators import random_removal
+
+        partial, removed = random_removal(routes, n, rng=self.random)
+        return regret_2_insertion(
+            partial,
+            removed,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            R=self.R,
+            mandatory_nodes=self.mandatory_nodes,
+        )
 
     # ------------------------------------------------------------------
     # Functional Helpers

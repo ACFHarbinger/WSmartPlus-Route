@@ -17,9 +17,11 @@ from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from ..other.operators.destroy.shaw import shaw_removal
 from ..other.operators.destroy.string import string_removal
 from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from ..other.operators.repair.greedy_blink import greedy_insertion_with_blinks
+from ..other.operators.repair.regret import regret_2_insertion
 from .indicators import ImprovementRateIndicator, TimeBasedIndicator
 from .params import GIHHParams
 from .solution import Solution
@@ -178,7 +180,11 @@ class GIHHSolver:
 
     def _select_operator(self) -> str:
         """
-        Select an operator using epsilon-greedy with guidance indicators.
+        Select an operator using epsilon-greedy with weighted guidance indicators.
+
+        Follows Chen et al. (2018):
+        Score(op) = w1 * IRI(op) + w2 * TBI(op)
+        Selection is done via roulette wheel on these normalized scores.
 
         Returns:
             Operator name.
@@ -192,14 +198,17 @@ class GIHHSolver:
         # Exploit: select based on guidance indicators
         scores = {}
         for op in all_operators:
+            # Get normalized scores [0, 1] from indicators
             iri_score = self.iri.get_score(op, self.operator_improvements.get(op, deque()))
             tbi_score = self.tbi.get_score(op, self.operator_times.get(op, deque()))
 
-            # Combine indicators with weights
+            # Weighted combination as per Paper (Equation 4/5 equivalent)
             combined_score = self.params.iri_weight * iri_score + self.params.tbi_weight * tbi_score
-            scores[op] = combined_score
 
-        # Roulette wheel selection based on scores
+            # Ensure strictly positive for roulette wheel
+            scores[op] = max(0.001, combined_score)
+
+        # Roulette wheel selection based on combined scores
         return self._roulette_wheel_selection(scores)
 
     def _apply_operator(self, solution: Solution, operator: str) -> Solution:
@@ -292,6 +301,12 @@ class GIHHSolver:
                         self.d,
                         rng=self.rng,
                     )
+                elif "shaw" in operator:
+                    candidate.routes, _ = shaw_removal(
+                        candidate.routes,
+                        max(1, min(len(all_nodes) // 4, 10)),
+                        self.d,
+                    )
                 else:
                     n_remove = max(1, min(len(all_nodes) // 4, 5))
                     to_remove = self.rng.sample(all_nodes, n_remove)
@@ -301,17 +316,28 @@ class GIHHSolver:
                                 route.remove(node)
 
                 # 2. Recreate (Re-insertion)
-                # Use expand_pool=True to allow adding nodes not in current greedy solution
-                candidate.routes = greedy_insertion_with_blinks(
-                    candidate.routes,
-                    [],  # removed_nodes is empty because expand_pool will gather all unvisited
-                    self.d,
-                    self.wastes,
-                    self.Q,
-                    blink_rate=self.params.accept_worse_prob,  # Reuse acceptance probability as blink rate
-                    rng=self.rng,
-                    expand_pool=True,
-                )
+                # Randomly choose between blink and regret-2
+                if self.rng.random() < 0.5:
+                    candidate.routes = greedy_insertion_with_blinks(
+                        candidate.routes,
+                        [],
+                        self.d,
+                        self.wastes,
+                        self.Q,
+                        blink_rate=self.params.accept_worse_prob,
+                        rng=self.rng,
+                        expand_pool=True,
+                    )
+                else:
+                    candidate.routes = regret_2_insertion(
+                        candidate.routes,
+                        [],
+                        self.d,
+                        self.wastes,
+                        self.Q,
+                        R=self.R,
+                        mandatory_nodes=self.mandatory_nodes,
+                    )
 
         elif "route" in operator:
             # Remove entire route and re-insert nodes

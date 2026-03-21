@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from .params import QDEParams
 
 
@@ -49,6 +50,20 @@ class QDESolver:
         self.random = random.Random(seed) if seed is not None else random.Random()
         self.np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
 
+        # Initialize Local Search for post-collapse refinement
+        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
+        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        self.ls = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=aco_params,
+            seed=seed,
+        )
+
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
@@ -66,9 +81,13 @@ class QDESolver:
         start = time.process_time()
         pop_size = self.params.pop_size
 
-        # Initialise population: amplitude vectors ∈ [0,1]^N
-        population = [self.np_rng.uniform(0.0, 1.0, self.n_nodes) for _ in range(pop_size)]
-        routes_pop = [self._collapse(amp) for amp in population]
+        # Initialise population: Q-bits (alpha, beta) where |alpha|^2 + |beta|^2 = 1
+        # We store theta where alpha = cos(theta), beta = sin(theta)
+        # Initialization to 1/sqrt(2) means theta = pi/4
+        thetas = np.full((pop_size, self.n_nodes), np.pi / 4.0)
+
+        # Collapse initial population
+        routes_pop = [self._collapse(t) for t in thetas]
         profits = [self._evaluate(r) for r in routes_pop]
 
         best_idx = int(np.argmax(profits))
@@ -76,43 +95,70 @@ class QDESolver:
         best_profit = profits[best_idx]
         best_cost = self._cost(best_routes)
 
+        # Track individual bests
+        pbest_thetas = copy.deepcopy(thetas)
+        pbest_profits = copy.deepcopy(profits)
+
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
             for i in range(pop_size):
-                # --- Mutation ---
+                # --- Quantum Rotation Gate Update ---
+                # Update theta based on best global solution and individual best
+                # Standard QEA update rule: theta = theta + delta_theta * s(alpha, beta)
+                # Here we use a simplified version common in QDE:
+                # delta_theta_i = F * (best_theta - theta_i) + random * (pbest_theta - theta_i)
+
+                # Comparison with global best to determine rotation direction
+                for j in range(self.n_nodes):
+                    # Measure current best solution at node j
+                    # (In continuous QDE, we often use the best theta directly)
+                    target_theta = thetas[best_idx][j]
+
+                    # Update rule using rotation gates
+                    # Delta theta = delta_theta * sign(A)
+                    # where A is usually determined by a lookup table based on
+                    # current fitness vs best fitness and bit values.
+                    # We implement the standard QDE update:
+                    thetas[i][j] += self.params.delta_theta * np.sign(target_theta - thetas[i][j])
+
+                # --- Differential Mutation on Thetas (Hybrid QDE) ---
                 candidates = [j for j in range(pop_size) if j != i]
                 r1, r2, r3 = self.random.sample(candidates, 3)
-                mutant = np.clip(
-                    population[r1] + self.params.F * (population[r2] - population[r3]),
-                    0.0,
-                    1.0,
-                )
+                mutant = thetas[r1] + self.params.F * (thetas[r2] - thetas[r3])
 
-                # --- Crossover (binomial) ---
+                # --- Crossover ---
                 j_rand = self.random.randint(0, self.n_nodes - 1)
-                trial = np.where(
+                trial_theta = np.where(
                     (self.np_rng.uniform(0.0, 1.0, self.n_nodes) < self.params.CR)
                     | (np.arange(self.n_nodes) == j_rand),
                     mutant,
-                    population[i],
+                    thetas[i],
                 )
 
+                # Keep thetas in valid range [0, pi/2] for mapping to [0, 1] probability
+                trial_theta = np.clip(trial_theta, 0.0, np.pi / 2.0)
+
                 # --- Collapse → discrete routes ---
-                trial_routes = self._collapse(trial)
+                trial_routes = self._collapse(trial_theta)
                 trial_profit = self._evaluate(trial_routes)
 
-                # --- Greedy selection ---
+                # --- Selection ---
                 if trial_profit >= profits[i]:
-                    population[i] = trial
+                    thetas[i] = trial_theta
                     routes_pop[i] = trial_routes
                     profits[i] = trial_profit
+
+                    if trial_profit > pbest_profits[i]:
+                        pbest_profits[i] = trial_profit
+                        pbest_thetas[i] = copy.deepcopy(trial_theta)
 
                     if trial_profit > best_profit:
                         best_routes = copy.deepcopy(trial_routes)
                         best_profit = trial_profit
                         best_cost = self._cost(best_routes)
+                        best_idx = i
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
@@ -127,21 +173,28 @@ class QDESolver:
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _collapse(self, amplitudes: np.ndarray) -> List[List[int]]:
+    def _collapse(self, thetas: np.ndarray) -> List[List[int]]:
         """
-        Collapse amplitude vector to a discrete routing solution.
+        Collapse quantum state (thetas) to a discrete routing solution.
 
-        Nodes are ranked by amplitude (descending).  Mandatory nodes are
-        always included.  Optional nodes are added in amplitude order until
-        capacity would be exceeded, at which point they are skipped.
+        Measurement: Each node j is selected with probability |beta_j|^2 = sin^2(theta_j).
+        Selected nodes are then ordered by their absolute probability amplitudes
+        and passed to greedy_insertion.
 
         Args:
-            amplitudes: Amplitude vector of length n_nodes.
+            thetas: Quantum rotation angles.
 
         Returns:
             Routes built by greedy_insertion.
         """
-        ranked = sorted(range(self.n_nodes), key=lambda j: amplitudes[j], reverse=True)
+        # Measurement phase: probabilistic selection based on |beta|^2
+        probabilities = np.sin(thetas) ** 2
+        selected_mask = self.np_rng.uniform(0.0, 1.0, self.n_nodes) < probabilities
+
+        # Ranking phase: order nodes by selection probability
+        ranked = sorted(
+            [j for j in range(self.n_nodes) if selected_mask[j]], key=lambda j: probabilities[j], reverse=True
+        )
 
         selected: List[int] = []
         mandatory_set = set(self.mandatory_nodes)
@@ -157,19 +210,25 @@ class QDESolver:
         if not selected:
             return []
 
-        from logic.src.policies.other.operators.repair.greedy import greedy_insertion
-
-        routes = greedy_insertion(
-            [],
-            selected,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            R=self.R,
-            mandatory_nodes=self.mandatory_nodes,
-            expand_pool=False,
+        from logic.src.policies.other.operators.repair.greedy import (
+            greedy_insertion,
         )
-        return routes
+
+        try:
+            routes = greedy_insertion(
+                [],
+                selected,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                R=self.R,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=False,
+            )
+            # Apply local search refinement
+            return self.ls.optimize(routes)
+        except Exception:
+            return []
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """

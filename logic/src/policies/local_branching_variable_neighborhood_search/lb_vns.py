@@ -50,63 +50,34 @@ def _shake_solution_gurobi(
     seed: int = 42,
 ) -> Tuple[Optional[Dict[Tuple[int, int], float]], Optional[Dict[int, float]]]:
     """
-    Perform the Shaking phase by finding a 'random' solution in the k-neighborhood.
+    Perform the Shaking phase by finding a solution exactly at Hamming distance k.
 
-    In the context of MILP, shaking is implemented by adding a Hamming distance
-    constraint (dist <= k) and a lower bound (dist >= k-delta) to ensure the
-    solution moves 'away' from the incumbent, then solving with a random objective.
-
-    This ensures that the starting point for the subsequent Local Search is
-    sufficiently diversified while remaining within the vicinity of the
-    promising search space.
-
-    Args:
-        model (gp.Model): The pre-configured Gurobi model (VRPP formulation).
-        x (Dict[Tuple[int, int], gp.Var]): Dictionary of binary edge variables.
-        y (Dict[int, gp.Var]): Dictionary of binary node selection variables.
-        incumbent_x (Dict[Tuple[int, int], float]): Values of x in the current best solution.
-        incumbent_y (Dict[int, float]): Values of y in the current best solution.
-        k (int): Hamming distance radius for the current VNS neighborhood.
-        seed (int): Random seed for generating the stochastic objective.
-
-    Returns:
-        Tuple[Optional[Dict[Tuple[int, int], float]], Optional[Dict[int, float]]]:
-            - shaken_x: Values of edge variables in the new starting solution.
-            - shaken_y: Values of node variables in the new starting solution.
-            Returns (None, None) if the k-neighborhood is infeasible.
+    Following Hanafi et al. (2010) and Hansen et al. (2006), the shaking step
+    aims to find a feasible solution s' such that delta(s, s') = k.
     """
-    # 1. Save original objective and parameters to restore them later
+    # 1. Save original objective
     orig_obj = model.getObjective()
-    orig_sol_limit = model.getParamInfo("SolutionLimit")[2]
-    orig_time_limit = model.getParamInfo("TimeLimit")[2]
 
-    # 2. Add Hamming distance constraints to define the 'shell' of the k-neighborhood
-    # Hamming distance H(s, s') = sum(|x_i - x_i'|)
+    # 2. Define Hamming distance (delta)
     lhs = gp.LinExpr()
+    # sum_{j: incumbent=0} x_j + sum_{j: incumbent=1} (1 - x_j)
     for key, var in x.items():
-        val = incumbent_x.get(key, 0.0)
-        if val < 0.5:
-            lhs.addTerms(1.0, var)  # (1 - 0) * var = var
+        if incumbent_x.get(key, 0.0) < 0.5:
+            lhs.addTerms(1.0, var)
         else:
             lhs.addConstant(1.0)
-            lhs.addTerms(-1.0, var)  # (1 - 1) * var is not right.
-            # Local Branching formula: sum_{j in S} (1 - x_j) + sum_{j not in S} x_j <= k
-            # where S is the set of indices where the incumbent has value 1.
+            lhs.addTerms(-1.0, var)
     for key, var in y.items():
-        val = incumbent_y.get(key, 0.0)
-        if val < 0.5:
+        if incumbent_y.get(key, 0.0) < 0.5:
             lhs.addTerms(1.0, var)
         else:
             lhs.addConstant(1.0)
             lhs.addTerms(-1.0, var)
 
-    # Restrict search to the boundary of the k-neighborhood to force diversification
-    shake_cut_upper = model.addConstr(lhs <= k, name="shake_cut_upper")
-    shake_cut_lower = model.addConstr(lhs >= max(1, k - 2), name="shake_cut_lower")
+    # Shaking logic: exactly k or in [k-1, k+1] if k is large
+    shake_cut = model.addConstr(lhs == k, name="shake_cut_exact")
 
-    # 3. Set a purely random objective to promote unbiased diversification
-    # This prevents the solver from just finding the 'next best' solution,
-    # encouraging exploration of the feasible region.
+    # 3. Random objective to find a feasible point on the boundary
     rng = np.random.default_rng(seed)
     random_obj = gp.LinExpr()
     for var in model.getVars():
@@ -114,23 +85,28 @@ def _shake_solution_gurobi(
             random_obj.addTerms(rng.standard_normal(), var)
 
     model.setObjective(random_obj, GRB.MINIMIZE)
+    model.setParam("SolutionLimit", 1)
+    model.setParam("TimeLimit", 10.0)
 
-    # 4. Find the first feasible solution as quickly as possible
-    model.setParam("SolutionLimit", 1)  # Stop at first feasible
-    model.setParam("TimeLimit", 5.0)  # Don't spend too much time shaking
-    model.optimize()
+    model.optimize(_dfj_subtour_elimination_callback)
 
     res_x, res_y = None, None
     if model.SolCount > 0:
         res_x = {key: var.X for key, var in x.items()}
         res_y = {key: var.X for key, var in y.items()}
+    else:
+        # Fallback: try lhs <= k if exact is too hard
+        model.remove(shake_cut)
+        shake_cut = model.addConstr(lhs <= k, name="shake_cut_le")
+        model.optimize(_dfj_subtour_elimination_callback)
+        if model.SolCount > 0:
+            res_x = {key: var.X for key, var in x.items()}
+            res_y = {key: var.X for key, var in y.items()}
 
-    # 5. Restore original model state (cleanup)
-    model.remove(shake_cut_upper)
-    model.remove(shake_cut_lower)
+    # 4. Cleanup
+    model.remove(shake_cut)
     model.setObjective(orig_obj)
-    model.setParam("SolutionLimit", orig_sol_limit)
-    model.setParam("TimeLimit", orig_time_limit)
+    model.setParam("SolutionLimit", 2000000000)  # Reset to default large value
 
     return res_x, res_y
 

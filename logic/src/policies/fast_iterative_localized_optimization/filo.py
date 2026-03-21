@@ -124,7 +124,13 @@ class FILOSolver:
         return total_cost, total_revenue - total_cost
 
     def _get_omega(self, current_routes: List[List[int]]) -> List[int]:
-        """Extract spatial neighborhood bound omega."""
+        r"""
+        Extract spatial neighborhood bound omega (Ruined nodes).
+
+        Follows Accorsi & Vigo (2021):
+        1. Select a 'center' node $i$ with probability proportional to gamma_i.
+        2. Identify a the $L_{it}$ closest neighbors of $i$ to be ruined.
+        """
         visited = []
         for r in current_routes:
             visited.extend(r)
@@ -132,58 +138,64 @@ class FILOSolver:
         if not visited:
             return []
 
-        probs = []
-        for n in visited:
-            p = self.gamma[n]
-            probs.append(p)
+        # 1. Select center node i based on gamma
+        # Nodes with high gamma (less successful) are more likely to be centers
+        gammas = np.array([self.gamma[n] for n in visited], dtype=np.float64)
+        probs = gammas / gammas.sum()
+        center_node = self.rng.choice(visited, p=probs)
 
-        probs_arr = np.array(probs, dtype=np.float64)
-        probs_arr /= probs_arr.sum()
+        # 2. Determine L_it (shaking intensity)
+        # Omega in our code represents the set of nodes to be ruined.
+        # The size L_it is controlled by omega_base_multiplier and log(n)
+        l_it = self.omega[center_node]
 
-        num_omega = min(len(visited), max(1, int(len(visited) * 0.2)))
-        omega = self.rng.choice(visited, size=num_omega, p=probs_arr, replace=False).tolist()
+        # 3. Get L_it closest neighbors of center_node that are in visited
+        distances = [(n, self.d[center_node, n]) for n in visited]
+        distances.sort(key=lambda x: x[1])
+
+        omega = [n for n, d in distances[:l_it]]
         return omega
 
     def _update_gamma(self, is_new_best: bool, accepted: bool, ruined: List[int]) -> None:
-        """Update localized gamma parameters based on improvement and involvement."""
+        """
+        Update localized gamma (activation probability) parameters.
+
+        Accorsi & Vigo (2021):
+        - If new best: reset all gamma to gamma_base.
+        - If NOT accepted: increase gamma for ruined nodes to intensify search there.
+        - If accepted: reset gamma for ruined nodes.
+        """
         if is_new_best:
-            # Reset ALL gamma when a new global best is found (as per paper)
-            for i in range(1, self.n_nodes + 1):
-                self.gamma[i] = self.params.gamma_base
+            self.gamma = [self.params.gamma_base] * (self.n_nodes + 1)
             return
 
-        # If not accepted, increase gamma for the ruined (involved) nodes
         if not accepted:
             for i in ruined:
                 self.gamma[i] = min(1.0, self.gamma[i] + self.params.delta_gamma)
         else:
-            # If accepted but not new best, we might choose to reset gamma for ruined nodes
-            # to keep the search localized in the new successful region
             for i in ruined:
                 self.gamma[i] = self.params.gamma_base
 
-    def _update_omega(
-        self,
-        is_new_best: bool,
-        accepted: bool,
-        ruined: List[int],
-    ) -> None:
-        """Update dynamic shaking parameters (omega)."""
+    def _update_omega(self, is_new_best: bool, accepted: bool, ruined: List[int]) -> None:
+        """
+        Update localized omega (shaking intensity) parameters.
+
+        Accorsi & Vigo (2021):
+        - If new best: reset all omega to base.
+        - If NOT accepted: increase L_it for ruined nodes (diversification).
+        - If accepted: reset L_it.
+        """
         omega_base = max(1, int(math.ceil(self.params.omega_base_multiplier * math.log(self.n_nodes + 1))))
 
         if is_new_best:
-            # Reset ALL omega when a new global best is found
-            for i in range(1, self.n_nodes + 1):
-                self.omega[i] = omega_base
+            self.omega = [omega_base] * (self.n_nodes + 1)
             return
 
         if not accepted:
-            # Increase shaking intensity for ruined nodes that failed to improve
             for i in ruined:
-                # Randomly shaked in the range [omega_base, 2*omega_base] as a diversification proxy
-                self.omega[i] = min(self.n_nodes // 2, self.omega[i] + self.rng.integers(1, 3))
+                # Increase intensity L_it up to a limit
+                self.omega[i] = min(self.n_nodes // 3, self.omega[i] + 1)
         else:
-            # Reset for successful nodes
             for i in ruined:
                 self.omega[i] = omega_base
 
