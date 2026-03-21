@@ -151,15 +151,7 @@ class HSSolver:
         """
         Improvise a new harmony using HMCR, PAR, and random selection.
 
-        Builds a candidate node sequence, then routes it via greedy_insertion.
-
         Reference: Geem et al. (2001) - "A New Heuristic Optimization Algorithm: Harmony Search"
-
-        Args:
-            hm: Current Harmony Memory.
-
-        Returns:
-            Newly improvised routing solution.
         """
         candidate_nodes: List[int] = []
         hm_node_pool: List[List[int]] = []
@@ -169,8 +161,7 @@ class HSSolver:
 
         unvisited = set(self.nodes)
 
-        # 1. Component Selection (HMCR)
-        # We need to build a vector of size n_nodes
+        # 1. Memory Considerations (HMCR)
         for i in range(len(self.nodes)):
             if not unvisited:
                 break
@@ -178,22 +169,25 @@ class HSSolver:
             if self.random.random() < self.params.HMCR:
                 # Select from HM
                 src_flat = self.random.choice(hm_node_pool)
-                # Try to pick the same index, or random if too short
-                if i < len(src_flat):
+                if i < len(src_flat) and src_flat[i] in unvisited:
                     selected = src_flat[i]
                 else:
-                    selected = self.random.choice(src_flat) if src_flat else self.random.choice(list(unvisited))
-
-                # If the selected node is already used, pick another from the pool or random
-                if selected not in unvisited:
-                    # Find any node from the pool that is still unvisited
+                    # Randomized selection from pool if index-match fails
                     pool_unvisited = [n for subpool in hm_node_pool for n in subpool if n in unvisited]
-                    if pool_unvisited:
-                        selected = self.random.choice(pool_unvisited)
-                    else:
-                        selected = self.random.choice(list(unvisited))
+                    selected = (
+                        self.random.choice(pool_unvisited) if pool_unvisited else self.random.choice(list(unvisited))
+                    )
+
+                # 2. Pitch Adjustment (PAR)
+                # In discrete space, this means choosing a neighboring value
+                if self.random.random() < self.params.PAR:
+                    # Neighboring value in discrete routing is a node geographically close
+                    neighbors = self._nearest_unvisited(selected, unvisited)
+                    if neighbors:
+                        # Choose one of the top-3 nearest neighbors as "pitch adjustment"
+                        selected = self.random.choice(neighbors[:3])
             else:
-                # Random selection
+                # Random selection (Exploration)
                 selected = self.random.choice(list(unvisited))
 
             candidate_nodes.append(selected)
@@ -204,47 +198,19 @@ class HSSolver:
             if mn not in candidate_nodes:
                 candidate_nodes.append(mn)
 
-        if not candidate_nodes:
-            return []
+        # 3. Routing: Convert sequence to feasible routes
+        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
-        # 2. Routing and Refinement
-        try:
-            from logic.src.policies.other.operators.repair.greedy import greedy_insertion
-
-            routes = greedy_insertion(
-                [],
-                candidate_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-
-            # If greedy_insertion failed to include any nodes (e.g. duo to expansion filtering),
-            # fall back to a simple sequential construction to ensure feasibility.
-            if not routes and candidate_nodes:
-                from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
-                routes = build_nn_routes(
-                    nodes=candidate_nodes,
-                    mandatory_nodes=self.mandatory_nodes,
-                    wastes=self.wastes,
-                    capacity=self.capacity,
-                    dist_matrix=self.dist_matrix,
-                    R=self.R,
-                    C=self.C,
-                    rng=self.random,
-                )
-
-            # 3. Pitch Adjustment (PAR) - Applied to the generated solution
-            # In discrete space, this is best modeled as a local move (swap/2-opt)
-            if routes and self.random.random() < self.params.PAR:
-                # Shift the harmony slightly by applying a random local search move
-                routes = self.ls.optimize(routes)
-        except Exception:
-            # Fallback to empty if insertion fails
-            routes = []
+        routes = build_nn_routes(
+            nodes=candidate_nodes,
+            mandatory_nodes=self.mandatory_nodes,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            dist_matrix=self.dist_matrix,
+            R=self.R,
+            C=self.C,
+            rng=self.random,
+        )
 
         return routes
 
