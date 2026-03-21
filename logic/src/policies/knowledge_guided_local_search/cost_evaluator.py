@@ -77,21 +77,30 @@ class CostEvaluator:
     def _compute_edge_width(self, u: int, v: int, cx: float, cy: float, locations: np.ndarray) -> float:
         """
         Compute edge width relative to the depot and route center.
-        Based on Arnold & Sorensen (2019).
+        Based on Arnold & Sorensen (2019), Equation (2).
+        The width of an edge (u, v) is defined as the distance between the
+        projections of nodes u and v onto the axis perpendicular to the
+        depot-to-center line.
         """
         depot_x, depot_y = locations[0]
         ux, uy = locations[u]
         vx, vy = locations[v]
 
-        dist_depot_center = math.hypot(depot_x - cx, depot_y - cy)
-        if dist_depot_center == 0:
+        # Vector from depot to center
+        dx, dy = cx - depot_x, cy - depot_y
+        dist_depot_center = math.hypot(dx, dy)
+
+        if dist_depot_center < 1e-6:
             return 0.0
 
-        # Projection angles
-        dist1 = ((cy - depot_y) * ux - (cx - depot_x) * uy + (cx * depot_y) - (cy * depot_x)) / dist_depot_center
-        dist2 = ((cy - depot_y) * vx - (cx - depot_x) * vy + (cx * depot_y) - (cy * depot_x)) / dist_depot_center
+        # Normal vector perpendicular to (dx, dy)
+        nx, ny = -dy / dist_depot_center, dx / dist_depot_center
 
-        return abs(dist1 - dist2)
+        # Project node vectors (relative to depot) onto the normal vector
+        proj_u = (ux - depot_x) * nx + (uy - depot_y) * ny
+        proj_v = (vx - depot_x) * nx + (vy - depot_y) * ny
+
+        return abs(proj_u - proj_v)
 
     def evaluate_and_penalize_edges(
         self, routes: List[List[int]], locations: np.ndarray, criterium: str, num_perturbations: int

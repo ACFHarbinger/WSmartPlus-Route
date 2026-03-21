@@ -59,17 +59,20 @@ class ImprovementRateIndicator:
 
         # Normalize using global improvements
         if len(self.improvements) > 0:
-            global_mean = np.mean(list(self.improvements))
-            global_std = np.std(list(self.improvements))
+            # Paper uses max/min normalization or Z-score
+            # We use Z-score with sigmoid for robustness to outliers
+            global_vals = list(self.improvements)
+            global_mean = np.mean(global_vals)
+            global_std = np.std(global_vals)
 
-            if global_std > 0:
-                # Z-score normalization, then sigmoid to [0, 1]
+            if global_std > 1e-6:
+                # Higher improvement (more positive) is better
                 z_score = (avg_improvement - global_mean) / global_std
-                # Clip to avoid overflow in np.exp
-                z_score = np.clip(z_score, -20.0, 20.0)
+                z_score = np.clip(z_score, -10.0, 10.0)
                 return 1.0 / (1.0 + np.exp(-z_score))
             else:
-                return 0.5 if avg_improvement == global_mean else (1.0 if avg_improvement > global_mean else 0.0)
+                # If all same, higher than mean is 1.0, lower is 0.0
+                return 1.0 if avg_improvement > global_mean else 0.5
 
         return 0.5
 

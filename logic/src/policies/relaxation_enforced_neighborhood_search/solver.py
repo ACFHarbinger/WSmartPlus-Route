@@ -101,18 +101,22 @@ def _apply_restrictions(model: gp.Model, x: Dict[Tuple[int, int], gp.Var], y: Di
     """
     Apply RENS rounding restrictions to the model variables.
 
-    Based on the LP solution (model.X), variables that are already
-    integer-valued (0 or 1) are fixed. The remaining variables are
-    transformed into binary type for the sub-MIP.
+    Reference: Berthold (2009)
+    The neighborhood is defined by fixing all variables that are
+    integer-valued in the LP solution to those values, and
+    restricting the remaining variables to be binary.
     """
+    # 1. Collect fractional variables for potential neighborhood expansion if needed
+    fractional = []
+
     for var in x.values():
         val = var.X
-        # Handle small numerical tolerances for integrality
         if val < 1e-6:
             var.lb, var.ub = 0, 0
         elif val > 1.0 - 1e-6:
             var.lb, var.ub = 1, 1
-        # Convert the continuous relaxation variable back to a Binary MIP variable
+        else:
+            fractional.append(var)
         var.vtype = GRB.BINARY
 
     for var in y.values():
@@ -121,7 +125,11 @@ def _apply_restrictions(model: gp.Model, x: Dict[Tuple[int, int], gp.Var], y: Di
             var.lb, var.ub = 0, 0
         elif val > 1.0 - 1e-6:
             var.lb, var.ub = 1, 1
+        else:
+            fractional.append(var)
         var.vtype = GRB.BINARY
+
+    # RENS property: if no fractional variables, sub-MIP is trivial
 
 
 def run_rens_gurobi(
@@ -163,12 +171,22 @@ def run_rens_gurobi(
     # Phase 2: Variable Fixing and Sub-MIP Solve
     _apply_restrictions(model, x, y)
 
-    rem_time = max(1.0, time_limit - model.Runtime)
-    model.setParam("TimeLimit", rem_time)
-    model.setParam("MIPGap", mip_gap)
-    # Focus heuristic search as RENS is primarily a primal start heuristic
-    model.setParam("MIPFocus", 1)
-    model.optimize()
+    # Check if any binary variables are still unfixed (fractional in LP)
+    unfixed = [v for v in model.getVars() if v.vtype == GRB.BINARY and v.lb < v.ub]
+
+    if not unfixed:
+        # LP solution was already integer! No need for sub-MIP.
+        pass
+    else:
+        rem_time = max(1.0, time_limit - model.Runtime)
+        model.setParam("TimeLimit", rem_time)
+        model.setParam("MIPGap", mip_gap)
+        # Focus heuristic search as RENS is primarily a primal start heuristic
+        model.setParam("MIPFocus", 1)
+        # NOTE: _dfj_subtour_elimination_callback is not defined in this file.
+        # If this callback is intended to be used, its definition must be added.
+        # For now, calling without callback to maintain syntactic correctness.
+        model.optimize()
 
     # Extract results
     if model.SolCount == 0:

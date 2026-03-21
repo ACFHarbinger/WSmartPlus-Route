@@ -107,8 +107,8 @@ class GLSSolver:
                     continue
 
                 # Accept if augmented objective improves
-                aug_new = self._augmented_evaluate(new_routes)
-                aug_cur = self._augmented_evaluate(routes)
+                aug_new = self._augmented_evaluate(new_routes, self.params.lambda_param)
+                aug_cur = self._augmented_evaluate(routes, self.params.lambda_param)
 
                 if aug_new >= aug_cur:
                     routes = new_routes
@@ -165,11 +165,15 @@ class GLSSolver:
         if best_edge is not None:
             self.penalties[best_edge[0]][best_edge[1]] += 1.0
 
-    def _augmented_evaluate(self, routes: List[List[int]]) -> float:
+    def _augmented_evaluate(self, routes: List[List[int]], weight: float) -> float:
         """Evaluate with penalty-augmented objective."""
         real = self._evaluate(routes)
         penalty = 0.0
-        dynamic_lambda = self.params.alpha_param * (abs(real) / max(1, self.n_nodes))
+        # If real profit is negative, we shift it to ensure dynamic_lambda is meaningful
+        # GLS typically works on cost minimization, here we maximize profit
+        abs_val = abs(real)
+        dynamic_lambda = self.params.alpha_param * (abs_val / max(1, self.n_nodes))
+
         for route in routes:
             if not route:
                 continue
@@ -177,7 +181,9 @@ class GLSSolver:
             for k in range(len(route) - 1):
                 penalty += self.penalties[route[k]][route[k + 1]]
             penalty += self.penalties[route[-1]][0]
-        return real - self.params.lambda_param * dynamic_lambda * penalty
+
+        # For maximization: Profit' = Profit - Weight * dynamic_lambda * penalty
+        return real - weight * dynamic_lambda * penalty
 
     # ------------------------------------------------------------------
     # LLH pool

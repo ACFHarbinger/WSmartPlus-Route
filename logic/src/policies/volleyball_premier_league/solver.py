@@ -25,6 +25,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.destroy.random import random_removal
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import greedy_insertion
 from .params import VPLParams
@@ -236,40 +238,35 @@ class VPLSolver:
                 donor_team = self.random.choice(passive_teams)
 
                 # Extract all nodes from current team and donor
-                current_nodes = [node for route in new_team for node in route]
                 donor_nodes = [node for route in donor_team for node in route]
 
                 if donor_nodes:
-                    # Substitute: remove some nodes and add nodes from donor
-                    n_substitute = max(1, int(len(current_nodes) * 0.3))
+                    # Use shared random_removal for substitution
+                    n_substitute = max(1, int(sum(len(r) for r in new_team) * 0.3))
+                    partial, removed = random_removal(new_team, n_substitute, self.random)
 
-                    # Remove random nodes (except mandatory)
-                    removable = [n for n in current_nodes if n not in self.mandatory_nodes]
-                    if removable:
-                        to_remove = self.random.sample(removable, min(n_substitute, len(removable)))
-                        # Flatten routes and remove nodes
-                        flat_nodes = [n for n in current_nodes if n not in to_remove]
+                    # Add nodes from donor that aren't already present
+                    available_donor = [n for n in donor_nodes if n not in [node for r in partial for node in r]]
+                    if available_donor:
+                        to_add = self.random.sample(available_donor, min(n_substitute, len(available_donor)))
+                        to_reinsert = removed + to_add
+                    else:
+                        to_reinsert = removed
 
-                        # Add nodes from donor that aren't already present
-                        available_donor = [n for n in donor_nodes if n not in flat_nodes]
-                        if available_donor:
-                            to_add = self.random.sample(available_donor, min(n_substitute, len(available_donor)))
-                            flat_nodes.extend(to_add)
-
-                        # Rebuild routes using greedy insertion
-                        try:
-                            new_team = greedy_insertion(
-                                [],
-                                flat_nodes,
-                                self.dist_matrix,
-                                self.wastes,
-                                self.capacity,
-                                R=self.R,
-                                mandatory_nodes=self.mandatory_nodes,
-                            )
-                        except Exception:
-                            # If reconstruction fails, keep original team
-                            new_team = copy.deepcopy(team)
+                    # Rebuild routes using greedy insertion
+                    try:
+                        new_team = greedy_insertion(
+                            partial,
+                            to_reinsert,
+                            self.dist_matrix,
+                            self.wastes,
+                            self.capacity,
+                            R=self.R,
+                            mandatory_nodes=self.mandatory_nodes,
+                        )
+                    except Exception:
+                        # If reconstruction fails, keep original team
+                        new_team = copy.deepcopy(team)
 
             modified_teams.append(new_team)
 

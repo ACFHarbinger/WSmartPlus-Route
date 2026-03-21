@@ -7,7 +7,7 @@ unstringing/stringing and local search operators adaptively.
 
 import random
 from collections import deque
-from typing import Deque, Dict, List
+from typing import Deque, Dict, List, Optional
 
 import numpy as np
 
@@ -27,7 +27,7 @@ class AdaptiveOperatorSelector:
         memory_size: int = 50,
         learning_rate: float = 0.1,
         weight_decay: float = 0.95,
-        seed: int = 42,
+        seed: Optional[int] = 42,
     ):
         """
         Initialize adaptive selector.
@@ -117,23 +117,22 @@ class AdaptiveOperatorSelector:
 
     def _calculate_score(self, improvement: float, is_best: bool) -> float:
         """
-        Calculate score for operator application.
+        Calculate score (reward) for operator application.
 
-        Args:
-            improvement: Improvement achieved.
-            is_best: Whether new best was found.
+        Paper levels (Müller & Bonilha 2022):
+        - New best global: r1
+        - Improved current: r2
+        - Not improved: r3
 
         Returns:
             Score value.
         """
         if is_best:
-            return 20.0
+            return 11.0  # r1
         elif improvement > 1e-6:
-            return 10.0
-        elif improvement > -1e-6:
-            return 5.0
+            return 5.0  # r2
         else:
-            return -1.0
+            return 1.0  # r3
 
     def _update_weight(self, operator: str):
         """Update operator weight based on recent performance."""
