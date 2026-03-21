@@ -198,7 +198,7 @@ class FASolver:
         node extraction and guided insertion.
 
         Favourability score per candidate node n:
-            score(n) = α_p * profit(n) + β_w * willingness(n) - γ_c * insertion_cost(n)
+            score(n) = alpha_p * profit(n) + beta_w * willingness(n) - gamma_c * insertion_cost(n)
 
         Args:
             dim_routes: Routes of the less bright firefly.
@@ -207,28 +207,77 @@ class FASolver:
         Returns:
             Updated routes for the dim firefly.
         """
-        dim_flat = [n for r in dim_routes for n in r]
-        bright_flat = [n for r in bright_routes for n in r]
+        dim_nodes = [n for r in dim_routes for n in r]
+        bright_nodes = [n for r in bright_routes for n in r]
 
-        # 1. Identify "bright" edges/nodes missing in "dim"
-        # In discrete FA for VRP, we often adopt segments from the brighter firefly
-        if len(bright_flat) < 2:
-            return copy.deepcopy(dim_routes)
+        # 1. Extraction: Identify nodes in bright but not in dim (VRPP specific)
+        # Or nodes that have different positions.
+        # For simplicity and following Ai & Kachitvichyanukul (2009),
+        # we extract a set of nodes from the brighter firefly.
 
-        # Extraction: Pick a segment from bright_routes
-        a = self.random.randint(0, len(bright_flat) - 1)
-        b = self.random.randint(a, min(a + 5, len(bright_flat)))
-        segment = bright_flat[a:b]
-        segment_set = set(segment)
+        dim_set = set(dim_nodes)
+        candidates = [n for n in bright_nodes if n not in dim_set]
 
-        # 2. Guided Insertion: Re-insert into dim preserving bright's relative order
-        remaining = [n for n in dim_flat if n not in segment_set]
-        insert_pos = min(a, len(remaining))
-        new_flat = remaining[:insert_pos] + segment + remaining[insert_pos:]
+        # If no new nodes in bright, pick some nodes from bright to "re-align"
+        if not candidates:
+            n_extract = self.random.randint(1, max(1, len(bright_nodes) // 4))
+            candidates = self.random.sample(bright_nodes, n_extract)
 
-        # 3. Form routes and apply local search
-        routes = self._partition_flat(new_flat)
-        return self.ls.optimize(routes)
+        # 2. Guided Insertion using Favourability Score
+        # score(n) = alpha * profit + beta * waste_fraction - gamma * min_insertion_cost
+        current_routes = copy.deepcopy(dim_routes)
+
+        # Sort candidates by a simplified favourability to decide insertion order
+        # In a full sequential construction, we'd re-calculate after each insertion.
+        scored_candidates = []
+        for n in candidates:
+            profit = self.wastes.get(n, 0.0) * self.R
+            willingness = self.wastes.get(n, 0.0) / self.capacity
+            cost = self._best_insertion_cost(n, current_routes)
+
+            score = (
+                self.params.alpha_profit * profit + self.params.beta_will * willingness - self.params.gamma_cost * cost
+            )
+            scored_candidates.append((score, n))
+
+        # Select best candidates to insert based on attraction beta (randomized here)
+        scored_candidates.sort(key=lambda x: x[0], reverse=True)
+
+        for _, node in scored_candidates:
+            # Re-calculate best position in current routes
+            best_pos = None
+            min_inc_cost = float("inf")
+            best_r_idx = -1
+
+            node_waste = self.wastes.get(node, 0.0)
+
+            for r_idx, route in enumerate(current_routes):
+                # Capacity check
+                if sum(self.wastes.get(nd, 0.0) for nd in route) + node_waste > self.capacity:
+                    continue
+
+                for pos in range(len(route) + 1):
+                    prev = 0 if pos == 0 else route[pos - 1]
+                    nxt = 0 if pos == len(route) else route[pos]
+                    inc_cost = self.dist_matrix[prev][node] + self.dist_matrix[node][nxt] - self.dist_matrix[prev][nxt]
+
+                    if inc_cost < min_inc_cost:
+                        min_inc_cost = inc_cost
+                        best_pos = pos
+                        best_r_idx = r_idx
+
+            if best_r_idx != -1:
+                current_routes[best_r_idx].insert(best_pos, node)
+            else:
+                # Add as a new route if profitable or mandatory
+                if (
+                    node_waste * self.R - (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C > 0
+                    or node in self.mandatory_nodes
+                ):
+                    current_routes.append([node])
+
+        # 3. Apply local search to refine the "attracted" solution
+        return self.ls.optimize(current_routes)
 
     def _partition_flat(self, nodes: List[int]) -> List[List[int]]:
         """Partition flat nodes into feasible routes."""
