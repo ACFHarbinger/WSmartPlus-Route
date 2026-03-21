@@ -154,7 +154,6 @@ class RTSSolver:
             if sol_hash in hash_history:
                 # Cycle detected: increase tenure
                 # The paper suggests multiplying by a constant (e.g., 1.1)
-                prev_iteration = hash_history[sol_hash]
 
                 tenure = min(
                     self.params.max_tenure, max(self.params.min_tenure, int(tenure * self.params.tenure_increase))
