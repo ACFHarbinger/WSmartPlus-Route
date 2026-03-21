@@ -14,7 +14,7 @@ Example:
     >>> new_routes = operator.repair(destroyed_routes, unassigned_nodes)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -29,6 +29,7 @@ def regret_2_insertion(
     mandatory_nodes: Optional[List[int]] = None,
     cost_unit: float = 1.0,
     expand_pool: bool = True,
+    noise: float = 0.0,
 ) -> List[List[int]]:
     """
     Insert removed nodes based on the regret-2 criterion.
@@ -45,6 +46,7 @@ def regret_2_insertion(
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
+        noise: Random noise level for cost calculation.
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -60,6 +62,7 @@ def regret_2_insertion(
         mandatory_nodes=mandatory_nodes,
         cost_unit=cost_unit,
         expand_pool=expand_pool,
+        noise=noise,
     )
 
 
@@ -74,6 +77,7 @@ def regret_k_insertion(  # noqa: C901
     mandatory_nodes: Optional[List[int]] = None,
     cost_unit: float = 1.0,
     expand_pool: bool = True,
+    noise: float = 0.0,
 ) -> List[List[int]]:
     """
     Insert removed nodes using the regret-k heuristic.
@@ -91,6 +95,7 @@ def regret_k_insertion(  # noqa: C901
         k: Regret degree (2, 3, etc.).
         R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
+        noise: Random noise level for cost calculation.
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -114,38 +119,48 @@ def regret_k_insertion(  # noqa: C901
         all_candidates = []
         unprofitable_nodes = []
 
-        for node in unassigned:
-            waste = wastes.get(node, 0)
-            node_options = []
+        max_dist = dist_matrix.max()
 
-            for r_idx, route in enumerate(routes):
-                if loads[r_idx] + waste > capacity:
+        for node in unassigned:
+            node_waste = wastes.get(node, 0)
+            revenue = node_waste * R if R is not None else float("inf")
+            is_mandatory = node in mandatory_nodes_set
+
+            node_options = []
+            # Check all existing routes
+            for i, route in enumerate(routes):
+                if loads[i] + node_waste > capacity:
                     continue
 
                 for pos in range(len(route) + 1):
                     prev = route[pos - 1] if pos > 0 else 0
                     nxt = route[pos] if pos < len(route) else 0
+
                     cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
-                    node_options.append((cost, r_idx, pos))
 
-            # New route option
-            new_cost = dist_matrix[0][node] + dist_matrix[node][0]
-            node_options.append((new_cost, len(routes), 0))
+                    # Apply noise (Pisinger & Ropke, 2007)
+                    if noise != 0:
+                        cost += noise * max_dist
 
-            # Sort options by cost, then r_idx, then pos for deterministic tie-breaking
-            node_options.sort(key=lambda x: (x[0], x[1], x[2]))
+                    # VRPP check: skip if cost * cost_unit > revenue and not mandatory
+                    if R is not None and cost * cost_unit > revenue and not is_mandatory:
+                        continue
 
-            # VRPP Logic
-            best_cost = node_options[0][0]
-            if R is not None:
-                revenue = waste * R
-                if best_cost * cost_unit > revenue and node not in mandatory_nodes_set:
+                    node_options.append((cost, i, pos))
+
+            # Also consider starting a new route if distance allows (not always applicable, but good for completeness)
+            # In ALNS, we usually only work with existing routes provided or let constructive do it.
+
+            if not node_options:
+                if not is_mandatory:
                     unprofitable_nodes.append(node)
-                    continue
+                continue
+
+            # Sort candidate positions for this node by cost
+            node_options.sort(key=lambda x: x[0])
 
             # Calculate regret
             if len(node_options) >= k:
-                # Regret = cost_at_k - cost_at_1
                 regret = node_options[k - 1][0] - node_options[0][0]
             elif len(node_options) > 1:
                 # If fewer than k options, regret is diff between last and first
@@ -197,6 +212,45 @@ def regret_k_insertion(  # noqa: C901
     return routes
 
 
+def _get_insertion_options_with_profit(
+    node: int,
+    routes: List[List[int]],
+    loads: List[float],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    is_mandatory: bool,
+    noise: float,
+    max_dist: float,
+) -> List[Tuple[float, int, int]]:
+    """Helper to calculate insertion options for a node with profit logic."""
+    node_waste = wastes.get(node, 0)
+    revenue = node_waste * R
+    node_options = []
+
+    for i, route in enumerate(routes):
+        if loads[i] + node_waste > capacity:
+            continue
+
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+
+            cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+
+            if noise != 0:
+                cost += noise * max_dist
+
+            profit = revenue - cost * C
+
+            if profit > 0 or is_mandatory:
+                node_options.append((profit, i, pos))
+
+    return node_options
+
+
 def regret_profit_insertion(
     routes: List[List[int]],
     removed_nodes: List[int],
@@ -208,6 +262,7 @@ def regret_profit_insertion(
     k: int = 2,
     mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = False,
+    noise: float = 0.0,
 ) -> List[List[int]]:
     """
     Regret-k insertion maximizing profit (revenue - cost).
@@ -226,6 +281,7 @@ def regret_profit_insertion(
         C: Cost multiplier.
         k: Regret degree.
         mandatory_nodes: List of mandatory node indices.
+        noise: Random noise level for cost calculation.
 
     Returns:
         List[List[int]]: Updated routes.
@@ -244,44 +300,37 @@ def regret_profit_insertion(
     else:
         unassigned = sorted(list(removed_nodes))
 
+    max_dist = dist_matrix.max()
+
     while unassigned:
         all_candidates = []
         skipped_nodes = []
 
         for node in unassigned:
-            node_waste = wastes.get(node, 0)
-            revenue = node_waste * R
             is_mandatory = node in mandatory_nodes_set
-            node_options = []
+            node_options = _get_insertion_options_with_profit(
+                node,
+                routes,
+                loads,
+                dist_matrix,
+                wastes,
+                capacity,
+                R,
+                C,
+                is_mandatory,
+                noise,
+                max_dist,
+            )
 
-            for r_idx, route in enumerate(routes):
-                if loads[r_idx] + node_waste > capacity:
-                    continue
-
-                for pos in range(len(route) + 1):
-                    # Cost increase: d(prev, node) + d(node, nxt) - d(prev, nxt)
-                    prev = route[pos - 1] if pos > 0 else 0
-                    nxt = route[pos] if pos < len(route) else 0
-
-                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
-                    profit = revenue - (cost * C)
-                    node_options.append((profit, r_idx, pos))
-
-            # New route option
-            new_cost = dist_matrix[0][node] + dist_matrix[node][0]
-            new_profit = revenue - (new_cost * C)
-            node_options.append((new_profit, len(routes), 0))
-
-            # Sort options by profit (descending), then r_idx, then pos
-            node_options.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
-
-            # VRPP Logic: check if best option is profitable or mandatory
-            best_profit = node_options[0][0]
-            if not is_mandatory and best_profit < -1e-4:
-                skipped_nodes.append(node)
+            if not node_options:
+                if not is_mandatory:
+                    skipped_nodes.append(node)
                 continue
 
-            # Calculate regret (best profit - k-th best profit)
+            # Sort by profit (highest first)
+            node_options.sort(key=lambda x: x[0], reverse=True)
+
+            # Regret for profit: best_profit - k_th_best_profit
             if len(node_options) >= k:
                 regret = node_options[0][0] - node_options[k - 1][0]
             elif len(node_options) > 1:
@@ -292,12 +341,10 @@ def regret_profit_insertion(
             best_option = node_options[0]
             all_candidates.append((regret, node, best_option))
 
-        # Remove skipped nodes from unassigned
-        for node in skipped_nodes:
-            unassigned.remove(node)
+        for out_node in skipped_nodes:
+            unassigned.remove(out_node)
 
         if not all_candidates:
-            # Handle remaining mandatory nodes
             mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
             if mandatory_remaining:
                 node = mandatory_remaining[0]
@@ -308,18 +355,21 @@ def regret_profit_insertion(
             else:
                 break
 
-        # Pick node with max regret, tie-break by node ID
+        # Maximize regret
         all_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
         _, best_node, (profit, r_idx, pos) = all_candidates[0]
 
-        # Apply insertion
-        node_waste = wastes.get(best_node, 0)
+        if r_idx == -1:
+            unassigned.remove(best_node)
+            continue
+
+        waste = wastes.get(best_node, 0)
         if r_idx == len(routes):
             routes.append([best_node])
-            loads.append(node_waste)
+            loads.append(waste)
         else:
             routes[r_idx].insert(pos, best_node)
-            loads[r_idx] += node_waste
+            loads[r_idx] += waste
 
         unassigned.remove(best_node)
 

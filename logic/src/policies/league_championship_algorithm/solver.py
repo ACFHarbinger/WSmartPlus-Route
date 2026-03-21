@@ -111,7 +111,7 @@ class LCASolver:
                 pa, pb = profits[a_idx], profits[b_idx]
 
                 # Determine winner/loser via fitness comparison (Kashan 2011/2013)
-                # Winner stays, Loser generates new formation by learning from winner
+                # Kashan (2013): Winner stays, Loser generates new formation by learning from winner
                 if pa > pb:
                     winner, loser = a_idx, b_idx
                 elif pb > pa:
@@ -120,6 +120,7 @@ class LCASolver:
                     winner, loser = (a_idx, b_idx) if self.random.random() < 0.5 else (b_idx, a_idx)
 
                 # Formation Update (Learning from Winner)
+                # Kashan (2013): The loser adopts the winner's strategy (crossover) or explores (perturbation)
                 if self.random.random() < self.params.crossover_prob:
                     # Loser adopts winner's formation features (segment injection)
                     new_formation = self._crossover(teams[loser], teams[winner])

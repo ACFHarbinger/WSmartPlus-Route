@@ -62,6 +62,10 @@ class AdaptiveOperatorManager:
         self.destroy_counts = {op: 0 for op in destroy_operators}
         self.repair_counts = {op: 0 for op in repair_operators}
 
+        # Segment control
+        self.segment_size = 100
+        self.current_iteration = 0
+
     def select_operators(self, rng: random.Random) -> Tuple[str, str]:
         """
         Select destroy and repair operators using roulette wheel selection.
@@ -82,39 +86,46 @@ class AdaptiveOperatorManager:
 
     def update_scores(self, destroy_op: str, repair_op: str, score: float) -> None:
         """
-        Update operator scores and weights based on performance.
+        Update operator scores for the current segment.
 
         Args:
             destroy_op: Name of the destroy operator used.
             repair_op: Name of the repair operator used.
             score: Performance score (higher is better).
         """
-        # Accumulate scores
         self.destroy_scores[destroy_op] += score
         self.repair_scores[repair_op] += score
+        self.destroy_counts[destroy_op] += 1
+        self.repair_counts[repair_op] += 1
 
-        # Update weights using the reaction factor (moving average)
-        if self.destroy_counts[destroy_op] > 0:
-            avg_score = self.destroy_scores[destroy_op] / self.destroy_counts[destroy_op]
-            self.destroy_weights[destroy_op] = (
-                self.reaction_factor * avg_score + (1 - self.reaction_factor) * self.destroy_weights[destroy_op]
-            )
+        self.current_iteration += 1
+        if self.current_iteration >= self.segment_size:
+            self._end_segment()
+            self.current_iteration = 0
 
-        if self.repair_counts[repair_op] > 0:
-            avg_score = self.repair_scores[repair_op] / self.repair_counts[repair_op]
-            self.repair_weights[repair_op] = (
-                self.reaction_factor * avg_score + (1 - self.reaction_factor) * self.repair_weights[repair_op]
-            )
-
-    def decay_weights(self) -> None:
-        """Apply exponential decay to all weights and reset scores periodically."""
+    def _end_segment(self) -> None:
+        """Update weights at the end of a segment using the reaction factor."""
         for op in self.destroy_weights:
-            self.destroy_weights[op] *= self.decay_parameter
-            self.destroy_weights[op] = max(0.01, self.destroy_weights[op])  # Floor at 0.01
+            if self.destroy_counts[op] > 0:
+                avg_score = self.destroy_scores[op] / self.destroy_counts[op]
+                self.destroy_weights[op] = (
+                    self.reaction_factor * avg_score + (1 - self.reaction_factor) * self.destroy_weights[op]
+                )
+            self.destroy_scores[op] = 0.0
+            self.destroy_counts[op] = 0
 
         for op in self.repair_weights:
-            self.repair_weights[op] *= self.decay_parameter
-            self.repair_weights[op] = max(0.01, self.repair_weights[op])  # Floor at 0.01
+            if self.repair_counts[op] > 0:
+                avg_score = self.repair_scores[op] / self.repair_counts[op]
+                self.repair_weights[op] = (
+                    self.reaction_factor * avg_score + (1 - self.reaction_factor) * self.repair_weights[op]
+                )
+            self.repair_scores[op] = 0.0
+            self.repair_counts[op] = 0
+
+    def decay_weights(self) -> None:
+        """Deprecated in favor of segment-based updates, but kept for compatibility."""
+        pass
 
     def entropy(self) -> float:
         """
