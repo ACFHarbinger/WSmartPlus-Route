@@ -1,7 +1,11 @@
 """
 Internal Branch-and-Price-and-Cut (BPC) engine.
-Implements a faithful Column Generation loop with Restricted Master Problem (RMP)
-and Exact Pricing Subproblem (RCSPP).
+Implements a faithful Column Generation loop with Restricted Master Problem (RMP),
+Exact Pricing Subproblem (RCSPP), and valid inequalities (Rounded Capacity Cuts).
+
+Reference:
+    Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004).
+    "A new branch-and-cut algorithm for the capacitated vehicle routing problem."
 """
 
 import time
@@ -10,7 +14,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
-
+from ..branch_and_cut.separation import SeparationEngine
+from ..branch_and_cut.vrpp_model import VRPPModel
 from ..branch_and_price.master_problem import Route, VRPPMasterProblem
 from ..branch_and_price.rcspp_dp import RCSPPSolver
 
@@ -26,13 +31,14 @@ def run_internal_bpc(
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
-    Solve Waste-Collecting CVRP using internal Branch-and-Price.
+    Solve Waste-Collecting CVRP using internal Branch-and-Price-and-Cut.
 
     This engine implements:
     1. Initial Column Generation via greedy heuristics.
     2. LP Relaxation of Master Problem.
     3. Exact Pricing via RCSPP to find positive reduced cost columns.
-    4. IP recovery of best column set.
+    4. Valid Inequalities: Rounded Capacity Cuts (RCC) separated at each node.
+    5. IP recovery of best column set.
     """
     start_time = time.process_time()
     n_nodes = len(dist_matrix) - 1
@@ -65,10 +71,16 @@ def run_internal_bpc(
 
     master.build_model(initial_columns)
 
-    # 3. Column Generation Loop
+    # 3. Column Generation + Cutting Plane Loop
     pricing_solver = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
+
+    # Initialize separation engine for RCCs
+    v_model = VRPPModel(n_nodes + 1, dist_matrix, wastes, capacity, R, C, m_set)
+    sep_engine = SeparationEngine(v_model)
+
     max_iter = values.get("max_cg_iterations", 50)
     actual_iters = 0
+    max_cuts = values.get("max_cuts_per_iteration", 5)
 
     for iteration in range(max_iter):
         actual_iters = iteration
@@ -81,9 +93,38 @@ def run_internal_bpc(
         except Exception:
             break
 
+        # A. Separate Cuts (Rounded Capacity Cuts)
+        # We need the fractional solution from the RMP to separate cuts
+        # However, RMP routes are column-based. We map them back to edge variables for separation.
+        edge_vars = master.get_edge_usage()
+        if edge_vars:
+            # Map edge_usage to x_vals array for SeparationEngine
+            x_vals = np.zeros(len(v_model.edges))
+            for (i, j), val in edge_vars.items():
+                if (min(i, j), max(i, j)) in v_model.edge_to_idx:
+                    idx = v_model.edge_to_idx[(min(i, j), max(i, j))]
+                    x_vals[idx] = val
+
+            # Separate cuts
+            violated_ineqs = sep_engine.separate(x_vals, max_cuts=max_cuts)
+            added_cuts = 0
+            for ineq in violated_ineqs:
+                if ineq.type == "CAPACITY":
+                    # add_capacity_cut takes cut_nodes and rhs
+                    # CapacityCut has node_set and rhs
+                    if master.add_capacity_cut(list(ineq.node_set), ineq.rhs):
+                        added_cuts += 1
+
+            # If we added cuts, re-solve LP and continue
+            if added_cuts > 0:
+                master.solve_lp_relaxation()
+
+        # B. Solve Pricing Subproblem
         # Get dual values and solve pricing
+        # The duals        # Get dual values and solve pricing
         duals = master.get_reduced_cost_coefficients()
-        new_columns_data = pricing_solver.solve(duals, max_routes=5)
+        cut_duals = master.dual_capacity_cuts
+        new_columns_data = pricing_solver.solve(duals, capacity_cut_duals=cut_duals, max_routes=5)
 
         if not new_columns_data:
             break  # No more positive reduced cost columns
@@ -113,6 +154,6 @@ def run_internal_bpc(
         return initial_routes_nodes, fallback_cost
 
     if recorder:
-        recorder.record(engine="internal_bpc", iterations=actual_iters, obj_val=obj_ip, n_routes=len(final_routes))
+        recorder.record(engine="native_bpc", iterations=actual_iters, obj_val=obj_ip, n_routes=len(final_routes))
 
     return final_routes, final_cost

@@ -185,7 +185,7 @@ class QDESolver:
         Args:
             xi: Current bit value (measured).
             bi: Target bit value (usually from global best).
-            worsening: True if f(xi) < f(bi) for maximization.
+            worsening: True if f(x) < f(b) for maximization.
             theta: Current rotation angle.
 
         Returns:
@@ -193,12 +193,27 @@ class QDESolver:
         """
         dt = self.params.delta_theta
 
-        # Standard QEA Table
-        if xi == 0 and bi == 1:
-            if worsening:
+        # Standard QEA Table (H. Han and J.-H. Kim, 2002; Li & Li, 2015)
+        # x_i  b_i  f(x)<f(b)  delta_theta
+        # 0    0    false       0
+        # 0    0    true        0
+        # 0    1    false       0
+        # 0    1    true        +dt (if alpha*beta > 0), -dt (if alpha*beta < 0), 0 (if alpha=0 or beta=0)
+        # 1    0    false       0
+        # 1    0    true        -dt (if alpha*beta > 0), +dt (if alpha*beta < 0), 0 (if alpha=0 or beta=0)
+        # 1    1    false       0
+        # 1    1    true        0
+
+        if worsening:
+            # We use theta directly: alpha = cos(theta), beta = sin(theta)
+            # alpha * beta = cos(theta) * sin(theta) = 0.5 * sin(2*theta)
+            # Sign of sin(2*theta) is positive for theta in (0, pi/2)
+            # Standard QDE keeps theta in [0, pi/2], so sin(2*theta) >= 0.
+
+            if xi == 0 and bi == 1:
                 return dt
-        elif xi == 1 and bi == 0 and worsening:
-            return -dt
+            elif xi == 1 and bi == 0:
+                return -dt
 
         return 0.0
 

@@ -103,6 +103,7 @@ class VRPPMasterProblem:
 
         # Dual values (for pricing)
         self.dual_node_coverage: Dict[int, float] = {}
+        self.dual_capacity_cuts: List[Tuple[Set[int], float, float]] = []  # [(nodes, rhs, dual_val)]
         self.dual_convexity: float = 0.0
 
     def add_route(self, route: Route) -> None:
@@ -121,7 +122,7 @@ class VRPPMasterProblem:
         # Create variable
         var = self.model.addVar(
             obj=route.profit,
-            vtype=GRB.BINARY if not self.model.Params.RelaxIntegral else GRB.CONTINUOUS,
+            vtype=GRB.BINARY if not self.model.getParamInfo("RelaxIntegral") else GRB.CONTINUOUS,
             name=f"route_{len(self.lambda_vars)}",
         )
 
@@ -185,6 +186,71 @@ class VRPPMasterProblem:
         self.model.ModelSense = GRB.MAXIMIZE
         self.model.update()
 
+    def add_capacity_cut(self, cut_nodes: List[int], rhs: float) -> bool:
+        """
+        Add a rounded capacity cut to the master problem.
+        Constraint: Σ_{k: route k crosses cut} λ_k >= RHS
+        Actually, for CVRP, the cut is typically Σ_{i∈S} Σ_{j∉S} x_{ij} >= 2 * ⌈q(S)/Q⌉.
+        In set partitioning, this maps to Σ_{k: route k visits S} λ_k * (number of times k crosses boundary of S) >= ...
+        Or more simply for standard CVRP: Σ_{k: route k HAS at least one node in S} λ_k >= ⌈q(S)/Q⌉
+        Wait, no. A route k can visit S and leave it multiple times.
+        According to Lysgaard (2004), for set partitioning, the constraint is:
+        Σ_{k ∈ Ω} a_k^S λ_k ≤ |S| - k(S)
+        where a_k^S is the number of edges of route k with both endpoints in S.
+        """
+        if self.model is None:
+            return False
+
+        cut_set = set(cut_nodes)
+
+        # Check if cut already exists
+        for existing_set, existing_rhs, _ in self.dual_capacity_cuts:
+            if existing_set == cut_set:
+                return False
+
+        lhs = gp.LinExpr()
+        for idx, route in enumerate(self.routes):
+            # Number of edges in S
+            # route.nodes is sequence of nodes [n1, n2, ..., nm]
+            # edges are (0, n1), (n1, n2), ..., (nm, 0)
+            internal_edges = 0
+            prev = 0
+            for curr in route.nodes + [0]:
+                if prev in cut_set and curr in cut_set:
+                    internal_edges += 1
+                prev = curr
+
+            if internal_edges > 0:
+                lhs += internal_edges * self.lambda_vars[idx]
+
+        if lhs.size() == 0:
+            return False
+
+        self.model.addConstr(lhs <= len(cut_set) - rhs, name=f"rcc_{len(self.dual_capacity_cuts)}")
+        self.dual_capacity_cuts.append((cut_set, rhs, 0.0))
+        self.model.update()
+        return True
+
+    def get_edge_usage(self) -> Dict[Tuple[int, int], float]:
+        """Map column values back to edge variables for separation."""
+        if self.model is None:
+            return {}
+
+        try:
+            edge_usage: Dict[Tuple[int, int], float] = {}
+            for idx, var in enumerate(self.lambda_vars):
+                val = var.X
+                if val > 1e-6:
+                    route = self.routes[idx]
+                    prev = 0
+                    for curr in route.nodes + [0]:
+                        edge = tuple(sorted((prev, curr)))
+                        edge_usage[edge] = edge_usage.get(edge, 0.0) + val
+                        prev = curr
+            return edge_usage
+        except Exception:
+            return {}
+
     def solve_lp_relaxation(self) -> Tuple[float, Dict[int, float]]:
         """
         Solve the LP relaxation of the master problem.
@@ -215,6 +281,13 @@ class VRPPMasterProblem:
             constr = self.model.getConstrByName(f"coverage_{node}")
             if constr is not None:
                 self.dual_node_coverage[node] = constr.Pi
+
+        # Extract capacity cut duals
+        for i in range(len(self.dual_capacity_cuts)):
+            nodes, rhs, _ = self.dual_capacity_cuts[i]
+            constr = self.model.getConstrByName(f"rcc_{i}")
+            dual_val = constr.Pi if constr is not None else 0.0
+            self.dual_capacity_cuts[i] = (nodes, rhs, dual_val)
 
         return obj_value, route_values
 

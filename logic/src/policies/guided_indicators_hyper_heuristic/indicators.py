@@ -42,39 +42,13 @@ class ImprovementRateIndicator:
 
     def get_score(self, operator: str, operator_improvements: Deque[float]) -> float:
         """
-        Get IRI score for an operator.
-
-        Args:
-            operator: Operator name.
-            operator_improvements: Recent improvements for this operator.
-
-        Returns:
-            Normalized IRI score (0.0-1.0).
+        Get IRI score for an operator (Chen 2018, Eq 4).
+        Score is the average improvement rate of the operator.
         """
-        if len(operator_improvements) == 0:
-            return 0.5  # Neutral score for untried operators
+        if not operator_improvements:
+            return 1.0  # Initial optimism
 
-        # Average improvement
-        avg_improvement = np.mean(list(operator_improvements))
-
-        # Normalize using global improvements
-        if len(self.improvements) > 0:
-            # Paper uses max/min normalization or Z-score
-            # We use Z-score with sigmoid for robustness to outliers
-            global_vals = list(self.improvements)
-            global_mean = np.mean(global_vals)
-            global_std = np.std(global_vals)
-
-            if global_std > 1e-6:
-                # Higher improvement (more positive) is better
-                z_score = (avg_improvement - global_mean) / global_std
-                z_score = np.clip(z_score, -10.0, 10.0)
-                return 1.0 / (1.0 + np.exp(-z_score))
-            else:
-                # If all same, higher than mean is 1.0, lower is 0.0
-                return 1.0 if avg_improvement > global_mean else 0.5
-
-        return 0.5
+        return float(np.mean(operator_improvements))
 
 
 class TimeBasedIndicator:
@@ -107,33 +81,13 @@ class TimeBasedIndicator:
 
     def get_score(self, operator: str, operator_times: Deque[float]) -> float:
         """
-        Get TBI score for an operator.
-
-        Args:
-            operator: Operator name.
-            operator_times: Recent execution times for this operator.
-
-        Returns:
-            Normalized TBI score (0.0-1.0), where higher is better (faster).
+        Get TBI score for an operator (Chen 2018, Eq 5).
+        TBI_i = 1 / average_time_i
         """
-        if len(operator_times) == 0:
-            return 0.5  # Neutral score for untried operators
+        if not operator_times:
+            return 1.0  # Initial optimism
 
-        # Average execution time
-        avg_time = np.mean(list(operator_times))
-
-        # Normalize using global times
-        if len(self.times) > 0:
-            global_mean = np.mean(list(self.times))
-            global_std = np.std(list(self.times))
-
-            if global_std > 0:
-                # Z-score normalization (inverted: faster is better)
-                z_score = (global_mean - avg_time) / global_std
-                # Clip to avoid overflow in np.exp
-                z_score = np.clip(z_score, -20.0, 20.0)
-                return 1.0 / (1.0 + np.exp(-z_score))
-            else:
-                return 0.5 if avg_time == global_mean else (1.0 if avg_time < global_mean else 0.0)
-
-        return 0.5
+        avg_time = float(np.mean(operator_times))
+        if avg_time < 1e-9:
+            return 1e9
+        return 1.0 / avg_time

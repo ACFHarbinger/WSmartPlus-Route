@@ -195,21 +195,24 @@ class GIHHSolver:
         if self.rng.random() < self.epsilon:
             return self.rng.choice(all_operators)
 
-        # Exploit: select based on guidance indicators
-        scores = {}
+        # Exploit: select based on guidance indicators (Chen 2018, Eq 3)
+        combined_scores = []
         for op in all_operators:
-            # Get normalized scores [0, 1] from indicators
-            iri_score = self.iri.get_score(op, self.operator_improvements.get(op, deque()))
-            tbi_score = self.tbi.get_score(op, self.operator_times.get(op, deque()))
+            # Raw scores from indicators
+            iri_val = self.iri.get_score(op, self.operator_improvements[op])
+            tbi_val = self.tbi.get_score(op, self.operator_times[op])
 
-            # Weighted combination as per Paper (Equation 4/5 equivalent)
-            combined_score = self.params.iri_weight * iri_score + self.params.tbi_weight * tbi_score
+            # Weighted combination (Eq 3)
+            # Probability P_i is proportional to combined score
+            score = (self.params.iri_weight * iri_val) + (self.params.tbi_weight * tbi_val)
+            combined_scores.append(max(1e-6, score))
 
-            # Ensure strictly positive for roulette wheel
-            scores[op] = max(0.001, combined_score)
+        # Normalize to probability distribution
+        total = sum(combined_scores)
+        probabilities = [s / total for s in combined_scores]
 
-        # Roulette wheel selection based on combined scores
-        return self._roulette_wheel_selection(scores)
+        # Selection
+        return self.rng.choices(all_operators, weights=probabilities, k=1)[0]
 
     def _apply_operator(self, solution: Solution, operator: str) -> Solution:
         """

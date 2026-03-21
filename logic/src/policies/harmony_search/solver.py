@@ -179,13 +179,15 @@ class HSSolver:
                     )
 
                 # 2. Pitch Adjustment (PAR)
-                # In discrete space, this means choosing a neighboring value
                 if self.random.random() < self.params.PAR:
-                    # Neighboring value in discrete routing is a node geographically close
+                    # In discrete space, BW determines the neighborhood radius for pitch adjustment
+                    # We pick a node that is geographically close within the "bandwidth"
                     neighbors = self._nearest_unvisited(selected, unvisited)
                     if neighbors:
-                        # Choose one of the top-3 nearest neighbors as "pitch adjustment"
-                        selected = self.random.choice(neighbors[:3])
+                        # Use BW to determine how many neighbors to consider
+                        # e.g., if BW=0.1 and 100 nodes, consider top 10 neighbors
+                        n_neighbors = max(1, int(len(self.nodes) * self.params.BW))
+                        selected = self.random.choice(neighbors[:n_neighbors])
             else:
                 # Random selection (Exploration)
                 selected = self.random.choice(list(unvisited))

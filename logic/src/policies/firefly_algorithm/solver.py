@@ -102,10 +102,17 @@ class FASolver:
                     if profits[j] <= profits[i]:
                         continue
 
-                    d = self._swap_distance(population[i], population[j])
-                    beta = self.params.beta0 * np.exp(-self.params.gamma * d * d)
+                    # Distance r_ij between firefly i and j
+                    # In discrete FA, this is often the swap distance
+                    r = self._swap_distance(population[i], population[j])
+
+                    # Attractiveness beta = beta0 * exp(-gamma * r^2)
+                    # Reference: Yang (2008) Eq (11)
+                    beta = self.params.beta0 * np.exp(-self.params.gamma * (r**2))
 
                     if self.random.random() < beta:
+                        # Move firefly i toward j
+                        # In discrete case, this means inheriting features from j
                         new_routes = self._attract(population[i], population[j])
                         new_profit = self._evaluate(new_routes)
                         if new_profit > profits[i]:
