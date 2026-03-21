@@ -10,8 +10,8 @@ from typing import Optional
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
+from .bpc_engine import run_internal_bpc
 from .gurobi_engine import run_bpc_gurobi
-from .ortools_engine import run_bpc_ortools
 from .vrpy_engine import run_bpc_vrpy
 
 
@@ -55,6 +55,8 @@ def run_bpc(
         return run_bpc_vrpy(dist_matrix, wastes, capacity, R, C, values, recorder=recorder)
     elif engine == "gurobi":
         return run_bpc_gurobi(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, recorder=recorder)
+    elif engine == "internal":
+        return run_internal_bpc(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)
     else:
-        # Default to OR-Tools
-        return run_bpc_ortools(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)
+        # Default to internal engine for faithfulness
+        return run_internal_bpc(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)

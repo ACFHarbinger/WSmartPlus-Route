@@ -111,17 +111,19 @@ class QDESolver:
                 # delta_theta_i = F * (best_theta - theta_i) + random * (pbest_theta - theta_i)
 
                 # Comparison with global best to determine rotation direction
-                for j in range(self.n_nodes):
-                    # Measure current best solution at node j
-                    # (In continuous QDE, we often use the best theta directly)
-                    target_theta = thetas[best_idx][j]
+                # Bit values for comparison: xi (current), bi (global best)
+                probs = np.sin(thetas[i]) ** 2
+                xi = (self.np_rng.uniform(0.0, 1.0, self.n_nodes) < probs).astype(int)
+                bi = (self.np_rng.uniform(0.0, 1.0, self.n_nodes) < (np.sin(thetas[best_idx]) ** 2)).astype(int)
 
-                    # Update rule using rotation gates
-                    # Delta theta = delta_theta * sign(A)
-                    # where A is usually determined by a lookup table based on
-                    # current fitness vs best fitness and bit values.
-                    # We implement the standard QDE update:
-                    thetas[i][j] += self.params.delta_theta * np.sign(target_theta - thetas[i][j])
+                for j in range(self.n_nodes):
+                    # Standard QEA Update Rule (Li & Li, 2015)
+                    # We determine delta_theta sign and magnitude from the lookup table
+                    # Condition: f(x) < f(b) where b is global/individual best
+                    # Since we want to improve profit, worsening means current < best
+                    worsening = profits[i] < best_profit
+                    rotation = self._rotation_gate(xi[j], bi[j], worsening, thetas[i][j])
+                    thetas[i][j] += rotation
 
                 # --- Differential Mutation on Thetas (Hybrid QDE) ---
                 candidates = [j for j in range(pop_size) if j != i]
@@ -172,6 +174,33 @@ class QDESolver:
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
+
+    def _rotation_gate(self, xi: int, bi: int, worsening: bool, theta: float) -> float:
+        """
+        Standard QEA rotation gate lookup table (Li & Li, 2015).
+
+        Determines the rotation angle delta_theta based on current bit value,
+        best bit value, and fitness comparison.
+
+        Args:
+            xi: Current bit value (measured).
+            bi: Target bit value (usually from global best).
+            worsening: True if f(xi) < f(bi) for maximization.
+            theta: Current rotation angle.
+
+        Returns:
+            Rotation update value.
+        """
+        dt = self.params.delta_theta
+
+        # Standard QEA Table
+        if xi == 0 and bi == 1:
+            if worsening:
+                return dt
+        elif xi == 1 and bi == 0 and worsening:
+            return -dt
+
+        return 0.0
 
     def _collapse(self, thetas: np.ndarray) -> List[List[int]]:
         """
