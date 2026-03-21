@@ -13,6 +13,9 @@ Dual competition structure:
 Stagnation detection: if a team's aggregate profit does not improve for
 `stagnation_limit` seasons, the entire team is regenerated from scratch.
 
+The globally best solution is the "superstar", which exerts a coaching
+influence on all teams via the Coaching phase.
+
 Reference:
     Moosavian, N., & Rppdsarou, B. K. (2014).
     "Soccer league competition algorithm: A novel meta-heuristic
@@ -102,10 +105,11 @@ class SLCSolver:
                 break
 
             # 1. Racing and Interplays (Intra-team competition)
+            # Moosavian (2014): Players improve individually, then teams compete.
             for _t_idx, team in enumerate(teams):
                 for p_idx in range(len(team)):
                     routes, profit = team[p_idx]
-                    # Each player locally perturbs its own solution
+                    # Intra-team perturbation: localized improvement
                     new_routes = self._perturb(routes)
                     new_profit = self._evaluate(new_routes)
                     if new_profit > profit:
@@ -119,14 +123,16 @@ class SLCSolver:
                 a_idx, b_idx = team_indices[k], team_indices[k + 1]
                 self._play_match(teams[a_idx], teams[b_idx])
 
-            # 3. Coaching and Learning Phase
-            # Weaker players learn from the global superstars (Top 3)
+            # 3. Coaching and Learning Phase (Superstar Influence)
+            # Moosavian (2014): Weaker players learn from the "Superstar" (global best).
             self._update_superstars(teams)
+            superstar = self.superstars[0]  # Global best
+
             for _t_idx, team in enumerate(teams):
-                # Coaching: Apply weighted learning from superstars to help team improve
                 for p_idx in range(len(team)):
-                    if self.random.random() < 0.2:  # Paper-inspired coaching probability
-                        team[p_idx] = self._coach(team[p_idx])
+                    # Coaching: probabilistic learning from the superstar
+                    if self.random.random() < 0.2:
+                        team[p_idx] = self._coach(team[p_idx], superstar)
 
             # 4. Substitution Operator (Diversity injection)
             # Replace the worst players globally with new learners
@@ -163,7 +169,7 @@ class SLCSolver:
         self.superstars = all_players[:3]
 
     def _play_match(self, team_a: List[Tuple[List[List[int]], float]], team_b: List[Tuple[List[List[int]], float]]):
-        """Teams compete; loser's weakest player learns from winner's best."""
+        """Teams compete; loser's weakest player learns from winner's best (Moosavian 2014)."""
         fit_a = sum(p for _, p in team_a)
         fit_b = sum(p for _, p in team_b)
 
@@ -172,27 +178,35 @@ class SLCSolver:
         else:
             winner, loser = team_b, team_a
 
+        # Winner's best player (Coach for the match)
         winner_best = max(winner, key=lambda x: x[1])[0]
+
+        # Loser's weakest player
         loser_worst_idx = int(np.argmin([p for _, p in loser]))
 
-        # Learning via Recombination
+        # Learning: Loser's weakest player is replaced by a recombined offspring
         child = self._recombine(loser[loser_worst_idx][0], winner_best)
         child_profit = self._evaluate(child)
         loser[loser_worst_idx] = (child, child_profit)
 
-    def _coach(self, player: Tuple[List[List[int]], float]) -> Tuple[List[List[int]], float]:
-        """Weighted learning from Top-3 Superstars: w1*T1 + w2*T2 + w3*T3."""
-        if not self.superstars:
-            return player
+    def _coach(
+        self, player: Tuple[List[List[int]], float], superstar: Tuple[List[List[int]], float]
+    ) -> Tuple[List[List[int]], float]:
+        """
+        Superstar Influence (Coaching).
 
-        # In discrete space, weighted learning is sequential recombination
-        child_routes = copy.deepcopy(player[0])
-        # weights 0.5, 0.3, 0.2
-        for i, weight in enumerate([0.5, 0.3, 0.2]):
-            if i < len(self.superstars) and self.random.random() < weight:
-                child_routes = self._recombine(child_routes, self.superstars[i][0])
+        Moosavian (2014): Weaker players imitate the best solutions (superstars).
+        In discrete VRR, this corresponds to recombining with the global best.
+        """
+        current_routes, current_profit = player
+        superstar_routes, _ = superstar
 
-        return child_routes, self._evaluate(child_routes)
+        # Recombine with global superstar
+        new_routes = self._recombine(current_routes, superstar_routes)
+        new_profit = self._evaluate(new_routes)
+
+        # Moosavian (2014): Player moves towards superstar if it improves their fitness
+        return (new_routes, new_profit) if new_profit > current_profit else player
 
     # ------------------------------------------------------------------
     # Private helpers

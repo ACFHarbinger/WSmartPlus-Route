@@ -27,6 +27,7 @@ def greedy_insertion(
     mandatory_nodes: Optional[List[int]] = None,
     cost_unit: float = 1.0,
     expand_pool: bool = True,
+    noise: float = 0.0,
 ) -> List[List[int]]:
     """
     Insert removed nodes into their best (cheapest) positions greedily.
@@ -84,6 +85,10 @@ def greedy_insertion(
                     nxt = route[pos] if pos < len(route) else 0
 
                     cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+
+                    # Apply noise (Pisinger & Ropke, 2007)
+                    if noise != 0:
+                        cost += noise * dist_matrix.max()  # Normalized noise
 
                     if cost < best_cost:
                         # VRPP check: skip if cost * cost_unit > revenue and not mandatory

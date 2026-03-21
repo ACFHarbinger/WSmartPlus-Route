@@ -59,7 +59,7 @@ class VPLParams:
         """Validate parameter constraints."""
         assert self.n_teams > 0, "n_teams must be positive"
         assert 0 <= self.substitution_rate <= 1, "substitution_rate must be in [0, 1]"
-        assert self.elite_size >= 3, "elite_size must be at least 3 for coaching"
+        assert self.elite_size >= 1, "elite_size must be at least 1"
 
         # Validate coaching weights sum to 1.0
         total_weight = self.coaching_weight_1 + self.coaching_weight_2 + self.coaching_weight_3

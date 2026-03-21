@@ -123,13 +123,14 @@ def fisher_jaikumar_clustering(
     df_nodes = pd.DataFrame(node_data)
     df_nodes = df_nodes.sort_values("angle")
 
-    # Divide into K sectors
-    sector_size = len(df_nodes) // k if k > 0 else len(df_nodes)
+    # Divide into K sectors and pick furthest node in each as seed
+    sector_size = math.ceil(len(df_nodes) / k) if k > 0 else len(df_nodes)
     seeds = []
     for i in range(k):
         sector = df_nodes.iloc[i * sector_size : (i + 1) * sector_size]
         if not sector.empty:
-            seed_idx = sector.loc[sector["dist"].idxmax(), "idx"]
+            # Fisher-Jaikumar: Seeds should be furthest nodes (most difficult to insert)
+            seed_idx = int(sector.loc[sector["dist"].idxmax(), "idx"])
             seeds.append(seed_idx)
 
     # 2. Assignment based on insertion cost
@@ -140,15 +141,13 @@ def fisher_jaikumar_clustering(
     remaining_nodes = sorted(must_go, key=lambda x: distance_matrix[0, x], reverse=True)
 
     for node in remaining_nodes:
-        if node in seeds:
-            continue
-
-        # Calculate insertion cost for each seed
+        # Calculate assignment cost for each seed
+        # d_ik = d(0, i) + d(i, k) - d(0, k)
         best_seed_idx = -1
         min_insertion = float("inf")
 
         for s_idx, seed in enumerate(seeds):
-            # c_ij = d(0, i) + d(i, j) - d(0, j)
+            # Generalized Assignment Problem (GAP) cost approximation
             insertion_cost = distance_matrix[0, node] + distance_matrix[node, seed] - distance_matrix[0, seed]
 
             if insertion_cost < min_insertion and loads[s_idx] + wastes.get(node, 0) <= capacity:
@@ -159,14 +158,10 @@ def fisher_jaikumar_clustering(
             clusters[best_seed_idx].append(node)
             loads[best_seed_idx] += wastes.get(node, 0)
         else:
-            # Fallback: start new cluster or add to least-filled
-            min_load_idx = np.argmin(loads)
+            # Fallback for overflows: start a new cluster if possible or add to least filled
+            min_load_idx = int(np.argmin(loads))
             clusters[min_load_idx].append(node)
             loads[min_load_idx] += wastes.get(node, 0)
-
-    # Add seeds to their clusters
-    for i, seed in enumerate(seeds):
-        clusters[i].append(seed)
 
     return [c for c in clusters if c]
 
