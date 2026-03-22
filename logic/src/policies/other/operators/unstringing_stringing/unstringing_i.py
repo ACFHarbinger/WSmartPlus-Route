@@ -69,8 +69,8 @@ def apply_type_i_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     s2 = rot_route[k_new + 1 : j_new + 1]
     remainder = rot_route[j_new + 1 :]
 
-    # New sequence: v_{i-1} -> s2 -> s1_reversed -> remainder
-    new_rot = [rot_route[0]] + s2 + s1[::-1] + remainder
+    # New sequence: v_{i-1} -> s2_reversed -> s1_reversed -> remainder
+    new_rot = [rot_route[0]] + s2[::-1] + s1[::-1] + remainder
 
     # Rotate back to align with original depot position?
     # Find depot 0 and rotate it to front.

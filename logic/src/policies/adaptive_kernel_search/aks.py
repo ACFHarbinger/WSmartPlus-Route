@@ -180,8 +180,10 @@ def _solve_aks_iterations(
         current_bucket = remaining_vars[current_idx:end_idx]
 
         # Fix/Unfix
+        active_ids = {v.VarName for v in active_kernel}
+        bucket_ids = {v.VarName for v in current_bucket}
         for v in model.getVars():
-            if v in active_kernel or v in current_bucket:
+            if v.VarName in active_ids or v.VarName in bucket_ids:
                 v.ub = 1
             else:
                 v.ub = 0

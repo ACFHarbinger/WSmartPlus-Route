@@ -70,6 +70,8 @@ class BCPPolicy(BaseRoutingPolicy):
             values,
             must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
+            expand_pool=kwargs.get("vrpp", False),
+            profit_aware_operators=kwargs.get("profit_aware_operators", False),
         )
 
         # Compute profit: collected revenue - distance cost

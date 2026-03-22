@@ -6,6 +6,7 @@ Reference:
     TO SOLVE ORIGIN-DESTINATION INTEGER MULTICOMMODITY FLOW PROBLEMS.", 1998.
 """
 
+import ConfigSpace.api.types.categorical
 from typing import Optional
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
@@ -24,6 +25,8 @@ def run_bpc(
     values,
     must_go_indices=None,
     env=None,
+    expand_pool=False,
+    profit_aware_operators=False,
     recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
@@ -42,6 +45,8 @@ def run_bpc(
             Default: 'ortools'. Also supports 'time_limit' (default: 30 seconds)
         must_go_indices (set, optional): Node IDs that must be visited
         env (gp.Env, optional): Gurobi environment (for Gurobi engine only)
+        expand_pool (bool, optional): Whether to expand the pool of routes
+        profit_aware_operators (bool, optional): Whether to use profit-aware operators
         recorder (PolicyStateRecorder, optional): Telemetry recorder.
 
     Returns:
@@ -56,7 +61,8 @@ def run_bpc(
     elif engine == "gurobi":
         return run_bpc_gurobi(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, recorder=recorder)
     elif engine == "internal":
-        return run_internal_bpc(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)
+        return run_internal_bpc(
+            dist_matrix, wastes, capacity, R, C, values, must_go_indices, expand_pool, profit_aware_operators, recorder
+        )
     else:
-        # Default to internal engine for faithfulness
-        return run_internal_bpc(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)
+        raise ValueError(f"Unknown BPC engine: {engine}")
