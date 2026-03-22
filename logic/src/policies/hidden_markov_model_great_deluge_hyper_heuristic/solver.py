@@ -346,7 +346,7 @@ class HMMGDHHSolver:
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L5: shaw_removal + greedy_insertion."""
-        partial, removed = shaw_removal(routes, n, self.dist_matrix, nodes=self.nodes)
+        partial, removed = shaw_removal(routes, n, self.dist_matrix)
         return greedy_insertion(
             partial,
             removed,

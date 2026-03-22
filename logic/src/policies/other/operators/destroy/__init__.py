@@ -28,6 +28,10 @@ from ..unstringing_stringing import (
     apply_type_iii_us_profit,
     apply_type_iv_us,
     apply_type_iv_us_profit,
+    stringing_insertion,
+    stringing_profit_insertion,
+    unstringing_profit_removal,
+    unstringing_removal,
 )
 from .cluster import cluster_profit_removal, cluster_removal
 from .historical import historical_profit_removal, historical_removal
@@ -59,7 +63,7 @@ __all__ = [
     "string_profit_removal",
     "sector_profit_removal",
     "route_profit_removal",
-    # Unstringing destroy
+    # Unstringing/stringing destroy/repair
     "apply_type_i_us",
     "apply_type_ii_us",
     "apply_type_iii_us",
@@ -68,4 +72,9 @@ __all__ = [
     "apply_type_ii_us_profit",
     "apply_type_iii_us_profit",
     "apply_type_iv_us_profit",
+    # Automated wrappers
+    "unstringing_removal",
+    "unstringing_profit_removal",
+    "stringing_insertion",
+    "stringing_profit_insertion",
 ]
