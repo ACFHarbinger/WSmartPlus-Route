@@ -328,6 +328,7 @@ class GIHHSolver:
                         self.wastes,
                         self.Q,
                         blink_rate=self.params.accept_worse_prob,
+                        mandatory_nodes=self.mandatory_nodes,
                         rng=self.rng,
                         expand_pool=True,
                     )
@@ -354,6 +355,7 @@ class GIHHSolver:
                     self.wastes,
                     self.Q,
                     blink_rate=self.params.accept_worse_prob,
+                    mandatory_nodes=self.mandatory_nodes,
                     rng=self.rng,
                     expand_pool=True,
                 )
