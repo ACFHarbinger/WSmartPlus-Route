@@ -1,9 +1,14 @@
 """
 Greedy Blink Insertion Operator Module.
 
-This module implements the 'Greedy with Blinks' insertion heuristic. It is a
-randomized version of greedy insertion where the algorithm 'blinks' (skips)
-the best position with some probability, encouraging diversity.
+This module implements the 'Greedy with Blinks' insertion heuristic based on
+the Slack Induction by String Removal (SISR) metaheuristic.
+
+It contains:
+    1. `greedy_insertion_with_blinks`: A standard distance-minimizing operator.
+    2. `greedy_profit_insertion_with_blinks`: A VRPP-specific profit-maximizing
+       operator that utilizes speculative seeding and post-insertion pruning.
+    3. `prune_unprofitable_routes`: A safety-net helper for VRPP economics.
 
 Attributes:
     None
@@ -14,9 +19,60 @@ Example:
 """
 
 from random import Random
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import numpy as np
+
+
+def prune_unprofitable_routes(
+    routes: List[List[int]],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    R: float,
+    C: float,
+    mandatory_nodes_set: Set[int],
+) -> List[List[int]]:
+    """
+    Evaluates all routes and removes those that result in a net economic loss,
+    unless they contain mandatory nodes that must be served.
+
+    Args:
+        routes: List of completed routes after the insertion phase.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node ID to waste volume (demand).
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes_set: Set of node IDs that must be serviced.
+
+    Returns:
+        List[List[int]]: A filtered list of economically viable routes.
+    """
+    valid_routes = []
+
+    for route in routes:
+        if not route:
+            continue
+
+        # 1. Mandatory routes are always kept
+        if any(node in mandatory_nodes_set for node in route):
+            valid_routes.append(route)
+            continue
+
+        # 2. Calculate full route detour cost
+        cost = dist_matrix[0, route[0]]
+        for i in range(len(route) - 1):
+            cost += dist_matrix[route[i], route[i + 1]]
+        cost += dist_matrix[route[-1], 0]
+
+        # 3. Calculate total revenue
+        revenue = sum(wastes.get(node, 0.0) for node in route) * R
+
+        # 4. Keep if profitable (or effectively break-even to floating point precision)
+        profit = revenue - (cost * C)
+        if profit >= -1e-4:
+            valid_routes.append(route)
+
+    return valid_routes
 
 
 def greedy_insertion_with_blinks(
@@ -30,27 +86,23 @@ def greedy_insertion_with_blinks(
     expand_pool: bool = False,
 ) -> List[List[int]]:
     """
-    Greedy insertion with randomized skips ('blinks').
-
-    Similar to standard greedy insertion, but during the selection of the best
-    position, the algorithm may skip the absolute best option with probability
-    `blink_rate` and choose the second best, and so on.
+    Standard Greedy insertion with randomized skips ('blinks').
+    Optimizes strictly for minimum distance/cost.
 
     Args:
         routes: Partial routes.
         removed_nodes: Nodes to reinsert.
         dist_matrix: Distance matrix.
-        wastes: wastes.
-        capacity: Capacity.
-        blink_rate: Probability of skipping a check.
+        wastes: Node demands.
+        capacity: Vehicle capacity.
+        blink_rate: Probability of skipping the current best option.
         rng: Random number generator.
+        expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.
 
     Returns:
-        Routes with all nodes reinserted.
+        Routes with nodes reinserted based on minimum cost.
     """
-    loads = []
-    for route in routes:
-        loads.append(sum(wastes.get(n, 0) for n in route))
+    loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
     if rng is None:
         rng = Random(42)
@@ -62,87 +114,48 @@ def greedy_insertion_with_blinks(
     else:
         unassigned = sorted(list(removed_nodes))
 
-    # Reinsert in random order
     rng.shuffle(unassigned)
 
     for node in unassigned:
-        waste = wastes.get(node, 0)
-        best_cost = float("inf")
-        best_r_idx = -1
-        best_pos = -1
+        node_waste = wastes.get(node, 0)
+        options = []  # List of (cost_delta, route_idx, position)
 
         # Check existing routes
         for r_idx, route in enumerate(routes):
-            if loads[r_idx] + waste > capacity:
+            if loads[r_idx] + node_waste > capacity:
                 continue
 
             for pos in range(len(route) + 1):
-                # Blink check
-                if rng.random() < blink_rate:
-                    continue
+                prev = route[pos - 1] if pos > 0 else 0
+                nxt = route[pos] if pos < len(route) else 0
 
-                prev = 0 if pos == 0 else route[pos - 1]
-                nex = 0 if pos == len(route) else route[pos]
-
-                cost = dist_matrix[prev][node] + dist_matrix[node][nex] - dist_matrix[prev][nex]
-
-                if cost < best_cost:
-                    best_cost = cost
-                    best_r_idx = r_idx
-                    best_pos = pos
+                cost_delta = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                options.append((cost_delta, r_idx, pos))
 
         # Check new route
-        new_route_cost = dist_matrix[0][node] + dist_matrix[node][0]
-        if new_route_cost < best_cost:
-            best_cost = new_route_cost
-            best_r_idx = len(routes)
-            best_pos = 0
+        new_route_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+        options.append((new_route_cost, len(routes), 0))
 
-        # Apply
-        if best_r_idx == len(routes):
+        # Sort options by Cost (Ascending - Lowest cost is best)
+        options.sort(key=lambda x: x[0])
+
+        # True Option Blink Logic
+        best_selection = options[-1]  # Fallback to worst
+        for opt in options:
+            if rng.random() >= blink_rate:
+                best_selection = opt
+                break
+
+        # Apply the chosen move
+        cost, r_idx, pos = best_selection
+        if r_idx == len(routes):
             routes.append([node])
-            loads.append(waste)
+            loads.append(node_waste)
         else:
-            routes[best_r_idx].insert(best_pos, node)
-            loads[best_r_idx] += waste
+            routes[r_idx].insert(pos, node)
+            loads[r_idx] += node_waste
 
     return routes
-
-
-def prune_unprofitable_routes(
-    routes: List[List[int]],
-    dist_matrix: np.ndarray,
-    wastes: Dict[int, float],
-    R: float,
-    C: float,
-    mandatory_nodes_set: set[int],
-) -> List[List[int]]:
-    """
-    Remove any non-mandatory routes that are not profitable.
-    """
-    final_routes = []
-    for route in routes:
-        # Check if any node in route is mandatory
-        has_mandatory = any(n in mandatory_nodes_set for n in route) if mandatory_nodes_set else False
-
-        if has_mandatory:
-            final_routes.append(route)
-            continue
-
-        # Calculate actual profit
-        route_dist = 0.0
-        prev = 0
-        for node in route:
-            route_dist += dist_matrix[prev, node]
-            prev = node
-        route_dist += dist_matrix[prev, 0]
-
-        route_waste = sum(wastes.get(n, 0.0) for n in route)
-        actual_profit = (route_waste * R) - (route_dist * C)
-
-        if actual_profit >= -1e-4:
-            final_routes.append(route)
-    return final_routes
 
 
 def greedy_profit_insertion_with_blinks(
@@ -160,6 +173,7 @@ def greedy_profit_insertion_with_blinks(
 ) -> List[List[int]]:
     """
     Greedy profit-driven insertion with randomized skips ('blinks').
+    Includes Speculative Seeding and Economic Pruning for VRPP.
 
     Args:
         routes: List of routes.
@@ -172,9 +186,10 @@ def greedy_profit_insertion_with_blinks(
         blink_rate: Probability of skipping a valid insertion check.
         mandatory_nodes: List of mandatory node indices.
         rng: Random number generator.
+        expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.
 
     Returns:
-        List[List[int]]: Updated routes.
+        List[List[int]]: Updated routes, pruned of unprofitable excursions.
     """
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
@@ -189,7 +204,6 @@ def greedy_profit_insertion_with_blinks(
     else:
         unassigned = sorted(list(removed_nodes))
 
-    # Reinsert in random order to increase diversity
     rng.shuffle(unassigned)
 
     for node in unassigned:
@@ -197,58 +211,59 @@ def greedy_profit_insertion_with_blinks(
         revenue = node_waste * R
         is_mandatory = node in mandatory_nodes_set
 
-        best_profit = -float("inf")
-        best_r_idx = -1
-        best_pos = -1
+        candidates = []  # List of (profit, route_idx, position)
 
-        # Check existing routes
+        # Evaluate existing routes
         for r_idx, route in enumerate(routes):
             if loads[r_idx] + node_waste > capacity:
                 continue
 
             for pos in range(len(route) + 1):
-                # Blink check: skip if RNG allows
-                if rng.random() < blink_rate:
-                    continue
-
                 prev = route[pos - 1] if pos > 0 else 0
                 nxt = route[pos] if pos < len(route) else 0
 
-                cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
-                # Incremental profit
-                profit = revenue - (cost * C)
+                cost_delta = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                profit = revenue - (cost_delta * C)
 
-                if profit > best_profit:
-                    # For existing routes, we only add if it's profitable or mandatory
-                    if not is_mandatory and profit < -1e-4:
-                        continue
-                    best_profit = profit
-                    best_r_idx = r_idx
-                    best_pos = pos
+                # Check profitability hurdle
+                if is_mandatory or profit > -1e-4:
+                    candidates.append((profit, r_idx, pos))
 
-        # Check new route option
+        # Evaluate new route (with speculative seed)
         new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
         new_profit = revenue - (new_cost * C)
 
-        # Hurdle for starting a new route (Speculative Seed)
-        # We allow up to 50% of the return-trip cost to be covered by synergy later.
-        # This is equivalent to requiring the node to cover its one-way trip cost.
+        # Allow up to 50% of the return-trip cost to be covered by synergy later.
         seed_hurdle = -0.5 * (new_cost * C)
-        if new_profit > best_profit and (is_mandatory or new_profit >= seed_hurdle):
-            best_profit = new_profit
-            best_r_idx = len(routes)
-            best_pos = 0
 
-        # Apply insertion if found
-        if best_r_idx != -1:
-            if best_r_idx == len(routes):
+        if is_mandatory or new_profit >= seed_hurdle:
+            candidates.append((new_profit, len(routes), 0))
+
+        # Emergency fallback if no valid options exist
+        if not candidates:
+            if is_mandatory:
                 routes.append([node])
                 loads.append(node_waste)
-            else:
-                routes[best_r_idx].insert(best_pos, node)
-                loads[best_r_idx] += node_waste
-        elif is_mandatory:
+            continue
+
+        # Sort candidates by Profit (Descending - Highest profit is best)
+        candidates.sort(key=lambda x: x[0], reverse=True)
+
+        # True Option Blink Logic
+        selected = candidates[-1]  # Fallback to worst valid option
+        for cand in candidates:
+            if rng.random() >= blink_rate:
+                selected = cand
+                break
+
+        # Apply insertion
+        profit, r_idx, pos = selected
+        if r_idx == len(routes):
             routes.append([node])
             loads.append(node_waste)
+        else:
+            routes[r_idx].insert(pos, node)
+            loads[r_idx] += node_waste
 
+    # Clean up any routes that failed to become profitable after speculative seeding
     return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_nodes_set)
