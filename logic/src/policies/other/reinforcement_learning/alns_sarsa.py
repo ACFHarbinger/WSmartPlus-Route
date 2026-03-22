@@ -52,10 +52,16 @@ from logic.src.policies.other.operators.destroy import (
     random_removal as random_removal_op,
 )
 from logic.src.policies.other.operators.destroy import (
+    shaw_profit_removal as shaw_profit_removal_op,
+)
+from logic.src.policies.other.operators.destroy import (
     shaw_removal as shaw_removal_op,
 )
 from logic.src.policies.other.operators.destroy import (
     string_removal as string_removal_op,
+)
+from logic.src.policies.other.operators.destroy import (
+    worst_profit_removal as worst_profit_removal_op,
 )
 from logic.src.policies.other.operators.destroy import (
     worst_removal as worst_removal_op,
@@ -69,13 +75,26 @@ from logic.src.policies.other.operators.repair import (
     greedy_insertion_with_blinks as greedy_insertion_with_blinks_op,
 )
 from logic.src.policies.other.operators.repair import (
+    greedy_profit_insertion as greedy_profit_insertion_op,
+)
+from logic.src.policies.other.operators.repair import (
+    greedy_profit_insertion_with_blinks as greedy_profit_insertion_with_blinks_op,
+)
+from logic.src.policies.other.operators.repair import (
     regret_2_insertion as regret_2_insertion_op,
+)
+from logic.src.policies.other.operators.repair import (
+    regret_2_profit_insertion as regret_2_profit_insertion_op,
 )
 from logic.src.policies.other.operators.repair import (
     regret_k_insertion as regret_k_insertion_op,
 )
+from logic.src.policies.other.operators.repair import (
+    regret_k_profit_insertion as regret_k_profit_insertion_op,
+)
 from logic.src.policies.other.operators.unstringing_stringing import (
     stringing_insertion,
+    stringing_profit_insertion,
     unstringing_profit_removal,
     unstringing_removal,
 )
@@ -116,8 +135,10 @@ class ALNSSARSASolver:
         self.evaluator = evaluator
         self.epsilon_decay_step = rl_params.sarsa_epsilon_decay_step
         self.mandatory_nodes = mandatory_nodes or []
+        self.expand_pool = getattr(rl_params, "vrpp", False)
+        self.profit_aware_operators = getattr(rl_params, "profit_aware_operators", False)
         self.improvement_thresholds = rl_params.sarsa_improvement_thresholds
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -143,6 +164,7 @@ class ALNSSARSASolver:
             epsilon=rl_params.sarsa_epsilon,
             epsilon_decay=rl_params.sarsa_epsilon_decay,
             epsilon_min=rl_params.sarsa_epsilon_min,
+            seed=seed,
         )
         # Seeds for agent
         self.agent_rng = np.random.default_rng(seed)
@@ -226,6 +248,8 @@ class ALNSSARSASolver:
 
     def _destroy_worst(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
         """Worst removal (highest cost nodes)."""
+        if self.profit_aware_operators:
+            return worst_profit_removal_op(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
         return worst_removal_op(routes, n, self.dist_matrix)
 
     def _destroy_cluster(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
@@ -234,11 +258,12 @@ class ALNSSARSASolver:
 
     def _destroy_shaw(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
         """Shaw removal (multi-criteria relatedness)."""
+        if self.profit_aware_operators:
+            return shaw_profit_removal_op(routes, n, self.dist_matrix, self.wastes, self.R, self.C, rng=self.random)
         return shaw_removal_op(
             routes,
             n,
             self.dist_matrix,
-            self.nodes,
             waste_dict=self.wastes,
             rng=self.random,
         )
@@ -251,6 +276,18 @@ class ALNSSARSASolver:
 
     def _repair_greedy(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Greedy insertion."""
+        if self.profit_aware_operators:
+            return greedy_profit_insertion_op(
+                routes,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.expand_pool,
+            )
         return greedy_insertion_op(
             routes,
             removed,
@@ -260,10 +297,23 @@ class ALNSSARSASolver:
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
             cost_unit=self.C,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_regret2(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Regret-2 insertion."""
+        if self.profit_aware_operators:
+            return regret_2_profit_insertion_op(
+                routes,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.expand_pool,
+            )
         return regret_2_insertion_op(
             routes,
             removed,
@@ -273,10 +323,24 @@ class ALNSSARSASolver:
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
             cost_unit=self.C,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_regretk(self, routes: List[List[int]], removed: List[int], k: int) -> List[List[int]]:
         """Regret-k insertion (extended from regret-2)."""
+        if self.profit_aware_operators:
+            return regret_k_profit_insertion_op(
+                routes,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                k=k,
+                expand_pool=self.expand_pool,
+            )
         return regret_k_insertion_op(
             routes,
             removed,
@@ -287,12 +351,26 @@ class ALNSSARSASolver:
             mandatory_nodes=self.mandatory_nodes,
             cost_unit=self.C,
             k=k,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_greedy_blink(
         self, routes: List[List[int]], removed: List[int], blink_rate: float = 0.1
     ) -> List[List[int]]:
         """Greedy insertion with randomized blinks."""
+        if self.profit_aware_operators:
+            return greedy_profit_insertion_with_blinks_op(
+                routes,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                blink_rate=blink_rate,
+                rng=self.random,
+                expand_pool=self.expand_pool,
+            )
         return greedy_insertion_with_blinks_op(
             routes,
             removed,
@@ -301,10 +379,25 @@ class ALNSSARSASolver:
             self.capacity,
             blink_rate=blink_rate,
             rng=self.random,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_string_type_i(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-I stringing repair."""
+        if self.profit_aware_operators:
+            return stringing_profit_insertion(
+                routes,
+                removed,
+                1,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.random,
+                self.expand_pool,
+            )
         return stringing_insertion(
             routes,
             removed,
@@ -314,11 +407,25 @@ class ALNSSARSASolver:
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
-            expand_pool=False,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_string_type_ii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-II stringing repair."""
+        if self.profit_aware_operators:
+            return stringing_profit_insertion(
+                routes,
+                removed,
+                2,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.random,
+                self.expand_pool,
+            )
         return stringing_insertion(
             routes,
             removed,
@@ -328,11 +435,25 @@ class ALNSSARSASolver:
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
-            expand_pool=False,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_string_type_iii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-III stringing repair."""
+        if self.profit_aware_operators:
+            return stringing_profit_insertion(
+                routes,
+                removed,
+                3,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.random,
+                self.expand_pool,
+            )
         return stringing_insertion(
             routes,
             removed,
@@ -342,11 +463,25 @@ class ALNSSARSASolver:
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
-            expand_pool=False,
+            expand_pool=self.expand_pool,
         )
 
     def _repair_string_type_iv(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
         """Type-IV stringing repair."""
+        if self.profit_aware_operators:
+            return stringing_profit_insertion(
+                routes,
+                removed,
+                4,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.random,
+                self.expand_pool,
+            )
         return stringing_insertion(
             routes,
             removed,
@@ -356,15 +491,14 @@ class ALNSSARSASolver:
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
-            expand_pool=False,
+            expand_pool=self.expand_pool,
         )
 
     # ===== Unstringing Operators =====
 
     def _unstring_wrapper(self, routes: List[List[int]], n: int, op_type: int) -> Tuple[List[List[int]], List[int]]:
         """Wrapper to apply unstringing moves globally as a destroy operator."""
-        # Detect VRPP vs CVRP based on R
-        if self.R > 0.0:
+        if self.profit_aware_operators:
             return unstringing_profit_removal(
                 routes,
                 n,

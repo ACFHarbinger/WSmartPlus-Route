@@ -117,6 +117,8 @@ class RLHVPLPolicy(BaseRoutingPolicy):
             regular_coaching_iterations=values.get("regular_coaching_iterations", 100),
             elite_size=values.get("elite_size", 3),
             seed=values.get("seed"),
+            vrpp=values.get("vrpp", False),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         solver = RLHVPLSolver(

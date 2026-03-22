@@ -69,7 +69,7 @@ class VRPInstanceBuilder:
         self._noise_variance = 0.0
         self._device = torch.device(device)
         self._seed = None
-        self.np_rng = np.random.default_rng()
+        self.np_rng = np.random.default_rng(42)
         self.generator = torch.Generator(device=self._device)
 
     def set_seed(self, seed: int):

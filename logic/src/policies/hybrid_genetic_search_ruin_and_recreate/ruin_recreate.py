@@ -203,7 +203,7 @@ class RuinRecreateOperator:
         self.cost_unit = cost_unit
         self.params = params
         self.split_manager = split_manager
-        self.rng = random.Random(seed) if seed is not None else random.Random()
+        self.rng = random.Random(seed) if seed is not None else random.Random(42)
 
     def apply(
         self,
