@@ -16,10 +16,14 @@ import numpy as np
 from logic.src.policies.other.operators import (
     cluster_removal,
     greedy_insertion,
+    greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    worst_profit_removal,
     worst_removal,
 )
+from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
@@ -129,7 +133,24 @@ class BaseAcceptanceSolver(PolicyVizMixin):
     # --- LLH pool implementations ---
 
     def _llh_random_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        use_profit = getattr(self.params, "profit_aware_operators", False)
+        expand_pool = getattr(self.params, "vrpp", False)
+
         partial, removed = random_removal(routes, n, self.random)
+
+        if use_profit:
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+
         return greedy_insertion(
             partial,
             removed,
@@ -138,9 +159,27 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh_worst_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        use_profit = getattr(self.params, "profit_aware_operators", False)
+        expand_pool = getattr(self.params, "vrpp", False)
+
+        if use_profit:
+            partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return regret_2_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+
         partial, removed = worst_removal(routes, n, self.dist_matrix)
         return regret_2_insertion(
             partial,
@@ -150,10 +189,28 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh_cluster_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes)
+        use_profit = getattr(self.params, "profit_aware_operators", False)
+        expand_pool = getattr(self.params, "vrpp", False)
+
+        partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
+
+        if use_profit:
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+
         return greedy_insertion(
             partial,
             removed,
@@ -162,9 +219,27 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh_worst_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        use_profit = getattr(self.params, "profit_aware_operators", False)
+        expand_pool = getattr(self.params, "vrpp", False)
+
+        if use_profit:
+            partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+
         partial, removed = worst_removal(routes, n, self.dist_matrix)
         return greedy_insertion(
             partial,
@@ -174,10 +249,28 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh_random_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        use_profit = getattr(self.params, "profit_aware_operators", False)
+        expand_pool = getattr(self.params, "vrpp", False)
+
         partial, removed = random_removal(routes, n, self.random)
+
+        if use_profit:
+            return regret_2_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+
         return regret_2_insertion(
             partial,
             removed,
@@ -186,13 +279,12 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self.capacity,
             R=self.R,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     # --- Common Helpers ---
 
     def _build_initial_solution(self) -> List[List[int]]:
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
