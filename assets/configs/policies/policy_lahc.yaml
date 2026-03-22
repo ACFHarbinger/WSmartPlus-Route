@@ -65,6 +65,19 @@ lahc:
       # Maximum wall-clock seconds
       # Range: 10-300
 
+    # ---------------------------------------------------------------------
+    # VRPP Settings
+    # ---------------------------------------------------------------------
+    - profit_aware_operators: true
+      # Whether to use profit-aware insertion heuristics
+      # true = Use farthest_profit_insertion
+      # false = Use standard farthest_insertion
+
+    - vrpp: true
+      # Whether to use VRPP-specific pool expansion
+      # true = Set expand_pool=true (consider all nodes)
+      # false = Set expand_pool=false (consider only unassigned)
+
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------

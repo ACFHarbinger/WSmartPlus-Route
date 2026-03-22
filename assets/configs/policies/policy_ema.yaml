@@ -43,6 +43,9 @@ ema:
   # Whether to enable VRPP mode.
   vrpp: true
 
+  # Profit-aware operators
+  profit_aware_operators: true
+
   # Must-go node selection strategies.
   must_go: ["other/mg_lookahead.yaml"]
 

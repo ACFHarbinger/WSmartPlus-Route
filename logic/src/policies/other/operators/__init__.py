@@ -29,13 +29,17 @@ from .crossover import (
 # Destroy operators
 from .destroy import (
     cluster_removal,
+    historical_profit_removal,
     historical_removal,
     neighbor_removal,
     random_removal,
+    route_profit_removal,
     route_removal,
     sector_removal,
+    shaw_profit_removal,
     shaw_removal,
     string_removal,
+    worst_profit_removal,
     worst_removal,
 )
 
@@ -87,20 +91,21 @@ from .perturbation import (
     kick,
     kick_profit,
     perturb,
-    perturb_profit,
 )
 
 # Repair operators
 from .repair import (
     deep_insertion,
     deep_profit_insertion,
+    farthest_insertion,
     greedy_insertion,
     greedy_insertion_with_blinks,
     greedy_profit_insertion,
     greedy_profit_insertion_with_blinks,
     regret_2_insertion,
+    regret_2_profit_insertion,
     regret_k_insertion,
-    regret_profit_insertion,
+    regret_k_profit_insertion,
     savings_insertion,
     savings_profit_insertion,
 )
@@ -123,6 +128,10 @@ from .unstringing_stringing import (
     apply_type_iv_s_profit,
     apply_type_iv_us,
     apply_type_iv_us_profit,
+    stringing_insertion,
+    stringing_profit_insertion,
+    unstringing_profit_removal,
+    unstringing_removal,
 )
 
 __all__ = [
@@ -144,18 +153,26 @@ __all__ = [
     "neighbor_removal",
     "historical_removal",
     "sector_removal",
+    "worst_profit_removal",
+    "shaw_profit_removal",
+    "route_profit_removal",
+    "neighbor_profit_removal",
+    "historical_profit_removal",
+    "sector_profit_removal",
     # Repair
     "greedy_insertion",
     "greedy_profit_insertion",
     "regret_2_insertion",
+    "regret_2_profit_insertion",
     "regret_k_insertion",
-    "regret_profit_insertion",
+    "regret_k_profit_insertion",
     "greedy_insertion_with_blinks",
     "greedy_profit_insertion_with_blinks",
     "savings_insertion",
     "savings_profit_insertion",
     "deep_insertion",
     "deep_profit_insertion",
+    "farthest_insertion",
     # Intra-route
     "move_relocate",
     "move_swap",
@@ -183,7 +200,6 @@ __all__ = [
     "exchange_k_h",
     # Perturbation
     "perturb",
-    "perturb_profit",
     "kick",
     "kick_profit",
     "double_bridge",
@@ -208,6 +224,10 @@ __all__ = [
     "apply_type_iii_s_profit",
     "apply_type_iv_s",
     "apply_type_iv_s_profit",
+    "stringing_insertion",
+    "stringing_profit_insertion",
+    "unstringing_removal",
+    "unstringing_profit_removal",
     # Heuristics
     "build_greedy_routes",
     "build_nn_routes",

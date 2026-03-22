@@ -134,14 +134,6 @@ bp:
       # Always empty for BP since solutions are already optimal
 
     # ---------------------------------------------------------------------
-    # Random Seed
-    # ---------------------------------------------------------------------
-    - seed: null
-      # Random seed for reproducibility
-      # null = Use current timestamp (non-deterministic)
-      # integer = Fixed seed for reproducible experiments
-
-    # ---------------------------------------------------------------------
     # Advanced Column Generation Parameters (Implicit)
     # ---------------------------------------------------------------------
     # Master problem solver parameters configured in:
