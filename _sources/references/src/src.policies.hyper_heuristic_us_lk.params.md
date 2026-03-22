@@ -194,6 +194,17 @@
 
 ````
 
+````{py:attribute} ls_intensity
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.ls_intensity
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.ls_intensity
+```
+
+````
+
 ````{py:attribute} local_search_iterations
 :canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.local_search_iterations
 :type: int
@@ -238,13 +249,57 @@
 
 ````
 
-````{py:attribute} operator_weights
-:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.operator_weights
-:type: dict
+````{py:attribute} score_alpha
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_alpha
+:type: float
 :value: >
-   'field(...)'
+   20.0
 
-```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.operator_weights
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_alpha
+```
+
+````
+
+````{py:attribute} score_beta
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_beta
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_beta
+```
+
+````
+
+````{py:attribute} score_gamma
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_gamma
+:type: float
+:value: >
+   5.0
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_gamma
+```
+
+````
+
+````{py:attribute} score_delta
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_delta
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_delta
+```
+
+````
+
+````{py:attribute} score_best
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_best
+:type: float
+:value: >
+   20.0
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_best
 ```
 
 ````
@@ -275,20 +330,20 @@
 :canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_reject
 :type: float
 :value: >
-   None
+   0.5
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_reject
 ```
 
 ````
 
-````{py:attribute} score_best
-:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.score_best
-:type: float
+````{py:attribute} operator_weights
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.operator_weights
+:type: dict
 :value: >
-   20.0
+   'field(...)'
 
-```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.score_best
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.operator_weights
 ```
 
 ````

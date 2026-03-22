@@ -82,6 +82,22 @@
 
 ````
 
+````{py:method} add_capacity_cut(cut_nodes: typing.List[int], rhs: float) -> bool
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut
+```
+
+````
+
+````{py:method} get_edge_usage() -> typing.Dict[typing.Tuple[int, int], float]
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage
+```
+
+````
+
 ````{py:method} solve_lp_relaxation() -> typing.Tuple[float, typing.Dict[int, float]]
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_lp_relaxation
 

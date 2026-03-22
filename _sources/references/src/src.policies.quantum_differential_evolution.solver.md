@@ -43,7 +43,15 @@
 
 ````
 
-````{py:method} _collapse(amplitudes: numpy.ndarray) -> typing.List[typing.List[int]]
+````{py:method} _rotation_gate(xi: int, bi: int, worsening: bool, theta: float) -> float
+:canonical: src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate
+
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate
+```
+
+````
+
+````{py:method} _collapse(thetas: numpy.ndarray) -> typing.List[typing.List[int]]
 :canonical: src.policies.quantum_differential_evolution.solver.QDESolver._collapse
 
 ```{autodoc2-docstring} src.policies.quantum_differential_evolution.solver.QDESolver._collapse

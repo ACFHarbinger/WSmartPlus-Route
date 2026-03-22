@@ -605,6 +605,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -720,6 +721,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -938,6 +940,8 @@ document.write(`
         <li><a href="references/src/src.models.core.dact.html#src.models.core.dact.__all__">(in module src.models.core.dact)</a>
 </li>
         <li><a href="references/src/src.models.core.deepaco.html#src.models.core.deepaco.__all__">(in module src.models.core.deepaco)</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.html#src.models.core.dr_alns.__all__">(in module src.models.core.dr_alns)</a>
 </li>
         <li><a href="references/src/src.models.core.gfacs.html#src.models.core.gfacs.__all__">(in module src.models.core.gfacs)</a>
 </li>
@@ -1229,6 +1233,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.html#src.policies.step_counting_hill_climbing.__all__">(in module src.policies.step_counting_hill_climbing)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.html#src.policies.tabu_search.__all__">(in module src.policies.tabu_search)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.html#src.policies.threshold_accepting.__all__">(in module src.policies.threshold_accepting)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.html#src.policies.variable_neighborhood_search.__all__">(in module src.policies.variable_neighborhood_search)</a>
@@ -1473,6 +1479,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.interfaces.traversable.html#src.interfaces.traversable.ITraversable.__len__">(src.interfaces.traversable.ITraversable method)</a>
 </li>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOBuffer.__len__">(src.models.core.dr_alns.ppo_trainer.PPOBuffer method)</a>
+</li>
         <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.__len__">(src.pipeline.simulations.day_context.SimulationDayContext method)</a>
 </li>
         <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyStateRecorder.__len__">(src.tracking.viz_mixin.PolicyStateRecorder method)</a>
@@ -1576,9 +1584,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.html#src.ui.__version__">__version__ (in module src.ui)</a>
 </li>
-      <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._accept">_accept() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._accept">_accept() (src.envs.dr_alns.DRALNSEnv method)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._accept">(src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.ensemble_move_acceptance.solver.html#src.policies.ensemble_move_acceptance.solver.EMASolver._accept">(src.policies.ensemble_move_acceptance.solver.EMASolver method)</a>
 </li>
         <li><a href="references/src/src.policies.great_deluge.solver.html#src.policies.great_deluge.solver.GDSolver._accept">(src.policies.great_deluge.solver.GDSolver method)</a>
@@ -1602,9 +1612,11 @@ document.write(`
         <li><a href="references/src/src.policies.threshold_accepting.solver.html#src.policies.threshold_accepting.solver.TASolver._accept">(src.policies.threshold_accepting.solver.TASolver method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution">_accept_solution() (src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
+      <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._accept_solution">_accept_solution() (src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution">(src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.guided_indicators_hyper_heuristic.gihh.html#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._accept_solution">(src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.hulk.html#src.policies.hyper_heuristic_us_lk.hulk.HULKSolver._accept_solution">(src.policies.hyper_heuristic_us_lk.hulk.HULKSolver method)</a>
@@ -1657,6 +1669,8 @@ document.write(`
       <li><a href="references/src/src.policies.branch_and_cut.bc.html#src.policies.branch_and_cut.bc.BranchAndCutSolver._add_subtour_cut">_add_subtour_cut() (src.policies.branch_and_cut.bc.BranchAndCutSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.html#src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._add_to_pool">_add_to_pool() (src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._add_to_tabu_list">_add_to_tabu_list() (src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_price_and_cut.ortools_engine.html#src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties">_add_waste_collecting_penalties() (in module src.policies.branch_and_price_and_cut.ortools_engine)</a>
 </li>
@@ -1742,9 +1756,13 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.models.core.hybrid_attention_model.hybrid_two_step_policy.html#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._apply_operator_step">_apply_operator_step() (src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy method)</a>
 </li>
-      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.hulk.html#src.policies.hyper_heuristic_us_lk.hulk.HULKSolver._apply_operators">_apply_operators() (src.policies.hyper_heuristic_us_lk.hulk.HULKSolver method)</a>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._apply_operators">_apply_operators() (src.envs.dr_alns.DRALNSEnv method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._apply_operators">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.hyper_heuristic_us_lk.hulk.html#src.policies.hyper_heuristic_us_lk.hulk.HULKSolver._apply_operators">(src.policies.hyper_heuristic_us_lk.hulk.HULKSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.reinforcement_learning_adaptive_large_neighborhood_search.solver.html#src.policies.reinforcement_learning_adaptive_large_neighborhood_search.solver.RLALNSSolver._apply_operators">(src.policies.reinforcement_learning_adaptive_large_neighborhood_search.solver.RLALNSSolver method)</a>
 </li>
       </ul></li>
@@ -1795,7 +1813,11 @@ document.write(`
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators._apply_unstring">_apply_unstring() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       <li><a href="references/src/src.policies.particle_swarm_optimization_distance_based_algorithm.solver.html#src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver._apply_velocity">_apply_velocity() (src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.solver.html#src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._apply_velocity">(src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.models.core.hybrid_attention_model.hybrid_two_step_policy.html#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._assemble_removed_state">_assemble_removed_state() (src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy method)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.exchange.ejection_chain.html#src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination">_attempt_route_elimination() (in module src.models.policies.operators.exchange.ejection_chain)</a>
@@ -1854,6 +1876,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._build_dataset_kwargs">_build_dataset_kwargs() (in module src.pipeline.features.eval.engine)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._build_diversified_solution">_build_diversified_solution() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._build_eval_kwargs">_build_eval_kwargs() (in module src.pipeline.features.eval.engine)</a>
 </li>
       <li><a href="references/src/src.ui.pages.hpo_tracker.html#src.ui.pages.hpo_tracker._build_evaluator">_build_evaluator() (in module src.ui.pages.hpo_tracker)</a>
@@ -1864,9 +1888,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.branch_and_cut.bc.html#src.policies.branch_and_cut.bc.BranchAndCutSolver._build_initial_model">_build_initial_model() (src.policies.branch_and_cut.bc.BranchAndCutSolver method)</a>
 </li>
-      <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._build_initial_solution">_build_initial_solution() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._build_initial_solution">_build_initial_solution() (src.envs.dr_alns.DRALNSEnv method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._build_initial_solution">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._build_initial_solution">(src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.guided_local_search.solver.html#src.policies.guided_local_search.solver.GLSSolver._build_initial_solution">(src.policies.guided_local_search.solver.GLSSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.iterated_local_search.solver.html#src.policies.iterated_local_search.solver.ILSSolver._build_initial_solution">(src.policies.iterated_local_search.solver.ILSSolver method)</a>
@@ -1878,6 +1906,8 @@ document.write(`
         <li><a href="references/src/src.policies.sequence_based_selection_hyper_heuristic.solver.html#src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._build_initial_solution">(src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.slack_induction_by_string_removal.solver.html#src.policies.slack_induction_by_string_removal.solver.SISRSolver._build_initial_solution">(src.policies.slack_induction_by_string_removal.solver.SISRSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._build_initial_solution">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver._build_initial_solution">(src.policies.variable_neighborhood_search.solver.VNSSolver method)</a>
 </li>
@@ -1938,6 +1968,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._calc_load_fresh">(src.policies.other.local_search.local_search_base.LocalSearch method)</a>
 </li>
         <li><a href="references/src/src.policies.other.local_search.local_search_manager.html#src.policies.other.local_search.local_search_manager.LocalSearchManager._calc_load_fresh">(src.policies.other.local_search.local_search_manager.LocalSearchManager method)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSLSAdapter._calc_load_fresh">(src.policies.tabu_search.solver.TSLSAdapter method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.models.core.pointer_network.model.html#src.models.core.pointer_network.model.PointerNetwork._calc_log_likelihood">_calc_log_likelihood() (src.models.core.pointer_network.model.PointerNetwork method)</a>
@@ -2028,13 +2060,23 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.features.test.config.html#src.pipeline.features.test.config._clean_id">_clean_id() (in module src.pipeline.features.test.config)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._clean_tabu_list">_clean_tabu_list() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.construction.html#src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited">_cleanup_unvisited() (src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor method)</a>
 </li>
       <li><a href="references/src/src.policies.other.operators.perturbation.evolutionary.html#src.policies.other.operators.perturbation.evolutionary._cluster_cost">_cluster_cost() (in module src.policies.other.operators.perturbation.evolutionary)</a>
 </li>
       <li><a href="references/src/src.policies.other.operators.perturbation.evolutionary.html#src.policies.other.operators.perturbation.evolutionary._cluster_profit">_cluster_profit() (in module src.policies.other.operators.perturbation.evolutionary)</a>
 </li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._cluster_removal">_cluster_removal() (src.envs.dr_alns.DRALNSEnv method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._cluster_removal">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.envs.generators.base.html#src.envs.generators.base.Generator._clustered_locations">_clustered_locations() (src.envs.generators.base.Generator method)</a>
+</li>
+      <li><a href="references/src/src.policies.soccer_league_competition.solver.html#src.policies.soccer_league_competition.solver.SLCSolver._coach">_coach() (src.policies.soccer_league_competition.solver.SLCSolver method)</a>
 </li>
       <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._coaching_phase">_coaching_phase() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
 
@@ -2070,9 +2112,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.operators.exchange.cross_exchange.html#src.models.policies.operators.exchange.cross_exchange._compute_cross_delta">_compute_cross_delta() (in module src.models.policies.operators.exchange.cross_exchange)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._compute_dynamic_tenure">_compute_dynamic_tenure() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.knowledge_guided_local_search.cost_evaluator.html#src.policies.knowledge_guided_local_search.cost_evaluator.CostEvaluator._compute_edge_width">_compute_edge_width() (src.policies.knowledge_guided_local_search.cost_evaluator.CostEvaluator method)</a>
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html#src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._compute_entropy">_compute_entropy() (src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager static method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._compute_frequency_penalty">_compute_frequency_penalty() (src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.repair.greedy_insertion.html#src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs">_compute_greedy_insertion_costs() (in module src.models.policies.operators.repair.greedy_insertion)</a>
 </li>
@@ -2243,6 +2289,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.policy_schc.html#src.policies.step_counting_hill_climbing.policy_schc.StepCountingHillClimbingPolicy._config_class">(src.policies.step_counting_hill_climbing.policy_schc.StepCountingHillClimbingPolicy class method)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.policy_ts.html#src.policies.tabu_search.policy_ts.TSPolicy._config_class">(src.policies.tabu_search.policy_ts.TSPolicy class method)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.policy_ta.html#src.policies.threshold_accepting.policy_ta.ThresholdAcceptingPolicy._config_class">(src.policies.threshold_accepting.policy_ta.ThresholdAcceptingPolicy class method)</a>
 </li>
         <li><a href="references/src/src.policies.travelling_salesman_problem.policy_tsp.html#src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy._config_class">(src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy class method)</a>
@@ -2280,9 +2328,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.logging.modules.storage.html#src.tracking.logging.modules.storage._convert_numpy">_convert_numpy() (in module src.tracking.logging.modules.storage)</a>
 </li>
-      <li><a href="references/src/src.policies.artificial_bee_colony.solver.html#src.policies.artificial_bee_colony.solver.ABCSolver._cost">_cost() (src.policies.artificial_bee_colony.solver.ABCSolver method)</a>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._cost">_cost() (src.envs.dr_alns.DRALNSEnv method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._cost">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.artificial_bee_colony.solver.html#src.policies.artificial_bee_colony.solver.ABCSolver._cost">(src.policies.artificial_bee_colony.solver.ABCSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._cost">(src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.differential_evolution.solver.html#src.policies.differential_evolution.solver.DESolver._cost">(src.policies.differential_evolution.solver.DESolver method)</a>
@@ -2338,6 +2390,8 @@ document.write(`
         <li><a href="references/src/src.policies.sine_cosine_algorithm.solver.html#src.policies.sine_cosine_algorithm.solver.SCASolver._cost">(src.policies.sine_cosine_algorithm.solver.SCASolver method)</a>
 </li>
         <li><a href="references/src/src.policies.soccer_league_competition.solver.html#src.policies.soccer_league_competition.solver.SLCSolver._cost">(src.policies.soccer_league_competition.solver.SLCSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._cost">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver._cost">(src.policies.variable_neighborhood_search.solver.VNSSolver method)</a>
 </li>
@@ -2427,8 +2481,6 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.memetic_algorithm_tolerance_based_selection.solver.html#src.policies.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._crossover">(src.policies.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver method)</a>
 </li>
-        <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.solver.html#src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._crossover">(src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver method)</a>
-</li>
       </ul></li>
       <li><a href="references/src/src.models.subnets.embeddings.state.env.html#src.models.subnets.embeddings.state.env.EnvState._cur_node_embedding">_cur_node_embedding() (src.models.subnets.embeddings.state.env.EnvState method)</a>
 </li>
@@ -2445,6 +2497,8 @@ document.write(`
       <li><a href="references/src/src.tracking.html#src.tracking._DEFAULT_TRACKING_URI">_DEFAULT_TRACKING_URI (in module src.tracking)</a>
 </li>
       <li><a href="references/src/src.ui.styles.kpi.html#src.ui.styles.kpi._delta_css_class">_delta_css_class() (in module src.ui.styles.kpi)</a>
+</li>
+      <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.solver.html#src.policies.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._deposit_solution">_deposit_solution() (src.policies.ant_colony_optimization_k_sparse.solver.KSparseACOSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.other.reinforcement_learning.alns_sarsa.html#src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_cluster">_destroy_cluster() (src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver method)</a>
 </li>
@@ -2486,6 +2540,10 @@ document.write(`
         <li><a href="references/src/src.utils.output.excel_summary.html#src.utils.output.excel_summary._DIST_PATTERN">(in module src.utils.output.excel_summary)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._diversification_phase">_diversification_phase() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._diversification_restart">_diversification_restart() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.models.policies.operators.route.lkh.html#src.models.policies.operators.route.lkh._double_bridge_kick">_double_bridge_kick() (in module src.models.policies.operators.route.lkh)</a>
 </li>
       <li><a href="references/src/src.policies.firefly_algorithm.solver.html#src.policies.firefly_algorithm.solver.FASolver._edge_set">_edge_set() (src.policies.firefly_algorithm.solver.FASolver static method)</a>
@@ -2494,6 +2552,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.reinforcement_learning.agents.contextual.gpcmab.html#src.policies.other.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent._encode_input">_encode_input() (src.policies.other.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent method)</a>
 </li>
+      <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment">_end_segment() (src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html#src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._end_segment">(src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.features.test.engine.html#src.pipeline.features.test.engine._ensure_directories">_ensure_directories() (in module src.pipeline.features.test.engine)</a>
 </li>
       <li><a href="references/src/src.envs.tasks.base.html#src.envs.tasks.base.BaseProblem._ensure_required_keys">_ensure_required_keys() (src.envs.tasks.base.BaseProblem static method)</a>
@@ -2506,9 +2570,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._eval_singleprocess">_eval_singleprocess() (in module src.pipeline.features.eval.engine)</a>
 </li>
-      <li><a href="references/src/src.policies.artificial_bee_colony.solver.html#src.policies.artificial_bee_colony.solver.ABCSolver._evaluate">_evaluate() (src.policies.artificial_bee_colony.solver.ABCSolver method)</a>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._evaluate">_evaluate() (src.envs.dr_alns.DRALNSEnv method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._evaluate">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.artificial_bee_colony.solver.html#src.policies.artificial_bee_colony.solver.ABCSolver._evaluate">(src.policies.artificial_bee_colony.solver.ABCSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._evaluate">(src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.differential_evolution.solver.html#src.policies.differential_evolution.solver.DESolver._evaluate">(src.policies.differential_evolution.solver.DESolver method)</a>
@@ -2564,6 +2632,8 @@ document.write(`
         <li><a href="references/src/src.policies.sine_cosine_algorithm.solver.html#src.policies.sine_cosine_algorithm.solver.SCASolver._evaluate">(src.policies.sine_cosine_algorithm.solver.SCASolver method)</a>
 </li>
         <li><a href="references/src/src.policies.soccer_league_competition.solver.html#src.policies.soccer_league_competition.solver.SLCSolver._evaluate">(src.policies.soccer_league_competition.solver.SLCSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._evaluate">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver._evaluate">(src.policies.variable_neighborhood_search.solver.VNSSolver method)</a>
 </li>
@@ -2626,6 +2696,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.branch_and_bound.bb.html#src.policies.branch_and_bound.bb.BBSolver._extract_routes">_extract_routes() (src.policies.branch_and_bound.bb.BBSolver method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_and_bound.bb_simple.html#src.policies.branch_and_bound.bb_simple._extract_routes_from_adj">_extract_routes_from_adj() (in module src.policies.branch_and_bound.bb_simple)</a>
+</li>
       <li><a href="references/src/src.pipeline.callbacks.simulation.policy_summary.html#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_selection">_extract_selection() (src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_price_and_cut.gurobi_engine.html#src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution">_extract_solution() (in module src.policies.branch_and_price_and_cut.gurobi_engine)</a>
@@ -2660,6 +2732,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.operators.exchange.cross_exchange.html#src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments">_find_best_move_for_segments() (in module src.models.policies.operators.exchange.cross_exchange)</a>
 </li>
+      <li><a href="references/src/src.policies.other.operators.repair.farthest.html#src.policies.other.operators.repair.farthest._find_best_profit_insertion">_find_best_profit_insertion() (in module src.policies.other.operators.repair.farthest)</a>
+</li>
       <li><a href="references/src/src.policies.other.operators.inter_route.k_opt_star.html#src.policies.other.operators.inter_route.k_opt_star._find_best_tail_permutation">_find_best_tail_permutation() (in module src.policies.other.operators.inter_route.k_opt_star)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_i.html#src.models.policies.operators.unstringing.type_i._find_best_type_i_move">_find_best_type_i_move() (in module src.models.policies.operators.unstringing.type_i)</a>
@@ -2669,6 +2743,8 @@ document.write(`
       <li><a href="references/src/src.models.policies.operators.unstringing.type_iii.html#src.models.policies.operators.unstringing.type_iii._find_best_type_iii_move">_find_best_type_iii_move() (in module src.models.policies.operators.unstringing.type_iii)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_iv.html#src.models.policies.operators.unstringing.type_iv._find_best_type_iv_move">_find_best_type_iv_move() (in module src.models.policies.operators.unstringing.type_iv)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.repair.farthest.html#src.policies.other.operators.repair.farthest._find_cheapest_insertion">_find_cheapest_insertion() (in module src.policies.other.operators.repair.farthest)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.html#src.policies.simulated_annealing_neighborhood_search.common.solution_initialization._find_closest_valid_bin">_find_closest_valid_bin() (in module src.policies.simulated_annealing_neighborhood_search.common.solution_initialization)</a>
 </li>
@@ -2744,6 +2820,10 @@ document.write(`
         <li><a href="references/src/src.envs.generators.wcvrp.html#src.envs.generators.wcvrp.WCVRPGenerator._generate">(src.envs.generators.wcvrp.WCVRPGenerator method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._generate_2opt_moves">_generate_2opt_moves() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._generate_candidates">_generate_candidates() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.pipeline.callbacks.pytorch.training_display.html#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._generate_chart">_generate_chart() (src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback method)</a>
 
       <ul>
@@ -2781,6 +2861,10 @@ document.write(`
       <li><a href="references/src/src.policies.hybrid_genetic_search.hgs.html#src.policies.hybrid_genetic_search.hgs.HGSSolver._generate_offspring">_generate_offspring() (src.policies.hybrid_genetic_search.hgs.HGSSolver method)</a>
 </li>
       <li><a href="references/src/src.data.generators.datasets.html#src.data.generators.datasets._generate_problem_data">_generate_problem_data() (in module src.data.generators.datasets)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._generate_relocate_moves">_generate_relocate_moves() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._generate_swap_moves">_generate_swap_moves() (src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
       <li><a href="references/src/src.pipeline.callbacks.pytorch.reptile.html#src.pipeline.callbacks.pytorch.reptile.ReptileCallback._generate_task_set">_generate_task_set() (src.pipeline.callbacks.pytorch.reptile.ReptileCallback static method)</a>
 </li>
@@ -2820,8 +2904,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.solution_initialization.html#src.policies.simulated_annealing_neighborhood_search.common.solution_initialization._get_bin_stock">_get_bin_stock() (in module src.policies.simulated_annealing_neighborhood_search.common.solution_initialization)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.repository.filesystem.html#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_both_areas_data">_get_both_areas_data() (src.pipeline.simulations.repository.filesystem.FileSystemRepository method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_bound.bb.html#src.policies.branch_and_bound.bb.BBSolver._get_branching_variable">_get_branching_variable() (src.policies.branch_and_bound.bb.BBSolver method)</a>
@@ -2961,6 +3043,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.policy_schc.html#src.policies.step_counting_hill_climbing.policy_schc.StepCountingHillClimbingPolicy._get_config_key">(src.policies.step_counting_hill_climbing.policy_schc.StepCountingHillClimbingPolicy method)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.policy_ts.html#src.policies.tabu_search.policy_ts.TSPolicy._get_config_key">(src.policies.tabu_search.policy_ts.TSPolicy method)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.policy_ta.html#src.policies.threshold_accepting.policy_ta.ThresholdAcceptingPolicy._get_config_key">(src.policies.threshold_accepting.policy_ta.ThresholdAcceptingPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.travelling_salesman_problem.policy_tsp.html#src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy._get_config_key">(src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy method)</a>
@@ -2970,6 +3054,8 @@ document.write(`
         <li><a href="references/src/src.policies.volleyball_premier_league.policy_vpl.html#src.policies.volleyball_premier_league.policy_vpl.VPLPolicy._get_config_key">(src.policies.volleyball_premier_league.policy_vpl.VPLPolicy method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.rl.meta.contextual_bandits.html#src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit._get_context_features">_get_context_features() (src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.running.html#src.pipeline.simulations.states.running.RunningState._get_current_policy_config">_get_current_policy_config() (src.pipeline.simulations.states.running.RunningState method)</a>
@@ -2983,6 +3069,8 @@ document.write(`
       <li><a href="references/src/src.policies.guided_local_search.solver.html#src.policies.guided_local_search.solver.GLSSolver._get_edges">_get_edges() (src.policies.guided_local_search.solver.GLSSolver method)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.eval.engine.html#src.pipeline.features.eval.engine._get_eval_output_path">_get_eval_output_path() (in module src.pipeline.features.eval.engine)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.repair.farthest.html#src.policies.other.operators.repair.farthest._get_farthest_node">_get_farthest_node() (in module src.policies.other.operators.repair.farthest)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.construction.html#src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor._get_feasible_nodes">_get_feasible_nodes() (src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor method)</a>
 </li>
@@ -3006,6 +3094,8 @@ document.write(`
         <li><a href="references/src/src.envs.tsp_kopt.html#src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution">(src.envs.tsp_kopt.TSPkoptEnv method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.other.operators.repair.regret.html#src.policies.other.operators.repair.regret._get_insertion_options_with_profit">_get_insertion_options_with_profit() (in module src.policies.other.operators.repair.regret)</a>
+</li>
       <li><a href="references/src/src.tracking.logging.modules.gui.html#src.tracking.logging.modules.gui._get_lat_lon">_get_lat_lon() (in module src.tracking.logging.modules.gui)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._get_load_cached">_get_load_cached() (src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext method)</a>
@@ -3016,6 +3106,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.local_search.local_search_manager.html#src.policies.other.local_search.local_search_manager.LocalSearchManager._get_load_cached">(src.policies.other.local_search.local_search_manager.LocalSearchManager method)</a>
 </li>
         <li><a href="references/src/src.policies.other.reinforcement_learning.alns_perturbation_context.html#src.policies.other.reinforcement_learning.alns_perturbation_context.ALNSPerturbationContext._get_load_cached">(src.policies.other.reinforcement_learning.alns_perturbation_context.ALNSPerturbationContext method)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSLSAdapter._get_load_cached">(src.policies.tabu_search.solver.TSLSAdapter method)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.models.subnets.decoders.mdam.decoder.html#src.models.subnets.decoders.mdam.decoder.MDAMDecoder._get_log_likelihood">_get_log_likelihood() (src.models.subnets.decoders.mdam.decoder.MDAMDecoder method)</a>
@@ -3043,6 +3135,8 @@ document.write(`
       <li><a href="references/src/src.policies.other.operators.destroy.string.html#src.policies.other.operators.destroy.string._get_node_profits">_get_node_profits() (in module src.policies.other.operators.destroy.string)</a>
 </li>
       <li><a href="references/src/src.policies.particle_swarm_optimization_distance_based_algorithm.solver.html#src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver._get_node_set">_get_node_set() (src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver static method)</a>
+</li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._get_observation">_get_observation() (src.envs.dr_alns.DRALNSEnv method)</a>
 </li>
       <li><a href="references/src/src.policies.fast_iterative_localized_optimization.filo.html#src.policies.fast_iterative_localized_optimization.filo.FILOSolver._get_omega">_get_omega() (src.policies.fast_iterative_localized_optimization.filo.FILOSolver method)</a>
 </li>
@@ -3146,6 +3240,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._grad_norm">_grad_norm() (src.tracking.integrations.gradient_tracker.GradientTrackerCallback method)</a>
 </li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._greedy_insertion">_greedy_insertion() (src.envs.dr_alns.DRALNSEnv method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._greedy_insertion">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.policies.other.operators.heuristics.greedy_initialization.html#src.policies.other.operators.heuristics.greedy_initialization._greedy_profit_insertion">_greedy_profit_insertion() (in module src.policies.other.operators.heuristics.greedy_initialization)</a>
 </li>
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair">_greedy_repair() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
@@ -3318,6 +3418,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search.hgs.html#src.policies.hybrid_genetic_search.hgs.HGSSolver._insert_and_repair">_insert_and_repair() (src.policies.hybrid_genetic_search.hgs.HGSSolver method)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._intensification_phase">_intensification_phase() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.utils.data.rl_utils.html#src.utils.data.rl_utils._internal_safe_copy">_internal_safe_copy() (in module src.utils.data.rl_utils)</a>
 </li>
       <li><a href="references/src/src.policies.other.local_search.local_search_manager.html#src.policies.other.local_search.local_search_manager.LocalSearchManager._invalidate_cache">_invalidate_cache() (src.policies.other.local_search.local_search_manager.LocalSearchManager method)</a>
@@ -3329,6 +3431,8 @@ document.write(`
       <li><a href="references/src/src.policies.branch_and_bound.bb.html#src.policies.branch_and_bound.bb.BBSolver._is_integer">_is_integer() (src.policies.branch_and_bound.bb.BBSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_price.bp.html#src.policies.branch_and_price.bp.BranchAndPriceSolver._is_integer_solution">_is_integer_solution() (src.policies.branch_and_price.bp.BranchAndPriceSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._is_tabu">_is_tabu() (src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.slack_induction_by_string_removal.solver.html#src.policies.slack_induction_by_string_removal.solver.SISRSolver._is_valid_route">_is_valid_route() (src.policies.slack_induction_by_string_removal.solver.SISRSolver method)</a>
 </li>
@@ -3430,22 +3534,68 @@ document.write(`
         <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver._llh4">(src.policies.variable_neighborhood_search.solver.VNSSolver method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.genetic_programming_hyper_heuristic.solver.html#src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh5">_llh5() (src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.html#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh5">(src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.reactive_tabu_search.solver.html#src.policies.reactive_tabu_search.solver.RTSSolver._llh5">(src.policies.reactive_tabu_search.solver.RTSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.sequence_based_selection_hyper_heuristic.solver.html#src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh5">(src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.genetic_programming_hyper_heuristic.solver.html#src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh6">_llh6() (src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.html#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh6">(src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.reactive_tabu_search.solver.html#src.policies.reactive_tabu_search.solver.RTSSolver._llh6">(src.policies.reactive_tabu_search.solver.RTSSolver method)</a>
+</li>
+        <li><a href="references/src/src.policies.sequence_based_selection_hyper_heuristic.solver.html#src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh6">(src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.html#src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_2opt">_llh_2opt() (src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._llh_cluster_greedy">_llh_cluster_greedy() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._llh_cluster_greedy">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._llh_random_greedy">_llh_random_greedy() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._llh_random_greedy">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._llh_random_regret">_llh_random_regret() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._llh_random_regret">(src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.html#src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_regret2">_llh_regret2() (src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.html#src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_relocate">_llh_relocate() (src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.html#src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_shaw">_llh_shaw() (src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.html#src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_string">_llh_string() (src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.html#src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_swap">_llh_swap() (src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._llh_worst_greedy">_llh_worst_greedy() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._llh_worst_greedy">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.policies.base.base_acceptance_criteria.html#src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver._llh_worst_regret">_llh_worst_regret() (src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._llh_worst_regret">(src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.tracking.profiling.report.html#src.tracking.profiling.report.ProfilingReport._load">_load() (src.tracking.profiling.report.ProfilingReport method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.initializing.html#src.pipeline.simulations.states.initializing.InitializingState._load_all_configurations">_load_all_configurations() (src.pipeline.simulations.states.initializing.InitializingState method)</a>
@@ -3492,9 +3642,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.core.glop.policy.html#src.models.core.glop.policy.GLOPPolicy._local_policy">_local_policy() (src.models.core.glop.policy.GLOPPolicy method)</a>
 </li>
-      <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.solver.html#src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._local_search">_local_search() (src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver method)</a>
+      <li><a href="references/src/src.policies.genetic_algorithm.solver.html#src.policies.genetic_algorithm.solver.GASolver._local_search">_local_search() (src.policies.genetic_algorithm.solver.GASolver method)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.solver.html#src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._local_search">(src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver._local_search">(src.policies.variable_neighborhood_search.solver.VNSSolver method)</a>
 </li>
       </ul></li>
@@ -3690,6 +3842,14 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.callbacks.simulation.policy_summary.html#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_traversable_params">_parse_traversable_params() (src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback method)</a>
 </li>
+      <li><a href="references/src/src.policies.firefly_algorithm.solver.html#src.policies.firefly_algorithm.solver.FASolver._partition_flat">_partition_flat() (src.policies.firefly_algorithm.solver.FASolver method)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.solver.html#src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._partition_flat">(src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._path_relink">_path_relink() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.html#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.RLAHVPLSolver._penalize_local_optimum_edges">_penalize_local_optimum_edges() (src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.RLAHVPLSolver method)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.exchange.cross_exchange.html#src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration">_perform_cross_exchange_iteration() (in module src.models.policies.operators.exchange.cross_exchange)</a>
@@ -3719,6 +3879,8 @@ document.write(`
       <li><a href="references/src/src.policies.other.reinforcement_learning.alns_sarsa.html#src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._perturb_random">_perturb_random() (src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver method)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._pivot_json_data">_pivot_json_data() (in module src.ui.pages.data_explorer)</a>
+</li>
+      <li><a href="references/src/src.policies.soccer_league_competition.solver.html#src.policies.soccer_league_competition.solver.SLCSolver._play_match">_play_match() (src.policies.soccer_league_competition.solver.SLCSolver method)</a>
 </li>
       <li><a href="references/src/src.tracking.logging.plotting.charts.html#src.tracking.logging.plotting.charts._plot_2d_graph">_plot_2d_graph() (in module src.tracking.logging.plotting.charts)</a>
 </li>
@@ -3764,6 +3926,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.base.parser.html#src.cli.base.parser.ConfigsParser._process_args">_process_args() (src.cli.base.parser.ConfigsParser method)</a>
 </li>
+      <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule._process_buffer">_process_buffer() (src.pipeline.rl.core.dr_alns.DRALNSLitModule method)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.core.stepwise_ppo.html#src.pipeline.rl.core.stepwise_ppo.StepwisePPO._process_experiences">_process_experiences() (src.pipeline.rl.core.stepwise_ppo.StepwisePPO method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.bins.base.html#src.pipeline.simulations.bins.base.Bins._process_filling">_process_filling() (src.pipeline.simulations.bins.base.Bins method)</a>
@@ -3802,6 +3966,12 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.solver.html#src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._random_relocate">_random_relocate() (src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver method)</a>
 </li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._random_removal">_random_removal() (src.envs.dr_alns.DRALNSEnv method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._random_removal">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.policies.genetic_programming_hyper_heuristic.tree.html#src.policies.genetic_programming_hyper_heuristic.tree._random_tree">_random_tree() (in module src.policies.genetic_programming_hyper_heuristic.tree)</a>
 </li>
       <li><a href="references/src/src.policies.firefly_algorithm.solver.html#src.policies.firefly_algorithm.solver.FASolver._random_walk">_random_walk() (src.policies.firefly_algorithm.solver.FASolver method)</a>
@@ -3871,6 +4041,14 @@ document.write(`
       <li><a href="references/src/src.policies.base.registry.html#src.policies.base.registry.PolicyRegistry._registry">_registry (src.policies.base.registry.PolicyRegistry attribute)</a>
 </li>
       <li><a href="references/src/src.tracking.core.run.html#src.tracking.core.run._registry_lock">_registry_lock (in module src.tracking.core.run)</a>
+</li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._regret_2_insertion">_regret_2_insertion() (src.envs.dr_alns.DRALNSEnv method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._regret_2_insertion">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators._regret_2_repair">_regret_2_repair() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.routes.html#src.policies.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings">_remove_invalid_crossings() (in module src.policies.simulated_annealing_neighborhood_search.common.routes)</a>
 </li>
@@ -4084,6 +4262,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.profiling.profiler.html#src.tracking.profiling.profiler._ROOT_DIR">_ROOT_DIR (in module src.tracking.profiling.profiler)</a>
 </li>
+      <li><a href="references/src/src.policies.quantum_differential_evolution.solver.html#src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate">_rotation_gate() (src.policies.quantum_differential_evolution.solver.QDESolver method)</a>
+</li>
       <li><a href="references/src/src.policies.artificial_bee_colony.solver.html#src.policies.artificial_bee_colony.solver.ABCSolver._roulette">_roulette() (src.policies.artificial_bee_colony.solver.ABCSolver static method)</a>
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html#src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._roulette_wheel">_roulette_wheel() (src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager static method)</a>
@@ -4259,6 +4439,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.policy_schc.html#src.policies.step_counting_hill_climbing.policy_schc.StepCountingHillClimbingPolicy._run_solver">(src.policies.step_counting_hill_climbing.policy_schc.StepCountingHillClimbingPolicy method)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.policy_ts.html#src.policies.tabu_search.policy_ts.TSPolicy._run_solver">(src.policies.tabu_search.policy_ts.TSPolicy method)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.policy_ta.html#src.policies.threshold_accepting.policy_ta.ThresholdAcceptingPolicy._run_solver">(src.policies.threshold_accepting.policy_ta.ThresholdAcceptingPolicy method)</a>
 </li>
         <li><a href="references/src/src.policies.travelling_salesman_problem.policy_tsp.html#src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy._run_solver">(src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy method)</a>
@@ -4368,6 +4550,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy._select_best">_select_best() (src.utils.decoding.base.DecodingStrategy method)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._select_best_candidate">_select_best_candidate() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.adaptive_selection.html#src.policies.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._select_by_weight">_select_by_weight() (src.policies.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector method)</a>
 </li>
       <li><a href="references/src/src.policies.hybrid_memetic_search.solver.html#src.policies.hybrid_memetic_search.solver.HybridMemeticSearchSolver._select_diverse_elite">_select_diverse_elite() (src.policies.hybrid_memetic_search.solver.HybridMemeticSearchSolver method)</a>
@@ -4432,6 +4616,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts">_separate_capacity_cuts() (src.policies.branch_and_cut.separation.SeparationEngine method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts_exact">_separate_capacity_cuts_exact() (src.policies.branch_and_cut.separation.SeparationEngine method)</a>
+</li>
       <li><a href="references/src/src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.SeparationEngine._separate_comb_heuristic">_separate_comb_heuristic() (src.policies.branch_and_cut.separation.SeparationEngine method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.SeparationEngine._separate_disconnected_components">_separate_disconnected_components() (src.policies.branch_and_cut.separation.SeparationEngine method)</a>
@@ -4457,6 +4643,8 @@ document.write(`
       <li><a href="references/src/src.envs.base.ops.html#src.envs.base.ops.OpsMixin._set_seed">_set_seed() (src.envs.base.ops.OpsMixin method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_cut.bc.html#src.policies.branch_and_cut.bc.BranchAndCutSolver._set_start_solution">_set_start_solution() (src.policies.branch_and_cut.bc.BranchAndCutSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.branch_and_bound.bb_simple.html#src.policies.branch_and_bound.bb_simple._setup_bb_model">_setup_bb_model() (in module src.policies.branch_and_bound.bb_simple)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.initializing.html#src.pipeline.simulations.states.initializing.InitializingState._setup_capacities">_setup_capacities() (src.pipeline.simulations.states.initializing.InitializingState method)</a>
 </li>
@@ -4588,6 +4776,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.post_processing.base.registry.html#src.policies.other.post_processing.base.registry.PostProcessorRegistry._strategies">(src.policies.other.post_processing.base.registry.PostProcessorRegistry attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.branch_and_bound.bb.html#src.policies.branch_and_bound.bb.BBSolver._strong_branching">_strong_branching() (src.policies.branch_and_bound.bb.BBSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.other.operators.intra_route.k_permutation.html#src.policies.other.operators.intra_route.k_permutation._subseq_cost">_subseq_cost() (in module src.policies.other.operators.intra_route.k_permutation)</a>
 </li>
       <li><a href="references/src/src.models.policies.hybrid_volleyball_premier_league.html#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._substitution_phase">_substitution_phase() (src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL method)</a>
@@ -4690,15 +4880,21 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.running.html#src.pipeline.simulations.states.running.RunningState._update_ctx_from_day_context">_update_ctx_from_day_context() (src.pipeline.simulations.states.running.RunningState method)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._update_elite_pool">_update_elite_pool() (src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler._update_ema">_update_ema() (src.pipeline.rl.common.reward_scaler.RewardScaler method)</a>
 </li>
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._update_fill_levels_after_first_collection">_update_fill_levels_after_first_collection() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._update_frequency_memory">_update_frequency_memory() (src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.fast_iterative_localized_optimization.filo.html#src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma">_update_gamma() (src.policies.fast_iterative_localized_optimization.filo.FILOSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._update_heuristics">_update_heuristics() (src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO method)</a>
 </li>
       <li><a href="references/src/src.policies.guided_indicators_hyper_heuristic.gihh.html#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_indicators">_update_indicators() (src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.adaptive_kernel_search.aks.html#src.policies.adaptive_kernel_search.aks._update_kernel_aks">_update_kernel_aks() (in module src.policies.adaptive_kernel_search.aks)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._update_map">_update_map() (src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext method)</a>
 
@@ -4709,8 +4905,12 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.other.reinforcement_learning.alns_perturbation_context.html#src.policies.other.reinforcement_learning.alns_perturbation_context.ALNSPerturbationContext._update_map">(src.policies.other.reinforcement_learning.alns_perturbation_context.ALNSPerturbationContext method)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSLSAdapter._update_map">(src.policies.tabu_search.solver.TSLSAdapter method)</a>
+</li>
       </ul></li>
       <li><a href="references/src/src.pipeline.simulations.states.running.html#src.pipeline.simulations.states.running.RunningState._update_metrics">_update_metrics() (src.pipeline.simulations.states.running.RunningState method)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver._update_move_frequency">_update_move_frequency() (src.policies.tabu_search.solver.TSSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.fast_iterative_localized_optimization.filo.html#src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_omega">_update_omega() (src.policies.fast_iterative_localized_optimization.filo.FILOSolver method)</a>
 </li>
@@ -4750,6 +4950,8 @@ document.write(`
         <li><a href="references/src/src.policies.simulated_annealing.solver.html#src.policies.simulated_annealing.solver.SASolver._update_state">(src.policies.simulated_annealing.solver.SASolver method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.soccer_league_competition.solver.html#src.policies.soccer_league_competition.solver.SLCSolver._update_superstars">_update_superstars() (src.policies.soccer_league_competition.solver.SLCSolver method)</a>
+</li>
       <li><a href="references/src/src.policies.particle_swarm_optimization_distance_based_algorithm.solver.html#src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver._update_velocity">_update_velocity() (src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver method)</a>
 </li>
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.adaptive_selection.html#src.policies.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._update_weight">_update_weight() (src.policies.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector method)</a>
@@ -4778,6 +4980,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.viz_mixin.html#src.tracking.viz_mixin.PolicyVizMixin._viz_record">_viz_record() (src.tracking.viz_mixin.PolicyVizMixin method)</a>
 </li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv._worst_removal">_worst_removal() (src.envs.dr_alns.DRALNSEnv method)</a>
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._worst_removal">(src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.features.eval.zenml_eval_pipeline.html#src.pipeline.features.eval.zenml_eval_pipeline._ZENML_AVAILABLE">_ZENML_AVAILABLE (in module src.pipeline.features.eval.zenml_eval_pipeline)</a>
 
       <ul>
@@ -4936,6 +5144,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.reinforcement_learning.reward.shaping.html#src.policies.other.reinforcement_learning.reward.shaping.AdaptiveRewardShaper">AdaptiveRewardShaper (class in src.policies.other.reinforcement_learning.reward.shaping)</a>
 </li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOBuffer.add">add() (src.models.core.dr_alns.ppo_trainer.PPOBuffer method)</a>
+</li>
       <li><a href="references/src/src.tracking.hooks.activation_hooks.html#src.tracking.hooks.activation_hooks.add_activation_capture_hooks">add_activation_capture_hooks() (in module src.tracking.hooks.activation_hooks)</a>
 </li>
       <li><a href="references/src/src.tracking.hooks.activation_hooks.html#src.tracking.hooks.activation_hooks.add_activation_sparsity_hook">add_activation_sparsity_hook() (in module src.tracking.hooks.activation_hooks)</a>
@@ -4949,6 +5159,8 @@ document.write(`
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.select.random.html#src.policies.simulated_annealing_neighborhood_search.select.random.add_bin">add_bin() (in module src.policies.simulated_annealing_neighborhood_search.select.random)</a>
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.update.html#src.policies.simulated_annealing_neighborhood_search.common.update.add_bins_to_collect">add_bins_to_collect() (in module src.policies.simulated_annealing_neighborhood_search.common.update)</a>
+</li>
+      <li><a href="references/src/src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut">add_capacity_cut() (src.policies.branch_and_price.master_problem.VRPPMasterProblem method)</a>
 </li>
       <li><a href="references/src/src.tracking.hooks.activation_hooks.html#src.tracking.hooks.activation_hooks.add_dead_neuron_detector_hook">add_dead_neuron_detector_hook() (in module src.tracking.hooks.activation_hooks)</a>
 </li>
@@ -5086,8 +5298,6 @@ document.write(`
         <li><a href="references/src/src.configs.policies.rl_hvpl.html#src.configs.policies.rl_hvpl.RLHVPLConfig.alns">(src.configs.policies.rl_hvpl.RLHVPLConfig attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.hgs_alns.html#src.configs.policies.hgs_alns.HGSALNSConfig.alns_education_iterations">alns_education_iterations (src.configs.policies.hgs_alns.HGSALNSConfig attribute)</a>
 
       <ul>
@@ -5096,6 +5306,8 @@ document.write(`
         <li><a href="references/src/src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.html#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_education_iterations">(src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.alns_elite_iterations">alns_elite_iterations (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.policies.ahvpl.html#src.configs.policies.ahvpl.AHVPLConfig.alns_not_coached_iterations">alns_not_coached_iterations (src.configs.policies.ahvpl.AHVPLConfig attribute)</a>
@@ -5266,12 +5478,16 @@ document.write(`
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_relocate">(src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal">apply_shaw_removal() (in module src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators)</a>
+</li>
       <li><a href="references/src/src.configs.policies.gphh.html#src.configs.policies.gphh.GPHHConfig.apply_steps">apply_steps (src.configs.policies.gphh.GPHHConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.policies.genetic_programming_hyper_heuristic.params.html#src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.apply_steps">(src.policies.genetic_programming_hyper_heuristic.params.GPHHParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal">apply_string_removal() (in module src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators)</a>
+</li>
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_string_repair">apply_string_repair() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_swap">apply_swap() (in module src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators)</a>
@@ -5316,6 +5532,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_iv.html#src.policies.other.operators.unstringing_stringing.unstringing_iv.apply_type_iv_us_profit">apply_type_iv_us_profit() (in module src.policies.other.operators.unstringing_stringing.unstringing_iv)</a>
 </li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_shaw">apply_unstring_shaw() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
+</li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_string">apply_unstring_string() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
+</li>
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_i">apply_unstring_type_i() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_ii">apply_unstring_type_ii() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
@@ -5332,6 +5552,12 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.sequence_based_selection_hyper_heuristic.solver.html#src.policies.sequence_based_selection_hyper_heuristic.solver._SeqEntry.AS">AS (src.policies.sequence_based_selection_hyper_heuristic.solver._SeqEntry attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.aspiration_enabled">aspiration_enabled (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.aspiration_enabled">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.tracking.integrations.mlflow_bridge.html#src.tracking.integrations.mlflow_bridge.MLflowBridge.attach">attach() (src.tracking.integrations.mlflow_bridge.MLflowBridge class method)</a>
 
       <ul>
@@ -5355,6 +5581,8 @@ document.write(`
       <li><a href="references/src/src.configs.rl.core.pomo.html#src.configs.rl.core.pomo.POMOConfig.augment_fn">augment_fn (src.configs.rl.core.pomo.POMOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.eval.evaluators.augmentation.html#src.pipeline.features.eval.evaluators.augmentation.AugmentationEval">AugmentationEval (class in src.pipeline.features.eval.evaluators.augmentation)</a>
+</li>
+      <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule.automatic_optimization">automatic_optimization (src.pipeline.rl.core.dr_alns.DRALNSLitModule property)</a>
 </li>
       <li><a href="references/src/src.models.common.autoregressive.decoder.html#src.models.common.autoregressive.decoder.AutoregressiveDecoder">AutoregressiveDecoder (class in src.models.common.autoregressive.decoder)</a>
 </li>
@@ -5422,9 +5650,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping.batch_idx">batch_idx (src.models.subnets.modules.subproblem_mapping.SubproblemMapping attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.batch_size">batch_size (src.configs.tasks.train.TrainConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.batch_size">batch_size (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.batch_size">(src.configs.tasks.train.TrainConfig attribute)</a>
+</li>
         <li><a href="references/src/src.envs.base.batch.html#src.envs.base.batch.BatchMixin.batch_size">(src.envs.base.batch.BatchMixin property)</a>
 </li>
         <li><a href="references/src/src.interfaces.tensor_dict_like.html#src.interfaces.tensor_dict_like.ITensorDictLike.batch_size">(src.interfaces.tensor_dict_like.ITensorDictLike property)</a>
@@ -5595,6 +5825,8 @@ document.write(`
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution">build_solution() (src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO method)</a>
 </li>
       <li><a href="references/src/src.data.generators.builders.html#src.data.generators.builders.VRPInstanceBuilder.build_td">build_td() (src.data.generators.builders.VRPInstanceBuilder method)</a>
+</li>
+      <li><a href="references/src/src.policies.harmony_search.params.html#src.policies.harmony_search.params.HSParams.BW">BW (src.policies.harmony_search.params.HSParams attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -5770,6 +6002,18 @@ document.write(`
         <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.callbacks">(src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.candidate_list_enabled">candidate_list_enabled (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.candidate_list_enabled">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.candidate_list_size">candidate_list_size (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.candidate_list_size">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.capacity">capacity (src.configs.envs.env.EnvConfig attribute)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.CapacityCut">CapacityCut (class in src.policies.branch_and_cut.separation)</a>
@@ -5850,6 +6094,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.io.splitting.html#src.utils.io.splitting.chunk_zip_content">chunk_zip_content() (in module src.utils.io.splitting)</a>
 </li>
+      <li><a href="references/src/src.policies.capacitated_vehicle_routing_problem.clark_wright.html#src.policies.capacitated_vehicle_routing_problem.clark_wright.clarke_wright_solve">clarke_wright_solve() (in module src.policies.capacitated_vehicle_routing_problem.clark_wright)</a>
+</li>
       <li><a href="references/src/src.tracking.profiling.report.html#src.tracking.profiling.report.ProfilingReport.class_breakdown">class_breakdown() (src.tracking.profiling.report.ProfilingReport method)</a>
 </li>
       <li><a href="references/src/src.policies.other.post_processing.local_search.html#src.policies.other.post_processing.local_search.ClassicalLocalSearchPostProcessor">ClassicalLocalSearchPostProcessor (class in src.policies.other.post_processing.local_search)</a>
@@ -5863,6 +6109,8 @@ document.write(`
       <li><a href="references/src/src.models.meta.hrl_manager.model.html#src.models.meta.hrl_manager.model.MustGoManager.clear_memory">clear_memory() (src.models.meta.hrl_manager.model.MustGoManager method)</a>
 </li>
       <li><a href="references/src/src.utils.decoding.batch_beam.html#src.utils.decoding.batch_beam.BatchBeam.clear_state">clear_state() (src.utils.decoding.batch_beam.BatchBeam method)</a>
+</li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.clip_epsilon">clip_epsilon (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 </li>
       <li><a href="references/src/src.tracking.logging.logger_writer.html#src.tracking.logging.logger_writer.LoggerWriter.close">close() (src.tracking.logging.logger_writer.LoggerWriter method)</a>
 </li>
@@ -5932,6 +6180,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.features.test.orchestrator.monitor.html#src.pipeline.features.test.orchestrator.monitor.collect_all_task_results">collect_all_task_results() (in module src.pipeline.features.test.orchestrator.monitor)</a>
 </li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOTrainer.collect_experience">collect_experience() (src.models.core.dr_alns.ppo_trainer.PPOTrainer method)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule.collect_experience">(src.pipeline.rl.core.dr_alns.DRALNSLitModule method)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.simulations.actions.collection.html#src.pipeline.simulations.actions.collection.CollectAction">CollectAction (class in src.pipeline.simulations.actions.collection)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.collected">collected (src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
@@ -5959,6 +6213,8 @@ document.write(`
       <li><a href="references/src/src.configs.tasks.eval.html#src.configs.tasks.eval.EvalConfig.compress_mask">compress_mask (src.configs.tasks.eval.EvalConfig attribute)</a>
 </li>
       <li><a href="references/src/src.tracking.hooks.activation_hooks.html#src.tracking.hooks.activation_hooks.compute_activation_statistics">compute_activation_statistics() (in module src.tracking.hooks.activation_hooks)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOTrainer.compute_advantages">compute_advantages() (src.models.core.dr_alns.ppo_trainer.PPOTrainer method)</a>
 </li>
       <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun.compute_alpha_measures">compute_alpha_measures() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
 </li>
@@ -6018,6 +6274,8 @@ document.write(`
         <li><a href="references/src/src.policies.neural_agent.simulation.html#src.policies.neural_agent.simulation.SimulationMixin.compute_simulator_day">(src.policies.neural_agent.simulation.SimulationMixin method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.tracking.hooks.activation_hooks.html#src.tracking.hooks.activation_hooks.compute_sparsity_percentages">compute_sparsity_percentages() (in module src.tracking.hooks.activation_hooks)</a>
 </li>
       <li><a href="references/src/src.ui.services.simulation_analytics.html#src.ui.services.simulation_analytics.compute_summary_statistics">compute_summary_statistics() (in module src.ui.services.simulation_analytics)</a>
@@ -6026,8 +6284,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.common.objectives.html#src.policies.simulated_annealing_neighborhood_search.common.objectives.compute_total_profit">compute_total_profit() (in module src.policies.simulated_annealing_neighborhood_search.common.objectives)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.branch_and_cut.vrpp_model.html#src.policies.branch_and_cut.vrpp_model.VRPPModel.compute_tour_cost">compute_tour_cost() (src.policies.branch_and_cut.vrpp_model.VRPPModel method)</a>
 </li>
       <li><a href="references/src/src.policies.branch_and_cut.vrpp_model.html#src.policies.branch_and_cut.vrpp_model.VRPPModel.compute_tour_profit">compute_tour_profit() (src.policies.branch_and_cut.vrpp_model.VRPPModel method)</a>
@@ -6062,6 +6318,8 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.core.a2c.html#src.pipeline.rl.core.a2c.A2C.configure_optimizers">(src.pipeline.rl.core.a2c.A2C method)</a>
+</li>
+        <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule.configure_optimizers">(src.pipeline.rl.core.dr_alns.DRALNSLitModule method)</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.core.ppo.html#src.pipeline.rl.core.ppo.PPO.configure_optimizers">(src.pipeline.rl.core.ppo.PPO method)</a>
 </li>
@@ -6640,12 +6898,12 @@ document.write(`
         <li><a href="references/src/src.policies.fast_iterative_localized_optimization.params.html#src.policies.fast_iterative_localized_optimization.params.FILOParams.delta_gamma">(src.policies.fast_iterative_localized_optimization.params.FILOParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.quantum_differential_evolution.params.html#src.policies.quantum_differential_evolution.params.QDEParams.delta_theta">delta_theta (src.policies.quantum_differential_evolution.params.QDEParams attribute)</a>
+</li>
       <li><a href="references/src/src.policies.differential_evolution.params.html#src.policies.differential_evolution.params.DEParams">DEParams (class in src.policies.differential_evolution.params)</a>
 </li>
       <li><a href="references/src/src.policies.differential_evolution.policy_de.html#src.policies.differential_evolution.policy_de.DEPolicyAdapter">DEPolicyAdapter (class in src.policies.differential_evolution.policy_de)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.pheromones.html#src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge">deposit_edge() (src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau method)</a>
 </li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.DEPOT_DIM">DEPOT_DIM (in module src.constants.models)</a>
@@ -6660,6 +6918,8 @@ document.write(`
         <li><a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.params.html#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.destroy_operators">(src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.sisr.html#src.configs.policies.sisr.SISRConfig.destroy_ratio">destroy_ratio (src.configs.policies.sisr.SISRConfig attribute)</a>
 
       <ul>
@@ -6770,6 +7030,18 @@ document.write(`
 </li>
       <li><a href="references/src/src.data.distributions.html#src.data.distributions.DISTRIBUTION_REGISTRY">DISTRIBUTION_REGISTRY (in module src.data.distributions)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.diversification_enabled">diversification_enabled (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.diversification_enabled">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.diversification_interval">diversification_interval (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.diversification_interval">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.hgs.html#src.configs.policies.hgs.HGSConfig.diversity_change_rate">diversity_change_rate (src.configs.policies.hgs.HGSConfig attribute)</a>
 
       <ul>
@@ -6812,6 +7084,20 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun.double_bridge_kick">double_bridge_kick() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
 </li>
+      <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.dr_alns">dr_alns (src.configs.rl.RLConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig">DRALNSConfig (class in src.configs.rl.core.dr_alns)</a>
+</li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv">DRALNSEnv (class in src.envs.dr_alns)</a>
+</li>
+      <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule">DRALNSLitModule (class in src.pipeline.rl.core.dr_alns)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent">DRALNSPPOAgent (class in src.models.core.dr_alns.ppo_agent)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver">DRALNSSolver (class in src.models.core.dr_alns.dr_alns_solver)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSState">DRALNSState (class in src.models.core.dr_alns.ppo_agent)</a>
+</li>
       <li><a href="references/src/src.tracking.logging.plotting.routes.html#src.tracking.logging.plotting.routes.draw_graph">draw_graph() (in module src.tracking.logging.plotting.routes)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.core.dr_grpo.html#src.pipeline.rl.core.dr_grpo.DRGRPO">DRGRPO (class in src.pipeline.rl.core.dr_grpo)</a>
@@ -6826,6 +7112,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.embeddings.html#src.models.subnets.embeddings.DYNAMIC_EMBEDDING_REGISTRY">DYNAMIC_EMBEDDING_REGISTRY (in module src.models.subnets.embeddings)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.dynamic_tenure">dynamic_tenure (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.dynamic_tenure">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.models.subnets.embeddings.dynamic.html#src.models.subnets.embeddings.dynamic.DynamicEmbedding">DynamicEmbedding (class in src.models.subnets.embeddings.dynamic)</a>
 </li>
       <li><a href="references/src/src.models.subnets.modules.dynamic_hyper_connection.html#src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection">DynamicHyperConnection (class in src.models.subnets.modules.dynamic_hyper_connection)</a>
@@ -6911,6 +7203,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.rl_hvpl.html#src.configs.policies.rl_hvpl.RLHVPLConfig.elite_size">(src.configs.policies.rl_hvpl.RLHVPLConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.elite_size">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.vpl.html#src.configs.policies.vpl.VPLConfig.elite_size">(src.configs.policies.vpl.VPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.policies.hybrid_genetic_search.params.html#src.policies.hybrid_genetic_search.params.HGSParams.elite_size">(src.policies.hybrid_genetic_search.params.HGSParams property)</a>
@@ -6922,6 +7216,8 @@ document.write(`
         <li><a href="references/src/src.policies.memetic_algorithm_dual_population.params.html#src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.elite_size">(src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams property)</a>
 </li>
         <li><a href="references/src/src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.html#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.elite_size">(src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.elite_size">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.volleyball_premier_league.params.html#src.policies.volleyball_premier_league.params.VPLParams.elite_size">(src.policies.volleyball_premier_league.params.VPLParams attribute)</a>
 </li>
@@ -7089,6 +7385,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.engine">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.engine">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.engine">(src.configs.policies.vns.VNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vpl.html#src.configs.policies.vpl.VPLConfig.engine">(src.configs.policies.vpl.VPLConfig attribute)</a>
@@ -7108,14 +7406,16 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html#src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.entropy">entropy() (src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager method)</a>
 </li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.entropy_coef">entropy_coef (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
+</li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.entropy_weight">entropy_weight (src.configs.rl.RLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.html#src.configs.Config.env">env (src.configs.Config attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.env_file">env_file (src.configs.tasks.sim.SimConfig attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.env_file">env_file (src.configs.tasks.sim.SimConfig attribute)</a>
+</li>
       <li><a href="references/src/src.envs.html#src.envs.ENV_REGISTRY">ENV_REGISTRY (in module src.envs)</a>
 </li>
       <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig">EnvConfig (class in src.configs.envs.env)</a>
@@ -7282,6 +7582,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.reinforcement_learning.evolution_cmab.html#src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution.evaluate">(src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.evaluate_actions">evaluate_actions() (src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent method)</a>
+</li>
       <li><a href="references/src/src.policies.knowledge_guided_local_search.cost_evaluator.html#src.policies.knowledge_guided_local_search.cost_evaluator.CostEvaluator.evaluate_and_penalize_edges">evaluate_and_penalize_edges() (src.policies.knowledge_guided_local_search.cost_evaluator.CostEvaluator method)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.eval.evaluate.html#src.pipeline.features.eval.evaluate.evaluate_policy">evaluate_policy() (in module src.pipeline.features.eval.evaluate)</a>
@@ -7444,6 +7746,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.post_processing.fast_tsp.html#src.policies.other.post_processing.fast_tsp.FastTSPPostProcessor">FastTSPPostProcessor (class in src.policies.other.post_processing.fast_tsp)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.feasibility_tolerance">feasibility_tolerance (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.feasibility_tolerance">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.other.reinforcement_learning.html#src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig.feature_dim">feature_dim (src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig attribute)</a>
 
       <ul>
@@ -7564,6 +7872,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.finishing.html#src.pipeline.simulations.states.finishing.FinishingState">FinishingState (class in src.pipeline.simulations.states.finishing)</a>
 </li>
+      <li><a href="references/src/src.policies.cluster_first_route_second.solver.html#src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering">fisher_jaikumar_clustering() (in module src.policies.cluster_first_route_second.solver)</a>
+</li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_39mean">fit_39mean() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_predict">fit_predict() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
@@ -7658,6 +7968,8 @@ document.write(`
         <li><a href="references/src/src.models.core.deepaco.model.html#src.models.core.deepaco.model.DeepACO.forward">(src.models.core.deepaco.model.DeepACO method)</a>
 </li>
         <li><a href="references/src/src.models.core.deepaco.policy.html#src.models.core.deepaco.policy.DeepACOPolicy.forward">(src.models.core.deepaco.policy.DeepACOPolicy method)</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.forward">(src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent method)</a>
 </li>
         <li><a href="references/src/src.models.core.gfacs.model.html#src.models.core.gfacs.model.GFACS.forward">(src.models.core.gfacs.model.GFACS method)</a>
 </li>
@@ -7908,6 +8220,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.policies.other.must_go.html#src.configs.policies.other.must_go.MustGoConfig.frequency">frequency (src.configs.policies.other.must_go.MustGoConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.frequency_penalty_weight">frequency_penalty_weight (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.frequency_penalty_weight">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.params.html#src.policies.adaptive_large_neighborhood_search.params.ALNSParams.from_config">from_config() (src.policies.adaptive_large_neighborhood_search.params.ALNSParams class method)</a>
 
       <ul>
@@ -7950,6 +8268,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.policies.ga.html#src.configs.policies.ga.GAConfig">GAConfig (class in src.configs.policies.ga)</a>
 </li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.gae_lambda">gae_lambda (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
+</li>
       <li><a href="references/src/src.data.distributions.statistical_gamma.html#src.data.distributions.statistical_gamma.Gamma">Gamma (class in src.data.distributions.statistical_gamma)</a>
 </li>
       <li><a href="references/src/src.configs.policies.fa.html#src.configs.policies.fa.FAConfig.gamma">gamma (src.configs.policies.fa.FAConfig attribute)</a>
@@ -7958,6 +8278,8 @@ document.write(`
         <li><a href="references/src/src.configs.policies.other.reinforcement_learning.html#src.configs.policies.other.reinforcement_learning.BanditConfig.gamma">(src.configs.policies.other.reinforcement_learning.BanditConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.other.reinforcement_learning.html#src.configs.policies.other.reinforcement_learning.TDLearningConfig.gamma">(src.configs.policies.other.reinforcement_learning.TDLearningConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.gamma">(src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.gamma">(src.configs.rl.RLConfig attribute)</a>
 </li>
@@ -8069,6 +8391,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.interfaces.traversable.html#src.interfaces.traversable.ITraversable.get">(src.interfaces.traversable.ITraversable method)</a>
 </li>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOBuffer.get">(src.models.core.dr_alns.ppo_trainer.PPOBuffer method)</a>
+</li>
         <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.get">(src.pipeline.simulations.day_context.SimulationDayContext method)</a>
 </li>
         <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.pheromones.html#src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.get">(src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau method)</a>
@@ -8085,6 +8409,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_39mean_MSE">get_39mean_MSE() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
 </li>
       <li><a href="references/src/src.policies.particle_swarm_optimization.policy_pso.html#src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.get_acronym">get_acronym() (src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter method)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.get_action">get_action() (src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent method)</a>
 </li>
       <li><a href="references/src/src.interfaces.env.html#src.interfaces.env.IEnv.get_action_mask">get_action_mask() (src.interfaces.env.IEnv method)</a>
 </li>
@@ -8236,6 +8562,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.graph.generation.html#src.utils.graph.generation.get_edge_idx_dist">get_edge_idx_dist() (in module src.utils.graph.generation)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage">get_edge_usage() (src.policies.branch_and_price.master_problem.VRPPMasterProblem method)</a>
+</li>
       <li><a href="references/src/src.policies.other.operators.crossover.generalized_partition.html#src.policies.other.operators.crossover.generalized_partition.get_edges">get_edges() (in module src.policies.other.operators.crossover.generalized_partition)</a>
 </li>
       <li><a href="references/src/src.utils.data.td_state_wrapper.html#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_edges_mask">get_edges_mask() (src.utils.data.td_state_wrapper.TensorDictStateWrapper method)</a>
@@ -8324,12 +8652,12 @@ document.write(`
         <li><a href="references/src/src.tracking.core.store.html#src.tracking.core.store.TrackingStore.get_metric_history">(src.tracking.core.store.TrackingStore method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_MSE">get_MSE() (src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor method)</a>
 </li>
       <li><a href="references/src/src.policies.travelling_salesman_problem.tsp.html#src.policies.travelling_salesman_problem.tsp.get_multi_tour">get_multi_tour() (in module src.policies.travelling_salesman_problem.tsp)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.meta.hrl_manager.model.html#src.models.meta.hrl_manager.model.MustGoManager.get_must_go_mask">get_must_go_mask() (src.models.meta.hrl_manager.model.MustGoManager method)</a>
 </li>
       <li><a href="references/src/src.policies.particle_swarm_optimization.policy_pso.html#src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.get_name">get_name() (src.policies.particle_swarm_optimization.policy_pso.PSOPolicyAdapter method)</a>
@@ -9206,6 +9534,18 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.database.commands.html#src.tracking.database.commands.inspect_database">inspect_database() (in module src.tracking.database.commands)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.intensification_enabled">intensification_enabled (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.intensification_enabled">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.intensification_interval">intensification_interval (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.intensification_interval">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.interval_steps">interval_steps (src.configs.tasks.hpo.HPOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.utils.tasks.losses.html#src.utils.tasks.losses.invariance_loss">invariance_loss() (in module src.utils.tasks.losses)</a>
@@ -9773,6 +10113,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.params.html#src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations">(src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams attribute)</a>
 </li>
+        <li><a href="references/src/src.policies.quantum_differential_evolution.params.html#src.policies.quantum_differential_evolution.params.QDEParams.local_search_iterations">(src.policies.quantum_differential_evolution.params.QDEParams attribute)</a>
+</li>
         <li><a href="references/src/src.policies.soccer_league_competition.params.html#src.policies.soccer_league_competition.params.SLCParams.local_search_iterations">(src.policies.soccer_league_competition.params.SLCParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.params.html#src.policies.variable_neighborhood_search.params.VNSParams.local_search_iterations">(src.policies.variable_neighborhood_search.params.VNSParams attribute)</a>
@@ -9987,6 +10329,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch.logger">(in module src.pipeline.rl.common.epoch)</a>
 </li>
+        <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.logger">(in module src.pipeline.rl.core.dr_alns)</a>
+</li>
         <li><a href="references/src/src.pipeline.rl.hpo.zenml_hpo_pipeline.html#src.pipeline.rl.hpo.zenml_hpo_pipeline.logger">(in module src.pipeline.rl.hpo.zenml_hpo_pipeline)</a>
 </li>
         <li><a href="references/src/src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.html#src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.logger">(in module src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp)</a>
@@ -10031,7 +10375,11 @@ document.write(`
       <li><a href="references/src/src.configs.policies.rens.html#src.configs.policies.rens.RENSConfig.lp_time_limit">lp_time_limit (src.configs.policies.rens.RENSConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.models.optim.html#src.configs.models.optim.OptimConfig.lr">lr (src.configs.models.optim.OptimConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.lr">(src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.configs.models.optim.html#src.configs.models.optim.OptimConfig.lr_critic">lr_critic (src.configs.models.optim.OptimConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.lr_critic_value">lr_critic_value (src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
@@ -10047,6 +10395,8 @@ document.write(`
       <li><a href="references/src/src.configs.models.optim.html#src.configs.models.optim.OptimConfig.lr_scheduler">lr_scheduler (src.configs.models.optim.OptimConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.models.optim.html#src.configs.models.optim.OptimConfig.lr_scheduler_kwargs">lr_scheduler_kwargs (src.configs.models.optim.OptimConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.ls_intensity">ls_intensity (src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
 </li>
       <li><a href="references/src/src.configs.rl.policies.ils.html#src.configs.rl.policies.ils.ILSConfig.ls_iterations">ls_iterations (src.configs.rl.policies.ils.ILSConfig attribute)</a>
 </li>
@@ -10202,8 +10552,12 @@ document.write(`
         <li><a href="references/src/src.policies.genetic_programming_hyper_heuristic.params.html#src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.max_gp_generations">(src.policies.genetic_programming_hyper_heuristic.params.GPHHParams attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.max_grad_norm">max_grad_norm (src.configs.rl.RLConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.max_grad_norm">max_grad_norm (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.max_grad_norm">(src.configs.rl.RLConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.other.reinforcement_learning.html#src.configs.policies.other.reinforcement_learning.GPCMABConfig.max_history">max_history (src.configs.policies.other.reinforcement_learning.GPCMABConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.policies.ils_rvnd_sp.html#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.max_iter_ils">max_iter_ils (src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig attribute)</a>
@@ -10303,9 +10657,13 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.max_iterations">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.max_iterations">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.max_iterations">(src.configs.policies.vns.VNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vpl.html#src.configs.policies.vpl.VPLConfig.max_iterations">(src.configs.policies.vpl.VPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.max_iterations">(src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.aco.html#src.configs.rl.policies.aco.ACOConfig.max_iterations">(src.configs.rl.policies.aco.ACOConfig attribute)</a>
 </li>
@@ -10399,11 +10757,19 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.params.html#src.policies.step_counting_hill_climbing.params.SCHCParams.max_iterations">(src.policies.step_counting_hill_climbing.params.SCHCParams attribute)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.max_iterations">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.params.html#src.policies.threshold_accepting.params.TAParams.max_iterations">(src.policies.threshold_accepting.params.TAParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.params.html#src.policies.variable_neighborhood_search.params.VNSParams.max_iterations">(src.policies.variable_neighborhood_search.params.VNSParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.volleyball_premier_league.params.html#src.policies.volleyball_premier_league.params.VPLParams.max_iterations">(src.policies.volleyball_premier_league.params.VPLParams attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.max_iterations_no_improve">max_iterations_no_improve (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.max_iterations_no_improve">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.configs.policies.lb_vns.html#src.configs.policies.lb_vns.LocalBranchingVNSConfig.max_lb_iterations">max_lb_iterations (src.configs.policies.lb_vns.LocalBranchingVNSConfig attribute)</a>
@@ -10449,7 +10815,11 @@ document.write(`
       <li><a href="references/src/src.configs.policies.rts.html#src.configs.policies.rts.RTSConfig.max_tenure">max_tenure (src.configs.policies.rts.RTSConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.max_tenure">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.policies.reactive_tabu_search.params.html#src.policies.reactive_tabu_search.params.RTSParams.max_tenure">(src.policies.reactive_tabu_search.params.RTSParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.max_tenure">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.max_tres">max_tres (src.configs.tasks.hpo.HPOConfig attribute)</a>
@@ -10568,6 +10938,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.registry.html#src.pipeline.rl.meta.registry.META_STRATEGY_REGISTRY">META_STRATEGY_REGISTRY (in module src.pipeline.rl.meta.registry)</a>
 </li>
+      <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv.metadata">metadata (src.envs.dr_alns.DRALNSEnv attribute)</a>
+</li>
       <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig">MetaRLConfig (class in src.configs.tasks.meta_rl)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.module.html#src.pipeline.rl.meta.module.MetaRLModule">MetaRLModule (class in src.pipeline.rl.meta.module)</a>
@@ -10661,7 +11033,11 @@ document.write(`
       <li><a href="references/src/src.configs.policies.rts.html#src.configs.policies.rts.RTSConfig.min_tenure">min_tenure (src.configs.policies.rts.RTSConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.min_tenure">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.policies.reactive_tabu_search.params.html#src.policies.reactive_tabu_search.params.RTSParams.min_tenure">(src.policies.reactive_tabu_search.params.RTSParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.min_tenure">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.configs.policies.rl_gd_hh.html#src.configs.policies.rl_gd_hh.RLGDHHConfig.min_utility">min_utility (src.configs.policies.rl_gd_hh.RLGDHHConfig attribute)</a>
@@ -10956,6 +11332,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#module-src.configs.policies.ta">src.configs.policies.ta</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#module-src.configs.policies.ts">src.configs.policies.ts</a>
+</li>
         <li><a href="references/src/src.configs.policies.tsp.html#module-src.configs.policies.tsp">src.configs.policies.tsp</a>
 </li>
         <li><a href="references/src/src.configs.policies.vns.html#module-src.configs.policies.vns">src.configs.policies.vns</a>
@@ -10967,6 +11345,8 @@ document.write(`
         <li><a href="references/src/src.configs.rl.core.html#module-src.configs.rl.core">src.configs.rl.core</a>
 </li>
         <li><a href="references/src/src.configs.rl.core.adaptive_imitation.html#module-src.configs.rl.core.adaptive_imitation">src.configs.rl.core.adaptive_imitation</a>
+</li>
+        <li><a href="references/src/src.configs.rl.core.dr_alns.html#module-src.configs.rl.core.dr_alns">src.configs.rl.core.dr_alns</a>
 </li>
         <li><a href="references/src/src.configs.rl.core.gdpo.html#module-src.configs.rl.core.gdpo">src.configs.rl.core.gdpo</a>
 </li>
@@ -11170,6 +11550,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.envs.cwcvrp.html#module-src.envs.cwcvrp">src.envs.cwcvrp</a>
 </li>
+        <li><a href="references/src/src.envs.dr_alns.html#module-src.envs.dr_alns">src.envs.dr_alns</a>
+</li>
         <li><a href="references/src/src.envs.generators.html#module-src.envs.generators">src.envs.generators</a>
 </li>
         <li><a href="references/src/src.envs.generators.base.html#module-src.envs.generators.base">src.envs.generators.base</a>
@@ -11309,6 +11691,14 @@ document.write(`
         <li><a href="references/src/src.models.core.deepaco.model.html#module-src.models.core.deepaco.model">src.models.core.deepaco.model</a>
 </li>
         <li><a href="references/src/src.models.core.deepaco.policy.html#module-src.models.core.deepaco.policy">src.models.core.deepaco.policy</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.html#module-src.models.core.dr_alns">src.models.core.dr_alns</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#module-src.models.core.dr_alns.dr_alns_solver">src.models.core.dr_alns.dr_alns_solver</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#module-src.models.core.dr_alns.ppo_agent">src.models.core.dr_alns.ppo_agent</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#module-src.models.core.dr_alns.ppo_trainer">src.models.core.dr_alns.ppo_trainer</a>
 </li>
         <li><a href="references/src/src.models.core.gfacs.html#module-src.models.core.gfacs">src.models.core.gfacs</a>
 </li>
@@ -11974,6 +12364,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.pipeline.rl.core.adaptive_imitation.html#module-src.pipeline.rl.core.adaptive_imitation">src.pipeline.rl.core.adaptive_imitation</a>
 </li>
+        <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#module-src.pipeline.rl.core.dr_alns">src.pipeline.rl.core.dr_alns</a>
+</li>
         <li><a href="references/src/src.pipeline.rl.core.dr_grpo.html#module-src.pipeline.rl.core.dr_grpo">src.pipeline.rl.core.dr_grpo</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.core.gdpo.html#module-src.pipeline.rl.core.gdpo">src.pipeline.rl.core.gdpo</a>
@@ -12260,6 +12652,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.branch_and_price_and_cut.html#module-src.policies.branch_and_price_and_cut">src.policies.branch_and_price_and_cut</a>
 </li>
+        <li><a href="references/src/src.policies.branch_and_price_and_cut.bpc_engine.html#module-src.policies.branch_and_price_and_cut.bpc_engine">src.policies.branch_and_price_and_cut.bpc_engine</a>
+</li>
         <li><a href="references/src/src.policies.branch_and_price_and_cut.dispatcher.html#module-src.policies.branch_and_price_and_cut.dispatcher">src.policies.branch_and_price_and_cut.dispatcher</a>
 </li>
         <li><a href="references/src/src.policies.branch_and_price_and_cut.gurobi_engine.html#module-src.policies.branch_and_price_and_cut.gurobi_engine">src.policies.branch_and_price_and_cut.gurobi_engine</a>
@@ -12271,6 +12665,8 @@ document.write(`
         <li><a href="references/src/src.policies.branch_and_price_and_cut.vrpy_engine.html#module-src.policies.branch_and_price_and_cut.vrpy_engine">src.policies.branch_and_price_and_cut.vrpy_engine</a>
 </li>
         <li><a href="references/src/src.policies.capacitated_vehicle_routing_problem.html#module-src.policies.capacitated_vehicle_routing_problem">src.policies.capacitated_vehicle_routing_problem</a>
+</li>
+        <li><a href="references/src/src.policies.capacitated_vehicle_routing_problem.clark_wright.html#module-src.policies.capacitated_vehicle_routing_problem.clark_wright">src.policies.capacitated_vehicle_routing_problem.clark_wright</a>
 </li>
         <li><a href="references/src/src.policies.capacitated_vehicle_routing_problem.cvrp.html#module-src.policies.capacitated_vehicle_routing_problem.cvrp">src.policies.capacitated_vehicle_routing_problem.cvrp</a>
 </li>
@@ -13060,6 +13456,14 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.solver.html#module-src.policies.step_counting_hill_climbing.solver">src.policies.step_counting_hill_climbing.solver</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.html#module-src.policies.tabu_search">src.policies.tabu_search</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#module-src.policies.tabu_search.params">src.policies.tabu_search.params</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.policy_ts.html#module-src.policies.tabu_search.policy_ts">src.policies.tabu_search.policy_ts</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#module-src.policies.tabu_search.solver">src.policies.tabu_search.solver</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.html#module-src.policies.threshold_accepting">src.policies.threshold_accepting</a>
 </li>
         <li><a href="references/src/src.policies.threshold_accepting.params.html#module-src.policies.threshold_accepting.params">src.policies.threshold_accepting.params</a>
@@ -13073,6 +13477,8 @@ document.write(`
         <li><a href="references/src/src.policies.travelling_salesman_problem.policy_tsp.html#module-src.policies.travelling_salesman_problem.policy_tsp">src.policies.travelling_salesman_problem.policy_tsp</a>
 </li>
         <li><a href="references/src/src.policies.travelling_salesman_problem.tsp.html#module-src.policies.travelling_salesman_problem.tsp">src.policies.travelling_salesman_problem.tsp</a>
+</li>
+        <li><a href="references/src/src.policies.travelling_salesman_problem.two_opt.html#module-src.policies.travelling_salesman_problem.two_opt">src.policies.travelling_salesman_problem.two_opt</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.html#module-src.policies.variable_neighborhood_search">src.policies.variable_neighborhood_search</a>
 </li>
@@ -13776,6 +14182,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.must_go">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.must_go">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.tsp.html#src.configs.policies.tsp.TSPConfig.must_go">(src.configs.policies.tsp.TSPConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.must_go">(src.configs.policies.vns.VNSConfig attribute)</a>
@@ -13881,9 +14289,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.envs.graph.html#src.configs.envs.graph.GraphConfig.n_days">n_days (src.configs.envs.graph.GraphConfig attribute)</a>
 </li>
-      <li><a href="references/src/src.configs.tasks.data.html#src.configs.tasks.data.DataConfig.n_epochs">n_epochs (src.configs.tasks.data.DataConfig attribute)</a>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.n_destroy_ops">n_destroy_ops (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs">n_epochs (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 
       <ul>
+        <li><a href="references/src/src.configs.tasks.data.html#src.configs.tasks.data.DataConfig.n_epochs">(src.configs.tasks.data.DataConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.n_epochs">(src.configs.tasks.train.TrainConfig attribute)</a>
 </li>
       </ul></li>
@@ -13968,6 +14380,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.n_llh">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.n_llh">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.n_llh">(src.configs.policies.vns.VNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.policies.ensemble_move_acceptance.params.html#src.policies.ensemble_move_acceptance.params.EMAParams.n_llh">(src.policies.ensemble_move_acceptance.params.EMAParams attribute)</a>
@@ -13999,6 +14413,8 @@ document.write(`
         <li><a href="references/src/src.policies.simulated_annealing.params.html#src.policies.simulated_annealing.params.SAParams.n_llh">(src.policies.simulated_annealing.params.SAParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.params.html#src.policies.step_counting_hill_climbing.params.SCHCParams.n_llh">(src.policies.step_counting_hill_climbing.params.SCHCParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.n_llh">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.threshold_accepting.params.html#src.policies.threshold_accepting.params.TAParams.n_llh">(src.policies.threshold_accepting.params.TAParams attribute)</a>
 </li>
@@ -14080,6 +14496,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.n_removal">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.n_removal">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.n_removal">(src.configs.policies.vns.VNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.policies.artificial_bee_colony.params.html#src.policies.artificial_bee_colony.params.ABCParams.n_removal">(src.policies.artificial_bee_colony.params.ABCParams attribute)</a>
@@ -14126,8 +14544,6 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.params.html#src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal">(src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams attribute)</a>
 </li>
-        <li><a href="references/src/src.policies.quantum_differential_evolution.params.html#src.policies.quantum_differential_evolution.params.QDEParams.n_removal">(src.policies.quantum_differential_evolution.params.QDEParams attribute)</a>
-</li>
         <li><a href="references/src/src.policies.reactive_tabu_search.params.html#src.policies.reactive_tabu_search.params.RTSParams.n_removal">(src.policies.reactive_tabu_search.params.RTSParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.record_to_record_travel.params.html#src.policies.record_to_record_travel.params.RRParams.n_removal">(src.policies.record_to_record_travel.params.RRParams attribute)</a>
@@ -14140,11 +14556,15 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.params.html#src.policies.step_counting_hill_climbing.params.SCHCParams.n_removal">(src.policies.step_counting_hill_climbing.params.SCHCParams attribute)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.n_removal">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.params.html#src.policies.threshold_accepting.params.TAParams.n_removal">(src.policies.threshold_accepting.params.TAParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.params.html#src.policies.variable_neighborhood_search.params.VNSParams.n_removal">(src.policies.variable_neighborhood_search.params.VNSParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.n_repair_ops">n_repair_ops (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
+</li>
       <li><a href="references/src/src.configs.policies.ils.html#src.configs.policies.ils.ILSConfig.n_restarts">n_restarts (src.configs.policies.ils.ILSConfig attribute)</a>
 
       <ul>
@@ -14161,6 +14581,8 @@ document.write(`
         <li><a href="references/src/src.tracking.profiling.memory.html#src.tracking.profiling.memory.MemoryTracker.n_samples">(src.tracking.profiling.memory.MemoryTracker property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.abc.html#src.configs.policies.abc.ABCConfig.n_sources">n_sources (src.configs.policies.abc.ABCConfig attribute)</a>
 
       <ul>
@@ -14169,9 +14591,9 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.n_startup_trials">n_startup_trials (src.configs.tasks.hpo.HPOConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.other.reinforcement_learning.html#src.configs.policies.other.reinforcement_learning.TDLearningConfig.n_states">n_states (src.configs.policies.other.reinforcement_learning.TDLearningConfig attribute)</a>
+</li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.n_steps_per_epoch">n_steps_per_epoch (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.models.encoder.html#src.configs.models.encoder.EncoderConfig.n_sublayers">n_sublayers (src.configs.models.encoder.EncoderConfig attribute)</a>
 </li>
@@ -14723,6 +15145,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping.original_indices">original_indices (src.models.subnets.modules.subproblem_mapping.SubproblemMapping attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.oscillation_enabled">oscillation_enabled (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.oscillation_enabled">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.data.network.osm.html#src.data.network.osm.OSMStrategy">OSMStrategy (class in src.data.network.osm)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.output_dict">output_dict (src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
@@ -15234,6 +15662,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.post_processing">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.post_processing">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.tsp.html#src.configs.policies.tsp.TSPConfig.post_processing">(src.configs.policies.tsp.TSPConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.post_processing">(src.configs.policies.vns.VNSConfig attribute)</a>
@@ -15257,7 +15687,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.ppo">ppo (src.configs.rl.RLConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOBuffer">PPOBuffer (class in src.models.core.dr_alns.ppo_trainer)</a>
+</li>
       <li><a href="references/src/src.configs.rl.core.ppo.html#src.configs.rl.core.ppo.PPOConfig">PPOConfig (class in src.configs.rl.core.ppo)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOTrainer">PPOTrainer (class in src.models.core.dr_alns.ppo_trainer)</a>
 </li>
       <li><a href="references/src/src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy.pre_decoder_hook">pre_decoder_hook() (src.utils.decoding.base.DecodingStrategy method)</a>
 </li>
@@ -15461,6 +15895,8 @@ document.write(`
 <h2 id="Q">Q</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.params.html#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q">Q (src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams attribute)</a>
+</li>
       <li><a href="references/src/src.configs.policies.aco_hh.html#src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0">q0 (src.configs.policies.aco_hh.HyperHeuristicACOConfig attribute)</a>
 
       <ul>
@@ -15814,7 +16250,11 @@ document.write(`
       <li><a href="references/src/src.envs.base.ops.html#src.envs.base.ops.OpsMixin.reset">reset() (src.envs.base.ops.OpsMixin method)</a>
 
       <ul>
+        <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv.reset">(src.envs.dr_alns.DRALNSEnv method)</a>
+</li>
         <li><a href="references/src/src.interfaces.env.html#src.interfaces.env.IEnv.reset">(src.interfaces.env.IEnv method)</a>
+</li>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOBuffer.reset">(src.models.core.dr_alns.ppo_trainer.PPOBuffer method)</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.reset">(src.pipeline.rl.common.reward_scaler.RewardScaler method)</a>
 </li>
@@ -15843,6 +16283,8 @@ document.write(`
         <li><a href="references/src/src.utils.decoding.evaluate.html#src.utils.decoding.evaluate.Evaluate.reset">(src.utils.decoding.evaluate.Evaluate method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule.reset_buffer">reset_buffer() (src.pipeline.rl.core.dr_alns.DRALNSLitModule method)</a>
+</li>
       <li><a href="references/src/src.models.subnets.modules.efficient_graph_convolution.html#src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.reset_parameters">reset_parameters() (src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution method)</a>
 
       <ul>
@@ -15877,10 +16319,10 @@ document.write(`
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.restarts">(src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.tracking.hooks.weight_hooks.html#src.tracking.hooks.weight_hooks.restore_optimizer_step">restore_optimizer_step() (in module src.tracking.hooks.weight_hooks)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="references/src/src.tracking.hooks.weight_hooks.html#src.tracking.hooks.weight_hooks.restore_optimizer_step">restore_optimizer_step() (in module src.tracking.hooks.weight_hooks)</a>
+</li>
       <li><a href="references/src/src.configs.tasks.eval.html#src.configs.tasks.eval.EvalConfig.results_dir">results_dir (src.configs.tasks.eval.EvalConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.resume">resume (src.configs.tasks.sim.SimConfig attribute)</a>
@@ -16167,6 +16609,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.html#src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.run_ils_rvnd">run_ils_rvnd() (src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver method)</a>
 </li>
+      <li><a href="references/src/src.policies.branch_and_price_and_cut.bpc_engine.html#src.policies.branch_and_price_and_cut.bpc_engine.run_internal_bpc">run_internal_bpc() (in module src.policies.branch_and_price_and_cut.bpc_engine)</a>
+</li>
       <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.runner.html#src.policies.ant_colony_optimization_k_sparse.runner.run_k_sparse_aco">run_k_sparse_aco() (in module src.policies.ant_colony_optimization_k_sparse.runner)</a>
 </li>
       <li><a href="references/src/src.policies.kernel_search.solver.html#src.policies.kernel_search.solver.run_kernel_search_gurobi">run_kernel_search_gurobi() (in module src.policies.kernel_search.solver)</a>
@@ -16421,12 +16865,20 @@ document.write(`
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.score_accept">(src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.score_alpha">score_alpha (src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
+</li>
       <li><a href="references/src/src.configs.policies.hulk.html#src.configs.policies.hulk.HULKConfig.score_best">score_best (src.configs.policies.hulk.HULKConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.score_best">(src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.score_beta">score_beta (src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
+</li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.score_delta">score_delta (src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
+</li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.score_gamma">score_gamma (src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
+</li>
       <li><a href="references/src/src.configs.policies.hulk.html#src.configs.policies.hulk.HULKConfig.score_improvement">score_improvement (src.configs.policies.hulk.HULKConfig attribute)</a>
 
       <ul>
@@ -16621,6 +17073,8 @@ document.write(`
         <li><a href="references/src/src.configs.policies.swc_tcf.html#src.configs.policies.swc_tcf.SWCTCFConfig.seed">(src.configs.policies.swc_tcf.SWCTCFConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.seed">(src.configs.policies.ta.TAConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.seed">(src.configs.policies.ts.TSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.tsp.html#src.configs.policies.tsp.TSPConfig.seed">(src.configs.policies.tsp.TSPConfig attribute)</a>
 </li>
@@ -17045,9 +17499,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_k_sparse.construction.html#src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor">SolutionConstructor (class in src.policies.ant_colony_optimization_k_sparse.construction)</a>
 </li>
-      <li><a href="references/src/src.models.policies.adaptive_large_neighborhood_search.html#src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.solve">solve() (src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS method)</a>
+      <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver.solve">solve() (src.models.core.dr_alns.dr_alns_solver.DRALNSSolver method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.policies.adaptive_large_neighborhood_search.html#src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS.solve">(src.models.policies.adaptive_large_neighborhood_search.VectorizedALNS method)</a>
+</li>
         <li><a href="references/src/src.models.policies.hybrid_genetic_search.html#src.models.policies.hybrid_genetic_search.VectorizedHGS.solve">(src.models.policies.hybrid_genetic_search.VectorizedHGS method)</a>
 </li>
         <li><a href="references/src/src.policies.adaptive_large_neighborhood_search.alns.html#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve">(src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver method)</a>
@@ -17156,6 +17612,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.soccer_league_competition.solver.html#src.policies.soccer_league_competition.solver.SLCSolver.solve">(src.policies.soccer_league_competition.solver.SLCSolver method)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver.solve">(src.policies.tabu_search.solver.TSSolver method)</a>
+</li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver.solve">(src.policies.variable_neighborhood_search.solver.VNSSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.volleyball_premier_league.solver.html#src.policies.volleyball_premier_league.solver.VPLSolver.solve">(src.policies.volleyball_premier_league.solver.VPLSolver method)</a>
@@ -17172,6 +17630,8 @@ document.write(`
       <li><a href="references/src/src.policies.hybrid_genetic_search.pyvrp_wrapper.html#src.policies.hybrid_genetic_search.pyvrp_wrapper.solve_pyvrp">solve_pyvrp() (in module src.policies.hybrid_genetic_search.pyvrp_wrapper)</a>
 </li>
       <li><a href="references/src/src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.html#src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.solve_set_partitioning">solve_set_partitioning() (src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver method)</a>
+</li>
+      <li><a href="references/src/src.policies.travelling_salesman_problem.two_opt.html#src.policies.travelling_salesman_problem.two_opt.solve_tsp_2opt">solve_tsp_2opt() (in module src.policies.travelling_salesman_problem.two_opt)</a>
 </li>
       <li><a href="references/src/src.constants.routing.html#src.constants.routing.SOLVER_OUTPUT_FLAG">SOLVER_OUTPUT_FLAG (in module src.constants.routing)</a>
 </li>
@@ -17907,6 +18367,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.configs.policies.ts
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.ts.html#module-src.configs.policies.ts">module</a>
+</li>
+      </ul></li>
+      <li>
     src.configs.policies.tsp
 
       <ul>
@@ -17946,6 +18413,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.configs.rl.core.adaptive_imitation.html#module-src.configs.rl.core.adaptive_imitation">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.configs.rl.core.dr_alns
+
+      <ul>
+        <li><a href="references/src/src.configs.rl.core.dr_alns.html#module-src.configs.rl.core.dr_alns">module</a>
 </li>
       </ul></li>
       <li>
@@ -18656,6 +19130,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.envs.dr_alns
+
+      <ul>
+        <li><a href="references/src/src.envs.dr_alns.html#module-src.envs.dr_alns">module</a>
+</li>
+      </ul></li>
+      <li>
     src.envs.generators
 
       <ul>
@@ -19143,6 +19624,34 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.models.core.deepaco.policy.html#module-src.models.core.deepaco.policy">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.core.dr_alns
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.html#module-src.models.core.dr_alns">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.core.dr_alns.dr_alns_solver
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#module-src.models.core.dr_alns.dr_alns_solver">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.core.dr_alns.ppo_agent
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#module-src.models.core.dr_alns.ppo_agent">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.models.core.dr_alns.ppo_trainer
+
+      <ul>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#module-src.models.core.dr_alns.ppo_trainer">module</a>
 </li>
       </ul></li>
       <li>
@@ -21399,6 +21908,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.common.baselines.rollout.html#module-src.pipeline.rl.common.baselines.rollout">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.common.baselines.shared_critic
 
@@ -21406,8 +21917,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.common.baselines.shared_critic.html#module-src.pipeline.rl.common.baselines.shared_critic">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.rl.common.baselines.warmup
 
@@ -21469,6 +21978,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.core.adaptive_imitation.html#module-src.pipeline.rl.core.adaptive_imitation">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.pipeline.rl.core.dr_alns
+
+      <ul>
+        <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#module-src.pipeline.rl.core.dr_alns">module</a>
 </li>
       </ul></li>
       <li>
@@ -22473,6 +22989,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.policies.branch_and_price_and_cut.bpc_engine
+
+      <ul>
+        <li><a href="references/src/src.policies.branch_and_price_and_cut.bpc_engine.html#module-src.policies.branch_and_price_and_cut.bpc_engine">module</a>
+</li>
+      </ul></li>
+      <li>
     src.policies.branch_and_price_and_cut.dispatcher
 
       <ul>
@@ -22512,6 +23035,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.capacitated_vehicle_routing_problem.html#module-src.policies.capacitated_vehicle_routing_problem">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.capacitated_vehicle_routing_problem.clark_wright
+
+      <ul>
+        <li><a href="references/src/src.policies.capacitated_vehicle_routing_problem.clark_wright.html#module-src.policies.capacitated_vehicle_routing_problem.clark_wright">module</a>
 </li>
       </ul></li>
       <li>
@@ -25273,6 +25803,34 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.policies.tabu_search
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.html#module-src.policies.tabu_search">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.tabu_search.params
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#module-src.policies.tabu_search.params">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.tabu_search.policy_ts
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.policy_ts.html#module-src.policies.tabu_search.policy_ts">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.tabu_search.solver
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.solver.html#module-src.policies.tabu_search.solver">module</a>
+</li>
+      </ul></li>
+      <li>
     src.policies.threshold_accepting
 
       <ul>
@@ -25319,6 +25877,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.travelling_salesman_problem.tsp.html#module-src.policies.travelling_salesman_problem.tsp">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.travelling_salesman_problem.two_opt
+
+      <ul>
+        <li><a href="references/src/src.policies.travelling_salesman_problem.two_opt.html#module-src.policies.travelling_salesman_problem.two_opt">module</a>
 </li>
       </ul></li>
       <li>
@@ -26809,6 +27374,8 @@ document.write(`
       <li><a href="references/src/src.envs.base.ops.html#src.envs.base.ops.OpsMixin.step">step() (src.envs.base.ops.OpsMixin method)</a>
 
       <ul>
+        <li><a href="references/src/src.envs.dr_alns.html#src.envs.dr_alns.DRALNSEnv.step">(src.envs.dr_alns.DRALNSEnv method)</a>
+</li>
         <li><a href="references/src/src.interfaces.env.html#src.interfaces.env.IEnv.step">(src.interfaces.env.IEnv method)</a>
 </li>
         <li><a href="references/src/src.tracking.profiling.throughput.html#src.tracking.profiling.throughput.ThroughputTracker.step">(src.tracking.profiling.throughput.ThroughputTracker method)</a>
@@ -27044,6 +27611,12 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.html#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.tabu_no_repeat_threshold">(src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.tabu_tenure">tabu_tenure (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.tabu_tenure">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig">TAConfig (class in src.configs.policies.ta)</a>
@@ -27483,6 +28056,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.time_limit">(src.configs.policies.ta.TAConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.time_limit">(src.configs.policies.ts.TSConfig attribute)</a>
+</li>
         <li><a href="references/src/src.configs.policies.tsp.html#src.configs.policies.tsp.TSPConfig.time_limit">(src.configs.policies.tsp.TSPConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.time_limit">(src.configs.policies.vns.VNSConfig attribute)</a>
@@ -27611,6 +28186,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.step_counting_hill_climbing.params.html#src.policies.step_counting_hill_climbing.params.SCHCParams.time_limit">(src.policies.step_counting_hill_climbing.params.SCHCParams attribute)</a>
 </li>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.time_limit">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
         <li><a href="references/src/src.policies.threshold_accepting.params.html#src.policies.threshold_accepting.params.TAParams.time_limit">(src.policies.threshold_accepting.params.TAParams attribute)</a>
 </li>
         <li><a href="references/src/src.policies.variable_neighborhood_search.params.html#src.policies.variable_neighborhood_search.params.VNSParams.time_limit">(src.policies.variable_neighborhood_search.params.VNSParams attribute)</a>
@@ -27645,6 +28222,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="references/src/src.utils.configs.yaml_to_env.html#src.utils.configs.yaml_to_env.to_bash_value">to_bash_value() (in module src.utils.configs.yaml_to_env)</a>
+</li>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSState.to_tensor">to_tensor() (src.models.core.dr_alns.ppo_agent.DRALNSState method)</a>
 </li>
       <li><a href="references/src/src.configs.policies.rrt.html#src.configs.policies.rrt.RRTConfig.tolerance">tolerance (src.configs.policies.rrt.RRTConfig attribute)</a>
 
@@ -27747,6 +28326,8 @@ document.write(`
       <li><a href="references/src/src.interfaces.model.html#src.interfaces.model.IModel.train">train() (src.interfaces.model.IModel method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOTrainer.train">(src.models.core.dr_alns.ppo_trainer.PPOTrainer method)</a>
+</li>
         <li><a href="references/src/src.models.meta.hypernet.optimizer.html#src.models.meta.hypernet.optimizer.HyperNetworkOptimizer.train">(src.models.meta.hypernet.optimizer.HyperNetworkOptimizer method)</a>
 </li>
       </ul></li>
@@ -27766,6 +28347,8 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.pipeline.rl.core.a2c.html#src.pipeline.rl.core.a2c.A2C.training_step">(src.pipeline.rl.core.a2c.A2C method)</a>
+</li>
+        <li><a href="references/src/src.pipeline.rl.core.dr_alns.html#src.pipeline.rl.core.dr_alns.DRALNSLitModule.training_step">(src.pipeline.rl.core.dr_alns.DRALNSLitModule method)</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.core.gspo.html#src.pipeline.rl.core.gspo.GSPO.training_step">(src.pipeline.rl.core.gspo.GSPO method)</a>
 </li>
@@ -27798,7 +28381,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.html#src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ts_beta_prior">ts_beta_prior (src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams property)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig">TSConfig (class in src.configs.policies.ts)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSLSAdapter">TSLSAdapter (class in src.policies.tabu_search.solver)</a>
+</li>
       <li><a href="references/src/src.models.subnets.modules.tsp_adapter.html#src.models.subnets.modules.tsp_adapter.TSPAdapter">TSPAdapter (class in src.models.subnets.modules.tsp_adapter)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams">TSParams (class in src.policies.tabu_search.params)</a>
 </li>
       <li><a href="references/src/src.configs.policies.tsp.html#src.configs.policies.tsp.TSPConfig">TSPConfig (class in src.configs.policies.tsp)</a>
 </li>
@@ -27810,7 +28399,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.envs.tsp_kopt.html#src.envs.tsp_kopt.TSPkoptEnv">TSPkoptEnv (class in src.envs.tsp_kopt)</a>
 </li>
+      <li><a href="references/src/src.policies.tabu_search.policy_ts.html#src.policies.tabu_search.policy_ts.TSPolicy">TSPolicy (class in src.policies.tabu_search.policy_ts)</a>
+</li>
       <li><a href="references/src/src.policies.travelling_salesman_problem.policy_tsp.html#src.policies.travelling_salesman_problem.policy_tsp.TSPPolicy">TSPPolicy (class in src.policies.travelling_salesman_problem.policy_tsp)</a>
+</li>
+      <li><a href="references/src/src.policies.tabu_search.solver.html#src.policies.tabu_search.solver.TSSolver">TSSolver (class in src.policies.tabu_search.solver)</a>
 </li>
       <li><a href="references/src/src.policies.other.local_search.local_search_manager.html#src.policies.other.local_search.local_search_manager.LocalSearchManager.two_opt_intra">two_opt_intra() (src.policies.other.local_search.local_search_manager.LocalSearchManager method)</a>
 </li>
@@ -27862,9 +28455,13 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline.unwrap_dataset">unwrap_dataset() (src.pipeline.rl.common.baselines.base.Baseline method)</a>
 </li>
-      <li><a href="references/src/src.models.subnets.modules.mpnn_layer.html#src.models.subnets.modules.mpnn_layer.MessagePassingLayer.update">update() (src.models.subnets.modules.mpnn_layer.MessagePassingLayer method)</a>
+      <li><a href="references/src/src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSState.update">update() (src.models.core.dr_alns.ppo_agent.DRALNSState method)</a>
 
       <ul>
+        <li><a href="references/src/src.models.core.dr_alns.ppo_trainer.html#src.models.core.dr_alns.ppo_trainer.PPOTrainer.update">(src.models.core.dr_alns.ppo_trainer.PPOTrainer method)</a>
+</li>
+        <li><a href="references/src/src.models.subnets.modules.mpnn_layer.html#src.models.subnets.modules.mpnn_layer.MessagePassingLayer.update">(src.models.subnets.modules.mpnn_layer.MessagePassingLayer method)</a>
+</li>
         <li><a href="references/src/src.pipeline.callbacks.simulation.simulation_display.html#src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback.update">(src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback method)</a>
 </li>
         <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.update">(src.pipeline.rl.common.reward_scaler.RewardScaler method)</a>
@@ -27904,8 +28501,6 @@ document.write(`
         <li><a href="references/src/src.utils.data.td_state_wrapper.html#src.utils.data.td_state_wrapper.TensorDictStateWrapper.update">(src.utils.data.td_state_wrapper.TensorDictStateWrapper method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.subnets.modules.adapter_base.html#src.models.subnets.modules.adapter_base.SubproblemAdapter.update_actions">update_actions() (src.models.subnets.modules.adapter_base.SubproblemAdapter method)</a>
 
       <ul>
@@ -27914,6 +28509,8 @@ document.write(`
         <li><a href="references/src/src.models.subnets.modules.vrp_adapter.html#src.models.subnets.modules.vrp_adapter.VRPAdapter.update_actions">(src.models.subnets.modules.vrp_adapter.VRPAdapter method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.hybrid_genetic_search.evolution.html#src.policies.hybrid_genetic_search.evolution.update_biased_fitness">update_biased_fitness() (in module src.policies.hybrid_genetic_search.evolution)</a>
 
       <ul>
@@ -27958,18 +28555,42 @@ document.write(`
 </li>
       <li><a href="references/src/src.cli.base.update_function_factory.html#src.cli.base.update_function_factory.UpdateFunctionMapActionFactory">UpdateFunctionMapActionFactory() (in module src.cli.base.update_function_factory)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.use_2opt">use_2opt (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.use_2opt">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.bc.html#src.configs.policies.bc.BCConfig.use_exact_separation">use_exact_separation (src.configs.policies.bc.BCConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.policies.bc.html#src.configs.policies.bc.BCConfig.use_heuristics">use_heuristics (src.configs.policies.bc.BCConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.use_insertion">use_insertion (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.use_insertion">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.use_meta">use_meta (src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
 </li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.use_relocate">use_relocate (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.use_relocate">(src.policies.tabu_search.params.TSParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.bp.html#src.configs.policies.bp.BPConfig.use_ryan_foster_branching">use_ryan_foster_branching (src.configs.policies.bp.BPConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.policies.ils_rvnd_sp.html#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.use_set_partitioning">use_set_partitioning (src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.html#src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.use_set_partitioning">(src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.use_swap">use_swap (src.configs.policies.ts.TSConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.policies.tabu_search.params.html#src.policies.tabu_search.params.TSParams.use_swap">(src.policies.tabu_search.params.TSParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.configs.policies.rl_gd_hh.html#src.configs.policies.rl_gd_hh.RLGDHHConfig.utility_upper_bound">utility_upper_bound (src.configs.policies.rl_gd_hh.RLGDHHConfig attribute)</a>
@@ -28020,6 +28641,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.meta.module.html#src.pipeline.rl.meta.module.MetaRLModule.validation_step">(src.pipeline.rl.meta.module.MetaRLModule method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig.value_loss_coef">value_loss_coef (src.configs.rl.core.dr_alns.DRALNSConfig attribute)</a>
+</li>
       <li><a href="references/src/src.configs.rl.core.ppo.html#src.configs.rl.core.ppo.PPOConfig.value_loss_weight">value_loss_weight (src.configs.rl.core.ppo.PPOConfig attribute)</a>
 </li>
       <li><a href="references/src/src.interfaces.tensor_dict_like.html#src.interfaces.tensor_dict_like.ITensorDictLike.values">values() (src.interfaces.tensor_dict_like.ITensorDictLike method)</a>
@@ -28310,6 +28933,8 @@ document.write(`
         <li><a href="references/src/src.configs.policies.ss_hh.html#src.configs.policies.ss_hh.SSHHConfig.vrpp">(src.configs.policies.ss_hh.SSHHConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.vrpp">(src.configs.policies.ta.TAConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.ts.html#src.configs.policies.ts.TSConfig.vrpp">(src.configs.policies.ts.TSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.vns.html#src.configs.policies.vns.VNSConfig.vrpp">(src.configs.policies.vns.VNSConfig attribute)</a>
 </li>

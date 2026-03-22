@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -613,8 +615,10 @@ Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution">
-<span class="sig-name descname"><span class="pre">build_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">build_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution" title="Link to this definition">#</a></dt>
 <dd><p>Build a solution by applying a sequence of operators.</p>
+<p>Returns:
+Tuple[List[List[int]], List[str]]: Modified routes and the operator sequence.</p>
 </dd></dl>
 
 <dl class="py method">

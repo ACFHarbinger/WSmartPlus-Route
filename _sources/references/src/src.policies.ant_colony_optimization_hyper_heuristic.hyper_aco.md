@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} build_solution() -> typing.List[typing.List[int]]
+````{py:method} build_solution() -> typing.Tuple[typing.List[typing.List[int]], typing.List[str]]
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution

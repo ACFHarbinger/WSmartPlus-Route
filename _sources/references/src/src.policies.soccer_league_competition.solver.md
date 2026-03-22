@@ -43,6 +43,30 @@
 
 ````
 
+````{py:method} _update_superstars(teams: typing.List[typing.List[typing.Tuple[typing.List[typing.List[int]], float]]])
+:canonical: src.policies.soccer_league_competition.solver.SLCSolver._update_superstars
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.solver.SLCSolver._update_superstars
+```
+
+````
+
+````{py:method} _play_match(team_a: typing.List[typing.Tuple[typing.List[typing.List[int]], float]], team_b: typing.List[typing.Tuple[typing.List[typing.List[int]], float]])
+:canonical: src.policies.soccer_league_competition.solver.SLCSolver._play_match
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.solver.SLCSolver._play_match
+```
+
+````
+
+````{py:method} _coach(player: typing.Tuple[typing.List[typing.List[int]], float], superstar: typing.Tuple[typing.List[typing.List[int]], float]) -> typing.Tuple[typing.List[typing.List[int]], float]
+:canonical: src.policies.soccer_league_competition.solver.SLCSolver._coach
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.solver.SLCSolver._coach
+```
+
+````
+
 ````{py:method} _new_team() -> typing.List[typing.Tuple[typing.List[typing.List[int]], float]]
 :canonical: src.policies.soccer_league_competition.solver.SLCSolver._new_team
 

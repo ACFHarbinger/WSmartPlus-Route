@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -619,7 +621,10 @@ Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator">
 <span class="sig-name descname"><span class="pre">_select_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator" title="Link to this definition">#</a></dt>
-<dd><p>Select an operator using epsilon-greedy with guidance indicators.</p>
+<dd><p>Select an operator using epsilon-greedy with weighted guidance indicators.</p>
+<p>Follows Chen et al. (2018):
+Score(op) = w1 * IRI(op) + w2 * TBI(op)
+Selection is done via roulette wheel on these normalized scores.</p>
 <p>Returns:
 Operator name.</p>
 </dd></dl>

@@ -27,5 +27,6 @@ src.models.core.moe
 src.models.core.mdam
 src.models.core.matnet
 src.models.core.neuopt
+src.models.core.dr_alns
 src.models.core.pointer_network
 ```

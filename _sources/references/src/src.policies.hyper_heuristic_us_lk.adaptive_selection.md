@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AdaptiveOperatorSelector(operators: typing.List[str], epsilon: float = 0.3, memory_size: int = 50, learning_rate: float = 0.1, weight_decay: float = 0.95, seed: int = 42)
+`````{py:class} AdaptiveOperatorSelector(operators: typing.List[str], epsilon: float = 0.3, memory_size: int = 50, learning_rate: float = 0.1, weight_decay: float = 0.95, seed: typing.Optional[int] = 42)
 :canonical: src.policies.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector

@@ -55,6 +55,14 @@
 
 ````
 
+````{py:method} _end_segment() -> None
+:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._end_segment
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._end_segment
+```
+
+````
+
 ````{py:method} decay_weights() -> None
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.decay_weights
 

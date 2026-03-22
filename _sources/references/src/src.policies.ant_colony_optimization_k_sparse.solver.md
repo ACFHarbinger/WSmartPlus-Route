@@ -59,10 +59,18 @@
 
 ````
 
-````{py:method} _global_pheromone_update(best_routes: typing.List[typing.List[int]], best_cost: float) -> None
+````{py:method} _global_pheromone_update(best_routes: typing.List[typing.List[int]], best_cost: float, iteration_solutions: typing.List[typing.Tuple[typing.List[typing.List[int]], float]]) -> None
 :canonical: src.policies.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._global_pheromone_update
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._global_pheromone_update
+```
+
+````
+
+````{py:method} _deposit_solution(routes: typing.List[typing.List[int]], delta: float) -> None
+:canonical: src.policies.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._deposit_solution
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._deposit_solution
 ```
 
 ````

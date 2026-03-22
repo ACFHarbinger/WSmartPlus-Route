@@ -83,6 +83,22 @@
 
 ````
 
+````{py:method} _llh5(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.reactive_tabu_search.solver.RTSSolver._llh5
+
+```{autodoc2-docstring} src.policies.reactive_tabu_search.solver.RTSSolver._llh5
+```
+
+````
+
+````{py:method} _llh6(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.reactive_tabu_search.solver.RTSSolver._llh6
+
+```{autodoc2-docstring} src.policies.reactive_tabu_search.solver.RTSSolver._llh6
+```
+
+````
+
 ````{py:method} _hash_routes(routes: typing.List[typing.List[int]]) -> int
 :canonical: src.policies.reactive_tabu_search.solver.RTSSolver._hash_routes
 

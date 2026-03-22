@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -536,6 +538,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._add_column_to_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._add_column_to_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.build_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.build_model()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_capacity_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_edge_usage()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_lp_relaxation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_lp_relaxation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_reduced_cost_coefficients()</span></code></a></li>
@@ -643,6 +647,26 @@ initial_routes: Initial set of routes to include</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut">
+<span class="sig-name descname"><span class="pre">add_capacity_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut" title="Link to this definition">#</a></dt>
+<dd><p>Add a rounded capacity cut to the master problem.
+Constraint: Σ_{k: route k crosses cut} λ_k &gt;= RHS
+Actually, for CVRP, the cut is typically Σ_{i∈S} Σ_{j∉S} x_{ij} &gt;= 2 * ⌈q(S)/Q⌉.
+In set partitioning, this maps to Σ_{k: route k visits S} λ_k * (number of times k crosses boundary of S) &gt;= …
+Or more simply for standard CVRP: Σ_{k: route k HAS at least one node in S} λ_k &gt;= ⌈q(S)/Q⌉
+Wait, no. A route k can visit S and leave it multiple times.
+According to Lysgaard (2004), for set partitioning, the constraint is:
+Σ_{k ∈ Ω} a_k^S λ_k ≤ |S| - k(S)
+where a_k^S is the number of edges of route k with both endpoints in S.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage">
+<span class="sig-name descname"><span class="pre">get_edge_usage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage" title="Link to this definition">#</a></dt>
+<dd><p>Map column values back to edge variables for separation.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_lp_relaxation">
 <span class="sig-name descname"><span class="pre">solve_lp_relaxation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_lp_relaxation" title="Link to this definition">#</a></dt>
 <dd><p>Solve the LP relaxation of the master problem.</p>
@@ -730,6 +754,8 @@ Dictionary mapping node ID to dual value</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._add_column_to_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._add_column_to_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.build_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.build_model()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_capacity_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_edge_usage()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_lp_relaxation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_lp_relaxation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_reduced_cost_coefficients()</span></code></a></li>

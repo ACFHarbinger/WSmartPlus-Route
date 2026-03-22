@@ -75,6 +75,30 @@
 
 ````
 
+````{py:method} _llh_shaw(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_shaw
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_shaw
+```
+
+````
+
+````{py:method} _llh_string(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_string
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_string
+```
+
+````
+
+````{py:method} _llh_regret2(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_regret2
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_regret2
+```
+
+````
+
 ````{py:method} _initialize_solution() -> typing.List[typing.List[int]]
 :canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._initialize_solution
 

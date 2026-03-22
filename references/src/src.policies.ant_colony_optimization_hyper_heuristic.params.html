@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -540,6 +542,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.sequence_length"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.sequence_length</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.q0"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.q0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.Q</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.from_config"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.from_config()</span></code></a></li>
@@ -670,6 +673,12 @@ operators: List of operator names to include in the sequence construction.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q" title="Link to this definition">#</a></dt>
+<dd><p>100.0</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators">
 <span class="sig-name descname"><span class="pre">operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
@@ -757,6 +766,7 @@ HyperACOParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.sequence_length"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.sequence_length</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.q0"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.q0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.Q</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.from_config"><code class="docutils literal notranslate"><span class="pre">HyperACOParams.from_config()</span></code></a></li>

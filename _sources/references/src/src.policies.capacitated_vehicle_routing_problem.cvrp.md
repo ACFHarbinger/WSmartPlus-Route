@@ -31,7 +31,7 @@
 
 ### API
 
-````{py:function} find_routes(dist_mat, wastes, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2.0, seed=42, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
+````{py:function} find_routes(dist_mat, wastes, max_caps, to_collect, n_vehicles, coords=None, depot=0, time_limit=2.0, seed=42, engine='pyvrp', recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.capacitated_vehicle_routing_problem.cvrp.find_routes
 
 ```{autodoc2-docstring} src.policies.capacitated_vehicle_routing_problem.cvrp.find_routes

@@ -608,6 +608,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -723,6 +724,7 @@ window.addEventListener("load", load);
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -1356,6 +1358,11 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.configs.policies.ts.html#module-src.configs.policies.ts"><code class="xref">src.configs.policies.ts</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.configs.policies.tsp.html#module-src.configs.policies.tsp"><code class="xref">src.configs.policies.tsp</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -1382,6 +1389,11 @@ document.write(`
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.configs.rl.core.adaptive_imitation.html#module-src.configs.rl.core.adaptive_imitation"><code class="xref">src.configs.rl.core.adaptive_imitation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.configs.rl.core.dr_alns.html#module-src.configs.rl.core.dr_alns"><code class="xref">src.configs.rl.core.dr_alns</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -1891,6 +1903,11 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.envs.dr_alns.html#module-src.envs.dr_alns"><code class="xref">src.envs.dr_alns</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.envs.generators.html#module-src.envs.generators"><code class="xref">src.envs.generators</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -2237,6 +2254,26 @@ document.write(`
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.models.core.deepaco.policy.html#module-src.models.core.deepaco.policy"><code class="xref">src.models.core.deepaco.policy</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.models.core.dr_alns.html#module-src.models.core.dr_alns"><code class="xref">src.models.core.dr_alns</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.models.core.dr_alns.dr_alns_solver.html#module-src.models.core.dr_alns.dr_alns_solver"><code class="xref">src.models.core.dr_alns.dr_alns_solver</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.models.core.dr_alns.ppo_agent.html#module-src.models.core.dr_alns.ppo_agent"><code class="xref">src.models.core.dr_alns.ppo_agent</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.models.core.dr_alns.ppo_trainer.html#module-src.models.core.dr_alns.ppo_trainer"><code class="xref">src.models.core.dr_alns.ppo_trainer</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -3901,6 +3938,11 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.pipeline.rl.core.dr_alns.html#module-src.pipeline.rl.core.dr_alns"><code class="xref">src.pipeline.rl.core.dr_alns</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.pipeline.rl.core.dr_grpo.html#module-src.pipeline.rl.core.dr_grpo"><code class="xref">src.pipeline.rl.core.dr_grpo</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -4616,6 +4658,11 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.branch_and_price_and_cut.bpc_engine.html#module-src.policies.branch_and_price_and_cut.bpc_engine"><code class="xref">src.policies.branch_and_price_and_cut.bpc_engine</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.branch_and_price_and_cut.dispatcher.html#module-src.policies.branch_and_price_and_cut.dispatcher"><code class="xref">src.policies.branch_and_price_and_cut.dispatcher</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -4642,6 +4689,11 @@ document.write(`
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.capacitated_vehicle_routing_problem.html#module-src.policies.capacitated_vehicle_routing_problem"><code class="xref">src.policies.capacitated_vehicle_routing_problem</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.capacitated_vehicle_routing_problem.clark_wright.html#module-src.policies.capacitated_vehicle_routing_problem.clark_wright"><code class="xref">src.policies.capacitated_vehicle_routing_problem.clark_wright</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -6616,6 +6668,26 @@ document.write(`
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.tabu_search.html#module-src.policies.tabu_search"><code class="xref">src.policies.tabu_search</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.tabu_search.params.html#module-src.policies.tabu_search.params"><code class="xref">src.policies.tabu_search.params</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.tabu_search.policy_ts.html#module-src.policies.tabu_search.policy_ts"><code class="xref">src.policies.tabu_search.policy_ts</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.tabu_search.solver.html#module-src.policies.tabu_search.solver"><code class="xref">src.policies.tabu_search.solver</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.threshold_accepting.html#module-src.policies.threshold_accepting"><code class="xref">src.policies.threshold_accepting</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -6647,6 +6719,11 @@ document.write(`
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="references/src/src.policies.travelling_salesman_problem.tsp.html#module-src.policies.travelling_salesman_problem.tsp"><code class="xref">src.policies.travelling_salesman_problem.tsp</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="references/src/src.policies.travelling_salesman_problem.two_opt.html#module-src.policies.travelling_salesman_problem.two_opt"><code class="xref">src.policies.travelling_salesman_problem.two_opt</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>

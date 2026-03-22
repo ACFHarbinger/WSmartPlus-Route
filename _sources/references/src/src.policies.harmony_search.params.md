@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} BW
+:canonical: src.policies.harmony_search.params.HSParams.BW
+:type: float
+:value: >
+   0.05
+
+```{autodoc2-docstring} src.policies.harmony_search.params.HSParams.BW
+```
+
+````
+
 ````{py:attribute} max_iterations
 :canonical: src.policies.harmony_search.params.HSParams.max_iterations
 :type: int

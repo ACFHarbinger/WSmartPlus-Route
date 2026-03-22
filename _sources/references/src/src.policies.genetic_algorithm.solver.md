@@ -75,6 +75,14 @@
 
 ````
 
+````{py:method} _local_search(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.genetic_algorithm.solver.GASolver._local_search
+
+```{autodoc2-docstring} src.policies.genetic_algorithm.solver.GASolver._local_search
+```
+
+````
+
 ````{py:method} _evaluate(routes: typing.List[typing.List[int]]) -> float
 :canonical: src.policies.genetic_algorithm.solver.GASolver._evaluate
 

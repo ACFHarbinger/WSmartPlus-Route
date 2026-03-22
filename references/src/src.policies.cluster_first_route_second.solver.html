@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -529,6 +531,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver.run_cf_rs"><code class="docutils literal notranslate"><span class="pre">run_cf_rs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering"><code class="docutils literal notranslate"><span class="pre">fisher_jaikumar_clustering()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver.angular_clustering"><code class="docutils literal notranslate"><span class="pre">angular_clustering()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver._bounded_partition"><code class="docutils literal notranslate"><span class="pre">_bounded_partition()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver._unbounded_partition"><code class="docutils literal notranslate"><span class="pre">_unbounded_partition()</span></code></a></li>
@@ -573,18 +576,19 @@ and Jaikuamr Algorithm to Solve Capacitated Vehicle Routing Problem”.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver.run_cf_rs" title="src.policies.cluster_first_route_second.solver.run_cf_rs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_cf_rs</span></code></a></p></td>
 <td><p>Solve VRPP using Cluster-First Route-Second angular partitioning.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver.angular_clustering" title="src.policies.cluster_first_route_second.solver.angular_clustering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">angular_clustering</span></code></a></p></td>
-<td><p>Partition bins into angular sectors based on their position relative to the depot,
-while enforcing capacity constraints and ensuring profitability of optional nodes.
-Creates as many clusters as needed to maintain clean sector independence.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering" title="src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fisher_jaikumar_clustering</span></code></a></p></td>
+<td><p>Partition bins using the Fisher &amp; Jaikumar (1981) seed-based assignment.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver._bounded_partition" title="src.policies.cluster_first_route_second.solver._bounded_partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bounded_partition</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver.angular_clustering" title="src.policies.cluster_first_route_second.solver.angular_clustering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">angular_clustering</span></code></a></p></td>
+<td><p>Legacy angular clustering - now delegates to Fisher-Jaikumar for better 5/5 faithfulness.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver._bounded_partition" title="src.policies.cluster_first_route_second.solver._bounded_partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bounded_partition</span></code></a></p></td>
 <td><p>Helper for capacity-aware bounded partitioning (Inclusive).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver._unbounded_partition" title="src.policies.cluster_first_route_second.solver._unbounded_partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_unbounded_partition</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver._unbounded_partition" title="src.policies.cluster_first_route_second.solver._unbounded_partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_unbounded_partition</span></code></a></p></td>
 <td><p>Helper for capacity-aware unbounded partitioning (Inclusive).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver.calculate_tour_cost" title="src.policies.cluster_first_route_second.solver.calculate_tour_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_tour_cost</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.cluster_first_route_second.solver.calculate_tour_cost" title="src.policies.cluster_first_route_second.solver.calculate_tour_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_tour_cost</span></code></a></p></td>
 <td><p>Calculate the total distance of a given tour sequence.</p></td>
 </tr>
 </tbody>
@@ -615,22 +619,21 @@ A tuple containing:
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering">
+<span class="sig-prename descclassname"><span class="pre">src.policies.cluster_first_route_second.solver.</span></span><span class="sig-name descname"><span class="pre">fisher_jaikumar_clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering" title="Link to this definition">#</a></dt>
+<dd><p>Partition bins using the Fisher &amp; Jaikumar (1981) seed-based assignment.</p>
+<ol class="arabic simple">
+<li><p>Select K seed nodes (e.g., furthest nodes in different angular sectors).</p></li>
+<li><p>Assign each node to the seed that minimizes insertion cost:
+c_ij = d(0, i) + d(i, j) - d(0, j)</p></li>
+<li><p>Respect capacity constraints.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.policies.cluster_first_route_second.solver.angular_clustering">
 <span class="sig-prename descclassname"><span class="pre">src.policies.cluster_first_route_second.solver.</span></span><span class="sig-name descname"><span class="pre">angular_clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.cluster_first_route_second.solver.angular_clustering" title="Link to this definition">#</a></dt>
-<dd><p>Partition bins into angular sectors based on their position relative to the depot,
-while enforcing capacity constraints and ensuring profitability of optional nodes.
-Creates as many clusters as needed to maintain clean sector independence.</p>
-<p>Args:
-coords: DataFrame with ‘Lat’ and ‘Lng’. Depot is at index 0.
-must_go: Global node indices of the collection targets.
-k: Maximum number of clusters (sectors) to create. (Present for legacy API compatibility, but unbounded).
-wastes: Demand of each node.
-capacity: Vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-distance_matrix: Distance matrix.</p>
-<p>Returns:
-List[List[int]]: A list of clusters.</p>
+<dd><p>Legacy angular clustering - now delegates to Fisher-Jaikumar for better 5/5 faithfulness.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -710,6 +713,7 @@ float: Sum of distances between consecutive nodes in the tour.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver.run_cf_rs"><code class="docutils literal notranslate"><span class="pre">run_cf_rs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering"><code class="docutils literal notranslate"><span class="pre">fisher_jaikumar_clustering()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver.angular_clustering"><code class="docutils literal notranslate"><span class="pre">angular_clustering()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver._bounded_partition"><code class="docutils literal notranslate"><span class="pre">_bounded_partition()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.cluster_first_route_second.solver._unbounded_partition"><code class="docutils literal notranslate"><span class="pre">_unbounded_partition()</span></code></a></li>

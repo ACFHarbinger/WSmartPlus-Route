@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -530,6 +532,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver"><code class="docutils literal notranslate"><span class="pre">QDESolver</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver.solve"><code class="docutils literal notranslate"><span class="pre">QDESolver.solve()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate"><code class="docutils literal notranslate"><span class="pre">QDESolver._rotation_gate()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._collapse"><code class="docutils literal notranslate"><span class="pre">QDESolver._collapse()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._evaluate"><code class="docutils literal notranslate"><span class="pre">QDESolver._evaluate()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._cost"><code class="docutils literal notranslate"><span class="pre">QDESolver._cost()</span></code></a></li>
@@ -589,14 +592,29 @@ Tuple of (routes, profit, cost).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.quantum_differential_evolution.solver.QDESolver._collapse">
-<span class="sig-name descname"><span class="pre">_collapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">amplitudes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.quantum_differential_evolution.solver.QDESolver._collapse" title="Link to this definition">#</a></dt>
-<dd><p>Collapse amplitude vector to a discrete routing solution.</p>
-<p>Nodes are ranked by amplitude (descending).  Mandatory nodes are
-always included.  Optional nodes are added in amplitude order until
-capacity would be exceeded, at which point they are skipped.</p>
+<dt class="sig sig-object py" id="src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate">
+<span class="sig-name descname"><span class="pre">_rotation_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worsening</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate" title="Link to this definition">#</a></dt>
+<dd><p>Standard QEA rotation gate lookup table (Li &amp; Li, 2015).</p>
+<p>Determines the rotation angle delta_theta based on current bit value,
+best bit value, and fitness comparison.</p>
 <p>Args:
-amplitudes: Amplitude vector of length n_nodes.</p>
+xi: Current bit value (measured).
+bi: Target bit value (usually from global best).
+worsening: True if f(x) &lt; f(b) for maximization.
+theta: Current rotation angle.</p>
+<p>Returns:
+Rotation update value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.quantum_differential_evolution.solver.QDESolver._collapse">
+<span class="sig-name descname"><span class="pre">_collapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thetas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.quantum_differential_evolution.solver.QDESolver._collapse" title="Link to this definition">#</a></dt>
+<dd><p>Collapse quantum state (thetas) to a discrete routing solution.</p>
+<p>Measurement: Each node j is selected with probability |beta_j|^2 = sin^2(theta_j).
+Selected nodes are then ordered by their absolute probability amplitudes
+and passed to greedy_insertion.</p>
+<p>Args:
+thetas: Quantum rotation angles.</p>
 <p>Returns:
 Routes built by greedy_insertion.</p>
 </dd></dl>
@@ -677,6 +695,7 @@ Total distance.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver"><code class="docutils literal notranslate"><span class="pre">QDESolver</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver.solve"><code class="docutils literal notranslate"><span class="pre">QDESolver.solve()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._rotation_gate"><code class="docutils literal notranslate"><span class="pre">QDESolver._rotation_gate()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._collapse"><code class="docutils literal notranslate"><span class="pre">QDESolver._collapse()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._evaluate"><code class="docutils literal notranslate"><span class="pre">QDESolver._evaluate()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.quantum_differential_evolution.solver.QDESolver._cost"><code class="docutils literal notranslate"><span class="pre">QDESolver._cost()</span></code></a></li>

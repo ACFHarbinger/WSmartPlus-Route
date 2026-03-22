@@ -155,6 +155,22 @@
 
 ````
 
+````{py:method} _llh5(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh5
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh5
+```
+
+````
+
+````{py:method} _llh6(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh6
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh6
+```
+
+````
+
 ````{py:method} _sample_llh(probs: numpy.ndarray) -> int
 :canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._sample_llh
 

@@ -75,10 +75,18 @@
 
 ````
 
-````{py:method} _crossover(base_routes: typing.List[typing.List[int]], guide_routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._crossover
+````{py:method} _apply_velocity(current: typing.List[typing.List[int]], target: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._apply_velocity
 
-```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._crossover
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._apply_velocity
+```
+
+````
+
+````{py:method} _partition_flat(flat_nodes: typing.List[int]) -> typing.List[typing.List[int]]
+:canonical: src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._partition_flat
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._partition_flat
 ```
 
 ````

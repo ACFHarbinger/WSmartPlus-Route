@@ -150,6 +150,17 @@
 
 ````
 
+````{py:attribute} Q
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q
+:type: float
+:value: >
+   100.0
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q
+```
+
+````
+
 ````{py:attribute} operators
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators
 :type: typing.List[str]

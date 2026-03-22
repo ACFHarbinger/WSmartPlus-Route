@@ -19,6 +19,14 @@
   - ```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple._dfj_callback
     :summary:
     ```
+* - {py:obj}`_setup_bb_model <src.policies.branch_and_bound.bb_simple._setup_bb_model>`
+  - ```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple._setup_bb_model
+    :summary:
+    ```
+* - {py:obj}`_extract_routes_from_adj <src.policies.branch_and_bound.bb_simple._extract_routes_from_adj>`
+  - ```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple._extract_routes_from_adj
+    :summary:
+    ```
 * - {py:obj}`run_bb_simple <src.policies.branch_and_bound.bb_simple.run_bb_simple>`
   - ```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple.run_bb_simple
     :summary:
@@ -31,6 +39,20 @@
 :canonical: src.policies.branch_and_bound.bb_simple._dfj_callback
 
 ```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple._dfj_callback
+```
+````
+
+````{py:function} _setup_bb_model(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], must_go_indices: typing.Set[int], time_limit: float, mip_gap: float, seed: int, env: typing.Optional[gurobipy.Env] = None) -> typing.Tuple[gurobipy.Model, typing.Dict[typing.Tuple[int, int], gurobipy.Var], typing.Dict[int, gurobipy.Var]]
+:canonical: src.policies.branch_and_bound.bb_simple._setup_bb_model
+
+```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple._setup_bb_model
+```
+````
+
+````{py:function} _extract_routes_from_adj(adj: typing.Dict[int, typing.List[int]], num_nodes: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.branch_and_bound.bb_simple._extract_routes_from_adj
+
+```{autodoc2-docstring} src.policies.branch_and_bound.bb_simple._extract_routes_from_adj
 ```
 ````
 

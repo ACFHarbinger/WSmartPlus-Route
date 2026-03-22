@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.branch_and_price_and_cut.vrpy_engine
+src.policies.branch_and_price_and_cut.bpc_engine
 src.policies.branch_and_price_and_cut.dispatcher
 src.policies.branch_and_price_and_cut.policy_bpc
 src.policies.branch_and_price_and_cut.gurobi_engine

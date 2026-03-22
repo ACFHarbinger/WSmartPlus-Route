@@ -144,6 +144,22 @@
 
 ````
 
+````{py:method} _llh5(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh5
+
+```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh5
+```
+
+````
+
+````{py:method} _llh6(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh6
+
+```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh6
+```
+
+````
+
 ````{py:method} _build_initial_solution() -> typing.List[typing.List[int]]
 :canonical: src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._build_initial_solution
 

@@ -79,6 +79,14 @@
 
 ````
 
+````{py:method} _strong_branching(fractional_vars: typing.List[typing.Tuple], x: typing.Dict, y: typing.Dict) -> typing.Tuple[str, typing.Any]
+:canonical: src.policies.branch_and_bound.bb.BBSolver._strong_branching
+
+```{autodoc2-docstring} src.policies.branch_and_bound.bb.BBSolver._strong_branching
+```
+
+````
+
 ````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_and_bound.bb.BBSolver.solve
 

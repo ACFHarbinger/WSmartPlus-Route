@@ -76,6 +76,14 @@
 
 ````
 
+````{py:method} _partition_flat(nodes: typing.List[int]) -> typing.List[typing.List[int]]
+:canonical: src.policies.firefly_algorithm.solver.FASolver._partition_flat
+
+```{autodoc2-docstring} src.policies.firefly_algorithm.solver.FASolver._partition_flat
+```
+
+````
+
 ````{py:method} _best_insertion_cost(node: int, routes: typing.List[typing.List[int]]) -> float
 :canonical: src.policies.firefly_algorithm.solver.FASolver._best_insertion_cost
 

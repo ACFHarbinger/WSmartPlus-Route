@@ -159,7 +159,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.__init__
 ```
 
-````{py:method} solve(dual_values: typing.Dict[int, float], max_routes: int = 10, branching_constraints: typing.Optional[typing.List] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} solve(dual_values: typing.Dict[int, float], capacity_cut_duals: typing.Optional[typing.List[typing.Tuple[typing.Set[int], float, float]]] = None, max_routes: int = 10, branching_constraints: typing.Optional[typing.List] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve

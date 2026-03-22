@@ -129,7 +129,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_subtours_heuristic(x_vals: numpy.ndarray)
+````{py:method} _separate_subtours_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_subtours_heuristic
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_subtours_heuristic
@@ -137,7 +137,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_disconnected_components(x_vals: numpy.ndarray)
+````{py:method} _separate_disconnected_components(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_disconnected_components
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_disconnected_components
@@ -145,7 +145,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_weak_subtours(x_vals: numpy.ndarray)
+````{py:method} _separate_weak_subtours(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_weak_subtours
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_weak_subtours
@@ -161,7 +161,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_capacity_cuts(x_vals: numpy.ndarray)
+````{py:method} _separate_capacity_cuts(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts
@@ -169,7 +169,15 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_subtours_exact(x_vals: numpy.ndarray)
+````{py:method} _separate_capacity_cuts_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts_exact
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts_exact
+```
+
+````
+
+````{py:method} _separate_subtours_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_subtours_exact
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_subtours_exact
@@ -185,7 +193,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_comb_heuristic(x_vals: numpy.ndarray)
+````{py:method} _separate_comb_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_comb_heuristic
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_comb_heuristic

@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} _augmented_evaluate(routes: typing.List[typing.List[int]]) -> float
+````{py:method} _augmented_evaluate(routes: typing.List[typing.List[int]], weight: float) -> float
 :canonical: src.policies.guided_local_search.solver.GLSSolver._augmented_evaluate
 
 ```{autodoc2-docstring} src.policies.guided_local_search.solver.GLSSolver._augmented_evaluate

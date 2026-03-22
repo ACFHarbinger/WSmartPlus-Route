@@ -16,6 +16,7 @@
 src.policies.reinforcement_learning_hybrid_volleyball_premier_league
 src.policies.local_branching_variable_neighborhood_search
 src.policies.particle_swarm_optimization_memetic_algorithm
+src.policies.tabu_search
 src.policies.evolution_strategy_mu_plus_lambda
 src.policies.popmusic
 src.policies.augmented_hybrid_volleyball_premier_league

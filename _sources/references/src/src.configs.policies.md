@@ -37,6 +37,7 @@ src.configs.policies.lb_vns
 src.configs.policies.bb
 src.configs.policies.schc
 src.configs.policies.ma_dp
+src.configs.policies.ts
 src.configs.policies.rl_alns
 src.configs.policies.lca
 src.configs.policies.gls

@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.policies.adaptive_kernel_search.aks._get_partitioned_vars_aks
     :summary:
     ```
+* - {py:obj}`_update_kernel_aks <src.policies.adaptive_kernel_search.aks._update_kernel_aks>`
+  - ```{autodoc2-docstring} src.policies.adaptive_kernel_search.aks._update_kernel_aks
+    :summary:
+    ```
 * - {py:obj}`_solve_aks_iterations <src.policies.adaptive_kernel_search.aks._solve_aks_iterations>`
   - ```{autodoc2-docstring} src.policies.adaptive_kernel_search.aks._solve_aks_iterations
     :summary:
@@ -35,6 +39,13 @@
 :canonical: src.policies.adaptive_kernel_search.aks._get_partitioned_vars_aks
 
 ```{autodoc2-docstring} src.policies.adaptive_kernel_search.aks._get_partitioned_vars_aks
+```
+````
+
+````{py:function} _update_kernel_aks(kernel_vars: typing.Set[gurobipy.Var], bucket_vars: typing.List[gurobipy.Var], new_active_vars: typing.Set[gurobipy.Var], success: bool) -> typing.Set[gurobipy.Var]
+:canonical: src.policies.adaptive_kernel_search.aks._update_kernel_aks
+
+```{autodoc2-docstring} src.policies.adaptive_kernel_search.aks._update_kernel_aks
 ```
 ````
 

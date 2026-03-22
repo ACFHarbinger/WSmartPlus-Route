@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.policies.cluster_first_route_second.solver.run_cf_rs
     :summary:
     ```
+* - {py:obj}`fisher_jaikumar_clustering <src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering>`
+  - ```{autodoc2-docstring} src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering
+    :summary:
+    ```
 * - {py:obj}`angular_clustering <src.policies.cluster_first_route_second.solver.angular_clustering>`
   - ```{autodoc2-docstring} src.policies.cluster_first_route_second.solver.angular_clustering
     :summary:
@@ -43,6 +47,13 @@
 :canonical: src.policies.cluster_first_route_second.solver.run_cf_rs
 
 ```{autodoc2-docstring} src.policies.cluster_first_route_second.solver.run_cf_rs
+```
+````
+
+````{py:function} fisher_jaikumar_clustering(coords: pandas.DataFrame, must_go: typing.List[int], k: int, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, distance_matrix: numpy.ndarray) -> typing.List[typing.List[int]]
+:canonical: src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering
+
+```{autodoc2-docstring} src.policies.cluster_first_route_second.solver.fisher_jaikumar_clustering
 ```
 ````
 

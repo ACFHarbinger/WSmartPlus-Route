@@ -115,6 +115,22 @@
 
 ````
 
+````{py:method} _llh5(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh5
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh5
+```
+
+````
+
+````{py:method} _llh6(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh6
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh6
+```
+
+````
+
 ````{py:method} _build_random_solution() -> typing.List[typing.List[int]]
 :canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_random_solution
 

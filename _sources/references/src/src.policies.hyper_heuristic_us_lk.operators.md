@@ -67,6 +67,22 @@
 
 ````
 
+````{py:method} apply_unstring_shaw(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, n_remove: int) -> typing.Tuple[src.policies.hyper_heuristic_us_lk.solution.Solution, typing.List[int]]
+:canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_shaw
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_shaw
+```
+
+````
+
+````{py:method} apply_unstring_string(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, n_remove: int) -> typing.Tuple[src.policies.hyper_heuristic_us_lk.solution.Solution, typing.List[int]]
+:canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_string
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_string
+```
+
+````
+
 ````{py:method} _apply_unstring(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, n_remove: int, unstring_func) -> typing.Tuple[src.policies.hyper_heuristic_us_lk.solution.Solution, typing.List[int]]
 :canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators._apply_unstring
 
@@ -87,6 +103,14 @@
 :canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair
+```
+
+````
+
+````{py:method} _regret_2_repair(solution: src.policies.hyper_heuristic_us_lk.solution.Solution, removed: typing.List[int], expand_pool: bool = False) -> src.policies.hyper_heuristic_us_lk.solution.Solution
+:canonical: src.policies.hyper_heuristic_us_lk.operators.HULKOperators._regret_2_repair
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.operators.HULKOperators._regret_2_repair
 ```
 
 ````

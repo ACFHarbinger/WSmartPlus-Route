@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -533,6 +535,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._select_and_apply_operators()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._accept_solution()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._update_weights()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._end_segment()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.select_operator"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.select_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.calculate_cost"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.calculate_cost()</span></code></a></li>
@@ -561,7 +564,7 @@ document.write(`
 dispatching to specialized implementations based on configuration.</p>
 <p>Reference:
 Pisinger, D., &amp; Ropke, S. “An Adaptive Large Neighborhood Search
-Heuristic for the Pickup and Delivery Problem with Time Windows.”, 2004.</p>
+Heuristic for the Pickup and Delivery Problem with Time Windows.”, 2005.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -569,7 +572,8 @@ Heuristic for the Pickup and Delivery Problem with Time Windows.”, 2004.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver" title="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALNSSolver</span></code></a></p></td>
-<td><p>Custom implementation of Adaptive Large Neighborhood Search for CVRP.</p></td>
+<td><p>Custom implementation of Adaptive Large Neighborhood Search for CVRP.
+Follows Pisinger &amp; Ropke (2007) with segment-based weight updates and noise.</p></td>
 </tr>
 </tbody>
 </table>
@@ -580,81 +584,54 @@ Heuristic for the Pickup and Delivery Problem with Time Windows.”, 2004.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.adaptive_large_neighborhood_search.alns.</span></span><span class="sig-name descname"><span class="pre">ALNSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.params.html#src.policies.adaptive_large_neighborhood_search.params.ALNSParams" title="src.policies.adaptive_large_neighborhood_search.params.ALNSParams"><span class="pre">src.policies.adaptive_large_neighborhood_search.params.ALNSParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver" title="Link to this definition">#</a></dt>
-<dd><p>Custom implementation of Adaptive Large Neighborhood Search for CVRP.</p>
+<dd><p>Custom implementation of Adaptive Large Neighborhood Search for CVRP.
+Follows Pisinger &amp; Ropke (2007) with segment-based weight updates and noise.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ALNS solver.</p>
-<p>Args:
-dist_matrix: NxN distance matrix.
-wastes: Dictionary of node wastes.
-capacity: Maximum vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-params: Detailed ALNS parameters.
-mandatory_nodes: List of mandatory node indices.
-seed: Random seed for reproducibility.
-recorder: Optional telemetry recorder.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve">
 <span class="sig-name descname"><span class="pre">_initialize_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the solution and metrics for the solve process.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators">
 <span class="sig-name descname"><span class="pre">_select_and_apply_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_routes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators" title="Link to this definition">#</a></dt>
-<dd><p>Select destroy/repair operators and generate a new solution.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution">
 <span class="sig-name descname"><span class="pre">_accept_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_profit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_profit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution" title="Link to this definition">#</a></dt>
-<dd><p>Determine whether to accept the new solution based on SA criteria.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights">
 <span class="sig-name descname"><span class="pre">_update_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights" title="Link to this definition">#</a></dt>
-<dd><p>Update the weights of the used operators.</p>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment">
+<span class="sig-name descname"><span class="pre">_end_segment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve" title="Link to this definition">#</a></dt>
-<dd><p>Run the ALNS algorithm.</p>
-<p>Args:
-initial_solution: Optional starting solution. If None, a constructive heuristic is used.</p>
-<p>Returns:
-Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.select_operator">
 <span class="sig-name descname"><span class="pre">select_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.select_operator" title="Link to this definition">#</a></dt>
-<dd><p>Select an operator index based on their weights using roulette wheel selection.</p>
-<p>Args:
-weights: List of operator weights.</p>
-<p>Returns:
-int: Index of the selected operator.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.calculate_cost">
 <span class="sig-name descname"><span class="pre">calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.calculate_cost" title="Link to this definition">#</a></dt>
-<dd><p>Calculate the total routing cost for a set of routes.</p>
-<p>Args:
-routes: List of routes.</p>
-<p>Returns:
-float: Total distance * cost multiplier.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution">
 <span class="sig-name descname"><span class="pre">build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution" title="Link to this definition">#</a></dt>
-<dd><p>Build a basic feasible solution using a greedy constructive heuristic.
-For VRPP, it only includes profitable nodes.</p>
-<p>Returns:
-List[List[int]]: Initial routes.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -715,6 +692,7 @@ List[List[int]]: Initial routes.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._select_and_apply_operators()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._accept_solution()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._update_weights()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment"><code class="docutils literal notranslate"><span class="pre">ALNSSolver._end_segment()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.select_operator"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.select_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.calculate_cost"><code class="docutils literal notranslate"><span class="pre">ALNSSolver.calculate_cost()</span></code></a></li>

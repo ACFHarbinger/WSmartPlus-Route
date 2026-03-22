@@ -26,6 +26,7 @@ src.envs.base
 
 src.envs.tsp
 src.envs.cwcvrp
+src.envs.dr_alns
 src.envs.problems
 src.envs.swcvrp
 src.envs.tsp_kopt

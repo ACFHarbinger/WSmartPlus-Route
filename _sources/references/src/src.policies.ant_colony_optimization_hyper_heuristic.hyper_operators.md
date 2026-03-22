@@ -59,6 +59,14 @@
   - ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_kick
     :summary:
     ```
+* - {py:obj}`apply_shaw_removal <src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal>`
+  - ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal
+    :summary:
+    ```
+* - {py:obj}`apply_string_removal <src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal>`
+  - ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal
+    :summary:
+    ```
 ````
 
 ### Data
@@ -178,6 +186,20 @@
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_kick
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_kick
+```
+````
+
+````{py:function} apply_shaw_removal(ctx: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext, n: typing.Optional[int] = None) -> bool
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal
+```
+````
+
+````{py:function} apply_string_removal(ctx: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext, n: typing.Optional[int] = None) -> bool
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal
 ```
 ````
 

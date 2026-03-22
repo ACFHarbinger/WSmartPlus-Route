@@ -84,13 +84,24 @@
 
 ````
 
-````{py:attribute} n_removal
-:canonical: src.policies.quantum_differential_evolution.params.QDEParams.n_removal
+````{py:attribute} delta_theta
+:canonical: src.policies.quantum_differential_evolution.params.QDEParams.delta_theta
+:type: float
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.delta_theta
+```
+
+````
+
+````{py:attribute} local_search_iterations
+:canonical: src.policies.quantum_differential_evolution.params.QDEParams.local_search_iterations
 :type: int
 :value: >
-   2
+   100
 
-```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.n_removal
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.local_search_iterations
 ```
 
 ````

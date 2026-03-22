@@ -67,6 +67,14 @@
 
 ````
 
+````{py:method} _end_segment()
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment
+```
+
+````
+
 ````{py:method} solve(initial_solution: typing.Optional[typing.List[typing.List[int]]] = None) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.solve
 

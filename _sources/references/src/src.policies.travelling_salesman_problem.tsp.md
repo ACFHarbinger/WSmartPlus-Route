@@ -43,7 +43,7 @@
 
 ### API
 
-````{py:function} find_route(C, to_collect, time_limit=2.0, seed=42)
+````{py:function} find_route(C, to_collect, time_limit=2.0, seed=42, engine='fast_tsp')
 :canonical: src.policies.travelling_salesman_problem.tsp.find_route
 
 ```{autodoc2-docstring} src.policies.travelling_salesman_problem.tsp.find_route

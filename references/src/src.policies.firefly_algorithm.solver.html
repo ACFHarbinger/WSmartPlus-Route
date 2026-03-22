@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
@@ -356,6 +357,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
@@ -534,6 +536,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._swap_distance"><code class="docutils literal notranslate"><span class="pre">FASolver._swap_distance()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._edge_set"><code class="docutils literal notranslate"><span class="pre">FASolver._edge_set()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._attract"><code class="docutils literal notranslate"><span class="pre">FASolver._attract()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._partition_flat"><code class="docutils literal notranslate"><span class="pre">FASolver._partition_flat()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._best_insertion_cost"><code class="docutils literal notranslate"><span class="pre">FASolver._best_insertion_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._random_walk"><code class="docutils literal notranslate"><span class="pre">FASolver._random_walk()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._evaluate"><code class="docutils literal notranslate"><span class="pre">FASolver._evaluate()</span></code></a></li>
@@ -627,16 +630,21 @@ Integer swap distance ≥ 0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.firefly_algorithm.solver.FASolver._attract">
 <span class="sig-name descname"><span class="pre">_attract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bright_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.firefly_algorithm.solver.FASolver._attract" title="Link to this definition">#</a></dt>
-<dd><p>Move dim firefly toward bright firefly via guided node insertion.</p>
-<p>Extracts nodes that are in the bright solution but not in the dim
-solution, scores each by favourability, and inserts them greedily.</p>
+<dd><p>Move dim firefly toward bright firefly via Ai &amp; Kachitvichyanukul (2009)
+node extraction and guided insertion.</p>
 <p>Favourability score per candidate node n:
-score(n) = α_p * profit(n) + β_w * willingness(n) - γ_c * insertion_cost(n)</p>
+score(n) = alpha_p * profit(n) + beta_w * willingness(n) - gamma_c * insertion_cost(n)</p>
 <p>Args:
 dim_routes: Routes of the less bright firefly.
 bright_routes: Routes of the brighter firefly.</p>
 <p>Returns:
 Updated routes for the dim firefly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.firefly_algorithm.solver.FASolver._partition_flat">
+<span class="sig-name descname"><span class="pre">_partition_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.firefly_algorithm.solver.FASolver._partition_flat" title="Link to this definition">#</a></dt>
+<dd><p>Partition flat nodes into feasible routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -732,6 +740,7 @@ Perturbed routes.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._swap_distance"><code class="docutils literal notranslate"><span class="pre">FASolver._swap_distance()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._edge_set"><code class="docutils literal notranslate"><span class="pre">FASolver._edge_set()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._attract"><code class="docutils literal notranslate"><span class="pre">FASolver._attract()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._partition_flat"><code class="docutils literal notranslate"><span class="pre">FASolver._partition_flat()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._best_insertion_cost"><code class="docutils literal notranslate"><span class="pre">FASolver._best_insertion_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._random_walk"><code class="docutils literal notranslate"><span class="pre">FASolver._random_walk()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.firefly_algorithm.solver.FASolver._evaluate"><code class="docutils literal notranslate"><span class="pre">FASolver._evaluate()</span></code></a></li>
