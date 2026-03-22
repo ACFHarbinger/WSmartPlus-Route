@@ -84,10 +84,11 @@ def worst_profit_removal(
     C: float = 1.0,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Remove nodes with the worst profit contribution.
+    Remove nodes with the worst marginal profit contribution (VRPP).
 
-    Calculates the profit contribution of each node (revenue - marginal cost)
-    and removes those with the lowest or most negative profit.
+    Calculates Profit_i = (waste_i * R) - (detour_cost_i * C) for each node i,
+    where detour_cost_i = dist(p-1, i) + dist(i, p+1) - dist(p-1, p+1).
+    Removes nodes with the lowest profit values.
 
     Args:
         routes: Current routes.
@@ -100,44 +101,35 @@ def worst_profit_removal(
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
     """
-    # Remove nodes with worst profit (lowest profit contribution)
+    # Calculate profit for each visited node
     profits = []
     for r_idx, route in enumerate(routes):
         if len(route) == 0:
             continue
 
         for i, node in enumerate(route):
-            # Calculate profit contribution of this node
-            # Revenue from node
+            # Marginal profit: Revenue - Marginal cost
             revenue = wastes.get(node, 0.0) * R
 
-            # Marginal cost: what we save by removing this node
+            # Detour cost (marginal cost) calculation
+            # Use 0 (depot) if node is at start/end
             prev = 0 if i == 0 else route[i - 1]
             nex = 0 if i == len(route) - 1 else route[i + 1]
 
-            # Cost saved by removing node
-            cost_saved = (dist_matrix[prev][node] + dist_matrix[node][nex]) * C
-            # Cost added by direct connection
-            cost_added = dist_matrix[prev][nex] * C
-
-            # Net cost of including this node
-            marginal_cost = cost_saved - cost_added
-
-            # Profit = Revenue - Marginal Cost
-            # (Note: marginal_cost is positive when removing saves distance)
-            profit = revenue - marginal_cost
+            detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
+            profit = revenue - (detour_cost * C)
 
             profits.append((r_idx, i, node, profit))
 
-    # Lowest profit first (worst nodes), then tie-break by node ID
+    # Lowest profit first (worst nodes), break ties with node ID
     profits.sort(key=lambda x: (x[3], x[2]))
-    removed = []
 
-    # One-shot greedy: remove worst n_remove nodes
+    # Select candidates for removal
     targets = profits[:n_remove]
-    # Sort by index desc for safe removal
+    # Sort by index descending to pop safely
     targets.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
+    removed = []
     for r_idx, n_idx, node, _ in targets:
         if n_idx < len(routes[r_idx]) and routes[r_idx][n_idx] == node:
             routes[r_idx].pop(n_idx)

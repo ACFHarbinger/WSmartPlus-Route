@@ -212,7 +212,6 @@ def compute_activation_statistics(statistics: Dict[str, Dict[str, float]]) -> Di
 
     Example:
         >>> hook_data = add_activation_statistics_hook(model)
-        >>> # ... forward passes ...
         >>> final_stats = compute_activation_statistics(hook_data['statistics'])
     """
     final_stats = {}
@@ -318,7 +317,6 @@ def print_activation_summary(
     Example:
         >>> stats_hook = add_activation_statistics_hook(model)
         >>> sparsity_hook = add_activation_sparsity_hook(model)
-        >>> # ... forward passes ...
         >>> stats = compute_activation_statistics(stats_hook['statistics'])
         >>> sparsity = compute_sparsity_percentages(sparsity_hook['sparsity'])
         >>> print_activation_summary(stats, sparsity)
