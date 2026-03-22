@@ -6,7 +6,6 @@ Reference:
     TO SOLVE ORIGIN-DESTINATION INTEGER MULTICOMMODITY FLOW PROBLEMS.", 1998.
 """
 
-import ConfigSpace.api.types.categorical
 from typing import Optional
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder

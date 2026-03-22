@@ -33,7 +33,7 @@ def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> boo
     Returns:
         bool: True if the swap was applied (improving), False otherwise.
     """
-    if r_u == r_v and abs(p_u - p_v) <= 1:
+    if r_u == r_v and p_u == p_v:
         return False
 
     dem_u = ls.waste.get(u, 0)
@@ -48,17 +48,30 @@ def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> boo
     route_u = ls.routes[r_u]
     route_v = ls.routes[r_v]
 
-    prev_u = route_u[p_u - 1] if p_u > 0 else 0
-    next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
-    prev_v = route_v[p_v - 1] if p_v > 0 else 0
-    next_v = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
+    if r_u == r_v and abs(p_u - p_v) == 1:
+        # Adjacent swap case
+        if p_u > p_v:
+            p_u, p_v = p_v, p_u
+            u, v = v, u
+        # Now u is before v
+        prev_u = route_u[p_u - 1] if p_u > 0 else 0
+        next_v = route_u[p_v + 1] if p_v < len(route_u) - 1 else 0
 
-    delta = -ls.d[prev_u, u] - ls.d[u, next_u] - ls.d[prev_v, v] - ls.d[v, next_v]
-    delta += ls.d[prev_u, v] + ls.d[v, next_u] + ls.d[prev_v, u] + ls.d[u, next_v]
+        # Old cost: d[prev_u, u] + d[u, v] + d[v, next_v]
+        # New cost: d[prev_u, v] + d[v, u] + d[u, next_v]
+        delta = (ls.d[prev_u, v] + ls.d[v, u] + ls.d[u, next_v]) - (ls.d[prev_u, u] + ls.d[u, v] + ls.d[v, next_v])
+    else:
+        # Standard swap case (inter-route or non-adjacent intra-route)
+        prev_u = route_u[p_u - 1] if p_u > 0 else 0
+        next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
+        prev_v = route_v[p_v - 1] if p_v > 0 else 0
+        next_v = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
+
+        delta = -ls.d[prev_u, u] - ls.d[u, next_u] - ls.d[prev_v, v] - ls.d[v, next_v]
+        delta += ls.d[prev_u, v] + ls.d[v, next_u] + ls.d[prev_v, u] + ls.d[u, next_v]
 
     if delta * ls.C < -1e-4:
-        ls.routes[r_u][p_u] = v
-        ls.routes[r_v][p_v] = u
+        ls.routes[r_u][p_u], ls.routes[r_v][p_v] = ls.routes[r_v][p_v], ls.routes[r_u][p_u]
         ls._update_map({r_u, r_v})
         return True
     return False

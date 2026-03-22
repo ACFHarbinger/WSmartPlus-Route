@@ -158,6 +158,30 @@ def relocate_chain(ls: Any, r_src: int, pos_src: int, r_dst: int, pos_dst: int, 
     return False
 
 
+def move_or_opt(ls: Any, r_idx: int, pos: int, chain_len: int) -> bool:
+    """
+    Or-opt: relocate a chain of length chain_len to any other position in the same route.
+
+    Wrapper around relocate_chain for intra-route moves.
+
+    Args:
+        ls: LocalSearch instance.
+        r_idx: Index of the route.
+        pos: Start position of the chain.
+        chain_len: Length of the chain (1-3).
+
+    Returns:
+        bool: True if an improving move was found and applied.
+    """
+    route = ls.routes[r_idx]
+    # Evaluate moving the chain to all other valid positions within the same route
+    for target_pos in range(len(route)):
+        # relocate_chain handles the 'same position' and 'invalid position' checks
+        if relocate_chain(ls, r_src=r_idx, pos_src=pos, r_dst=r_idx, pos_dst=target_pos, chain_len=chain_len):
+            return True
+    return False
+
+
 def _chain_edge_cost(d, prev_node: int, chain: List[int], next_node: int) -> float:
     """Cost of edges: prev → chain[0] → ... → chain[-1] → next."""
     if not chain:
