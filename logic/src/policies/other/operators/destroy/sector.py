@@ -61,7 +61,7 @@ def sector_removal(
             if node < len(coords):
                 dx = float(coords[node, 0]) - depot_x
                 dy = float(coords[node, 1]) - depot_y
-                angle = math.atan2(dy, dx)  # range [-pi, pi]
+                angle = math.atan2(dy, dx)
             else:
                 angle = 0.0
             node_angles.append((angle, node, r_idx, pos))
@@ -69,23 +69,18 @@ def sector_removal(
     if not node_angles:
         return routes, []
 
-    # Sort by angle
     node_angles.sort(key=lambda x: x[0])
     n_total = len(node_angles)
     n_remove = min(n_remove, n_total)
 
-    # Pick random starting angle
     start_angle = rng.uniform(-math.pi, math.pi)
-
-    # Find the starting index (first node at or after start_angle)
     start_idx = 0
     for i, (angle, _, _, _) in enumerate(node_angles):
         if angle >= start_angle:
             start_idx = i
             break
 
-    # Sweep from start_idx, collecting n_remove nodes
-    to_remove: List[Tuple[int, int, int]] = []  # (node, r_idx, pos)
+    to_remove: List[Tuple[int, int, int]] = []
     for offset in range(n_total):
         if len(to_remove) >= n_remove:
             break
@@ -93,10 +88,8 @@ def sector_removal(
         _, node, r_idx, pos = node_angles[idx]
         to_remove.append((node, r_idx, pos))
 
-    # Sort by (route_idx, position) descending for safe removal
     to_remove.sort(key=lambda x: (x[1], x[2]), reverse=True)
-
-    removed: List[int] = []
+    removed = []
     for node, r_idx, pos in to_remove:
         if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
             routes[r_idx].pop(pos)
@@ -104,59 +97,6 @@ def sector_removal(
 
     routes = [r for r in routes if r]
     return routes, removed
-
-
-def _calculate_node_profits(
-    routes: List[List[int]],
-    dist_matrix: np.ndarray,
-    wastes: Dict[int, float],
-    R: float,
-    C: float,
-) -> Dict[int, float]:
-    """Calculate the profit (revenue - cost) for each node currently in the routes."""
-    node_profits: Dict[int, float] = {}
-    for route in routes:
-        for node in route:
-            if node not in node_profits:
-                revenue = wastes.get(node, 0.0) * R
-                cost = dist_matrix[0][node] * C
-                node_profits[node] = revenue - cost
-    return node_profits
-
-
-def _choose_starting_angle(
-    node_angles: List[Tuple[float, int, int, int, float]],
-    bias_low_profit: bool,
-    rng: Random,
-) -> float:
-    """Choose a starting angle, optionally biased toward sectors with low average profit."""
-    n_total = len(node_angles)
-    if not bias_low_profit or not node_angles:
-        # Random starting angle (standard behavior)
-        return rng.uniform(-math.pi, math.pi)
-
-    # Bias toward low-profit sectors
-    # Divide circle into sectors and find sector with lowest average profit
-    n_sectors = min(8, n_total)  # Use 8 sectors or fewer if not enough nodes
-    sector_size = n_total / n_sectors
-    sector_profits = []
-
-    for i in range(n_sectors):
-        start_idx = int(i * sector_size)
-        end_idx = int((i + 1) * sector_size)
-        sector_nodes = node_angles[start_idx:end_idx]
-        avg_profit = sum(p for _, _, _, _, p in sector_nodes) / max(len(sector_nodes), 1)
-        sector_profits.append((i, avg_profit, sector_nodes[0][0] if sector_nodes else 0.0))
-
-    # Sort sectors by profit (ascending - worst first)
-    sector_profits.sort(key=lambda x: x[1])
-
-    # Select from bottom 25% of sectors with some randomization
-    bottom_quartile = max(1, len(sector_profits) // 4)
-    low_profit_sectors = sector_profits[:bottom_quartile]
-    _, _, start_angle = rng.choice(low_profit_sectors)
-
-    return start_angle
 
 
 def sector_profit_removal(
@@ -172,11 +112,11 @@ def sector_profit_removal(
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Remove nodes within an angular sector, biased toward low-profit regions.
+    Remove nodes within an angular sector, biased toward low-profit regions (VRPP).
 
     Converts customer coordinates to polar angles centred on the depot, then
-    selects a starting angle biased toward low-profit nodes. Sweeps from that
-    angle until ``n_remove`` nodes are collected.
+    selects a starting angle biased toward sectors with low average marginal profit.
+    Sweeps from that angle until ``n_remove`` nodes are collected.
 
     Args:
         routes: Current solution (list of routes).
@@ -197,55 +137,75 @@ def sector_profit_removal(
     if rng is None:
         rng = Random(42)
 
-    # Calculate profit for all nodes
-    node_profits = _calculate_node_profits(routes, dist_matrix, wastes, R, C)
-
-    # Gather nodes and compute angles
-    node_angles: List[Tuple[float, int, int, int, float]] = []  # (angle, node, r_idx, pos, profit)
+    # 1. Pre-calculate marginal profits
+    node_angles_data: List[Tuple[float, int, int, int, float]] = []
     depot_x, depot_y = depot
 
     for r_idx, route in enumerate(routes):
         for pos, node in enumerate(route):
+            # Marginal profit
+            revenue = wastes.get(node, 0.0) * R
+            prev = 0 if pos == 0 else route[pos - 1]
+            nex = 0 if pos == len(route) - 1 else route[pos + 1]
+            detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
+            profit = revenue - (detour_cost * C)
+
+            # Angle
             if node < len(coords):
                 dx = float(coords[node, 0]) - depot_x
                 dy = float(coords[node, 1]) - depot_y
-                angle = math.atan2(dy, dx)  # range [-pi, pi]
+                angle = math.atan2(dy, dx)
             else:
                 angle = 0.0
-            profit = node_profits.get(node, 0.0)
-            node_angles.append((angle, node, r_idx, pos, profit))
 
-    if not node_angles:
+            node_angles_data.append((angle, node, r_idx, pos, profit))
+
+    if not node_angles_data:
         return routes, []
 
-    # Sort by angle
-    node_angles.sort(key=lambda x: x[0])
-    n_total = len(node_angles)
+    node_angles_data.sort(key=lambda x: x[0])
+    n_total = len(node_angles_data)
     n_remove = min(n_remove, n_total)
 
-    # Choose starting angle
-    start_angle = _choose_starting_angle(node_angles, bias_low_profit, rng)
+    # 2. Choose starting angle
+    if not bias_low_profit or n_total < 4:
+        start_angle = rng.uniform(-math.pi, math.pi)
+    else:
+        # Divide into quadrants or octants to find low-profit area
+        n_sectors = 8
+        sector_size = n_total / n_sectors
+        sector_scores = []
+        for i in range(n_sectors):
+            s_idx = int(i * sector_size)
+            e_idx = int((i + 1) * sector_size)
+            sector_nodes = node_angles_data[s_idx:e_idx]
+            if not sector_nodes:
+                continue
+            avg_p = sum(x[4] for x in sector_nodes) / len(sector_nodes)
+            sector_scores.append((avg_p, sector_nodes[0][0]))
 
-    # Find the starting index (first node at or after start_angle)
+        # Pick quadrant/octant with lowest average profit
+        sector_scores.sort(key=lambda x: x[0])
+        best_sectors = sector_scores[: max(1, n_sectors // 4)]
+        start_angle = rng.choice(best_sectors)[1]
+
+    # 3. Sweep
     start_idx = 0
-    for i, (angle, _, _, _, _) in enumerate(node_angles):
+    for i, (angle, _, _, _, _) in enumerate(node_angles_data):
         if angle >= start_angle:
             start_idx = i
             break
 
-    # Sweep from start_idx, collecting n_remove nodes
-    to_remove: List[Tuple[int, int, int]] = []  # (node, r_idx, pos)
+    to_remove: List[Tuple[int, int, int]] = []
     for offset in range(n_total):
         if len(to_remove) >= n_remove:
             break
         idx = (start_idx + offset) % n_total
-        _, node, r_idx, pos, _ = node_angles[idx]
+        _, node, r_idx, pos, _ = node_angles_data[idx]
         to_remove.append((node, r_idx, pos))
 
-    # Sort by (route_idx, position) descending for safe removal
     to_remove.sort(key=lambda x: (x[1], x[2]), reverse=True)
-
-    removed: List[int] = []
+    removed = []
     for node, r_idx, pos in to_remove:
         if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
             routes[r_idx].pop(pos)

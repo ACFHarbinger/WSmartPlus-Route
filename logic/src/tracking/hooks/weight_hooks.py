@@ -31,7 +31,6 @@ def add_weight_change_monitor_hook(
 
     Example:
         >>> hook_data = add_weight_change_monitor_hook(model)
-        >>> # ... train for some steps ...
         >>> changes = compute_weight_changes(model, hook_data)
         >>> for name, change in changes.items():
         ...     print(f"{name}: {change:.6f}")
@@ -322,7 +321,6 @@ def print_weight_summary(
 
     Example:
         >>> hook_data = add_weight_change_monitor_hook(model)
-        >>> # ... training ...
         >>> changes = compute_weight_changes(model, hook_data)
         >>> stats = add_weight_distribution_monitor(model)
         >>> print_weight_summary(changes, stats['statistics'])
@@ -363,7 +361,6 @@ def analyze_weight_updates(
 
     Example:
         >>> hook_data = add_weight_update_monitor_hook(optimizer)
-        >>> # ... training ...
         >>> analysis = analyze_weight_updates(hook_data['update_history'])
         >>> for name, metrics in analysis.items():
         ...     if metrics['is_stuck']:

@@ -101,7 +101,7 @@ def historical_profit_removal(
     noise: float = 0.1,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Remove nodes with worst combined historical score and current profit.
+    Remove nodes with worst combined historical score and current profit (VRPP).
 
     Combines historical penalty with current profit evaluation to remove
     nodes that have been problematic in the past AND have low current profit.
@@ -126,66 +126,55 @@ def historical_profit_removal(
     if rng is None:
         rng = Random(42)
 
-    # Collect all nodes with their scores
-    scored: List[Tuple[float, int, int, int]] = []  # (combined_score, node, r_idx, pos)
-
-    # Calculate profit for each node
+    # 1. Pre-calculate node profits with marginal formula
+    node_map = {}
+    all_nodes = []
     node_profits = {}
-    for _r_idx, route in enumerate(routes):
-        for _pos, node in enumerate(route):
-            revenue = wastes.get(node, 0.0) * R
-            cost = dist_matrix[0][node] * C
-            profit = revenue - cost
-            node_profits[node] = profit
-
-    if not node_profits:
-        return routes, []
-
-    # Normalize profit to [0, 1] range (lower profit = higher score)
-    min_profit = min(node_profits.values())
-    max_profit = max(node_profits.values())
-    profit_range = max_profit - min_profit if max_profit != min_profit else 1.0
-
-    # Normalize historical scores to [0, 1] range
-    hist_values = [history.get(n, 0.0) for n in node_profits.keys()]
-    min_hist = min(hist_values) if hist_values else 0.0
-    max_hist = max(hist_values) if hist_values else 1.0
-    hist_range = max_hist - min_hist if max_hist != min_hist else 1.0
-
-    # Calculate combined scores
     for r_idx, route in enumerate(routes):
         for pos, node in enumerate(route):
-            # Normalize historical score (higher is worse)
-            hist_score = (history.get(node, 0.0) - min_hist) / hist_range
+            node_map[node] = (r_idx, pos)
+            all_nodes.append(node)
 
-            # Normalize profit score (inverted: lower profit = higher score)
-            profit_score = (max_profit - node_profits[node]) / profit_range
+            revenue = wastes.get(node, 0.0) * R
+            prev = 0 if pos == 0 else route[pos - 1]
+            nex = 0 if pos == len(route) - 1 else route[pos + 1]
+            detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
+            node_profits[node] = revenue - (detour_cost * C)
 
-            # Combined score (higher = worse, should be removed)
-            combined = alpha * hist_score + (1 - alpha) * profit_score
-            scored.append((combined, node, r_idx, pos))
-
-    if not scored:
+    if not all_nodes:
         return routes, []
 
-    # Add noise
+    # 2. Normalize and Combine
+    profit_vals = list(node_profits.values())
+    min_p, max_p = min(profit_vals), max(profit_vals)
+    p_range = max_p - min_p if max_p != min_p else 1.0
+
+    hist_vals = [history.get(n, 0.0) for n in all_nodes]
+    min_h, max_h = min(hist_vals) if hist_vals else 0.0, max(hist_vals) if hist_vals else 1.0
+    h_range = max_h - min_h if max_h != min_h else 1.0
+
+    scored: List[Tuple[float, int, int, int]] = []
+    for r_idx, pos, node in [(node_map[n][0], node_map[n][1], n) for n in all_nodes]:
+        # Normalize historical score (higher is worse)
+        h_norm = (history.get(node, 0.0) - min_h) / h_range
+        # Normalize profit (inverted: lower profit = higher score)
+        p_norm = (max_p - node_profits[node]) / p_range
+
+        combined = alpha * h_norm + (1 - alpha) * p_norm
+        scored.append((combined, node, r_idx, pos))
+
+    # 3. Randomize and Select
     max_score = max(s for s, _, _, _ in scored) if scored else 1.0
     noise_amp = noise * max(max_score, 1e-6)
-    scored_noisy = [
-        (score + rng.uniform(-noise_amp, noise_amp), node, r_idx, pos) for score, node, r_idx, pos in scored
-    ]
-
-    # Sort descending by score (worst nodes first)
+    scored_noisy = [(s + rng.uniform(-noise_amp, noise_amp), n, r, p) for s, n, r, p in scored]
     scored_noisy.sort(reverse=True)
 
     n_remove = min(n_remove, len(scored_noisy))
-    to_remove = scored_noisy[:n_remove]
-
-    # Sort by (route_idx, position) descending for safe removal
-    to_remove.sort(key=lambda x: (x[2], x[3]), reverse=True)
+    targets = scored_noisy[:n_remove]
+    targets.sort(key=lambda x: (x[2], x[3]), reverse=True)
 
     removed: List[int] = []
-    for _, node, r_idx, pos in to_remove:
+    for _, node, r_idx, pos in targets:
         if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
             routes[r_idx].pop(pos)
             removed.append(node)

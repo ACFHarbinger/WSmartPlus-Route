@@ -61,35 +61,49 @@ def evolutionary_perturbation(
     if not target_routes:
         return False
 
-    # Extract the target cluster as a flat sequence
+    # 1. Extract nodes and RECORD original route sizes for decoding
     cluster_nodes: List[int] = []
+    original_sizes: List[int] = []
     for r_idx in target_routes:
         if r_idx < len(ls.routes):
-            cluster_nodes.extend(ls.routes[r_idx])
+            route = ls.routes[r_idx]
+            cluster_nodes.extend(route)
+            original_sizes.append(len(route))
 
     if len(cluster_nodes) < 3:
         return False
 
-    # Baseline cost of these routes
+    # Baseline cost must be multi-route
     baseline_cost = _cluster_cost(ls, target_routes)
 
-    # Generate population of permutations
+    # Generate population
     population: List[List[int]] = [list(cluster_nodes)]
     for _ in range(pop_size - 1):
         individual = list(cluster_nodes)
         rng.shuffle(individual)
         population.append(individual)
 
+    # 2. Helper: Decode chromosome into multi-route cost
+    def _eval_chromosome_cost(seq: List[int]) -> float:
+        total_cost = 0.0
+        pos = 0
+        for size in original_sizes:
+            sub_route = seq[pos : pos + size]
+            # Sum cost of each sub-route including depot returns
+            total_cost += _sequence_cost(ls.d, sub_route)
+            pos += size
+        return total_cost
+
     # Evolve
     for _ in range(n_generations):
-        # Evaluate fitness
-        fitnesses = [_sequence_cost(ls.d, seq) for seq in population]
+        # Evaluate fitness using the multi-route decoder
+        fitnesses = [_eval_chromosome_cost(seq) for seq in population]
 
         # Select top half
         ranked = sorted(range(len(population)), key=lambda i: fitnesses[i])
         survivors = [population[i] for i in ranked[: max(2, pop_size // 2)]]
 
-        # Create offspring via order crossover + mutation
+        # Create offspring
         population = list(survivors)
         while len(population) < pop_size:
             p1 = rng.choice(survivors)
@@ -98,14 +112,14 @@ def evolutionary_perturbation(
             _mutate_swap(child, rng, prob=0.3)
             population.append(child)
 
-    # Find best individual
-    fitnesses = [_sequence_cost(ls.d, seq) for seq in population]
+    # 3. Final evaluation
+    fitnesses = [_eval_chromosome_cost(seq) for seq in population]
     best_idx = min(range(len(population)), key=lambda i: fitnesses[i])
     best_seq = population[best_idx]
     best_cost = fitnesses[best_idx]
 
+    # Apples-to-apples comparison of multi-route costs
     if best_cost < baseline_cost - 1e-4:
-        # Partition best sequence back into routes respecting original sizes
         _apply_cluster(ls, target_routes, best_seq)
         return True
 
@@ -147,16 +161,18 @@ def evolutionary_perturbation_profit(
     if not target_routes:
         return False
 
-    # Extract the target cluster as a flat sequence
+    # 1. Extract the target cluster and record original route sizes!
     cluster_nodes: List[int] = []
+    original_sizes: List[int] = []
     for r_idx in target_routes:
         if r_idx < len(ls.routes):
-            cluster_nodes.extend(ls.routes[r_idx])
+            route = ls.routes[r_idx]
+            cluster_nodes.extend(route)
+            original_sizes.append(len(route))
 
     if len(cluster_nodes) < 3:
         return False
 
-    # Baseline profit of these routes
     baseline_profit = _cluster_profit(ls, target_routes)
 
     # Generate population of permutations
@@ -166,16 +182,26 @@ def evolutionary_perturbation_profit(
         rng.shuffle(individual)
         population.append(individual)
 
+    # 2. Helper function to decode and evaluate chromosome correctly
+    def _eval_chromosome(seq: List[int]) -> float:
+        total_profit = 0.0
+        pos = 0
+        for size in original_sizes:
+            sub_route = seq[pos : pos + size]
+            total_profit += _sequence_profit(ls, sub_route)
+            pos += size
+        return total_profit
+
     # Evolve
     for _ in range(n_generations):
-        # Evaluate fitness (negative profit because GA rank-sorts ascending for cost)
-        fitnesses = [-_sequence_profit(ls, seq) for seq in population]
+        # Evaluate fitness (negative profit for rank-sorting)
+        fitnesses = [-_eval_chromosome(seq) for seq in population]
 
         # Select top half
         ranked = sorted(range(len(population)), key=lambda i: fitnesses[i])
         survivors = [population[i] for i in ranked[: max(2, pop_size // 2)]]
 
-        # Create offspring via order crossover + mutation
+        # Create offspring
         population = list(survivors)
         while len(population) < pop_size:
             p1 = rng.choice(survivors)
@@ -184,14 +210,14 @@ def evolutionary_perturbation_profit(
             _mutate_swap(child, rng, prob=0.3)
             population.append(child)
 
-    # Find best individual
-    fitnesses = [-_sequence_profit(ls, seq) for seq in population]
+    # 3. Find best individual using the correct evaluator
+    fitnesses = [-_eval_chromosome(seq) for seq in population]
     best_idx = min(range(len(population)), key=lambda i: fitnesses[i])
     best_seq = population[best_idx]
     best_profit = -fitnesses[best_idx]
 
+    # Now this is an apples-to-apples comparison
     if best_profit > baseline_profit + 1e-4:
-        # Partition best sequence back into routes respecting original sizes
         _apply_cluster(ls, target_routes, best_seq)
         return True
 

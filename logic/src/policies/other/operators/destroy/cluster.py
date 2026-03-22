@@ -22,8 +22,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from .random import random_removal
-
 
 def cluster_removal(
     routes: List[List[int]],
@@ -45,7 +43,6 @@ def cluster_removal(
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
     """
-    # Pick a random node, remove it and its k nearest neighbors
     if not any(routes):
         return routes, []
 
@@ -53,21 +50,19 @@ def cluster_removal(
         rng = Random(42)
 
     # Pick seed
-    seed_route_idx = rng.randint(0, len(routes) - 1)
-    if not routes[seed_route_idx]:
-        return random_removal(routes, n_remove, rng=rng)
-
-    seed_node = rng.choice(routes[seed_route_idx])
+    all_visited = [n for r in routes for n in r]
+    if not all_visited:
+        return routes, []
+    seed_node = rng.choice(all_visited)
 
     removed = [seed_node]
 
-    # Get all nodes current pos
     node_map = {}
     for r_idx, r in enumerate(routes):
         for n_idx, node in enumerate(r):
             node_map[node] = (r_idx, n_idx)
 
-    # Find neighbors
+    # Find geographic neighbors
     candidates = []
     for v in nodes:
         if v == seed_node or v not in node_map:
@@ -75,13 +70,10 @@ def cluster_removal(
         dist = dist_matrix[seed_node][v]
         candidates.append((v, dist))
 
-    # Sort by distance, then node ID for deterministic tie-breaking
     candidates.sort(key=lambda x: (x[1], x[0]))
-
     target_nodes = [x[0] for x in candidates[: n_remove - 1]]
     removed.extend(target_nodes)
 
-    # Now remove them from routes
     to_remove_locs = []
     for node in removed:
         if node in node_map:
@@ -108,10 +100,10 @@ def cluster_profit_removal(
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Remove a cluster of nodes based on low profit potential.
+    Remove a cluster of nodes based on low profit potential (VRPP).
 
-    Selects a seed node with low profit, then removes nodes with similar
-    (low) profit values. This targets unprofitable clusters for removal.
+    Selects a seed node with low profit (bottom 25%), then removes nodes with
+    similar low profit values, effectively targeting unprofitable regions.
 
     Args:
         routes (List[List[int]]): Current routes.
@@ -125,63 +117,50 @@ def cluster_profit_removal(
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
     """
-    # Pick a node with low profit, remove it and similar low-profit neighbors
     if not any(routes):
         return routes, []
 
     if rng is None:
         rng = Random(42)
 
-    # Get all nodes currently in routes
+    # 1. Pre-calculate marginal profits
+    all_nodes_data = []
     node_map = {}
-    for r_idx, r in enumerate(routes):
-        for n_idx, node in enumerate(r):
-            node_map[node] = (r_idx, n_idx)
+    for r_idx, route in enumerate(routes):
+        for pos, node in enumerate(route):
+            revenue = wastes.get(node, 0.0) * R
+            prev = 0 if pos == 0 else route[pos - 1]
+            nex = 0 if pos == len(route) - 1 else route[pos + 1]
+            detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
+            profit = revenue - (detour_cost * C)
 
-    if not node_map:
+            all_nodes_data.append((node, profit))
+            node_map[node] = (r_idx, pos)
+
+    if not all_nodes_data:
         return routes, []
 
-    # Calculate profit for each node in routes
-    # Profit = Revenue - Cost (to reach from depot)
-    node_profits = []
-    for node in node_map.keys():
-        revenue = wastes.get(node, 0.0) * R
-        cost = dist_matrix[0][node] * C  # Distance from depot
-        profit = revenue - cost
-        node_profits.append((node, profit))
+    # 2. Sort by profit and pick seed from bottom 25%
+    all_nodes_data.sort(key=lambda x: (x[1], x[0]))
+    bottom_quartile_size = max(1, len(all_nodes_data) // 4)
+    seed_node, seed_profit = all_nodes_data[rng.randint(0, bottom_quartile_size - 1)]
 
-    # Sort by profit (ascending - lowest profit first)
-    node_profits.sort(key=lambda x: (x[1], x[0]))
-
-    # Pick seed from bottom 25% (low-profit nodes)
-    bottom_quartile_size = max(1, len(node_profits) // 4)
-    seed_idx = rng.randint(0, bottom_quartile_size - 1)
-    seed_node, seed_profit = node_profits[seed_idx]
-
-    removed = [seed_node]
-
-    # Find nodes with similar low profit
+    # 3. Find nodes with similar profit
     candidates = []
-    for node, profit in node_profits:
-        if node == seed_node or node not in node_map:
+    for node, profit in all_nodes_data:
+        if node == seed_node:
             continue
-        # Measure similarity by profit difference
-        profit_diff = abs(profit - seed_profit)
-        candidates.append((node, profit_diff))
+        candidates.append((node, abs(profit - seed_profit)))
 
-    # Sort by profit similarity (smaller difference = more similar)
     candidates.sort(key=lambda x: (x[1], x[0]))
-
-    # Select n_remove-1 most similar low-profit nodes
     target_nodes = [x[0] for x in candidates[: n_remove - 1]]
-    removed.extend(target_nodes)
+    removed = [seed_node] + target_nodes
 
-    # Remove from routes
+    # 4. Remove
     to_remove_locs = []
     for node in removed:
         if node in node_map:
             to_remove_locs.append((*node_map[node], node))
-
     to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
     final_removed = []
