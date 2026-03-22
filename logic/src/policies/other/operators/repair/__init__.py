@@ -26,6 +26,7 @@ from .farthest import farthest_insertion, farthest_profit_insertion
 from .geni import geni_insertion, geni_profit_insertion
 from .greedy import greedy_insertion, greedy_profit_insertion
 from .greedy_blink import greedy_insertion_with_blinks, greedy_profit_insertion_with_blinks
+from .nearest import nearest_insertion, nearest_profit_insertion
 from .regret import regret_2_insertion, regret_2_profit_insertion, regret_k_insertion, regret_k_profit_insertion
 from .savings import savings_insertion, savings_profit_insertion
 
@@ -42,6 +43,8 @@ __all__ = [
     "regret_k_profit_insertion",
     "greedy_insertion_with_blinks",
     "greedy_profit_insertion_with_blinks",
+    "nearest_insertion",
+    "nearest_profit_insertion",
     "savings_insertion",
     "savings_profit_insertion",
     "deep_insertion",

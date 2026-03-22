@@ -2,7 +2,8 @@ import unittest
 import numpy as np
 import torch
 from logic.src.policies.other.operators.intra_route.swap import move_swap
-from logic.src.policies.other.operators.repair.geni import geni_insertion
+from logic.src.policies.other.operators.repair.geni import geni_insertion, geni_profit_insertion
+from logic.src.policies.other.operators.repair.nearest import nearest_insertion, nearest_profit_insertion
 
 class MockLS:
     def __init__(self, dist_matrix, routes, waste=None, capacity=100.0, C=1.0):
@@ -68,7 +69,7 @@ class TestRefactoredOperators(unittest.TestCase):
         removed = [5]
         wastes = {i: 1 for i in range(7)}
 
-        new_routes = geni_insertion(routes, removed, dist, wastes, 100.0, 10.0, 1.0)
+        new_routes = geni_insertion(routes, removed, dist, wastes, 100.0)
         # Check if 5 is in the route
         self.assertIn(5, new_routes[0])
         # Expected sequence: [1, 5, 3, 2, 4]
@@ -92,10 +93,53 @@ class TestRefactoredOperators(unittest.TestCase):
         wastes = {i: 1 for i in range(7)}
 
         # Since I set same cheap edges as Type I test, it might pick either depending on loop order.
-        # But let's verify it actually performs a valid reconstruction.
-        new_routes = geni_insertion(routes, removed, dist, wastes, 100.0, 10.0, 1.0)
+        new_routes = geni_insertion(routes, removed, dist, wastes, 100.0)
         self.assertIn(5, new_routes[0])
         self.assertEqual(len(new_routes[0]), 5)
+
+    def test_nearest_insertion(self):
+        # Route: 0 - 1 - 2 - 0 (dist 10 each)
+        # Node 3 is very close to 1
+        dist = np.full((4, 4), 10.0)
+        np.fill_diagonal(dist, 0)
+        dist[1, 3] = 1.0  # Node 3 is nearest to Node 1
+
+        routes = [[1, 2]]
+        removed = [3]
+        wastes = {i: 1 for i in range(4)}
+
+        new_routes = nearest_insertion(routes, removed, dist, wastes, 100.0)
+        self.assertIn(3, new_routes[0])
+        # Position should be next to 1: [1, 3, 2] or [3, 1, 2]
+        self.assertTrue(new_routes[0] == [1, 3, 2] or new_routes[0] == [3, 1, 2])
+
+    def test_nearest_profit_insertion(self):
+        # Node 3 is nearest but unprofitable
+        # Node 4 is farther but profitable
+        # Use explicit distances to avoid cost_increase being negative due to zeros.
+        dist = np.full((5, 5), 10.0)
+        np.fill_diagonal(dist, 0)
+
+        dist[0, 1] = dist[1, 0] = 5.0
+        dist[1, 2] = dist[2, 1] = 5.0
+        dist[2, 0] = dist[0, 2] = 5.0
+
+        dist[1, 3] = dist[3, 1] = 6.0   # Cost delta: dist(1,3)+dist(3,2)-dist(1,2) = 6+10-5 = 11.0
+        dist[1, 4] = dist[4, 1] = 5.5   # Cost delta: dist(1,4)+dist(4,2)-dist(1,2) = 5.5+10-5 = 10.5
+
+        # Wastes (revenue = waste * R, R=1.0)
+        # Node 3: waste=1.0 -> revenue=1.0. Cost delta 11.0. Profit = -10 (Unprofitable)
+        # Node 4: waste=20.0 -> revenue=20.0. Cost delta 10.5. Profit = +9.5 (Profitable)
+        wastes = {1: 1.0, 2: 1.0, 3: 1.0, 4: 20.0}
+
+        routes = [[1, 2]]
+        removed = [3, 4]
+
+        # Set C=1.0, R=1.0
+        new_routes = nearest_profit_insertion(routes, removed, dist, wastes, 100.0, R=1.0, C=1.0)
+
+        self.assertIn(4, new_routes[0])
+        self.assertNotIn(3, new_routes[0])
 
 if __name__ == "__main__":
     unittest.main()

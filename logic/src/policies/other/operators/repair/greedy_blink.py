@@ -245,7 +245,6 @@ def greedy_profit_insertion_with_blinks(
 
         # Allow up to 50% of the return-trip cost to be covered by synergy later.
         seed_hurdle = -0.5 * (new_cost * C)
-
         if is_mandatory or new_profit >= seed_hurdle:
             candidates.append((new_profit, len(routes), 0))
 
