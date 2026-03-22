@@ -57,7 +57,7 @@ class ALNSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
 
         if recorder is not None:
             self._viz_record = recorder.record

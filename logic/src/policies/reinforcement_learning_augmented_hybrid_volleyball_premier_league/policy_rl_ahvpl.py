@@ -252,6 +252,8 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             alns_params=alns_params,
             rts_params=rts_params,
             rl_config=rl_config,
+            vrpp=values.get("vrpp", False),
+            profit_aware_operators=values.get("profit_aware_operators", False),
             tabu_no_repeat_threshold=values.get("tabu_no_repeat_threshold", 2),
             gls_penalty_lambda=values.get("gls_penalty_lambda", 1.0),
             gls_penalty_alpha=values.get("gls_penalty_alpha", 0.5),

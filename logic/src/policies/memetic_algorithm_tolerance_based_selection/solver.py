@@ -80,7 +80,7 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.mandatory_set = set(self.mandatory_nodes)
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
 
         # Pre-instantiate Local Search for reuse
         aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)

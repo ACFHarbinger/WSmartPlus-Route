@@ -66,7 +66,7 @@ class GIHHSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
-        self.rng = random.Random(seed) if seed is not None else random.Random()
+        self.rng = random.Random(seed) if seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
 

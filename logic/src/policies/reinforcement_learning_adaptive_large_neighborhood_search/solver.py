@@ -93,7 +93,7 @@ class RLALNSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
         self.np_random = np.random.default_rng(seed)
 
         self.n_nodes = len(dist_matrix) - 1
@@ -228,6 +228,7 @@ class RLALNSSolver:
                 epsilon=self.params.epsilon,
                 epsilon_decay=self.params.epsilon_decay,
                 epsilon_min=self.params.epsilon_min,
+                seed=seed,
             )
 
         elif algo == "sarsa":
@@ -240,6 +241,7 @@ class RLALNSSolver:
                 epsilon=self.params.epsilon,
                 epsilon_decay=self.params.epsilon_decay,
                 epsilon_min=self.params.epsilon_min,
+                seed=seed,
             )
 
         elif algo == "expected_sarsa":
@@ -252,6 +254,7 @@ class RLALNSSolver:
                 epsilon=self.params.epsilon,
                 epsilon_decay=self.params.epsilon_decay,
                 epsilon_min=self.params.epsilon_min,
+                seed=seed,
             )
 
         else:

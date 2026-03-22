@@ -68,12 +68,22 @@ class HULKSolver:
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
         self.evaluator = evaluator
-        self.rng = random.Random(seed) if seed is not None else random.Random()
+        self.rng = random.Random(seed) if seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
 
         # Initialize operators
-        self.ops = HULKOperators(dist_matrix, wastes, capacity, R, C, mandatory_nodes, seed)
+        self.ops = HULKOperators(
+            dist_matrix,
+            wastes,
+            capacity,
+            R,
+            C,
+            mandatory_nodes,
+            seed,
+            expand_pool=getattr(self.params, "vrpp", False),
+            profit_aware_operators=getattr(self.params, "profit_aware_operators", False),
+        )
 
         # Initialize adaptive selectors for different operator types
         self.unstring_selector = AdaptiveOperatorSelector(

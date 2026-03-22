@@ -84,7 +84,7 @@ def execute_new(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
             current_route.insert(1, b)
 
     # Get SA parameters from typed config or raw config
-    rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random()
+    rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random(42)
     sans_config = config.get("sans", {})
     T_init = sans_config.get("T_init", 75)
     iterations_per_T = sans_config.get("iterations_per_T", 5000)
@@ -193,7 +193,7 @@ def execute_og(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
     )
     og_time_limit = cfg.time_limit if cfg is not None else lac_config.get("time_limit", DEFAULT_TIME_LIMIT)
 
-    rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random()
+    rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random(42)
     np_rng = np.random.default_rng(kwargs.get("seed")) if kwargs.get("seed") is not None else np.random.default_rng(42)
     try:
         res, _, _ = find_solutions(

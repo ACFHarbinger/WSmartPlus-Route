@@ -48,7 +48,7 @@ class SCASolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
         self.np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
 
     # ------------------------------------------------------------------

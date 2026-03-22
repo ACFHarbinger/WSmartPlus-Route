@@ -19,6 +19,7 @@ class HULKConfig:
     time_limit: float = 300.0
     restarts: int = 3
     restart_threshold: int = 100
+    profit_aware_operators: bool = False
 
     # Operator selection
     epsilon: float = 0.3

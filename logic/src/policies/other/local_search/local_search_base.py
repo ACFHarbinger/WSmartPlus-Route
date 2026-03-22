@@ -78,7 +78,7 @@ class LocalSearch(ABC):
         self.R = R
         self.C = C
         self.params = params
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
 
         if neighbors is not None:
             self.neighbors = neighbors

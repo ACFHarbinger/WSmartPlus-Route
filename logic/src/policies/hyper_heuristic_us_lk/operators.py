@@ -13,12 +13,17 @@ from ..other.operators import (
     greedy_insertion as greedy_insertion_op,
 )
 from ..other.operators import (
+    greedy_profit_insertion,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    shaw_profit_removal,
     shaw_removal,
     string_removal,
 )
 from ..other.operators.unstringing_stringing import (
     stringing_insertion,
+    stringing_profit_insertion,
+    unstringing_profit_removal,
     unstringing_removal,
 )
 from .solution import Solution
@@ -36,6 +41,8 @@ class HULKOperators:
         C: float,
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
+        expand_pool: bool = False,
+        profit_aware_operators: bool = False,
     ):
         """
         Initialize operators.
@@ -48,6 +55,8 @@ class HULKOperators:
             C: Cost multiplier.
             mandatory_nodes: Must-visit nodes.
             seed: Random seed.
+            expand_pool: Includes globally unassigned pool for VRPP support.
+            profit_aware_operators: Use profit-aware versions of operators.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -55,7 +64,9 @@ class HULKOperators:
         self.R = R
         self.C = C
         self.mandatory_nodes = mandatory_nodes or []
-        self.rng = random.Random(seed) if seed is not None else random.Random()
+        self.expand_pool = expand_pool
+        self.profit_aware_operators = profit_aware_operators
+        self.rng = random.Random(seed) if seed is not None else random.Random(42)
 
     def apply_unstring_type_i(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
         return self._apply_unstring_wrapper(solution, n_remove, 1)
@@ -71,31 +82,31 @@ class HULKOperators:
 
     def apply_unstring_shaw(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
         routes = [list(r) for r in solution.routes]
-        partial, removed = shaw_removal(routes, n_remove, self.dist_matrix)
-        return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
+        if getattr(self, "profit_aware_operators", False):
+            partial, removed = shaw_profit_removal(routes, n_remove, self.dist_matrix, self.wastes, self.R, self.C)
+        else:
+            partial, removed = shaw_removal(routes, n_remove, self.dist_matrix)
+        return Solution(partial, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
 
     def apply_unstring_string(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
         routes = [list(r) for r in solution.routes]
         partial, removed = string_removal(routes, n_remove, self.dist_matrix, rng=self.rng)
-        return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
+        return Solution(partial, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
 
     def _apply_unstring_wrapper(
         self, solution: Solution, n_remove: int, unstring_type: int
     ) -> Tuple[Solution, List[int]]:
         routes = [list(r) for r in solution.routes]
-        new_routes, removed = unstringing_removal(
-            routes,
-            n_remove,
-            unstring_type,
-            self.dist_matrix,
-            rng=self.rng,
-        )
+        if getattr(self, "profit_aware_operators", False):
+            new_routes, removed = unstringing_profit_removal(
+                routes, n_remove, unstring_type, self.dist_matrix, self.wastes, self.R, self.C, rng=self.rng
+            )
+        else:
+            new_routes, removed = unstringing_removal(routes, n_remove, unstring_type, self.dist_matrix, rng=self.rng)
 
         return Solution(new_routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
 
-    def apply_string_repair(
-        self, solution: Solution, removed: List[int], string_type: str, expand_pool: bool = False
-    ) -> Solution:
+    def apply_string_repair(self, solution: Solution, removed: List[int], string_type: str) -> Solution:
         """
         Apply stringing operator to reinsert removed nodes.
 
@@ -103,7 +114,6 @@ class HULKOperators:
             solution: Current solution.
             removed: Nodes to reinsert.
             string_type: Type of stringing ("type_i", "type_ii", "type_iii", "type_iv").
-            expand_pool: Includes globally unassigned pool for VRPP support.
 
         Returns:
             Repaired solution.
@@ -111,48 +121,89 @@ class HULKOperators:
         string_map = {"type_i": 1, "type_ii": 2, "type_iii": 3, "type_iv": 4}
         if string_type not in string_map:
             if string_type == "regret_2":
-                return self._regret_2_repair(solution, removed, expand_pool)
-            return self._greedy_repair(solution, removed, expand_pool)
+                return self._regret_2_repair(solution, removed)
+            return self._greedy_repair(solution, removed)
         op_type = string_map[string_type]
-        routes = stringing_insertion(
-            [list(r) for r in solution.routes],
-            removed,
-            op_type,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            self.mandatory_nodes,
-            self.rng,
-            expand_pool,
-        )
+        if getattr(self, "profit_aware_operators", False):
+            routes = stringing_profit_insertion(
+                [list(r) for r in solution.routes],
+                removed,
+                op_type,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.rng,
+                self.expand_pool,
+            )
+        else:
+            routes = stringing_insertion(
+                [list(r) for r in solution.routes],
+                removed,
+                op_type,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.mandatory_nodes,
+                self.rng,
+                self.expand_pool,
+            )
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
-    def _greedy_repair(self, solution: Solution, removed: List[int], expand_pool: bool = False) -> Solution:
-        routes = greedy_insertion_op(
-            [list(r) for r in solution.routes],
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            self.R,
-            self.mandatory_nodes,
-            cost_unit=self.C,
-            expand_pool=expand_pool,
-        )
+    def _greedy_repair(self, solution: Solution, removed: List[int]) -> Solution:
+        if getattr(self, "profit_aware_operators", False):
+            routes = greedy_profit_insertion(
+                [list(r) for r in solution.routes],
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                expand_pool=self.expand_pool,
+            )
+        else:
+            routes = greedy_insertion_op(
+                [list(r) for r in solution.routes],
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.mandatory_nodes,
+                cost_unit=self.C,
+                expand_pool=self.expand_pool,
+            )
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
-    def _regret_2_repair(self, solution: Solution, removed: List[int], expand_pool: bool = False) -> Solution:
-        routes = regret_2_insertion(
-            [list(r) for r in solution.routes],
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            self.R,
-            self.mandatory_nodes,
-            cost_unit=self.C,
-            expand_pool=expand_pool,
-        )
+    def _regret_2_repair(self, solution: Solution, removed: List[int]) -> Solution:
+        if getattr(self, "profit_aware_operators", False):
+            routes = regret_2_profit_insertion(
+                [list(r) for r in solution.routes],
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                expand_pool=self.expand_pool,
+            )
+        else:
+            routes = regret_2_insertion(
+                [list(r) for r in solution.routes],
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.mandatory_nodes,
+                cost_unit=self.C,
+                expand_pool=self.expand_pool,
+            )
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
     def _simple_2_opt(self, route: List[int]) -> Tuple[List[int], bool]:
@@ -224,7 +275,7 @@ class HULKOperators:
 
                 # Standard 3-opt moves
                 best_r = route
-                best_d = self._dist(route)
+                best_d = self._calc_route_distance(route)
 
                 s1, s2, s3, s4 = route[: i + 1], route[i + 1 : j + 1], route[j + 1 : k + 1], route[k + 1 :]
 
@@ -237,7 +288,7 @@ class HULKOperators:
                 ]
 
                 for opt in options:
-                    d = self._dist(opt)
+                    d = self._calc_route_distance(opt)
                     if d < best_d - 1e-6:
                         best_d = d
                         best_r = opt
