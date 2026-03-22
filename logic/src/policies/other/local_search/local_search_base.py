@@ -33,13 +33,12 @@ from ..operators.inter_route.exchange_chain import exchange_2_0, exchange_2_1
 from ..operators.intra_route import (
     move_2opt_intra,
     move_3opt_intra,
+    move_or_opt,
     move_relocate,
     move_swap,
+    relocate_chain,
 )
-from ..operators.intra_route.geni import geni_insert
 from ..operators.intra_route.k_permutation import three_permutation
-from ..operators.intra_route.or_opt import move_or_opt
-from ..operators.intra_route.relocate import relocate_chain
 
 
 class LocalSearch(ABC):
@@ -196,11 +195,9 @@ class LocalSearch(ABC):
                     return True
                 if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
                     return True
-                if self._move_or_opt(u, self.random.choice([1, 2, 3]), r_u, p_u):
+                if self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
                     return True
                 if getattr(self.params, "use_three_permutation", False) and self._move_three_permutation(u, r_u, p_u):
-                    return True
-                if getattr(self.params, "use_geni_exchange", False) and self._try_geni_exchange(u, r_u, p_u):
                     return True
 
         return False
@@ -232,8 +229,8 @@ class LocalSearch(ABC):
     def _move_2opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return move_2opt_intra(self, u, v, r_u, p_u, r_v, p_v)
 
-    def _move_or_opt(self, u: int, chain_len: int, r_u: int, p_u: int) -> bool:
-        return move_or_opt(self, u, chain_len, r_u, p_u)
+    def _move_or_opt(self, r_idx: int, pos: int, chain_len: int) -> bool:
+        return move_or_opt(self, r_idx, pos, chain_len)
 
     def _try_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return cross_exchange(self, r_u, p_u, 1, r_v, p_v, 1)
@@ -269,16 +266,3 @@ class LocalSearch(ABC):
 
     def _move_three_permutation(self, u: int, r_u: int, p_u: int) -> bool:
         return three_permutation(self, r_u, p_u)
-
-    def _try_geni_exchange(self, u: int, r_u: int, p_u: int) -> bool:
-        if len(self.routes[r_u]) < 4:
-            return False
-        self.routes[r_u].pop(p_u)
-        self._update_map({r_u})
-
-        if geni_insert(self, u, r_u):
-            return True
-
-        self.routes[r_u].insert(p_u, u)
-        self._update_map({r_u})
-        return False

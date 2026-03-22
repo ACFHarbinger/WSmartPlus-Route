@@ -43,7 +43,6 @@ from logic.src.policies.other.operators.inter_route import (
     move_swap_star,
 )
 from logic.src.policies.other.operators.intra_route import (
-    geni_insert,
     move_2opt_intra,
     move_3opt_intra,
     move_kopt_intra,
@@ -168,8 +167,7 @@ class LocalSearchManager:
                 if pos + chain_len > len(route):
                     continue
 
-                node = route[pos]
-                if move_or_opt(self, node, chain_len, r_idx, pos):
+                if move_or_opt(self, r_idx, pos, chain_len):
                     return True
 
         return False
@@ -388,27 +386,6 @@ class LocalSearchManager:
             for p_u in range(len(route) - 3 + 1):
                 if three_permutation(self, r_u, p_u):
                     return True
-        return False
-
-    def geni_exchange_op(self) -> bool:
-        """GENI exchange intra-route: remove a node and reinsert optimally."""
-        for r_u in range(len(self.routes)):
-            route = self.routes[r_u].copy()
-            if len(route) < 4:
-                continue
-
-            for p_u, node in enumerate(route):
-                # Temporarily remove
-                self.routes[r_u].pop(p_u)
-                self._update_map({r_u})
-
-                # Check if reinserting via GENI yields a better configuration anywhere in the tour
-                if geni_insert(self, node, r_u):
-                    return True
-
-                # Revert if no GENI move was made
-                self.routes[r_u].insert(p_u, node)
-                self._update_map({r_u})
         return False
 
     def three_opt_star(self) -> bool:

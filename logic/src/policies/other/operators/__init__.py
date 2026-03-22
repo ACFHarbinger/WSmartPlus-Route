@@ -69,7 +69,6 @@ from .inter_route import (
 
 # Intra-route operators
 from .intra_route import (
-    geni_insert,
     k_permutation,
     move_2opt_intra,
     move_3opt_intra,
@@ -98,6 +97,7 @@ from .repair import (
     deep_insertion,
     deep_profit_insertion,
     farthest_insertion,
+    geni_insertion,
     greedy_insertion,
     greedy_insertion_with_blinks,
     greedy_profit_insertion,
@@ -173,6 +173,7 @@ __all__ = [
     "deep_insertion",
     "deep_profit_insertion",
     "farthest_insertion",
+    "geni_insertion",
     # Intra-route
     "move_relocate",
     "move_swap",
@@ -180,7 +181,6 @@ __all__ = [
     "move_3opt_intra",
     "move_kopt_intra",
     "move_or_opt",
-    "geni_insert",
     "k_permutation",
     "relocate_chain",
     "three_permutation",
