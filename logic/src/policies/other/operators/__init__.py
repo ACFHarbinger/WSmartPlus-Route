@@ -98,6 +98,7 @@ from .repair import (
     deep_profit_insertion,
     farthest_insertion,
     geni_insertion,
+    geni_profit_insertion,
     greedy_insertion,
     greedy_insertion_with_blinks,
     greedy_profit_insertion,
@@ -174,6 +175,7 @@ __all__ = [
     "deep_profit_insertion",
     "farthest_insertion",
     "geni_insertion",
+    "geni_profit_insertion",
     # Intra-route
     "move_relocate",
     "move_swap",
