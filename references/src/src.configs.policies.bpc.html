@@ -533,6 +533,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig"><code class="docutils literal notranslate"><span class="pre">BPCConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">BPCConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.engine"><code class="docutils literal notranslate"><span class="pre">BPCConfig.engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BPCConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">BPCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.seed"><code class="docutils literal notranslate"><span class="pre">BPCConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.must_go"><code class="docutils literal notranslate"><span class="pre">BPCConfig.must_go</span></code></a></li>
@@ -579,6 +580,9 @@ document.write(`
 <p>Attributes:
 time_limit: Maximum time in seconds for the solver.
 engine: Solver engine to use (‘ortools’, ‘gurobi’).
+profit_aware_operators: Whether to use profit-aware operators.
+vrpp: Whether to use VRPP.
+seed: Random seed for reproducibility.
 must_go: List of must-go strategy config files.
 post_processing: List of post-processing operations to apply.</p>
 <dl class="py attribute">
@@ -591,6 +595,12 @@ post_processing: List of post-processing operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.engine">
 <span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.engine" title="Link to this definition">#</a></dt>
 <dd><p>‘ortools’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -674,6 +684,7 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig"><code class="docutils literal notranslate"><span class="pre">BPCConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">BPCConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.engine"><code class="docutils literal notranslate"><span class="pre">BPCConfig.engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BPCConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">BPCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.seed"><code class="docutils literal notranslate"><span class="pre">BPCConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.must_go"><code class="docutils literal notranslate"><span class="pre">BPCConfig.must_go</span></code></a></li>

@@ -536,6 +536,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.use_heuristics"><code class="docutils literal notranslate"><span class="pre">BCConfig.use_heuristics</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.use_exact_separation"><code class="docutils literal notranslate"><span class="pre">BCConfig.use_exact_separation</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.max_cuts_per_round"><code class="docutils literal notranslate"><span class="pre">BCConfig.max_cuts_per_round</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BCConfig.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">BCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.must_go"><code class="docutils literal notranslate"><span class="pre">BCConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">BCConfig.post_processing</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.seed"><code class="docutils literal notranslate"><span class="pre">BCConfig.seed</span></code></a></li>
@@ -602,6 +604,8 @@ mip_gap: Relative MIP optimality gap (0.0 = prove optimality).
 use_heuristics: Whether to use primal heuristics for warm start.
 use_exact_separation: Use exact max-flow for SEC (slower but stronger).
 max_cuts_per_round: Maximum cuts to add per separation round.
+profit_aware_operators: Whether to use profit-aware operators.
+vrpp: Whether to use VRPP expand pool.
 must_go: List of must-go strategy config files.
 post_processing: List of post-processing operations to apply.
 seed: Random seed for reproducibility.</p>
@@ -633,6 +637,18 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.bc.BCConfig.max_cuts_per_round">
 <span class="sig-name descname"><span class="pre">max_cuts_per_round</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bc.BCConfig.max_cuts_per_round" title="Link to this definition">#</a></dt>
 <dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bc.BCConfig.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bc.BCConfig.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bc.BCConfig.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bc.BCConfig.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -713,6 +729,8 @@ seed: Random seed for reproducibility.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.use_heuristics"><code class="docutils literal notranslate"><span class="pre">BCConfig.use_heuristics</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.use_exact_separation"><code class="docutils literal notranslate"><span class="pre">BCConfig.use_exact_separation</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.max_cuts_per_round"><code class="docutils literal notranslate"><span class="pre">BCConfig.max_cuts_per_round</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BCConfig.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">BCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.must_go"><code class="docutils literal notranslate"><span class="pre">BCConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">BCConfig.post_processing</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bc.BCConfig.seed"><code class="docutils literal notranslate"><span class="pre">BCConfig.seed</span></code></a></li>

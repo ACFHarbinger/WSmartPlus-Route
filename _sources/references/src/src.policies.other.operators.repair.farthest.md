@@ -23,10 +23,6 @@
   - ```{autodoc2-docstring} src.policies.other.operators.repair.farthest._find_cheapest_insertion
     :summary:
     ```
-* - {py:obj}`_find_best_profit_insertion <src.policies.other.operators.repair.farthest._find_best_profit_insertion>`
-  - ```{autodoc2-docstring} src.policies.other.operators.repair.farthest._find_best_profit_insertion
-    :summary:
-    ```
 * - {py:obj}`farthest_insertion <src.policies.other.operators.repair.farthest.farthest_insertion>`
   - ```{autodoc2-docstring} src.policies.other.operators.repair.farthest.farthest_insertion
     :summary:
@@ -50,13 +46,6 @@
 :canonical: src.policies.other.operators.repair.farthest._find_cheapest_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.farthest._find_cheapest_insertion
-```
-````
-
-````{py:function} _find_best_profit_insertion(farthest_node: int, routes: typing.List[typing.List[int]], loads: typing.List[float], dist_matrix: numpy.ndarray, capacity: float, node_waste: float, revenue: float, is_mandatory: bool, C: float) -> typing.Tuple[int, int, float]
-:canonical: src.policies.other.operators.repair.farthest._find_best_profit_insertion
-
-```{autodoc2-docstring} src.policies.other.operators.repair.farthest._find_best_profit_insertion
 ```
 ````
 

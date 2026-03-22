@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} run_bpc(dist_matrix, wastes, capacity, R, C, values, must_go_indices=None, env=None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
+````{py:function} run_bpc(dist_matrix, wastes, capacity, R, C, values, must_go_indices=None, env=None, expand_pool=False, profit_aware_operators=False, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.branch_and_price_and_cut.dispatcher.run_bpc
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.dispatcher.run_bpc

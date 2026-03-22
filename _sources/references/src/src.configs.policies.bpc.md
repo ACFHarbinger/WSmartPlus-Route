@@ -51,6 +51,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.bpc.BPCConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.bpc.BPCConfig.vrpp
 :type: bool

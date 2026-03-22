@@ -18,6 +18,7 @@ src.policies.other.operators.repair.farthest
 src.policies.other.operators.repair.savings
 src.policies.other.operators.repair.regret
 src.policies.other.operators.repair.greedy_blink
+src.policies.other.operators.repair.geni
 src.policies.other.operators.repair.greedy
 ```
 

@@ -107,6 +107,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.hulk.HULKConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} epsilon
 :canonical: src.configs.policies.hulk.HULKConfig.epsilon
 :type: float

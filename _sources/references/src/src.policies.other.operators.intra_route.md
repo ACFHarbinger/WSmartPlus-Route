@@ -15,9 +15,7 @@
 
 src.policies.other.operators.intra_route.k_permutation
 src.policies.other.operators.intra_route.relocate
-src.policies.other.operators.intra_route.or_opt
 src.policies.other.operators.intra_route.swap
-src.policies.other.operators.intra_route.geni
 src.policies.other.operators.intra_route.k_opt
 ```
 

@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} TDAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100)
+`````{py:class} TDAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100, seed: int = 42)
 :canonical: src.policies.other.reinforcement_learning.agents.td_learning.TDAgent
 
 Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.base.RLAgent`
@@ -107,7 +107,7 @@ Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.base.RLAgent`
 
 `````
 
-`````{py:class} QLearningAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100)
+`````{py:class} QLearningAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100, seed: int = 42)
 :canonical: src.policies.other.reinforcement_learning.agents.td_learning.QLearningAgent
 
 Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.td_learning.TDAgent`
@@ -155,7 +155,7 @@ Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.td_learning.TDA
 
 `````
 
-`````{py:class} ExpectedSarsaAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100)
+`````{py:class} ExpectedSarsaAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100, seed: int = 42)
 :canonical: src.policies.other.reinforcement_learning.agents.td_learning.ExpectedSarsaAgent
 
 Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.td_learning.TDAgent`

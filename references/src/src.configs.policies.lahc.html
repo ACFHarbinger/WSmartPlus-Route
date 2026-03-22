@@ -538,6 +538,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.n_llh"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.n_llh</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.seed"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.must_go"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.post_processing</span></code></a></li>
@@ -587,6 +588,7 @@ max_iterations: Total LLH applications.
 n_removal: Nodes removed per destroy step.
 n_llh: LLH pool size.
 time_limit: Wall-clock time limit in seconds.
+profit_aware_operators: If True, uses profit-aware destroy and repair operators.
 vrpp: If True, solver operates in full VRPP mode.
 must_go: Must-go selection strategy config list.
 post_processing: Post-processing operation config list.</p>
@@ -630,6 +632,12 @@ post_processing: Post-processing operation config list.</p>
 <dt class="sig sig-object py" id="src.configs.policies.lahc.LAHCConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.lahc.LAHCConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.lahc.LAHCConfig.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.lahc.LAHCConfig.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -712,6 +720,7 @@ post_processing: Post-processing operation config list.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.n_llh"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.n_llh</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.seed"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.must_go"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lahc.LAHCConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">LAHCConfig.post_processing</span></code></a></li>

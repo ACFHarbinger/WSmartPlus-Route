@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.lahc.LAHCConfig.profit_aware_operators
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.lahc.LAHCConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.lahc.LAHCConfig.vrpp
 :type: bool

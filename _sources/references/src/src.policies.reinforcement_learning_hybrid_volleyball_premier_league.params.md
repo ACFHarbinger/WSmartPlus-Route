@@ -84,6 +84,28 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.vrpp
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} rl_config
 :canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.rl_config
 :type: logic.src.configs.policies.other.RLConfig

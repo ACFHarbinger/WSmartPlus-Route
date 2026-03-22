@@ -553,8 +553,6 @@ document.write(`
 <p>Selects a random seed node, then removes it along with its <code class="docutils literal notranslate"><span class="pre">k-1</span></code> nearest
 geographic neighbors from their respective routes.</p>
 <p>Also includes profit-based neighbor removal for VRPP problems.</p>
-<p>Uses the distance matrix for efficient nearest-neighbor lookup via
-<code class="docutils literal notranslate"><span class="pre">numpy.argpartition</span></code>.</p>
 <p>Attributes:
 None</p>
 <p>Example:
@@ -572,7 +570,7 @@ None</p>
 <td><p>Remove a seed node and its nearest geographic neighbors.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.destroy.neighbor.neighbor_profit_removal" title="src.policies.other.operators.destroy.neighbor.neighbor_profit_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neighbor_profit_removal</span></code></a></p></td>
-<td><p>Remove a seed node with low profit and its neighbors with similar low profit.</p></td>
+<td><p>Remove a seed node with low profit and its neighbors with similar profit (VRPP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -596,9 +594,9 @@ Tuple of (modified routes, list of removed node IDs).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.other.operators.destroy.neighbor.neighbor_profit_removal">
 <span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.destroy.neighbor.</span></span><span class="sig-name descname"><span class="pre">neighbor_profit_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.destroy.neighbor.neighbor_profit_removal" title="Link to this definition">#</a></dt>
-<dd><p>Remove a seed node with low profit and its neighbors with similar low profit.</p>
-<p>Selects a low-profit seed node, then removes nodes with the most similar
-(low) profit values, regardless of geographic proximity.</p>
+<dd><p>Remove a seed node with low profit and its neighbors with similar profit (VRPP).</p>
+<p>Selects a low-profit seed node (from bottom 25%), then removes nodes with
+the most similar profit values based on the marginal profit formula.</p>
 <p>Args:
 routes: Current solution (list of routes).
 n_remove: Total number of nodes to remove (including seed).

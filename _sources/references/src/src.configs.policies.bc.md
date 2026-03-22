@@ -84,6 +84,28 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.bc.BCConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bc.BCConfig.profit_aware_operators
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.bc.BCConfig.vrpp
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bc.BCConfig.vrpp
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.bc.BCConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

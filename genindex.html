@@ -1726,6 +1726,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html#src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.RuinRecreateOperator._apply_destroy">_apply_destroy() (src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.RuinRecreateOperator method)</a>
 </li>
+      <li><a href="references/src/src.policies.other.operators.repair.geni.html#src.policies.other.operators.repair.geni._apply_geni_move">_apply_geni_move() (in module src.policies.other.operators.repair.geni)</a>
+</li>
       <li><a href="references/src/src.models.policies.operators.repair.greedy_insertion.html#src.models.policies.operators.repair.greedy_insertion._apply_insertion">_apply_insertion() (in module src.models.policies.operators.repair.greedy_insertion)</a>
 
       <ul>
@@ -1798,11 +1800,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.operators.route.two_opt_star.html#src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves">_apply_two_opt_star_moves() (in module src.models.policies.operators.route.two_opt_star)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#src.policies.other.operators.intra_route.geni._apply_type_i">_apply_type_i() (in module src.policies.other.operators.intra_route.geni)</a>
-</li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_i.html#src.models.policies.operators.unstringing.type_i._apply_type_i_move">_apply_type_i_move() (in module src.models.policies.operators.unstringing.type_i)</a>
-</li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#src.policies.other.operators.intra_route.geni._apply_type_ii">_apply_type_ii() (in module src.policies.other.operators.intra_route.geni)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_ii.html#src.models.policies.operators.unstringing.type_ii._apply_type_ii_move">_apply_type_ii_move() (in module src.models.policies.operators.unstringing.type_ii)</a>
 </li>
@@ -1810,7 +1808,9 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_iv.html#src.models.policies.operators.unstringing.type_iv._apply_type_iv_move">_apply_type_iv_move() (in module src.models.policies.operators.unstringing.type_iv)</a>
 </li>
-      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators._apply_unstring">_apply_unstring() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
+      <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#src.policies.other.operators.unstringing_stringing.unstringing_wrapper._apply_unstring_op">_apply_unstring_op() (in module src.policies.other.operators.unstringing_stringing.unstringing_wrapper)</a>
+</li>
+      <li><a href="references/src/src.policies.hyper_heuristic_us_lk.operators.html#src.policies.hyper_heuristic_us_lk.operators.HULKOperators._apply_unstring_wrapper">_apply_unstring_wrapper() (src.policies.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       <li><a href="references/src/src.policies.particle_swarm_optimization_distance_based_algorithm.solver.html#src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver._apply_velocity">_apply_velocity() (src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver method)</a>
 
@@ -2004,8 +2004,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._calculate_next_collection_days">_calculate_next_collection_days() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.destroy.sector.html#src.policies.other.operators.destroy.sector._calculate_node_profits">_calculate_node_profits() (in module src.policies.other.operators.destroy.sector)</a>
-</li>
       <li><a href="references/src/src.policies.other.reinforcement_learning.features.context.html#src.policies.other.reinforcement_learning.features.context.ContextFeatureExtractor._calculate_population_diversity">_calculate_population_diversity() (src.policies.other.reinforcement_learning.features.context.ContextFeatureExtractor method)</a>
 </li>
       <li><a href="references/src/src.policies.slack_induction_by_string_removal.solver.html#src.policies.slack_induction_by_string_removal.solver.SISRSolver._calculate_profit">_calculate_profit() (src.policies.slack_induction_by_string_removal.solver.SISRSolver method)</a>
@@ -2055,8 +2053,6 @@ document.write(`
       <li><a href="references/src/src.policies.ensemble_move_acceptance.solver.html#src.policies.ensemble_move_acceptance.solver.EMASolver._check_sa">_check_sa() (src.policies.ensemble_move_acceptance.solver.EMASolver method)</a>
 </li>
       <li><a href="references/src/src.policies.ensemble_move_acceptance.solver.html#src.policies.ensemble_move_acceptance.solver.EMASolver._check_ta">_check_ta() (src.policies.ensemble_move_acceptance.solver.EMASolver method)</a>
-</li>
-      <li><a href="references/src/src.policies.other.operators.destroy.sector.html#src.policies.other.operators.destroy.sector._choose_starting_angle">_choose_starting_angle() (in module src.policies.other.operators.destroy.sector)</a>
 </li>
       <li><a href="references/src/src.pipeline.features.test.config.html#src.pipeline.features.test.config._clean_id">_clean_id() (in module src.pipeline.features.test.config)</a>
 </li>
@@ -2644,9 +2640,13 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.simulated_annealing_neighborhood_search.search.deterministic.html#src.policies.simulated_annealing_neighborhood_search.search.deterministic._evaluate_move">_evaluate_move() (in module src.policies.simulated_annealing_neighborhood_search.search.deterministic)</a>
 </li>
+      <li><a href="references/src/src.policies.other.operators.repair.geni.html#src.policies.other.operators.repair.geni._evaluate_route_insertion">_evaluate_route_insertion() (in module src.policies.other.operators.repair.geni)</a>
+</li>
       <li><a href="references/src/src.policies.other.operators.unstringing_stringing.stringing_wrapper.html#src.policies.other.operators.unstringing_stringing.stringing_wrapper._evaluate_routes">_evaluate_routes() (in module src.policies.other.operators.unstringing_stringing.stringing_wrapper)</a>
 
       <ul>
+        <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#src.policies.other.operators.unstringing_stringing.unstringing_wrapper._evaluate_routes">(in module src.policies.other.operators.unstringing_stringing.unstringing_wrapper)</a>
+</li>
         <li><a href="references/src/src.policies.fast_iterative_localized_optimization.filo.html#src.policies.fast_iterative_localized_optimization.filo.FILOSolver._evaluate_routes">(src.policies.fast_iterative_localized_optimization.filo.FILOSolver method)</a>
 </li>
         <li><a href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.html#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.RLAHVPLSolver._evaluate_routes">(src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.RLAHVPLSolver method)</a>
@@ -2656,11 +2656,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.genetic_programming_hyper_heuristic.solver.html#src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_tree">_evaluate_tree() (src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver method)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#src.policies.other.operators.intra_route.geni._evaluate_type_i">_evaluate_type_i() (in module src.policies.other.operators.intra_route.geni)</a>
-</li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_i.html#src.models.policies.operators.unstringing.type_i._evaluate_type_i_move">_evaluate_type_i_move() (in module src.models.policies.operators.unstringing.type_i)</a>
-</li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#src.policies.other.operators.intra_route.geni._evaluate_type_ii">_evaluate_type_ii() (in module src.policies.other.operators.intra_route.geni)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_ii.html#src.models.policies.operators.unstringing.type_ii._evaluate_type_ii_move">_evaluate_type_ii_move() (in module src.models.policies.operators.unstringing.type_ii)</a>
 </li>
@@ -2732,8 +2728,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.operators.exchange.cross_exchange.html#src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments">_find_best_move_for_segments() (in module src.models.policies.operators.exchange.cross_exchange)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.repair.farthest.html#src.policies.other.operators.repair.farthest._find_best_profit_insertion">_find_best_profit_insertion() (in module src.policies.other.operators.repair.farthest)</a>
-</li>
       <li><a href="references/src/src.policies.other.operators.inter_route.k_opt_star.html#src.policies.other.operators.inter_route.k_opt_star._find_best_tail_permutation">_find_best_tail_permutation() (in module src.policies.other.operators.inter_route.k_opt_star)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.unstringing.type_i.html#src.models.policies.operators.unstringing.type_i._find_best_type_i_move">_find_best_type_i_move() (in module src.models.policies.operators.unstringing.type_i)</a>
@@ -2757,6 +2751,8 @@ document.write(`
       <li><a href="references/src/src.ui.pages.simulation_summary.html#src.ui.pages.simulation_summary._find_json_files">_find_json_files() (in module src.ui.pages.simulation_summary)</a>
 </li>
       <li><a href="references/src/src.utils.model.loader.html#src.utils.model.loader._find_latest_checkpoint">_find_latest_checkpoint() (in module src.utils.model.loader)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun._find_mst_path_max">_find_mst_path_max() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.actions.base.html#src.pipeline.simulations.actions.base._find_must_go">_find_must_go() (in module src.pipeline.simulations.actions.base)</a>
 </li>
@@ -3124,15 +3120,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.neural_agent.policy_neural.html#src.policies.neural_agent.policy_neural.NeuralPolicy._get_must_go_mask">_get_must_go_mask() (src.policies.neural_agent.policy_neural.NeuralPolicy method)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#src.policies.other.operators.intra_route.geni._get_nearest_in_route">_get_nearest_in_route() (in module src.policies.other.operators.intra_route.geni)</a>
-</li>
       <li><a href="references/src/src.models.core.n2s.encoder.html#src.models.core.n2s.encoder.N2SEncoder._get_neighborhood_mask">_get_neighborhood_mask() (src.models.core.n2s.encoder.N2SEncoder method)</a>
 </li>
       <li><a href="references/src/src.policies.other.must_go.selection_lookahead.html#src.policies.other.must_go.selection_lookahead.LookaheadSelection._get_next_collection_day">_get_next_collection_day() (src.policies.other.must_go.selection_lookahead.LookaheadSelection method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.epoch.html#src.pipeline.rl.common.epoch._get_next_day_waste">_get_next_day_waste() (in module src.pipeline.rl.common.epoch)</a>
-</li>
-      <li><a href="references/src/src.policies.other.operators.destroy.string.html#src.policies.other.operators.destroy.string._get_node_profits">_get_node_profits() (in module src.policies.other.operators.destroy.string)</a>
 </li>
       <li><a href="references/src/src.policies.particle_swarm_optimization_distance_based_algorithm.solver.html#src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver._get_node_set">_get_node_set() (src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver static method)</a>
 </li>
@@ -3209,8 +3201,6 @@ document.write(`
       <li><a href="references/src/src.models.policies.selection.factory.html#src.models.policies.selection.factory._get_strategy_params">_get_strategy_params() (in module src.models.policies.selection.factory)</a>
 </li>
       <li><a href="references/src/src.models.subnets.modules.polynet_attention.html#src.models.subnets.modules.polynet_attention.PolyNetAttention._get_strategy_vectors">_get_strategy_vectors() (src.models.subnets.modules.polynet_attention.PolyNetAttention method)</a>
-</li>
-      <li><a href="references/src/src.policies.other.operators.destroy.string.html#src.policies.other.operators.destroy.string._get_string_length">_get_string_length() (in module src.policies.other.operators.destroy.string)</a>
 </li>
       <li><a href="references/src/src.ui.services.tracking_service.html#src.ui.services.tracking_service._get_tracking_uri">_get_tracking_uri() (in module src.ui.services.tracking_service)</a>
 </li>
@@ -4600,8 +4590,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence">_select_sequence() (src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO method)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.destroy.string.html#src.policies.other.operators.destroy.string._select_string_seed">_select_string_seed() (in module src.policies.other.operators.destroy.string)</a>
-</li>
       <li><a href="references/src/src.policies.other.operators.perturbation.evolutionary.html#src.policies.other.operators.perturbation.evolutionary._select_target_routes">_select_target_routes() (in module src.policies.other.operators.perturbation.evolutionary)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.meta.contextual_bandits.html#src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit._select_thompson_sampling">_select_thompson_sampling() (src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit method)</a>
@@ -4834,6 +4822,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun._try_3opt_move">_try_3opt_move() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
 </li>
+      <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun._try_4opt_move">_try_4opt_move() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun._try_5opt_move">_try_5opt_move() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
+</li>
       <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._try_cross_exchange">_try_cross_exchange() (src.policies.other.local_search.local_search_base.LocalSearch method)</a>
 </li>
       <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._try_cyclic_transfer">_try_cyclic_transfer() (src.policies.other.local_search.local_search_base.LocalSearch method)</a>
@@ -4841,8 +4833,6 @@ document.write(`
       <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._try_ejection_chain">_try_ejection_chain() (src.policies.other.local_search.local_search_base.LocalSearch method)</a>
 </li>
       <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._try_exchange_chains">_try_exchange_chains() (src.policies.other.local_search.local_search_base.LocalSearch method)</a>
-</li>
-      <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._try_geni_exchange">_try_geni_exchange() (src.policies.other.local_search.local_search_base.LocalSearch method)</a>
 </li>
       <li><a href="references/src/src.policies.other.local_search.local_search_base.html#src.policies.other.local_search.local_search_base.LocalSearch._try_improved_cross_exchange">_try_improved_cross_exchange() (src.policies.other.local_search.local_search_base.LocalSearch method)</a>
 </li>
@@ -4857,6 +4847,8 @@ document.write(`
       <li><a href="references/src/src.utils.model.export_onnx.html#src.utils.model.export_onnx._try_simplify">_try_simplify() (in module src.utils.model.export_onnx)</a>
 </li>
       <li><a href="references/src/src.policies.other.operators.unstringing_stringing.stringing_wrapper.html#src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion">_try_string_insertion() (in module src.policies.other.operators.unstringing_stringing.stringing_wrapper)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#src.policies.other.operators.unstringing_stringing.unstringing_wrapper._try_unstring_removal">_try_unstring_removal() (in module src.policies.other.operators.unstringing_stringing.unstringing_wrapper)</a>
 </li>
       <li><a href="references/src/src.ui.pages.data_explorer.html#src.ui.pages.data_explorer._try_vrpp_split">_try_vrpp_split() (in module src.ui.pages.data_explorer)</a>
 </li>
@@ -5461,6 +5453,10 @@ document.write(`
       <li><a href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_3opt_intra">apply_3opt_intra() (in module src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators)</a>
 </li>
       <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun.apply_3opt_move">apply_3opt_move() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun.apply_4opt_move">apply_4opt_move() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun.apply_5opt_move">apply_5opt_move() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
 </li>
       <li><a href="references/src/src.utils.graph.network_utils.html#src.utils.graph.network_utils.apply_edges">apply_edges() (in module src.utils.graph.network_utils)</a>
 </li>
@@ -8380,9 +8376,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.operators.perturbation.genetic_transformation.html#src.policies.other.operators.perturbation.genetic_transformation.genetic_transformation_profit">genetic_transformation_profit() (in module src.policies.other.operators.perturbation.genetic_transformation)</a>
 </li>
-      <li><a href="references/src/src.policies.other.local_search.local_search_manager.html#src.policies.other.local_search.local_search_manager.LocalSearchManager.geni_exchange_op">geni_exchange_op() (src.policies.other.local_search.local_search_manager.LocalSearchManager method)</a>
-</li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#src.policies.other.operators.intra_route.geni.geni_insert">geni_insert() (in module src.policies.other.operators.intra_route.geni)</a>
+      <li><a href="references/src/src.policies.other.operators.repair.geni.html#src.policies.other.operators.repair.geni.geni_insertion">geni_insertion() (in module src.policies.other.operators.repair.geni)</a>
 </li>
       <li><a href="references/src/src.data.network.geodesic.html#src.data.network.geodesic.GeodesicStrategy">GeodesicStrategy (class in src.data.network.geodesic)</a>
 </li>
@@ -10918,6 +10912,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.tracking.profiling.memory.html#src.tracking.profiling.memory.MemoryTracker">MemoryTracker (class in src.tracking.profiling.memory)</a>
 </li>
+      <li><a href="references/src/src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html#src.policies.other.operators.heuristics.lin_kernighan_helsgaun.merge_tours">merge_tours() (in module src.policies.other.operators.heuristics.lin_kernighan_helsgaun)</a>
+</li>
       <li><a href="references/src/src.models.subnets.modules.efficient_graph_convolution.html#src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.message">message() (src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution method)</a>
 
       <ul>
@@ -13102,13 +13098,9 @@ document.write(`
 </li>
         <li><a href="references/src/src.policies.other.operators.intra_route.html#module-src.policies.other.operators.intra_route">src.policies.other.operators.intra_route</a>
 </li>
-        <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#module-src.policies.other.operators.intra_route.geni">src.policies.other.operators.intra_route.geni</a>
-</li>
         <li><a href="references/src/src.policies.other.operators.intra_route.k_opt.html#module-src.policies.other.operators.intra_route.k_opt">src.policies.other.operators.intra_route.k_opt</a>
 </li>
         <li><a href="references/src/src.policies.other.operators.intra_route.k_permutation.html#module-src.policies.other.operators.intra_route.k_permutation">src.policies.other.operators.intra_route.k_permutation</a>
-</li>
-        <li><a href="references/src/src.policies.other.operators.intra_route.or_opt.html#module-src.policies.other.operators.intra_route.or_opt">src.policies.other.operators.intra_route.or_opt</a>
 </li>
         <li><a href="references/src/src.policies.other.operators.intra_route.relocate.html#module-src.policies.other.operators.intra_route.relocate">src.policies.other.operators.intra_route.relocate</a>
 </li>
@@ -13131,6 +13123,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.operators.repair.deep.html#module-src.policies.other.operators.repair.deep">src.policies.other.operators.repair.deep</a>
 </li>
         <li><a href="references/src/src.policies.other.operators.repair.farthest.html#module-src.policies.other.operators.repair.farthest">src.policies.other.operators.repair.farthest</a>
+</li>
+        <li><a href="references/src/src.policies.other.operators.repair.geni.html#module-src.policies.other.operators.repair.geni">src.policies.other.operators.repair.geni</a>
 </li>
         <li><a href="references/src/src.policies.other.operators.repair.greedy.html#module-src.policies.other.operators.repair.greedy">src.policies.other.operators.repair.greedy</a>
 </li>
@@ -13159,6 +13153,8 @@ document.write(`
         <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_iii.html#module-src.policies.other.operators.unstringing_stringing.unstringing_iii">src.policies.other.operators.unstringing_stringing.unstringing_iii</a>
 </li>
         <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_iv.html#module-src.policies.other.operators.unstringing_stringing.unstringing_iv">src.policies.other.operators.unstringing_stringing.unstringing_iv</a>
+</li>
+        <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#module-src.policies.other.operators.unstringing_stringing.unstringing_wrapper">src.policies.other.operators.unstringing_stringing.unstringing_wrapper</a>
 </li>
         <li><a href="references/src/src.policies.other.post_processing.html#module-src.policies.other.post_processing">src.policies.other.post_processing</a>
 </li>
@@ -13947,7 +13943,7 @@ document.write(`
         <li><a href="references/src/src.policies.guided_indicators_hyper_heuristic.params.html#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.move_operators">(src.policies.guided_indicators_hyper_heuristic.params.GIHHParams attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.policies.other.operators.intra_route.or_opt.html#src.policies.other.operators.intra_route.or_opt.move_or_opt">move_or_opt() (in module src.policies.other.operators.intra_route.or_opt)</a>
+      <li><a href="references/src/src.policies.other.operators.intra_route.relocate.html#src.policies.other.operators.intra_route.relocate.move_or_opt">move_or_opt() (in module src.policies.other.operators.intra_route.relocate)</a>
 </li>
       <li><a href="references/src/src.policies.other.operators.intra_route.relocate.html#src.policies.other.operators.intra_route.relocate.move_relocate">move_relocate() (in module src.policies.other.operators.intra_route.relocate)</a>
 </li>
@@ -15829,6 +15825,44 @@ document.write(`
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.solution.html#src.policies.hyper_heuristic_us_lk.solution.Solution.profit">(src.policies.hyper_heuristic_us_lk.solution.Solution property)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.configs.policies.bc.html#src.configs.policies.bc.BCConfig.profit_aware_operators">profit_aware_operators (src.configs.policies.bc.BCConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.policies.bpc.html#src.configs.policies.bpc.BPCConfig.profit_aware_operators">(src.configs.policies.bpc.BPCConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.ema.html#src.configs.policies.ema.EMAConfig.profit_aware_operators">(src.configs.policies.ema.EMAConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.gd.html#src.configs.policies.gd.GDConfig.profit_aware_operators">(src.configs.policies.gd.GDConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.hulk.html#src.configs.policies.hulk.HULKConfig.profit_aware_operators">(src.configs.policies.hulk.HULKConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.ie.html#src.configs.policies.ie.IEConfig.profit_aware_operators">(src.configs.policies.ie.IEConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.lahc.html#src.configs.policies.lahc.LAHCConfig.profit_aware_operators">(src.configs.policies.lahc.LAHCConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.oba.html#src.configs.policies.oba.OBAConfig.profit_aware_operators">(src.configs.policies.oba.OBAConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.oi.html#src.configs.policies.oi.OIConfig.profit_aware_operators">(src.configs.policies.oi.OIConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.rl_ahvpl.html#src.configs.policies.rl_ahvpl.RLAHVPLConfig.profit_aware_operators">(src.configs.policies.rl_ahvpl.RLAHVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.rl_hvpl.html#src.configs.policies.rl_hvpl.RLHVPLConfig.profit_aware_operators">(src.configs.policies.rl_hvpl.RLHVPLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.rrt.html#src.configs.policies.rrt.RRTConfig.profit_aware_operators">(src.configs.policies.rrt.RRTConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.sa.html#src.configs.policies.sa.SAConfig.profit_aware_operators">(src.configs.policies.sa.SAConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.schc.html#src.configs.policies.schc.SCHCConfig.profit_aware_operators">(src.configs.policies.schc.SCHCConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.ta.html#src.configs.policies.ta.TAConfig.profit_aware_operators">(src.configs.policies.ta.TAConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators">(src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.html#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.profit_aware_operators">(src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.html#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.profit_aware_operators">(src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.policies.rl_hvpl.html#src.configs.policies.rl_hvpl.RLHVPLConfig.profit_weight">profit_weight (src.configs.policies.rl_hvpl.RLHVPLConfig attribute)</a>
 
       <ul>
@@ -16105,9 +16139,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.other.operators.repair.regret.html#src.policies.other.operators.repair.regret.regret_2_insertion">regret_2_insertion() (in module src.policies.other.operators.repair.regret)</a>
 </li>
+      <li><a href="references/src/src.policies.other.operators.repair.regret.html#src.policies.other.operators.repair.regret.regret_2_profit_insertion">regret_2_profit_insertion() (in module src.policies.other.operators.repair.regret)</a>
+</li>
       <li><a href="references/src/src.policies.other.operators.repair.regret.html#src.policies.other.operators.repair.regret.regret_k_insertion">regret_k_insertion() (in module src.policies.other.operators.repair.regret)</a>
 </li>
-      <li><a href="references/src/src.policies.other.operators.repair.regret.html#src.policies.other.operators.repair.regret.regret_profit_insertion">regret_profit_insertion() (in module src.policies.other.operators.repair.regret)</a>
+      <li><a href="references/src/src.policies.other.operators.repair.regret.html#src.policies.other.operators.repair.regret.regret_k_profit_insertion">regret_k_profit_insertion() (in module src.policies.other.operators.repair.regret)</a>
 </li>
       <li><a href="references/src/src.configs.policies.rl_hvpl.html#src.configs.policies.rl_hvpl.RLHVPLConfig.regular_coaching_iterations">regular_coaching_iterations (src.configs.policies.rl_hvpl.RLHVPLConfig attribute)</a>
 
@@ -24554,13 +24590,6 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    src.policies.other.operators.intra_route.geni
-
-      <ul>
-        <li><a href="references/src/src.policies.other.operators.intra_route.geni.html#module-src.policies.other.operators.intra_route.geni">module</a>
-</li>
-      </ul></li>
-      <li>
     src.policies.other.operators.intra_route.k_opt
 
       <ul>
@@ -24572,13 +24601,6 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.other.operators.intra_route.k_permutation.html#module-src.policies.other.operators.intra_route.k_permutation">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.policies.other.operators.intra_route.or_opt
-
-      <ul>
-        <li><a href="references/src/src.policies.other.operators.intra_route.or_opt.html#module-src.policies.other.operators.intra_route.or_opt">module</a>
 </li>
       </ul></li>
       <li>
@@ -24656,6 +24678,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.other.operators.repair.farthest.html#module-src.policies.other.operators.repair.farthest">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.other.operators.repair.geni
+
+      <ul>
+        <li><a href="references/src/src.policies.other.operators.repair.geni.html#module-src.policies.other.operators.repair.geni">module</a>
 </li>
       </ul></li>
       <li>
@@ -24754,6 +24783,13 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_iv.html#module-src.policies.other.operators.unstringing_stringing.unstringing_iv">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.policies.other.operators.unstringing_stringing.unstringing_wrapper
+
+      <ul>
+        <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#module-src.policies.other.operators.unstringing_stringing.unstringing_wrapper">module</a>
 </li>
       </ul></li>
       <li>
@@ -28451,6 +28487,12 @@ document.write(`
         <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.unstring_operators">(src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#src.policies.other.operators.unstringing_stringing.unstringing_wrapper.unstringing_profit_removal">unstringing_profit_removal() (in module src.policies.other.operators.unstringing_stringing.unstringing_wrapper)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#src.policies.other.operators.unstringing_stringing.unstringing_wrapper.unstringing_removal">unstringing_removal() (in module src.policies.other.operators.unstringing_stringing.unstringing_wrapper)</a>
+</li>
+      <li><a href="references/src/src.policies.other.operators.unstringing_stringing.unstringing_wrapper.html#src.policies.other.operators.unstringing_stringing.unstringing_wrapper.unstringing_removal_wrapper">unstringing_removal_wrapper() (in module src.policies.other.operators.unstringing_stringing.unstringing_wrapper)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline.unwrap_batch">unwrap_batch() (src.pipeline.rl.common.baselines.base.Baseline method)</a>
 
       <ul>
@@ -28505,6 +28547,8 @@ document.write(`
         <li><a href="references/src/src.utils.data.td_state_wrapper.html#src.utils.data.td_state_wrapper.TensorDictStateWrapper.update">(src.utils.data.td_state_wrapper.TensorDictStateWrapper method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.subnets.modules.adapter_base.html#src.models.subnets.modules.adapter_base.SubproblemAdapter.update_actions">update_actions() (src.models.subnets.modules.adapter_base.SubproblemAdapter method)</a>
 
       <ul>
@@ -28513,8 +28557,6 @@ document.write(`
         <li><a href="references/src/src.models.subnets.modules.vrp_adapter.html#src.models.subnets.modules.vrp_adapter.VRPAdapter.update_actions">(src.models.subnets.modules.vrp_adapter.VRPAdapter method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.hybrid_genetic_search.evolution.html#src.policies.hybrid_genetic_search.evolution.update_biased_fitness">update_biased_fitness() (in module src.policies.hybrid_genetic_search.evolution)</a>
 
       <ul>
@@ -28791,12 +28833,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.variable_neighborhood_search.policy_vns.html#src.policies.variable_neighborhood_search.policy_vns.VNSPolicy">VNSPolicy (class in src.policies.variable_neighborhood_search.policy_vns)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.variable_neighborhood_search.solver.html#src.policies.variable_neighborhood_search.solver.VNSSolver">VNSSolver (class in src.policies.variable_neighborhood_search.solver)</a>
 </li>
       <li><a href="references/src/src.configs.policies.vpl.html#src.configs.policies.vpl.VPLConfig">VPLConfig (class in src.configs.policies.vpl)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.volleyball_premier_league.params.html#src.policies.volleyball_premier_league.params.VPLParams">VPLParams (class in src.policies.volleyball_premier_league.params)</a>
 </li>
       <li><a href="references/src/src.policies.volleyball_premier_league.policy_vpl.html#src.policies.volleyball_premier_league.policy_vpl.VPLPolicy">VPLPolicy (class in src.policies.volleyball_premier_league.policy_vpl)</a>
@@ -28823,6 +28865,8 @@ document.write(`
         <li><a href="references/src/src.configs.policies.alns.html#src.configs.policies.alns.ALNSConfig.vrpp">(src.configs.policies.alns.ALNSConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.bb.html#src.configs.policies.bb.BBConfig.vrpp">(src.configs.policies.bb.BBConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.policies.bc.html#src.configs.policies.bc.BCConfig.vrpp">(src.configs.policies.bc.BCConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.bpc.html#src.configs.policies.bpc.BPCConfig.vrpp">(src.configs.policies.bpc.BPCConfig attribute)</a>
 </li>
@@ -28945,6 +28989,12 @@ document.write(`
         <li><a href="references/src/src.configs.policies.vpl.html#src.configs.policies.vpl.VPLConfig.vrpp">(src.configs.policies.vpl.VPLConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.rl.policies.hgs_alns.html#src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp">(src.configs.rl.policies.hgs_alns.HGSALNSConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.hyper_heuristic_us_lk.params.html#src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp">(src.policies.hyper_heuristic_us_lk.params.HULKParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.html#src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.vrpp">(src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams attribute)</a>
+</li>
+        <li><a href="references/src/src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.html#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.vrpp">(src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams attribute)</a>
 </li>
       </ul></li>
       <li><a href="references/src/src.constants.models.html#src.constants.models.VRPP_STEP_CONTEXT_OFFSET">VRPP_STEP_CONTEXT_OFFSET (in module src.constants.models)</a>

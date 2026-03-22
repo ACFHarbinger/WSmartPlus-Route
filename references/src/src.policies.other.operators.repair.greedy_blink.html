@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.other.operators.repair.greedy_blink';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.other.operators.repair.greedy" href="src.policies.other.operators.repair.greedy.html" />
+    <link rel="next" title="src.policies.other.operators.repair.geni" href="src.policies.other.operators.repair.geni.html" />
     <link rel="prev" title="src.policies.other.operators.repair.regret" href="src.policies.other.operators.repair.regret.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -530,8 +530,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks"><code class="docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes"><code class="docutils literal notranslate"><span class="pre">prune_unprofitable_routes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks"><code class="docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.greedy_profit_insertion_with_blinks"><code class="docutils literal notranslate"><span class="pre">greedy_profit_insertion_with_blinks()</span></code></a></li>
 </ul>
 </li>
@@ -551,9 +551,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.other.operators.repair.greedy_blink">
 <span id="src-policies-other-operators-repair-greedy-blink"></span><h1><a class="reference internal" href="#module-src.policies.other.operators.repair.greedy_blink" title="src.policies.other.operators.repair.greedy_blink"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.greedy_blink</span></code></a><a class="headerlink" href="#module-src.policies.other.operators.repair.greedy_blink" title="Link to this heading">#</a></h1>
 <p>Greedy Blink Insertion Operator Module.</p>
-<p>This module implements the ‘Greedy with Blinks’ insertion heuristic. It is a
-randomized version of greedy insertion where the algorithm ‘blinks’ (skips)
-the best position with some probability, encouraging diversity.</p>
+<p>This module implements the ‘Greedy with Blinks’ insertion heuristic based on
+the Slack Induction by String Removal (SISR) metaheuristic.</p>
+<p>It contains:
+1. <code class="docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks</span></code>: A standard distance-minimizing operator.
+2. <code class="docutils literal notranslate"><span class="pre">greedy_profit_insertion_with_blinks</span></code>: A VRPP-specific profit-maximizing
+operator that utilizes speculative seeding and post-insertion pruning.
+3. <code class="docutils literal notranslate"><span class="pre">prune_unprofitable_routes</span></code>: A safety-net helper for VRPP economics.</p>
 <p>Attributes:
 None</p>
 <p>Example:
@@ -565,14 +569,17 @@ None</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks" title="src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks</span></code></a></p></td>
-<td><p>Greedy insertion with randomized skips (‘blinks’).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes" title="src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune_unprofitable_routes</span></code></a></p></td>
+<td><p>Evaluates all routes and removes those that result in a net economic loss,
+unless they contain mandatory nodes that must be served.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes" title="src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune_unprofitable_routes</span></code></a></p></td>
-<td><p>Remove any non-mandatory routes that are not profitable.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks" title="src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks</span></code></a></p></td>
+<td><p>Standard Greedy insertion with randomized skips (‘blinks’).
+Optimizes strictly for minimum distance/cost.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.operators.repair.greedy_blink.greedy_profit_insertion_with_blinks" title="src.policies.other.operators.repair.greedy_blink.greedy_profit_insertion_with_blinks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greedy_profit_insertion_with_blinks</span></code></a></p></td>
-<td><p>Greedy profit-driven insertion with randomized skips (‘blinks’).</p></td>
+<td><p>Greedy profit-driven insertion with randomized skips (‘blinks’).
+Includes Speculative Seeding and Economic Pruning for VRPP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -581,34 +588,44 @@ None</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
+<dt class="sig sig-object py" id="src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes">
+<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.repair.greedy_blink.</span></span><span class="sig-name descname"><span class="pre">prune_unprofitable_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates all routes and removes those that result in a net economic loss,
+unless they contain mandatory nodes that must be served.</p>
+<p>Args:
+routes: List of completed routes after the insertion phase.
+dist_matrix: Distance matrix.
+wastes: Dictionary mapping node ID to waste volume (demand).
+R: Revenue multiplier.
+C: Cost multiplier.
+mandatory_nodes_set: Set of node IDs that must be serviced.</p>
+<p>Returns:
+List[List[int]]: A filtered list of economically viable routes.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks">
 <span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.repair.greedy_blink.</span></span><span class="sig-name descname"><span class="pre">greedy_insertion_with_blinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blink_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks" title="Link to this definition">#</a></dt>
-<dd><p>Greedy insertion with randomized skips (‘blinks’).</p>
-<p>Similar to standard greedy insertion, but during the selection of the best
-position, the algorithm may skip the absolute best option with probability
-<code class="docutils literal notranslate"><span class="pre">blink_rate</span></code> and choose the second best, and so on.</p>
+<dd><p>Standard Greedy insertion with randomized skips (‘blinks’).
+Optimizes strictly for minimum distance/cost.</p>
 <p>Args:
 routes: Partial routes.
 removed_nodes: Nodes to reinsert.
 dist_matrix: Distance matrix.
-wastes: wastes.
-capacity: Capacity.
-blink_rate: Probability of skipping a check.
-rng: Random number generator.</p>
+wastes: Node demands.
+capacity: Vehicle capacity.
+blink_rate: Probability of skipping the current best option.
+rng: Random number generator.
+expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.</p>
 <p>Returns:
-Routes with all nodes reinserted.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes">
-<span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.repair.greedy_blink.</span></span><span class="sig-name descname"><span class="pre">prune_unprofitable_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes" title="Link to this definition">#</a></dt>
-<dd><p>Remove any non-mandatory routes that are not profitable.</p>
+Routes with nodes reinserted based on minimum cost.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.other.operators.repair.greedy_blink.greedy_profit_insertion_with_blinks">
 <span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.repair.greedy_blink.</span></span><span class="sig-name descname"><span class="pre">greedy_profit_insertion_with_blinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blink_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.operators.repair.greedy_blink.greedy_profit_insertion_with_blinks" title="Link to this definition">#</a></dt>
-<dd><p>Greedy profit-driven insertion with randomized skips (‘blinks’).</p>
+<dd><p>Greedy profit-driven insertion with randomized skips (‘blinks’).
+Includes Speculative Seeding and Economic Pruning for VRPP.</p>
 <p>Args:
 routes: List of routes.
 removed_nodes: List of unassigned node indices.
@@ -619,9 +636,10 @@ R: Revenue multiplier (per waste unit).
 C: Cost multiplier (per distance unit).
 blink_rate: Probability of skipping a valid insertion check.
 mandatory_nodes: List of mandatory node indices.
-rng: Random number generator.</p>
+rng: Random number generator.
+expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.</p>
 <p>Returns:
-List[List[int]]: Updated routes.</p>
+List[List[int]]: Updated routes, pruned of unprofitable excursions.</p>
 </dd></dl>
 
 </section>
@@ -649,11 +667,11 @@ List[List[int]]: Updated routes.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.other.operators.repair.greedy.html"
+       href="src.policies.other.operators.repair.geni.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.greedy</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.repair.geni</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -676,8 +694,8 @@ List[List[int]]: Updated routes.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks"><code class="docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.prune_unprofitable_routes"><code class="docutils literal notranslate"><span class="pre">prune_unprofitable_routes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.greedy_insertion_with_blinks"><code class="docutils literal notranslate"><span class="pre">greedy_insertion_with_blinks()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.other.operators.repair.greedy_blink.greedy_profit_insertion_with_blinks"><code class="docutils literal notranslate"><span class="pre">greedy_profit_insertion_with_blinks()</span></code></a></li>
 </ul>
 </li>

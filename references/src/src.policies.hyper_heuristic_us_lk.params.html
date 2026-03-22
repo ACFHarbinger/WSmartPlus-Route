@@ -535,6 +535,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HULKParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.restarts"><code class="docutils literal notranslate"><span class="pre">HULKParams.restarts</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.restart_threshold"><code class="docutils literal notranslate"><span class="pre">HULKParams.restart_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp"><code class="docutils literal notranslate"><span class="pre">HULKParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HULKParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.epsilon"><code class="docutils literal notranslate"><span class="pre">HULKParams.epsilon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.epsilon_decay"><code class="docutils literal notranslate"><span class="pre">HULKParams.epsilon_decay</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.min_epsilon"><code class="docutils literal notranslate"><span class="pre">HULKParams.min_epsilon</span></code></a></li>
@@ -582,7 +584,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.hyper_heuristic_us_lk.params">
 <span id="src-policies-hyper-heuristic-us-lk-params"></span><h1><a class="reference internal" href="#module-src.policies.hyper_heuristic_us_lk.params" title="src.policies.hyper_heuristic_us_lk.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_heuristic_us_lk.params</span></code></a><a class="headerlink" href="#module-src.policies.hyper_heuristic_us_lk.params" title="Link to this heading">#</a></h1>
-<p>HULK (Hyper-heuristic Using unstringing/stringing with Local search and K-opt) Parameters.</p>
+<p>HULK (Hyper-heuristic with Unstringing/stringing and LK) Parameters.</p>
 <p>Reference:
 Müller, L. F., &amp; Bonilha, I. (2022). “Hyper-Heuristic Based on ACO
 and Local Search for Dynamic Optimization Problems.”
@@ -628,6 +630,18 @@ Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009</p>
 <dt class="sig sig-object py" id="src.policies.hyper_heuristic_us_lk.params.HULKParams.restart_threshold">
 <span class="sig-name descname"><span class="pre">restart_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.restart_threshold" title="Link to this definition">#</a></dt>
 <dd><p>100</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -857,6 +871,8 @@ Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HULKParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.restarts"><code class="docutils literal notranslate"><span class="pre">HULKParams.restarts</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.restart_threshold"><code class="docutils literal notranslate"><span class="pre">HULKParams.restart_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp"><code class="docutils literal notranslate"><span class="pre">HULKParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HULKParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.epsilon"><code class="docutils literal notranslate"><span class="pre">HULKParams.epsilon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.epsilon_decay"><code class="docutils literal notranslate"><span class="pre">HULKParams.epsilon_decay</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hyper_heuristic_us_lk.params.HULKParams.min_epsilon"><code class="docutils literal notranslate"><span class="pre">HULKParams.min_epsilon</span></code></a></li>

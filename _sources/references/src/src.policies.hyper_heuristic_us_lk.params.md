@@ -73,6 +73,28 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} epsilon
 :canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.epsilon
 :type: float

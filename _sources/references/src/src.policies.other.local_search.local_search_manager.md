@@ -187,14 +187,6 @@
 
 ````
 
-````{py:method} geni_exchange_op() -> bool
-:canonical: src.policies.other.local_search.local_search_manager.LocalSearchManager.geni_exchange_op
-
-```{autodoc2-docstring} src.policies.other.local_search.local_search_manager.LocalSearchManager.geni_exchange_op
-```
-
-````
-
 ````{py:method} three_opt_star() -> bool
 :canonical: src.policies.other.local_search.local_search_manager.LocalSearchManager.three_opt_star
 

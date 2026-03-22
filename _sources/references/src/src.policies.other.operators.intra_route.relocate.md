@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.policies.other.operators.intra_route.relocate.relocate_chain
     :summary:
     ```
+* - {py:obj}`move_or_opt <src.policies.other.operators.intra_route.relocate.move_or_opt>`
+  - ```{autodoc2-docstring} src.policies.other.operators.intra_route.relocate.move_or_opt
+    :summary:
+    ```
 * - {py:obj}`_chain_edge_cost <src.policies.other.operators.intra_route.relocate._chain_edge_cost>`
   - ```{autodoc2-docstring} src.policies.other.operators.intra_route.relocate._chain_edge_cost
     :summary:
@@ -42,6 +46,13 @@
 :canonical: src.policies.other.operators.intra_route.relocate.relocate_chain
 
 ```{autodoc2-docstring} src.policies.other.operators.intra_route.relocate.relocate_chain
+```
+````
+
+````{py:function} move_or_opt(ls: typing.Any, r_idx: int, pos: int, chain_len: int) -> bool
+:canonical: src.policies.other.operators.intra_route.relocate.move_or_opt
+
+```{autodoc2-docstring} src.policies.other.operators.intra_route.relocate.move_or_opt
 ```
 ````
 

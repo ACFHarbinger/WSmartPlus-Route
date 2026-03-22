@@ -249,6 +249,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.rl_ahvpl.RLAHVPLConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.rl_ahvpl.RLAHVPLConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.rl_ahvpl.RLAHVPLConfig.must_go
 :type: typing.List[str]

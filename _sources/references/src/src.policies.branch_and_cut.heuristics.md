@@ -53,7 +53,7 @@
 ```
 ````
 
-````{py:function} farthest_insertion(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel) -> typing.Tuple[typing.List[int], float]
+````{py:function} farthest_insertion(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, profit_aware_operators: bool = False, expand_pool: bool = False) -> typing.Tuple[typing.List[int], float]
 :canonical: src.policies.branch_and_cut.heuristics.farthest_insertion
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.heuristics.farthest_insertion

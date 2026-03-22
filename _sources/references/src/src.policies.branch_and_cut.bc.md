@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, time_limit: float = 300.0, mip_gap: float = 0.01, max_cuts_per_round: int = 50, use_heuristics: bool = True, verbose: bool = False)
+`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, time_limit: float = 300.0, mip_gap: float = 0.01, max_cuts_per_round: int = 50, use_heuristics: bool = True, verbose: bool = False, profit_aware_operators: bool = False, vrpp: bool = False)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver

@@ -657,7 +657,6 @@ statistics: Raw statistics from add_activation_statistics_hook.</p>
 dict: Computed statistics (mean, std, min, max) per layer.</p>
 <p>Example:
 &gt;&gt;&gt; hook_data = add_activation_statistics_hook(model)
-&gt;&gt;&gt; # … forward passes …
 &gt;&gt;&gt; final_stats = compute_activation_statistics(hook_data[‘statistics’])</p>
 </dd></dl>
 
@@ -700,7 +699,6 @@ dead_neurons: Dead neuron counts from add_dead_neuron_detector_hook.</p>
 <p>Example:
 &gt;&gt;&gt; stats_hook = add_activation_statistics_hook(model)
 &gt;&gt;&gt; sparsity_hook = add_activation_sparsity_hook(model)
-&gt;&gt;&gt; # … forward passes …
 &gt;&gt;&gt; stats = compute_activation_statistics(stats_hook[‘statistics’])
 &gt;&gt;&gt; sparsity = compute_sparsity_percentages(sparsity_hook[‘sparsity’])
 &gt;&gt;&gt; print_activation_summary(stats, sparsity)</p>

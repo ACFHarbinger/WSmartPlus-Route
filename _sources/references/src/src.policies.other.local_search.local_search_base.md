@@ -134,7 +134,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _move_or_opt(u: int, chain_len: int, r_u: int, p_u: int) -> bool
+````{py:method} _move_or_opt(r_idx: int, pos: int, chain_len: int) -> bool
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_or_opt
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_or_opt
@@ -202,14 +202,6 @@ Bases: {py:obj}`abc.ABC`
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_three_permutation
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_three_permutation
-```
-
-````
-
-````{py:method} _try_geni_exchange(u: int, r_u: int, p_u: int) -> bool
-:canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_geni_exchange
-
-```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._try_geni_exchange
 ```
 
 ````

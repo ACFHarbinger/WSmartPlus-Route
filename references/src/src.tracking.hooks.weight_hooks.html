@@ -609,7 +609,6 @@ layer_names: Specific layers to monitor. If None, monitors all.</p>
 dict: Contains ‘initial_weights’, ‘weight_changes’, and metadata.</p>
 <p>Example:
 &gt;&gt;&gt; hook_data = add_weight_change_monitor_hook(model)
-&gt;&gt;&gt; # … train for some steps …
 &gt;&gt;&gt; changes = compute_weight_changes(model, hook_data)
 &gt;&gt;&gt; for name, change in changes.items():
 …     print(f”{name}: {change:.6f}”)</p>
@@ -718,7 +717,6 @@ weight_stats: Weight statistics from add_weight_distribution_monitor.
 top_k: Number of layers to display.</p>
 <p>Example:
 &gt;&gt;&gt; hook_data = add_weight_change_monitor_hook(model)
-&gt;&gt;&gt; # … training …
 &gt;&gt;&gt; changes = compute_weight_changes(model, hook_data)
 &gt;&gt;&gt; stats = add_weight_distribution_monitor(model)
 &gt;&gt;&gt; print_weight_summary(changes, stats[‘statistics’])</p>
@@ -735,7 +733,6 @@ window_size: Window for computing moving statistics.</p>
 dict: Analysis including trend, variance, and potential issues.</p>
 <p>Example:
 &gt;&gt;&gt; hook_data = add_weight_update_monitor_hook(optimizer)
-&gt;&gt;&gt; # … training …
 &gt;&gt;&gt; analysis = analyze_weight_updates(hook_data[‘update_history’])
 &gt;&gt;&gt; for name, metrics in analysis.items():
 …     if metrics[‘is_stuck’]:
