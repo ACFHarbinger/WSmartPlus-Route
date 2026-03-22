@@ -28,6 +28,8 @@ class PolicyBC:
         max_cuts_per_round: int = 50,
         use_heuristics: bool = True,
         verbose: bool = False,
+        profit_aware_operators: bool = False,
+        vrpp: bool = False,
     ):
         """
         Initialize Branch-and-Cut policy.
@@ -38,6 +40,8 @@ class PolicyBC:
             max_cuts_per_round: Maximum cuts to add per separation round.
             use_heuristics: Whether to use primal heuristics for warm start.
             verbose: Print detailed solving information.
+            profit_aware_operators: Whether to use profit-aware heuristics.
+            vrpp: Whether to use VRPP pool expansion in heuristics.
         """
         if not GUROBI_AVAILABLE:
             raise ImportError(
@@ -49,6 +53,8 @@ class PolicyBC:
         self.max_cuts_per_round = max_cuts_per_round
         self.use_heuristics = use_heuristics
         self.verbose = verbose
+        self.profit_aware_operators = profit_aware_operators
+        self.vrpp = vrpp
 
         self.name = "branch_and_cut"
         self.stats: Dict[str, Any] = {}
@@ -101,6 +107,8 @@ class PolicyBC:
             max_cuts_per_round=self.max_cuts_per_round,
             use_heuristics=self.use_heuristics,
             verbose=self.verbose,
+            profit_aware_operators=self.profit_aware_operators,
+            vrpp=self.vrpp,
         )
 
         # Solve
@@ -134,6 +142,8 @@ def run_branch_and_cut(
     time_limit: float = 60.0,
     mip_gap: float = 0.01,
     verbose: bool = False,
+    profit_aware_operators: bool = False,
+    vrpp: bool = False,
     **kwargs,
 ) -> Tuple[List[int], float, Dict[str, Any]]:
     """
@@ -150,6 +160,8 @@ def run_branch_and_cut(
         time_limit: Maximum solving time.
         mip_gap: MIP gap tolerance.
         verbose: Print detailed output.
+        profit_aware_operators: Whether to use profit-aware heuristics.
+        vrpp: Whether to use VRPP pool expansion in heuristics.
         **kwargs: Additional arguments.
 
     Returns:
@@ -159,6 +171,8 @@ def run_branch_and_cut(
         time_limit=time_limit,
         mip_gap=mip_gap,
         verbose=verbose,
+        profit_aware_operators=profit_aware_operators,
+        vrpp=vrpp,
     )
 
     return policy(

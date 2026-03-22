@@ -25,7 +25,11 @@ except ImportError:
     gp = None
     GRB = None
 
-from logic.src.policies.branch_and_cut.heuristics import construct_initial_solution
+from logic.src.policies.branch_and_cut.heuristics import (
+    construct_initial_solution,
+    construct_nn_solution,
+    farthest_insertion,
+)
 from logic.src.policies.branch_and_cut.separation import (
     CapacityCut,
     SeparationEngine,
@@ -54,6 +58,8 @@ class BranchAndCutSolver:
         max_cuts_per_round: int = 50,
         use_heuristics: bool = True,
         verbose: bool = False,
+        profit_aware_operators: bool = False,
+        vrpp: bool = False,
     ):
         """
         Initialize Branch-and-Cut solver.
@@ -65,6 +71,8 @@ class BranchAndCutSolver:
             max_cuts_per_round: Maximum cuts to add per separation round.
             use_heuristics: Whether to use primal heuristics.
             verbose: Print detailed logging.
+            profit_aware_operators: Whether to use profit-aware heuristics.
+            vrpp: Whether to use VRPP pool expansion in heuristics.
         """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi is required for Branch-and-Cut solver")
@@ -75,6 +83,8 @@ class BranchAndCutSolver:
         self.max_cuts_per_round = max_cuts_per_round
         self.use_heuristics = use_heuristics
         self.verbose = verbose
+        self.profit_aware_operators = profit_aware_operators
+        self.vrpp = vrpp
 
         # Separation engine
         self.separator = SeparationEngine(model)
@@ -115,9 +125,32 @@ class BranchAndCutSolver:
 
         # Step 2: Get initial primal solution (heuristic)
         if self.use_heuristics:
-            initial_tour, initial_profit = construct_initial_solution(self.model)
-            if initial_tour:
-                self._set_start_solution(initial_tour)
+            best_tour = []
+            best_profit = -float("inf")
+
+            # 1. Greedy Profit Initialization (Best for VRPP Knapsack constraints)
+            tour_greedy, profit_greedy = construct_initial_solution(self.model)
+            if profit_greedy > best_profit:
+                best_profit, best_tour = profit_greedy, tour_greedy
+
+            # 2. Nearest Neighbor Initialization (Good for tight spatial clustering)
+            tour_nn, profit_nn = construct_nn_solution(self.model)
+            if profit_nn > best_profit:
+                best_profit, best_tour = profit_nn, tour_nn
+
+            # 3. Farthest Insertion (Good for exploring the convex hull, as per Fischetti 1997)
+            tour_farthest, profit_farthest = farthest_insertion(
+                self.model,
+                profit_aware_operators=self.profit_aware_operators,
+                expand_pool=self.vrpp,
+            )
+            if profit_farthest > best_profit:
+                best_profit, best_tour = profit_farthest, tour_farthest
+
+            if best_tour:
+                if self.verbose:
+                    print(f"Warm start heuristic selected with profit: {best_profit:.2f}")
+                self._set_start_solution(best_tour)
 
         # Step 3: Enable lazy constraint callback for cutting planes
         self.gurobi_model.Params.LazyConstraints = 1

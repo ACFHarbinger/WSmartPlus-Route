@@ -1,5 +1,5 @@
 """
-Memetic Algorithm Island Model (MA-IM) for VRPP.
+Memetic Algorithm with Island Model (MA-IM) for VRPP.
 
 This solver is FUNCTIONALLY IDENTICAL to the Soccer League Competition (SLC)
 algorithm. It uses standard Genetic Algorithm and Evolutionary terminology

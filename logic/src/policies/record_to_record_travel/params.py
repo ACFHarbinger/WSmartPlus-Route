@@ -1,5 +1,5 @@
 """
-Configuration parameters for the Record-to-Record Travel (RR) solver.
+Configuration parameters for the Record-to-Record Travel (RRT) solver.
 """
 
 from __future__ import annotations

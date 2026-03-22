@@ -1,5 +1,5 @@
 """
-Record-to-Record Travel (RR) for VRPP.
+Record-to-Record Travel (RRT) for VRPP.
 
 The algorithm tracks the best solution found so far (the "record") and accepts
 a candidate solution if its deviation from the record does not exceed a

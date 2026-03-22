@@ -19,6 +19,7 @@ from ..branch_and_cut.separation import SeparationEngine
 from ..branch_and_cut.vrpp_model import VRPPModel
 from ..branch_and_price.master_problem import Route, VRPPMasterProblem
 from ..branch_and_price.rcspp_dp import RCSPPSolver
+from ..other.operators.repair.greedy import greedy_insertion
 
 
 def _separate_rcc(
@@ -110,8 +111,6 @@ def run_internal_bpc(
     )
 
     # 2. Initial Columns (Greedy)
-    from ..other.operators.repair.greedy import greedy_insertion
-
     initial_routes_nodes = greedy_insertion(
         [], list(range(1, n_nodes + 1)), dist_matrix, wastes, capacity, R=R, mandatory_nodes=mandatory_nodes
     )
