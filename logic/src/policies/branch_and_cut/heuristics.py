@@ -8,12 +8,18 @@ operators from the WSmart+ Route codebase.
 Based on Section 4 of Fischetti et al. (1997) and classical VRP heuristics.
 """
 
+from random import Random
 from typing import List, Tuple
 
 from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
 from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-from logic.src.policies.other.operators.repair.farthest import farthest_profit_insertion
+from logic.src.policies.other.operators.repair.farthest import (
+    farthest_insertion as operator_farthest_insertion,
+)
+from logic.src.policies.other.operators.repair.farthest import (
+    farthest_profit_insertion as operator_farthest_profit_insertion,
+)
 
 
 def construct_initial_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[int], float]:
@@ -30,8 +36,6 @@ def construct_initial_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[i
     Returns:
         Tuple of (tour, profit).
     """
-    from random import Random
-
     rng = Random(seed)
 
     # Use greedy initialization to build routes
@@ -70,8 +74,6 @@ def construct_nn_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[int], 
     Returns:
         Tuple of (tour, profit).
     """
-    from random import Random
-
     rng = Random(seed)
 
     # Get all customer nodes
@@ -101,15 +103,20 @@ def construct_nn_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[int], 
     return tour, profit
 
 
-def farthest_insertion(model: VRPPModel) -> Tuple[List[int], float]:
+def farthest_insertion(
+    model: VRPPModel, profit_aware_operators: bool = False, expand_pool: bool = False
+) -> Tuple[List[int], float]:
     """
     Farthest insertion heuristic for VRPP (Section 4 of Fischetti et al.).
 
-    Uses the farthest_profit_insertion operator to iteratively select the node
-    farthest from the current tour and insert it at the most profitable position.
+    Uses the farthest_profit_insertion operator to iteratively select the
+    node farthest from the current tour that is still profitable to insert
+    and add it to the tour.
 
     Args:
         model: VRPPModel instance.
+        profit_aware_operators: Whether to use the profit-aware farthest insertion.
+        expand_pool: Whether to consider all customer nodes for insertion.
 
     Returns:
         Tuple of (tour, profit).
@@ -127,18 +134,30 @@ def farthest_insertion(model: VRPPModel) -> Tuple[List[int], float]:
     # Filter out already included nodes
     remaining = [n for n in all_customers if n not in (model.mandatory_nodes or set())]
 
-    # Use farthest profit insertion
-    routes = farthest_profit_insertion(
-        routes=routes,
-        removed_nodes=remaining,
-        dist_matrix=model.cost_matrix,
-        wastes=model.wastes,
-        capacity=model.capacity,
-        R=model.R,
-        C=model.C,
-        mandatory_nodes=list(model.mandatory_nodes) if model.mandatory_nodes else None,
-        expand_pool=False,
-    )
+    if profit_aware_operators:
+        routes = operator_farthest_profit_insertion(
+            routes=routes,
+            removed_nodes=remaining,
+            dist_matrix=model.cost_matrix,
+            wastes=model.wastes,
+            capacity=model.capacity,
+            R=model.R,
+            C=model.C,
+            mandatory_nodes=list(model.mandatory_nodes) if model.mandatory_nodes else None,
+            expand_pool=expand_pool,
+        )
+    else:
+        routes = operator_farthest_insertion(
+            routes=routes,
+            removed_nodes=remaining,
+            dist_matrix=model.cost_matrix,
+            wastes=model.wastes,
+            capacity=model.capacity,
+            R=model.R,
+            C=model.C,
+            mandatory_nodes=list(model.mandatory_nodes) if model.mandatory_nodes else None,
+            expand_pool=expand_pool,
+        )
 
     # Convert to single tour
     tour = _routes_to_tour(routes, model.depot)

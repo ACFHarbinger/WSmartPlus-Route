@@ -32,6 +32,8 @@ class BCConfig:
         use_heuristics: Whether to use primal heuristics for warm start.
         use_exact_separation: Use exact max-flow for SEC (slower but stronger).
         max_cuts_per_round: Maximum cuts to add per separation round.
+        profit_aware_operators: Whether to use profit-aware operators.
+        vrpp: Whether to use VRPP expand pool.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
         seed: Random seed for reproducibility.
@@ -42,6 +44,8 @@ class BCConfig:
     use_heuristics: bool = True
     use_exact_separation: bool = False
     max_cuts_per_round: int = 50
+    profit_aware_operators: bool = False
+    vrpp: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
     seed: Optional[int] = None

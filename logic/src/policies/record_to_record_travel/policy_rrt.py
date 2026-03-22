@@ -1,5 +1,5 @@
 """
-RRT (Record-to-Record Travel) Policy Adapter.
+Record-to-Record Travel (RRT) Policy Adapter.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
