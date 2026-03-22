@@ -88,44 +88,6 @@ def _find_cheapest_insertion(
     return best_route_idx, best_pos, best_cost
 
 
-def _find_best_profit_insertion(
-    farthest_node: int,
-    routes: List[List[int]],
-    loads: List[float],
-    dist_matrix: np.ndarray,
-    capacity: float,
-    node_waste: float,
-    revenue: float,
-    is_mandatory: bool,
-    C: float,
-) -> Tuple[int, int, float]:
-    """Find the insertion position that maximizes profit."""
-    best_profit = -float("inf")
-    best_route_idx = -1
-    best_pos = -1
-
-    for i, route in enumerate(routes):
-        if loads[i] + node_waste > capacity:
-            continue
-
-        for pos in range(len(route) + 1):
-            prev = route[pos - 1] if pos > 0 else 0
-            nxt = route[pos] if pos < len(route) else 0
-
-            cost_increase = dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
-            profit = revenue - (cost_increase * C)
-            effective_profit = profit + (1e9 if is_mandatory else 0)
-
-            if effective_profit > best_profit:
-                if not is_mandatory and profit < -1e-4:
-                    continue
-                best_profit = effective_profit
-                best_route_idx = i
-                best_pos = pos
-
-    return best_route_idx, best_pos, best_profit
-
-
 def farthest_insertion(
     routes: List[List[int]],
     removed_nodes: List[int],
@@ -217,9 +179,8 @@ def farthest_profit_insertion(
     """
     Farthest insertion with explicit profit maximization for VRPP.
 
-    Similar to farthest_insertion, but selects the farthest node and then
-    inserts it at the position that maximizes profit (revenue - cost) rather
-    than minimizing cost alone.
+    Similar to farthest_insertion, but selects the farthest node that can
+    still be inserted profitably (revenue > cost increase).
 
     Args:
         routes: Partial routes.
@@ -246,25 +207,43 @@ def farthest_profit_insertion(
         unassigned = sorted(list(removed_nodes))
 
     while unassigned:
-        farthest_node = _get_farthest_node(unassigned, routes, dist_matrix)
-        if farthest_node is None:
+        # Compute distances for all unassigned nodes
+        node_distances = []
+        for node in unassigned:
+            min_distance = float("inf")
+            for route in routes:
+                for route_node in route:
+                    min_distance = min(min_distance, dist_matrix[node, route_node])
+            min_distance = min(min_distance, dist_matrix[node, 0])
+            node_distances.append((node, min_distance))
+
+        # Sort by distance descending (farthest first)
+        node_distances.sort(key=lambda x: x[1], reverse=True)
+
+        inserted_any = False
+        for farthest_node, _ in node_distances:
+            node_waste = wastes.get(farthest_node, 0.0)
+            revenue = node_waste * R
+            is_mandatory = farthest_node in mandatory_set
+
+            best_route_idx, best_pos, _ = _find_cheapest_insertion(
+                farthest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, R, C
+            )
+
+            if best_route_idx != -1:
+                routes[best_route_idx].insert(best_pos, farthest_node)
+                loads[best_route_idx] += node_waste
+                unassigned.remove(farthest_node)
+                inserted_any = True
+                break
+            elif is_mandatory:
+                routes.append([farthest_node])
+                loads.append(node_waste)
+                unassigned.remove(farthest_node)
+                inserted_any = True
+                break
+
+        if not inserted_any:
             break
-
-        node_waste = wastes.get(farthest_node, 0.0)
-        revenue = node_waste * R
-        is_mandatory = farthest_node in mandatory_set
-
-        best_route_idx, best_pos, _ = _find_best_profit_insertion(
-            farthest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, C
-        )
-
-        if best_route_idx != -1:
-            routes[best_route_idx].insert(best_pos, farthest_node)
-            loads[best_route_idx] += node_waste
-        elif is_mandatory:
-            routes.append([farthest_node])
-            loads.append(node_waste)
-
-        unassigned.remove(farthest_node)
 
     return routes

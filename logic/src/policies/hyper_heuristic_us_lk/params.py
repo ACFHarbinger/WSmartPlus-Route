@@ -1,5 +1,5 @@
 """
-HULK (Hyper-heuristic Using unstringing/stringing with Local search and K-opt) Parameters.
+HULK (Hyper-heuristic with Unstringing/stringing and LK) Parameters.
 
 Reference:
     Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO

@@ -24,8 +24,6 @@ from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate impo
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
 )
-
-# Ensure you place your greedy_initialization.py file in this path or adjust accordingly
 from logic.src.policies.other.operators.heuristics.greedy_initialization import (
     build_greedy_routes,
 )

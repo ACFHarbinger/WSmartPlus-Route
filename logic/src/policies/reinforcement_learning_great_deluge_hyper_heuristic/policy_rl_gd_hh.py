@@ -1,5 +1,5 @@
 """
-RL-GD-HH (Reinforcement Learning Great Deluge Hyper-Heuristic) Policy Adapter.
+Reinforcement Learning Great Deluge Hyper-Heuristic (RL-GD-HH) Policy Adapter.
 
 This module provides the integration layer between the RLGDHHSolver and the
 broader simulator infrastructure. It adapts the learning-based hyper-heuristic

@@ -1,5 +1,5 @@
 """
-Ultimate AHVPL with Contextual Multi-Armed Bandits for Crossover Selection.
+Reinforcement Learning Augmented Hybrid Volleyball Premier League (RL-AHVPL) with Contextual Multi-Armed Bandits for Crossover Selection.
 
 This is the most advanced version of AHVPL, combining:
     1. Enhanced ACO with Q-Learning (initialization)
@@ -170,7 +170,7 @@ class RLAHVPLSolver:
         self.tabu_list: Deque[int] = deque(maxlen=self.params.rts_params.max_tenure)
 
         # Tracking
-        self.best_profit_history = []
+        self.best_profit_history: List[float] = []
 
     # ===== Initialization =====
 

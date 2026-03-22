@@ -106,6 +106,16 @@ bc:
     # ---------------------------------------------------------------------
     # Random Seed
     # ---------------------------------------------------------------------
+    - profit_aware_operators: false
+      # Whether to use profit-aware insertion heuristics
+      # true = Use farthest_profit_insertion
+      # false = Use standard farthest_insertion
+
+    - vrpp: false
+      # Whether to use VRPP-specific pool expansion
+      # true = Set expand_pool=true (consider all nodes)
+      # false = Set expand_pool=false (consider only unassigned)
+
     - seed: null
       # Random seed for reproducibility
       # null = Use current timestamp (non-deterministic)

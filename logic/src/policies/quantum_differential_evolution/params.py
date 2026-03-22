@@ -13,7 +13,7 @@ class QDEParams:
     Configuration parameters for the QDE solver.
 
     Each candidate solution is represented as a quantum amplitude vector q ∈ [0,1]^N,
-    where N is the number of customer nodes.  Amplitude values are collapsed to a
+    where N is the number of customer nodes. Amplitude values are collapsed to a
     discrete routing solution by ranking and greedy insertion.
 
     Attributes:

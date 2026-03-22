@@ -1,5 +1,5 @@
 """
-Memetic Algorithm Tolerance-based Selection (MA-TS) for VRPP.
+Memetic Algorithm with Tolerance-based Selection (MA-TS) for VRPP.
 
 EXACT COPY of League Championship Algorithm (LCA) with rigorous nomenclature.
 

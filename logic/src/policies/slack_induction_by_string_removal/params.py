@@ -1,8 +1,8 @@
 """
 SISR Parameters Module.
 
-This module defines the configuration parameters for the Slack Induction by
-String Removal (SISR) algorithm.
+This module defines the configuration parameters for the
+Slack Induction by String Removal (SISR) algorithm.
 
 Attributes:
     None
