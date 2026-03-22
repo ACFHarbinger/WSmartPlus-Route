@@ -34,6 +34,7 @@ def deep_insertion(
     wastes: Dict[int, float],
     capacity: float,
     alpha: float = 0.3,
+    mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = False,
 ) -> List[List[int]]:
     """
@@ -46,10 +47,13 @@ def deep_insertion(
         wastes: Waste/demand look-up per node.
         capacity: Vehicle capacity.
         alpha: Weight for residual capacity penalty (>= 0).
+        mandatory_nodes: List of nodes that must be inserted.
+        expand_pool: If True, evaluates all unvisited nodes.
 
     Returns:
         Updated routes with nodes inserted.
     """
+    mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
     if expand_pool:
@@ -59,44 +63,57 @@ def deep_insertion(
     else:
         unassigned = sorted(list(removed_nodes))
 
-    while unassigned:
+    # Prioritize mandatory nodes by placing them at the front
+    unassigned.sort(key=lambda x: 0 if x in mandatory_set else 1)
+    for node in unassigned:
+        node_waste = wastes.get(node, 0.0)
+        is_mandatory = node in mandatory_set
+
         best_score = float("inf")
-        best_node = -1
-        best_route = -1
+        best_route_idx = -1
         best_pos = -1
 
-        for node in unassigned:
-            node_waste = wastes.get(node, 0)
+        # Check existing routes
+        for r_idx, route in enumerate(routes):
+            if loads[r_idx] + node_waste > capacity:
+                continue
 
-            for r_idx, route in enumerate(routes):
-                if loads[r_idx] + node_waste > capacity:
-                    continue
+            residual = (capacity - loads[r_idx] - node_waste) / capacity
 
-                residual = (capacity - loads[r_idx] - node_waste) / max(capacity, 1e-9)
+            for pos in range(len(route) + 1):
+                prev = route[pos - 1] if pos > 0 else 0
+                nxt = route[pos] if pos < len(route) else 0
 
-                for pos in range(len(route) + 1):
-                    prev = route[pos - 1] if pos > 0 else 0
-                    nxt = route[pos] if pos < len(route) else 0
+                cost_delta = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                score = cost_delta - alpha * residual
 
-                    cost_delta = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                if score < best_score:
+                    best_score = score
+                    best_route_idx = r_idx
+                    best_pos = pos
 
-                    score = cost_delta - alpha * residual
+        # Check new route
+        new_route_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+        new_residual = (capacity - node_waste) / capacity
+        new_score = new_route_cost - alpha * new_residual
 
-                    if score < best_score:
-                        best_score = score
-                        best_node = node
-                        best_route = r_idx
-                        best_pos = pos
+        if new_score < best_score:
+            best_score = new_score
+            best_route_idx = len(routes)
+            best_pos = 0
 
-        if best_node != -1:
-            routes[best_route].insert(best_pos, best_node)
-            loads[best_route] += wastes.get(best_node, 0)
-            unassigned.remove(best_node)
-        else:
-            for node in unassigned:
+        # Execute Best Move
+        if best_route_idx != -1:
+            if best_route_idx == len(routes):
                 routes.append([node])
-                loads.append(wastes.get(node, 0))
-            break
+                loads.append(node_waste)
+            else:
+                routes[best_route_idx].insert(best_pos, node)
+                loads[best_route_idx] += node_waste
+        elif is_mandatory:
+            # Safety fallback for mandatory nodes
+            routes.append([node])
+            loads.append(node_waste)
 
     return routes
 

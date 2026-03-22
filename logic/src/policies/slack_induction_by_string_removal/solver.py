@@ -107,6 +107,7 @@ class SISRSolver:
                 self.wastes,
                 capacity=self.capacity,
                 blink_rate=self.params.blink_rate,
+                mandatory_nodes=self.mandatory_nodes,
                 rng=self.random,
                 expand_pool=True,
             )

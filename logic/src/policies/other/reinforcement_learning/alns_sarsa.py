@@ -368,6 +368,7 @@ class ALNSSARSASolver:
                 self.R,
                 self.C,
                 blink_rate=blink_rate,
+                mandatory_nodes=self.mandatory_nodes,
                 rng=self.random,
                 expand_pool=self.expand_pool,
             )
@@ -378,6 +379,7 @@ class ALNSSARSASolver:
             self.wastes,
             self.capacity,
             blink_rate=blink_rate,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
             expand_pool=self.expand_pool,
         )
