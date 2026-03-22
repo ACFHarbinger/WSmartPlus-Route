@@ -204,7 +204,7 @@ class VRPPMasterProblem:
         cut_set = set(cut_nodes)
 
         # Check if cut already exists
-        for existing_set, existing_rhs, _ in self.dual_capacity_cuts:
+        for existing_set, _existing_rhs, _ in self.dual_capacity_cuts:
             if existing_set == cut_set:
                 return False
 
