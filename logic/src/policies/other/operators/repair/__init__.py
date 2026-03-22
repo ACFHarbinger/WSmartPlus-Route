@@ -23,7 +23,7 @@ from ..unstringing_stringing import (
 )
 from .deep import deep_insertion, deep_profit_insertion
 from .farthest import farthest_insertion, farthest_profit_insertion
-from .geni import geni_insertion
+from .geni import geni_insertion, geni_profit_insertion
 from .greedy import greedy_insertion, greedy_profit_insertion
 from .greedy_blink import greedy_insertion_with_blinks, greedy_profit_insertion_with_blinks
 from .regret import regret_2_insertion, regret_2_profit_insertion, regret_k_insertion, regret_k_profit_insertion
@@ -35,6 +35,7 @@ __all__ = [
     "farthest_insertion",
     "farthest_profit_insertion",
     "geni_insertion",
+    "geni_profit_insertion",
     "regret_2_insertion",
     "regret_2_profit_insertion",
     "regret_k_insertion",
