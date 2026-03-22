@@ -34,14 +34,14 @@ def test_type_i_unstringing():
 
     Segments:
     S1: (4...5) = [4, 5]. Reversed -> [5, 4].
-    S2: (6...7) = [6, 7].
+    S2: (6...7) = [6, 7]. Reversed -> [7, 6]
     Prefix: [0, 1, 2].
     Suffix: [0]. (After j=7).
 
     Expected:
     Prefix + S2 + S1_rev + Suffix
-    [0, 1, 2] + [6, 7] + [5, 4] + [0]
-    = [0, 1, 2, 6, 7, 5, 4, 0]
+    [0, 1, 2] + [7, 6] + [5, 4] + [0]
+    = [0, 1, 2, 7, 6, 5, 4, 0]
     """
     route = [0, 1, 2, 3, 4, 5, 6, 7, 0]
     i = 3
@@ -49,7 +49,7 @@ def test_type_i_unstringing():
     k = 5
 
     new_route = apply_type_i_us(route, i, j, k)
-    expected = [0, 1, 2, 6, 7, 5, 4, 0]
+    expected = [0, 1, 2, 7, 6, 5, 4, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"
 

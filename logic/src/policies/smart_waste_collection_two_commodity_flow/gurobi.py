@@ -33,15 +33,19 @@ def _run_gurobi_optimizer(  # noqa: C901
     Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 
     n_bins = len(bins)
-    enchimentos = np.insert(bins, 0, 0.0)
-    pesos_reais = [(e / 100) * B * V for e in enchimentos]  # Altera os enchimentos de % pra valor real em KG
     nodes = list(range(n_bins + 1))
     idx_deposito = 0
     nodes_real = [i for i in nodes if i != idx_deposito]
+
+    # Data for weight and profit calculations
+    enchimentos = np.insert(bins, 0, 0.0)
+    pesos_reais = [(e / 100) * B * V for e in enchimentos]
     S_dict = {i: pesos_reais[i] for i in nodes}
 
+    # Normalize binsids to only include bin IDs (exclude depot if present)
+    pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
     criticos_dict = {0: False}
-    for i, bin_id in enumerate(binsids, 1):
+    for i, bin_id in enumerate(pure_binsids, 1):
         criticos_dict[i] = bin_id in must_go
 
     max_dist = 6000
@@ -67,30 +71,30 @@ def _run_gurobi_optimizer(  # noqa: C901
         mdl.addConstr(f[i, j] + h[i, j] == Q * x[i, j])
 
     # 2. Flow balance for waste (Commodity 1)
-    # At each visited node i, inflow - outflow = waste[i]
+    # At each visited node i, outflow - inflow = waste[i]
     for i in nodes_real:
         mdl.addConstr(
-            quicksum(f[j, i] for j in nodes if (j, i) in f) - quicksum(f[i, j] for j in nodes if (i, j) in f)
+            quicksum(f[i, j] for j in nodes if (i, j) in f) - quicksum(f[j, i] for j in nodes if (j, i) in f)
             == S_dict[i] * g[i]
         )
 
     # 3. Flow balance for empty capacity (Commodity 2)
-    # At each visited node i, outflow - inflow = waste[i]
+    # At each visited node i, inflow - outflow = waste[i]
     for i in nodes_real:
         mdl.addConstr(
-            quicksum(h[i, j] for j in nodes if (i, j) in h) - quicksum(h[j, i] for j in nodes if (j, i) in h)
+            quicksum(h[j, i] for j in nodes if (j, i) in h) - quicksum(h[i, j] for j in nodes if (i, j) in h)
             == S_dict[i] * g[i]
         )
 
     # 4. Depot balance
-    # Total waste collected = outflow from nodes to depot
+    # Total waste collected = inflow to depot
     mdl.addConstr(
         quicksum(f[i, 0] for i in nodes_real if (i, 0) in f) == quicksum(S_dict[i] * g[i] for i in nodes_real)
     )
-    # Total empty capacity = sum of (Q - total_waste_on_route)
-    mdl.addConstr(
-        quicksum(h[0, j] for j in nodes_real if (0, j) in h) == quicksum(Q * x[0, j] for j in nodes_real if (0, j) in x)
-    )
+    # Total empty capacity = outflow from depot (full capacity Q per vehicle)
+    mdl.addConstr(quicksum(h[0, j] for j in nodes_real if (0, j) in h) == Q * k_var)
+    # Load leaving depot is 0
+    mdl.addConstr(quicksum(f[0, j] for j in nodes_real if (0, j) in f) == 0)
 
     if number_vehicles == 0:
         number_vehicles = len(binsids)
@@ -154,7 +158,7 @@ def _run_gurobi_optimizer(  # noqa: C901
         id_map = {0: 0}
         for i, bin_id in enumerate(binsids, 1):
             id_map[i] = bin_id
-        arcos_ativos = [(i, j) for i in nodes for j in nodes if i != j and x[i, j].X > 0.5]
+        arcos_ativos = [(i, j) for (i, j) in x.keys() if i != j and x[i, j].X > 0.5]
 
         rotas = []
         visitados = set()
