@@ -82,6 +82,7 @@ def greedy_insertion_with_blinks(
     wastes: Dict[int, float],
     capacity: float,
     blink_rate: float = 0.1,
+    mandatory_nodes: Optional[List[int]] = None,
     rng: Optional[Random] = None,
     expand_pool: bool = False,
 ) -> List[List[int]]:
@@ -96,12 +97,14 @@ def greedy_insertion_with_blinks(
         wastes: Node demands.
         capacity: Vehicle capacity.
         blink_rate: Probability of skipping the current best option.
+        mandatory_nodes: List of nodes that must be inserted.
         rng: Random number generator.
         expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.
 
     Returns:
         Routes with nodes reinserted based on minimum cost.
     """
+    mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
     if rng is None:
@@ -112,13 +115,15 @@ def greedy_insertion_with_blinks(
         n_nodes = len(dist_matrix) - 1
         unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
     else:
-        unassigned = sorted(list(removed_nodes))
+        unassigned = list(removed_nodes)
 
+    # Shuffle for randomness, then stable sort mandatory nodes to the front
     rng.shuffle(unassigned)
-
+    unassigned.sort(key=lambda x: 0 if x in mandatory_set else 1)
     for node in unassigned:
         node_waste = wastes.get(node, 0)
-        options = []  # List of (cost_delta, route_idx, position)
+        is_man = node in mandatory_set
+        options = []
 
         # Check existing routes
         for r_idx, route in enumerate(routes):
@@ -135,6 +140,11 @@ def greedy_insertion_with_blinks(
         # Check new route
         new_route_cost = dist_matrix[0, node] + dist_matrix[node, 0]
         options.append((new_route_cost, len(routes), 0))
+        if not options:
+            if is_man:
+                routes.append([node])
+                loads.append(node_waste)
+            continue
 
         # Sort options by Cost (Ascending - Lowest cost is best)
         options.sort(key=lambda x: x[0])
