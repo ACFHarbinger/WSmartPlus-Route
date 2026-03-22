@@ -14,10 +14,64 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
 from ..branch_and_cut.separation import SeparationEngine
 from ..branch_and_cut.vrpp_model import VRPPModel
 from ..branch_and_price.master_problem import Route, VRPPMasterProblem
 from ..branch_and_price.rcspp_dp import RCSPPSolver
+
+
+def _separate_rcc(
+    master: VRPPMasterProblem,
+    sep_engine: SeparationEngine,
+    v_model: VRPPModel,
+    max_cuts: int,
+) -> int:
+    """Separate and add Rounded Capacity Cuts (RCC) to the master problem."""
+    edge_vars = master.get_edge_usage()
+    if not edge_vars:
+        return 0
+
+    # Map edge_usage to x_vals array for SeparationEngine
+    x_vals = np.zeros(len(v_model.edges))
+    for (i, j), val in edge_vars.items():
+        if (min(i, j), max(i, j)) in v_model.edge_to_idx:
+            idx = v_model.edge_to_idx[(min(i, j), max(i, j))]
+            x_vals[idx] = val
+
+    # Separate cuts
+    violated_ineqs = sep_engine.separate(x_vals, max_cuts=max_cuts)
+    added_cuts = 0
+    for ineq in violated_ineqs:
+        if ineq.type == "CAPACITY" and master.add_capacity_cut(list(ineq.node_set), ineq.rhs):
+            added_cuts += 1
+
+    # If we added cuts, re-solve LP and continue
+    if added_cuts > 0:
+        master.solve_lp_relaxation()
+    return added_cuts
+
+
+def _solve_pricing_step(
+    master: VRPPMasterProblem,
+    pricing_solver: RCSPPSolver,
+) -> int:
+    """Solve the pricing subproblem and add positive reduced cost columns."""
+    duals = master.get_reduced_cost_coefficients()
+    cut_duals = master.dual_capacity_cuts
+    new_columns_data = pricing_solver.solve(duals, capacity_cut_duals=cut_duals, max_routes=5)
+
+    if not new_columns_data:
+        return 0  # No more positive reduced cost columns
+
+    # Add new columns to master
+    added = 0
+    for r_nodes, red_cost in new_columns_data:
+        if red_cost > 1e-4:
+            cost, revenue, load, coverage = pricing_solver.compute_route_details(r_nodes)
+            master.add_route(Route(r_nodes, cost, revenue, load, coverage))
+            added += 1
+    return added
 
 
 def run_internal_bpc(
@@ -94,48 +148,10 @@ def run_internal_bpc(
             break
 
         # A. Separate Cuts (Rounded Capacity Cuts)
-        # We need the fractional solution from the RMP to separate cuts
-        # However, RMP routes are column-based. We map them back to edge variables for separation.
-        edge_vars = master.get_edge_usage()
-        if edge_vars:
-            # Map edge_usage to x_vals array for SeparationEngine
-            x_vals = np.zeros(len(v_model.edges))
-            for (i, j), val in edge_vars.items():
-                if (min(i, j), max(i, j)) in v_model.edge_to_idx:
-                    idx = v_model.edge_to_idx[(min(i, j), max(i, j))]
-                    x_vals[idx] = val
-
-            # Separate cuts
-            violated_ineqs = sep_engine.separate(x_vals, max_cuts=max_cuts)
-            added_cuts = 0
-            for ineq in violated_ineqs:
-                if ineq.type == "CAPACITY":
-                    # add_capacity_cut takes cut_nodes and rhs
-                    # CapacityCut has node_set and rhs
-                    if master.add_capacity_cut(list(ineq.node_set), ineq.rhs):
-                        added_cuts += 1
-
-            # If we added cuts, re-solve LP and continue
-            if added_cuts > 0:
-                master.solve_lp_relaxation()
+        _separate_rcc(master, sep_engine, v_model, max_cuts)
 
         # B. Solve Pricing Subproblem
-        # Get dual values and solve pricing
-        # The duals        # Get dual values and solve pricing
-        duals = master.get_reduced_cost_coefficients()
-        cut_duals = master.dual_capacity_cuts
-        new_columns_data = pricing_solver.solve(duals, capacity_cut_duals=cut_duals, max_routes=5)
-
-        if not new_columns_data:
-            break  # No more positive reduced cost columns
-
-        # Add new columns to master
-        added = 0
-        for r_nodes, red_cost in new_columns_data:
-            if red_cost > 1e-4:
-                cost, revenue, load, coverage = pricing_solver.compute_route_details(r_nodes)
-                master.add_route(Route(r_nodes, cost, revenue, load, coverage))
-                added += 1
+        added = _solve_pricing_step(master, pricing_solver)
 
         if added == 0:
             break
