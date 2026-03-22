@@ -184,7 +184,6 @@ def improved_simulated_annealing(  # noqa: C901
 
             # --- 4. EVALUATION ---
             candidate_removed_bins = copy.deepcopy(removed_bins)
-            # ... neighbor selection logic ...
             route_ops = [
                 "2opt",
                 "move",

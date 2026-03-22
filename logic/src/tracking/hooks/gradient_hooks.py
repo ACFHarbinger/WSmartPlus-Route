@@ -261,7 +261,6 @@ def remove_all_hooks(hook_data: Dict[str, Any]) -> None:
 
     Example:
         >>> hook_data = add_gradient_monitoring_hooks(model)
-        >>> # ... training ...
         >>> remove_all_hooks(hook_data)  # Clean up
     """
     if "handles" in hook_data:
