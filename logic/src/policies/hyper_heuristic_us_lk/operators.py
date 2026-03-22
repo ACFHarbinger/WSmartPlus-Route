@@ -18,11 +18,8 @@ from ..other.operators import (
     string_removal,
 )
 from ..other.operators.unstringing_stringing import (
-    apply_type_i_us,
-    apply_type_ii_us,
-    apply_type_iii_us,
-    apply_type_iv_us,
     stringing_insertion,
+    unstringing_removal,
 )
 from .solution import Solution
 
@@ -61,16 +58,16 @@ class HULKOperators:
         self.rng = random.Random(seed) if seed is not None else random.Random()
 
     def apply_unstring_type_i(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
-        return self._apply_unstring(solution, n_remove, apply_type_i_us)
+        return self._apply_unstring_wrapper(solution, n_remove, 1)
 
     def apply_unstring_type_ii(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
-        return self._apply_unstring(solution, n_remove, apply_type_ii_us)
+        return self._apply_unstring_wrapper(solution, n_remove, 2)
 
     def apply_unstring_type_iii(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
-        return self._apply_unstring(solution, n_remove, apply_type_iii_us)
+        return self._apply_unstring_wrapper(solution, n_remove, 3)
 
     def apply_unstring_type_iv(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
-        return self._apply_unstring(solution, n_remove, apply_type_iv_us)
+        return self._apply_unstring_wrapper(solution, n_remove, 4)
 
     def apply_unstring_shaw(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
         routes = [list(r) for r in solution.routes]
@@ -82,33 +79,19 @@ class HULKOperators:
         partial, removed = string_removal(routes, n_remove, self.dist_matrix, rng=self.rng)
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
 
-    def _apply_unstring(self, solution: Solution, n_remove: int, unstring_func) -> Tuple[Solution, List[int]]:
+    def _apply_unstring_wrapper(
+        self, solution: Solution, n_remove: int, unstring_type: int
+    ) -> Tuple[Solution, List[int]]:
         routes = [list(r) for r in solution.routes]
-        removed = []
-        for _ in range(n_remove):
-            valid_routes = [i for i, r in enumerate(routes) if len(r) > 4]
-            if not valid_routes:
-                break
-            r_idx = self.rng.choice(valid_routes)
-            route = routes[r_idx]
-            i = self.rng.randint(1, len(route) - 2)
-            node = route[i]
-            # Type I-IV logic usually needs 2 params j, k
-            valid_targets = [idx for idx in range(1, len(route) - 1) if idx not in (i - 1, i, i + 1)]
-            if len(valid_targets) < 2:
-                continue
-            j, k = self.rng.sample(valid_targets, 2)
-            if unstring_func in (apply_type_iii_us, apply_type_iv_us):
-                if len(valid_targets) < 3:
-                    continue
-                l = self.rng.choice([t for t in valid_targets if t not in (j, k)])
-                new_route = unstring_func(route, i, j, k, l)
-            else:
-                new_route = unstring_func(route, i, j, k)
-            if len(new_route) < len(route):
-                routes[r_idx] = new_route
-                removed.append(node)
-        return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
+        new_routes, removed = unstringing_removal(
+            routes,
+            n_remove,
+            unstring_type,
+            self.dist_matrix,
+            rng=self.rng,
+        )
+
+        return Solution(new_routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
 
     def apply_string_repair(
         self, solution: Solution, removed: List[int], string_type: str, expand_pool: bool = False

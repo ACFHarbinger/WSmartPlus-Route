@@ -46,6 +46,10 @@ from logic.src.policies.other.operators.unstringing_stringing.unstringing_iv imp
     apply_type_iv_us,
     apply_type_iv_us_profit,
 )
+from logic.src.policies.other.operators.unstringing_stringing.unstringing_wrapper import (
+    unstringing_profit_removal,
+    unstringing_removal,
+)
 
 __all__ = [
     # Unstringing operators (removal)
@@ -66,7 +70,9 @@ __all__ = [
     "apply_type_iii_s_profit",
     "apply_type_iv_s",
     "apply_type_iv_s_profit",
-    # Automated Expandable Pool Stringing
+    # Automated wrappers
     "stringing_insertion",
     "stringing_profit_insertion",
+    "unstringing_removal",
+    "unstringing_profit_removal",
 ]

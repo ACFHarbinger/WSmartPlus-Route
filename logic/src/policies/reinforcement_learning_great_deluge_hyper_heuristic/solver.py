@@ -259,7 +259,7 @@ class RLGDHHSolver:
     def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
         """Shaw removal + regret-2 insertion."""
         n = max(1, min(len(self.nodes) // 4, 10))
-        partial, removed = shaw_removal(routes, n, self.dist_matrix, nodes=self.nodes)
+        partial, removed = shaw_removal(routes, n, self.dist_matrix)
         return regret_2_insertion(
             partial,
             removed,
