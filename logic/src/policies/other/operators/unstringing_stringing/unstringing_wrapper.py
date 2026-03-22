@@ -54,21 +54,21 @@ def _apply_unstring_op(
     profit_mode: bool,
 ) -> Tuple[List[int], float]:
     """Helper to apply unstringing operation and get new route and immediate profit val."""
-    if unstring_type in (3, 4):
+    if unstring_type in (2, 4):
         i, j, k, l = params
         if profit_mode:
-            if unstring_type == 3:
-                return apply_type_iii_us_profit(route, i, j, k, l, dist_matrix, wastes, R, C)
+            if unstring_type == 2:
+                return apply_type_ii_us_profit(route, i, j, k, l, dist_matrix, wastes, R, C)
             return apply_type_iv_us_profit(route, i, j, k, l, dist_matrix, wastes, R, C)
-        new_route = apply_type_iii_us(route, i, j, k, l) if unstring_type == 3 else apply_type_iv_us(route, i, j, k, l)
+        new_route = apply_type_ii_us(route, i, j, k, l) if unstring_type == 2 else apply_type_iv_us(route, i, j, k, l)
         return new_route, 0.0
 
     i, j, k = params
     if profit_mode:
         if unstring_type == 1:
             return apply_type_i_us_profit(route, i, j, k, dist_matrix, wastes, R, C)
-        return apply_type_ii_us_profit(route, i, j, k, dist_matrix, wastes, R, C)
-    new_route = apply_type_i_us(route, i, j, k) if unstring_type == 1 else apply_type_ii_us(route, i, j, k)
+        return apply_type_iii_us_profit(route, i, j, k, dist_matrix, wastes, R, C)
+    new_route = apply_type_i_us(route, i, j, k) if unstring_type == 1 else apply_type_iii_us(route, i, j, k)
     return new_route, 0.0
 
 
@@ -99,13 +99,13 @@ def _try_unstring_removal(
         valid_positions = [p for p in range(len(route)) if p != i]
 
         try:
-            if unstring_type in (1, 2):
+            if unstring_type in (1, 3):
                 if len(valid_positions) < 2:
                     continue
                 j = rng.choice(valid_positions)
                 valid_k = [p for p in valid_positions if p != j]
                 k = rng.choice(valid_k)
-                params = (i, j, k)
+                params: Tuple[int, ...] = (i, j, k)
             else:
                 if len(valid_positions) < 3:
                     continue
@@ -114,7 +114,7 @@ def _try_unstring_removal(
                 k = rng.choice(valid_k)
                 valid_l = [p for p in valid_positions if p not in (j, k)]
                 l = rng.choice(valid_l)
-                params = (i, j, k, l)
+                params = (i, j, k, l)  # type: ignore[assignment]
 
             new_route, val = _apply_unstring_op(route, unstring_type, params, dist_matrix, wastes, R, C, profit_mode)
 
@@ -154,10 +154,9 @@ def unstringing_removal_wrapper(
     Fallback to worst removal if unstringing fails (e.g., route too short).
     """
     if rng is None:
-        rng = random.Random()
+        rng = random.Random(42)
 
     removed_nodes = []
-
     for _ in range(n_remove):
         best_routes = None
         best_value = -float("inf")
@@ -184,7 +183,7 @@ def unstringing_removal_wrapper(
             routes = [r for r in routes if r]
         else:
             # Fallback for remaining nodes that couldn't be unstrung
-            from logic.src.policies.other.operators.destroy.worst import (
+            from logic.src.policies.other.operators.destroy.worst import (  # noqa: PLC0415
                 worst_profit_removal,
                 worst_removal,
             )
@@ -246,6 +245,8 @@ def unstringing_profit_removal(
     rng: Optional[random.Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """VRPP Cost-Aware Unstringing Removal."""
+    # Feedback implementation: Keep Variants I, II, and III purely structural
+    profit_mode = unstring_type not in (1, 2, 3)
     return unstringing_removal_wrapper(
         routes=routes,
         n_remove=n_remove,
@@ -255,5 +256,5 @@ def unstringing_profit_removal(
         R=R,
         C=C,
         rng=rng,
-        profit_mode=True,
+        profit_mode=profit_mode,
     )

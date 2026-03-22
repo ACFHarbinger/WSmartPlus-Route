@@ -29,6 +29,8 @@ class RLAHVPLParams:
     coaching_acceptance_threshold: float = 1e-6
     sub_rate: float = 0.2
     seed: Optional[int] = None
+    vrpp: bool = False
+    profit_aware_operators: bool = False
 
     # RL Configuration (Centralized)
     rl_config: RLConfig = field(default_factory=RLConfig)

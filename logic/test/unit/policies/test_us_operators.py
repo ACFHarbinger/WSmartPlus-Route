@@ -34,14 +34,14 @@ def test_type_i_unstringing():
 
     Segments:
     S1: (4...5) = [4, 5]. Reversed -> [5, 4].
-    S2: (6...7) = [6, 7]. Reversed -> [7, 6].
+    S2: (6...7) = [6, 7].
     Prefix: [0, 1, 2].
     Suffix: [0]. (After j=7).
 
     Expected:
-    Prefix + S1_rev + S2_rev + Suffix
-    [0, 1, 2] + [5, 4] + [7, 6] + [0]
-    = [0, 1, 2, 5, 4, 7, 6, 0]
+    Prefix + S2 + S1_rev + Suffix
+    [0, 1, 2] + [6, 7] + [5, 4] + [0]
+    = [0, 1, 2, 6, 7, 5, 4, 0]
     """
     route = [0, 1, 2, 3, 4, 5, 6, 7, 0]
     i = 3
@@ -49,46 +49,14 @@ def test_type_i_unstringing():
     k = 5
 
     new_route = apply_type_i_us(route, i, j, k)
-    expected = [0, 1, 2, 5, 4, 7, 6, 0]
+    expected = [0, 1, 2, 6, 7, 5, 4, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"
 
 
 def test_type_ii_unstringing():
     """
-    Test Type II operator.
-    Route: 0, 1, 2, 3, 4, 5, 6, 7, 0
-    i = 3 (V_i = 3).
-    i+1 = 4.
-    i-1 = 2.
-
-    Let j = 5.
-    Let k = 7. (k > j).
-
-    Segments:
-    S1: (4...5) = [4, 5]. Reversed -> [5, 4].
-    S2: (6...7) = [6, 7]. Reversed -> [7, 6].
-
-    Construction Type II:
-    V_{i-1} -> S2_rev -> S1_rev -> Remainder
-    Prefix ends at 2.
-    [0, 1, 2] + [7, 6] + [5, 4] + [0]
-    = [0, 1, 2, 7, 6, 5, 4, 0]
-    """
-    route = [0, 1, 2, 3, 4, 5, 6, 7, 0]
-    i = 3
-    j = 5
-    k = 7
-
-    new_route = apply_type_ii_us(route, i, j, k)
-    expected = [0, 1, 2, 7, 6, 5, 4, 0]
-
-    assert new_route == expected, f"Expected {expected}, got {new_route}"
-
-
-def test_type_iii_unstringing():
-    """
-    Test Type III operator.
+    Test Type II operator (Corrected definition: involving 4 neighbor nodes).
     Route: 0, 1, 2, 3, 4, 5, 6, 7, 8, 0
     i = 3. V_i=3.
     i+1=4. i-1=2.
@@ -112,8 +80,40 @@ def test_type_iii_unstringing():
     j = 7
     l = 8
 
-    new_route = apply_type_iii_us(route, i, j, k, l)
+    new_route = apply_type_ii_us(route, i, j, k, l)
     expected = [0, 1, 2, 5, 4, 7, 6, 8, 0]
+
+    assert new_route == expected, f"Expected {expected}, got {new_route}"
+
+
+def test_type_iii_unstringing():
+    """
+    Test Type III operator (Corrected definition: involving 3 neighbor nodes).
+    Route: 0, 1, 2, 3, 4, 5, 6, 7, 0
+    i = 3 (V_i = 3).
+    i+1 = 4.
+    i-1 = 2.
+
+    Let j = 5.
+    Let k = 7. (k > j).
+
+    Segments:
+    S1: (4...5) = [4, 5]. Reversed -> [5, 4].
+    S2: (6...7) = [6, 7]. Reversed -> [7, 6].
+
+    Construction Type III:
+    V_{i-1} -> S2_rev -> S1_rev -> Remainder
+    Prefix ends at 2.
+    [0, 1, 2] + [7, 6] + [5, 4] + [0]
+    = [0, 1, 2, 7, 6, 5, 4, 0]
+    """
+    route = [0, 1, 2, 3, 4, 5, 6, 7, 0]
+    i = 3
+    j = 5
+    k = 7
+
+    new_route = apply_type_iii_us(route, i, j, k)
+    expected = [0, 1, 2, 7, 6, 5, 4, 0]
 
     assert new_route == expected, f"Expected {expected}, got {new_route}"
 

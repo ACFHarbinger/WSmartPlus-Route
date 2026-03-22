@@ -20,6 +20,19 @@
 rl_ahvpl:
   custom:
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    # ---------------------------------------------------------------------
+    - profit_aware_operators: false
+      # Whether to use profit-aware insertion heuristics
+      # true = Use farthest_profit_insertion
+      # false = Use standard farthest_insertion
+
+    - vrpp: true
+      # Whether to use VRPP-specific pool expansion
+      # true = Set expand_pool=true (consider all nodes)
+      # false = Set expand_pool=false (consider only unassigned)
+
+    # ---------------------------------------------------------------------
     # VPL League Parameters
     # ---------------------------------------------------------------------
     - n_teams: 10

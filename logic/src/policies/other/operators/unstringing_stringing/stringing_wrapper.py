@@ -115,9 +115,9 @@ def _try_string_insertion(
                 if not valid_l:
                     continue
                 l = rng.choice(valid_l)
-                params = (i, j, k, l)
+                params: Tuple[int, ...] = (i, j, k, l)
             else:
-                params = (i, j, k)
+                params = (i, j, k)  # type: ignore[assignment]
 
             new_route, val = _apply_stringing_op(
                 route, node, string_type, params, dist_matrix, wastes, capacity, R, C, profit_mode
@@ -162,7 +162,7 @@ def stringing_insertion_wrapper(
     Fallback to greedy insertion if stringing fails (e.g., node cannot fit, route too short).
     """
     if rng is None:
-        rng = random.Random()
+        rng = random.Random(42)
 
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
 
@@ -214,7 +214,7 @@ def stringing_insertion_wrapper(
             unassigned.remove(best_node)
         else:
             # Fallback for remaining nodes that couldn't be strung (too small routes, complex constraints)
-            from logic.src.policies.other.operators.repair.greedy import (
+            from logic.src.policies.other.operators.repair.greedy import (  # noqa: PLC0415
                 greedy_insertion,
                 greedy_profit_insertion,
             )
@@ -291,6 +291,8 @@ def stringing_profit_insertion(
     expand_pool: bool = False,
 ) -> List[List[int]]:
     """VRPP Cost-Aware Stringing Repair."""
+    # Feedback implementation: Keep Variants I, II, and III purely structural
+    profit_mode = string_type not in (1, 2, 3)
     return stringing_insertion_wrapper(
         routes,
         removed_nodes,
@@ -302,6 +304,6 @@ def stringing_profit_insertion(
         C,
         mandatory_nodes=mandatory_nodes,
         rng=rng,
-        profit_mode=True,
+        profit_mode=profit_mode,
         expand_pool=expand_pool,
     )

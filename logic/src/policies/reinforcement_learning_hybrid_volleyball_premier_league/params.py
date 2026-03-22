@@ -33,6 +33,8 @@ class RLHVPLParams:
     sub_rate: float = 0.2  # Fraction of teams replaced per iteration
     time_limit: float = 60.0  # Overall time limit in seconds
     seed: Optional[int] = None
+    vrpp: bool = False
+    profit_aware_operators: bool = False
 
     # ===== RL Configuration (Centralized) =====
     rl_config: RLConfig = field(default_factory=RLConfig)

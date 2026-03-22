@@ -81,7 +81,7 @@ class DESolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.rng = random.Random(seed) if seed is not None else random.Random()
+        self.rng = random.Random(seed) if seed is not None else random.Random(42)
 
         # Pre-instantiate local search for reuse
         from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch

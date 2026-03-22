@@ -73,7 +73,7 @@ class HyperOperatorContext:
         self.route_loads: List[float] = []
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}
-        self.rng = rng or random.Random()
+        self.rng = rng or random.Random(42)
 
         self._build_structures()
 

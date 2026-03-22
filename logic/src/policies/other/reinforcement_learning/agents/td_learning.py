@@ -1,3 +1,4 @@
+from collections import deque
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -36,6 +37,7 @@ class TDAgent(RLAgent):
         epsilon_decay: float = 0.995,
         epsilon_min: float = 0.05,
         history_size: int = 100,
+        seed: int = 42,
     ):
         """
         Initialize the TD Agent.
@@ -49,6 +51,7 @@ class TDAgent(RLAgent):
             epsilon_decay: Epsilon decay factor.
             epsilon_min: Minimum epsilon.
             history_size: Size of global reward tracking buffer.
+            seed: Seed for random number generator.
         """
         self.n_states = n_states
         self.n_actions = n_actions
@@ -57,14 +60,13 @@ class TDAgent(RLAgent):
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
+        self.seed = seed
 
         # Tabular storage
         self.q_table: Dict[Any, np.ndarray] = {}
         self.trial_counts: Dict[Any, np.ndarray] = {}
 
         # Meta-tracking
-        from collections import deque
-
         self.reward_history = deque(maxlen=history_size)
 
     def get_statistics(self) -> Dict[str, Any]:
@@ -248,7 +250,7 @@ class SarsaAgent(TDAgent):
 
             if self.next_action is None:
                 # Fallback: sample from epsilon-greedy policy for next state
-                self.next_action = self.select_action(next_state, np.random.default_rng())
+                self.next_action = self.select_action(next_state, np.random.default_rng(self.seed))
 
             # Use specifically the next action's Q-value (on-policy)
             next_q = self.get_q_values(next_state)[self.next_action]

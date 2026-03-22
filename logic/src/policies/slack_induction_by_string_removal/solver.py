@@ -65,7 +65,7 @@ class SISRSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """

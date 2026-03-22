@@ -15,6 +15,10 @@ policies:
     pheromone_update_strategy: "profit"
     profit_weight: 1.0
 
+    # VRPP Settings
+    profit_aware_operators: false
+    vrpp: true
+
     # Nested component configs
     aco:
       n_ants: 10
@@ -49,6 +53,5 @@ policies:
         epsilon_min: 0.05
 
     # Common policy fields
-    vrpp: true
     must_go: ["other/mg_lookahead.yaml"]
     post_processing: []

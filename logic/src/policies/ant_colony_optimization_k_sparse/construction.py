@@ -75,7 +75,7 @@ class SolutionConstructor:
         self.R = R
         self.C = C
         self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
-        self.random = random.Random(seed) if seed is not None else random.Random()
+        self.random = random.Random(seed) if seed is not None else random.Random(42)
 
     def construct(self) -> List[List[int]]:
         """
