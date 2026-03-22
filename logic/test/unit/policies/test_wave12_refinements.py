@@ -5,6 +5,7 @@ from logic.src.policies.differential_evolution.solver import DESolver
 from logic.src.policies.differential_evolution.params import DEParams
 from logic.src.policies.other.operators.unstringing_stringing.unstringing_i import apply_type_i_us
 from logic.src.policies.other.operators.unstringing_stringing.unstringing_ii import apply_type_ii_us
+from logic.src.policies.other.operators.unstringing_stringing.unstringing_iii import apply_type_iii_us
 
 def test_de_binomial_crossover_j_rand():
     """Verify that j_rand component is always inherited from mutant in DE."""
@@ -54,13 +55,13 @@ def test_hulk_type_i_reconnection():
     new_route = apply_type_i_us(route, 2, 4, 3)
     assert new_route == [0, 1, 4, 3, 5, 0]
 
-def test_hulk_type_ii_reconnection():
-    """Verify Müller & Bonilha (2022) Type II reconnection logic."""
+def test_hulk_type_iii_reconnection():
+    """Verify Müller & Bonilha (2022) Type III reconnection logic (formerly Type II)."""
     # route: 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 0
     route = [0, 1, 2, 3, 4, 5, 0]
     # Remove i=2 (node 2). i-1=1, i+1=3.
     # j=3 (node 3), k=4 (node 4).
     # s1: (i+1...j) = [3]. s2: (j+1...k) = [4]. rem: [5, 0]
     # new_rot: [1] + [4]reversed + [3]reversed + [5, 0] = [1, 4, 3, 5, 0]
-    new_route = apply_type_ii_us(route, 2, 3, 4)
+    new_route = apply_type_iii_us(route, 2, 3, 4)
     assert new_route == [0, 1, 4, 3, 5, 0]

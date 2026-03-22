@@ -19,7 +19,7 @@ from ..branch_and_cut.separation import SeparationEngine
 from ..branch_and_cut.vrpp_model import VRPPModel
 from ..branch_and_price.master_problem import Route, VRPPMasterProblem
 from ..branch_and_price.rcspp_dp import RCSPPSolver
-from ..other.operators.repair.greedy import greedy_insertion
+from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
 
 
 def _separate_rcc(
@@ -83,6 +83,8 @@ def run_internal_bpc(
     C: float,
     values: Dict[str, Any],
     mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
+    profit_aware_operators: bool = False,
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
@@ -111,9 +113,29 @@ def run_internal_bpc(
     )
 
     # 2. Initial Columns (Greedy)
-    initial_routes_nodes = greedy_insertion(
-        [], list(range(1, n_nodes + 1)), dist_matrix, wastes, capacity, R=R, mandatory_nodes=mandatory_nodes
-    )
+    if profit_aware_operators:
+        initial_routes_nodes = greedy_profit_insertion(
+            [],
+            list(range(1, n_nodes + 1)),
+            dist_matrix,
+            wastes,
+            capacity,
+            R=R,
+            C=C,
+            mandatory_nodes=mandatory_nodes,
+            expand_pool=expand_pool,
+        )
+    else:
+        initial_routes_nodes = greedy_insertion(
+            [],
+            list(range(1, n_nodes + 1)),
+            dist_matrix,
+            wastes,
+            capacity,
+            R=R,
+            mandatory_nodes=mandatory_nodes,
+            expand_pool=expand_pool,
+        )
 
     initial_columns = []
     pricing_helper = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
