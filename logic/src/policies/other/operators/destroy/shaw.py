@@ -26,7 +26,6 @@ def shaw_removal(  # noqa: C901
     routes: List[List[int]],
     n_remove: int,
     dist_matrix: np.ndarray,
-    nodes: List[int],
     wastes: Optional[List[int]] = None,
     waste_dict: Optional[Dict[Any, Any]] = None,
     time_windows: Optional[Dict[Any, Any]] = None,
@@ -49,7 +48,6 @@ def shaw_removal(  # noqa: C901
         routes: Current routes.
         n_remove: Number of nodes to remove.
         dist_matrix: Distance matrix.
-        nodes: List of all node identifiers.
         wastes: List of wastes for each node (optional).
         waste_dict: Node waste dictionary {node: waste} (optional).
         time_windows: Time window dict {node: (earliest, latest)} (optional).

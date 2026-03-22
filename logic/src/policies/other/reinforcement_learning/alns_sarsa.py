@@ -75,19 +75,9 @@ from logic.src.policies.other.operators.repair import (
     regret_k_insertion as regret_k_insertion_op,
 )
 from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_i_us as type_i_removal_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_ii_us as type_ii_removal_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_iii_us as type_iii_removal_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
-    apply_type_iv_us as type_iv_removal_op,
-)
-from logic.src.policies.other.operators.unstringing_stringing import (
     stringing_insertion,
+    unstringing_profit_removal,
+    unstringing_removal,
 )
 from logic.src.policies.other.reinforcement_learning.agents.td_learning import SarsaAgent
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
@@ -372,43 +362,20 @@ class ALNSSARSASolver:
     # ===== Unstringing Operators =====
 
     def _unstring_wrapper(self, routes: List[List[int]], n: int, op_type: int) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper to apply unstringing moves n times as a destroy operator."""
-        removed = []
-        for _ in range(n):
-            valid_indices = [idx for idx, r in enumerate(routes) if len(r) > 4]
-            if not valid_indices:
-                break
-            r_idx = self.random.choice(valid_indices)
-            route = routes[r_idx]
-
-            i = self.random.randint(1, len(route) - 2)
-            node_to_remove = route[i]
-
-            valid_targets = [idx for idx in range(1, len(route) - 1) if idx not in (i - 1, i, i + 1)]
-
-            try:
-                if op_type == 1 and len(valid_targets) >= 2:
-                    j, k = self.random.sample(valid_targets, 2)
-                    new_route = type_i_removal_op(route, i, j, k)
-                elif op_type == 2 and len(valid_targets) >= 2:
-                    j, k = sorted(self.random.sample(valid_targets, 2))
-                    new_route = type_ii_removal_op(route, i, j, k)
-                elif op_type == 3 and len(valid_targets) >= 3:
-                    j, k, l = self.random.sample(valid_targets, 3)
-                    new_route = type_iii_removal_op(route, i, j, k, l)
-                elif op_type == 4 and len(valid_targets) >= 3:
-                    j, k, l = self.random.sample(valid_targets, 3)
-                    new_route = type_iv_removal_op(route, i, j, k, l)
-                else:
-                    new_route = route
-            except Exception:
-                new_route = route
-
-            if len(new_route) < len(route):
-                routes[r_idx] = new_route
-                removed.append(node_to_remove)
-
-        return routes, removed
+        """Wrapper to apply unstringing moves globally as a destroy operator."""
+        # Detect VRPP vs CVRP based on R
+        if self.R > 0.0:
+            return unstringing_profit_removal(
+                routes,
+                n,
+                op_type,
+                self.dist_matrix,
+                self.wastes,
+                self.R,
+                self.C,
+                rng=self.random,
+            )
+        return unstringing_removal(routes, n, op_type, self.dist_matrix, rng=self.random)
 
     def _unstring_type_i(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
         """Type-I unstringing."""
