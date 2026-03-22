@@ -104,7 +104,7 @@ bc:
       # Always empty for BC since solutions are already optimal
 
     # ---------------------------------------------------------------------
-    # Random Seed
+    # VRPP Settings
     # ---------------------------------------------------------------------
     - profit_aware_operators: false
       # Whether to use profit-aware insertion heuristics
@@ -115,11 +115,6 @@ bc:
       # Whether to use VRPP-specific pool expansion
       # true = Set expand_pool=true (consider all nodes)
       # false = Set expand_pool=false (consider only unassigned)
-
-    - seed: null
-      # Random seed for reproducibility
-      # null = Use current timestamp (non-deterministic)
-      # integer = Fixed seed for reproducible experiments
 
     # ---------------------------------------------------------------------
     # Advanced Solver Parameters (Implicit)

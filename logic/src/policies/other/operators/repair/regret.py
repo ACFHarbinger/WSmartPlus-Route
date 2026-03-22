@@ -251,7 +251,39 @@ def _get_insertion_options_with_profit(
     return node_options
 
 
-def regret_profit_insertion(
+def regret_2_profit_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
+    noise: float = 0.0,
+) -> List[List[int]]:
+    """
+    Insert removed nodes based on the regret-2 criterion maximizing profit.
+
+    Wrapper around regret_k_profit_insertion with k=2.
+    """
+    return regret_k_profit_insertion(
+        routes,
+        removed_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        R,
+        C,
+        k=2,
+        mandatory_nodes=mandatory_nodes,
+        expand_pool=expand_pool,
+        noise=noise,
+    )
+
+
+def regret_k_profit_insertion(
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
