@@ -455,9 +455,6 @@ assets/keys/
 # Agents
 mcp.json
 
-# References
-bibliography/
-
 # Local files and directories
 **/results/
 **/daily_*/
