@@ -24,9 +24,11 @@ class MemeticAlgorithmToleranceBasedSelectionConfig:
     tolerance_pct: float = 0.05
     recombination_rate: float = 0.6
     perturbation_strength: int = 2
+    n_removal: int = 1
     local_search_iterations: int = 500
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True
+    profit_aware_operators: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

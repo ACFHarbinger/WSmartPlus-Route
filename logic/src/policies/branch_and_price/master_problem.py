@@ -245,7 +245,7 @@ class VRPPMasterProblem:
                     prev = 0
                     for curr in route.nodes + [0]:
                         edge = tuple(sorted((prev, curr)))
-                        edge_usage[edge] = edge_usage.get(edge, 0.0) + val
+                        edge_usage[edge] = edge_usage.get(edge, 0.0) + val  # type: ignore[index,arg-type]
                         prev = curr
             return edge_usage
         except Exception:
@@ -263,7 +263,7 @@ class VRPPMasterProblem:
 
         # Relax integrality
         for var in self.lambda_vars:
-            var.vtype = GRB.CONTINUOUS
+            var.VType = GRB.CONTINUOUS
 
         self.model.update()
         self.model.optimize()
@@ -303,7 +303,7 @@ class VRPPMasterProblem:
 
         # Set integrality
         for var in self.lambda_vars:
-            var.vtype = GRB.BINARY
+            var.VType = GRB.BINARY
 
         self.model.update()
         self.model.optimize()

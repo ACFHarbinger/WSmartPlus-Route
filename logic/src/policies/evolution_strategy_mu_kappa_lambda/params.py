@@ -1,16 +1,8 @@
-"""
-Parameters for (μ,κ,λ) Evolution Strategy.
+from __future__ import annotations
 
-The (μ,κ,λ)-ES is a variant where selection occurs from μ parents who have not
-exceeded an age of κ and λ offspring individuals.
-
-Reference:
-    Emmerich, M., Shir, O. M., & Wang, H. (2015). Evolution Strategies.
-    In: Handbook of Natural Computing (pages 1-31).
-"""
-
+import dataclasses
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -36,6 +28,9 @@ class MuKappaLambdaESParams:
         n_removal: Number of nodes to remove in mutation (for routing problems).
         stagnation_limit: Stagnation threshold for restart (for routing problems).
         local_search_iterations: Local search iterations (for routing problems).
+        seed (Optional[int]): Random seed for reproducibility.
+        vrpp (bool): Whether the problem is VRP with Profits.
+        profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
     """
 
     mu: int = 15
@@ -56,6 +51,9 @@ class MuKappaLambdaESParams:
     n_removal: int = 3
     stagnation_limit: int = 10
     local_search_iterations: int = 100
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     def __post_init__(self):
         """Validate parameters."""
@@ -69,4 +67,33 @@ class MuKappaLambdaESParams:
         assert self.initial_sigma > 0, "initial_sigma must be positive"
         assert self.min_sigma > 0 and self.min_sigma < self.max_sigma, (
             "min_sigma must be positive and less than max_sigma"
+        )
+
+    @classmethod
+    def from_config(cls, config: Any) -> MuKappaLambdaESParams:
+        """Build parameters from a configuration object."""
+        if isinstance(config, dict):
+            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+
+        return cls(
+            mu=getattr(config, "mu", 15),
+            kappa=getattr(config, "kappa", 7),
+            lambda_=getattr(config, "lambda_", 100),
+            rho=getattr(config, "rho", 2),
+            tau_local=getattr(config, "tau_local", 1.0 / (2.0**0.5)),
+            tau_global=getattr(config, "tau_global", 1.0 / (2.0 * (2.0**0.5))),
+            initial_sigma=getattr(config, "initial_sigma", 1.0),
+            recombination_type=getattr(config, "recombination_type", "intermediate"),
+            max_iterations=getattr(config, "max_iterations", 1000),
+            time_limit=getattr(config, "time_limit", 300.0),
+            min_sigma=getattr(config, "min_sigma", 1e-10),
+            max_sigma=getattr(config, "max_sigma", 10.0),
+            bounds_min=getattr(config, "bounds_min", -5.0),
+            bounds_max=getattr(config, "bounds_max", 5.0),
+            n_removal=getattr(config, "n_removal", 3),
+            stagnation_limit=getattr(config, "stagnation_limit", 10),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )

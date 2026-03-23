@@ -36,8 +36,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+)
 from .params import MemeticAlgorithmDualPopulationParams
 
 
@@ -56,7 +61,6 @@ class MemeticAlgorithmDualPopulationSolver:
         C: float,
         params: MemeticAlgorithmDualPopulationParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize MA-DP solver.
@@ -69,7 +73,6 @@ class MemeticAlgorithmDualPopulationSolver:
             C: Cost per unit of distance traveled.
             params: MA-DP algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -80,13 +83,15 @@ class MemeticAlgorithmDualPopulationSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
-
-        # Initialize Local Search once to cache neighbor list
-        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random(42)
 
         # Initialize ACO Local Search for elite learning
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -94,7 +99,6 @@ class MemeticAlgorithmDualPopulationSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -268,15 +272,31 @@ class MemeticAlgorithmDualPopulationSolver:
 
                         # Rebuild routes using greedy insertion
                         try:
-                            new_team = greedy_insertion(
-                                [],
-                                flat_nodes,
-                                self.dist_matrix,
-                                self.wastes,
-                                self.capacity,
-                                R=self.R,
-                                mandatory_nodes=self.mandatory_nodes,
-                            )
+                            if self.params.profit_aware_operators:
+                                # First remove nodes with profit-awareness if possible,
+                                # but substitution phase usually just randomizes.
+                                # However, we can use greedy_profit_insertion for repair.
+                                new_team = greedy_profit_insertion(
+                                    [],
+                                    flat_nodes,
+                                    self.dist_matrix,
+                                    self.wastes,
+                                    self.capacity,
+                                    R=self.R,
+                                    C=self.C,
+                                    mandatory_nodes=self.mandatory_nodes,
+                                    expand_pool=self.params.vrpp,
+                                )
+                            else:
+                                new_team = greedy_insertion(
+                                    [],
+                                    flat_nodes,
+                                    self.dist_matrix,
+                                    self.wastes,
+                                    self.capacity,
+                                    mandatory_nodes=self.mandatory_nodes,
+                                    expand_pool=self.params.vrpp,
+                                )
                         except Exception:
                             # If reconstruction fails, keep original team
                             new_team = copy.deepcopy(team)
@@ -386,15 +406,28 @@ class MemeticAlgorithmDualPopulationSolver:
 
         # Reconstruct routes using greedy insertion
         try:
-            new_routes = greedy_insertion(
-                [],
-                candidate_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                new_routes = greedy_profit_insertion(
+                    [],
+                    candidate_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                new_routes = greedy_insertion(
+                    [],
+                    candidate_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
 
             # Apply local search refinement (reusing instance)
             new_routes = self.ls.optimize(new_routes)

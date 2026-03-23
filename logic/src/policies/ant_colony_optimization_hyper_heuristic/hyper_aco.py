@@ -52,7 +52,6 @@ class HyperHeuristicACO:
         params: Optional[HyperACOParams] = None,
         initial_solution: Optional[List[List[int]]] = None,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize HyperHeuristicACO.
@@ -75,8 +74,10 @@ class HyperHeuristicACO:
         self.params = params or HyperACOParams()
         self.initial_solution = initial_solution or []
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
-        self.np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
+        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random(42)
+        self.np_rng = (
+            np.random.default_rng(self.params.seed) if self.params.seed is not None else np.random.default_rng(42)
+        )
 
         self.operator_names = list(HYPER_OPERATORS.keys())
         self.n_operators = len(self.operator_names)
@@ -168,6 +169,8 @@ class HyperHeuristicACO:
             C=self.C,
             mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
+            profit_aware_operators=self.params.profit_aware_operators,
+            vrpp=self.params.vrpp,
         )
 
         for op_name in sequence:

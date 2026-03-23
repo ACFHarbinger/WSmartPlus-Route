@@ -10,6 +10,7 @@ Reference:
     problems". Metaheuristics: theory, research and applications, 185-200.
 """
 
+import inspect
 from random import Random
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -22,6 +23,7 @@ from logic.src.policies.adaptive_large_neighborhood_search.alns import ALNSSolve
 from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
 from logic.src.policies.hybrid_genetic_search.hgs import HGSSolver
 from logic.src.policies.hybrid_genetic_search.params import HGSParams
+from logic.src.policies.hybrid_genetic_search.split import LinearSplit
 from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 from logic.src.policies.travelling_salesman_problem.tsp import find_route, get_route_cost
@@ -44,6 +46,8 @@ def run_popmusic(  # noqa: C901
     capacity: float = 1.0e9,
     R: float = 1.0,
     C: float = 0.0,
+    vrpp: bool = True,
+    profit_aware_operators: bool = False,
 ) -> Tuple[List[List[int]], float, float, Dict[str, Any]]:
     """
     Solve VRPP using POPMUSIC matheuristic.
@@ -65,25 +69,26 @@ def run_popmusic(  # noqa: C901
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
+        vrpp: Whether to use expansion pool for VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
 
     Returns:
         Tuple of (routes, total_cost, total_profit, info_dict).
     """
     if not must_go:
-        return [0, 0], 0.0, 0.0, {}
+        return [[0, 0]], 0.0, 0.0, {}
 
     # 1. INITIAL SOLUTION
     wastes_dict = wastes if wastes is not None else {}
 
     if initial_solver == "greedy":
         initial_clusters = build_greedy_routes(
-            nodes=list(range(1, len(distance_matrix))),
-            mandatory_nodes=must_go,
+            dist_matrix=distance_matrix,
             wastes=wastes_dict,
             capacity=capacity,
-            dist_matrix=distance_matrix,
             R=R,
             C=C,
+            mandatory_nodes=must_go,
             rng=Random(seed),
         )
     elif initial_solver == "nearest_neighbor":
@@ -118,6 +123,8 @@ def run_popmusic(  # noqa: C901
                 neighborhood_indices=[0],  # Dummy for initial
                 must_go=must_go,
                 seed=seed,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
             )
             # _optimize_subproblem returns List[List[int]], we expect one or more routes
             routes.extend(sub_routes)
@@ -169,6 +176,8 @@ def run_popmusic(  # noqa: C901
                 neighborhood_indices=neighborhood_indices,
                 must_go=must_go,
                 seed=seed,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
             )
             if new_profit > old_profit + 1e-6:
                 # Update solution
@@ -204,6 +213,8 @@ def _optimize_subproblem(
     neighborhood_indices: List[int],
     must_go: List[int],
     seed: int,
+    vrpp: bool = True,
+    profit_aware_operators: bool = False,
 ) -> Tuple[List[List[int]], float]:
     """Optimize subproblem using the selected base_solver."""
     time_limit = 1.0
@@ -221,15 +232,36 @@ def _optimize_subproblem(
 
     if base_solver == "fast_tsp" or base_solver is None:
         return _optimize_with_fast_tsp(
-            subproblem_nodes, distance_matrix, wastes_dict, capacity, R, C, actual_config, time_limit, seed
+            subproblem_nodes, distance_matrix, wastes_dict, capacity, R, C, actual_config, time_limit, seed, vrpp
         )
     elif base_solver == "hgs":
         return _optimize_with_hgs(
-            distance_matrix, wastes_dict, capacity, R, C, neighborhood_indices, must_go, actual_config, time_limit, seed
+            distance_matrix,
+            wastes_dict,
+            capacity,
+            R,
+            C,
+            neighborhood_indices,
+            must_go,
+            actual_config,
+            time_limit,
+            seed,
+            vrpp,
+            profit_aware_operators,
         )
     elif base_solver == "alns":
         return _optimize_with_alns(
-            distance_matrix, wastes_dict, capacity, R, C, must_go, actual_config, time_limit, seed
+            distance_matrix,
+            wastes_dict,
+            capacity,
+            R,
+            C,
+            must_go,
+            actual_config,
+            time_limit,
+            seed,
+            vrpp,
+            profit_aware_operators,
         )
     else:
         raise ValueError(f"Unsupported base_solver: {base_solver}")
@@ -245,10 +277,9 @@ def _optimize_with_fast_tsp(
     config: Optional[Any],
     time_limit: float,
     seed: int,
+    vrpp: bool = False,
 ) -> Tuple[List[List[int]], float]:
     """Optimize subproblem using FastTSP and greedy split."""
-    from logic.src.policies.hybrid_genetic_search.split import LinearSplit
-
     actual_time_limit = time_limit
     if config and hasattr(config, "time_limit"):
         actual_time_limit = config.time_limit
@@ -266,6 +297,7 @@ def _optimize_with_fast_tsp(
         capacity=capacity,
         R=R,
         C=C,
+        vrpp=vrpp,
     )
     new_routes, new_profit = splitter.split(giant_tour)
     return new_routes, new_profit
@@ -282,19 +314,24 @@ def _optimize_with_hgs(
     config: Optional[Any],
     time_limit: float,
     seed: int,
+    vrpp: bool = True,
+    profit_aware_operators: bool = False,
 ) -> Tuple[List[List[int]], float]:
     """Optimize subproblem using Hybrid Genetic Search (HGS)."""
     if isinstance(config, HGSConfig):
         params = HGSParams.from_config(config)
     elif isinstance(config, dict):
         # Filter for only valid HGSParams fields to avoid errors
-        import inspect
-
         valid_keys = set(inspect.signature(HGSParams).parameters.keys())
         params_dict = {k: v for k, v in config.items() if k in valid_keys}
         params = HGSParams(**params_dict)
     else:
-        params = HGSParams(max_vehicles=len(neighborhood_indices), time_limit=time_limit)
+        params = HGSParams(
+            max_vehicles=len(neighborhood_indices),
+            time_limit=time_limit,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+        )
 
     # Ensure max_vehicles and time_limit are set correctly if not in config
     if params.max_vehicles <= 0:
@@ -326,6 +363,8 @@ def _optimize_with_alns(
     config: Optional[Any],
     time_limit: float,
     seed: int,
+    vrpp: bool = True,
+    profit_aware_operators: bool = False,
 ) -> Tuple[List[List[int]], float]:
     """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS)."""
     if config:
@@ -333,15 +372,23 @@ def _optimize_with_alns(
             params = ALNSParams.from_config(config)
         elif isinstance(config, dict):
             # Filter for only valid ALNSParams fields
-            import inspect
-
             valid_keys = set(inspect.signature(ALNSParams).parameters.keys())
             params_dict = {k: v for k, v in config.items() if k in valid_keys}
             params = ALNSParams(**params_dict)
         else:
-            params = ALNSParams(max_iterations=1000, time_limit=time_limit)
+            params = ALNSParams(
+                max_iterations=1000,
+                time_limit=time_limit,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
+            )
     else:
-        params = ALNSParams(max_iterations=1000, time_limit=time_limit)
+        params = ALNSParams(
+            max_iterations=1000,
+            time_limit=time_limit,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+        )
 
     # Ensure time_limit is set correctly if not in config
     if params.time_limit < 0:

@@ -19,12 +19,13 @@ import numpy as np
 from logic.src.policies.other.operators import (
     cluster_removal,
     greedy_insertion,
+    greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    shaw_profit_removal,
+    worst_profit_removal,
     worst_removal,
-)
-from logic.src.policies.other.reinforcement_learning.agents.bandits import (
-    DiscountedUCBBandit as DiscountedUCBAgent,
 )
 from logic.src.policies.other.reinforcement_learning.agents.bandits import (
     EXP3Agent,
@@ -50,6 +51,11 @@ from logic.src.policies.other.reinforcement_learning.agents.td_learning import (
 from logic.src.policies.other.reinforcement_learning.features.state import StateFeatureExtractor
 from logic.src.policies.other.reinforcement_learning.reward.shaping import AdaptiveRewardShaper, RewardShaper
 
+from ..other.operators.destroy.shaw import shaw_removal
+from ..other.operators.destroy.string import string_removal
+from ..other.operators.repair.greedy_blink import (
+    DiscountedUCBBandit as DiscountedUCBAgent,
+)
 from .params import RLALNSParams
 
 
@@ -71,7 +77,6 @@ class RLALNSSolver:
         C: float,
         params: RLALNSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize RL-ALNS solver.
@@ -84,7 +89,6 @@ class RLALNSSolver:
             C: Cost multiplier.
             params: RL-ALNS parameters.
             mandatory_nodes: List of mandatory nodes.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -93,8 +97,8 @@ class RLALNSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
-        self.np_random = np.random.default_rng(seed)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.np_random = np.random.default_rng(params.seed)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -104,9 +108,9 @@ class RLALNSSolver:
 
         # Initialize RL components
         self.feature_extractor = StateFeatureExtractor(
-            progress_thresholds=params.progress_thresholds,
-            stagnation_thresholds=params.stagnation_thresholds,
-            diversity_thresholds=params.diversity_thresholds,
+            progress_thresholds=params.progress_thresholds,  # type: ignore[arg-type]
+            stagnation_thresholds=params.stagnation_thresholds,  # type: ignore[arg-type]
+            diversity_thresholds=params.diversity_thresholds,  # type: ignore[arg-type]
         )
 
         if params.adaptive_rewards:
@@ -117,7 +121,7 @@ class RLALNSSolver:
                 rejected_reward=params.reward_rejected,
             )
         else:
-            self.reward_shaper = RewardShaper(
+            self.reward_shaper = RewardShaper(  # type: ignore[assignment]
                 best_improvement_reward=params.reward_new_global_best,
                 local_improvement_reward=params.reward_improved_current,
                 accepted_reward=params.reward_accepted_worse,
@@ -139,35 +143,74 @@ class RLALNSSolver:
         that call the underlying operator functions with appropriate arguments.
         Provides a mapping for action indices to operator combinations.
         """
-        self.destroy_ops = [
-            lambda r, n: random_removal(r, n, rng=self.random),
-            lambda r, n: worst_removal(r, n, self.dist_matrix),
-            lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
-        ]
-        self.destroy_names = ["Random", "Worst", "Cluster"]
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
-        self.repair_ops = [
-            lambda r, n: greedy_insertion(
-                r,
-                n,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-                cost_unit=self.C,
-            ),
-            lambda r, n: regret_2_insertion(
-                r,
-                n,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-                cost_unit=self.C,
-            ),
-        ]
+        if use_profit:
+            self.destroy_ops = [
+                lambda r, n: random_removal(r, n, rng=self.random),
+                lambda r, n: worst_profit_removal(r, n, self.dist_matrix, self.wastes, self.R, self.C),
+                lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
+                lambda r, n: shaw_profit_removal(r, n, self.dist_matrix, self.wastes, self.R, self.C),
+                lambda r, n: string_removal(r, n, self.dist_matrix, rng=self.random),
+            ]
+        else:
+            self.destroy_ops = [
+                lambda r, n: random_removal(r, n, rng=self.random),
+                lambda r, n: worst_removal(r, n, self.dist_matrix),
+                lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
+                lambda r, n: shaw_removal(r, n, self.dist_matrix),
+                lambda r, n: string_removal(r, n, self.dist_matrix, rng=self.random),
+            ]
+
+        self.destroy_names = ["Random", "Worst", "Cluster", "Shaw", "String"]
+
+        if use_profit:
+            self.repair_ops = [
+                lambda r, n: greedy_profit_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                ),
+                lambda r, n: regret_2_profit_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                ),
+            ]
+        else:
+            self.repair_ops = [
+                lambda r, n: greedy_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                ),
+                lambda r, n: regret_2_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                ),
+            ]
         self.repair_names = ["Greedy", "Regret-2"]
 
         # Calculate total number of possible (destroy, repair) combinations

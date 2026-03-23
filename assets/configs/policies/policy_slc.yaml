@@ -83,6 +83,9 @@ slc:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Execution backend: logic/src/policies/soccer_league_competition/
 

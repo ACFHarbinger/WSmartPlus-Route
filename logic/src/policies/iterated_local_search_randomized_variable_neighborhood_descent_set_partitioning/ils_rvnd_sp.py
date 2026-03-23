@@ -12,18 +12,26 @@ Reference:
 import copy
 import logging
 import time
+from random import Random
 from typing import Dict, List, Optional, Set, Tuple
 
 import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
+from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import (
     ILSRVNDSPParams,
 )
 from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd import RVND
 from logic.src.policies.other.local_search.local_search_aco import (
     ACOLocalSearch,
+)
+from logic.src.policies.other.operators import (
+    build_greedy_routes,
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,7 +71,8 @@ class ILSRVNDSPSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
-        self.rng = np.random.default_rng(params.seed)
+        self.rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
+        self.random = Random(params.seed) if params.seed is not None else Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -71,6 +80,20 @@ class ILSRVNDSPSolver:
         # Keep track of unique valid routes explored
         # A route is mapped to a tuple for correct hashing
         self.route_pool: Set[Tuple[int, ...]] = set()
+
+        self.ls_manager = ACOLocalSearch(
+            dist_matrix=self.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=KSACOParams(
+                local_search_iterations=self.params.local_search_iterations,
+                vrpp=self.params.vrpp,
+                profit_aware_operators=self.params.profit_aware_operators,
+                seed=self.params.seed,
+            ),
+        )
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
         """Calculate total routing cost."""
@@ -102,81 +125,48 @@ class ILSRVNDSPSolver:
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
         """
         Perturbation mechanism for generating neighborhood jumps.
-        Randomly removes perturbation_strength nodes and greedily reinserts them.
+        Uses standard removal and insertion operators.
         """
-        all_nodes = [n for r in routes for n in r]
-        if not all_nodes:
+        if not any(routes):
             return routes
 
-        num_remove = min(len(all_nodes), getattr(self.params, "perturbation_strength", 2))
-        removed_nodes = list(self.rng.choice(all_nodes, size=num_remove, replace=False))
+        num_remove = min(sum(len(r) for r in routes), getattr(self.params, "perturbation_strength", 2))
+        partial, removed = random_removal(routes, num_remove, self.random)
 
-        new_routes = []
-        for r in routes:
-            cleaned = [n for n in r if n not in removed_nodes]
-            if cleaned:
-                new_routes.append(cleaned)
-
-        # Greedily Reinsert
-        for node in removed_nodes:
-            best_route_idx = -1
-            best_pos = -1
-            best_cost_delta = float("inf")
-            node_waste = self.wastes.get(node, 0.0)
-
-            for i, r in enumerate(new_routes):
-                current_load = sum(self.wastes.get(n, 0.0) for n in r)
-                if current_load + node_waste <= self.capacity:
-                    # Evaluate best insertion point
-                    for j in range(len(r) + 1):
-                        prev_node = r[j - 1] if j > 0 else 0
-                        next_node = r[j] if j < len(r) else 0
-
-                        delta = (
-                            self.dist_matrix[prev_node][node]
-                            + self.dist_matrix[node][next_node]
-                            - self.dist_matrix[prev_node][next_node]
-                        )
-                        if delta < best_cost_delta:
-                            best_cost_delta = delta
-                            best_route_idx = i
-                            best_pos = j
-
-            if best_route_idx != -1:
-                new_routes[best_route_idx].insert(best_pos, node)
-            else:
-                new_routes.append([node])
-
-        return new_routes
+        if self.params.profit_aware_operators:
+            return greedy_profit_insertion(
+                routes=partial,
+                removed_nodes=removed,
+                dist_matrix=self.dist_matrix,
+                wastes=self.wastes,
+                capacity=self.capacity,
+                R=self.R,
+                C=self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+        else:
+            return greedy_insertion(
+                routes=partial,
+                removed_nodes=removed,
+                dist_matrix=self.dist_matrix,
+                wastes=self.wastes,
+                capacity=self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     def build_initial_solution(self) -> List[List[int]]:
-        """Greedy constructive heuristic."""
-        nodes = self.nodes[:]
-        self.rng.shuffle(nodes)
-        routes = []
-        curr_route = []
-        load = 0.0
-        mandatory_set = set(self.mandatory_nodes)
-
-        for node in nodes:
-            waste = self.wastes.get(node, 0.0)
-            revenue = waste * self.R
-            is_mandatory = node in mandatory_set
-
-            if not is_mandatory and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
-                continue
-
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-        if curr_route:
-            routes.append(curr_route)
-        return routes
+        """Construct initial solution using standard greedy heuristic."""
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+        )
 
     def solve_set_partitioning(
         self, pool: Optional[Set[Tuple[int, ...]]] = None
@@ -199,8 +189,7 @@ class ILSRVNDSPSolver:
         route_profits = np.zeros(n_routes)
 
         # Map node to the indices of routes that contain it
-        node_to_routes = {n: [] for n in self.nodes}
-
+        node_to_routes: Dict[int, List[int]] = {n: [] for n in self.nodes}
         for i, route in enumerate(target_pool):
             cost = self.dist_matrix[0][route[0]]
             for j in range(len(route) - 1):
@@ -409,16 +398,7 @@ class ILSRVNDSPSolver:
         """Main ILS-RVND-SP execution loop with dual strategy handling."""
         start_time = time.process_time()
 
-        ls_manager = ACOLocalSearch(
-            dist_matrix=self.dist_matrix,
-            waste=self.wastes,
-            capacity=self.capacity,
-            R=self.R,
-            C=self.C,
-            params=self.params,
-            seed=self.params.seed,
-        )
-        rvnd = RVND(ls_manager=ls_manager, rng=self.rng)
+        rvnd = RVND(ls_manager=self.ls_manager, rng=self.rng)
 
         n_limit = getattr(self.params, "N", 150)
 

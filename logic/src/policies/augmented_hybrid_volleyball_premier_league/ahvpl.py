@@ -51,7 +51,6 @@ class AHVPLSolver:
         C: float,
         params: AHVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = np.array(dist_matrix)
         self.wastes = wastes
@@ -63,19 +62,15 @@ class AHVPLSolver:
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # ACO: construction + pheromone guidance
-        self.aco_solver = KSparseACOSolver(
-            dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes, seed=seed
-        )
+        self.aco_solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes)
         self.pheromone = self.aco_solver.pheromone
         self.constructor = self.aco_solver.constructor
 
         # ALNS: deep local search (coaching)
-        self.alns_solver = ALNSSolver(
-            dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes, seed=seed
-        )
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params, mandatory_nodes)
 
         # HGS: LinearSplit for giant tour decoding
         self.split_manager = LinearSplit(
@@ -86,6 +81,7 @@ class AHVPLSolver:
             C,
             params.hgs_params.max_vehicles,
             mandatory_nodes,
+            vrpp=params.vrpp,
         )
 
     def _initialize_population(self) -> List[Individual]:
@@ -101,7 +97,7 @@ class AHVPLSolver:
         if not routes:
             return None
 
-        ind = Individual(self._routes_to_giant_tour(routes))
+        ind = Individual(self._routes_to_giant_tour(routes), vrpp=self.params.vrpp)
         ind.routes = [r[:] for r in routes]
 
         # Calculate precise cost/rev directly from ACO routes
@@ -280,8 +276,8 @@ class AHVPLSolver:
         p2_extra = [n for n in p1.giant_tour if n in (p1_active - p2_active)]
         p2_ordered.extend(p2_extra)
 
-        temp_p1 = Individual(p1_ordered)
-        temp_p2 = Individual(p2_ordered)
+        temp_p1 = Individual(p1_ordered, vrpp=p1.vrpp)
+        temp_p2 = Individual(p2_ordered, vrpp=p2.vrpp)
         child = ordered_crossover(temp_p1, temp_p2, rng=self.random)
 
         # Re-append globally unvisited nodes for genetic consistency

@@ -20,11 +20,18 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import (
+    ACOLocalSearch,
+)
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import (
     greedy_insertion,
+    greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    worst_profit_removal,
     worst_removal,
 )
 from .params import ABCParams
@@ -44,7 +51,6 @@ class ABCSolver:
         C: float,
         params: ABCParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -55,14 +61,15 @@ class ABCSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Initialize Local Search once to cache neighbor list
-        from logic.src.policies.other.local_search.local_search_aco import (
-            ACOLocalSearch,
-        )  # Pre-instantiate Local Search for reuse
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -70,7 +77,6 @@ class ABCSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -176,21 +182,21 @@ class ABCSolver:
 
     def _build_random_solution(self) -> List[List[int]]:
         """
-        Builds a random initial solution applying nearest neighbor ordering.
+        Builds a random initial solution using greedy constructive heuristic.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+            build_greedy_routes,
+        )
 
-        routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.rng,
         )
-        return routes
 
     def _perturb(self, current: List[List[int]], peer: List[List[int]]) -> List[List[int]]:
         """
@@ -201,6 +207,8 @@ class ABCSolver:
             return copy.deepcopy(current)
 
         n = max(3, self.params.n_removal)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
         peer_nodes = [node for route in peer for node in route]
         if not peer_nodes:
@@ -218,28 +226,63 @@ class ABCSolver:
 
         current_copy = [r for r in current_copy if r]
 
-        # Randomly choose between greedy and regret-2 insertion for diversity
-        reinsert_op = self.rng.choice([greedy_insertion, regret_2_insertion])
-        removal_op = self.rng.choice([random_removal, worst_removal])
-
+        # Select operators based on profit_aware_operators flag
         try:
-            if removal_op == random_removal:
-                partial, removed = removal_op(current_copy, n, rng=self.rng)
+            if use_profit:
+                removal_op = self.rng.choice([random_removal, worst_profit_removal])
+                reinsert_op = self.rng.choice([greedy_profit_insertion, regret_2_profit_insertion])
+                if removal_op == random_removal:
+                    partial, removed = random_removal(current_copy, n, rng=self.rng)
+                else:
+                    partial, removed = worst_profit_removal(
+                        current_copy, n, self.dist_matrix, self.wastes, R=self.R, C=self.C
+                    )
+
+                to_insert = sorted(list(set(selected_peer_nodes + removed)))
+                if reinsert_op == greedy_profit_insertion:
+                    repaired = greedy_profit_insertion(
+                        partial,
+                        to_insert,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        self.R,
+                        self.C,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                    )
+                else:
+                    repaired = regret_2_profit_insertion(
+                        partial,
+                        to_insert,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        self.R,
+                        self.C,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                        noise=0.0,
+                    )
             else:
-                partial, removed = removal_op(current_copy, n, self.dist_matrix)
+                removal_op = self.rng.choice([random_removal, worst_removal])
+                reinsert_op = self.rng.choice([greedy_insertion, regret_2_insertion])
+                if removal_op == random_removal:
+                    partial, removed = random_removal(current_copy, n, rng=self.rng)
+                else:
+                    partial, removed = worst_removal(current_copy, n, self.dist_matrix)
 
-            to_insert = sorted(list(set(selected_peer_nodes + removed)))
+                to_insert = sorted(list(set(selected_peer_nodes + removed)))
+                repaired = reinsert_op(
+                    partial,
+                    to_insert,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
 
-            repaired = reinsert_op(
-                partial,
-                to_insert,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-                cost_unit=self.C,
-            )
             # Apply comprehensive local search (reusing instance)
             return self.ls.optimize(repaired)
         except Exception:

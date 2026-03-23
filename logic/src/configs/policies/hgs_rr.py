@@ -66,6 +66,7 @@ class HGSRRConfig:
     neighbor_list_size: int = 10
     max_vehicles: int = 0
     vrpp: bool = True
+    profit_aware_operators: bool = False
 
     # Ruin-and-Recreate parameters
     min_removal_pct: float = 0.1

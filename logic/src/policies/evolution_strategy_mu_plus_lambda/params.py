@@ -1,13 +1,8 @@
-"""
-Configuration parameters for the (μ+λ) Evolution Strategy.
-
-This module adheres to the standard notation where μ represents
-the parent population and λ represents the offspring population.
-"""
-
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -39,6 +34,9 @@ class MuPlusLambdaESParams:
 
         time_limit (float): Wall-clock duration in seconds. The algorithm
             will terminate early if the process time exceeds this threshold.
+        seed (Optional[int]): Random seed for reproducibility.
+        vrpp (bool): Whether the problem is VRP with Profits.
+        profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
     """
 
     mu: int = 10  # Parent population size (μ)
@@ -47,3 +45,24 @@ class MuPlusLambdaESParams:
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+
+    @classmethod
+    def from_config(cls, config: Any) -> MuPlusLambdaESParams:
+        """Build parameters from a configuration object."""
+        if isinstance(config, dict):
+            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+
+        return cls(
+            mu=getattr(config, "mu", 10),
+            lambda_=getattr(config, "lambda_", 5),
+            n_removal=getattr(config, "n_removal", 3),
+            max_iterations=getattr(config, "max_iterations", 500),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

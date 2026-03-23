@@ -40,7 +40,6 @@ class HGSALNSSolver(HGSSolver):
         C: float,
         params: HGSALNSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the hybrid HGS-ALNS solver.
@@ -53,17 +52,14 @@ class HGSALNSSolver(HGSSolver):
             C: Cost multiplier.
             params: HGSALNSParams containing HGS and ALNS configurations.
             mandatory_nodes: Optional list of mandatory node indices.
-            seed: Random seed for reproducibility.
         """
         # Initialize parent HGSSolver with HGS params
-        super().__init__(dist_matrix, wastes, capacity, R, C, params.hgs_params, mandatory_nodes, seed)
+        super().__init__(dist_matrix, wastes, capacity, R, C, params.hgs_params, mandatory_nodes)
 
         self.hgs_alns_params = params
 
         # Initialize ALNS solver for education phase
-        alns_params_copy = params.alns_params
-        alns_params_copy.max_iterations = params.alns_education_iterations
-        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, alns_params_copy, seed=seed)
+        self.alns_solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params.alns_params)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -78,7 +74,7 @@ class HGSALNSSolver(HGSSolver):
         for _ in range(self.hgs_alns_params.hgs_params.mu):
             gt = self.nodes[:]
             self.random.shuffle(gt)
-            ind = Individual(gt)
+            ind = Individual(gt, vrpp=self.params.vrpp)
             evaluate(ind, self.split_manager)
             population.append(ind)
 
@@ -135,7 +131,7 @@ class HGSALNSSolver(HGSSolver):
                     evaluate(child, self.split_manager)
             else:
                 evaluate(child, self.split_manager)
-
+            child.vrpp = self.params.vrpp
             population.append(child)
 
             if child.profit_score > best_profit_so_far:

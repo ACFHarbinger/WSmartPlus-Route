@@ -65,6 +65,10 @@ es_mpl:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

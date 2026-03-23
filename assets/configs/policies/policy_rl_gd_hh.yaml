@@ -25,6 +25,9 @@ rl_gd_hh:
     # Value added to heuristic utility when it improves the solution.
     - reward_improvement: 1.0
 
+    # Value added to heuristic utility when it does not improve the solution.
+    - reward_neutral: 0.5
+
     # Value subtracted from utility for worsening/rejected moves.
     - penalty_worsening: 1.0
 
@@ -40,6 +43,9 @@ rl_gd_hh:
     - target_fitness_multiplier: 1.25
 
     # --- Meta Configuration ---
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
 
     # Selection algorithm for mandatory bin visited nodes.

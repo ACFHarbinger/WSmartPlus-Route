@@ -5,6 +5,7 @@ Configuration parameters for the Late Acceptance Hill-Climbing (LAHC) solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -37,3 +38,6 @@ class LAHCParams:
     n_removal: int = 2
     n_llh: int = 5
     time_limit: float = 60.0
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None

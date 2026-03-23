@@ -7,6 +7,7 @@ This replaces the metaphor-based "Firefly Algorithm" with standard PSO terminolo
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -88,6 +89,11 @@ class DistancePSOParams:
     beta_will: float = 0.5
     gamma_cost: float = 0.3
 
+    # Profit-awareness
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
+
     def get_inertia_weight(self, iteration: int) -> float:
         """
         Compute linearly decreasing inertia weight.
@@ -134,3 +140,25 @@ class DistancePSOParams:
     def pop_size(self) -> int:
         """Alias for population_size."""
         return self.population_size
+
+    @classmethod
+    def from_config(cls, config: Any) -> "DistancePSOParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            population_size=getattr(config, "population_size", 20),
+            max_iterations=getattr(config, "max_iterations", 500),
+            inertia_weight_start=getattr(config, "inertia_weight_start", 0.9),
+            inertia_weight_end=getattr(config, "inertia_weight_end", 0.4),
+            cognitive_coef=getattr(config, "cognitive_coef", 2.0),
+            social_coef=getattr(config, "social_coef", 2.0),
+            n_removal=getattr(config, "n_removal", 3),
+            velocity_to_mutation_rate=getattr(config, "velocity_to_mutation_rate", 0.1),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 60.0),
+            alpha_profit=getattr(config, "alpha_profit", 1.0),
+            beta_will=getattr(config, "beta_will", 0.5),
+            gamma_cost=getattr(config, "gamma_cost", 0.3),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            seed=getattr(config, "seed", None),
+        )

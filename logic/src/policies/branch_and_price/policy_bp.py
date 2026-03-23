@@ -1,192 +1,133 @@
 """
-Branch-and-Price Policy Adapter.
+Branch-and-Price (BP) Policy Adapter.
 
-Integrates the Branch-and-Price solver with the WSmart+ Route policy framework.
-Provides both a policy class and a convenience function for running the solver.
+Adapts the core Branch-and-Price solver logic to the systems-agnostic
+policy interface, handling parameter mapping, profit calculation, and environment
+integration.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
+
+from logic.src.configs.policies import BPConfig
+from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.base.factory import PolicyRegistry
 
 from .bp import BranchAndPriceSolver
 
 
-class PolicyBP:
+@PolicyRegistry.register("bp")
+class BranchAndPricePolicy(BaseRoutingPolicy):
     """
-    Branch-and-Price Policy for VRPP.
+    Adapter for the Branch-and-Price routing solver.
 
-    Wraps the Branch-and-Price solver to conform to the WSmart+ Route policy interface.
+    This policy implements a column generation method that handles large-scale
+    optimization by implicitly enumerating exponentially many variables (routes).
+
+    The algorithm uses:
+    1. Set partitioning master problem (select routes to cover nodes)
+    2. Pricing subproblem (generate profitable routes via RCSPP)
+    3. Column generation (iteratively add routes with positive reduced cost)
+    4. Branch-and-bound for integrality (optional Ryan-Foster branching)
+
+    Key advantages:
+    - Handles problems with huge solution spaces
+    - Provides strong LP bounds (tighter than compact formulations)
+    - Scalable to large instances
     """
 
-    def __init__(
-        self,
-        max_iterations: int = 100,
-        max_routes_per_iteration: int = 10,
-        optimality_gap: float = 1e-4,
-        use_ryan_foster_branching: bool = False,
-        max_branch_nodes: int = 1000,
-        use_exact_pricing: bool = False,
-        **kwargs: Any,
-    ):
-        """
-        Initialize the Branch-and-Price policy.
+    def __init__(self, config: Optional[Union[BPConfig, Dict[str, Any]]] = None):
+        """Initialize the BP policy adapter.
 
         Args:
-            max_iterations: Maximum column generation iterations
-            max_routes_per_iteration: Maximum routes to generate per pricing call
-            optimality_gap: Convergence tolerance for column generation
-            use_ryan_foster_branching: Use Ryan-Foster branching (True) or direct IP (False)
-            max_branch_nodes: Maximum nodes to explore in branch-and-bound tree
-            use_exact_pricing: Use exact DP RCSPP solver (True) or heuristic (False)
-            **kwargs: Additional arguments (ignored)
+            config: A typed BPConfig dataclass, a raw dictionary for parsing,
+                or None to use framework defaults.
         """
-        self.max_iterations = max_iterations
-        self.max_routes_per_iteration = max_routes_per_iteration
-        self.optimality_gap = optimality_gap
-        self.use_ryan_foster_branching = use_ryan_foster_branching
-        self.max_branch_nodes = max_branch_nodes
-        self.use_exact_pricing = use_exact_pricing
-        self.name = "Branch-and-Price"
+        super().__init__(config)
 
-    def solve(
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        """Return the configuration dataclass type for automatic parsing."""
+        return BPConfig
+
+    def _get_config_key(self) -> str:
+        """Return the unique identification key for this policy's configuration."""
+        return "bp"
+
+    def _run_solver(
         self,
-        cost_matrix: np.ndarray,
-        wastes: Dict[int, float],
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
         capacity: float,
-        revenue_per_kg: float,
-        cost_per_km: float,
-        mandatory_nodes: Optional[List[int]] = None,
-    ) -> Dict[str, Any]:
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
         """
-        Solve the VRPP using Branch-and-Price.
+        Run Branch-and-Price solver.
+
+        All nodes in mandatory_nodes are treated as must-go for the solver.
+        In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
 
         Args:
-            cost_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 is depot
-            wastes: Dictionary mapping node ID to waste volume
-            capacity: Vehicle capacity
-            revenue_per_kg: Revenue per unit of waste collected
-            cost_per_km: Cost per unit of distance traveled
-            mandatory_nodes: List of node indices that must be visited
+            sub_dist_matrix: The localized distance matrix for candidates.
+            sub_wastes: Current fill levels for available customer nodes.
+            capacity: The maximum payload of the vehicle.
+            revenue: Expected revenue per unit of waste collected.
+            cost_unit: Cost per unit of distance traveled.
+            values: Merged configuration dictionary from simulation and YAML.
+            mandatory_nodes: Indices of nodes that MUST be visited.
+            **kwargs: Additional solver parameters.
 
         Returns:
-            Dictionary with solution details:
-                - tour: Tour as list of node indices
-                - profit: Total profit
-                - cost: Total distance cost
-                - revenue: Total revenue
-                - nodes_visited: Set of visited nodes
-                - statistics: Solver statistics
+            A tuple containing (List of routes, total profit, total travel cost).
         """
-        n_nodes = len(cost_matrix) - 1
-        mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
+        n_nodes = len(sub_dist_matrix) - 1  # Exclude depot from count
+        mandatory_set = set(mandatory_nodes)
 
+        # Create Branch-and-Price solver
         solver = BranchAndPriceSolver(
             n_nodes=n_nodes,
-            cost_matrix=cost_matrix,
-            wastes=wastes,
+            cost_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
             capacity=capacity,
-            revenue_per_kg=revenue_per_kg,
-            cost_per_km=cost_per_km,
+            revenue_per_kg=revenue,
+            cost_per_km=cost_unit,
             mandatory_nodes=mandatory_set,
-            max_iterations=self.max_iterations,
-            max_routes_per_iteration=self.max_routes_per_iteration,
-            optimality_gap=self.optimality_gap,
-            use_ryan_foster=self.use_ryan_foster_branching,
-            max_branch_nodes=self.max_branch_nodes,
+            max_iterations=values.get("max_iterations", 100),
+            max_routes_per_iteration=values.get("max_routes_per_iteration", 10),
+            optimality_gap=values.get("optimality_gap", 1e-4),
+            use_ryan_foster=values.get("use_ryan_foster_branching", False),
+            max_branch_nodes=values.get("max_branch_nodes", 1000),
+            use_exact_pricing=values.get("use_exact_pricing", False),
         )
 
+        # Solve
         tour, profit, statistics = solver.solve()
 
-        # Calculate distance and revenue
-        total_distance = 0.0
-        prev = 0
+        # Convert tour to routes format (single route for single vehicle)
+        # Remove depot (0) from tour for route representation
+        if tour and len(tour) > 2:  # More than just depot visits
+            route = [node for node in tour if node != 0]
+            routes = [route] if route else []
+        else:
+            routes = []
 
-        for node in tour:
-            if node != 0:  # Skip depot
-                total_distance += cost_matrix[prev, node]
-                prev = node
-            elif prev != 0:  # Return to depot
-                total_distance += cost_matrix[prev, 0]
-                prev = 0
+        # Calculate actual distance cost
+        dist_cost = 0.0
+        if tour:
+            prev = 0
+            for node in tour:
+                if node != 0:  # Skip depot in middle
+                    dist_cost += sub_dist_matrix[prev, node]
+                    prev = node
+                elif prev != 0:  # Return to depot
+                    dist_cost += sub_dist_matrix[prev, 0]
+                    prev = 0
+            dist_cost *= cost_unit
 
-        cost = total_distance * cost_per_km
-        total_waste = sum(wastes.get(node, 0.0) for node in tour if node != 0)
-        revenue = total_waste * revenue_per_kg
-
-        # Nodes visited (excluding depot)
-        nodes_visited = set(node for node in tour if node != 0)
-
-        return {
-            "tour": tour,
-            "profit": profit,
-            "cost": cost,
-            "revenue": revenue,
-            "distance": total_distance,
-            "waste_collected": total_waste,
-            "nodes_visited": nodes_visited,
-            "statistics": statistics,
-        }
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
-        """
-        Call the solver (convenience method).
-
-        Args:
-            *args: Positional arguments passed to solve()
-            **kwargs: Keyword arguments passed to solve()
-
-        Returns:
-            Solution dictionary
-        """
-        return self.solve(*args, **kwargs)
-
-
-def run_branch_and_price(
-    cost_matrix: np.ndarray,
-    wastes: Dict[int, float],
-    capacity: float,
-    revenue_per_kg: float,
-    cost_per_km: float,
-    mandatory_nodes: Optional[List[int]] = None,
-    max_iterations: int = 100,
-    max_routes_per_iteration: int = 10,
-    optimality_gap: float = 1e-4,
-    use_ryan_foster_branching: bool = False,
-    max_branch_nodes: int = 1000,
-) -> Dict[str, Any]:
-    """
-    Convenience function to run Branch-and-Price solver.
-
-    Args:
-        cost_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 is depot
-        wastes: Dictionary mapping node ID to waste volume
-        capacity: Vehicle capacity
-        revenue_per_kg: Revenue per unit of waste collected
-        cost_per_km: Cost per unit of distance traveled
-        mandatory_nodes: List of node indices that must be visited
-        max_iterations: Maximum column generation iterations
-        max_routes_per_iteration: Maximum routes to generate per pricing call
-        optimality_gap: Convergence tolerance for column generation
-        use_ryan_foster_branching: Use Ryan-Foster branching (True) or direct IP (False)
-        max_branch_nodes: Maximum nodes to explore in branch-and-bound tree
-
-    Returns:
-        Solution dictionary with tour, profit, and statistics
-    """
-    policy = PolicyBP(
-        max_iterations=max_iterations,
-        max_routes_per_iteration=max_routes_per_iteration,
-        optimality_gap=optimality_gap,
-        use_ryan_foster_branching=use_ryan_foster_branching,
-        max_branch_nodes=max_branch_nodes,
-    )
-
-    return policy.solve(
-        cost_matrix=cost_matrix,
-        wastes=wastes,
-        capacity=capacity,
-        revenue_per_kg=revenue_per_kg,
-        cost_per_km=cost_per_km,
-        mandatory_nodes=mandatory_nodes,
-    )
+        # Return routes, profit, and distance cost
+        return routes, profit, dist_cost

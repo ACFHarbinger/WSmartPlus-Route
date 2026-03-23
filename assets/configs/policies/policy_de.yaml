@@ -138,6 +138,10 @@ de:
     # Time Limit
     # ---------------------------------------------------------------------
     - time_limit: 60.0
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []
       # Wall-clock time limit in seconds

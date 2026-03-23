@@ -42,7 +42,9 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from ..other.operators import greedy_insertion, random_removal
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
+from ..other.local_search.local_search_aco import ACOLocalSearch
+from ..other.operators import greedy_insertion, greedy_profit_insertion, random_removal
 from .params import DistancePSOParams
 
 
@@ -66,7 +68,6 @@ class DistancePSOSolver:
         C: float,
         params: DistancePSOParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the PSO solver with velocity momentum.
@@ -79,7 +80,6 @@ class DistancePSOSolver:
             C: Cost per unit distance traveled.
             params: PSO configuration parameters.
             mandatory_nodes: Nodes that must be visited.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -90,7 +90,7 @@ class DistancePSOSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # PSO State: Velocities and Personal Bests
         self.velocities: List[Set[int]] = []  # Velocity as set of nodes to add/remove
@@ -98,10 +98,13 @@ class DistancePSOSolver:
         self.personal_best_fitness: List[float] = []  # f(pbest) for each particle
 
         # Initialize Local Search once for reuse
-        from ..ant_colony_optimization_k_sparse.params import KSACOParams
-        from ..other.local_search.local_search_aco import ACOLocalSearch
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            time_limit=self.params.time_limit,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -109,7 +112,6 @@ class DistancePSOSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
@@ -348,16 +350,31 @@ class DistancePSOSolver:
         sorted_nodes = [node for _, node in scored_nodes]
 
         # Greedy insertion
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
         try:
-            new_routes = greedy_insertion(
-                partial_routes,
-                sorted_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if use_profit:
+                new_routes = greedy_profit_insertion(
+                    partial_routes,
+                    sorted_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                new_routes = greedy_insertion(
+                    partial_routes,
+                    sorted_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
             # Apply local search refinement
             return self.ls.optimize(new_routes)
         except Exception:
@@ -430,15 +447,28 @@ class DistancePSOSolver:
         try:
             n_remove = max(3, self.params.n_removal)
             partial_routes, removed_nodes = random_removal(particle, n_remove, self.random)
-            repaired_routes = greedy_insertion(
-                partial_routes,
-                removed_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                repaired_routes = greedy_profit_insertion(
+                    partial_routes,
+                    removed_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                repaired_routes = greedy_insertion(
+                    partial_routes,
+                    removed_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
             # Apply local search refinement
             return self.ls.optimize(repaired_routes)
         except Exception:

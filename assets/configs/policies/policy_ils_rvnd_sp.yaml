@@ -15,5 +15,7 @@ ils_rvnd_sp:
   TDev_b: 0.005
   time_limit: 60.0
   local_search_iterations: 500
+  vrpp: true
+  profit_aware_operators: false
   must_go: ["other/mg_lookahead.yaml"]
   post_processing: []

@@ -91,6 +91,7 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
             values,
             must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
+            seed=values.get("seed", 42),
         )
 
         # Internal Profit Calculation: Revenue - Distance Cost

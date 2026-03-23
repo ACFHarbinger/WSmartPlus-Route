@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.knowledge_guided_local_search.cost_evaluator import CostEvaluator
 from logic.src.policies.knowledge_guided_local_search.params import KGLSParams
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
@@ -71,6 +72,20 @@ class KGLSSolver:
 
         self.evaluator = CostEvaluator(dist_matrix=self.dist_matrix)
 
+        self.ls_manager = ACOLocalSearch(
+            dist_matrix=self.evaluator.dist_matrix,
+            waste=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            params=KSACOParams(
+                local_search_iterations=self.params.local_search_iterations,
+                vrpp=self.params.vrpp,
+                profit_aware_operators=self.params.profit_aware_operators,
+                seed=self.params.seed,
+            ),
+        )
+
     def calculate_cost(self, routes: List[List[int]], penalized: bool = False) -> float:
         """Calculate total routing cost using active evaluated distances."""
         matrix = self.evaluator.get_distance_matrix() if penalized else self.evaluator.dist_matrix
@@ -119,16 +134,7 @@ class KGLSSolver:
         current_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
 
         # Run Initial Local Search without penalties
-        ls_manager = ACOLocalSearch(
-            dist_matrix=self.evaluator.dist_matrix,
-            waste=self.wastes,
-            capacity=self.capacity,
-            R=self.R,
-            C=self.C,
-            params=self.params,
-            seed=self.params.seed,
-        )
-        current_routes = self.apply_local_search(current_routes, ls_manager)
+        current_routes = self.apply_local_search(current_routes, self.ls_manager)
 
         best_routes = copy.deepcopy(current_routes)
         current_profit = self.calculate_profit(current_routes)
@@ -178,7 +184,6 @@ class KGLSSolver:
                 R=self.R,
                 C=self.C,
                 params=self.params,
-                seed=self.params.seed,
             )
             current_routes = self.apply_local_search(current_routes, ls_manager_perturbed, targeted_nodes)
 
@@ -186,7 +191,7 @@ class KGLSSolver:
             self.evaluator.disable_penalization()
 
             # For ACOLocalSearch, optimize() re-initializes routes automatically
-            current_routes = self.apply_local_search(current_routes, ls_manager)
+            current_routes = self.apply_local_search(current_routes, self.ls_manager)
 
             # Evaluate using True Distance baseline
             current_profit = self.calculate_profit(current_routes)

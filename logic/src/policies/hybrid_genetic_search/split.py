@@ -25,6 +25,7 @@ class LinearSplit:
         C: float,
         max_vehicles: int = 0,
         mandatory_nodes: Optional[List[int]] = None,
+        vrpp: bool = True,
     ):
         """
         Initialize the LinearSplit solver.
@@ -37,6 +38,7 @@ class LinearSplit:
             C: Cost multiplier.
             max_vehicles: Maximum number of vehicles allowed (0 for unlimited).
             mandatory_nodes: List of local node indices that MUST be visited.
+            vrpp: Whether skipping nodes is allowed (VRPP mode).
         """
         self.dist_matrix = np.array(dist_matrix)
         self.wastes = wastes
@@ -45,6 +47,7 @@ class LinearSplit:
         self.C = C
         self.max_vehicles = max_vehicles
         self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
+        self.vrpp = vrpp
 
     def split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
         """
@@ -172,9 +175,9 @@ class LinearSplit:
                 V[i] = best_A + B_i
                 P[i] = best_j
 
-            # 2. Skip transition (only if NOT mandatory)
+            # 2. Skip transition (only if VRPP and NOT mandatory)
             node = nodes[i - 1]
-            if node not in self.mandatory_nodes and V[i - 1] > V[i]:
+            if self.vrpp and node not in self.mandatory_nodes and V[i - 1] > V[i]:
                 V[i] = V[i - 1]
                 P[i] = -2  # Marker for skip
 
@@ -236,9 +239,9 @@ class LinearSplit:
                     V_curr[i] = best_A + B_i
                     P[k][i] = best_j
 
-                # 2. Skip transition (only if NOT mandatory)
+                # 2. Skip transition (only if VRPP and NOT mandatory)
                 node = nodes[i - 1]
-                if node not in self.mandatory_nodes and V_curr[i - 1] > V_curr[i]:
+                if self.vrpp and node not in self.mandatory_nodes and V_curr[i - 1] > V_curr[i]:
                     V_curr[i] = V_curr[i - 1]
                     P[k][i] = -2  # Marker for skip
 
@@ -330,6 +333,7 @@ def split_algorithm(
     C: float,
     values: Dict[str, Any],
     mandatory_nodes: Optional[List[int]] = None,
+    vrpp: bool = False,
 ):
     """
     Convenience wrapper for the LinearSplit algorithm.
@@ -343,9 +347,10 @@ def split_algorithm(
         C: Cost multiplier.
         values: Configuration parameters including `max_vehicles`.
         mandatory_nodes: List of mandatory node indices.
+        vrpp: Whether the problem is a Vehicle Routing Problem with Profits.
 
     Returns:
         Tuple[List[List[int]], float]: Decoded routes and total profit.
     """
-    s = LinearSplit(dist_matrix, wastes, capacity, R, C, values.get("max_vehicles", 0), mandatory_nodes)
+    s = LinearSplit(dist_matrix, wastes, capacity, R, C, values.get("max_vehicles", 0), mandatory_nodes, vrpp)
     return s.split(giant_tour)

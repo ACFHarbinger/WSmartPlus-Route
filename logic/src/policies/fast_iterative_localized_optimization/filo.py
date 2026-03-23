@@ -17,6 +17,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.fast_iterative_localized_optimization.params import FILOParams
 from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate import (
     RuinAndRecreate,
@@ -84,6 +85,8 @@ class FILOSolver:
             R=self.R,
             C=self.C,
             rng=self.rng,
+            profit_aware_operators=self.params.profit_aware_operators,
+            vrpp=self.params.vrpp,
         )
 
         # Local search (reordering) runs on distances, so ACO is still valid
@@ -93,8 +96,12 @@ class FILOSolver:
             capacity=self.Q,
             R=self.R,
             C=self.C,
-            params=self.params,
-            seed=self.params.seed,
+            params=KSACOParams(
+                local_search_iterations=self.params.local_search_iterations,
+                vrpp=self.params.vrpp,
+                profit_aware_operators=self.params.profit_aware_operators,
+                seed=self.params.seed,
+            ),
         )
 
         self.gamma_base = self.params.gamma_base

@@ -86,9 +86,6 @@ class SWCTCFPolicy(BaseRoutingPolicy):
         route, profit, cost = run_swc_tcf_optimizer(
             bins=amounts,  # type: ignore[arg-type]
             distance_matrix=distance_matrix,  # type: ignore[arg-type]
-            param=kwargs.get("param", 0.0),
-            media=kwargs.get("media", np.array([])),
-            desviopadrao=kwargs.get("desviopadrao", np.array([])),
             values=values,
             binsids=binsids,
             must_go=must_go,

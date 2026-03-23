@@ -18,6 +18,12 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.other.operators.repair.greedy import (
+    greedy_insertion,
+    greedy_profit_insertion,
+)
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from .params import QDEParams
 
@@ -36,7 +42,6 @@ class QDESolver:
         C: float,
         params: QDEParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -47,13 +52,17 @@ class QDESolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1  # Exclude depot
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
-        self.np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.np_rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
 
         # Initialize Local Search for post-collapse refinement
-        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            time_limit=self.params.time_limit,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -61,7 +70,6 @@ class QDESolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -254,21 +262,29 @@ class QDESolver:
         if not selected:
             return []
 
-        from logic.src.policies.other.operators.repair.greedy import (
-            greedy_insertion,
-        )
-
         try:
-            routes = greedy_insertion(
-                [],
-                selected,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=False,
-            )
+            if self.params.profit_aware_operators:
+                routes = greedy_profit_insertion(
+                    [],
+                    selected,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                routes = greedy_insertion(
+                    [],
+                    selected,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
             # Apply local search refinement
             return self.ls.optimize(routes)
         except Exception:

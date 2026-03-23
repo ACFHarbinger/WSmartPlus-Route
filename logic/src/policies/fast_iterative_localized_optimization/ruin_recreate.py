@@ -24,14 +24,18 @@ class RuinAndRecreate:
         R: float,
         C: float,
         rng: np.random.Generator,
+        profit_aware_operators: bool = False,
+        vrpp: bool = True,
     ):
-        """Initialize Profit-Aware RuinAndRecreate operator."""
+        """Initialize RuinAndRecreate operator."""
         self.d = dist_matrix
         self.waste = wastes
         self.Q = capacity
         self.R = R
         self.C = C
         self.rng = rng
+        self.profit_aware_operators = profit_aware_operators
+        self.vrpp = vrpp
 
         # Pre-compute neighbors list (omitting depot) sorted by distance for each node
         self.neighbors: List[List[int]] = []
@@ -88,10 +92,17 @@ class RuinAndRecreate:
             current_loads[r_idx] = sum(self.waste.get(n, 0.0) for n in working_routes[r_idx])
 
         # --- 2. RECREATE PHASE (Profit-Aware Greedy) ---
-        # Shuffle removed customers to avoid deterministic insertion traps
-        self.rng.shuffle(removed_customers)
+        if self.vrpp:
+            # Consider all customers not currently in routes (including those just removed)
+            visited = {n for r in working_routes for n in r}
+            reinsertion_pool = [n for n in all_customers if n not in visited]
+        else:
+            reinsertion_pool = removed_customers
 
-        for customer in removed_customers:
+        # Shuffle pool to avoid deterministic insertion traps
+        self.rng.shuffle(reinsertion_pool)
+
+        for customer in reinsertion_pool:
             best_profit = -float("inf")
             best_r_idx = -2
             best_p_idx = -1
@@ -143,8 +154,8 @@ class RuinAndRecreate:
 
             # --- ECONOMIC TERMINATION / EVALUATION ---
             if best_r_idx != -2:
-                # If the insertion creates a financial loss, AND it's not a mandatory node, we drop it.
-                if not is_mandatory and best_profit < -1e-4:
+                # If profit_aware_operators is enabled, we drop nodes that create financial loss.
+                if self.profit_aware_operators and not is_mandatory and best_profit < -1e-4:
                     continue  # Node stays unassigned (opportunistic starvation prevented!)
 
                 if best_r_idx == -1:

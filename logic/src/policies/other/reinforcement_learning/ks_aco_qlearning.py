@@ -39,7 +39,6 @@ class KSparseACOQLSolver:
         params: KSACOParams,
         rl_params: Any,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """Initialize enhanced ACO-QL solver."""
         self.dist_matrix = dist_matrix
@@ -73,7 +72,7 @@ class KSparseACOQLSolver:
 
         # Local search
         self.ls_manager = LocalSearchManager(
-            dist_matrix, wastes, capacity, R, C, rl_params.qlearning_improvement_thresholds[1], seed=seed
+            dist_matrix, wastes, capacity, R, C, rl_params.qlearning_improvement_thresholds[1], seed=params.seed
         )
 
         # Candidate lists
@@ -93,7 +92,6 @@ class KSparseACOQLSolver:
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
 
         # Q-Learning selector for local search operators
@@ -128,7 +126,7 @@ class KSparseACOQLSolver:
             epsilon_decay=rl_params.qlearning_epsilon_decay,
             epsilon_min=rl_params.qlearning_epsilon_min,
         )
-        self.agent_rng = np.random.default_rng(seed)
+        self.agent_rng = np.random.default_rng(params.seed)
 
         # Tracking
         self.improvement_history: Deque[float] = deque(maxlen=rl_params.qlearning_history_size)

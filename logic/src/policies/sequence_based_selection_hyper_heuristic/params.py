@@ -8,6 +8,7 @@ Reference:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -53,3 +54,23 @@ class SSHHParams:
     threshold_infeasible: float = 0.001
     threshold_feasible_base: float = 0.0001
     threshold_decay_rate: float = 0.01
+
+    # Profit-awareness
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
+
+    @classmethod
+    def from_config(cls, config: Any) -> "SSHHParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            max_iterations=getattr(config, "max_iterations", 500),
+            n_removal=getattr(config, "n_removal", 2),
+            n_llh=getattr(config, "n_llh", 5),
+            time_limit=getattr(config, "time_limit", 60.0),
+            threshold_infeasible=getattr(config, "threshold_infeasible", 0.001),
+            threshold_feasible_base=getattr(config, "threshold_feasible_base", 0.0001),
+            threshold_decay_rate=getattr(config, "threshold_decay_rate", 0.01),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

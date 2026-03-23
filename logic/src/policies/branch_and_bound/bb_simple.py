@@ -117,6 +117,7 @@ def run_bb_simple(
     values: Dict[str, Any],
     must_go_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
+    seed: Optional[int] = None,
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
@@ -134,6 +135,7 @@ def run_bb_simple(
         values: Configuration dict with time_limit, mip_gap, etc.
         must_go_indices: Nodes that must be visited
         env: Optional Gurobi environment
+        seed: Optional random seed
         recorder: Optional state recorder
 
     Returns:
@@ -147,7 +149,7 @@ def run_bb_simple(
     # Extract configuration
     time_limit = values.get("time_limit", 60.0)
     mip_gap = values.get("mip_gap", 0.01)
-    seed = values.get("seed", 42)
+    seed = seed or values.get("seed", 42)
 
     # Setup basic model structure
     model, x, y = _setup_bb_model(dist_matrix, wastes, must_go_indices, time_limit, mip_gap, seed, env)
@@ -171,6 +173,10 @@ def run_bb_simple(
         if i in y:
             model.addConstr(y[i] == 1, name=f"must_go_{i}")
 
+    # Capacity constraint
+    # The total waste collected on any route must not exceed vehicle capacity
+    model.addConstr(quicksum(wastes.get(i, 0) * y[i] for i in customers) <= capacity, name="capacity")
+
     # Store for callback
     model._x_vars = x
     model._num_nodes = num_nodes
@@ -187,7 +193,7 @@ def run_bb_simple(
         return [], 0.0
 
     # Build adjacency list and extract routes
-    adj = {i: [] for i in nodes}
+    adj: dict[int, list[int]] = {i: [] for i in nodes}
     for i, j in active_edges:
         adj[i].append(j)
 

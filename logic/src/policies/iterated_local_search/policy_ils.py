@@ -45,6 +45,9 @@ class ILSPolicy(BaseRoutingPolicy):
             n_llh=int(values.get("n_llh", 5)),
             perturbation_strength=float(values.get("perturbation_strength", 0.15)),
             time_limit=float(values.get("time_limit", 60.0)),
+            seed=int(values.get("seed", 42)),
+            vrpp=bool(values.get("vrpp", True)),
+            profit_aware_operators=bool(values.get("profit_aware_operators", False)),
         )
 
         solver = ILSSolver(
@@ -55,7 +58,6 @@ class ILSPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         return solver.solve()

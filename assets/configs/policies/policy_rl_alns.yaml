@@ -12,6 +12,9 @@ rl_alns:
     - cooling_rate: 0.995
     - min_removal: 1
     - max_removal_pct: 0.3
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
 
     - must_go: ["other/mg_lookahead.yaml"]

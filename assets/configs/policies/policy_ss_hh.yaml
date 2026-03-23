@@ -82,6 +82,9 @@ ss_hh:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Execution backend: logic/src/policies/sequence_based_selection_hyper_heuristic/
 

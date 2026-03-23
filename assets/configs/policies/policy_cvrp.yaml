@@ -48,6 +48,9 @@ cvrp:
       # false = recalculate each time, lower memory footprint
       # Recommendation: false for one-off solves, true for batch experiments
 
+    # VRPP Settings
+    - vrpp: true
+
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
@@ -57,11 +60,10 @@ cvrp:
           "other/mg_regular_lvl4.yaml",
           "other/mg_regular_lvl5.yaml",
         ]
-      # Multiple selection strategies for waste collection
-      # Collects bins when fill level exceeds 70%, 80%, or 90%
-      # Note: Uses regular thresholds instead of lookahead prediction
-      # See: docs/MUST_GO_STRATEGIES.md for strategy comparison
-
+    # Multiple selection strategies for waste collection
+    # Collects bins when fill level exceeds 70%, 80%, or 90%
+    # Note: Uses regular thresholds instead of lookahead prediction
+    # See: docs/MUST_GO_STRATEGIES.md for strategy comparison
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------

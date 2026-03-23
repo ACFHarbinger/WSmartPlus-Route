@@ -77,5 +77,6 @@ class HVPLConfig:
 
     # Common policy fields
     vrpp: bool = True
+    profit_aware_operators: bool = False
     must_go: List[str] = field(default_factory=list)
     post_processing: List[Any] = field(default_factory=list)

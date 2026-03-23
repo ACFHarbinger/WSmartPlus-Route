@@ -23,8 +23,15 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, random_removal
+from ..other.operators import (
+    build_greedy_routes,
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+)
 from .params import MuPlusLambdaESParams
 
 
@@ -45,7 +52,6 @@ class MuPlusLambdaESSolver:
         C: float,
         params: MuPlusLambdaESParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         r"""
         Initializes the (μ+λ)-ES solver and pre-allocates the local search operator.
@@ -58,7 +64,6 @@ class MuPlusLambdaESSolver:
             C: Cost incurred per unit of distance traveled.
             params: Configuration dataclass defining $\mu$, $\lambda$, and limits.
             mandatory_nodes: List of node IDs that must be included in any feasible solution.
-            seed: Optional integer to seed the random number generator for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -69,12 +74,15 @@ class MuPlusLambdaESSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Pre-instantiate local search for reuse to prevent instantiation overhead
-        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -82,7 +90,6 @@ class MuPlusLambdaESSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
@@ -157,42 +164,30 @@ class MuPlusLambdaESSolver:
 
     def _initialize_solution(self) -> List[List[int]]:
         """
-        Initializes a single solution using a nearest-neighbor heuristic.
+        Initializes a single solution using the greedy profit-aware heuristic.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
-        return build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.rng,
         )
 
     def _recombine_and_mutate(self, parent1: List[List[int]], parent2: List[List[int]]) -> List[List[int]]:
         """
         Applies discrete recombination and mutation to generate a single offspring.
-
-        Recombination mimics discrete selection by extracting components
-        from `parent2` and removing them from `parent1`. Mutation then applies a small
-        random perturbation via random removal, followed by a greedy insertion.
-
-        Args:
-            parent1: The primary base solution for the offspring.
-            parent2: The donor solution providing structural material.
-
-        Returns:
-            A newly generated and locally optimized offspring solution.
         """
         if not parent1 or not parent2:
             return copy.deepcopy(parent1)
 
         n_remove = max(3, self.params.n_removal)
-        p2_nodes = [node for route in parent2 for node in route]
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
+        p2_nodes = [node for route in parent2 for node in route]
         if not p2_nodes:
             return copy.deepcopy(parent1)
 
@@ -210,15 +205,28 @@ class MuPlusLambdaESSolver:
         try:
             partial_routes, additional_removed = random_removal(offspring, n_remove, rng=self.rng)
             nodes_to_insert = sorted(list(set(selected_p2_nodes + additional_removed)))
-
-            repaired_routes = greedy_insertion(
-                partial_routes,
-                nodes_to_insert,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if use_profit:
+                repaired_routes = greedy_profit_insertion(
+                    partial_routes,
+                    nodes_to_insert,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                repaired_routes = greedy_insertion(
+                    partial_routes,
+                    nodes_to_insert,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
             return self.ls.optimize(repaired_routes)
         except Exception:
             return copy.deepcopy(parent1)

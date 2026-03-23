@@ -62,6 +62,9 @@ lb_vns:
     # ---------------------------------------------------------------------
     # Infrastructure & Pipeline
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # The solver abstraction name.
 

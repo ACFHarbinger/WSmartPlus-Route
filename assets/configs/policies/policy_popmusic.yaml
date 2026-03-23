@@ -138,6 +138,10 @@ popmusic:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
     # Implementation: logic/src/policies/popmusic/
 

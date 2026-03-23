@@ -64,8 +64,9 @@ class HVPLPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        # Extract sub-params for ACO and ALNS
-        # 'values' contains the flattened config, with nested 'aco' and 'alns' dicts
+        seed = values.get("seed", 42)
+        vrpp = values.get("vrpp", True)
+        profit_aware_operators = values.get("profit_aware_operators", False)
 
         # Get ACO config (nested or flattened)
         aco_config = values.get("aco", {})
@@ -85,6 +86,9 @@ class HVPLPolicy(BaseRoutingPolicy):
                 local_search=aco_config.get("local_search", False),
                 local_search_iterations=aco_config.get("local_search_iterations", 0),
                 elitist_weight=aco_config.get("elitist_weight", 1.0),
+                seed=seed,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
             )
         else:
             # Fallback to flattened parameters for backward compatibility
@@ -103,6 +107,9 @@ class HVPLPolicy(BaseRoutingPolicy):
                 local_search=values.get("aco_local_search", False),
                 local_search_iterations=values.get("aco_local_search_iterations", 0),
                 elitist_weight=values.get("aco_elitist_weight", 1.0),
+                seed=seed,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
             )
 
         # Get ALNS config (nested or flattened)
@@ -116,6 +123,9 @@ class HVPLPolicy(BaseRoutingPolicy):
                 min_removal=alns_config.get("min_removal", 1),
                 max_removal_pct=alns_config.get("max_removal_pct", 0.3),
                 time_limit=alns_config.get("time_limit", 60.0),
+                seed=seed,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
             )
         else:
             # Fallback to flattened parameters for backward compatibility
@@ -127,6 +137,9 @@ class HVPLPolicy(BaseRoutingPolicy):
                 min_removal=values.get("alns_min_removal", 1),
                 max_removal_pct=values.get("alns_max_removal_pct", 0.3),
                 time_limit=values.get("alns_time_limit", 60.0),
+                seed=seed,
+                vrpp=vrpp,
+                profit_aware_operators=profit_aware_operators,
             )
 
         params = HVPLParams(
@@ -140,6 +153,9 @@ class HVPLPolicy(BaseRoutingPolicy):
             time_limit=values.get("time_limit", 300.0),
             aco_params=aco_params,
             alns_params=alns_params,
+            seed=seed,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
         )
 
         solver = HVPLSolver(
@@ -150,7 +166,6 @@ class HVPLPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, solver_cost = solver.solve()

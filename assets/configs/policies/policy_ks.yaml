@@ -65,6 +65,9 @@ ks:
     # ---------------------------------------------------------------------
     # Integration & Feature Extensions
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Specifies the use of the project's internal KernelSearchSolver engine.
 

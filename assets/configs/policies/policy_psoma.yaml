@@ -93,6 +93,10 @@ psoma:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
       # Execution backend: logic/src/policies/particle_swarm_optimization_memetic_algorithm/
 

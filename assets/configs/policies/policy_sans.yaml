@@ -95,8 +95,8 @@ sans:
     # Infrastructure Settings
     # -------------------------------------------------------------------------
     must_go: ["other/mg_lookahead.yaml"]
-    # Node selection strategy
-    # See: docs/MUST_GO_STRATEGIES.md
+    # VRPP Settings
+    vrpp: true
 
     post_processing: []
     # SA local search is comprehensive; no further refinement needed
@@ -119,7 +119,8 @@ sans:
     # Maximum wall-clock seconds
 
     must_go: ["other/mg_lookahead.yaml"]
-    # Node selection strategy
+    # VRPP Settings
+    vrpp: true
 
     post_processing: []
     # No post-processing
@@ -152,7 +153,8 @@ sans:
     # Maximum wall-clock seconds
 
     must_go: ["other/mg_lookahead.yaml"]
-    # Node selection strategy
+    # VRPP Settings
+    vrpp: true
 
     post_processing: []
     # No post-processing
@@ -179,6 +181,9 @@ lac:
     combination: a
     time_limit: 60
     must_go: ["other/mg_lookahead.yaml"]
+    # VRPP Settings
+    vrpp: true
+
     post_processing: []
     params:
       - 500
@@ -194,6 +199,9 @@ lac:
     combination: b
     time_limit: 60
     must_go: ["other/mg_lookahead.yaml"]
+    # VRPP Settings
+    vrpp: true
+
     post_processing: []
     params:
       - 2000

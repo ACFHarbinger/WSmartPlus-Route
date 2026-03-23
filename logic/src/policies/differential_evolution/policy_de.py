@@ -75,15 +75,17 @@ class DEPolicyAdapter(BaseRoutingPolicy):
         Returns:
             Tuple of (best_routes, best_profit, best_cost)
         """
-        cfg = self._parse_config(values, DEConfig)
         params = DEParams(
-            pop_size=cfg.pop_size,
-            mutation_factor=cfg.mutation_factor,
-            crossover_rate=cfg.crossover_rate,
-            n_removal=cfg.n_removal,
-            max_iterations=cfg.max_iterations,
-            local_search_iterations=cfg.local_search_iterations,
-            time_limit=cfg.time_limit,
+            pop_size=values.get("pop_size", 50),
+            mutation_factor=values.get("mutation_factor", 0.8),
+            crossover_rate=values.get("crossover_rate", 0.9),
+            n_removal=values.get("n_removal", 3),
+            max_iterations=values.get("max_iterations", 1000),
+            local_search_iterations=values.get("local_search_iterations", 100),
+            time_limit=values.get("time_limit", 60.0),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         solver = DESolver(
@@ -94,7 +96,6 @@ class DEPolicyAdapter(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=cfg.seed if cfg.seed is not None else kwargs.get("seed"),
         )
 
         return solver.solve()

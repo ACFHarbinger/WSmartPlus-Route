@@ -56,19 +56,24 @@ class KGLSPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        kgls_config = self._parse_config(values, KGLSConfig)
-        params = KGLSParams.from_config(kgls_config)
+        params = KGLSParams(
+            time_limit=float(values.get("time_limit", 60.0)),
+            num_perturbations=int(values.get("num_perturbations", 3)),
+            neighborhood_size=int(values.get("neighborhood_size", 20)),
+            moves=values.get("moves", ["relocate", "swap", "two_opt", "cross_exchange"]),
+            penalization_cycle=values.get("penalization_cycle", ["width", "length", "width_length"]),
+            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
+        )
 
         # We need the locations for the Cost Evaluator to compute edge widths
-        # If the environment passes 'data_nodes' directly through the pipeline, use it.
-        # Otherwise default to zero'd geometry effectively killing width but preserving length evaluations
         loc_data = kwargs.get("data_nodes")
         n_nodes = sub_dist_matrix.shape[0]
         locations = np.zeros((n_nodes, 2))
-
         if loc_data is not None:
             # Re-map 1...N onto 1...len(sub_dist_matrix) maintaining the continuous graph
-            # This handles both native and sub-graph executions cleanly
             locs = loc_data.get("locs", [])
             for i, mapped_n in enumerate(mandatory_nodes + list(set(sub_wastes.keys()) - set(mandatory_nodes))):
                 if mapped_n < len(locs):

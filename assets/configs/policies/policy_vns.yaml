@@ -88,6 +88,10 @@ vns:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
     # Execution backend: logic/src/policies/variable_neighborhood_search/
 

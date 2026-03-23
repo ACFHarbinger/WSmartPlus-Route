@@ -21,7 +21,10 @@ import numpy as np
 from logic.src.policies.hybrid_genetic_search.individual import Individual
 from logic.src.policies.other.operators.crossover.ordered import ordered_crossover
 from logic.src.policies.other.operators.destroy.random import random_removal
-from logic.src.policies.other.operators.repair.greedy import greedy_insertion
+from logic.src.policies.other.operators.repair.greedy import (
+    greedy_insertion,
+    greedy_profit_insertion,
+)
 
 from .params import GAParams
 
@@ -40,7 +43,6 @@ class GASolver:
         C: float,
         params: GAParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -51,7 +53,7 @@ class GASolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
     # ------------------------------------------------------------------
     # Public interface
@@ -133,22 +135,21 @@ class GASolver:
     # ------------------------------------------------------------------
 
     def _init_population(self) -> List[List[List[int]]]:
-        """Initialise population with randomised NN solutions."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        """Initialise population with randomised greedy solutions."""
+        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+            build_greedy_routes,
+        )
 
         population = []
         for _ in range(self.params.pop_size):
-            # Shuffle node order for diversity
-            nodes_shuffled = self.nodes[:]
-            self.random.shuffle(nodes_shuffled)
-            routes = build_nn_routes(
-                nodes=nodes_shuffled,
-                mandatory_nodes=self.mandatory_nodes,
+            # Use seed/rng from params
+            routes = build_greedy_routes(
+                dist_matrix=self.dist_matrix,
                 wastes=self.wastes,
                 capacity=self.capacity,
-                dist_matrix=self.dist_matrix,
                 R=self.R,
                 C=self.C,
+                mandatory_nodes=self.mandatory_nodes,
                 rng=self.random,
             )
             population.append(routes)
@@ -184,34 +185,65 @@ class GASolver:
         child_ind = ordered_crossover(ind1, ind2, self.random)
         child_flat = child_ind.giant_tour
 
-        # Rebuild routes respecting capacity
-        child_routes = greedy_insertion(
-            [],
-            child_flat,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        # Rebuild routes respecting capacity and profit-awareness
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
-        return child_routes
+        if use_profit:
+            return greedy_profit_insertion(
+                [],
+                child_flat,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+        else:
+            return greedy_insertion(
+                [],
+                child_flat,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
 
     def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
         """Random relocate mutation using shared ruin/recreate."""
         if not any(routes):
             return routes
 
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
         partial, removed = random_removal(routes, 1, self.random)
         try:
-            new_routes = greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-            return new_routes
+            if use_profit:
+                return greedy_profit_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                return greedy_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
         except Exception:
             return routes
 

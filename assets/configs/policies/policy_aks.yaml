@@ -65,6 +65,9 @@ aks:
     # ---------------------------------------------------------------------
     # Integration & Feature Extensions
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
       # Identifier for the standalone AKS solver implementation.
 

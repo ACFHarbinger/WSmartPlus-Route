@@ -5,6 +5,7 @@ Configuration parameters for the Particle Swarm Optimization Memetic Algorithm (
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -37,3 +38,8 @@ class PSOMAParams:
     n_removal: int = 2
     local_search_iterations: int = 100
     time_limit: float = 60.0
+
+    # Profit-awareness
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None

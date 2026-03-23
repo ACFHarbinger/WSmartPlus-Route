@@ -10,6 +10,7 @@ Reference:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -54,6 +55,9 @@ class VPLParams:
     elite_size: int = 3
     local_search_iterations: int = 100
     time_limit: float = 300.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     def __post_init__(self):
         """Validate parameter constraints."""
@@ -64,3 +68,20 @@ class VPLParams:
         # Validate coaching weights sum to 1.0
         total_weight = self.coaching_weight_1 + self.coaching_weight_2 + self.coaching_weight_3
         assert abs(total_weight - 1.0) < 1e-6, f"Coaching weights must sum to 1.0, got {total_weight}"
+
+    @classmethod
+    def from_config(cls, config: Any) -> "VPLParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            n_teams=getattr(config, "n_teams", 30),
+            max_iterations=getattr(config, "max_iterations", 200),
+            substitution_rate=getattr(config, "substitution_rate", 0.2),
+            coaching_weight_1=getattr(config, "coaching_weight_1", 0.5),
+            coaching_weight_2=getattr(config, "coaching_weight_2", 0.3),
+            coaching_weight_3=getattr(config, "coaching_weight_3", 0.2),
+            elite_size=getattr(config, "elite_size", 3),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 300.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

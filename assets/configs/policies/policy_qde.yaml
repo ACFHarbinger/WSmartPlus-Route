@@ -75,6 +75,10 @@ qde:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+    - profit_aware_operators: true
+
     - engine: "custom"
       # Execution backend: logic/src/policies/quantum_differential_evolution/
 
