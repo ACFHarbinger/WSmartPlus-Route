@@ -2,6 +2,7 @@
 Shared utilities and constants for map rendering.
 """
 
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -36,10 +37,6 @@ def load_distance_matrix(instance_name: str = "riomaior") -> Optional[pd.DataFra
     Returns:
         DataFrame containing the distance matrix, or None if not found.
     """
-    from pathlib import Path
-
-    import pandas as pd
-
     # Try to find a matching file in data/wsr_simulator/distance_matrix
     # Common pattern seems to be gmaps_distmat_plastic[{instance_name}].csv
     base_path = Path("data/wsr_simulator/distance_matrix")

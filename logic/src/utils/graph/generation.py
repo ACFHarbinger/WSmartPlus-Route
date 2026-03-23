@@ -9,6 +9,14 @@ import numpy as np
 
 from .conversion import adj_to_idx
 
+try:
+    import osmnx as ox
+
+    OSMNX_AVAILABLE = True
+except ImportError:
+    ox = None  # type: ignore[assignment]
+    OSMNX_AVAILABLE = False
+
 
 def generate_adj_matrix(
     size: int,
@@ -140,12 +148,10 @@ def get_adj_osm(coords: Any, size: int, args: list, add_depot: bool = True, nega
     """
     Computes an adjacency matrix via OpenStreetMap for given coordinates.
     """
-    try:
-        import osmnx as ox
-    except ImportError as e:
+    if not OSMNX_AVAILABLE:
         raise ImportError(
             "osmnx is required for OSM graph generation. Install it with 'pip install wsmart-route[geo]'."
-        ) from e
+        )
 
     G, *args = args
     assert isinstance(G, nx.MultiDiGraph)
