@@ -11,7 +11,7 @@ import numpy as np
 import pandas
 import torch
 
-from logic.src.constants import MAX_CAPACITY_PERCENT
+from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
 from logic.src.data.datasets import (
     GenerativeDataset,
     NumpyDictDataset,
@@ -22,6 +22,11 @@ from logic.src.data.datasets import (
 )
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 from logic.src.utils.data.loader import load_grid_base
+
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
 
 from ..wsmart_bin_analysis import GridBase
 from .prediction import calculate_frequency_and_level, predict_days_to_overflow
@@ -112,7 +117,8 @@ class Bins:
         try:
             self.grid = load_grid_base(self.indices, area, data_dir) if grid is None else grid
         except FileNotFoundError:
-            self.grid = None
+            self.grid = None  # type: ignore[assignment]
+
         if sample_dist == "emp":
             self.dist_param1 = self.grid.get_mean_rate()
             self.dist_param2 = self.grid.get_var_rate()
@@ -122,8 +128,6 @@ class Bins:
 
         self.waste_dataset: Optional[SimulationDataset] = None
         if waste_file is not None:
-            from logic.src.constants import ROOT_DIR
-
             if os.path.isabs(waste_file):
                 path = waste_file
             elif waste_file.startswith("data/"):
@@ -155,8 +159,6 @@ class Bins:
             )
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_params(
@@ -181,8 +183,6 @@ class Bins:
 
     def set_statistics(self, stats_file: str) -> None:
         """Loads pre-computed fill statistics."""
-        from logic.src.constants import ROOT_DIR
-
         if os.path.isabs(stats_file):
             path = stats_file
         elif stats_file.startswith("data/"):
@@ -200,8 +200,6 @@ class Bins:
         self.square_diff = (self.std**2) * (self.day_count - 1)
         self.start_with_fill = True
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_params(
@@ -264,8 +262,6 @@ class Bins:
             self.level_history.append(self.c.copy())
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 n_days = int(self.waste_fills.shape[0]) if hasattr(self.waste_fills, "shape") else 0
@@ -407,8 +403,6 @@ class Bins:
             th = __set_param([10])
         self.__setDistribution(k, th)
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_params(

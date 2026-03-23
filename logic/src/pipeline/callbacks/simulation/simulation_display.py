@@ -28,6 +28,9 @@ from rich.progress import (
 from rich.table import Table
 from rich.text import Text
 
+from logic.src.constants import SIM_METRICS
+from logic.src.tracking.logging.logger_writer import LoggerWriter
+
 
 class SimulationDisplayCallback:
     """
@@ -69,8 +72,6 @@ class SimulationDisplayCallback:
         # Rich Components
         # If sys.stdout is redirected by LoggerWriter, we use the original terminal
         # to ensure the dashboard is visible and not logged.
-        from logic.src.tracking.logging.logger_writer import LoggerWriter
-
         main_console_out = sys.stdout
         if isinstance(main_console_out, LoggerWriter):
             main_console_out = main_console_out.terminal
@@ -87,8 +88,6 @@ class SimulationDisplayCallback:
         # Tracking state
         self.start_time = time.time()
         self.colors = ["cyan", "magenta", "green", "yellow", "red", "blue", "white"]
-
-        from logic.src.constants import SIM_METRICS
 
         self.policy_stats: Dict[str, Dict[str, Any]] = {
             pol: {"completed": 0, "metrics": {k: 0.0 for k in SIM_METRICS}} for pol in policies
@@ -233,7 +232,7 @@ class SimulationDisplayCallback:
             # If remaining space is less than footer_size, we might need to shrink it
             available_footer = self.console.height - 1 - 10
 
-            if available_footer < self.layout["footer"].size:
+            if available_footer < self.layout["footer"].size:  # type: ignore[operator]
                 # Shrink footer to just overall progress if space is tight
                 self.layout["footer"].size = 2
 
@@ -280,8 +279,6 @@ class SimulationDisplayCallback:
 
     def _generate_metrics_table(self) -> Panel:
         """Generate table showing aggregate metrics per policy."""
-        from logic.src.constants import SIM_METRICS
-
         table = Table(show_header=True, header_style="bold magenta", expand=True, box=None, border_style="dim")
         table.add_column("Policy", style="cyan", no_wrap=True)
         table.add_column("Done", justify="right")

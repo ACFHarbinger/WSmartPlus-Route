@@ -9,6 +9,11 @@ from torch import nn
 
 from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
+
 
 class RewardWeightOptimizer(WeightAdjustmentStrategy):
     """
@@ -160,9 +165,7 @@ class RewardWeightOptimizer(WeightAdjustmentStrategy):
         self.meta_step += 1
 
         # Log to WSTracker
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_metric("meta/optimizer_loss", loss.item(), step=self.meta_step)
             run.log_metric("meta/optimizer_step", self.meta_step, step=self.meta_step)

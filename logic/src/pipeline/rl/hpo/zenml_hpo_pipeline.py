@@ -15,23 +15,25 @@ when ``cfg.tracking.zenml_enabled`` is ``True``.
 
 from __future__ import annotations
 
-import contextlib
 from typing import Any, Dict
 
+from omegaconf import OmegaConf
+
+from logic.src.configs import Config
+from logic.src.pipeline.features.train.hpo import run_hpo
 from logic.src.tracking.logging.pylogger import get_pylogger
 
-logger = get_pylogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Lazy ZenML imports
-# ---------------------------------------------------------------------------
-
 _ZENML_AVAILABLE = False
-with contextlib.suppress(ImportError):
-    from zenml import pipeline as zenml_pipeline  # type: ignore[import-not-found]
-    from zenml import step  # type: ignore[import-not-found]
+try:
+    from zenml import pipeline as zenml_pipeline
+    from zenml import step
 
     _ZENML_AVAILABLE = True
+except ImportError:
+    zenml_pipeline = None  # type: ignore[assignment,misc]
+    step = None  # type: ignore[assignment,misc]
+
+logger = get_pylogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -52,11 +54,6 @@ if _ZENML_AVAILABLE:
         ZenML tracking is disabled in the reconstructed config to prevent
         the inner :func:`run_hpo` from re-dispatching to this pipeline.
         """
-        from omegaconf import OmegaConf
-
-        from logic.src.configs import Config
-        from logic.src.pipeline.features.train.hpo import run_hpo
-
         cfg = OmegaConf.structured(Config)
         cfg = OmegaConf.merge(cfg, OmegaConf.create(config_dict))
         cfg = OmegaConf.to_object(cfg)
@@ -107,7 +104,5 @@ def hpo_pipeline(cfg: Any) -> float:
     if not _ZENML_AVAILABLE:
         raise ImportError("zenml is not installed — cannot run ZenML HPO pipeline")
 
-    from omegaconf import OmegaConf
-
     config_dict: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)  # type: ignore[assignment]
-    return _hpo_pipeline(config_dict=config_dict)
+    return _hpo_pipeline(config_dict=config_dict)  # type: ignore[return-value]

@@ -9,18 +9,24 @@ Example:
 
 import contextlib
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 import torch
 
 import logic.src.tracking as wst
 from logic.src.configs import Config
-from logic.src.configs.tasks.eval import EvalConfig
 from logic.src.tracking.logging.pylogger import get_pylogger
 
 from .engine import eval_dataset, eval_dataset_mp, get_best
-from .validation import validate_eval_args
+from .validation import validate_eval_args, validate_eval_config
+
+try:
+    from logic.src.pipeline.features.eval.zenml_eval_pipeline import eval_pipeline
+    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
+except ImportError:
+    configure_zenml_stack = None  # type: ignore[assignment]
+    eval_pipeline = None  # type: ignore[assignment]
 
 logger = get_pylogger(__name__)
 
@@ -42,8 +48,6 @@ def run_evaluate_model(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
     if zenml_enabled and sinks is None:
         _run_eval_via_zenml(cfg)
         return
-
-    from .validation import validate_eval_config
 
     # Validate and sanitize config values
     validate_eval_config(cfg)
@@ -151,17 +155,14 @@ def _run_eval_via_zenml(cfg: Config) -> None:
     mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))
     stack_name = str(getattr(tracking, "zenml_stack_name", "wsmart-route-stack"))
 
-    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
-
-    if not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
+    if configure_zenml_stack is None or not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
         logger.warning("ZenML stack configuration failed — falling back to direct evaluation.")
         run_evaluate_model(cfg, sinks=[])
         return
 
     try:
-        from logic.src.pipeline.features.eval.zenml_eval_pipeline import eval_pipeline
-
-        eval_pipeline(cfg)
+        if eval_pipeline is not None:
+            eval_pipeline(cfg)
     except Exception as exc:
         logger.warning(f"ZenML evaluation pipeline failed — falling back to direct evaluation: {exc}")
         run_evaluate_model(cfg, sinks=[])

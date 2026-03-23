@@ -11,6 +11,7 @@ from tensordict import TensorDict
 from torch import nn
 from torch.utils.data import Dataset
 
+from logic.src.data.datasets import TensorDictDataset
 from logic.src.tracking.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -54,8 +55,6 @@ def regenerate_dataset(
     """
     if hasattr(env, "generator"):
         # Pre-generate for efficiency
-        from logic.src.data.datasets import TensorDictDataset
-
         gen = env.generator
         if hasattr(gen, "to"):
             gen = gen.to("cpu")

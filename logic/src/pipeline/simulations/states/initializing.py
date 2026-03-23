@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import random
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -25,15 +26,19 @@ from logic.src.data.processor import (
     setup_basedata,
     setup_dist_path_tup,
 )
+from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 from logic.src.tracking.logging.log_utils import setup_system_logger
+from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.configs.setup_env import setup_env
 from logic.src.utils.configs.setup_manager import setup_hrl_manager
 from logic.src.utils.configs.setup_worker import setup_model
 
+from ..actions.base import _flatten_config
 from ..bins import Bins
 from ..checkpoints import SimulationCheckpoint
 from .base import SimState
+from .running import RunningState
 
 if TYPE_CHECKING:
     from .base import SimulationContext
@@ -75,8 +80,6 @@ class InitializingState(SimState):
             self._initialize_new_state(ctx, data, bins_coordinates, depot)
 
         logger.info(f"Initialization complete. Transitioning to RunningState for {ctx.pol_name} policy.")
-        from .running import RunningState
-
         ctx.transition_to(RunningState())
 
     def _setup_logging_and_dirs(self, ctx):
@@ -90,8 +93,6 @@ class InitializingState(SimState):
 
         log_file = _safe_get(ctx.cfg, "tracking.log_file")
         if log_file is None:
-            from datetime import datetime
-
             log_dir = _safe_get(ctx.cfg, "tracking.log_dir", "logs")
             log_file = Path(log_dir) / f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
 
@@ -99,8 +100,6 @@ class InitializingState(SimState):
         setup_system_logger(log_file, log_level)
 
         # Redirect stderr to the simulation log file for the main process
-        from logic.src.tracking.logging.logger_writer import setup_logger_redirection
-
         setup_logger_redirection(
             log_file=log_file,
             silent=True,
@@ -162,8 +161,6 @@ class InitializingState(SimState):
                 if neural_cfg:
                     if "neural" in neural_cfg:
                         # Flatten specific neural sub-configs if they are lists
-                        from ..actions.base import _flatten_config
-
                         for pol_key, pol_val in neural_cfg["neural"].items():
                             ctx.config[pol_key] = _flatten_config(pol_val)
                     else:
@@ -173,8 +170,6 @@ class InitializingState(SimState):
                 print(f"\n[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
 
     def _setup_capacities(self, ctx):
-        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
-
         sim = ctx.cfg.sim
         capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)
         ctx.vehicle_capacity = capacities
@@ -209,8 +204,6 @@ class InitializingState(SimState):
 
         if should_load_neural and (is_neural_arch or model_name == ""):
             # Flatten policy config in case it's a list-based structured config
-            from ..actions.base import _flatten_config
-
             flat_pol_cfg = _flatten_config(ctx.pol_cfg)
 
             # Extract decoding parameters from policy config

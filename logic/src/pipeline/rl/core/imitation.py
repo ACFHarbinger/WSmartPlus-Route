@@ -11,6 +11,20 @@ from typing import Any
 import torch
 from tensordict import TensorDict
 
+from logic.src.configs.rl.policies import (
+    ACOConfig,
+    ALNSConfig,
+    HGSALNSConfig,
+    HGSConfig,
+    ILSConfig,
+    RLSConfig,
+)
+from logic.src.models.policies.alns import VectorizedALNS
+from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+from logic.src.models.policies.hgs import VectorizedHGS
+from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+from logic.src.models.policies.iterated_local_search import IteratedLocalSearchPolicy
+from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.pipeline.rl.core.losses import (
     js_divergence_loss,
@@ -88,21 +102,6 @@ class ImitationLearning(RL4COLitModule):
         Returns:
             Initialized expert policy instance.
         """
-        from logic.src.configs.rl.policies import (
-            ACOConfig,
-            ALNSConfig,
-            HGSALNSConfig,
-            HGSConfig,
-            ILSConfig,
-            RLSConfig,
-        )
-        from logic.src.models.policies.alns import VectorizedALNS
-        from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
-        from logic.src.models.policies.hgs import VectorizedHGS
-        from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
-        from logic.src.models.policies.iterated_local_search import IteratedLocalSearchPolicy
-        from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
-
         # Map config types to policy classes
         config_to_policy_map = {
             HGSConfig: VectorizedHGS,

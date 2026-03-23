@@ -11,16 +11,25 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Mapping
 from multiprocessing.synchronize import Lock
 from typing import TYPE_CHECKING, Optional, cast
 
 from loguru import logger
+
+from logic.src.constants import METRICS
+
+try:
+    from logic.src.tracking.integrations.data_lineage import DataLineageCallback
+except ImportError:
+    DataLineageCallback = None  # type: ignore[assignment,misc]
 
 from logic.src.tracking.logging.log_utils import final_simulation_summary
 
 from ..checkpoints import CheckpointError, checkpoint_manager
 from ..day_context import SimulationDayContext, run_day
 from .base import SimState
+from .finishing import FinishingState
 
 if TYPE_CHECKING:
     from .base import SimulationContext
@@ -47,10 +56,7 @@ class RunningState(SimState):
                 self._run_simulation_days(ctx, iterator, hook, realtime_log_path)
 
             logger.info(f"Simulation loop complete. Processed {sim.days} days.")
-            from .finishing import FinishingState
-
             ctx.transition_to(FinishingState())
-
         except CheckpointError as e:
             ctx.result = e.error_result
             if ctx.result:
@@ -58,11 +64,14 @@ class RunningState(SimState):
             ctx.transition_to(None)
 
     def _run_simulation_days(self, ctx, iterator, hook, realtime_log_path):
-        from logic.src.tracking.integrations.data_lineage import DataLineageCallback
-
         log_freq = int(getattr(ctx.cfg.sim, "tracking_log_freq", 1))
-        lineage = DataLineageCallback(ctx.pol_name, ctx.sample_id, log_freq=log_freq)
-        lineage.on_simulation_start(ctx)
+        lineage = (
+            DataLineageCallback(ctx.pol_name, ctx.sample_id, log_freq=log_freq)
+            if DataLineageCallback is not None
+            else None
+        )
+        if lineage:
+            lineage.on_simulation_start(ctx)
 
         for day in iterator:
             hook.before_day(day)
@@ -75,7 +84,8 @@ class RunningState(SimState):
 
             self._update_ctx_from_day_context(ctx, day_context)
             self._update_metrics(ctx, day, day_context.output_dict, day_context.daily_log)
-            lineage.on_step_end(day_context, day)
+            if lineage:
+                lineage.on_step_end(day_context, day)
 
             hook.after_day(ctx.execution_time)
             if ctx.overall_progress:
@@ -84,7 +94,6 @@ class RunningState(SimState):
     def _get_current_policy_config(self, ctx):
         """Standardizes policy config resolution from structured context."""
         current_policy_config = {}  # type: ignore[var-annotated]
-        from collections.abc import Mapping
 
         # 1. START WITH GLOBAL CONFIGS (must_go, post_processing)
         if ctx.config:
@@ -162,8 +171,6 @@ class RunningState(SimState):
                 ctx.daily_log[key].append(val)
 
             if ctx.shared_metrics is not None:
-                from logic.src.constants import METRICS
-
                 cumulative_metrics = {
                     k: sum(v) for k, v in (ctx.daily_log or {}).items() if k in METRICS and k != "kg/km"
                 }

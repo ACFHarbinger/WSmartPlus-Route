@@ -9,6 +9,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from logic.src.data.processor.transforms import StateAugmentation
 from logic.src.pipeline.features.eval.eval_base import EvalBase
 from logic.src.utils.functions import move_to
 
@@ -46,10 +47,8 @@ class MultiStartAugmentEval(EvalBase):
         policy.eval()
         results = []
         start_time = time.time()
-        from logic.src.data.processor.transforms import StateAugmentation
 
         augment = StateAugmentation(num_augment=self.num_augment)
-
         for batch in tqdm(data_loader, disable=not self.progress, desc="Multi-Start Augment Eval"):
             batch_obj: object = batch
             batch = move_to(batch_obj, self.device)  # type: ignore[arg-type]

@@ -6,12 +6,21 @@ import contextlib
 import os
 from typing import Optional, Union
 
+import torch
+
 from logic.src.constants import DATASET_EXTENSIONS, ROOT_DIR
 from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
 
 from .base import SimulationRepository
 from .dataset import DatasetRepository
 from .filesystem import FileSystemRepository
+
+try:
+    from logic.src.tracking.core.run import get_active_run
+    from logic.src.tracking.integrations.data import RuntimeDataTracker
+except ImportError:
+    get_active_run = None  # type: ignore[assignment,misc]
+    RuntimeDataTracker = None  # type: ignore[assignment,misc]
 
 # Singleton repository instance
 _REPOSITORY = None
@@ -29,9 +38,7 @@ def set_repository(
     global _REPOSITORY
     _REPOSITORY = repo
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_params({"sim.repository_type": type(repo).__name__})
 
@@ -82,7 +89,7 @@ def set_repository_from_path(
         ".csv": PandasCsvDataset,
     }
 
-    dataset = loader_map[ext].load(abs_path)
+    dataset = loader_map[ext].load(abs_path)  # type: ignore[attr-defined]
     set_repository(DatasetRepository(dataset))
     return True
 
@@ -94,9 +101,7 @@ def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
     indices = _REPOSITORY.get_indices(filename, n_samples, n_nodes, data_size, lock)
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_params(
                 {
@@ -128,9 +133,7 @@ def load_depot(data_dir, area="Rio Maior"):
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
     depot_df = _REPOSITORY.get_depot(area, data_dir=data_dir)
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             lat = float(depot_df["Lat"].iloc[0])
             lng = float(depot_df["Lng"].iloc[0])
@@ -162,12 +165,7 @@ def load_simulator_data(data_dir, number_of_bins, area="Rio Maior", waste_type=N
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
     data, bins_coordinates = _REPOSITORY.get_simulator_data(number_of_bins, area, waste_type, lock, data_dir=data_dir)
     with contextlib.suppress(Exception):
-        import torch
-
-        from logic.src.tracking.core.run import get_active_run
-        from logic.src.tracking.integrations.data import RuntimeDataTracker
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             n_bins = len(data)
             run.log_params(
@@ -207,9 +205,7 @@ def load_area_and_waste_type_params(area, waste_type):
     """
     params = SimulationRepository.get_area_params(area, waste_type)
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_params(
                 {
