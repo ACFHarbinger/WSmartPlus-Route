@@ -28,6 +28,17 @@ import pytorch_lightning as pl
 import torch.nn as nn
 from pytorch_lightning.callbacks import Callback
 
+try:
+    from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
+except ImportError:
+    TensorBoardLogger = None  # type: ignore[assignment,misc]
+    WandbLogger = None  # type: ignore[assignment,misc]
+
+try:
+    import wandb
+except ImportError:
+    wandb = None  # type: ignore[assignment]
+
 
 class GradientTrackerCallback(Callback):
     """
@@ -103,9 +114,7 @@ class GradientTrackerCallback(Callback):
 
     def _detect_logger(self, trainer: pl.Trainer) -> Optional[str]:
         """Return ``'wandb'``, ``'tensorboard'``, or None for the active logger."""
-        try:
-            from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
-        except ImportError:
+        if WandbLogger is None or TensorBoardLogger is None:
             return None
         for logger in trainer.loggers:
             if isinstance(logger, WandbLogger):
@@ -215,12 +224,7 @@ class GradientTrackerCallback(Callback):
         step: int,
     ) -> None:
         """Send weight and gradient histograms to W&B."""
-        try:
-            import wandb  # type: ignore[import]
-        except ImportError:
-            return
-
-        if wandb.run is None:
+        if wandb is None or wandb.run is None:
             return
 
         hist_data: Dict[str, Any] = {}
@@ -241,9 +245,7 @@ class GradientTrackerCallback(Callback):
         step: int,
     ) -> None:
         """Send weight and gradient histograms to TensorBoard."""
-        try:
-            from pytorch_lightning.loggers import TensorBoardLogger
-        except ImportError:
+        if TensorBoardLogger is None:
             return
 
         for logger in trainer.loggers:

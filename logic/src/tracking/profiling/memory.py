@@ -18,7 +18,10 @@ import threading
 import time
 from typing import Any, Dict, List, Optional
 
+import psutil
 import torch
+
+from logic.src.tracking.core.run import get_active_run
 
 
 class MemorySnapshot:
@@ -94,12 +97,8 @@ class MemorySnapshot:
             gpu_peak = torch.cuda.max_memory_allocated(idx) / 1024**2
 
         cpu_rss = 0.0
-        try:
-            import psutil  # type: ignore[import-not-found]
-
+        with contextlib.suppress(Exception):
             cpu_rss = psutil.Process(os.getpid()).memory_info().rss / 1024**2
-        except ImportError:
-            pass
 
         snap = cls(
             tag=tag,
@@ -144,8 +143,6 @@ class MemorySnapshot:
         This is a silent no-op when no run is active or any error occurs.
         """
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_metrics(
@@ -281,8 +278,6 @@ class MemoryTracker:
         if not self._samples:
             return
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_metrics(

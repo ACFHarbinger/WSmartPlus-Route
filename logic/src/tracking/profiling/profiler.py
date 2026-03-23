@@ -27,6 +27,8 @@ from typing import Any, List, Optional
 
 from logic.src.constants import ROOT_DIR
 
+from .report import ProfilingReport
+
 logger = logging.getLogger(__name__)
 
 _ROOT_DIR = str(ROOT_DIR)
@@ -228,8 +230,6 @@ class ExecutionProfiler:
             :class:`ProfilingReport` backed by :attr:`log_file`.
         """
         self.flush()
-        from .report import ProfilingReport
-
         return ProfilingReport(self.log_file, wall_elapsed=self.wall_elapsed)
 
 
@@ -276,12 +276,8 @@ def stop_global_profiling(log_artifact: bool = True, print_report: bool = True) 
 
         report = None
         if print_report or log_artifact:
-            try:
-                from .report import ProfilingReport
-
+            with contextlib.suppress(Exception):
                 report = ProfilingReport(log_file, wall_elapsed=wall_elapsed)
-            except Exception:
-                pass
 
         if print_report and report is not None:
             with contextlib.suppress(Exception):

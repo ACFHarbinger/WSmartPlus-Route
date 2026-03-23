@@ -40,6 +40,18 @@ from logic.src.tracking.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
 
+try:
+    import mlflow
+except ImportError:
+    mlflow = None  # type: ignore[assignment,misc]
+
+try:
+    from zenml.client import Client
+    from zenml.enums import StackComponentType
+except ImportError:
+    Client = None  # type: ignore[assignment,misc]
+    StackComponentType = None  # type: ignore[assignment,misc]
+
 
 class ZenMLBridge:
     """Forwards :class:`Run` events to the ZenML-managed MLflow experiment tracker.
@@ -58,11 +70,7 @@ class ZenMLBridge:
     """
 
     def __init__(self) -> None:
-        self._mlflow: Optional[Any] = None
-        with contextlib.suppress(ImportError):
-            import mlflow  # type: ignore[import-not-found]
-
-            self._mlflow = mlflow
+        self._mlflow = mlflow
 
     # ------------------------------------------------------------------
     # Internal guard
@@ -159,10 +167,11 @@ def configure_zenml_stack(
         ``True`` if the stack was configured and activated successfully,
         ``False`` on any error.
     """
-    try:
-        from zenml.client import Client
-        from zenml.enums import StackComponentType  # Import the enum
+    if Client is None or StackComponentType is None:
+        logger.warning("ZenML not installed; cannot configure stack.")
+        return False
 
+    try:
         client = Client()
         tracker_component_name = f"mlflow-tracker-{stack_name}"
 
@@ -205,8 +214,8 @@ def extract_zenml_step_output(
         The materialised Python object, or ``None`` on any error.
     """
     with contextlib.suppress(Exception):
-        from zenml.client import Client  # type: ignore[import-not-found]
-
+        if Client is None:
+            return None
         client = Client()
         last_run = client.get_pipeline(pipeline_name).last_run
         return last_run.steps[step_name].output.load()

@@ -4,8 +4,10 @@ Persistent storage utilities (JSON, Pickle) and system logging.
 
 import datetime
 import json
+import logging
 import os
 import pickle
+import sys
 import threading
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 
@@ -17,15 +19,9 @@ from logic.src.utils.io.files import read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") -> Any:
-    """Configures loguru to log to both console and a file."""
-    import sys
-
     logger.remove()
     logger.add(sys.stderr, level=level)
     logger.add(log_path, rotation="10 MB", level=level)
-
-    # Suppress noisy modules that spam DEBUG logs
-    import logging
 
     noisy_modules = [
         "AttentionDecoder",

@@ -8,6 +8,8 @@ import os
 import threading
 from typing import Any, Dict, List, Optional, Tuple
 
+from typing_extensions import Literal
+
 from ..validation.hashing import hash_file
 from .store import TrackingStore
 
@@ -361,8 +363,8 @@ class Run:
         self,
         exc_type: Any,
         exc_val: Any,
-        exc_tb: Any,
-    ) -> bool:
+        _exc_tb: Any,
+    ) -> Literal[False]:
         if exc_type is not None:
             self.finish(status="failed", error=str(exc_val))
         else:
