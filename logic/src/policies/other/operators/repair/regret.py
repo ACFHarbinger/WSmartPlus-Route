@@ -18,6 +18,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from ._prune_routes import prune_unprofitable_routes
+
 
 def regret_2_insertion(
     routes: List[List[int]],
@@ -25,9 +27,7 @@ def regret_2_insertion(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
-    R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
-    cost_unit: float = 1.0,
     expand_pool: bool = True,
     noise: float = 0.0,
 ) -> List[List[int]]:
@@ -44,7 +44,6 @@ def regret_2_insertion(
         dist_matrix: Distance matrix.
         wastes: waste look-up.
         capacity: Vehicle capacity.
-        R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
         noise: Random noise level for cost calculation.
 
@@ -58,9 +57,7 @@ def regret_2_insertion(
         wastes,
         capacity,
         k=2,
-        R=R,
         mandatory_nodes=mandatory_nodes,
-        cost_unit=cost_unit,
         expand_pool=expand_pool,
         noise=noise,
     )
@@ -73,9 +70,7 @@ def regret_k_insertion(  # noqa: C901
     wastes: Dict[int, float],
     capacity: float,
     k: int = 2,
-    R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
-    cost_unit: float = 1.0,
     expand_pool: bool = True,
     noise: float = 0.0,
 ) -> List[List[int]]:
@@ -93,7 +88,6 @@ def regret_k_insertion(  # noqa: C901
         wastes: waste look-up.
         capacity: Vehicle capacity.
         k: Regret degree (2, 3, etc.).
-        R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
         noise: Random noise level for cost calculation.
 
@@ -123,7 +117,6 @@ def regret_k_insertion(  # noqa: C901
 
         for node in unassigned:
             node_waste = wastes.get(node, 0)
-            revenue = node_waste * R if R is not None else float("inf")
             is_mandatory = node in mandatory_nodes_set
 
             node_options = []
@@ -141,10 +134,6 @@ def regret_k_insertion(  # noqa: C901
                     # Apply noise (Pisinger & Ropke, 2007)
                     if noise != 0:
                         cost += noise * max_dist
-
-                    # VRPP check: skip if cost * cost_unit > revenue and not mandatory
-                    if R is not None and cost * cost_unit > revenue and not is_mandatory:
-                        continue
 
                     node_options.append((cost, i, pos))
 
@@ -245,8 +234,18 @@ def _get_insertion_options_with_profit(
 
             profit = revenue - cost * C
 
-            if profit > 0 or is_mandatory:
+            # Requirement: profit > 0 or is_mandatory
+            if is_mandatory or profit > -1e-4:
                 node_options.append((profit, i, pos))
+
+    # Evaluate new route (Speculative Seeding)
+    new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+    new_profit = revenue - (new_cost * C)
+    seed_hurdle = -0.5 * (new_cost * C)
+
+    if is_mandatory or new_profit >= seed_hurdle:
+        # A new route has its best (and only) insertion at pos 0 in a new index
+        node_options.append((new_profit, len(routes), 0))
 
     return node_options
 
@@ -386,7 +385,6 @@ def regret_k_profit_insertion(
                 continue
             else:
                 break
-
         # Maximize regret
         all_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
         _, best_node, (profit, r_idx, pos) = all_candidates[0]
@@ -405,4 +403,5 @@ def regret_k_profit_insertion(
 
         unassigned.remove(best_node)
 
-    return routes
+    # Clean up any routes that failed to become profitable after speculative seeding
+    return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_nodes_set)

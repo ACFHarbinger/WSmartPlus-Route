@@ -88,14 +88,43 @@ def _find_cheapest_insertion(
     return best_route_idx, best_pos, best_cost
 
 
+def _find_nearest_insertion(
+    farthest_node: int,
+    routes: List[List[int]],
+    loads: List[float],
+    dist_matrix: np.ndarray,
+    capacity: float,
+    node_waste: float,
+) -> Tuple[int, int, float]:
+    """Find the nearest insertion position for a node."""
+    best_cost = float("inf")
+    best_route_idx = -1
+    best_pos = -1
+
+    for i, route in enumerate(routes):
+        if loads[i] + node_waste > capacity:
+            continue
+
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+
+            cost_increase = dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
+
+            if cost_increase < best_cost:
+                best_cost = cost_increase
+                best_route_idx = i
+                best_pos = pos
+
+    return best_route_idx, best_pos, best_cost
+
+
 def farthest_insertion(
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
-    R: Optional[float] = None,
-    C: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = True,
 ) -> List[List[int]]:
@@ -116,8 +145,6 @@ def farthest_insertion(
         dist_matrix: Symmetric distance matrix (N+1 x N+1, including depot at index 0).
         wastes: Dictionary mapping node index to waste/demand.
         capacity: Maximum vehicle capacity.
-        R: Revenue per unit waste (optional, for VRPP profitability checks).
-        C: Cost per unit distance (optional, for VRPP profitability checks).
         mandatory_nodes: List of mandatory node indices that must be visited.
         expand_pool: If True, consider all unvisited nodes; if False, only removed_nodes.
 
@@ -125,8 +152,6 @@ def farthest_insertion(
         List[List[int]]: Updated routes after farthest insertion.
 
     Note:
-        - If R and C are provided, nodes are only inserted if profitable (revenue > cost)
-          unless they are mandatory.
         - If a node cannot be feasibly inserted into any route (capacity violation),
           a new route is created for mandatory nodes.
     """
@@ -146,11 +171,10 @@ def farthest_insertion(
             break
 
         node_waste = wastes.get(farthest_node, 0.0)
-        revenue = node_waste * R if R is not None else float("inf")
         is_mandatory = farthest_node in mandatory_set
 
-        best_route_idx, best_pos, _ = _find_cheapest_insertion(
-            farthest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, R, C
+        best_route_idx, best_pos, _ = _find_nearest_insertion(
+            farthest_node, routes, loads, dist_matrix, capacity, node_waste
         )
 
         if best_route_idx != -1:
@@ -230,13 +254,35 @@ def farthest_profit_insertion(
                 farthest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, R, C
             )
 
+            new_cost = dist_matrix[0, farthest_node] + dist_matrix[farthest_node, 0]
+            new_profit = revenue - (new_cost * C)
+            seed_hurdle = -0.5 * (new_cost * C)
+
+            # Compare insertion into existing routes vs. starting a new route
             if best_route_idx != -1:
-                routes[best_route_idx].insert(best_pos, farthest_node)
-                loads[best_route_idx] += node_waste
-                unassigned.remove(farthest_node)
-                inserted_any = True
-                break
-            elif is_mandatory:
+                # Calculate cost_increase to compute profit for existing route
+                prev = routes[best_route_idx][best_pos - 1] if best_pos > 0 else 0
+                nxt = routes[best_route_idx][best_pos] if best_pos < len(routes[best_route_idx]) else 0
+                cost_increase = (
+                    dist_matrix[prev, farthest_node] + dist_matrix[farthest_node, nxt] - dist_matrix[prev, nxt]
+                )
+                existing_profit = revenue - (cost_increase * C)
+
+                # If new route is better (and passes seed hurdle)
+                if new_profit > existing_profit and (is_mandatory or new_profit >= seed_hurdle):
+                    routes.append([farthest_node])
+                    loads.append(node_waste)
+                    unassigned.remove(farthest_node)
+                    inserted_any = True
+                    break
+                else:
+                    # Use existing route
+                    routes[best_route_idx].insert(best_pos, farthest_node)
+                    loads[best_route_idx] += node_waste
+                    unassigned.remove(farthest_node)
+                    inserted_any = True
+                    break
+            elif is_mandatory or new_profit >= seed_hurdle:
                 routes.append([farthest_node])
                 loads.append(node_waste)
                 unassigned.remove(farthest_node)

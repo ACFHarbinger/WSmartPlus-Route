@@ -26,6 +26,8 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
+from ._prune_routes import prune_unprofitable_routes
+
 
 def deep_insertion(
     routes: List[List[int]],
@@ -194,9 +196,31 @@ def deep_profit_insertion(
                         best_route = r_idx
                         best_pos = pos
 
+            # Evaluate new route (Speculative Seeding)
+            new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+            new_profit = revenue - (new_cost * C)
+            seed_hurdle = -0.5 * (new_cost * C)
+
+            if is_mandatory or new_profit >= seed_hurdle:
+                # Score = Profit + Alpha * (Capacity Utility)
+                # For a new route, residual = (capacity - node_waste) / capacity
+                new_residual = (capacity - node_waste) / max(capacity, 1e-9)
+                new_score = new_profit + alpha * new_residual
+                new_effective_score = new_score + (1e9 if is_mandatory else 0)
+
+                if new_effective_score > best_score:
+                    best_score = new_effective_score
+                    best_node = node
+                    best_route = len(routes)
+                    best_pos = 0
+
         if best_node != -1:
-            routes[best_route].insert(best_pos, best_node)
-            loads[best_route] += wastes.get(best_node, 0)
+            if best_route == len(routes):
+                routes.append([best_node])
+                loads.append(node_waste)
+            else:
+                routes[best_route].insert(best_pos, best_node)
+                loads[best_route] += wastes.get(best_node, 0)
             unassigned.remove(best_node)
         else:
             # Handle remaining mandatory nodes
@@ -210,4 +234,5 @@ def deep_profit_insertion(
             else:
                 break
 
-    return routes
+    # Clean up any routes that failed to become profitable after speculative seeding
+    return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_nodes_set)

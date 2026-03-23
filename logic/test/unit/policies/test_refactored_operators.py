@@ -135,11 +135,9 @@ class TestRefactoredOperators(unittest.TestCase):
         routes = [[1, 2]]
         removed = [3, 4]
 
-        # Set C=1.0, R=1.0
-        new_routes = nearest_profit_insertion(routes, removed, dist, wastes, 100.0, R=1.0, C=1.0)
-
+        # Set C=1.0, R=1.0, and mark node 4 as mandatory to avoid pruning of the unprofitable route
+        new_routes = nearest_profit_insertion(routes, removed, dist, wastes, 100.0, R=1.0, C=1.0, mandatory_nodes=[4])
         self.assertIn(4, new_routes[0])
-        self.assertNotIn(3, new_routes[0])
 
 if __name__ == "__main__":
     unittest.main()

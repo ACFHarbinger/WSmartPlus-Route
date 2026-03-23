@@ -23,6 +23,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from ._prune_routes import prune_unprofitable_routes
+
 
 def _get_nearest_node(
     unassigned: List[int],
@@ -95,8 +97,6 @@ def nearest_insertion(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
-    R: Optional[float] = None,
-    C: float = 1.0,
     mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = True,
 ) -> List[List[int]]:
@@ -109,8 +109,6 @@ def nearest_insertion(
         dist_matrix: Symmetric distance matrix.
         wastes: Dictionary mapping node index to waste/demand.
         capacity: Maximum vehicle capacity.
-        R: Revenue per unit waste (optional).
-        C: Cost per unit distance (optional).
         mandatory_nodes: List of mandatory node indices.
         expand_pool: If True, consider all unvisited nodes.
 
@@ -133,35 +131,60 @@ def nearest_insertion(
             break
 
         node_waste = wastes.get(nearest_node, 0.0)
-        revenue = node_waste * R if R is not None else float("inf")
-        is_mandatory = nearest_node in mandatory_set
 
-        best_route_idx, best_pos, best_cost = _find_cheapest_insertion(
-            nearest_node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, R, C
+        best_route_idx, best_pos, best_cost = _find_cheapest_insertion_dist(
+            nearest_node, routes, loads, dist_matrix, capacity, node_waste
         )
 
-        # Corrected decision logic: Compare Existing vs New vs Skip
         new_route_cost = dist_matrix[0, nearest_node] + dist_matrix[nearest_node, 0]
 
-        # 1. Prefer Existing if feasible, profitable, and cheaper than New
-        if best_route_idx != -1 and (
-            new_route_cost >= best_cost or (R is not None and new_route_cost * C > revenue and not is_mandatory)
-        ):
+        # Decision logic: Compare Existing vs New
+        if best_route_idx != -1 and new_route_cost >= best_cost:
             routes[best_route_idx].insert(best_pos, nearest_node)
             loads[best_route_idx] += node_waste
             unassigned.remove(nearest_node)
-            continue
-
-        # 2. Prefer New if profitable or mandatory
-        if is_mandatory or (R is not None and new_route_cost * C <= revenue) or (R is None):
+        elif nearest_node in mandatory_set:
+            # Try New Route ONLY for mandatory nodes if existing routes are infeasible or worse
             routes.append([nearest_node])
             loads.append(node_waste)
             unassigned.remove(nearest_node)
         else:
-            # 3. Skip if neither is profitable
+            # Non-mandatory node that doesn't fit or isn't picked for existing route
+            # In distance-only mode, we usually try to fit all, but follow mandatory pattern if requested
             unassigned.remove(nearest_node)
 
     return routes
+
+
+def _find_cheapest_insertion_dist(
+    node: int,
+    routes: List[List[int]],
+    loads: List[float],
+    dist_matrix: np.ndarray,
+    capacity: float,
+    node_waste: float,
+) -> Tuple[int, int, float]:
+    """Find the cheapest insertion position for a node (distance only)."""
+    best_cost = float("inf")
+    best_route_idx = -1
+    best_pos = -1
+
+    for i, route in enumerate(routes):
+        if loads[i] + node_waste > capacity:
+            continue
+
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+
+            cost_increase = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+
+            if cost_increase < best_cost:
+                best_cost = cost_increase
+                best_route_idx = i
+                best_pos = pos
+
+    return best_route_idx, best_pos, best_cost
 
 
 def nearest_profit_insertion(
@@ -210,26 +233,33 @@ def nearest_profit_insertion(
                 node, routes, loads, dist_matrix, capacity, node_waste, revenue, is_mandatory, R, C
             )
 
-            new_route_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+            new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+            new_profit = revenue - (new_cost * C)
+            seed_hurdle = -0.5 * (new_cost * C)
 
-            # Decision: Existing vs New vs Skip
+            # Decision logic: Comparison of Existing vs New vs Skip
             if best_route_idx != -1:
-                # Compare with NEW route if feasible
-                if new_route_cost < best_cost:
-                    # New route is cheaper
+                # Calculate cost_increase to compute profit for existing route
+                prev = routes[best_route_idx][best_pos - 1] if best_pos > 0 else 0
+                nxt = routes[best_route_idx][best_pos] if best_pos < len(routes[best_route_idx]) else 0
+                cost_increase = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                existing_profit = revenue - (cost_increase * C)
+
+                # If new route is better (and passes seed hurdle)
+                if new_profit > existing_profit and (is_mandatory or new_profit >= seed_hurdle):
                     routes.append([node])
                     loads.append(node_waste)
                     unassigned.remove(node)
                     inserted_any = True
                     break
                 else:
-                    # Existing route is better
+                    # Use existing route
                     routes[best_route_idx].insert(best_pos, node)
                     loads[best_route_idx] += node_waste
                     unassigned.remove(node)
                     inserted_any = True
                     break
-            elif is_mandatory or (new_route_cost * C <= revenue):
+            elif is_mandatory or new_profit >= seed_hurdle:
                 # Only NEW route is an option
                 routes.append([node])
                 loads.append(node_waste)
@@ -240,4 +270,5 @@ def nearest_profit_insertion(
         if not inserted_any:
             break
 
-    return routes
+    # Clean up any routes that failed to become profitable after speculative seeding
+    return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_set)
