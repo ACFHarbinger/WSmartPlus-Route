@@ -18,8 +18,10 @@ from typing import Any, Dict, List, Optional, Tuple
 import torch
 
 from logic.src.interfaces.adapter import IPolicyAdapter
+from logic.src.models.policies.selection import get_vectorized_selector
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.neural_agent import NeuralAgent
+from logic.src.tracking.core.run import get_active_run
 from logic.src.utils.functions import move_to
 
 
@@ -97,8 +99,6 @@ class NeuralPolicy(IPolicyAdapter):
             return
         self._params_logged = True
 
-        from logic.src.tracking.core.run import get_active_run
-
         run = get_active_run()
         if run is None:
             return
@@ -143,8 +143,6 @@ class NeuralPolicy(IPolicyAdapter):
         selector_name = kwargs.get("selector_name")
         if selector_name is None:
             return None
-
-        from logic.src.models.policies.selection import get_vectorized_selector
 
         selector_threshold = kwargs.get("selector_threshold", 0.7)
         current_day = kwargs.get("current_day", 1)

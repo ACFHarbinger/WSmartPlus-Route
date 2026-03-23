@@ -249,15 +249,8 @@ class BaseAcceptanceSolver(PolicyVizMixin):
     def _llh_random_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
         use_profit = getattr(self.params, "profit_aware_operators", False)
         expand_pool = getattr(self.params, "vrpp", False)
-
+        partial, removed = random_removal(routes, n, self.random)
         if use_profit:
-            from logic.src.policies.other.operators.destroy.shaw import (
-                shaw_profit_removal,
-            )
-
-            partial, removed = shaw_profit_removal(
-                routes, n, self.dist_matrix, self.wastes, self.R, self.C, randomization_factor=2.0, rng=self.random
-            )
             return regret_2_profit_insertion(
                 partial,
                 removed,
@@ -270,7 +263,6 @@ class BaseAcceptanceSolver(PolicyVizMixin):
                 expand_pool=expand_pool,
             )
 
-        partial, removed = random_removal(routes, n, self.random)
         return regret_2_insertion(
             partial,
             removed,

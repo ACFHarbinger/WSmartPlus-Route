@@ -11,6 +11,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.destroy.worst import (
+    worst_profit_removal,
+    worst_removal,
+)
 from logic.src.policies.other.operators.unstringing_stringing.unstringing_i import (
     apply_type_i_us,
     apply_type_i_us_profit,
@@ -183,11 +187,6 @@ def unstringing_removal_wrapper(
             routes = [r for r in routes if r]
         else:
             # Fallback for remaining nodes that couldn't be unstrung
-            from logic.src.policies.other.operators.destroy.worst import (  # noqa: PLC0415
-                worst_profit_removal,
-                worst_removal,
-            )
-
             nodes_to_remove = min(1, sum(len(r) for r in routes))
             if nodes_to_remove == 0:
                 break

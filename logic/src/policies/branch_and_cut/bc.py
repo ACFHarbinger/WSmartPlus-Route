@@ -15,16 +15,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-try:
-    import gurobipy as gp
-    from gurobipy import GRB
-
-    GUROBI_AVAILABLE = True
-except ImportError:
-    GUROBI_AVAILABLE = False
-    gp = None
-    GRB = None
-
 from logic.src.policies.branch_and_cut.heuristics import (
     construct_initial_solution,
     construct_nn_solution,
@@ -36,6 +26,16 @@ from logic.src.policies.branch_and_cut.separation import (
     SubtourEliminationCut,
 )
 from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
+
+try:
+    import gurobipy as gp
+    from gurobipy import GRB
+
+    GUROBI_AVAILABLE = True
+except ImportError:
+    GUROBI_AVAILABLE = False
+    gp = None  # type: ignore[assignment]
+    GRB = None  # type: ignore[assignment,misc]
 
 
 class BranchAndCutSolver:
@@ -91,11 +91,11 @@ class BranchAndCutSolver:
 
         # Statistics
         self.stats = {
-            "total_cuts": 0,
-            "sec_cuts": 0,
-            "capacity_cuts": 0,
-            "nodes_explored": 0,
-            "lp_iterations": 0,
+            "total_cuts": 0.0,
+            "sec_cuts": 0.0,
+            "capacity_cuts": 0.0,
+            "nodes_explored": 0.0,
+            "lp_iterations": 0.0,
         }
 
         # Gurobi model
@@ -153,14 +153,16 @@ class BranchAndCutSolver:
                 self._set_start_solution(best_tour)
 
         # Step 3: Enable lazy constraint callback for cutting planes
+        assert self.gurobi_model is not None
         self.gurobi_model.Params.LazyConstraints = 1
-        self.gurobi_model.Params.PreCrush = 1  # Enable presolve
-        self.gurobi_model.optimize(self._lazy_constraint_callback)
+        self.gurobi_model.Params.PreCrush = 1  # type: ignore[union-attr]
+        self.gurobi_model.optimize(self._lazy_constraint_callback)  # type: ignore[union-attr]
 
         # Step 4: Extract solution
         tour, profit = self._extract_solution()
 
         self.stats["obj_value"] = profit
+        assert self.gurobi_model is not None
         self.stats["solve_time"] = self.gurobi_model.Runtime
         self.stats["mip_gap"] = self.gurobi_model.MIPGap if self.gurobi_model.SolCount > 0 else 1.0
         self.stats["nodes_explored"] = int(self.gurobi_model.NodeCount)
@@ -262,7 +264,7 @@ class BranchAndCutSolver:
     def _add_subtour_cut(self, model, cut: SubtourEliminationCut):
         """Add a subtour elimination cut to the model."""
         cut_edges = self.model.delta(cut.node_set)
-        edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]
+        edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
 
         if edge_vars:
             model.cbLazy(gp.quicksum(edge_vars) >= cut.rhs)
@@ -270,7 +272,7 @@ class BranchAndCutSolver:
     def _add_capacity_cut(self, model, cut: CapacityCut):
         """Add a capacity inequality cut to the model."""
         cut_edges = self.model.delta(cut.node_set)
-        edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]
+        edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
 
         if edge_vars:
             model.cbLazy(gp.quicksum(edge_vars) >= cut.rhs)
@@ -285,10 +287,10 @@ class BranchAndCutSolver:
             edge = tuple(sorted([tour[idx], tour[idx + 1]]))
             if edge in self.x_vars:
                 # Increment start value to handle using same edge twice (e.g. [0, 1, 0])
-                current_start = getattr(self.x_vars[edge], "Start", 0.0)
+                current_start = getattr(self.x_vars[edge], "Start", 0.0)  # type: ignore[index]
                 if np.isnan(current_start):  # Gurobi might initialize with NaN
                     current_start = 0.0
-                self.x_vars[edge].Start = current_start + 1.0
+                self.x_vars[edge].Start = current_start + 1.0  # type: ignore[index]
 
         # Set y variables based on visited nodes
         visited_nodes = set(tour) - {self.model.depot}
@@ -297,6 +299,7 @@ class BranchAndCutSolver:
 
     def _extract_solution(self) -> Tuple[List[int], float]:
         """Extract the optimal tour from Gurobi solution."""
+        assert self.gurobi_model is not None
         if self.gurobi_model.SolCount == 0:
             return [], 0.0
 
@@ -337,7 +340,7 @@ class BranchAndCutSolver:
             if next_node is None:
                 break
 
-            remaining_edges.remove(edge_to_remove)
+            remaining_edges.remove(edge_to_remove)  # type: ignore[arg-type]
             tour.append(next_node)
             current = next_node
 

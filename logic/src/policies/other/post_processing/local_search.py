@@ -8,6 +8,14 @@ import numpy as np
 import torch
 
 from logic.src.interfaces import IPostProcessor
+from logic.src.models.policies.local_search import (
+    vectorized_relocate,
+    vectorized_swap,
+    vectorized_swap_star,
+    vectorized_three_opt,
+    vectorized_two_opt,
+    vectorized_two_opt_star,
+)
 
 from .base import PostProcessorRegistry
 
@@ -34,14 +42,6 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
         Returns:
             List[int]: The refined tour after applying the local search operator.
         """
-        from logic.src.models.policies.local_search import (
-            vectorized_relocate,
-            vectorized_swap,
-            vectorized_swap_star,
-            vectorized_three_opt,
-            vectorized_two_opt,
-            vectorized_two_opt_star,
-        )
 
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None:

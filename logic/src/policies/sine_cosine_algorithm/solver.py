@@ -22,6 +22,10 @@ import numpy as np
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.local_search.local_search_aco import ACOLocalSearch
+from ..other.operators.repair.greedy import (
+    greedy_insertion,
+    greedy_profit_insertion,
+)
 from .params import SCAParams
 
 
@@ -182,8 +186,6 @@ class SCASolver:
             return []
 
         if self.params.profit_aware_operators:
-            from logic.src.policies.other.operators.repair.greedy import greedy_profit_insertion
-
             routes = greedy_profit_insertion(
                 [[]],
                 selected_nodes,
@@ -196,8 +198,6 @@ class SCASolver:
                 expand_pool=self.params.vrpp,
             )
         else:
-            from logic.src.policies.other.operators.repair.greedy import greedy_insertion
-
             routes = greedy_insertion(
                 [[]],
                 selected_nodes,

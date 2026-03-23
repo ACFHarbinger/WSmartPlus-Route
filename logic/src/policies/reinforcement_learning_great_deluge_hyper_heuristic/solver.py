@@ -26,6 +26,7 @@ import numpy as np
 
 from ..other.operators import (
     greedy_insertion,
+    greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
     regret_2_profit_insertion,
@@ -161,8 +162,6 @@ class RLGDHHSolver:
         expand_pool = self.params.vrpp
 
         if use_profit:
-            from ..other.operators import greedy_profit_insertion
-
             new_routes = greedy_profit_insertion(
                 new_routes,
                 [node],
@@ -226,8 +225,6 @@ class RLGDHHSolver:
         partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
 
         if use_profit:
-            from ..other.operators import greedy_profit_insertion
-
             return greedy_profit_insertion(
                 partial,
                 removed,
@@ -286,11 +283,9 @@ class RLGDHHSolver:
 
     def _initialize_solution(self) -> List[List[int]]:
         """Randomized greedy construction of a starting feasible routing."""
-        import copy
-
         nodes = copy.copy(self.nodes)
         self.random.shuffle(nodes)
-        from ..other.operators import greedy_profit_insertion
+        self.random.shuffle(nodes)
 
         try:
             return greedy_profit_insertion(

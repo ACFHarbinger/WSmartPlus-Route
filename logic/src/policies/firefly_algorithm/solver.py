@@ -29,6 +29,7 @@ from ..other.operators import (
     greedy_profit_insertion,
     random_removal,
 )
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .params import FAParams
 
 
@@ -162,10 +163,6 @@ class FASolver:
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
         """
-        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
-            build_greedy_routes,
-        )
-
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

@@ -21,6 +21,9 @@ import numpy as np
 from logic.src.policies.hybrid_genetic_search.individual import Individual
 from logic.src.policies.other.operators.crossover.ordered import ordered_crossover
 from logic.src.policies.other.operators.destroy.random import random_removal
+from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+    build_greedy_routes,
+)
 from logic.src.policies.other.operators.repair.greedy import (
     greedy_insertion,
     greedy_profit_insertion,
@@ -136,10 +139,6 @@ class GASolver:
 
     def _init_population(self) -> List[List[List[int]]]:
         """Initialise population with randomised greedy solutions."""
-        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
-            build_greedy_routes,
-        )
-
         population = []
         for _ in range(self.params.pop_size):
             # Use seed/rng from params

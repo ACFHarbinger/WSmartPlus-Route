@@ -160,6 +160,10 @@ check-google-docs:
 check-multi-classes:
     uv run python logic/src/utils/validation/check_multi_classes.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test
 
+# Check for nested imports
+check-nested-imports:
+    uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test
+
 # --- Advanced Testing & Benchmarks ---
 
 # Run mutation tests using mutmut

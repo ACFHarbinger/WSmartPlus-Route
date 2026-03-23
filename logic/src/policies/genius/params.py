@@ -9,6 +9,7 @@ Reference:
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
 from typing import Any, Optional
 
@@ -59,8 +60,6 @@ class GENIUSParams:
     def from_config(cls, config: Any) -> GENIUSParams:
         """Build parameters from a configuration object."""
         if isinstance(config, dict):
-            import dataclasses
-
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
 
         return cls(

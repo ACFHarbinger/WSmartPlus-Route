@@ -47,6 +47,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import GPHHParams
 from .tree import GPNode, _mutate, _random_tree, _subtree_crossover
 
@@ -420,8 +421,6 @@ class GPHHSolver:
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,

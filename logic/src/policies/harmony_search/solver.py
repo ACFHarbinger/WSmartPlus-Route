@@ -25,6 +25,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.other.operators import build_greedy_routes
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from .params import HSParams
@@ -133,8 +134,6 @@ class HSSolver:
         """Order-dependent sequential construction.
         Uses greedy profit-aware construction.
         """
-        from logic.src.policies.other.operators import build_greedy_routes
-
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -193,8 +192,6 @@ class HSSolver:
                 candidate_nodes.append(mn)
 
         # 3. Routing: Convert sequence to feasible routes
-        from logic.src.policies.other.operators import build_greedy_routes
-
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

@@ -32,6 +32,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import RTSParams
 
 
@@ -382,8 +383,6 @@ class RTSSolver:
         return hash(tuple(tuple(r) for r in routes))
 
     def _build_initial_solution(self) -> List[List[int]]:
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,

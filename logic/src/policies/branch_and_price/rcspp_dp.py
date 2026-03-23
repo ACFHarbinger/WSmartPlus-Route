@@ -14,6 +14,8 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
+from .ryan_foster_branching import BranchingConstraint
+
 
 @dataclass(order=True)
 class Label:
@@ -403,9 +405,6 @@ class RCSPPSolver:
         Returns:
             True if all constraints are satisfied
         """
-        # Import here to avoid circular dependency
-        from .ryan_foster_branching import BranchingConstraint
-
         for constraint in constraints:
             if not isinstance(constraint, BranchingConstraint):
                 continue
