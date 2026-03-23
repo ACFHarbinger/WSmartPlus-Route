@@ -28,8 +28,6 @@ from ..unstringing_stringing import (
     apply_type_iii_us_profit,
     apply_type_iv_us,
     apply_type_iv_us_profit,
-    stringing_insertion,
-    stringing_profit_insertion,
     unstringing_profit_removal,
     unstringing_removal,
 )
@@ -54,16 +52,17 @@ __all__ = [
     "historical_removal",
     "sector_removal",
     # Profit-based variants for VRPP
-    "random_profit_removal",
-    "cluster_profit_removal",
+    "historical_profit_removal",
     "worst_profit_removal",
     "shaw_profit_removal",
+    "route_profit_removal",
+    # Unused profit-based variants for VRPP
+    "random_profit_removal",
+    "cluster_profit_removal",
     "neighbor_profit_removal",
-    "historical_profit_removal",
     "string_profit_removal",
     "sector_profit_removal",
-    "route_profit_removal",
-    # Unstringing/stringing destroy/repair
+    # Unstringing destroy operators
     "apply_type_i_us",
     "apply_type_ii_us",
     "apply_type_iii_us",
@@ -75,6 +74,4 @@ __all__ = [
     # Automated wrappers
     "unstringing_removal",
     "unstringing_profit_removal",
-    "stringing_insertion",
-    "stringing_profit_insertion",
 ]

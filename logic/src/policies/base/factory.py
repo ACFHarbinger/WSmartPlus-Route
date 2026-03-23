@@ -94,6 +94,7 @@ class PolicyFactory:
         import logic.src.policies.cluster_first_route_second.policy_cf_rs as policy_cf_rs  # noqa
         import logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp as policy_ils_rvnd_sp  # noqa
         import logic.src.policies.kernel_search.policy_ks as policy_ks  # noqa
+        import logic.src.policies.lin_kernighan_helsgaun_three.policy_lkh3 as policy_lkh3  # noqa
         import logic.src.policies.local_branching.policy_lb as policy_lb  # noqa
         import logic.src.policies.local_branching_variable_neighborhood_search.policy_lb_vns as policy_lb_vns  # noqa
         import logic.src.policies.popmusic.policy_popmusic as policy_popmusic  # noqa

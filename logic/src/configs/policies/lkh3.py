@@ -1,0 +1,44 @@
+"""
+LKH-3 (Lin-Kernighan-Helsgaun 3) configuration for Hydra.
+
+Reference:
+    Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
+    traveling salesman and vehicle routing problems.
+"""
+
+from dataclasses import dataclass, field
+from typing import Any, List, Optional
+
+
+@dataclass
+class LKH3Config:
+    """Configuration for the LKH-3 policy.
+
+    Attributes:
+        engine: Execution backend identifier.
+        max_trials: Maximum number of local-search iterations per run.
+        runs: Number of independent LKH runs (multi-start).
+        popmusic_subpath_size: Sub-path size for POPMUSIC candidate generation.
+        popmusic_trials: Number of POPMUSIC decomposition runs.
+        max_k_opt: Maximum k for k-opt moves (2–5).
+        use_ip_merging: If True, use IP-based tour merging; else greedy.
+        time_limit: Wall-clock time limit in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: If True, solver operates in full VRPP mode.
+        must_go: Must-go selection strategy config list.
+        post_processing: Post-processing operation config list.
+    """
+
+    engine: str = "lkh3"
+    max_trials: int = 1000
+    runs: int = 10
+    popmusic_subpath_size: int = 50
+    popmusic_trials: int = 50
+    max_k_opt: int = 5
+    use_ip_merging: bool = True
+    time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    must_go: Optional[List[Any]] = field(default_factory=list)
+    post_processing: Optional[List[Any]] = field(default_factory=list)
