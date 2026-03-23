@@ -34,7 +34,23 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import streamlit as st
-from mlflow.entities import Run
+
+try:
+    import mlflow
+    from mlflow.entities import Run
+    from mlflow.tracking import MlflowClient
+except ImportError:
+    mlflow = None
+    Run = Any
+    MlflowClient = Any
+
+try:
+    from zenml.client import Client as ZenMLClient
+except ImportError:
+    ZenMLClient = Any
+
+with contextlib.suppress(ImportError):
+    from logic.src.tracking.core.store import TrackingStore
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -54,8 +70,6 @@ def _open_store(tracking_uri: Optional[str]) -> Optional[Any]:
     if not os.path.exists(db_path):
         return None
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.store import TrackingStore
-
         return TrackingStore(db_path)
     return None
 
@@ -248,9 +262,10 @@ def load_mlflow_runs(
     Returns:
         DataFrame with columns from ``mlflow.search_runs``, or empty.
     """
-    with contextlib.suppress(Exception):
-        import mlflow  # type: ignore[import-not-found]
+    if mlflow is None:
+        return pd.DataFrame()
 
+    with contextlib.suppress(Exception):
         mlflow.set_tracking_uri(tracking_uri)
         if experiment_name:
             return mlflow.search_runs(
@@ -277,9 +292,10 @@ def load_mlflow_metric_history(
     Returns:
         DataFrame with columns ``step``, ``value``, ``timestamp``.
     """
-    with contextlib.suppress(Exception):
-        from mlflow.tracking import MlflowClient  # type: ignore[import-not-found]
+    if MlflowClient is Any:
+        return pd.DataFrame(columns=["step", "value", "timestamp"])
 
+    with contextlib.suppress(Exception):
         client = MlflowClient(tracking_uri)
         history = client.get_metric_history(run_id, metric_key)
         if history:
@@ -301,9 +317,10 @@ def list_mlflow_metric_keys(
     Returns:
         Sorted list of metric key strings.
     """
-    with contextlib.suppress(Exception):
-        from mlflow.tracking import MlflowClient  # type: ignore[import-not-found]
+    if MlflowClient is Any:
+        return []
 
+    with contextlib.suppress(Exception):
         client = MlflowClient(tracking_uri)
         run = client.get_run(run_id)
         return sorted(run.data.metrics.keys())
@@ -322,10 +339,11 @@ def load_zenml_pipeline_runs() -> List[Dict[str, Any]]:
     Returns:
         List of dicts with pipeline run metadata (name, status, etc.).
     """
-    with contextlib.suppress(Exception):
-        from zenml.client import Client  # type: ignore[import-not-found]
+    if ZenMLClient is Any:
+        return []
 
-        client = Client()
+    with contextlib.suppress(Exception):
+        client = ZenMLClient()
         runs = client.list_pipeline_runs(sort_by="desc:created", size=50)
         result: List[Dict[str, Any]] = []
         for r in runs:
@@ -353,10 +371,11 @@ def load_zenml_run_steps(run_id: str) -> List[Dict[str, Any]]:
     Returns:
         List of step dicts (name, status, duration, etc.).
     """
-    with contextlib.suppress(Exception):
-        from zenml.client import Client  # type: ignore[import-not-found]
+    if ZenMLClient is Any:
+        return []
 
-        client = Client()
+    with contextlib.suppress(Exception):
+        client = ZenMLClient()
         run = client.get_pipeline_run(run_id)
         result: List[Dict[str, Any]] = []
         for step_name, step in run.steps.items():

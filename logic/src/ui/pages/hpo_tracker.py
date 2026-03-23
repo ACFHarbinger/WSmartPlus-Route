@@ -28,11 +28,17 @@ Standalone usage::
     )
 """
 
-from __future__ import annotations
-
 from typing import Any, Dict, List, Optional
 
+import pandas as pd
 import streamlit as st
+
+try:
+    import optuna
+    import optuna.visualization as ov
+except ImportError:
+    optuna = None
+    ov = None
 
 # ---------------------------------------------------------------------------
 # Main render function
@@ -74,10 +80,7 @@ def render_hpo_tracker(
             ``"mean_decrease_impurity"`` for the importance algorithm.
         height: Chart height in pixels for all plots. Default 600.
     """
-    try:
-        import optuna
-        import optuna.visualization as ov
-    except ImportError:
+    if optuna is None or ov is None:
         st.error("**optuna** is required for HPO tracking. Run: `pip install optuna plotly`")
         return
 
@@ -171,7 +174,6 @@ def _render_tab_parallel_coords(study: Any, ov: Any, height: int, *args) -> None
 
 def _render_tab_importance(study: Any, ov: Any, height: int, evaluator_name: str) -> None:
     """Render the Parameter Importance tab."""
-    import optuna
 
     st.subheader("Hyperparameter Importance")
     st.caption(f"Importance scores via **{evaluator_name}**. Higher bars = greater influence on the objective.")
@@ -274,7 +276,6 @@ def _render_trial_table(
     n_top: int,
 ) -> None:
     """Render the top-N completed trials as an interactive DataFrame."""
-    import pandas as pd
 
     st.subheader(f"Top {n_top} Completed Trials")
 

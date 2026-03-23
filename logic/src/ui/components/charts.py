@@ -420,19 +420,3 @@ def create_heatmap_chart(
     )
 
     return fig
-
-
-# ---------------------------------------------------------------------------
-# Re-exports from explorer_charts (backward compatibility)
-# ---------------------------------------------------------------------------
-
-from logic.src.ui.components.explorer_charts import (  # noqa: F401, E402
-    calculate_pareto_front,
-    create_area_chart,
-    create_bar_chart,
-    create_box_plot_chart,
-    create_correlation_matrix_chart,
-    create_histogram_chart,
-    create_multi_y_line_chart,
-    create_pareto_scatter_chart,
-)

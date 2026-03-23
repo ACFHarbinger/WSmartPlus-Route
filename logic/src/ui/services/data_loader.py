@@ -7,6 +7,7 @@ Provides cached access to training logs and simulation outputs.
 
 import json
 import sqlite3
+import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -315,22 +316,8 @@ def compute_daily_stats(entries: List[DayLogEntry], policy: Optional[str] = None
         row: Dict[str, Any] = {"day": day}
         for metric, values in metrics.items():
             if values:
-                import statistics
-
                 row[f"{metric}_mean"] = statistics.mean(values)
                 row[f"{metric}_std"] = statistics.stdev(values) if len(values) > 1 else 0.0
         rows.append(row)
 
     return pd.DataFrame(rows)
-
-
-# -----------------------------------------------------------------------------
-# Re-exports from simulation_analytics (backward compatibility)
-# -----------------------------------------------------------------------------
-
-from logic.src.ui.services.simulation_analytics import (  # noqa: F401, E402
-    compute_cumulative_stats,
-    compute_day_deltas,
-    compute_summary_statistics,
-    get_metric_history,
-)

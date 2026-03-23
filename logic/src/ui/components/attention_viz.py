@@ -35,6 +35,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import streamlit as st
 
+try:
+    import plotly.graph_objects as go
+except ImportError:
+    go = None
+
 # ---------------------------------------------------------------------------
 # Main render function
 # ---------------------------------------------------------------------------
@@ -78,9 +83,7 @@ def render_attention_viz(
         color_scale: Plotly colour scale name. Default ``"Reds"``.
         title: Panel heading shown above the visualisation.
     """
-    try:
-        import plotly.graph_objects as go  # noqa: F401 — validate import early
-    except ImportError:
+    if go is None:
         st.error("**plotly** is required for attention visualisation. Run: `pip install plotly`")
         return
 
@@ -170,7 +173,6 @@ def _render_geo(
     height: int,
 ) -> Any:
     """Attention arcs on a Mapbox scatter-map (lat/lon coordinates)."""
-    import plotly.graph_objects as go
 
     n = attn.shape[0]
     lats, lons = coords[:n, 0], coords[:n, 1]
@@ -227,7 +229,6 @@ def _render_bipartite(
     color_scale: str,
 ) -> Any:
     """Attention edges overlaid on a 2-D node layout (normalised coordinates)."""
-    import plotly.graph_objects as go
 
     n = attn.shape[0]
     xy = coords[:n, :2].astype(float).copy()
@@ -288,7 +289,6 @@ def _render_bipartite(
 
 def _render_heatmap(attn: np.ndarray, height: int, color_scale: str) -> Any:
     """Standard attention matrix heatmap (no node coordinates required)."""
-    import plotly.graph_objects as go
 
     n = attn.shape[0]
     fig = go.Figure(
