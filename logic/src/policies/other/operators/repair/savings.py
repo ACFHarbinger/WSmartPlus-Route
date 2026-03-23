@@ -13,6 +13,8 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
+from ._prune_routes import prune_unprofitable_routes
+
 
 def savings_insertion(
     routes: List[List[int]],
@@ -20,8 +22,6 @@ def savings_insertion(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
-    R: float,
-    C: float,
     mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = False,
 ) -> List[List[int]]:
@@ -34,8 +34,6 @@ def savings_insertion(
         dist_matrix: Distance matrix.
         wastes: Dictionary mapping node ID to waste volume.
         capacity: Maximum vehicle capacity.
-        R: Revenue multiplier per kg.
-        C: Cost multiplier per km.
         mandatory_nodes: Nodes that must be routed regardless of profit.
 
     Returns:
@@ -75,12 +73,6 @@ def savings_insertion(
 
                     # Detour cost of inserting 'node' between 'prev' and 'nxt'
                     detour_cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
-                    profit_delta = (node_waste * R) - (detour_cost * C)
-
-                    # VRPP Constraint: Ignore unprofitable insertions for opportunistic nodes
-                    if not is_mandatory and profit_delta < -1e-4:
-                        continue
-
                     # Savings: Distance of dedicated route minus the detour distance
                     saving = dedicated_cost - detour_cost
 
@@ -203,10 +195,28 @@ def savings_profit_insertion(
                         best_route_idx = r_idx
                         best_pos = pos
 
+            # Evaluate new route (Speculative Seeding)
+            new_cost = dist_matrix[depot, node] + dist_matrix[node, depot]
+            new_profit = revenue - (new_cost * C)
+            seed_hurdle = -0.5 * (new_cost * C)
+
+            if is_mandatory or new_profit >= seed_hurdle:
+                # PACW savings: S = dedicated_dist - detour_dist
+                new_score = 0 + (1e9 if is_mandatory else 0)
+                if new_score > best_score:
+                    best_score = new_score
+                    best_node = node
+                    best_route_idx = len(routes)
+                    best_pos = 0
+
         # Execute insertion if a valid candidate was found
         if best_node != -1:
-            routes[best_route_idx].insert(best_pos, best_node)
-            loads[best_route_idx] += wastes.get(best_node, 0.0)
+            if best_route_idx == len(routes):
+                routes.append([best_node])
+                loads.append(wastes.get(best_node, 0.0))
+            else:
+                routes[best_route_idx].insert(best_pos, best_node)
+                loads[best_route_idx] += wastes.get(best_node, 0.0)
             unassigned.remove(best_node)
         else:
             # Fallback: Check if we have mandatory nodes that couldn't fit in existing routes
@@ -221,4 +231,5 @@ def savings_profit_insertion(
                 # No more profitable opportunistic moves or mandatory nodes exist.
                 break
 
-    return routes
+    # Clean up any routes that failed to become profitable after speculative seeding
+    return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_nodes_set)
