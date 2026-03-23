@@ -331,6 +331,7 @@ def _optimize_with_hgs(
             time_limit=time_limit,
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
+            seed=seed,
         )
 
     # Ensure max_vehicles and time_limit are set correctly if not in config
@@ -347,7 +348,6 @@ def _optimize_with_hgs(
         C=C,
         params=params,
         mandatory_nodes=must_go,
-        seed=seed,
     )
     routes, profit, _ = solver.solve()
     return routes, profit
@@ -381,6 +381,7 @@ def _optimize_with_alns(
                 time_limit=time_limit,
                 vrpp=vrpp,
                 profit_aware_operators=profit_aware_operators,
+                seed=seed,
             )
     else:
         params = ALNSParams(
@@ -402,7 +403,6 @@ def _optimize_with_alns(
         C=C,
         params=params,
         mandatory_nodes=must_go,
-        seed=seed,
     )
     routes, profit, _ = solver.solve()
     return routes, profit

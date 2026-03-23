@@ -2,14 +2,15 @@
 Evolutionary Perturbation Module.
 
 Implements a micro-evolutionary algorithm (rapid GA) applied to a spatial
-cluster of routes within the solution.  This provides intense, localised
-diversification without perturbing the entire solution.
+cluster of routes. Features dynamic route load-balancing via Dummy Depot
+Injection and active unvisited node harvesting for VRPP profit maximization.
 
 Algorithm:
-1. Select a cluster of ``target_routes`` from the solution.
-2. Create a small population by applying random perturbations.
-3. Run a brief evolutionary loop (crossover + local search) for a few generations.
-4. Replace the original cluster with the best individual found.
+1. Select a cluster of routes and flatten them into a "Giant Tour".
+2. Inject Dummy Depots (-1) to represent vehicle boundaries.
+3. (VRPP Only): Harvest high-profit unvisited nodes and swap them in.
+4. Evolve via True OX1 Crossover and Swap Mutation.
+5. Decode the optimal split and replace the original cluster.
 
 Attributes:
     None
@@ -24,6 +25,8 @@ Example:
 from random import Random
 from typing import Any, List, Optional
 
+import numpy as np
+
 
 def evolutionary_perturbation(
     ls: Any,
@@ -33,21 +36,8 @@ def evolutionary_perturbation(
     rng: Optional[Random] = None,
 ) -> bool:
     """
-    Micro-evolutionary perturbation on a subset of routes.
-
-    Creates a small population of route variants, evolves them briefly
-    via order-crossover and random-swap mutation, and replaces the
-    original routes if the best individual improves over the baseline.
-
-    Args:
-        ls: LocalSearch instance.
-        target_routes: Indices of routes to evolve (default: 2 smallest).
-        pop_size: Population size for the micro-GA.
-        n_generations: Number of evolutionary generations.
-        rng: Random number generator.
-
-    Returns:
-        bool: True if the evolved cluster improves over the original.
+    Micro-evolutionary perturbation for standard CVRP (Cost Minimization).
+    Uses Dummy Depot Injection to dynamically resize and balance routes.
     """
     if rng is None:
         rng = Random(42)
@@ -61,49 +51,35 @@ def evolutionary_perturbation(
     if not target_routes:
         return False
 
-    # 1. Extract nodes and RECORD original route sizes for decoding
+    # 1. Extract nodes into a flat array
     cluster_nodes: List[int] = []
-    original_sizes: List[int] = []
     for r_idx in target_routes:
         if r_idx < len(ls.routes):
-            route = ls.routes[r_idx]
-            cluster_nodes.extend(route)
-            original_sizes.append(len(route))
+            cluster_nodes.extend(ls.routes[r_idx])
 
     if len(cluster_nodes) < 3:
         return False
 
-    # Baseline cost must be multi-route
-    baseline_cost = _cluster_cost(ls, target_routes)
+    # 2. Build the baseline chromosome with Dummy Depots (-1)
+    base_chromosome = list(cluster_nodes)
+    for _ in range(len(target_routes) - 1):
+        base_chromosome.append(-1)
 
-    # Generate population
-    population: List[List[int]] = [list(cluster_nodes)]
+    baseline_cost = _eval_cvrp_chromosome(base_chromosome, ls)
+
+    # 3. Generate Population
+    population: List[List[int]] = [list(base_chromosome)]
     for _ in range(pop_size - 1):
-        individual = list(cluster_nodes)
+        individual = list(base_chromosome)
         rng.shuffle(individual)
         population.append(individual)
 
-    # 2. Helper: Decode chromosome into multi-route cost
-    def _eval_chromosome_cost(seq: List[int]) -> float:
-        total_cost = 0.0
-        pos = 0
-        for size in original_sizes:
-            sub_route = seq[pos : pos + size]
-            # Sum cost of each sub-route including depot returns
-            total_cost += _sequence_cost(ls.d, sub_route)
-            pos += size
-        return total_cost
-
-    # Evolve
+    # 4. Evolve
     for _ in range(n_generations):
-        # Evaluate fitness using the multi-route decoder
-        fitnesses = [_eval_chromosome_cost(seq) for seq in population]
-
-        # Select top half
+        fitnesses = [_eval_cvrp_chromosome(seq, ls) for seq in population]
         ranked = sorted(range(len(population)), key=lambda i: fitnesses[i])
         survivors = [population[i] for i in ranked[: max(2, pop_size // 2)]]
 
-        # Create offspring
         population = list(survivors)
         while len(population) < pop_size:
             p1 = rng.choice(survivors)
@@ -112,13 +88,12 @@ def evolutionary_perturbation(
             _mutate_swap(child, rng, prob=0.3)
             population.append(child)
 
-    # 3. Final evaluation
-    fitnesses = [_eval_chromosome_cost(seq) for seq in population]
+    # 5. Final Evaluation
+    fitnesses = [_eval_cvrp_chromosome(seq, ls) for seq in population]
     best_idx = min(range(len(population)), key=lambda i: fitnesses[i])
     best_seq = population[best_idx]
     best_cost = fitnesses[best_idx]
 
-    # Apples-to-apples comparison of multi-route costs
     if best_cost < baseline_cost - 1e-4:
         _apply_cluster(ls, target_routes, best_seq)
         return True
@@ -126,7 +101,7 @@ def evolutionary_perturbation(
     return False
 
 
-def evolutionary_perturbation_profit(
+def evolutionary_perturbation_profit(  # noqa: C901
     ls: Any,
     target_routes: Optional[List[int]] = None,
     pop_size: int = 10,
@@ -134,20 +109,8 @@ def evolutionary_perturbation_profit(
     rng: Optional[Random] = None,
 ) -> bool:
     """
-    Micro-evolutionary perturbation for profit-maximization.
-
-    Similar to evolutionary_perturbation but uses profit (Revenue - Cost)
-    as the objective function.
-
-    Args:
-        ls: LocalSearch instance.
-        target_routes: Indices of routes to evolve.
-        pop_size: Population size.
-        n_generations: Number of generations.
-        rng: Random number generator.
-
-    Returns:
-        bool: True if the evolved cluster improves over the original.
+    Micro-evolutionary perturbation for VRPP (Profit Maximization).
+    Actively harvests unvisited nodes to escape the Phantom Profit illusion.
     """
     if rng is None:
         rng = Random(42)
@@ -161,47 +124,59 @@ def evolutionary_perturbation_profit(
     if not target_routes:
         return False
 
-    # 1. Extract the target cluster and record original route sizes!
+    # 1. Extract nodes
     cluster_nodes: List[int] = []
-    original_sizes: List[int] = []
     for r_idx in target_routes:
         if r_idx < len(ls.routes):
-            route = ls.routes[r_idx]
-            cluster_nodes.extend(route)
-            original_sizes.append(len(route))
+            cluster_nodes.extend(ls.routes[r_idx])
 
     if len(cluster_nodes) < 3:
         return False
 
-    baseline_profit = _cluster_profit(ls, target_routes)
+    # 2. Evaluate Baseline BEFORE injecting new nodes
+    base_chromosome_original = list(cluster_nodes)
+    for _ in range(len(target_routes) - 1):
+        base_chromosome_original.append(-1)
 
-    # Generate population of permutations
-    population: List[List[int]] = [list(cluster_nodes)]
+    baseline_profit = _eval_vrpp_chromosome(base_chromosome_original, ls)
+
+    # 3. Active Harvest: Inject high-profit unvisited nodes
+    all_visited = {n for r in ls.routes for n in r}
+    n_nodes = len(ls.d)
+    unvisited = [n for n in range(1, n_nodes) if n not in all_visited]
+
+    if unvisited and cluster_nodes:
+        # Perturb up to 3 nodes, or 15% of the cluster
+        num_to_swap = max(1, min(3, len(unvisited), len(cluster_nodes) // 6))
+
+        # Sort unvisited by descending profit (Greedy Exploration)
+        unvisited_sorted = sorted(unvisited, key=lambda n: _get_waste(ls, n) * getattr(ls, "R", 1.0), reverse=True)
+        # Sort cluster by ascending profit (Drop the weakest links)
+        cluster_sorted = sorted(cluster_nodes, key=lambda n: _get_waste(ls, n) * getattr(ls, "R", 1.0))
+
+        for i in range(num_to_swap):
+            idx_to_replace = cluster_nodes.index(cluster_sorted[i])
+            cluster_nodes[idx_to_replace] = unvisited_sorted[i]
+
+    # 4. Build the dynamic chromosome with Dummy Depots
+    base_chromosome = list(cluster_nodes)
+    for _ in range(len(target_routes) - 1):
+        base_chromosome.append(-1)
+
+    # 5. Generate Population
+    population: List[List[int]] = [list(base_chromosome)]
     for _ in range(pop_size - 1):
-        individual = list(cluster_nodes)
+        individual = list(base_chromosome)
         rng.shuffle(individual)
         population.append(individual)
 
-    # 2. Helper function to decode and evaluate chromosome correctly
-    def _eval_chromosome(seq: List[int]) -> float:
-        total_profit = 0.0
-        pos = 0
-        for size in original_sizes:
-            sub_route = seq[pos : pos + size]
-            total_profit += _sequence_profit(ls, sub_route)
-            pos += size
-        return total_profit
-
-    # Evolve
+    # 6. Evolve
     for _ in range(n_generations):
-        # Evaluate fitness (negative profit for rank-sorting)
-        fitnesses = [-_eval_chromosome(seq) for seq in population]
-
-        # Select top half
+        # Fitness is negative profit for rank-sorting
+        fitnesses = [-_eval_vrpp_chromosome(seq, ls) for seq in population]
         ranked = sorted(range(len(population)), key=lambda i: fitnesses[i])
         survivors = [population[i] for i in ranked[: max(2, pop_size // 2)]]
 
-        # Create offspring
         population = list(survivors)
         while len(population) < pop_size:
             p1 = rng.choice(survivors)
@@ -210,13 +185,13 @@ def evolutionary_perturbation_profit(
             _mutate_swap(child, rng, prob=0.3)
             population.append(child)
 
-    # 3. Find best individual using the correct evaluator
-    fitnesses = [-_eval_chromosome(seq) for seq in population]
+    # 7. Final Evaluation
+    fitnesses = [-_eval_vrpp_chromosome(seq, ls) for seq in population]
     best_idx = min(range(len(population)), key=lambda i: fitnesses[i])
     best_seq = population[best_idx]
     best_profit = -fitnesses[best_idx]
 
-    # Now this is an apples-to-apples comparison
+    # Apples-to-apples comparison against the original baseline
     if best_profit > baseline_profit + 1e-4:
         _apply_cluster(ls, target_routes, best_seq)
         return True
@@ -224,46 +199,141 @@ def evolutionary_perturbation_profit(
     return False
 
 
-def _cluster_profit(ls: Any, route_indices: List[int]) -> float:
-    """Compute total profit of selected routes."""
+# --- Core Chromosome Mechanics ---
+
+
+def _decode_chromosome(seq: List[int]) -> List[List[int]]:
+    """Decodes a Giant Tour with -1 dummy depots into a list of route lists."""
+    routes: List[List[int]] = []
+    current_route: List[int] = []
+    for gene in seq:
+        if gene == -1:
+            routes.append(current_route)
+            current_route = []
+        else:
+            current_route.append(gene)
+    routes.append(current_route)
+    return routes
+
+
+def _eval_cvrp_chromosome(seq: List[int], ls: Any) -> float:
+    """Evaluates Total Cost, strictly penalizing capacity violations."""
+    routes = _decode_chromosome(seq)
+    total_cost = 0.0
+    penalty = 0.0
+    cap = getattr(ls, "capacity", float("inf"))
+
+    for r in routes:
+        total_cost += _sequence_cost(ls.d, r)
+        load = sum(_get_waste(ls, n) for n in r)
+        if load > cap + 1e-6:
+            penalty += (load - cap) * 10000.0  # Heavy structural penalty
+
+    return total_cost + penalty
+
+
+def _eval_vrpp_chromosome(seq: List[int], ls: Any) -> float:
+    """Evaluates Total Profit, strictly penalizing capacity violations."""
+    routes = _decode_chromosome(seq)
     total_profit = 0.0
-    for r_idx in route_indices:
-        if r_idx < len(ls.routes):
-            total_profit += _sequence_profit(ls, ls.routes[r_idx])
-    return total_profit
+    penalty = 0.0
+    cap = getattr(ls, "capacity", float("inf"))
+
+    for r in routes:
+        total_profit += _sequence_profit(ls, r)
+        load = sum(_get_waste(ls, n) for n in r)
+        if load > cap + 1e-6:
+            penalty += (load - cap) * 10000.0
+
+    return total_profit - penalty
 
 
-def _sequence_profit(ls: Any, seq: List[int]) -> float:
-    """Total profit of depot → seq → depot."""
-    if not seq:
-        return 0.0
-    dist = ls.d[0, seq[0]]
-    revenue = ls.waste.get(seq[0], 0) * ls.R
-    for i in range(len(seq) - 1):
-        dist += ls.d[seq[i], seq[i + 1]]
-        revenue += ls.waste.get(seq[i + 1], 0) * ls.R
-    dist += ls.d[seq[-1], 0]
-    return float(revenue - dist * ls.C)
+# --- True Order Crossover (OX1) with Dummy Depot Support ---
+
+
+def _tag_depots(seq: List[int]) -> List[int]:
+    """Tags duplicate -1 depots with unique negative IDs (-1, -2, -3...) so OX1 doesn't filter them out."""
+    res = []
+    depot_id = -1
+    for x in seq:
+        if x == -1:
+            res.append(depot_id)
+            depot_id -= 1
+        else:
+            res.append(x)
+    return res
+
+
+def _untag_depots(seq: List[int]) -> List[int]:
+    """Restores unique negative IDs back to the standard -1 dummy depot."""
+    return [-1 if x < 0 else x for x in seq]
+
+
+def _order_crossover(p1: List[int], p2: List[int], rng: Random) -> List[int]:
+    """True wrapping Order Crossover (OX1) supporting multiple duplicate routes."""
+    n = len(p1)
+    if n < 2:
+        return list(p1)
+
+    p1_tagged = _tag_depots(p1)
+    p2_tagged = _tag_depots(p2)
+
+    c1, c2 = sorted(rng.sample(range(n), 2))
+    child = [None] * n
+    child[c1:c2] = p1_tagged[c1:c2]  # type: ignore[assignment]
+
+    inherited = set(p1_tagged[c1:c2])
+    fill = [g for g in p2_tagged if g not in inherited]
+
+    # Proper OX1 Wrapping
+    fill_idx = 0
+    for i in range(n):
+        target_idx = (c2 + i) % n
+        if child[target_idx] is None:
+            child[target_idx] = fill[fill_idx]  # type: ignore[call-overload]
+            fill_idx += 1
+
+    return _untag_depots(child)  # type: ignore[return-value,arg-type]
+
+
+def _mutate_swap(seq: List[int], rng: Random, prob: float = 0.3) -> None:
+    if len(seq) < 2:
+        return
+    if rng.random() < prob:
+        i, j = rng.sample(range(len(seq)), 2)
+        seq[i], seq[j] = seq[j], seq[i]
+
+
+def _apply_cluster(ls: Any, route_indices: List[int], best_seq: List[int]) -> None:
+    """Replaces old rigid routes with the dynamically sized new routes."""
+    new_routes = _decode_chromosome(best_seq)
+    affected = set()
+
+    for r_idx, new_r in zip(route_indices, new_routes):
+        ls.routes[r_idx] = new_r
+        affected.add(r_idx)
+
+    if hasattr(ls, "_update_map"):
+        ls._update_map(affected)
+
+
+# --- Utility Functions ---
+
+
+def _get_waste(ls: Any, node: int) -> float:
+    """Safe waste extraction supporting both dicts and arrays."""
+    if isinstance(ls.waste, dict):
+        return ls.waste.get(node, 0.0)
+    return float(ls.waste[node]) if node < len(ls.waste) else 0.0
 
 
 def _select_target_routes(ls: Any, n: int = 2) -> List[int]:
-    """Select the n smallest non-empty routes as targets."""
     route_sizes = [(i, len(r)) for i, r in enumerate(ls.routes) if r]
     route_sizes.sort(key=lambda x: x[1])
     return [i for i, _ in route_sizes[:n]]
 
 
-def _cluster_cost(ls: Any, route_indices: List[int]) -> float:
-    """Compute total cost of depot→route→depot for selected routes."""
-    cost = 0.0
-    for r_idx in route_indices:
-        if r_idx < len(ls.routes):
-            cost += _sequence_cost(ls.d, ls.routes[r_idx])
-    return cost
-
-
-def _sequence_cost(d, seq: List[int]) -> float:
-    """Total edge cost of depot → seq → depot."""
+def _sequence_cost(d: np.ndarray, seq: List[int]) -> float:
     if not seq:
         return 0.0
     cost = d[0, seq[0]]
@@ -273,43 +343,16 @@ def _sequence_cost(d, seq: List[int]) -> float:
     return float(cost)
 
 
-def _order_crossover(p1: List[int], p2: List[int], rng: Random) -> List[int]:
-    """Order crossover (OX1) between two permutations."""
-    n = len(p1)
-    if n < 2:
-        return list(p1)
-    c1, c2 = sorted(rng.sample(range(n), 2))
-    child = [None] * n
-    child[c1:c2] = p1[c1:c2]
-    inherited = set(p1[c1:c2])
-    fill = [g for g in p2 if g not in inherited]
-    idx = 0
-    for i in range(n):
-        if child[i] is None:
-            child[i] = fill[idx]
-            idx += 1
-    return child  # type: ignore[return-value]
+def _sequence_profit(ls: Any, seq: List[int]) -> float:
+    if not seq:
+        return 0.0
+    R = getattr(ls, "R", 1.0)
+    C = getattr(ls, "C", 1.0)
 
-
-def _mutate_swap(seq: List[int], rng: Random, prob: float = 0.3) -> None:
-    """Random swap mutation."""
-    if len(seq) < 2:
-        return
-    if rng.random() < prob:
-        i, j = rng.sample(range(len(seq)), 2)
-        seq[i], seq[j] = seq[j], seq[i]
-
-
-def _apply_cluster(ls: Any, route_indices: List[int], best_seq: List[int]) -> None:
-    """Partition best sequence back into routes with original sizes."""
-    sizes = [len(ls.routes[i]) for i in route_indices]
-    pos = 0
-    affected = set()
-    for r_idx, size in zip(route_indices, sizes):
-        ls.routes[r_idx] = best_seq[pos : pos + size]
-        pos += size
-        affected.add(r_idx)
-    # Handle leftover nodes (if sizes changed)
-    if pos < len(best_seq) and route_indices:
-        ls.routes[route_indices[-1]].extend(best_seq[pos:])
-    ls._update_map(affected)
+    dist = ls.d[0, seq[0]]
+    revenue = _get_waste(ls, seq[0]) * R
+    for i in range(len(seq) - 1):
+        dist += ls.d[seq[i], seq[i + 1]]
+        revenue += _get_waste(ls, seq[i + 1]) * R
+    dist += ls.d[seq[-1], 0]
+    return float(revenue - dist * C)
