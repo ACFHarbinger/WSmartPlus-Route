@@ -2,6 +2,11 @@
 
 import contextlib
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
+
 from ._logging import _log_processor_event
 from .formatting import format_coordinates
 from .mapper import SimulationDataMapper
@@ -23,9 +28,7 @@ def process_data(data, bins_coordinates, depot, indices=None):
     """
     result = _mapper.process_raw_data(data, bins_coordinates, depot, indices)
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_params({"data.n_bins_after_index_filter": len(result[0])})
 
@@ -93,9 +96,7 @@ def process_model_data(
         adj_matrix,
     )
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_params(
                 {
