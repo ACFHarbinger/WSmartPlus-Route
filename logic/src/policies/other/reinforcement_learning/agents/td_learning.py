@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Any, Dict, Optional
+from typing import Any, Deque, Dict, Optional
 
 import numpy as np
 
@@ -67,7 +67,7 @@ class TDAgent(RLAgent):
         self.trial_counts: Dict[Any, np.ndarray] = {}
 
         # Meta-tracking
-        self.reward_history = deque(maxlen=history_size)
+        self.reward_history: Deque[float] = deque(maxlen=history_size)
 
     def get_statistics(self) -> Dict[str, Any]:
         """

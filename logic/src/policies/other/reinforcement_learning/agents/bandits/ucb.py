@@ -1,4 +1,5 @@
-from typing import Any, Dict, Optional
+from collections import deque
+from typing import Any, Deque, Dict, List, Optional
 
 import numpy as np
 
@@ -177,10 +178,9 @@ class SlidingWindowUCBBandit(BanditAgent):
         super().__init__(n_arms, seed, history_size)
         self.window_size = window_size
         self.c = c
-        from collections import deque
 
         # Maintain window-specific reward deques
-        self.windows = [deque(maxlen=window_size) for _ in range(n_arms)]
+        self.windows: List[Deque[float]] = [deque(maxlen=window_size) for _ in range(n_arms)]
 
     def select_action(self, state: Any, rng: Optional[np.random.Generator] = None) -> int:
         """
@@ -209,8 +209,6 @@ class SlidingWindowUCBBandit(BanditAgent):
 
     def reset(self) -> None:
         """Clear all windows and reset stats."""
-        from collections import deque
-
         super().reset()
         self.windows = [deque(maxlen=self.window_size) for _ in range(self.n_arms)]
 
