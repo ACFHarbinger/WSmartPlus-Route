@@ -21,6 +21,8 @@ import torch.utils.data
 from tensordict import TensorDict
 
 import logic.src.constants as udef
+from logic.src.data.processor import process_coordinates, process_data
+from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
 from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 from logic.src.utils.functions import get_path_until_string
 
@@ -66,10 +68,6 @@ def load_focus_coords(
     Returns:
         Tuple of (depot, locations, minmax array, index).
     """
-    # Lazy imports to avoid circular dependency
-    from logic.src.data.processor import process_coordinates, process_data
-    from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
-
     focus_graph_dir = get_path_until_string(focus_graph, "wsr_simulator")
     if focus_graph_dir is None:
         raise ValueError(f"Could not find 'wsr_simulator' in path {focus_graph}")

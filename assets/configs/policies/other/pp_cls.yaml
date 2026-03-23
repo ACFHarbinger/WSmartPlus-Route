@@ -30,7 +30,7 @@
 # =============================================================================
 
 methods:
-  - 2opt
+  - "classical_local_search"
 
 ls_operator: 2opt
 iterations: 1000

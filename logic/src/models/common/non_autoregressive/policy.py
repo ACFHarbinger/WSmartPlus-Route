@@ -17,6 +17,7 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.utils.decoding import batchify, get_decoding_strategy
 
 from .decoder import NonAutoregressiveDecoder
 from .encoder import NonAutoregressiveEncoder
@@ -112,8 +113,6 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         Returns:
             Tuple of (logprobs, actions, td, env)
         """
-        from logic.src.utils.decoding import get_decoding_strategy
-
         if actions is not None:
             strategy = "evaluate"
             decoding_kwargs["actions"] = actions
@@ -131,8 +130,6 @@ class NonAutoregressivePolicy(nn.Module, ABC):
 
         # Update heatmap and td to match num_starts if needed
         if num_starts > 1:
-            from logic.src.utils.decoding import batchify
-
             if td.size(0) != heatmap.size(0) * num_starts and td.size(0) == heatmap.size(0):
                 # This might happen if pre_decoder_hook didn't batchify
                 td = batchify(td, num_starts)

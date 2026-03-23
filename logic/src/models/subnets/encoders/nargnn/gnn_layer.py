@@ -6,11 +6,12 @@ from typing import Tuple
 
 import torch
 from torch import nn
+from torch_scatter import scatter_mean
 
 try:
     from torch_geometric.nn import BatchNorm
 except ImportError:
-    BatchNorm = None  # type: ignore
+    BatchNorm = None  # type: ignore[assignment,misc]
 
 
 class GNNLayer(nn.Module):
@@ -54,8 +55,6 @@ class GNNLayer(nn.Module):
 
         edge_weighted = torch.sigmoid(w0) * x2[edge_index[1]]
         if self.agg_fn == "mean":
-            from torch_scatter import scatter_mean
-
             aggregated = scatter_mean(edge_weighted, edge_index[0], dim=0, dim_size=x0.size(0))
         else:
             raise NotImplementedError(f"Aggregation {self.agg_fn} not implemented")

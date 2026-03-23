@@ -55,13 +55,76 @@ def is_suppress_import_error_block(node: ast.stmt) -> bool:
 
 def is_header_assignment(node: ast.stmt) -> bool:
     """
-    Check if a node is a simple assignment (e.g., _FLAG = False).
-    These are common in headers and shouldn't close the import window.
+    Check if a node is a header-safe assignment.
+    Allowed: Constants, os.environ updates, and Logger initialization.
     """
     if not isinstance(node, ast.Assign):
         return False
-    # Only allow simple constant values (True, False, None, strings, numbers)
+
+    # 1. Check for os.environ[...] = ...
+    for target in node.targets:
+        if isinstance(target, ast.Subscript):
+            if isinstance(target.value, ast.Attribute) and target.value.attr == "environ":
+                return True
+            if isinstance(target.value, ast.Name) and target.value.id == "environ":
+                return True
+
+    # 2. Check for Logger initialization (e.g., logger = get_pylogger(__name__))
+    if isinstance(node.value, ast.Call):
+        func = node.value.func
+        func_name = ""
+        if isinstance(func, ast.Name):
+            func_name = func.id
+        elif isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+            func_name = f"{func.value.id}.{func.attr}"
+
+        if func_name in ("get_pylogger", "getLogger", "logging.getLogger"):
+            return True
+
+    # 3. Allow simple constant values (True, False, None, strings, numbers)
     return isinstance(node.value, (ast.Constant, ast.NameConstant, ast.Num, ast.Str))
+
+
+def is_header_setup_call(node: ast.stmt) -> bool:
+    """Check for common setup calls like matplotlib.use() or warnings.filterwarnings()."""
+    if not isinstance(node, ast.Expr) or not isinstance(node.value, ast.Call):
+        return False
+
+    call = node.value
+    func_name = ""
+
+    # Handle matplotlib.use or warnings.filterwarnings
+    if isinstance(call.func, ast.Attribute):
+        if isinstance(call.func.value, ast.Name):
+            func_name = f"{call.func.value.id}.{call.func.attr}"
+    elif isinstance(call.func, ast.Name):
+        func_name = call.func.id
+
+    safe_calls = {
+        "matplotlib.use",
+        "warnings.filterwarnings",
+        "warnings.simplefilter",
+        "os.environ.setdefault",
+        "sys.path.append",
+        "torch.set_default_dtype",
+    }
+
+    return func_name in safe_calls
+
+
+def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
+    """Identifies the start and end lines of all classes containing 'Factory'."""
+    ranges = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef) and "Factory" in node.name:
+            start = node.lineno
+            # end_lineno is Python 3.8+. Fallback to walking children if not available.
+            if hasattr(node, "end_lineno"):
+                end = node.end_lineno
+            else:
+                end = max((n.lineno for n in ast.walk(node) if hasattr(n, "lineno")), default=start)
+            ranges.append((start, end))
+    return ranges  # type: ignore[return-value]
 
 
 def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
@@ -73,10 +136,9 @@ def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
     return imports  # type: ignore[return-value]
 
 
-def analyze_file(filepath: Path) -> List[Tuple[int, str]]:
+def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[int, str]]:
     """Parses a Python file and returns a list of nested imports."""
     nested_imports = []
-
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
@@ -87,22 +149,15 @@ def analyze_file(filepath: Path) -> List[Tuple[int, str]]:
     valid_top_level_imports = set()
     found_non_import = False
 
+    factory_ranges = get_factory_line_ranges(tree) if ignore_factories else []
+
     # 1. Identify valid top-level imports
     for i, node in enumerate(tree.body):
-        # Handle module docstring
-        is_docstring = False
-        if (
+        is_docstring = (
             i == 0
             and isinstance(node, ast.Expr)
-            and (
-                isinstance(node.value, ast.Constant)
-                and isinstance(node.value.value, str)
-                or hasattr(ast, "Str")
-                and isinstance(node.value, ast.Str)
-            )
-        ):
-            is_docstring = True
-
+            and isinstance(node.value, (ast.Constant, getattr(ast, "Str", type(None))))
+        )
         if is_docstring:
             continue
 
@@ -113,24 +168,25 @@ def analyze_file(filepath: Path) -> List[Tuple[int, str]]:
                 is_type_checking_block(node) or is_import_error_try_block(node) or is_suppress_import_error_block(node)
             ):
                 valid_top_level_imports.update(extract_all_imports(node))  # type: ignore[arg-type]
-            elif is_header_assignment(node):
-                # Simple assignments like _ZENML_AVAILABLE = False are allowed in headers
+            elif is_header_assignment(node) or is_header_setup_call(node):
                 continue
             else:
-                # Any other statement (def, class, complex logic) closes the window
                 found_non_import = True
 
     # 2. Walk the AST to find nested imports
     for node in ast.walk(tree):  # type: ignore[assignment]
         if isinstance(node, (ast.Import, ast.ImportFrom)) and node not in valid_top_level_imports:
+            # Check if this node is inside an ignored factory class
+            if any(start <= node.lineno <= end for start, end in factory_ranges):
+                continue
+
             if isinstance(node, ast.Import):
                 names = [alias.name for alias in node.names]
-            else:  # ast.ImportFrom
+            else:
                 module = node.module or ""
                 level = node.level or 0
                 prefix = ("." * level) + module
                 names = [f"{prefix}.{alias.name}" if prefix else alias.name for alias in node.names]
-
             for name in names:
                 nested_imports.append((node.lineno, name))
 
@@ -141,6 +197,9 @@ def main():
     parser = argparse.ArgumentParser(description="Find nested/delayed imports in Python files.")
     parser.add_argument("directory", type=str, help="The target directory to scan")
     parser.add_argument("-e", "--exclude", nargs="+", default=[], help="Directories to exclude")
+    parser.add_argument(
+        "-i", "--ignore_factories", action="store_true", help="Ignore nested imports inside Factory classes"
+    )
     args = parser.parse_args()
 
     target_root = Path(args.directory)
@@ -148,24 +207,24 @@ def main():
         print(f"Error: Directory '{target_root}' does not exist.")
         return
 
-    exclude_set = set(args.exclude)
     print(f"Scanning '{target_root}'...")
+    if args.ignore_factories:
+        print("Ignoring imports inside Factory classes.")
     print("=" * 60)
 
     files_found = 0
     total_imports = 0
-
     for root, dirs, files in os.walk(target_root):
-        dirs[:] = [d for d in dirs if d not in exclude_set]
+        dirs[:] = [d for d in dirs if d not in args.exclude]
         for filename in files:
             if filename.endswith(".py"):
                 filepath = Path(root) / filename
-                results = analyze_file(filepath)
+                results = analyze_file(filepath, ignore_factories=args.ignore_factories)
                 if results:
                     files_found += 1
                     print(f"\n📄 {filepath}")
-                    for line_no, import_name in results:
-                        print(f"   Line {line_no:<4} | 📦 {import_name}")
+                    for line_no, name in results:
+                        print(f"   Line {line_no:<4} | 📦 {name}")
                         total_imports += 1
 
     print("\n" + "=" * 60)

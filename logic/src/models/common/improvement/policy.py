@@ -17,7 +17,9 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
+from logic.src.envs import get_env
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.utils.decoding import batchify, unbatchify
 
 from .decoder import ImprovementDecoder
 from .encoder import ImprovementEncoder
@@ -96,16 +98,12 @@ class ImprovementPolicy(nn.Module, ABC):
         """
         if env is None:
             # Try to get from name or default to base
-            from logic.src.envs import get_env
-
             env = get_env(self.env_name or "tsp_kopt")
 
         # Initial solution generation (done by env.reset)
         td = env.reset(td)
 
         # Batch for multiple starts if requested
-        from logic.src.utils.decoding import batchify, unbatchify
-
         if num_starts > 1:
             td = batchify(td, num_starts)
 

@@ -28,7 +28,7 @@
 # =============================================================================
 
 methods:
-  - fast_tsp
+  - "fast_tsp"
 
 # Fast TSP parameters (implicit from library)
 time_limit: 10.0

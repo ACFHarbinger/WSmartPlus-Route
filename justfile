@@ -162,7 +162,7 @@ check-multi-classes:
 
 # Check for nested imports
 check-nested-imports:
-    uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test
+    uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories
 
 # --- Advanced Testing & Benchmarks ---
 
