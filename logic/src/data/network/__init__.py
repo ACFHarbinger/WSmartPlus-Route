@@ -11,6 +11,11 @@ import pandas as pd
 
 from logic.src.constants import EARTH_RADIUS, ROOT_DIR
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
+
 from .base import DistanceStrategy, IterativeDistanceStrategy
 from .euclidean import EuclideanStrategy
 from .file import FileStrategy
@@ -76,9 +81,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
             strategy = FileStrategy()
             distance_matrix = strategy.calculate(coords, **kwargs)
             with contextlib.suppress(Exception):
-                from logic.src.tracking.core.run import get_active_run
-
-                run = get_active_run()
+                run = get_active_run() if get_active_run is not None else None
                 if run is not None:
                     run.log_params(
                         {
@@ -122,9 +125,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
                 matrix_f.write(",".join(map(str, row)) + "\n")
 
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             n_nodes = int(distance_matrix.shape[0])
             off_diag = distance_matrix[~np.eye(n_nodes, dtype=bool)]

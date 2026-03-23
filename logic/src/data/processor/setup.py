@@ -7,6 +7,11 @@ import torch
 
 from logic.src.data.network import compute_distance_matrix
 from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
+
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
 from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
 
 from ._logging import _log_processor_event
@@ -76,9 +81,7 @@ def setup_dist_path_tup(
     distC = np.round(dist_matrix_edges * 10).astype("int32")
 
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             n_nonzero = int(np.count_nonzero(dist_matrix_edges))
             n_total = int(dist_matrix_edges.size)

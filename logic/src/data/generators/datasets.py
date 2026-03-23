@@ -19,6 +19,7 @@ from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.data import DataConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.data.generators.builders import VRPInstanceBuilder
+from logic.src.data.generators.validators import validate_data_config
 from logic.src.pipeline.simulations.repository import set_repository_from_path
 from logic.src.utils.data.loader import (
     check_extension,
@@ -35,8 +36,6 @@ def generate_datasets(cfg: Config) -> None:
         cfg: Root Hydra configuration with ``cfg.data`` containing data
             generation parameters.
     """
-    from logic.src.data.generators.validators import validate_data_config
-
     # Validate and sanitize config values
     validate_data_config(cfg)
 
