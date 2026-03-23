@@ -16,6 +16,8 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
+from ._prune_routes import prune_unprofitable_routes
+
 
 def greedy_insertion(
     routes: List[List[int]],
@@ -23,9 +25,7 @@ def greedy_insertion(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
-    R: Optional[float] = None,
     mandatory_nodes: Optional[List[int]] = None,
-    cost_unit: float = 1.0,
     expand_pool: bool = True,
     noise: float = 0.0,
 ) -> List[List[int]]:
@@ -42,9 +42,9 @@ def greedy_insertion(
         dist_matrix: Distance matrix.
         wastes: waste look-up.
         capacity: Vehicle capacity.
-        R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
         mandatory_nodes: List of mandatory node indices.
-        cost_unit: Cost per distance unit.
+        expand_pool: If True, consider all unvisited nodes.
+        noise: Noise level for cost perturbation.
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -72,8 +72,6 @@ def greedy_insertion(
 
         for node in unassigned:
             node_waste = wastes.get(node, 0)
-            revenue = node_waste * R if R is not None else float("inf")
-            is_mandatory = node in mandatory_nodes_set
 
             for i, route in enumerate(routes):
                 if loads[i] + node_waste > capacity:
@@ -91,10 +89,6 @@ def greedy_insertion(
                         cost += noise * dist_matrix.max()  # Normalized noise
 
                     if cost < best_cost:
-                        # VRPP check: skip if cost * cost_unit > revenue and not mandatory
-                        if R is not None and cost * cost_unit > revenue and not is_mandatory:
-                            continue
-
                         best_cost = cost
                         best_node = node
                         best_route_idx = i
@@ -202,16 +196,31 @@ def greedy_profit_insertion(
                         best_route_idx = i
                         best_pos = pos
 
+            # Evaluate new route (Speculative Seeding)
+            new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+            new_profit = revenue - (new_cost * C)
+            seed_hurdle = -0.5 * (new_cost * C)
+
+            if is_mandatory or new_profit >= seed_hurdle:
+                new_effective_profit = new_profit + (1e9 if is_mandatory else 0)
+                if new_effective_profit > best_profit:
+                    best_profit = new_effective_profit
+                    best_node = node
+                    best_route_idx = len(routes)
+                    best_pos = 0
+
         if best_node != -1:
-            routes[best_route_idx].insert(best_pos, best_node)
-            loads[best_route_idx] += wastes.get(best_node, 0)
+            if best_route_idx == len(routes):
+                routes.append([best_node])
+                loads.append(wastes.get(best_node, 0))
+            else:
+                routes[best_route_idx].insert(best_pos, best_node)
+                loads[best_route_idx] += wastes.get(best_node, 0)
             unassigned.remove(best_node)
         else:
             # Handle remaining mandatory nodes by opening new routes if possible
             mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
             if mandatory_remaining:
-                # Prioritize mandatory nodes greedily?
-                # For now, just pick the first and open a new route.
                 node = mandatory_remaining[0]
                 routes.append([node])
                 loads.append(wastes.get(node, 0))
@@ -219,4 +228,5 @@ def greedy_profit_insertion(
             else:
                 break
 
-    return routes
+    # Clean up any routes that failed to become profitable after speculative seeding
+    return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_nodes_set)

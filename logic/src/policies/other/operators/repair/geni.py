@@ -24,39 +24,7 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-
-def prune_unprofitable_routes(
-    routes: List[List[int]],
-    dist_matrix: np.ndarray,
-    wastes: Dict[int, float],
-    R: float,
-    C: float,
-    mandatory_nodes_set: Set[int],
-) -> List[List[int]]:
-    """
-    Evaluates all routes and removes those that result in a net economic loss,
-    unless they contain mandatory nodes that must be served.
-    """
-    valid_routes = []
-    for route in routes:
-        if not route:
-            continue
-
-        if any(node in mandatory_nodes_set for node in route):
-            valid_routes.append(route)
-            continue
-
-        cost = dist_matrix[0, route[0]]
-        for i in range(len(route) - 1):
-            cost += dist_matrix[route[i], route[i + 1]]
-        cost += dist_matrix[route[-1], 0]
-
-        revenue = sum(wastes.get(node, 0.0) for node in route) * R
-
-        if (revenue - (cost * C)) >= -1e-4:
-            valid_routes.append(route)
-
-    return valid_routes
+from ._prune_routes import prune_unprofitable_routes
 
 
 def _get_rev_cost(full_route: List[int], start: int, end: int, dist_matrix: np.ndarray) -> float:
