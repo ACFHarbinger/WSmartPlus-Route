@@ -45,6 +45,7 @@ import numpy as np
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.local_search.local_search_aco import ACOLocalSearch
 from ..other.operators import greedy_insertion, greedy_profit_insertion, random_removal
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import DistancePSOParams
 
 
@@ -211,8 +212,6 @@ class DistancePSOSolver:
 
         Complexity: O(n²) for nearest-neighbor construction.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,

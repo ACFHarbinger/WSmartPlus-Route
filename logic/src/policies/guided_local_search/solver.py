@@ -28,6 +28,7 @@ from ..other.operators import (
     regret_2_profit_insertion,
     worst_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import GLSParams
 
 
@@ -330,8 +331,6 @@ class GLSSolver:
     # ------------------------------------------------------------------
 
     def _build_initial_solution(self) -> List[List[int]]:
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,

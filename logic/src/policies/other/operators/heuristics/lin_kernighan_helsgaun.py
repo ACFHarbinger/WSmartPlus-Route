@@ -8,6 +8,7 @@ and Iterated Local Search with 2-opt and 3-opt moves.
 
 from __future__ import annotations
 
+import random
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -859,8 +860,6 @@ def solve_lkh(
         # Occasionally try tour merging (every 10 iterations)
         if _restart > 0 and _restart % 10 == 0 and len(tour_pool) >= 2:
             # Merge two random tours from the pool
-            import random
-
             idx1, idx2 = random.sample(range(len(tour_pool)), 2)
             merged_tour = merge_tours(tour_pool[idx1], tour_pool[idx2], distance_matrix)
 

@@ -7,6 +7,12 @@ from logic.src.policies.simulated_annealing_neighborhood_search.common.routes im
 from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
     find_initial_solution,
 )
+from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.anneal import run_annealing_loop
+from logic.src.policies.simulated_annealing_neighborhood_search.refinement.refinement import (
+    refine_solution,
+)
+
+from .rebalancing import rebalance_solution
 
 
 def find_solutions(
@@ -71,8 +77,6 @@ def find_solutions(
     )
 
     # 2. Simulated Annealing Phase
-    from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.anneal import run_annealing_loop
-
     sa_sol, removed_bins = run_annealing_loop(
         initial_solution,
         data,
@@ -87,8 +91,6 @@ def find_solutions(
     )
 
     # 3. Refinement Phase (LS/Uncross iterative loops)
-    from logic.src.policies.simulated_annealing_neighborhood_search.refinement.refinement import refine_solution
-
     refined_sol, _ = refine_solution(
         sa_sol,
         p_vehicle,
@@ -103,8 +105,6 @@ def find_solutions(
     )
 
     # 4. Rebalancing Phase (Remove/Insert iterative loops)
-    from .rebalancing import rebalance_solution
-
     final_routes, final_profit, final_removed_bins = rebalance_solution(
         refined_sol,
         removed_bins,

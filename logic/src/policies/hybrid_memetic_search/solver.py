@@ -51,6 +51,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import HMSParams
 
 
@@ -237,8 +238,6 @@ class HybridMemeticSearchSolver:
 
     def _random_construction(self) -> List[List[int]]:
         """Build a random routing solution."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,

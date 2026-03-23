@@ -1,3 +1,4 @@
+import pickle
 from collections import deque
 from typing import Any, Deque, Dict, Optional
 
@@ -131,8 +132,6 @@ class TDAgent(RLAgent):
 
     def save(self, path: str) -> None:
         """Save the agent's state to a file using pickle."""
-        import pickle
-
         state = {
             "q_table": self.q_table,
             "epsilon": self.epsilon,
@@ -144,8 +143,6 @@ class TDAgent(RLAgent):
 
     def load(self, path: str) -> None:
         """Load the agent's state from a file."""
-        import pickle
-
         with open(path, "rb") as f:
             state = pickle.load(f)
         self.q_table = state["q_table"]

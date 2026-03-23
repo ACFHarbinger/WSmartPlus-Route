@@ -33,6 +33,7 @@ from ..other.operators import (
     greedy_profit_insertion,
     random_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import VPLParams
 
 
@@ -188,8 +189,6 @@ class VPLSolver:
         Returns:
             List of routing solutions (each solution is a list of routes).
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         population = []
         for _ in range(pop_size):
             routes = build_nn_routes(
