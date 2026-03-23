@@ -297,9 +297,7 @@ def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bo
             ctx.d,
             ctx.waste,
             ctx.Q,
-            R=ctx.R,
             mandatory_nodes=list(ctx.mandatory_nodes),
-            cost_unit=ctx.C,
         )
         ctx._build_structures()
         return True
@@ -318,9 +316,7 @@ def apply_string_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> 
             ctx.d,
             ctx.waste,
             ctx.Q,
-            R=ctx.R,
             mandatory_nodes=list(ctx.mandatory_nodes),
-            cost_unit=ctx.C,
         )
         ctx._build_structures()
         return True

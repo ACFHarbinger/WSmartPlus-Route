@@ -81,9 +81,8 @@ class ALNSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
-                cost_unit=self.C,
+                expand_pool=False,
                 noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
             ),
             lambda r, n: regret_2_insertion(
@@ -92,9 +91,8 @@ class ALNSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
-                cost_unit=self.C,
+                expand_pool=False,
                 noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
             ),
         ]

@@ -265,7 +265,6 @@ class PSOSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
             expand_pool=False,
         )
