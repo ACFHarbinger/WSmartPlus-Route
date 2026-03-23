@@ -40,7 +40,7 @@ import copy
 import random
 import time
 from collections import deque
-from typing import Any, Deque, Dict, List, Optional, Tuple
+from typing import Any, Deque, Dict, List, Optional, SupportsDunderGT, SupportsDunderLT, Tuple, Union
 
 import numpy as np
 
@@ -67,6 +67,7 @@ from logic.src.policies.other.operators.destroy import (
     worst_removal as worst_removal_op,
 )
 from logic.src.policies.other.operators.perturbation import kick as kick_op
+from logic.src.policies.other.operators.perturbation import kick_profit as kick_profit_op
 from logic.src.policies.other.operators.perturbation import perturb as perturb_op
 from logic.src.policies.other.operators.repair import (
     greedy_insertion as greedy_insertion_op,
@@ -263,7 +264,7 @@ class ALNSSARSASolver:
             routes,
             n,
             self.dist_matrix,
-            waste_dict=self.wastes,
+            wastes=self.wastes,
             rng=self.random,
         )
 
@@ -293,9 +294,7 @@ class ALNSSARSASolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
             expand_pool=self.expand_pool,
         )
 
@@ -319,9 +318,7 @@ class ALNSSARSASolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
             expand_pool=self.expand_pool,
         )
 
@@ -346,9 +343,7 @@ class ALNSSARSASolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
             k=k,
             expand_pool=self.expand_pool,
         )
@@ -533,7 +528,10 @@ class ALNSSARSASolver:
     def _perturb_kick(self, routes: List[List[int]]) -> List[List[int]]:
         """Perturbation operator: removes random nodes and reinserts them greedily."""
         ctx = ALNSPerturbationContext(routes, self.dist_matrix, self.wastes, self.capacity)
-        kick_op(ctx, destroy_ratio=0.2, rng=self.random)
+        if self.profit_aware_operators:
+            kick_profit_op(ctx, destroy_ratio=0.2, bias=2.0, rng=self.random)
+        else:
+            kick_op(ctx, destroy_ratio=0.2, rng=self.random)
         return ctx.routes
 
     def _perturb_random(self, routes: List[List[int]]) -> List[List[int]]:
@@ -746,7 +744,7 @@ class ALNSSARSASolver:
 
         return self.random.randint(lower_bound, upper_bound)
 
-    def _calculate_diversity(self, routes: List[List[int]]) -> float:
+    def _calculate_diversity(self, routes: List[List[int]]) -> Union[SupportsDunderLT[Any], SupportsDunderGT[Any]]:
         """Calculate solution diversity (simple measure based on route variation)."""
         if not routes:
             return 0.0

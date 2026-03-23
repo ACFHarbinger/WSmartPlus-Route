@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from collections import deque
-from typing import Any, Optional
+from typing import Any, Deque, Optional
 
 import numpy as np
 
@@ -33,8 +33,8 @@ class ContextualBanditAgent(RLAgent):
         self.rng = np.random.default_rng(seed)
 
         # Performance tracking
-        self.rewards = deque(maxlen=history_size)
-        self.actions = deque(maxlen=history_size)
+        self.rewards: Deque[float] = deque(maxlen=history_size)
+        self.actions: Deque[int] = deque(maxlen=history_size)
 
     # Optional exploration rate decay (if applicable).
     def decay_epsilon(self):

@@ -23,6 +23,7 @@ from ..other.operators import (
     greedy_insertion,
     greedy_profit_insertion,
     kick,
+    kick_profit,
     move_2opt_intra,
     move_2opt_star,
     move_3opt_intra,
@@ -293,7 +294,9 @@ def apply_perturb(ctx: HyperOperatorContext, k: int = 3) -> bool:
 
 def apply_kick(ctx: HyperOperatorContext, destroy_ratio: float = 0.2) -> bool:
     """Wrapper for kick operator."""
-    return kick(ctx, destroy_ratio)
+    if ctx.profit_aware_operators:
+        return kick_profit(ctx, destroy_ratio, bias=2.0, rng=ctx.rng)
+    return kick(ctx, destroy_ratio, rng=ctx.rng)
 
 
 def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
@@ -301,9 +304,9 @@ def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bo
     n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
     try:
         if ctx.profit_aware_operators:
-            partial, removed = shaw_profit_removal(ctx.routes, n_remove, ctx.d, ctx.waste, ctx.R, ctx.C)
+            partial, removed = shaw_profit_removal(ctx.routes, n_remove, ctx.d, ctx.waste, ctx.R, ctx.C, rng=ctx.rng)
         else:
-            partial, removed = shaw_removal(ctx.routes, n_remove, ctx.d)
+            partial, removed = shaw_removal(ctx.routes, n_remove, ctx.d, rng=ctx.rng)
 
         if ctx.profit_aware_operators:
             ctx.routes = greedy_profit_insertion(

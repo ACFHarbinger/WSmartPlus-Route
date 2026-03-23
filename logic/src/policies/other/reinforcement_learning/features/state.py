@@ -69,7 +69,7 @@ class StateFeatureExtractor:
         # Feature 3: Improvement rate (Velocity)
         if improvement_history:
             recent = improvement_history[-10:]
-            features["improvement_rate"] = np.mean(recent)
+            features["improvement_rate"] = float(np.mean(recent))
         else:
             features["improvement_rate"] = 0.0
 
@@ -84,8 +84,8 @@ class StateFeatureExtractor:
             route_loads = [sum(wastes.get(n, 0) for n in r) for r in active_routes]
 
             features["n_routes"] = len(active_routes)
-            features["avg_route_length"] = np.mean(route_lengths) if route_lengths else 0.0
-            features["avg_utilization"] = np.mean([l / capacity for l in route_loads]) if route_loads else 0.0
+            features["avg_route_length"] = float(np.mean(route_lengths)) if route_lengths else 0.0
+            features["avg_utilization"] = float(np.mean([l / capacity for l in route_loads])) if route_loads else 0.0
             features["route_diversity"] = features["avg_utilization"]
         else:
             features["n_routes"] = 0
