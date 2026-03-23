@@ -6,7 +6,10 @@ from logic.src.policies.hybrid_genetic_search.individual import Individual
 
 def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:
     """
-    Ordered Crossover (OX): Preserves relative order from parents.
+    Variable-Length Ordered Crossover (OX1) for VRPP.
+
+    Safely handles parents that visit different subsets of nodes by dynamically
+    sizing the child sequence rather than using a fixed-length array template.
 
     Algorithm:
         1. Select random segment from parent 1
@@ -24,39 +27,24 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
     if rng is None:
         rng = random.Random(42)
 
-    size1 = len(p1.giant_tour)
-    size2 = len(p2.giant_tour)
+    t1 = p1.giant_tour
+    t2 = p2.giant_tour
 
-    if size1 < 2 or size2 == 0:
-        return Individual(p1.giant_tour[:])
+    # Edge case: Empty parents
+    if len(t1) < 2 or not t2:
+        return Individual(t1[:]) if t1 else Individual(t2[:])
 
-    # Select crossover points
-    a, b = sorted(rng.sample(range(size1), 2))
+    # 1. Select crossover points from Parent 1
+    a, b = sorted(rng.sample(range(len(t1)), 2))
 
-    # Initialize child with zeros
-    child_gt = [0] * size1
-    child_gt[a : b + 1] = p1.giant_tour[a : b + 1]
+    # 2. Extract the inherited segment
+    segment = t1[a : b + 1]
+    segment_set = set(segment)
 
-    # Fill remaining positions from parent 2
-    fill_pos = (b + 1) % size1
-    source_pos = (b + 1) % size2
-    p1_set = set(p1.giant_tour[a : b + 1])
+    # 3. Collect remaining nodes from Parent 2 in their exact relative order
+    p2_contribution = [node for node in t2 if node not in segment_set]
 
-    for _ in range(size2):
-        node = p2.giant_tour[source_pos]
-        if node not in p1_set and fill_pos < size1:
-            child_gt[fill_pos] = node
-            fill_pos = (fill_pos + 1) % size1
-        source_pos = (source_pos + 1) % size2
-
-    # If child is not full (size1 > size2 or excessive overlaps), fill with missing nodes
-    if 0 in child_gt:
-        visited = set(child_gt)
-        if 0 in visited:
-            visited.remove(0)
-        missing = [n for n in p1.giant_tour if n not in visited]
-        for i in range(size1):
-            if child_gt[i] == 0 and missing:
-                child_gt[i] = missing.pop(0)
+    # 4. Assemble the child giant tour dynamically
+    child_gt = p2_contribution[:a] + segment + p2_contribution[a:]
 
     return Individual(child_gt)
