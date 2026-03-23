@@ -20,10 +20,14 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
+    build_greedy_routes,
     cluster_removal,
     greedy_insertion,
+    greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    worst_profit_removal,
     worst_removal,
 )
 from .params import ALNSParams
@@ -44,7 +48,6 @@ class ALNSSolver:
         C: float,
         params: ALNSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
         recorder: Optional[PolicyStateRecorder] = None,
     ):
         """
@@ -57,7 +60,9 @@ class ALNSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.vrpp = getattr(params, "vrpp", True)
+        self.profit_aware_operators = getattr(params, "profit_aware_operators", False)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         if recorder is not None:
             self._viz_record = recorder.record
@@ -66,36 +71,69 @@ class ALNSSolver:
         self.nodes = list(range(1, self.n_nodes + 1))
 
         # Operator registry
-        self.destroy_ops = [
-            lambda r, n: random_removal(r, n, rng=self.random),
-            lambda r, n: worst_removal(r, n, self.dist_matrix),
-            lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
-        ]
+        if self.profit_aware_operators:
+            self.destroy_ops = [
+                lambda r, n: random_removal(r, n, rng=self.random),
+                lambda r, n: worst_profit_removal(r, n, self.dist_matrix, self.wastes, self.R, self.C),
+                lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
+            ]
+        else:
+            self.destroy_ops = [
+                lambda r, n: random_removal(r, n, rng=self.random),
+                lambda r, n: worst_removal(r, n, self.dist_matrix),
+                lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
+            ]
 
         # Repair with Noise (Pisinger & Ropke, 2007)
         noise_factor = 0.1
-        self.repair_ops = [
-            lambda r, n: greedy_insertion(
-                r,
-                n,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=False,
-                noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
-            ),
-            lambda r, n: regret_2_insertion(
-                r,
-                n,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=False,
-                noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
-            ),
-        ]
+        if self.profit_aware_operators:
+            self.repair_ops = [
+                lambda r, n: greedy_profit_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.vrpp,
+                ),
+                lambda r, n: regret_2_profit_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.vrpp,
+                ),
+            ]
+        else:
+            self.repair_ops = [
+                lambda r, n: greedy_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.vrpp,
+                    noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
+                ),
+                lambda r, n: regret_2_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.vrpp,
+                    noise=(self.random.uniform(-noise_factor, noise_factor) if self.random.random() < 0.5 else 0.0),
+                ),
+            ]
 
         # Segment-based weight update logic
         self.segment_size = 100
@@ -243,24 +281,15 @@ class ALNSSolver:
         return total_dist * self.C
 
     def build_initial_solution(self) -> List[List[int]]:
-        nodes = self.nodes[:]
-        self.random.shuffle(nodes)
-        routes, curr_route, load = [], [], 0.0
-        mandatory_set = set(self.mandatory_nodes) if self.mandatory_nodes else set()
-        for node in nodes:
-            waste = self.wastes.get(node, 0)
-            revenue = waste * self.R
-            if node not in mandatory_set and revenue < (self.dist_matrix[0][node] + self.dist_matrix[node][0]) * self.C:
-                continue
-            if waste > self.capacity:
-                continue
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route, load = [node], waste
-        if curr_route:
-            routes.append(curr_route)
-        return routes
+        """
+        Build an initial solution using the greedy profit-aware heuristic.
+        """
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
+        )

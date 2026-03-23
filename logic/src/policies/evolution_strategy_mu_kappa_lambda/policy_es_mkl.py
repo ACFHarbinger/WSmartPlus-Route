@@ -13,6 +13,7 @@ from logic.src.configs.policies import MuKappaLambdaESConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.evolution_strategy_mu_kappa_lambda import MuKappaLambdaESParams
+from logic.src.policies.evolution_strategy_mu_kappa_lambda.solver import MuKappaLambdaESSolver
 
 
 @PolicyRegistry.register("es_mkl")
@@ -58,20 +59,27 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        # Import the updated routing solver
-        from logic.src.policies.evolution_strategy_mu_kappa_lambda.solver import MuKappaLambdaESSolver
-
         params = MuKappaLambdaESParams(
-            mu=values.get("mu", 15),
-            kappa=values.get("kappa", 7),
-            lambda_=values.get("lambda_", 100),
+            mu=values.get("mu", 10),
+            kappa=values.get("kappa", 5),
+            lambda_=values.get("lambda_", 5),
             rho=values.get("rho", 2),
+            tau_local=values.get("tau_local", 1.0 / (2.0**0.5)),
+            tau_global=values.get("tau_global", 1.0 / (2.0**0.5)),
+            initial_sigma=values.get("initial_sigma", 1.0),
             recombination_type=values.get("recombination_type", "intermediate"),
+            max_iterations=values.get("max_iterations", 500),
+            time_limit=values.get("time_limit", 60.0),
+            min_sigma=values.get("min_sigma", 1e-10),
+            max_sigma=values.get("max_sigma", 10.0),
+            bounds_min=values.get("bounds_min", -5.0),
+            bounds_max=values.get("bounds_max", 5.0),
             n_removal=values.get("n_removal", 3),
             stagnation_limit=values.get("stagnation_limit", 10),
-            max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 500),
-            time_limit=values.get("time_limit", 60.0),
+            local_search_iterations=values.get("local_search_iterations", 100),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         # Initialize the generalized self-adaptive solver
@@ -83,7 +91,6 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

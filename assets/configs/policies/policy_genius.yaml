@@ -20,6 +20,9 @@ genius:
     - string_type: 1            # Stringing operator type (1-4)
     - n_iterations: 1           # Number of complete GENIUS iterations
     - time_limit: 60.0          # Wall-clock time limit in seconds
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

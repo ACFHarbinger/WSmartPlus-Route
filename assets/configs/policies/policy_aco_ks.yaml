@@ -112,6 +112,9 @@ aco_ks:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
       # Execution backend: logic/src/policies/knowledge_sharing_aco.py
 

@@ -61,7 +61,9 @@ class HGSALNSPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        cfg = self._config
+        seed = values.get("seed", 42)
+        vrpp = values.get("vrpp", True)
+        profit_aware_operators = values.get("profit_aware_operators", False)
 
         # Build Params from nested config
         alns_params = ALNSParams(
@@ -72,6 +74,9 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
             time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+            seed=seed,
         )
 
         hgs_params = HGSParams(
@@ -88,15 +93,21 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             nb_granular=values.get("hgs_neighbor_list_size", 10),
             local_search_iterations=values.get("hgs_local_search_iterations", 500),
             max_vehicles=values.get("hgs_max_vehicles", 0),
+            seed=seed,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
         )
 
         # Create HGSALNSParams
         params = HGSALNSParams(
-            alns_education_iterations=cfg.alns_education_iterations,
-            hgs_max_iter=cfg.hgs_max_iter,
+            alns_education_iterations=values.get("alns_education_iterations", 50),
+            hgs_max_iter=values.get("hgs_max_iter", 100),
             time_limit=values.get("time_limit", 60.0),
             hgs_params=hgs_params,
             alns_params=alns_params,
+            seed=seed,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
         )
 
         solver = HGSALNSSolver(
@@ -107,7 +118,6 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, solver_cost = solver.solve()

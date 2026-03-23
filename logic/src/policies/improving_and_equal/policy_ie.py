@@ -42,10 +42,13 @@ class ImprovingAndEqualPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         params = IEParams(
-            max_iterations=values.get("max_iterations", 1000),
-            n_removal=values.get("n_removal", 2),
-            n_llh=values.get("n_llh", 5),
-            time_limit=values.get("time_limit", 60.0),
+            max_iterations=int(values.get("max_iterations", 1000)),
+            n_removal=int(values.get("n_removal", 2)),
+            n_llh=int(values.get("n_llh", 5)),
+            time_limit=float(values.get("time_limit", 60.0)),
+            seed=int(values.get("seed", 42)),
+            vrpp=bool(values.get("vrpp", True)),
+            profit_aware_operators=bool(values.get("profit_aware_operators", False)),
         )
         solver = IESolver(
             dist_matrix=sub_dist_matrix,
@@ -55,6 +58,5 @@ class ImprovingAndEqualPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
         return solver.solve()

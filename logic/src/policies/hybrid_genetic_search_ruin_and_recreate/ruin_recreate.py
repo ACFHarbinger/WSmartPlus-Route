@@ -6,7 +6,7 @@ including adaptive operator weight management using scoring feedback.
 """
 
 import random
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -181,7 +181,6 @@ class RuinRecreateOperator:
         cost_unit: float,
         params: HGSRRParams,
         split_manager,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the ruin-recreate operator.
@@ -194,7 +193,6 @@ class RuinRecreateOperator:
             cost_unit: Cost per distance unit.
             params: HGSRR parameters.
             split_manager: Split algorithm manager for evaluating giant tours.
-            seed: Random seed.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -203,7 +201,7 @@ class RuinRecreateOperator:
         self.cost_unit = cost_unit
         self.params = params
         self.split_manager = split_manager
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
     def apply(
         self,
@@ -280,9 +278,17 @@ class RuinRecreateOperator:
         # Map operator name to function
         operator_map = {
             "random_removal": destroy_operators.random_removal,
-            "worst_removal": destroy_operators.worst_removal,
+            "worst_removal": (
+                destroy_operators.worst_profit_removal
+                if getattr(self.params, "profit_aware_operators", False)
+                else destroy_operators.worst_removal
+            ),
             "cluster_removal": destroy_operators.cluster_removal,
-            "shaw_removal": destroy_operators.shaw_removal,
+            "shaw_removal": (
+                destroy_operators.shaw_profit_removal
+                if getattr(self.params, "profit_aware_operators", False)
+                else destroy_operators.shaw_removal
+            ),
             "string_removal": destroy_operators.string_removal,
         }
 
@@ -307,17 +313,23 @@ class RuinRecreateOperator:
             if operator_name in ["shaw_removal", "cluster_removal"]:
                 kwargs["nodes"] = all_nodes
 
-            if "profit" in operator_name or operator_name in ["shaw_removal", "worst_removal"]:
+            # Add profit-aware arguments if needed
+            if getattr(self.params, "profit_aware_operators", False):
+                kwargs["wastes"] = self.wastes
+                kwargs["R"] = self.revenue
+                kwargs["C"] = self.cost_unit
+
+            elif "profit" in operator_name or operator_name in ["shaw_removal", "worst_removal"]:
                 kwargs["wastes"] = self.wastes
 
             # Clean kwargs based on actual function inspection or just use a safer approach
             # Using common argument names used in the package
-            modified_routes, removed = operator_func(**kwargs)
+            modified_routes, removed = operator_func(**kwargs)  # type: ignore[arg-type]
             return modified_routes, removed
         except Exception:
             # Fallback: try positional call for very basic ones if kwargs fail
             try:
-                modified_routes, removed = operator_func(routes, n_remove, self.dist_matrix)
+                modified_routes, removed = operator_func(routes, n_remove, self.dist_matrix)  # type: ignore[arg-type,call-arg]
                 return modified_routes, removed
             except Exception:
                 # Absolute fallback: return original routes and empty removed list
@@ -340,10 +352,22 @@ class RuinRecreateOperator:
 
         # Map operator name to function
         operator_map = {
-            "greedy_insertion": repair_operators.greedy_insertion,
-            "regret_2_insertion": repair_operators.regret_2_insertion,
+            "greedy_insertion": (
+                repair_operators.greedy_profit_insertion
+                if getattr(self.params, "profit_aware_operators", False)
+                else repair_operators.greedy_insertion
+            ),
+            "regret_2_insertion": (
+                repair_operators.regret_2_profit_insertion
+                if getattr(self.params, "profit_aware_operators", False)
+                else repair_operators.regret_2_insertion
+            ),
             "regret_k_insertion": repair_operators.regret_k_insertion,
-            "greedy_insertion_with_blinks": repair_operators.greedy_insertion_with_blinks,
+            "greedy_insertion_with_blinks": (
+                repair_operators.greedy_profit_insertion_with_blinks
+                if getattr(self.params, "profit_aware_operators", False)
+                else repair_operators.greedy_insertion_with_blinks
+            ),
         }
 
         operator_func = operator_map.get(operator_name)
@@ -362,21 +386,16 @@ class RuinRecreateOperator:
             }
 
             # Map specific parameters based on operator type
-            if "profit" in operator_name:
+            kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
+            kwargs["expand_pool"] = getattr(self.params, "vrpp", True)
+            if getattr(self.params, "profit_aware_operators", False) and operator_name != "regret_k_insertion":
                 kwargs["R"] = self.revenue
                 kwargs["C"] = self.cost_unit
-                kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
             elif "blink" in operator_name:
                 kwargs["blink_rate"] = self.params.noise_factor
                 kwargs["rng"] = self.rng
-                kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
-            else:
-                # Standard greedy or regret operators - distance only
-                kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
-                if operator_name == "greedy_insertion":
-                    kwargs["expand_pool"] = True
 
-            repaired_routes = operator_func(**kwargs)
+            repaired_routes = operator_func(**kwargs)  # type: ignore[arg-type]
             return repaired_routes
         except Exception:
             # Fallback: append uninserted nodes as new routes if capacity allows

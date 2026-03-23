@@ -10,6 +10,7 @@ proposed in the seminal work:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -63,3 +64,22 @@ class MAParams:
 
     # Resource Guard
     time_limit: float = 60.0  # Wall-clock timeout (seconds)
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
+
+    @classmethod
+    def from_config(cls, config: Any) -> "MAParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            pop_size=getattr(config, "pop_size", 30),
+            max_generations=getattr(config, "max_generations", 100),
+            crossover_rate=getattr(config, "crossover_rate", 0.8),
+            mutation_rate=getattr(config, "mutation_rate", 0.1),
+            local_search_rate=getattr(config, "local_search_rate", 1.0),
+            tournament_size=getattr(config, "tournament_size", 3),
+            n_removal=getattr(config, "n_removal", 2),
+            time_limit=getattr(config, "time_limit", 60.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

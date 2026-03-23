@@ -9,6 +9,16 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
+from logic.src.configs.policies.other import (
+    BanditConfig,
+    ContextFeatureExtractorConfig,
+    EvolutionaryCMABConfig,
+    FeatureExtractorConfig,
+    LinUCBConfig,
+    RewardShapingConfig,
+    RLConfig,
+    TDLearningConfig,
+)
 from logic.src.configs.policies.rl_ahvpl import RLAHVPLConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
@@ -61,6 +71,10 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost).
         """
+        seed = values.get("seed", 42)
+        vrpp = values.get("vrpp", True)
+        profit_aware_operators = values.get("profit_aware_operators", False)
+
         aco_params = KSACOParams(
             n_ants=values.get("aco_n_ants", 10),
             k_sparse=values.get("aco_k_sparse", 10),
@@ -76,6 +90,9 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             local_search_iterations=values.get("aco_local_search_iterations", 0),
             elitist_weight=values.get("aco_elitist_weight", 1.0),
             time_limit=values.get("aco_time_limit", values.get("time_limit", 60.0)),
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+            seed=seed,
         )
 
         alns_params = ALNSParams(
@@ -86,6 +103,9 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
             time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+            seed=seed,
         )
 
         hgs_params = HGSParams(
@@ -104,6 +124,9 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             nb_granular=values.get("hgs_nb_granular", values.get("hgs_neighbor_list_size", 10)),
             local_search_iterations=values.get("hgs_local_search_iterations", 500),
             max_vehicles=values.get("hgs_max_vehicles", 0),
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+            seed=seed,
         )
 
         rts_params = RTSParams(
@@ -116,17 +139,9 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             n_removal=values.get("rts_n_removal", 2),
             n_llh=values.get("rts_n_llh", 5),
             time_limit=values.get("rts_time_limit", values.get("time_limit", 60.0)),
-        )
-
-        from logic.src.configs.policies.other import (
-            BanditConfig,
-            ContextFeatureExtractorConfig,
-            EvolutionaryCMABConfig,
-            FeatureExtractorConfig,
-            LinUCBConfig,
-            RewardShapingConfig,
-            RLConfig,
-            TDLearningConfig,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+            seed=seed,
         )
 
         # Handle nested rl_config if present (from new Hydra structure)
@@ -137,7 +152,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
                 agent_type=rl_vals.get("agent_type", "bandit"),
                 bandit=BanditConfig(
                     **{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"},
-                    seed=values.get("seed"),
+                    seed=seed,
                 ),
                 td_learning=TDLearningConfig(
                     **{k: v for k, v in rl_vals.get("td_learning", {}).items() if k != "_target_"}
@@ -164,7 +179,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
                 agent_type=values.get("bandit_algorithm", "linucb"),
                 bandit=BanditConfig(
                     algorithm=values.get("bandit_algorithm", "linucb"),
-                    seed=values.get("seed"),
+                    seed=seed,
                 ),
                 td_learning=TDLearningConfig(
                     alpha=values.get("qlearning_alpha", 0.1),
@@ -246,14 +261,14 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             not_coached_max_iterations=values.get("alns_not_coached_iterations", 100),
             coaching_acceptance_threshold=values.get("coaching_acceptance_threshold", 1e-6),
             gls_probability=values.get("gls_probability", 0.5),
-            seed=values.get("seed"),
+            seed=seed,
             hgs_params=hgs_params,
             aco_params=aco_params,
             alns_params=alns_params,
             rts_params=rts_params,
             rl_config=rl_config,
-            vrpp=values.get("vrpp", False),
-            profit_aware_operators=values.get("profit_aware_operators", False),
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
             tabu_no_repeat_threshold=values.get("tabu_no_repeat_threshold", 2),
             gls_penalty_lambda=values.get("gls_penalty_lambda", 1.0),
             gls_penalty_alpha=values.get("gls_penalty_alpha", 0.5),
@@ -268,7 +283,6 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, solver_cost = solver.solve()

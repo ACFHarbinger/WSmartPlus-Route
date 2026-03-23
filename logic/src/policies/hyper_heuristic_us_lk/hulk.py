@@ -43,7 +43,6 @@ class HULKSolver:
         C: float,
         params: HULKParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
         evaluator=None,
     ):
         """
@@ -57,7 +56,6 @@ class HULKSolver:
             C: Cost multiplier.
             params: HULK parameters.
             mandatory_nodes: Must-visit nodes.
-            seed: Random seed.
             evaluator: Optional custom evaluation function.
         """
         self.dist_matrix = dist_matrix
@@ -68,7 +66,7 @@ class HULKSolver:
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
         self.evaluator = evaluator
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
 
@@ -80,7 +78,7 @@ class HULKSolver:
             R,
             C,
             mandatory_nodes,
-            seed,
+            params.seed,
             expand_pool=getattr(self.params, "vrpp", False),
             profit_aware_operators=getattr(self.params, "profit_aware_operators", False),
         )
@@ -92,7 +90,7 @@ class HULKSolver:
             memory_size=params.memory_size,
             learning_rate=params.weight_learning_rate,
             weight_decay=params.weight_decay,
-            seed=seed,
+            seed=params.seed,
         )
 
         self.string_selector = AdaptiveOperatorSelector(
@@ -101,7 +99,7 @@ class HULKSolver:
             memory_size=params.memory_size,
             learning_rate=params.weight_learning_rate,
             weight_decay=params.weight_decay,
-            seed=seed,
+            seed=params.seed,
         )
 
         self.local_search_selector = AdaptiveOperatorSelector(
@@ -110,7 +108,7 @@ class HULKSolver:
             memory_size=params.memory_size,
             learning_rate=params.weight_learning_rate,
             weight_decay=params.weight_decay,
-            seed=seed,
+            seed=params.seed,
         )
 
         # Simulated annealing temperature

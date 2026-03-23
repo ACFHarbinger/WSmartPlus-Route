@@ -34,9 +34,14 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, random_removal
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+)
 from .params import MemeticAlgorithmIslandModelParams
 
 
@@ -56,7 +61,6 @@ class MemeticAlgorithmIslandModelSolver:
         C: float,
         params: MemeticAlgorithmIslandModelParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -67,10 +71,16 @@ class MemeticAlgorithmIslandModelSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random(42)
 
         # Pre-instantiate Local Search for reuse
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            time_limit=self.params.time_limit,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -78,7 +88,6 @@ class MemeticAlgorithmIslandModelSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -114,7 +123,7 @@ class MemeticAlgorithmIslandModelSolver:
             for _i_idx, island in enumerate(islands):
                 for c_idx in range(len(island)):
                     routes, profit = island[c_idx]
-                    new_routes = self._perturb(routes)
+                    new_routes = self._mutate(routes)
                     new_profit = self._evaluate(new_routes)
                     if new_profit > profit:
                         island[c_idx] = (new_routes, new_profit)
@@ -188,8 +197,6 @@ class MemeticAlgorithmIslandModelSolver:
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style)."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -202,28 +209,32 @@ class MemeticAlgorithmIslandModelSolver:
         )
         return optimized_routes
 
-    def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Intra-island perturbation: remove nodes and reinsert greedily.
-
-        Args:
-            routes: Current chromosome routes.
-
-        Returns:
-            Perturbed routes.
-        """
-        n = max(3, self.params.n_removal)
+    def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
+        """Mutation operator using destroy-repair."""
         try:
-            partial, removed = random_removal(routes, n, self.random)
-            repaired = greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            partial, removed = random_removal(routes, self.params.n_removal, self.random)
+            if self.params.profit_aware_operators:
+                repaired = greedy_profit_insertion(
+                    routes=partial,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                repaired = greedy_insertion(
+                    routes=partial,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
             # Apply comprehensive local search (reusing instance)
             return self.ls.optimize(repaired)
         except Exception:

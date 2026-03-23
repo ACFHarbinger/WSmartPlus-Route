@@ -20,7 +20,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..other.operators import greedy_insertion
+from ..other.operators import greedy_insertion, greedy_profit_insertion
 from .params import MAParams
 
 
@@ -53,7 +53,6 @@ class MASolver:
         C: float,
         params: MAParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the Memetic Algorithm solver.
@@ -66,7 +65,6 @@ class MASolver:
             C: Cost multiplier per unit of distance traveled tracked ($/km).
             params: Configuration objects containing hyper-parameters (population size, rates, etc.).
             mandatory_nodes: Indices of nodes that MUST be visited in every feasible solution.
-            seed: Optional integer seed for reproducible random number generation.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -78,7 +76,7 @@ class MASolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         # self.random is used throughout for consistent reproducibility when a seed is provided.
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
         self.start_time = time.process_time()
 
     def solve(self) -> Tuple[List[List[int]], float]:
@@ -343,15 +341,29 @@ class MASolver:
         # Mapping back to the Routing space via greedy reconstruction.
         child_routes = []
         with contextlib.suppress(Exception):
-            child_routes = greedy_insertion(
-                [],
-                child_flat,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                child_routes = greedy_profit_insertion(
+                    [],
+                    child_flat,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                child_routes = greedy_insertion(
+                    [],
+                    child_flat,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    R=self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
         # Fallback to copy if construction fails for any reason.
         return child_routes if child_routes else copy.deepcopy(parent1)
 
@@ -383,15 +395,29 @@ class MASolver:
 
         # Re-insert the nodes greedily to maintain feasibility.
         with contextlib.suppress(Exception):
-            mutated_routes = greedy_insertion(
-                mutated_routes,
-                nodes_to_relocate,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                mutated_routes = greedy_profit_insertion(
+                    mutated_routes,
+                    nodes_to_relocate,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                mutated_routes = greedy_insertion(
+                    mutated_routes,
+                    nodes_to_relocate,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    R=self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
         return mutated_routes
 
     # -------------------------------------------------------------------------
@@ -414,15 +440,29 @@ class MASolver:
             initial_routes = []
             with contextlib.suppress(Exception):
                 # Construct routes while honoring vehicle capacity.
-                initial_routes = greedy_insertion(
-                    [],
-                    potential_nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    R=self.R,
-                    mandatory_nodes=self.mandatory_nodes,
-                )
+                if self.params.profit_aware_operators:
+                    initial_routes = greedy_profit_insertion(
+                        [],
+                        potential_nodes,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        self.R,
+                        self.C,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=self.params.vrpp,
+                    )
+                else:
+                    initial_routes = greedy_insertion(
+                        [],
+                        potential_nodes,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        R=self.R,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=self.params.vrpp,
+                    )
             # Ensure we always return at least individual node visits if greedy fails.
             starting_pop.append(initial_routes if initial_routes else [[n] for n in potential_nodes])
         return starting_pop

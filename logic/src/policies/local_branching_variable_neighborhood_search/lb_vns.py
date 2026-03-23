@@ -33,8 +33,8 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None
-    GRB = None
+    gp = None  # type: ignore[assignment]
+    GRB = None  # type: ignore[misc,assignment]
 
 from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
 from ..local_branching.lb import _add_local_branching_constraint
@@ -67,8 +67,8 @@ def _shake_solution_gurobi(
         else:
             lhs.addConstant(1.0)
             lhs.addTerms(-1.0, var)
-    for key, var in y.items():
-        if incumbent_y.get(key, 0.0) < 0.5:
+    for key, var in y.items():  # type: ignore[assignment]
+        if incumbent_y.get(key, 0.0) < 0.5:  # type: ignore[call-overload]
             lhs.addTerms(1.0, var)
         else:
             lhs.addConstant(1.0)
@@ -221,33 +221,60 @@ def run_lb_vns_gurobi(
         # Apply Local Branching to improve the shaken solution.
         # k_ls is a smaller, fixed radius (10) for focused intensification.
         k_ls = 10
-        ls_cut = _add_local_branching_constraint(model, x, y, shaken_x, shaken_y, k_ls)
 
-        # Warm-start the solver with the 'shaken' solution.
-        for key, var in x.items():
-            var.Start = shaken_x.get(key, 0.0)
-        for key, var in y.items():
-            var.Start = shaken_y.get(key, 0.0)
+        # Set current solution as starting point for LB iterations
+        current_ls_x = shaken_x
+        current_ls_y = shaken_y
+        current_ls_obj = current_best_obj
 
-        remaining_time = time_limit - (time.process_time() - start_time)
-        iter_time = min(time_limit_per_lb, remaining_time)
-        model.setParam("TimeLimit", iter_time)
-        model.optimize(_dfj_subtour_elimination_callback)
+        # Internal Local Branching loop for intensification
+        lb_iter = 0
+        while lb_iter < max_lb_iterations:
+            remaining_time = time_limit - (time.process_time() - start_time)
+            if remaining_time <= 0:
+                break
+
+            # Add Local Branching constraint centered on current_ls solution
+            ls_cut = _add_local_branching_constraint(model, x, y, current_ls_x, current_ls_y, k_ls)  # type: ignore[arg-type]
+
+            # Warm-start the solver with the current solution
+            for key, var in x.items():
+                var.Start = current_ls_x.get(key, 0.0)
+            for key, var in y.items():  # type: ignore[assignment]
+                var.Start = current_ls_y.get(key, 0.0)  # type: ignore[call-overload,union-attr]
+
+            iter_time = min(time_limit_per_lb / max_lb_iterations, remaining_time)
+            model.setParam("TimeLimit", iter_time)
+            model.optimize(_dfj_subtour_elimination_callback)
+
+            # Check if we found a better solution in this LB iteration
+            if model.SolCount > 0 and model.ObjVal > current_ls_obj + 1e-4:
+                # Update local search incumbent
+                current_ls_obj = model.ObjVal
+                current_ls_x = {key: var.X for key, var in x.items()}
+                current_ls_y = {key: var.X for key, var in y.items()}
+                # Continue intensifying from this improved solution
+            else:
+                # No improvement in this neighborhood, exit LB loop
+                model.remove(ls_cut)
+                break
+
+            model.remove(ls_cut)
+            lb_iter += 1
 
         # --- PHASE 3: NEIGHBORHOOD CHANGE (Move Acceptance) ---
         # Check if the intensification phase yielded a solution better than the GLOBAL incumbent.
-        if model.SolCount > 0 and model.ObjVal > current_best_obj + 1e-4:
+        if current_ls_obj > current_best_obj + 1e-4:
             # Moving: A better attraction basin was found! Update and intensification restarts.
-            current_best_obj = model.ObjVal
-            incumbent_x = {key: var.X for key, var in x.items()}
-            incumbent_y = {key: var.X for key, var in y.items()}
+            current_best_obj = current_ls_obj
+            incumbent_x = current_ls_x
+            incumbent_y = current_ls_y  # type: ignore[assignment]
             k = k_min  # Reset VNS to smallest neighborhood
         else:
             # Staying: Neighborhood N_k exhausted. Expand to diversify further.
             k += k_step
 
-        # Cleanup the Local Branching cut for the next iteration.
-        model.remove(ls_cut)
+        # Cleanup warm-start values
         for var in model.getVars():
             var.Start = GRB.UNDEFINED
 

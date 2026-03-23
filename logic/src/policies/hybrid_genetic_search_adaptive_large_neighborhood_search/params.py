@@ -5,6 +5,7 @@ Combines HGS evolutionary operators with ALNS-based education phase for intensiv
 """
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..hybrid_genetic_search.params import HGSParams
@@ -22,8 +23,10 @@ class HGSALNSParams:
 
     # Hybrid-specific parameters
     time_limit: float = 60.0
-    alns_education_iterations: int = 50
     hgs_max_iter: int = 100
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     # HGS Components (Genetic Evolution & Population Management)
     hgs_params: HGSParams = field(

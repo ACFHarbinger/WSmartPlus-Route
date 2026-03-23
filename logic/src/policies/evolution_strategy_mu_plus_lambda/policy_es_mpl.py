@@ -58,6 +58,9 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
             max_iterations=values.get("max_iterations", 500),
             local_search_iterations=values.get("local_search_iterations", 100),
             time_limit=values.get("time_limit", 60.0),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         solver = MuPlusLambdaESSolver(
@@ -68,7 +71,6 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

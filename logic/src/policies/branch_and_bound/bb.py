@@ -49,6 +49,7 @@ class BBSolver:
         values: Dict[str, Any],
         must_go_indices: Optional[Set[int]] = None,
         env: Optional[gp.Env] = None,
+        seed: Optional[int] = None,
         recorder: Optional[PolicyStateRecorder] = None,
     ):
         """
@@ -63,6 +64,7 @@ class BBSolver:
             values: Merged configuration dictionary from hydra and adapter.
             must_go_indices: Set of customer nodes that MUST be included in routes.
             env: Optional Gurobi environment for resource management.
+            seed: Optional random seed.
             recorder: Optional telemetry recorder for state tracking.
         """
         self.dist_matrix = dist_matrix
@@ -73,6 +75,7 @@ class BBSolver:
         self.values = values
         self.must_go_indices = must_go_indices or set()
         self.env = env
+        self.seed = seed
         self.recorder = recorder
 
         self.num_nodes = len(dist_matrix)

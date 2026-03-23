@@ -24,8 +24,19 @@ class MuKappaLambdaESConfig:
     lambda_: int = 100  # Number of offspring
     rho: int = 2  # Recombination participants
 
-    # Recombination type
+    # Learning rate
+    tau_local: float = 1.0 / (2.0**0.5)  # τ_local = 1/√(2n) for n-dimensional
+    tau_global: float = 1.0 / (2.0 * (2.0**0.5))  # τ_global = 1/(2√n)
+
+    # Recombination
+    initial_sigma: float = 1.0
+    min_sigma: float = 1e-10
+    max_sigma: float = 10.0
     recombination_type: str = "intermediate"  # 'intermediate' or 'discrete'
+
+    # Decision variables
+    bounds_min: Optional[float] = -5.0
+    bounds_max: Optional[float] = 5.0
 
     # Mutation parameters (routing-specific)
     n_removal: int = 3  # Nodes removed in destroy-repair
@@ -42,6 +53,7 @@ class MuKappaLambdaESConfig:
 
     # Infrastructure
     vrpp: bool = True
+    profit_aware_operators: bool = False
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

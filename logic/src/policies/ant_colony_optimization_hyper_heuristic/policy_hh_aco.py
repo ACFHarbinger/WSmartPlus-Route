@@ -4,6 +4,7 @@ Hyper-ACO Policy Adapter.
 Adapts the Hyper-Heuristic ACO solver to the common policy interface.
 """
 
+import random
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -12,7 +13,10 @@ from logic.src.configs.policies import HyperHeuristicACOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .runner import run_hyper_heuristic_aco
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
+from .hyper_aco import HyperHeuristicACO
+from .hyper_operators import OPERATOR_NAMES
+from .params import HyperACOParams
 
 
 @PolicyRegistry.register("aco_hh")
@@ -56,14 +60,38 @@ class HyperACOPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        routes, profit, solver_cost = run_hyper_heuristic_aco(
-            sub_dist_matrix,
-            sub_wastes,
-            capacity,
-            revenue,
-            cost_unit,
-            values,
-            mandatory_nodes=mandatory_nodes,
+        # Parse parameters
+        params = HyperACOParams(
+            n_ants=values.get("n_ants", 10),
+            alpha=values.get("alpha", 1.0),
+            beta=values.get("beta", 2.0),
+            rho=values.get("rho", 0.1),
+            tau_0=values.get("tau_0", 1.0),
+            tau_min=values.get("tau_min", 0.01),
+            tau_max=values.get("tau_max", 10.0),
+            max_iterations=values.get("max_iterations", 50),
+            time_limit=values.get("time_limit", 30.0),
+            sequence_length=values.get("sequence_length", 5),
+            q0=values.get("q0", 0.9),
+            Q=values.get("Q", 100.0),
+            operators=values.get("operators", OPERATOR_NAMES.copy()),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
-        return routes, profit, solver_cost
+        # Determine initial routes
+        initial_routes = build_greedy_routes(
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
+            mandatory_nodes=mandatory_nodes,
+            rng=random.Random(params.seed) if params.seed is not None else random.Random(42),
+        )
+
+        solver = HyperHeuristicACO(
+            sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params, initial_routes, mandatory_nodes
+        )
+        return solver.solve()

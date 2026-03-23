@@ -126,6 +126,9 @@ bp:
       #   - mg_regular.yaml: Fixed-frequency collection
       # See: docs/MUST_GO_STRATEGIES.md
 
+    # VRPP Settings
+    - vrpp: true
+
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------

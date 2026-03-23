@@ -15,10 +15,7 @@ Example:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from logic.src.configs.policies import SISRConfig
+from typing import Any, Optional
 
 
 @dataclass
@@ -35,6 +32,9 @@ class SISRParams:
         avg_string_len: Average length of strings to remove.
         blink_rate: Probability of 'blinking' during insertion.
         destroy_ratio: Fraction of solution to destroy per iteration.
+        vrpp: Whether to solve the VRPP variant.
+        profit_aware_operators: Whether to use profit-aware operators.
+        seed: Random seed for reproducibility.
     """
 
     time_limit: float = 10.0
@@ -45,24 +45,29 @@ class SISRParams:
     avg_string_len: float = 3.0
     blink_rate: float = 0.01
     destroy_ratio: float = 0.2
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
 
     @classmethod
-    def from_config(cls, config: SISRConfig) -> SISRParams:
-        """Create SISRParams from a SISRConfig dataclass.
+    def from_config(cls, config: Any) -> SISRParams:
+        """Create SISRParams from a configuration object.
 
         Args:
-            config: SISRConfig dataclass with solver parameters.
+            config: Configuration object.
 
         Returns:
             SISRParams instance with values from config.
         """
         return cls(
-            time_limit=config.time_limit,
-            max_iterations=config.max_iterations,
-            start_temp=config.start_temp,
-            cooling_rate=config.cooling_rate,
-            max_string_len=config.max_string_len,
-            avg_string_len=config.avg_string_len,
-            blink_rate=config.blink_rate,
-            destroy_ratio=config.destroy_ratio,
+            time_limit=getattr(config, "time_limit", 10.0),
+            max_iterations=getattr(config, "max_iterations", 1000),
+            start_temp=getattr(config, "start_temp", 100.0),
+            cooling_rate=getattr(config, "cooling_rate", 0.995),
+            max_string_len=getattr(config, "max_string_len", 10),
+            avg_string_len=getattr(config, "avg_string_len", 3.0),
+            blink_rate=getattr(config, "blink_rate", 0.01),
+            destroy_ratio=getattr(config, "destroy_ratio", 0.2),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )

@@ -54,29 +54,19 @@ class SISRPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        cfg = self._config
-        if cfg is not None:
-            params = SISRParams(
-                time_limit=cfg.time_limit,
-                max_iterations=cfg.max_iterations,
-                start_temp=cfg.start_temp,
-                cooling_rate=cfg.cooling_rate,
-                max_string_len=cfg.max_string_len,
-                avg_string_len=cfg.avg_string_len,
-                blink_rate=cfg.blink_rate,
-                destroy_ratio=cfg.destroy_ratio,
-            )
-        else:
-            params = SISRParams(
-                time_limit=values.get("time_limit", 10.0),
-                max_iterations=values.get("max_iterations", 1000),
-                start_temp=values.get("start_temp", 100.0),
-                cooling_rate=values.get("cooling_rate", 0.995),
-                max_string_len=values.get("max_string_len", 10),
-                avg_string_len=values.get("avg_string_len", 3.0),
-                blink_rate=values.get("blink_rate", 0.01),
-                destroy_ratio=values.get("destroy_ratio", 0.2),
-            )
+        params = SISRParams(
+            time_limit=values.get("time_limit", 10.0),
+            max_iterations=values.get("max_iterations", 1000),
+            start_temp=values.get("start_temp", 100.0),
+            cooling_rate=values.get("cooling_rate", 0.995),
+            max_string_len=values.get("max_string_len", 10),
+            avg_string_len=values.get("avg_string_len", 3.0),
+            blink_rate=values.get("blink_rate", 0.01),
+            destroy_ratio=values.get("destroy_ratio", 0.2),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
+        )
 
         solver = SISRSolver(
             sub_dist_matrix,
@@ -86,7 +76,6 @@ class SISRPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
         routes, profit, cost = solver.solve()
         return routes, profit, cost

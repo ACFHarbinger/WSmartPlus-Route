@@ -55,6 +55,7 @@ class GIHHConfig:
     seed: Optional[int] = None
     max_iterations: int = 1000
     vrpp: bool = True
+    profit_aware_operators: bool = False
 
     # Operators
     move_operators: List[str] = field(

@@ -138,7 +138,7 @@ class BranchAndPriceSolver:
                 mandatory_nodes=self.mandatory_nodes,
             )
         else:
-            pricing = PricingSubproblem(
+            pricing = PricingSubproblem(  # type: ignore[assignment]
                 n_nodes=self.n_nodes,
                 cost_matrix=self.cost_matrix,
                 wastes=self.wastes,
@@ -173,7 +173,7 @@ class BranchAndPriceSolver:
 
         return tour, ip_obj, self._get_statistics()
 
-    def _solve_with_branching(self) -> Tuple[List[int], float, Dict]:
+    def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict]:
         """
         Solve using Ryan-Foster branching.
 
@@ -189,7 +189,7 @@ class BranchAndPriceSolver:
         self.tree.root.route_values = root_values
         self.tree.root.is_integer = self._is_integer_solution(root_values)
 
-        self.lp_bound = root_lp
+        self.lp_bound = root_lp  # type: ignore[assignment]
 
         if self.tree.root.is_integer:
             # Root is integer, we're done
@@ -331,7 +331,7 @@ class BranchAndPriceSolver:
                 mandatory_nodes=self.mandatory_nodes,
             )
         else:
-            pricing = PricingSubproblem(
+            pricing = PricingSubproblem(  # type: ignore[assignment]
                 n_nodes=self.n_nodes,
                 cost_matrix=self.cost_matrix,
                 wastes=self.wastes,
@@ -468,7 +468,6 @@ class BranchAndPriceSolver:
 
         # Solve final LP
         lp_obj, route_values = master.solve_lp_relaxation()
-
         return lp_obj, route_values
 
     def _generate_initial_routes(self, pricing) -> List[Route]:

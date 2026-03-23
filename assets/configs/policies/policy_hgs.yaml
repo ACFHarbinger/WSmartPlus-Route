@@ -160,6 +160,10 @@ hgs:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
       # Execution backend: logic/src/policies/hybrid_genetic_search.py
       # Uses PyVRP library (https://pyvrp.org/)

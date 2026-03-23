@@ -16,6 +16,10 @@ ga:
     - tournament_size: 4
     - n_removal: 3
     - time_limit: 60.0
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

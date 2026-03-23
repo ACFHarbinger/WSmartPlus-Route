@@ -34,11 +34,10 @@ class ACOLocalSearch(LocalSearch):
         R: float,
         C: float,
         params: Any,
-        seed: Optional[int] = None,
         neighbors: Optional[Dict[int, List[int]]] = None,
     ):
         """Initialize ACO Local Search."""
-        super().__init__(dist_matrix, waste, capacity, R, C, params, seed, neighbors)
+        super().__init__(dist_matrix, waste, capacity, R, C, params, neighbors)
 
     def optimize(self, solution: List[List[int]]) -> List[List[int]]:
         """

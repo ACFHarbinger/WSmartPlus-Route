@@ -16,10 +16,7 @@ Example:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
-
-if TYPE_CHECKING:
-    from logic.src.configs.policies import HyperHeuristicACOConfig
+from typing import Any, List, Optional
 
 from .hyper_operators import OPERATOR_NAMES
 
@@ -57,6 +54,9 @@ class HyperACOParams:
     q0: float = 0.9
     Q: float = 100.0
     operators: List[str] = field(default_factory=lambda: OPERATOR_NAMES.copy())
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
 
     def __post_init__(self) -> None:
         """Validate parameters after initialization."""
@@ -66,27 +66,30 @@ class HyperACOParams:
             raise ValueError(f"Exploitation probability q0 must be in [0, 1], got {self.q0}")
 
     @classmethod
-    def from_config(cls, config: HyperHeuristicACOConfig) -> HyperACOParams:
-        """Create HyperACOParams from an HyperHeuristicACOConfig dataclass.
+    def from_config(cls, config: Any) -> HyperACOParams:
+        """Create HyperACOParams from a configuration object.
 
         Args:
-            config: HyperHeuristicACOConfig dataclass with solver parameters.
+            config: Configuration object.
 
         Returns:
             HyperACOParams instance with values from config.
         """
         return cls(
-            n_ants=config.n_ants,
-            alpha=config.alpha,
-            beta=config.beta,
-            rho=config.rho,
-            tau_0=config.tau_0,
-            tau_min=config.tau_min,
-            tau_max=config.tau_max,
-            max_iterations=config.max_iterations,
-            time_limit=config.time_limit,
-            sequence_length=config.sequence_length,
-            q0=config.q0,
+            n_ants=getattr(config, "n_ants", 10),
+            alpha=getattr(config, "alpha", 1.0),
+            beta=getattr(config, "beta", 2.0),
+            rho=getattr(config, "rho", 0.1),
+            tau_0=getattr(config, "tau_0", 1.0),
+            tau_min=getattr(config, "tau_min", 0.01),
+            tau_max=getattr(config, "tau_max", 10.0),
+            max_iterations=getattr(config, "max_iterations", 50),
+            time_limit=getattr(config, "time_limit", 30.0),
+            sequence_length=getattr(config, "sequence_length", 5),
+            q0=getattr(config, "q0", 0.9),
             Q=getattr(config, "Q", 100.0),
-            operators=config.operators.copy() if config.operators else OPERATOR_NAMES.copy(),
+            operators=getattr(config, "operators", None) or OPERATOR_NAMES.copy(),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            seed=getattr(config, "seed", None),
         )

@@ -45,6 +45,9 @@ lb:
     # ---------------------------------------------------------------------
     # Infrastructure & Rules
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Identifier for the Local Branching solver engine.
 

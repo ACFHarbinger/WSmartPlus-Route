@@ -21,6 +21,10 @@ ma_ts:
       # Range: 20-200
       # Recommendation: 50 for balanced search
 
+    - n_removal: 1
+      # Number of nodes to remove during perturbation
+      # Range: 1-n_nodes
+
     # ---------------------------------------------------------------------
     # Selection Parameters
     # ---------------------------------------------------------------------
@@ -71,6 +75,10 @@ ma_ts:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
       # Execution backend: logic/src/policies/genetic_algorithm_stochastic_tournament/
 

@@ -5,6 +5,7 @@ Configuration parameters for the Iterated Local Search (ILS) solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -23,6 +24,9 @@ class ILSParams:
         n_llh: Number of LLHs in the pool.
         perturbation_strength: Fraction of nodes perturbed.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether the problem is VRPP (True) or CVRP (False).
+        profit_aware_operators: Whether to use profit-aware insertion/removal.
     """
 
     n_restarts: int = 30
@@ -31,3 +35,21 @@ class ILSParams:
     n_llh: int = 5
     perturbation_strength: float = 0.15
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+
+    @classmethod
+    def from_config(cls, config: Any) -> ILSParams:
+        """Build parameters from a configuration object."""
+        return cls(
+            n_restarts=getattr(config, "n_restarts", 30),
+            inner_iterations=getattr(config, "inner_iterations", 20),
+            n_removal=getattr(config, "n_removal", 2),
+            n_llh=getattr(config, "n_llh", 5),
+            perturbation_strength=getattr(config, "perturbation_strength", 0.15),
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

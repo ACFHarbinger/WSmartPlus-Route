@@ -69,6 +69,9 @@ sca:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Execution backend: logic/src/policies/sine_cosine_algorithm/
 

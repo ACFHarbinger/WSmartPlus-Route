@@ -51,6 +51,9 @@ rens:
     # ---------------------------------------------------------------------
     # Structural Integration
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Indicates the internal Python-Gurobi integration (solver.py).
 

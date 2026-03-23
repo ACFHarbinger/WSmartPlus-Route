@@ -46,7 +46,6 @@ class KSparseACOSolver:
         C: float,
         params: KSACOParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the K-Sparse ACO solver.
@@ -59,7 +58,6 @@ class KSparseACOSolver:
             C: Cost multiplier.
             params: ACO hyperparameters.
             mandatory_nodes: List of mandatory node indices.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -94,7 +92,7 @@ class KSparseACOSolver:
         )
 
         # Initialize Local Search
-        self.ls = ACOLocalSearch(dist_matrix, wastes, capacity, R, C, params, seed=seed)
+        self.ls = ACOLocalSearch(dist_matrix, wastes, capacity, R, C, params)
 
         # Build candidate lists (k-nearest neighbors for each node)
         self.candidate_lists = self._build_candidate_lists()
@@ -113,7 +111,7 @@ class KSparseACOSolver:
             R=self.R,
             C=self.C,
             mandatory_nodes=self.mandatory_nodes,
-            seed=seed,
+            seed=params.seed,
         )
 
     def _nearest_neighbor_cost(self) -> float:

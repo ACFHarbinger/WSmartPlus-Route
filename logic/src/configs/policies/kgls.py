@@ -25,3 +25,4 @@ class KGLSConfig(ABCConfig):
 
     seed: int = 42
     vrpp: bool = True
+    profit_aware_operators: bool = False

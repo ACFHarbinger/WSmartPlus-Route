@@ -74,6 +74,8 @@ swc_tcf:
     # Node Selection Strategy
     # ---------------------------------------------------------------------
     - must_go: ["other/mg_lookahead.yaml"]
+    # VRPP Settings
+    - vrpp: true
     # Multiple selection strategies (union of both):
     #   1. mg_lookahead.yaml: Bins predicted to overflow soon
     #   2. mg_service_level0.84.xml: Statistical service level ≥84%

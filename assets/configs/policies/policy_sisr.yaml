@@ -100,6 +100,9 @@ sisr:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Execution backend: logic/src/policies/stochastic_iterative_solution_refinement.py
 

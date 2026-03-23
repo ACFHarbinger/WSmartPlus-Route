@@ -38,6 +38,9 @@ class HybridMemeticSearchParams:
     # Phase-specific Parameters
     aco_init_iterations: int = 50
     time_limit: float = 300.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     # Sub-algorithm Parameters
     aco_params: Optional[KSACOParams] = field(default_factory=lambda: None)
@@ -59,7 +62,12 @@ class HybridMemeticSearchParams:
                 max_iterations=1,
                 time_limit=60.0,
                 local_search=False,
+                vrpp=self.vrpp,
+                profit_aware_operators=self.profit_aware_operators,
             )
+        else:
+            self.aco_params.vrpp = self.vrpp
+            self.aco_params.profit_aware_operators = self.profit_aware_operators
 
         if self.alns_params is None:
             self.alns_params = ALNSParams(
@@ -70,7 +78,12 @@ class HybridMemeticSearchParams:
                 min_removal=1,
                 max_removal_pct=0.3,
                 time_limit=60.0,
+                vrpp=self.vrpp,
+                profit_aware_operators=self.profit_aware_operators,
             )
+        else:
+            self.alns_params.vrpp = self.vrpp
+            self.alns_params.profit_aware_operators = self.profit_aware_operators
 
     @classmethod
     def from_config(cls, config: Any) -> HybridMemeticSearchParams:
@@ -85,6 +98,8 @@ class HybridMemeticSearchParams:
                 elitism_count=config.get("elitism_count", 3),
                 aco_init_iterations=config.get("aco_init_iterations", 50),
                 time_limit=config.get("time_limit", 300.0),
+                vrpp=config.get("vrpp", True),
+                profit_aware_operators=config.get("profit_aware_operators", False),
                 aco_params=KSACOParams.from_config(config.get("aco")) if config.get("aco") else None,
                 alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
             )
@@ -98,6 +113,8 @@ class HybridMemeticSearchParams:
             elitism_count=config.elitism_count,
             aco_init_iterations=config.aco_init_iterations,
             time_limit=config.time_limit,
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
             aco_params=KSACOParams.from_config(config.aco) if config.aco else None,
             alns_params=ALNSParams.from_config(config.alns) if config.alns else None,
         )

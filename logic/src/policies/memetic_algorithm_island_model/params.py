@@ -8,6 +8,7 @@ but uses rigorous Genetic Algorithm terminology.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -39,3 +40,22 @@ class MemeticAlgorithmIslandModelParams:
     n_removal: int = 1
     local_search_iterations: int = 100
     time_limit: float = 60.0
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
+
+    @classmethod
+    def from_config(cls, config: Any) -> "MemeticAlgorithmIslandModelParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            n_islands=getattr(config, "n_islands", 5),
+            island_size=getattr(config, "island_size", 4),
+            max_generations=getattr(config, "max_generations", 50),
+            stagnation_limit=getattr(config, "stagnation_limit", 5),
+            n_removal=getattr(config, "n_removal", 1),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 60.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            seed=getattr(config, "seed", 42),
+        )

@@ -28,6 +28,7 @@ class MuCommaLambdaESConfig:
     local_search_iterations: int = 100
     time_limit: float = 60.0
     vrpp: bool = True
+    profit_aware_operators: bool = False
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

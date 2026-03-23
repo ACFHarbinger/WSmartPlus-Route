@@ -78,6 +78,9 @@ neural:
       # Flow: must_go selector → neural model → route
       # Example: If 100 bins but only 30 exceed threshold → model sees 30 nodes
 
+    # VRPP Settings
+    - vrpp: true
+
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------

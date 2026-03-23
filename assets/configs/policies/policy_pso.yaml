@@ -142,6 +142,10 @@ pso:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+    - profit_aware_operators: false
+
     - engine: "custom"
       # Execution backend: logic/src/policies/particle_swarm_optimization/
 

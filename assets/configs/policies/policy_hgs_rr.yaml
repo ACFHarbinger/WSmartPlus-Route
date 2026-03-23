@@ -208,6 +208,10 @@ hgs_rr:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml

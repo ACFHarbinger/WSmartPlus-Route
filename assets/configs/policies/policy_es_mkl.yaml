@@ -57,12 +57,46 @@ es_mkl:
       # Sampling is performed independently with replacement
 
     # ---------------------------------------------------------------------
-    # Recombination Type
+    # Learning Rate Parameters
+    # ---------------------------------------------------------------------
+    - tau_local: 0.7071
+      # Local learning rate (τ_local = 1/√2n)
+      # Controls adaptation of individual solution components
+
+    - tau_global: 0.3536
+      # Global learning rate (τ_global = 1/(2√2n))
+      # Controls adaptation of strategy parameters
+
+    # ---------------------------------------------------------------------
+    # Recombination
     # ---------------------------------------------------------------------
     - recombination_type: "intermediate"
       # Type of recombination operator
       # "intermediate": Average components of ρ parents.
       # "discrete": Randomly select components from ρ parents.
+
+    - initial_sigma: 1.0
+      # Initial mutation strength (standard deviation)
+      # Recommendation: 1.0 (standard starting point)
+
+    - min_sigma: 1e-10
+      # Minimum mutation strength (stopping criterion)
+      # Prevents premature convergence
+
+    - max_sigma: 10.0
+      # Maximum mutation strength (exploration limit)
+      # Prevents overly disruptive mutations
+
+    # ---------------------------------------------------------------------
+    # Decision Variables
+    # ---------------------------------------------------------------------
+    - bounds_min: -5.0
+      # Lower bound for decision variables
+      # Recommendation: -5.0 (standard starting point)
+
+    - bounds_max: 5.0
+      # Upper bound for decision variables
+      # Recommendation: 5.0 (standard starting point)
 
     # ---------------------------------------------------------------------
     # Mutation Parameters (Routing-Specific)
@@ -90,6 +124,10 @@ es_mkl:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: ["2opt_intra", "relocate"]

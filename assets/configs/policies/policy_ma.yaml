@@ -52,6 +52,10 @@ ma:
       # Hard wall-clock limit in seconds. Search exits once reached.
 
     # --- Simulation Infrastructure ---
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
       # Policy execution backend (logic/src/policies/memetic_algorithm/)
 

@@ -5,6 +5,7 @@ Configuration parameters for the Discrete Firefly Algorithm (FA) solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -41,3 +42,26 @@ class FAParams:
     max_iterations: int = 100
     local_search_iterations: int = 100
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+
+    @classmethod
+    def from_config(cls, config: Any) -> "FAParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            pop_size=getattr(config, "pop_size", 20),
+            beta0=getattr(config, "beta0", 1.0),
+            gamma=getattr(config, "gamma", 0.1),
+            alpha_profit=getattr(config, "alpha_profit", 0.5),
+            beta_will=getattr(config, "beta_will", 0.3),
+            gamma_cost=getattr(config, "gamma_cost", 0.2),
+            alpha_rnd=getattr(config, "alpha_rnd", 0.2),
+            n_removal=getattr(config, "n_removal", 3),
+            max_iterations=getattr(config, "max_iterations", 100),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

@@ -55,7 +55,6 @@ class RLHVPLSolver:
         C: float,
         params: RLHVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize RL-HVPL solver.
@@ -68,7 +67,6 @@ class RLHVPLSolver:
             C: Cost per unit distance traveled.
             params: RLHVPLParams configuration.
             mandatory_nodes: Nodes that must be visited (if any).
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -88,7 +86,6 @@ class RLHVPLSolver:
             params.aco_params,
             rl_params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
         self.pheromone = self.aco_solver.pheromone
         self.constructor = self.aco_solver.constructor
@@ -103,7 +100,6 @@ class RLHVPLSolver:
             params.alns_params,
             params,
             mandatory_nodes,
-            seed=seed,
         )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:

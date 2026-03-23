@@ -54,6 +54,7 @@ class PSOConfig:
 
     # Infrastructure
     vrpp: bool = True
+    profit_aware_operators: bool = False
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

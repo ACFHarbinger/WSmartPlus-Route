@@ -46,6 +46,9 @@ cf_rs:
     # ---------------------------------------------------------------------
     # Infrastructure & Pipeline
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
       # Policy implementation reference.
       # Source: logic/src/policies/cluster_first_route_second/policy_cf_rs.py

@@ -15,4 +15,7 @@ filo:
   omega_base_multiplier: 1.0
   local_search_iterations: 500
   must_go: ["other/mg_lookahead.yaml"]
+  # VRPP Settings
+  vrpp: true
+
   post_processing: []

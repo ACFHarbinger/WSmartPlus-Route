@@ -151,6 +151,10 @@ hgs_alns:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "hgs_alns"
       # Execution backend: logic/src/policies/hybrid_genetic_search.py
       # Automatically coordinates HGS and ALNS phases

@@ -2,8 +2,18 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
+from logic.src.configs.policies.other import (
+    BanditConfig,
+    FeatureExtractorConfig,
+    RewardShapingConfig,
+    RLConfig,
+    TDLearningConfig,
+)
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
+
+from ..reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
+from ..reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
 
 
 @PolicyRegistry.register("rl_alns")
@@ -41,18 +51,8 @@ class RLALNSPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
-        from logic.src.configs.policies.other import (
-            BanditConfig,
-            FeatureExtractorConfig,
-            RewardShapingConfig,
-            RLConfig,
-            TDLearningConfig,
-        )
-
-        from ..reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
-        from ..reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
-
         # Handle nested rl_config if present (from new Hydra structure)
+        seed = values.get("seed", 42)
         rl_vals = values.get("rl_config")
         if isinstance(rl_vals, dict):
             # Safe way to convert nested dict to RLConfig
@@ -60,7 +60,7 @@ class RLALNSPolicy(BaseRoutingPolicy):
                 agent_type=rl_vals.get("agent_type", "bandit"),
                 bandit=BanditConfig(
                     **{k: v for k, v in rl_vals.get("bandit", {}).items() if k != "_target_"},
-                    seed=values.get("seed"),
+                    seed=seed,
                 ),
                 td_learning=TDLearningConfig(
                     **{k: v for k, v in rl_vals.get("td_learning", {}).items() if k != "_target_"}
@@ -81,7 +81,7 @@ class RLALNSPolicy(BaseRoutingPolicy):
                 bandit=BanditConfig(
                     algorithm=values.get("rl_algorithm", "ucb1"),
                     c=values.get("ucb_c", 2.0),
-                    seed=values.get("seed"),
+                    seed=seed,
                 ),
                 td_learning=TDLearningConfig(
                     alpha=values.get("alpha", 0.1),
@@ -103,6 +103,9 @@ class RLALNSPolicy(BaseRoutingPolicy):
             cooling_rate=values.get("cooling_rate", 0.995),
             min_removal=values.get("min_removal", 1),
             max_removal_pct=values.get("max_removal_pct", 0.3),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=seed,
             rl_config=rl_config,
         )
 
@@ -114,7 +117,6 @@ class RLALNSPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=kwargs.get("seed"),
         )
 
         return solver.solve()

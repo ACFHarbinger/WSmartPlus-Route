@@ -47,6 +47,9 @@ class GreatDelugePolicy(BaseRoutingPolicy):
             time_limit=values.get("time_limit", 60.0),
             n_removal=values.get("n_removal", 2),
             n_llh=values.get("n_llh", 5),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
         solver = GDSolver(
             dist_matrix=sub_dist_matrix,
@@ -56,6 +59,5 @@ class GreatDelugePolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
         return solver.solve()

@@ -48,6 +48,21 @@ class RLAHVPLParams:
     tabu_no_repeat_threshold: int = 2
     rts_params: RTSParams = field(default_factory=RTSParams)
 
+    def __post_init__(self):
+        """Sync flags across sub-parameters."""
+        if self.aco_params:
+            self.aco_params.vrpp = self.vrpp
+            self.aco_params.profit_aware_operators = self.profit_aware_operators
+        if self.alns_params:
+            self.alns_params.vrpp = self.vrpp
+            self.alns_params.profit_aware_operators = self.profit_aware_operators
+        if self.hgs_params:
+            self.hgs_params.vrpp = self.vrpp
+            self.hgs_params.profit_aware_operators = self.profit_aware_operators
+        if self.rts_params:
+            self.rts_params.vrpp = self.vrpp
+            self.rts_params.profit_aware_operators = self.profit_aware_operators
+
     # GLS parameters
     gls_penalty_lambda: float = 1.0
     gls_penalty_alpha: float = 0.5

@@ -57,6 +57,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.repair.greedy import (
+    greedy_insertion,
+    greedy_profit_insertion,
+)
+
 from .params import PSOParams
 
 
@@ -76,7 +81,6 @@ class PSOSolver:
         C: float,
         params: PSOParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the PSO solver with velocity momentum.
@@ -89,7 +93,6 @@ class PSOSolver:
             C: Cost per unit distance traveled.
             params: PSO configuration parameters.
             mandatory_nodes: Nodes that must be visited.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -100,8 +103,8 @@ class PSOSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
-        self.np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.np_rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
 
         # PSO State: Velocities and Personal Bests
         self.velocities: np.ndarray = np.array([])  # Shape: (pop_size, n_nodes)
@@ -257,18 +260,30 @@ class PSOSolver:
         if not selected_nodes:
             return []
 
-        from logic.src.policies.other.operators.repair.greedy import greedy_insertion
-
-        routes = greedy_insertion(
-            [],
-            selected_nodes,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-            expand_pool=False,
-        )
-        return routes
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+        if use_profit:
+            return greedy_profit_insertion(
+                [],
+                selected_nodes,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+        else:
+            return greedy_insertion(
+                [],
+                selected_nodes,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """

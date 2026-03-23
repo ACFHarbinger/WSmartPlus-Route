@@ -49,6 +49,9 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
             elite_count=values.get("elite_count", 3),
             local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 300.0),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = MemeticAlgorithmDualPopulationSolver(
@@ -59,7 +62,6 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         return solver.solve()

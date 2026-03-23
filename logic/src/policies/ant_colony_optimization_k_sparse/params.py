@@ -58,6 +58,9 @@ class KSACOParams:
     local_search: bool = True
     local_search_iterations: int = 100
     elitist_weight: float = 1.0
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
 
     def __post_init__(self) -> None:
         """Validate parameters after initialization."""
@@ -80,17 +83,20 @@ class KSACOParams:
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
 
         return cls(
-            n_ants=config.n_ants,
-            k_sparse=config.k_sparse,
-            alpha=config.alpha,
-            beta=config.beta,
-            rho=config.rho,
-            q0=config.q0,
-            tau_0=config.tau_0,
-            tau_min=config.tau_min,
-            tau_max=config.tau_max,
-            max_iterations=config.max_iterations,
-            time_limit=config.time_limit,
-            local_search=config.local_search,
-            elitist_weight=config.elitist_weight,
+            n_ants=getattr(config, "n_ants", 20),
+            k_sparse=getattr(config, "k_sparse", 15),
+            alpha=getattr(config, "alpha", 1.0),
+            beta=getattr(config, "beta", 2.0),
+            rho=getattr(config, "rho", 0.1),
+            q0=getattr(config, "q0", 0.9),
+            tau_0=getattr(config, "tau_0", None),
+            tau_min=getattr(config, "tau_min", 0.001),
+            tau_max=getattr(config, "tau_max", 10.0),
+            max_iterations=getattr(config, "max_iterations", 100),
+            time_limit=getattr(config, "time_limit", 30.0),
+            local_search=getattr(config, "local_search", True),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            elitist_weight=getattr(config, "elitist_weight", 1.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )

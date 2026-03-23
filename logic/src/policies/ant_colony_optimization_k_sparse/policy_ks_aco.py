@@ -12,7 +12,8 @@ from logic.src.configs.policies import KSparseACOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .runner import run_k_sparse_aco
+from .params import KSACOParams
+from .solver import KSparseACOSolver
 
 
 @PolicyRegistry.register("aco_ks")
@@ -56,13 +57,25 @@ class ACOPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        routes, profit, solver_cost = run_k_sparse_aco(
-            sub_dist_matrix,
-            sub_wastes,
-            capacity,
-            revenue,
-            cost_unit,
-            values,
-            mandatory_nodes=mandatory_nodes,
+        params = KSACOParams(
+            n_ants=values.get("n_ants", 10),
+            k_sparse=values.get("k_sparse", 15),
+            alpha=values.get("alpha", 1.0),
+            beta=values.get("beta", 2.0),
+            rho=values.get("rho", 0.1),
+            q0=values.get("q0", 0.9),
+            tau_0=values.get("tau_0"),
+            tau_min=values.get("tau_min", 0.001),
+            tau_max=values.get("tau_max", 10.0),
+            max_iterations=values.get("max_iterations", 100),
+            time_limit=values.get("time_limit", 30.0),
+            local_search=values.get("local_search", True),
+            local_search_iterations=values.get("local_search_iterations", 500),
+            elitist_weight=values.get("elitist_weight", 1.0),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
-        return routes, profit, solver_cost
+
+        solver = KSparseACOSolver(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params, mandatory_nodes)
+        return solver.solve()

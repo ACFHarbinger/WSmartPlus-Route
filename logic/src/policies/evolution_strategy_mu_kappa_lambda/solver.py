@@ -27,8 +27,15 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, random_removal
+from ..other.operators import (
+    build_greedy_routes,
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+)
 from .individual import Individual
 from .params import MuKappaLambdaESParams
 
@@ -51,7 +58,6 @@ class MuKappaLambdaESSolver:
         C: float,
         params: MuKappaLambdaESParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initializes the solver and pre-instantiates local search operators.
@@ -64,7 +70,6 @@ class MuKappaLambdaESSolver:
             C: Cost per unit distance.
             params: Configuration dataclass for (μ,κ,λ) parameters.
             mandatory_nodes: Nodes that must be included in feasible solutions.
-            seed: Seed for the random number generators.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -76,13 +81,16 @@ class MuKappaLambdaESSolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
-        self.np_rng = np.random.default_rng(seed)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.np_rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
 
         # Pre-instantiate local search for memetic refinement
-        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -90,7 +98,6 @@ class MuKappaLambdaESSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
         self.n_evaluations = 0
@@ -176,18 +183,15 @@ class MuKappaLambdaESSolver:
         Returns:
             A list of μ individuals initialized with age 1.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         population = []
         for _ in range(self.params.mu):
-            routes = build_nn_routes(
-                nodes=self.nodes,
-                mandatory_nodes=self.mandatory_nodes,
+            routes = build_greedy_routes(
+                dist_matrix=self.dist_matrix,
                 wastes=self.wastes,
                 capacity=self.capacity,
-                dist_matrix=self.dist_matrix,
                 R=self.R,
                 C=self.C,
+                mandatory_nodes=self.mandatory_nodes,
                 rng=self.rng,
             )
             ind = Individual(routes=routes, age=1, mutation_strength=float(self.params.n_removal))
@@ -222,6 +226,9 @@ class MuKappaLambdaESSolver:
         Returns:
             A new offspring individual with age 1.
         """
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
         if self.params.recombination_type == "intermediate":
             # Intermediate Recombination: merge all nodes and reconstruct
             all_nodes = set()
@@ -230,14 +237,28 @@ class MuKappaLambdaESSolver:
                     all_nodes.update(route)
             routes = []
             if all_nodes:
-                routes = greedy_insertion(
-                    routes=[],
-                    removed_nodes=sorted(list(all_nodes)),
-                    dist_matrix=self.dist_matrix,
-                    wastes=self.wastes,
-                    capacity=self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                )
+                if use_profit:
+                    routes = greedy_profit_insertion(
+                        routes=[],
+                        removed_nodes=sorted(list(all_nodes)),
+                        dist_matrix=self.dist_matrix,
+                        wastes=self.wastes,
+                        capacity=self.capacity,
+                        R=self.R,
+                        C=self.C,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                    )
+                else:
+                    routes = greedy_insertion(
+                        routes=[],
+                        removed_nodes=sorted(list(all_nodes)),
+                        dist_matrix=self.dist_matrix,
+                        wastes=self.wastes,
+                        capacity=self.capacity,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                    )
         else:
             # Discrete Recombination: pick routes randomly from the parent pool
             all_routes = [route for parent in parents for route in parent.routes]
@@ -270,6 +291,8 @@ class MuKappaLambdaESSolver:
             The mutated individual.
         """
         mutant = individual.copy()
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
         # Step 1: Self-Adapt Strategy Parameter (Eq. 5)
         n_global = self.np_rng.standard_normal()
@@ -286,16 +309,30 @@ class MuKappaLambdaESSolver:
             try:
                 partial, removed = random_removal(mutant.routes, n_remove, rng=self.rng)
                 if removed:
-                    mutant.routes = greedy_insertion(
-                        partial,
-                        removed,
-                        self.dist_matrix,
-                        self.wastes,
-                        self.capacity,
-                        mandatory_nodes=self.mandatory_nodes,
-                    )
-                    # Memetic optimization
-                    mutant.routes = self.ls.optimize(mutant.routes)
+                    if use_profit:
+                        mutant.routes = greedy_profit_insertion(
+                            partial,
+                            removed,
+                            self.dist_matrix,
+                            self.wastes,
+                            self.capacity,
+                            self.R,
+                            self.C,
+                            mandatory_nodes=self.mandatory_nodes,
+                            expand_pool=expand_pool,
+                        )
+                    else:
+                        mutant.routes = greedy_insertion(
+                            partial,
+                            removed,
+                            self.dist_matrix,
+                            self.wastes,
+                            self.capacity,
+                            mandatory_nodes=self.mandatory_nodes,
+                            expand_pool=expand_pool,
+                        )
+                # Memetic optimization
+                mutant.routes = self.ls.optimize(mutant.routes)
             except Exception:
                 pass
         return mutant

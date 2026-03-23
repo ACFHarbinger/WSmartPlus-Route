@@ -58,6 +58,8 @@ class POPMUSICPolicy(BaseRoutingPolicy):
             capacity=capacity,
             R=revenue,
             C=cost_unit,
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         # return routes as List[List[int]]

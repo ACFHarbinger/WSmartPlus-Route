@@ -5,7 +5,7 @@ Configuration parameters for Hybrid Genetic Search.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from logic.src.configs.policies import HGSConfig
@@ -68,6 +68,11 @@ class HGSParams:
     penalty_increase: float = 1.2
     penalty_decrease: float = 0.85
 
+    # Infrastructure
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+
     @classmethod
     def from_config(cls, config: HGSConfig) -> HGSParams:
         """Create HGSParams from a HGSConfig dataclass.
@@ -99,6 +104,9 @@ class HGSParams:
             initial_penalty_capacity=getattr(config, "initial_penalty_capacity", 1.0),
             penalty_increase=getattr(config, "penalty_increase", 1.2),
             penalty_decrease=getattr(config, "penalty_decrease", 0.85),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            seed=getattr(config, "seed", 42),
         )
 
     @property

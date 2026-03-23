@@ -5,6 +5,7 @@ Configuration parameters for the Reactive Tabu Search (RTS) solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -36,3 +37,6 @@ class RTSParams:
     n_removal: int = 2
     n_llh: int = 5
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False

@@ -53,8 +53,11 @@ class PSOMAPolicy(BaseRoutingPolicy):
             max_iterations=int(values.get("max_iterations", 200)),
             local_search_freq=int(values.get("local_search_freq", 10)),
             n_removal=int(values.get("n_removal", 2)),
-            time_limit=float(values.get("time_limit", 60.0)),
             local_search_iterations=int(values.get("local_search_iterations", 500)),
+            time_limit=float(values.get("time_limit", 60.0)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = PSOMAsSolver(
@@ -65,7 +68,6 @@ class PSOMAPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

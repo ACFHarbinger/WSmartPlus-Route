@@ -9,6 +9,7 @@ by Storn & Price (1997).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -80,3 +81,22 @@ class DEParams:
     max_iterations: int = 500
     local_search_iterations: int = 100
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+
+    @classmethod
+    def from_config(cls, config: Any) -> DEParams:
+        """Build parameters from a configuration object."""
+        return cls(
+            pop_size=getattr(config, "pop_size", 50),
+            mutation_factor=getattr(config, "mutation_factor", 0.8),
+            crossover_rate=getattr(config, "crossover_rate", 0.9),
+            n_removal=getattr(config, "n_removal", 3),
+            max_iterations=getattr(config, "max_iterations", 500),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

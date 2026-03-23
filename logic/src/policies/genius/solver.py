@@ -43,7 +43,6 @@ class GENIUSSolver:
         C: float,
         params: GENIUSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the GENIUS solver.
@@ -56,7 +55,6 @@ class GENIUSSolver:
             C: Cost multiplier for profit calculation.
             params: GENIUS algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -67,7 +65,7 @@ class GENIUSSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
     # ------------------------------------------------------------------
     # Public interface

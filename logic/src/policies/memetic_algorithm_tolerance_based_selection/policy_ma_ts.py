@@ -47,8 +47,12 @@ class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
             tolerance_pct=values.get("tolerance_pct", 0.05),
             recombination_rate=values.get("recombination_rate", 0.6),
             perturbation_strength=values.get("perturbation_strength", 2),
+            n_removal=values.get("n_removal", 1),
             local_search_iterations=values.get("local_search_iterations", 500),
             time_limit=values.get("time_limit", 60.0),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = MemeticAlgorithmToleranceBasedSelectionSolver(
@@ -59,7 +63,6 @@ class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

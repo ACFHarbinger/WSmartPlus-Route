@@ -82,6 +82,10 @@ lca:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
       # Execution backend: logic/src/policies/league_championship_algorithm/
 

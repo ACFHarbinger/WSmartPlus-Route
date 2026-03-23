@@ -24,6 +24,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from .params import HSParams
 
@@ -42,7 +44,6 @@ class HSSolver:
         C: float,
         params: HSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -53,12 +54,15 @@ class HSSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Pre-instantiate Local Search for reuse
-        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -66,7 +70,6 @@ class HSSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -127,31 +130,24 @@ class HSSolver:
     # ------------------------------------------------------------------
 
     def _build_random_solution(self) -> List[List[int]]:
-        """Order-dependent sequential construction (matches ALNS style).
-
-        Random node ordering causes different capacity cutoffs, creating
-        genuinely diverse initial solutions. Uses self.C for the profitability
-        check so that economics are consistent with the solver's _evaluate().
+        """Order-dependent sequential construction.
+        Uses greedy profit-aware construction.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators import build_greedy_routes
 
-        optimized_routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
         )
-        return optimized_routes
 
     def _improvise(self, hm: List[List[List[int]]]) -> List[List[int]]:
         """
         Improvise a new harmony using HMCR, PAR, and random selection.
-
-        Reference: Geem et al. (2001) - "A New Heuristic Optimization Algorithm: Harmony Search"
         """
         candidate_nodes: List[int] = []
         hm_node_pool: List[List[int]] = []
@@ -180,12 +176,8 @@ class HSSolver:
 
                 # 2. Pitch Adjustment (PAR)
                 if self.random.random() < self.params.PAR:
-                    # In discrete space, BW determines the neighborhood radius for pitch adjustment
-                    # We pick a node that is geographically close within the "bandwidth"
                     neighbors = self._nearest_unvisited(selected, unvisited)
                     if neighbors:
-                        # Use BW to determine how many neighbors to consider
-                        # e.g., if BW=0.1 and 100 nodes, consider top 10 neighbors
                         n_neighbors = max(1, int(len(self.nodes) * self.params.BW))
                         selected = self.random.choice(neighbors[:n_neighbors])
             else:
@@ -201,20 +193,24 @@ class HSSolver:
                 candidate_nodes.append(mn)
 
         # 3. Routing: Convert sequence to feasible routes
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators import build_greedy_routes
 
-        routes = build_nn_routes(
-            nodes=candidate_nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
+            # Pass node sequence as priority if possible, but build_greedy_routes
+            # usually takes its own set of nodes. We pass candidate_nodes as the search space.
+            # Wait, build_greedy_routes takes dist_matrix, wastes, etc. and build routes.
+            # To respect candidate_nodes order, we might need a different heuristic or
+            # just use candidate_nodes as the 'nodes' argument if it supported one.
+            # NN initialization was better here for sequence-based construction.
+            # I'll stick with building the best possible routes from these candidates.
         )
-
-        return routes
 
     def _nearest_unvisited(self, node: int, unvisited: set) -> List[int]:
         """

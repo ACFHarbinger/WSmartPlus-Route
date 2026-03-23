@@ -43,7 +43,6 @@ class SolutionConstructor:
         R: float = 0.0,
         C: float = 1.0,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize Solution Constructor.
@@ -61,7 +60,6 @@ class SolutionConstructor:
             R: Revenue multiplier.
             C: Cost multiplier.
             mandatory_nodes: List of mandatory node indices.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -75,7 +73,7 @@ class SolutionConstructor:
         self.R = R
         self.C = C
         self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
     def construct(self) -> List[List[int]]:
         """
@@ -126,6 +124,10 @@ class SolutionConstructor:
 
     def _any_profitable_nodes(self, unvisited: Set[int]) -> bool:
         """Check if any remaining node is profitable to visit from depot."""
+        # In CVRP (not VRPP), all nodes are considered "profitable" to visit until exhausted
+        if not self.params.vrpp:
+            return True
+
         for j in sorted(unvisited):
             revenue = self.wastes.get(j, 0) * self.R
             if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
@@ -137,11 +139,13 @@ class SolutionConstructor:
     ) -> List[int]:
         """Find nodes that can be added to the current route."""
         feasible = []
+        use_profit_check = self.params.vrpp and self.params.profit_aware_operators
+
         for j in sorted(unvisited):
             if load + self.wastes.get(j, 0) <= self.capacity:
                 if j in mandatory_unvisited:
                     feasible.append(j)
-                else:
+                elif use_profit_check:
                     revenue = self.wastes.get(j, 0) * self.R
                     # Skip if immediately unprofitable compared to staying at depot
                     if (
@@ -150,6 +154,9 @@ class SolutionConstructor:
                         * self.C
                     ):
                         feasible.append(j)
+                else:
+                    # In CVRP or if profit check is disabled, all capacity-feasible nodes are candidates
+                    feasible.append(j)
         return feasible
 
     def _cleanup_unvisited(self, unvisited: Set[int], mandatory_unvisited: Set[int]) -> None:

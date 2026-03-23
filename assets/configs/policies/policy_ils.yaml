@@ -16,6 +16,10 @@ ils:
     - n_removal: 3
     - n_llh: 5
     - time_limit: 60.0
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
     - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

@@ -14,11 +14,11 @@ class HULKConfig:
 
     # Search parameters
     seed: Optional[int] = None
-    vrpp: bool = True
     max_iterations: int = 1000
     time_limit: float = 300.0
     restarts: int = 3
     restart_threshold: int = 100
+    vrpp: bool = True
     profit_aware_operators: bool = False
 
     # Operator selection
@@ -53,10 +53,10 @@ class HULKConfig:
     string_operators: List[str] = field(default_factory=lambda: ["type_i", "type_ii", "type_iii", "type_iv"])
 
     # Scoring
-    score_improvement: float = 10.0
-    score_accept: float = 5.0
-    score_reject: float = -1.0
-    score_best: float = 20.0
+    score_alpha: float = 10.0  # score improvement
+    score_beta: float = 5.0  # score accept
+    score_gamma: float = -1.0  # score reject
+    score_delta: float = 20.0  # score best
 
     # Weight learning
     weight_learning_rate: float = 0.1

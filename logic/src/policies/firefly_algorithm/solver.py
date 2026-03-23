@@ -24,7 +24,11 @@ import numpy as np
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, random_removal
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+)
 from .params import FAParams
 
 
@@ -42,7 +46,6 @@ class FASolver:
         C: float,
         params: FAParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -53,10 +56,16 @@ class FASolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Pre-instantiate Local Search for reuse
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        # Pre-instantiate Local Search for reuse
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -64,7 +73,6 @@ class FASolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -154,19 +162,19 @@ class FASolver:
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+            build_greedy_routes,
+        )
 
-        optimized_routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
         )
-        return optimized_routes
 
     def _swap_distance(self, routes_a: List[List[int]], routes_b: List[List[int]]) -> int:
         """
@@ -274,7 +282,7 @@ class FASolver:
                         best_r_idx = r_idx
 
             if best_r_idx != -1:
-                current_routes[best_r_idx].insert(best_pos, node)
+                current_routes[best_r_idx].insert(best_pos, node)  # type: ignore[arg-type]
             else:
                 # Add as a new route if profitable or mandatory
                 if (
@@ -347,16 +355,31 @@ class FASolver:
         """
         try:
             n_rem = max(3, self.params.n_removal)
+            expand_pool = self.params.vrpp
             partial, removed = random_removal(routes, n_rem, self.random)
-            repaired = greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                repaired = greedy_profit_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                repaired = greedy_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+
             # Apply comprehensive local search (reusing instance)
             return self.ls.optimize(repaired)
         except Exception:

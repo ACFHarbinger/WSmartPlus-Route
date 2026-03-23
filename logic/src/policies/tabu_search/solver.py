@@ -21,12 +21,19 @@ import numpy as np
 from ..other.operators.destroy import (
     cluster_removal,
     random_removal,
+    worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from ..other.operators.intra_route.k_opt import move_2opt_intra
 from ..other.operators.intra_route.relocate import move_relocate
 from ..other.operators.intra_route.swap import move_swap
-from ..other.operators.repair import greedy_insertion, regret_2_insertion
+from ..other.operators.repair import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    regret_2_insertion,
+    regret_2_profit_insertion,
+)
 from .params import TSParams
 
 
@@ -52,7 +59,6 @@ class TSSolver:
         C: float,
         params: TSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -63,7 +69,7 @@ class TSSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Short-term memory: Tabu list stores (move_type, move_attributes, expiration_iter)
         # move_attributes is a tuple representing the move (e.g., (node1, node2) for swap)
@@ -387,14 +393,29 @@ class TSSolver:
 
         # Reinsert removed nodes
         if removed_nodes:
-            new_routes = greedy_insertion(
-                new_routes,
-                removed_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                new_routes = greedy_profit_insertion(
+                    new_routes,
+                    removed_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                new_routes = greedy_insertion(
+                    new_routes,
+                    removed_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
 
         return new_routes
 
@@ -427,19 +448,15 @@ class TSSolver:
             modified_wastes[node] = self.wastes.get(node, 0.0) * (1.0 - penalty)
 
         # Build solution with modified wastes
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
-        routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=modified_wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
         )
-
-        return routes
 
     def _path_relink(self, routes1: List[List[int]], routes2: List[List[int]]) -> List[List[int]]:
         """
@@ -462,14 +479,29 @@ class TSSolver:
         selected_nodes = list(common_nodes | selected_diff)
 
         # Use greedy insertion to rebuild
-        return greedy_insertion(
-            [],
-            selected_nodes,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if self.params.profit_aware_operators:
+            return greedy_profit_insertion(
+                [],
+                selected_nodes,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+        else:
+            return greedy_insertion(
+                [],
+                selected_nodes,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     # ========================================================================
     # Neighborhood Generation
@@ -655,76 +687,152 @@ class TSSolver:
     # ========================================================================
 
     def _llh_random_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n, rng=self.random)
-        return greedy_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if self.params.profit_aware_operators:
+            # random_profit_removal reverted to random_removal
+            partial, removed = random_removal(routes, n, rng=self.random)
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+        else:
+            partial, removed = random_removal(routes, n, rng=self.random)
+            return greedy_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     def _llh_worst_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = worst_removal(routes, n, self.dist_matrix)
-        return regret_2_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if self.params.profit_aware_operators:
+            partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return regret_2_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.params.vrpp,
+            )
+        else:
+            partial, removed = worst_removal(routes, n, self.dist_matrix)
+            return regret_2_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     def _llh_cluster_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
-        return greedy_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if self.params.profit_aware_operators:
+            # cluster_profit_removal reverted to cluster_removal
+            partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+        else:
+            partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
+            return greedy_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     def _llh_worst_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = worst_removal(routes, n, self.dist_matrix)
-        return greedy_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if self.params.profit_aware_operators:
+            partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+        else:
+            partial, removed = worst_removal(routes, n, self.dist_matrix)
+            return greedy_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     def _llh_random_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        partial, removed = random_removal(routes, n, rng=self.random)
-        return regret_2_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if self.params.profit_aware_operators:
+            # random_profit_removal reverted to random_removal
+            partial, removed = random_removal(routes, n, rng=self.random)
+            return regret_2_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+        else:
+            partial, removed = random_removal(routes, n, rng=self.random)
+            return regret_2_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
 
     # ========================================================================
     # Helpers
     # ========================================================================
 
     def _build_initial_solution(self) -> List[List[int]]:
-        """Build initial solution using nearest neighbor heuristic."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
-        return build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        """Build initial solution using greedy profit-aware heuristic."""
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.random,
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:

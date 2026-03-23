@@ -28,6 +28,7 @@ class RLGDHHConfig:
 
     # RL1 Adaptation Settings (Ozcan p. 16)
     reward_improvement: float = 1.0
+    reward_neutral: float = 0.5
     penalty_worsening: float = 1.0
 
     # Utility Constraints

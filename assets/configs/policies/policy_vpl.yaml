@@ -97,6 +97,9 @@ vpl:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
+    # VRPP Settings
+    - vrpp: true
+
     - engine: "custom"
     # Execution backend: logic/src/policies/volleyball_premier_league/
 

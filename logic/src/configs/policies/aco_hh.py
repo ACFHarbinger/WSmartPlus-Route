@@ -52,5 +52,6 @@ class HyperHeuristicACOConfig:
     operators: List[str] = field(default_factory=lambda: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"])
     engine: str = "custom"
     vrpp: bool = True
+    profit_aware_operators: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

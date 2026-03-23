@@ -49,7 +49,13 @@ import numpy as np
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, worst_removal
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+    worst_profit_removal,
+    worst_removal,
+)
 from .params import MemeticAlgorithmToleranceBasedSelectionParams
 
 
@@ -68,7 +74,6 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         C: float,
         params: MemeticAlgorithmToleranceBasedSelectionParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -80,10 +85,16 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.mandatory_set = set(self.mandatory_nodes)
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random(42)
 
-        # Pre-instantiate Local Search for reuse
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        # Initialize Local Search for refinement
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            time_limit=self.params.time_limit,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -91,7 +102,6 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -207,31 +217,34 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         return optimized_routes
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Solution perturbation: worst removal + greedy re-insertion.
-
-        Args:
-            routes: Current solution routes.
-
-        Returns:
-            Perturbed routes.
-        """
-        n = max(3, self.params.perturbation_strength)
+        """Mutation operator using destroy-repair."""
         try:
-            partial, removed = worst_removal(routes, n, self.dist_matrix)
-            repaired = greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-            # Apply comprehensive local search (reusing instance)
+            partial, removed = random_removal(routes, self.params.n_removal, self.random)
+            if self.params.profit_aware_operators:
+                repaired = greedy_profit_insertion(
+                    routes=partial,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                repaired = greedy_insertion(
+                    routes=partial,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
             return self.ls.optimize(repaired)
         except Exception:
-            return copy.deepcopy(routes)
+            return routes
 
     def _crossover(self, loser_routes: List[List[int]], winner_routes: List[List[int]]) -> List[List[int]]:
         """
@@ -264,19 +277,35 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         # First remove some worst nodes to make room
         n_remove = min(len(new_nodes), max(1, self.params.perturbation_strength))
         with contextlib.suppress(Exception):
-            child, _ = worst_removal(child, n_remove, self.dist_matrix)
+            if self.params.profit_aware_operators:
+                child, _ = worst_profit_removal(child, n_remove, self.dist_matrix, self.wastes, self.R, self.C)
+            else:
+                child, _ = worst_removal(child, n_remove, self.dist_matrix)
 
         if new_nodes:
             with contextlib.suppress(Exception):
-                child = greedy_insertion(
-                    child,
-                    new_nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    R=self.R,
-                    mandatory_nodes=self.mandatory_nodes,
-                )
+                if self.params.profit_aware_operators:
+                    child = greedy_profit_insertion(
+                        child,
+                        new_nodes,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        self.R,
+                        self.C,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=self.params.vrpp,
+                    )
+                else:
+                    child = greedy_insertion(
+                        child,
+                        new_nodes,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=self.params.vrpp,
+                    )
 
         # Apply comprehensive local search (reusing instance)
         return self.ls.optimize(child)
