@@ -107,7 +107,7 @@ class ContextFeatureExtractor:
 
         # Feature 6: Convergence rate (recent improvement velocity)
         convergence_rate = np.mean(self.improvement_history) if self.improvement_history else 0.5
-        features.append(min(1.0, convergence_rate))
+        features.append(float(min(1.0, convergence_rate)))
 
         # Feature 7: Parent diversity contribution
         p1_diversity = self._individual_diversity(p1, population)

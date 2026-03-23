@@ -96,14 +96,14 @@ class CMABEvolution:
                 alpha=kwargs.get("alpha", 1.0),
             )
         elif bandit_algorithm == "thompson":
-            self.bandit = ContextualThompsonSamplingAgent(
+            self.bandit = ContextualThompsonSamplingAgent(  # type: ignore[assignment]
                 n_operators,
                 feature_dim=feature_dim,
                 lambda_prior=kwargs.get("lambda_prior", 1.0),
                 noise_variance=kwargs.get("noise_variance", 0.1),
             )
         elif bandit_algorithm == "epsilon_greedy":
-            self.bandit = EpsilonGreedyBandit(
+            self.bandit = EpsilonGreedyBandit(  # type: ignore[assignment]
                 n_arms=n_operators,
                 epsilon=kwargs.get("epsilon", 0.1),
                 epsilon_decay=kwargs.get("epsilon_decay", 0.999),
@@ -157,7 +157,7 @@ class CMABEvolution:
         operator_func = CROSSOVER_OPERATORS[operator_name]
 
         # Step 3: Apply the physical crossover operation
-        child = operator_func(p1, p2, self.rng)
+        child = operator_func(p1, p2, self.rng)  # type: ignore[operator]
 
         # Step 4: Map evaluation (SPLIT)
         self.evaluate(child)

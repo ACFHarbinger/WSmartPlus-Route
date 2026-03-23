@@ -1,4 +1,5 @@
-from typing import Any, Dict, Optional
+from collections import deque
+from typing import Any, Deque, Dict, Optional
 
 import numpy as np
 
@@ -36,9 +37,7 @@ class BanditAgent(RLAgent):
         self.rng = np.random.default_rng(seed)
 
         # Performance tracking
-        from collections import deque
-
-        self.reward_history = {i: deque(maxlen=history_size) for i in range(n_arms)}
+        self.reward_history: Dict[int, Deque[float]] = {i: deque(maxlen=history_size) for i in range(n_arms)}
 
     def decay_epsilon(self) -> None:
         """
