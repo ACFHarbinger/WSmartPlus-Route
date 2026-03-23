@@ -153,8 +153,6 @@ def farthest_insertion(
             dist_matrix=model.cost_matrix,
             wastes=model.wastes,
             capacity=model.capacity,
-            R=model.R,
-            C=model.C,
             mandatory_nodes=list(model.mandatory_nodes) if model.mandatory_nodes else None,
             expand_pool=expand_pool,
         )

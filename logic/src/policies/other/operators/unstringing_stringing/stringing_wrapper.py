@@ -238,9 +238,7 @@ def stringing_insertion_wrapper(
                     dist_matrix,
                     wastes,
                     capacity,
-                    R=R if profit_mode else None,
                     mandatory_nodes=mandatory_nodes,
-                    cost_unit=C,
                     expand_pool=False,
                 )
             break  # Greedy fallback completely drains the unassigned array

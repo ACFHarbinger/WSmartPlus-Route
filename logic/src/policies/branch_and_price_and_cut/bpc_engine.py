@@ -132,7 +132,6 @@ def run_internal_bpc(
             dist_matrix,
             wastes,
             capacity,
-            R=R,
             mandatory_nodes=mandatory_nodes,
             expand_pool=expand_pool,
         )

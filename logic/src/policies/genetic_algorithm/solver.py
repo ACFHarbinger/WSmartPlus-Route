@@ -191,7 +191,6 @@ class GASolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
         )
 
@@ -210,9 +209,7 @@ class GASolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
-                cost_unit=self.C,
             )
             return new_routes
         except Exception:

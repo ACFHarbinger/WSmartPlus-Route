@@ -226,7 +226,6 @@ class DESolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
             # Local search is an extension common in VRP-DE
@@ -286,7 +285,6 @@ class DESolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
             return trial_routes
