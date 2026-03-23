@@ -18,6 +18,8 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
+from logic.src.tracking.core.run import get_active_run
+
 
 class ProfilingReport:
     """Reads and analyses a profiling CSV produced by :class:`ExecutionProfiler`.
@@ -272,8 +274,6 @@ class ProfilingReport:
             step: Metric step dimension.
         """
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is None:
                 return

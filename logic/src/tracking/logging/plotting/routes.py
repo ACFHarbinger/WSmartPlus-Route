@@ -9,7 +9,9 @@ from typing import Any, cast
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+from matplotlib import colormaps
 from matplotlib.collections import PatchCollection
+from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.patches import Rectangle
 
 
@@ -88,9 +90,6 @@ def discrete_cmap(N, base_cmap=None):
     Returns:
         Colormap: Discretized colormap.
     """
-    from matplotlib import colormaps
-    from matplotlib.colors import LinearSegmentedColormap
-
     # Use the more modern and robust colormaps registry
     if base_cmap is None:
         base_cmap = "viridis"

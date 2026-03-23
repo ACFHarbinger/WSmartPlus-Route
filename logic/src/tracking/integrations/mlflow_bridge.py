@@ -33,6 +33,11 @@ from typing import Any, Dict, Optional
 
 from logic.src.tracking.core.run import Run
 
+try:
+    import mlflow
+except ImportError:
+    mlflow = None  # type: ignore[assignment]
+
 
 class MLflowBridge:
     """Forwards :class:`Run` events to an MLflow tracking server.
@@ -63,18 +68,16 @@ class MLflowBridge:
         run_name: Optional[str] = None,
         tags: Optional[Dict[str, str]] = None,
     ) -> None:
-        import mlflow
-
         self._mlflow = mlflow
         self._active_run: Optional[Any] = None
-
-        with contextlib.suppress(Exception):
-            mlflow.set_tracking_uri(mlflow_tracking_uri)
-            mlflow.set_experiment(experiment_name)
-            self._active_run = mlflow.start_run(
-                run_name=run_name,
-                tags=tags or {},
-            )
+        if mlflow is not None:
+            with contextlib.suppress(Exception):
+                mlflow.set_tracking_uri(mlflow_tracking_uri)
+                mlflow.set_experiment(experiment_name)
+                self._active_run = mlflow.start_run(
+                    run_name=run_name,
+                    tags=tags or {},
+                )
 
     # ------------------------------------------------------------------
     # Sink protocol

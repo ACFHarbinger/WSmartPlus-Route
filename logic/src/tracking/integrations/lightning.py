@@ -21,6 +21,8 @@ from logic.src.tracking.helpers.lightning_helpers import (
     run_periodic_visualisations,
 )
 from logic.src.tracking.logging.pylogger import get_pylogger
+from logic.src.tracking.profiling.memory import MemorySnapshot, MemoryTracker
+from logic.src.tracking.profiling.throughput import ThroughputTracker
 
 if TYPE_CHECKING:
     from logic.src.configs.tracking import TrackingConfig
@@ -92,8 +94,6 @@ class TrackingCallback(Callback):
         # --- Throughput tracker ---
         if _opt(self._cfg, "log_throughput"):
             try:
-                from logic.src.tracking.profiling.throughput import ThroughputTracker
-
                 self._throughput = ThroughputTracker(unit="samples")
                 self._throughput.start()
             except Exception:
@@ -102,8 +102,6 @@ class TrackingCallback(Callback):
         # --- Background memory tracker ---
         if _opt(self._cfg, "log_memory"):
             try:
-                from logic.src.tracking.profiling.memory import MemoryTracker
-
                 self._memory_tracker = MemoryTracker(tag="training")
                 self._memory_tracker.start()
             except Exception:
@@ -144,8 +142,6 @@ class TrackingCallback(Callback):
         # --- Memory snapshot ---
         if _opt(self._cfg, "log_memory"):
             with contextlib.suppress(Exception):
-                from logic.src.tracking.profiling.memory import MemorySnapshot
-
                 MemorySnapshot.capture(tag=f"epoch_{epoch}", step=epoch)
 
         # --- Throughput ---
