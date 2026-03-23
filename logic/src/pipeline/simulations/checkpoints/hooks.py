@@ -9,6 +9,11 @@ from typing import Any, Callable, Dict, Optional
 
 from loguru import logger
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment,misc]
+
 
 class CheckpointHook:
     """
@@ -115,9 +120,7 @@ class CheckpointHook:
                 logger.error(f"Failed to save emergency checkpoint: {save_error}")
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
-            run = get_active_run()
+            run = get_active_run() if get_active_run is not None else None
             if run is not None:
                 run.log_params(
                     {
@@ -154,9 +157,7 @@ class CheckpointHook:
             self.checkpoint.save_state(state_snapshot, self.day, end_simulation=True)
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
-            run = get_active_run()
+            run = get_active_run() if get_active_run is not None else None
             if run is not None:
                 run.log_params(
                     {

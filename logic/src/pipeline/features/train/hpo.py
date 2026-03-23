@@ -16,6 +16,7 @@ per-trial data logged by each backend.
 """
 
 import contextlib
+import traceback
 from typing import Any, Dict
 
 import optuna
@@ -25,7 +26,29 @@ from omegaconf import OmegaConf
 from logic.src.configs import Config
 from logic.src.pipeline.features.train.model_factory import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
-from logic.src.pipeline.rl.hpo.base import apply_params, normalise_search_space
+from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband, OptunaHPO, RayTuneHPO
+from logic.src.pipeline.rl.hpo.base import BaseHPO, apply_params, normalise_search_space
+
+try:
+    from optuna.integration import PyTorchLightningPruningCallback
+except ImportError:
+    try:
+        from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
+    except ImportError:
+        PyTorchLightningPruningCallback = None  # type: ignore[assignment]
+
+try:
+    import mlflow  # type: ignore[import-not-found]
+except ImportError:
+    mlflow = None  # type: ignore[assignment]
+
+try:
+    from logic.src.pipeline.rl.hpo.zenml_hpo_pipeline import hpo_pipeline
+    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
+except ImportError:
+    configure_zenml_stack = None  # type: ignore[assignment]
+    hpo_pipeline = None  # type: ignore[assignment]
+
 from logic.src.tracking.logging.pylogger import get_pylogger
 
 logger = get_pylogger(__name__)
@@ -47,13 +70,6 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
     Returns:
         The validation reward (or ``-inf`` on failure).
     """
-    from logic.src.pipeline.rl.hpo.base import BaseHPO
-
-    try:
-        from optuna.integration import PyTorchLightningPruningCallback
-    except ImportError:
-        from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
-
     # 1. Deep-copy config
     cfg = OmegaConf.to_object(base_cfg)
     assert isinstance(cfg, Config)
@@ -92,8 +108,6 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
     except optuna.exceptions.TrialPruned:
         raise
     except (RuntimeError, ValueError, TypeError, OSError) as e:
-        import traceback
-
         logger.error(f"Trial failed ({type(e).__name__}): {e}")
         logger.error(traceback.format_exc())
         return float("-inf")
@@ -148,8 +162,6 @@ def run_hpo(cfg: Config) -> float:
     Returns:
         Best metric value found across all trials.
     """
-    from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband, OptunaHPO, RayTuneHPO
-
     # Enable Tensor Core acceleration for Ampere+ GPUs
     if torch.cuda.is_available() and cfg.train.precision in ["16-mixed", "bf16-mixed"]:
         torch.set_float32_matmul_precision("medium")
@@ -207,9 +219,7 @@ def run_hpo(cfg: Config) -> float:
 
             # Forward best result to MLflow parent run
             with contextlib.suppress(Exception):
-                if _mlflow_run is not None:
-                    import mlflow  # type: ignore[import-not-found]
-
+                if _mlflow_run is not None and mlflow is not None:
                     mlflow.log_metric("hpo/best_val_reward", best_val)
                     mlflow.log_params({str(k): str(v) for k, v in (dehb.best_config or {}).items()})
 
@@ -232,9 +242,7 @@ def run_hpo(cfg: Config) -> float:
             logger.info(f"Ray Tune ({cfg.hpo.method}) complete. Best val_reward: {best_val:.4f}")
 
             with contextlib.suppress(Exception):
-                if _mlflow_run is not None:
-                    import mlflow  # type: ignore[import-not-found]
-
+                if _mlflow_run is not None and mlflow is not None:
                     mlflow.log_metric("hpo/best_val_reward", best_val)
 
         # ------------------------------------------------------------------
@@ -246,9 +254,7 @@ def run_hpo(cfg: Config) -> float:
             logger.info(f"Optuna ({cfg.hpo.method}) complete. Best val_reward: {best_val:.4f}")
 
             with contextlib.suppress(Exception):
-                if _mlflow_run is not None:
-                    import mlflow  # type: ignore[import-not-found]
-
+                if _mlflow_run is not None and mlflow is not None:
                     mlflow.log_metric("hpo/best_val_reward", best_val)
 
     return best_val
@@ -285,28 +291,26 @@ def _mlflow_hpo_run(
     # ------------------------------------------------------------------ #
     mlflow_run = None
     try:
-        import mlflow  # type: ignore[import-not-found]
-
-        mlflow.set_tracking_uri(tracking_uri)
-        mlflow.set_experiment(experiment_name)
-        hpo_tags = {
-            "task": "hpo",
-            "method": cfg.hpo.method,
-            "n_trials": str(cfg.hpo.n_trials or cfg.hpo.num_samples),
-            "problem": str(getattr(cfg.env, "name", "")),
-        }
-        mlflow_run = mlflow.start_run(run_name=f"hpo-{cfg.hpo.method}", tags=hpo_tags)
-        active_run = mlflow_run.__enter__()
-        with contextlib.suppress(Exception):
-            mlflow.log_params(
-                {
-                    "hpo.method": cfg.hpo.method,
-                    "hpo.n_epochs_per_trial": cfg.hpo.n_epochs_per_trial,
-                    "hpo.num_samples": cfg.hpo.num_samples,
-                    "env.name": str(getattr(cfg.env, "name", "")),
-                    "env.num_loc": str(getattr(cfg.env, "num_loc", "")),
-                }
-            )
+        if mlflow is not None:
+            mlflow.set_experiment(experiment_name)
+            hpo_tags = {
+                "task": "hpo",
+                "method": cfg.hpo.method,
+                "n_trials": str(cfg.hpo.n_trials or cfg.hpo.num_samples),
+                "problem": str(getattr(cfg.env, "name", "")),
+            }
+            mlflow_run = mlflow.start_run(run_name=f"hpo-{cfg.hpo.method}", tags=hpo_tags)
+            active_run = mlflow_run.__enter__()
+            with contextlib.suppress(Exception):
+                mlflow.log_params(
+                    {
+                        "hpo.method": cfg.hpo.method,
+                        "hpo.n_epochs_per_trial": cfg.hpo.n_epochs_per_trial,
+                        "hpo.num_samples": cfg.hpo.num_samples,
+                        "env.name": str(getattr(cfg.env, "name", "")),
+                        "env.num_loc": str(getattr(cfg.env, "num_loc", "")),
+                    }
+                )
     except Exception as exc:
         logger.warning(f"MLflow HPO run setup failed (continuing without MLflow): {exc}")
         yield None
@@ -339,9 +343,7 @@ def _run_hpo_via_zenml(cfg: Config) -> float:
     mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))
     stack_name = str(getattr(tracking, "zenml_stack_name", "wsmart-route-stack"))
 
-    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
-
-    if not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
+    if configure_zenml_stack is None or not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
         logger.warning("ZenML stack configuration failed — falling back to direct HPO.")
         # Disable ZenML to avoid infinite recursion
         if tracking is not None:
@@ -349,9 +351,7 @@ def _run_hpo_via_zenml(cfg: Config) -> float:
         return run_hpo(cfg)
 
     try:
-        from logic.src.pipeline.rl.hpo.zenml_hpo_pipeline import hpo_pipeline
-
-        result = hpo_pipeline(cfg)
+        result = hpo_pipeline(cfg) if hpo_pipeline is not None else 0.0
         return result if isinstance(result, float) else 0.0
     except Exception as exc:
         logger.warning(f"ZenML HPO pipeline failed — falling back to direct HPO: {exc}")

@@ -10,6 +10,7 @@ import numpy as np
 from logic.src.configs import MustGoConfig
 from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
 from logic.src.interfaces import IBinContainer, ITraversable
+from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
 from .base import SimulationAction, _flatten_config
@@ -24,8 +25,6 @@ class MustGoSelectionAction(SimulationAction):
         """
         Execute must-go selection strategies and update context['must_go'].
         """
-        from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
-
         # Early exit if neural network explicitly predicts selection
         model_name = ""
         pol_cfg = context.get("config", {})

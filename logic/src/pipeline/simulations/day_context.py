@@ -8,6 +8,7 @@ the execution of a single simulation day using the Command Pattern.
 from __future__ import annotations
 
 import random
+import zlib
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
 from multiprocessing.synchronize import Lock
@@ -18,6 +19,14 @@ import pandas as pd
 import torch
 
 from logic.src.constants import DAY_METRICS
+from logic.src.pipeline.simulations.actions import (
+    CollectAction,
+    FillAction,
+    LogAction,
+    MustGoSelectionAction,
+    PolicyExecutionAction,
+    PostProcessAction,
+)
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.utils.functions import move_to
 
@@ -266,8 +275,6 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
     Orchestrates a single simulation day using the Command Pattern.
     """
     # Compute policy-specific seed for RNG isolation
-    import zlib
-
     canonical_name = get_canonical_policy_name(context.policy_name)
     name_hash = zlib.adler32(canonical_name.encode()) & 0xFFFFFFFF
     policy_seed = (context.seed + name_hash + context.day) % (2**31)
@@ -286,15 +293,6 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         # This gives each (policy, day, sample) tuple its own isolated bin predictions
         bins_seed = (policy_seed + context.day + context.sample_id) % (2**31)
         context.bins.rng = np.random.default_rng(bins_seed)
-
-    from logic.src.pipeline.simulations.actions import (
-        CollectAction,
-        FillAction,
-        LogAction,
-        MustGoSelectionAction,
-        PolicyExecutionAction,
-        PostProcessAction,
-    )
 
     commands = [
         FillAction(),

@@ -9,6 +9,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from logic.src.data.processor.transforms import StateAugmentation
 from logic.src.pipeline.features.eval.eval_base import EvalBase
 from logic.src.utils.functions import move_to
 
@@ -36,8 +37,6 @@ class AugmentationEval(EvalBase):
             kwargs (Any): Description of kwargs.
         """
         super().__init__(env, progress, **kwargs)
-        from logic.src.data.processor.transforms import StateAugmentation
-
         self.samples = num_augment
         self.augmentation = StateAugmentation(num_augment=num_augment, augment_fn=augment_fn)
 

@@ -17,6 +17,7 @@ from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.interfaces.env import IEnv
+from logic.src.models import CriticNetwork as LegacyCriticNetwork
 from logic.src.models.common.autoregressive.constructive import ConstructivePolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 
@@ -92,8 +93,6 @@ class A2C(RL4COLitModule):
 
         # Critic network
         if critic is None:
-            from logic.src.models import CriticNetwork as LegacyCriticNetwork
-
             critic = LegacyCriticNetwork(
                 env_name=env.name if hasattr(env, "name") else "vrpp",
                 embed_dim=getattr(policy, "embed_dim", 128),

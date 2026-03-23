@@ -12,6 +12,11 @@ from loguru import logger
 
 from logic.src.constants import ROOT_DIR
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment,misc]
+
 
 class SimulationCheckpoint:
     """
@@ -79,9 +84,7 @@ class SimulationCheckpoint:
             pickle.dump(checkpoint_data, f)
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
-            run = get_active_run()
+            run = get_active_run() if get_active_run is not None else None
             if run is not None:
                 run.log_metric("checkpoint/day_saved", float(day))
                 run.log_dataset_event(
@@ -127,9 +130,7 @@ class SimulationCheckpoint:
                     ):
                         resumed_day = checkpoint_data.get("day", 0)
                         with contextlib.suppress(Exception):
-                            from logic.src.tracking.core.run import get_active_run
-
-                            run = get_active_run()
+                            run = get_active_run() if get_active_run is not None else None
                             if run is not None:
                                 run.log_params(
                                     {

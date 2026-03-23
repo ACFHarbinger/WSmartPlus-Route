@@ -18,25 +18,27 @@ when ``cfg.tracking.zenml_enabled`` is ``True``.
 
 from __future__ import annotations
 
-import contextlib
 import uuid
 from typing import Any, Dict, List
 
+from omegaconf import OmegaConf
+
+from logic.src.configs import Config
+from logic.src.pipeline.features.test.engine import run_wsr_simulator_test
+from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
 from logic.src.tracking.logging.pylogger import get_pylogger
 
-logger = get_pylogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Lazy ZenML imports
-# ---------------------------------------------------------------------------
-
-_ZENML_AVAILABLE = False
-with contextlib.suppress(ImportError):
+try:
     from zenml import pipeline as zenml_pipeline  # type: ignore[import-not-found]
     from zenml import step  # type: ignore[import-not-found]
 
     _ZENML_AVAILABLE = True
+except ImportError:
+    _ZENML_AVAILABLE = False
+    zenml_pipeline = None  # type: ignore[assignment]
+    step = None  # type: ignore[assignment]
 
+logger = get_pylogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Steps
@@ -70,12 +72,6 @@ if _ZENML_AVAILABLE:
             The same *batch_id* (creates a sequential DAG edge to the next
             policy step).
         """
-        from omegaconf import OmegaConf
-
-        from logic.src.configs import Config
-        from logic.src.pipeline.features.test.engine import run_wsr_simulator_test
-        from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
-
         cfg = OmegaConf.structured(Config)
         cfg = OmegaConf.merge(cfg, OmegaConf.create(config_dict))
         cfg = OmegaConf.to_object(cfg)
@@ -141,8 +137,6 @@ def simulation_pipeline(cfg: Any) -> None:
     """
     if not _ZENML_AVAILABLE:
         raise ImportError("zenml is not installed — cannot run ZenML simulation pipeline")
-
-    from omegaconf import OmegaConf
 
     config_dict: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)  # type: ignore[assignment]
 

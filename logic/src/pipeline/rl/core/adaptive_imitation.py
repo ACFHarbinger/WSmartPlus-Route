@@ -5,12 +5,27 @@ Combines PPO/REINFORCE with Imitation Learning using an annealing schedule.
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict
 from typing import Any
 
 import torch
 from tensordict import TensorDict
 
+from logic.src.configs.rl.policies import (
+    ACOConfig,
+    ALNSConfig,
+    HGSALNSConfig,
+    HGSConfig,
+    ILSConfig,
+    RLSConfig,
+)
+from logic.src.models.policies.alns import VectorizedALNS
+from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+from logic.src.models.policies.hgs import VectorizedHGS
+from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+from logic.src.models.policies.iterated_local_search import IteratedLocalSearchPolicy
+from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
 from logic.src.pipeline.rl.core.losses import (
     kl_divergence_loss,
     nll_loss,
@@ -76,8 +91,6 @@ class AdaptiveImitation(REINFORCE):
                     continue
                 if isinstance(v, (dict, list, tuple)):
                     try:
-                        import json
-
                         json.dumps(v)
                         continue
                     except (TypeError, OverflowError):
@@ -125,21 +138,6 @@ class AdaptiveImitation(REINFORCE):
         Returns:
             Initialized expert policy instance.
         """
-        from logic.src.configs.rl.policies import (
-            ACOConfig,
-            ALNSConfig,
-            HGSALNSConfig,
-            HGSConfig,
-            ILSConfig,
-            RLSConfig,
-        )
-        from logic.src.models.policies.alns import VectorizedALNS
-        from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
-        from logic.src.models.policies.hgs import VectorizedHGS
-        from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
-        from logic.src.models.policies.iterated_local_search import IteratedLocalSearchPolicy
-        from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
-
         # Map config types to policy classes
         config_to_policy_map = {
             HGSConfig: VectorizedHGS,

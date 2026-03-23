@@ -13,6 +13,7 @@ from tensordict import TensorDict
 from logic.src.constants.metrics import METRIC_MAPPING
 from logic.src.interfaces import ITraversable
 from logic.src.tracking.logging.pylogger import get_pylogger
+from logic.src.utils.functions.rl import ensure_tensordict
 
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
@@ -163,8 +164,6 @@ class StepMixin:
         self._current_baseline_val = baseline_val
 
         # env.reset expects data on the environment's device.
-        from logic.src.utils.functions.rl import ensure_tensordict
-
         td = ensure_tensordict(batch, self.device)
 
         # Apply must-go selector if configured

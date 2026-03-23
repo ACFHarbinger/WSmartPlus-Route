@@ -10,6 +10,8 @@ from loguru import logger
 from logic.src.configs import PostProcessingConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.interfaces import ITraversable
+from logic.src.policies.other.post_processing import PostProcessorFactory
+from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.utils.configs.config_loader import load_config
 
 from .base import SimulationAction, _flatten_config
@@ -55,8 +57,6 @@ class PostProcessAction(SimulationAction):
 
     def _create_processors(self, entry: Any, context: Dict[str, Any]) -> list:
         """Create processors from a configuration entry."""
-        from logic.src.policies.other.post_processing import PostProcessorFactory
-
         if isinstance(entry, PostProcessingConfig):
             return PostProcessorFactory.create_from_config(entry)
 
@@ -107,8 +107,6 @@ class PostProcessAction(SimulationAction):
                 refined_tour = processor.process(tour, **pf_params)
 
                 if refined_tour != tour:
-                    from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
-
                     dist_matrix = context.get("distance_matrix")
                     new_cost = get_route_cost(dist_matrix, refined_tour)
 

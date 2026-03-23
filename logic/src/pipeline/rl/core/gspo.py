@@ -12,10 +12,12 @@ from __future__ import annotations
 from typing import Any
 
 import torch
+from pytorch_lightning.core.optimizer import LightningOptimizer
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
 from logic.src.data.datasets import FastTdDataset
+from logic.src.interfaces import ITraversable
 from logic.src.pipeline.rl.core.ppo import PPO
 from logic.src.utils.data.rl_utils import safe_td_copy
 
@@ -67,10 +69,6 @@ class GSPO(PPO):
         Returns:
             Loss tensor from last optimization step.
         """
-        from pytorch_lightning.core.optimizer import LightningOptimizer
-
-        from logic.src.interfaces import ITraversable
-
         if hasattr(self.baseline, "unwrap_batch"):
             batch, _ = self.baseline.unwrap_batch(batch)
 

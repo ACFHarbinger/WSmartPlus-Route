@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import Callback
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
@@ -25,8 +26,6 @@ class ModelSummaryCallback(Callback):
 
     def _print_summary(self, model: pl.LightningModule) -> None:
         """Extract information and print the table."""
-        from rich import box
-
         console = Console()
         table = Table(
             show_header=True,

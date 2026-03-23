@@ -42,8 +42,21 @@ import torch
 from omegaconf import DictConfig
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
+from logic.src.pipeline.features.test.orchestrator.monitor import (
+    initialize_simulation_display,
+    process_display_updates,
+)
+from logic.src.pipeline.simulations.repository import set_repository_from_path
 from logic.src.tracking.logging.log_utils import log_to_json, output_stats
+from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.setup_utils import get_pol_name
+
+try:
+    import logic.src.tracking as wst
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    wst = None  # type: ignore[assignment]
+    get_active_run = None  # type: ignore[assignment]
 
 from .checkpoints import CheckpointError
 from .states import SimulationContext
@@ -101,23 +114,16 @@ def init_single_sim_worker(
         _initialize_worker_repository(cfg)
 
     # Attach to the parent tracking run so get_active_run() works in this process
-    if tracking_uri and tracking_run_id:
-        import logic.src.tracking as wst
-
+    if tracking_uri and tracking_run_id and wst is not None:
         wst.init_worker(tracking_uri=tracking_uri, run_id=tracking_run_id)
 
     # Setup logger redirection in the worker process (silent=True to avoid garbling dashboard)
     if log_file:
-        from logic.src.tracking.logging.logger_writer import setup_logger_redirection
-
         setup_logger_redirection(log_file, silent=True)
 
 
 def _initialize_worker_repository(cfg: Config) -> None:
     """Initialize the singleton repository instance in a worker process."""
-    from logic.src.constants import ROOT_DIR
-    from logic.src.pipeline.simulations.repository import set_repository_from_path
-
     load_ds = cfg.load_dataset
     if load_ds is not None and set_repository_from_path(str(load_ds)):
         return
@@ -303,14 +309,8 @@ def sequential_simulations(  # noqa: C901
     counter = SimpleCounter()
     loop_tic = time.time()
     last_reported_days = {p: 0 for p in policies}
-    log_tmp = {p: {} for p in policies}
+    log_tmp: Dict[str, Any] = {p: {} for p in policies}
     policy_names = [get_pol_name(p) for p in policies]
-
-    from logic.src.pipeline.features.test.orchestrator.monitor import (
-        initialize_simulation_display,
-        process_display_updates,
-    )
-
     display = (
         initialize_simulation_display(policy_names, sim.n_samples, sim.days)
         if not cfg.tracking.no_progress_bar
@@ -425,9 +425,7 @@ def sequential_simulations(  # noqa: C901
                     )
 
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_metric("sim/n_failed_runs", float(len(failed_log)))
             for pol_name_k, metrics in log.items():

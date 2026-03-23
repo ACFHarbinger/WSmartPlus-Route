@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from typing import Any
+from typing import cast as t_cast
 
 import torch
 from torch.utils.data import DataLoader
@@ -52,9 +53,6 @@ class SamplingEval(EvalBase):
             # Expand batch for sampling
             locs = None
             if isinstance(batch_obj, ITraversable) or hasattr(batch_obj, "get"):
-                # Use cast to satisfy type checker for 'get' on Any-like object
-                from typing import cast as t_cast
-
                 locs_obj = t_cast(Any, batch_obj)
                 locs_val = locs_obj.get("locs")
                 locs = locs_val if locs_val is not None else locs_obj.get("loc")
