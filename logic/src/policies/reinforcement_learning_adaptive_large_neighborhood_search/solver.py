@@ -53,6 +53,7 @@ from logic.src.policies.other.reinforcement_learning.reward.shaping import Adapt
 
 from ..other.operators.destroy.shaw import shaw_removal
 from ..other.operators.destroy.string import string_removal
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from ..other.operators.repair.greedy_blink import (
     DiscountedUCBBandit as DiscountedUCBAgent,
 )
@@ -510,8 +511,6 @@ class RLALNSSolver:
         Returns:
             List[List[int]]: Initial set of routes.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         routes = build_nn_routes(
             nodes=list(self.wastes.keys()),
             mandatory_nodes=self.mandatory_nodes,

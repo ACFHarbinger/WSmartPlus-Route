@@ -16,6 +16,12 @@ from typing import Any, List, Tuple
 import numpy as np
 import pandas as pd
 
+from logic.src.constants.routing import (
+    DEFAULT_COMBINATION,
+    DEFAULT_SHIFT_DURATION,
+    DEFAULT_TIME_LIMIT,
+    DEFAULT_V_VALUE,
+)
 from logic.src.data.processor import convert_to_dict
 from logic.src.policies.simulated_annealing_neighborhood_search import (
     improved_simulated_annealing,
@@ -130,13 +136,6 @@ def execute_og(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
     Returns:
         Tuple[List[int], float, Any]: Tour, distance, and metadata.
     """
-    from logic.src.constants.routing import (
-        DEFAULT_COMBINATION,
-        DEFAULT_SHIFT_DURATION,
-        DEFAULT_TIME_LIMIT,
-        DEFAULT_V_VALUE,
-    )
-
     must_go = kwargs.get("must_go", [])
     early_result = policy._validate_must_go(must_go)
     if early_result is not None:

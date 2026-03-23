@@ -11,6 +11,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.repair.greedy import (
+    greedy_insertion,
+    greedy_profit_insertion,
+)
 from logic.src.policies.other.operators.unstringing_stringing.stringing_i import apply_type_i_s, apply_type_i_s_profit
 from logic.src.policies.other.operators.unstringing_stringing.stringing_ii import (
     apply_type_ii_s,
@@ -214,11 +218,6 @@ def stringing_insertion_wrapper(
             unassigned.remove(best_node)
         else:
             # Fallback for remaining nodes that couldn't be strung (too small routes, complex constraints)
-            from logic.src.policies.other.operators.repair.greedy import (  # noqa: PLC0415
-                greedy_insertion,
-                greedy_profit_insertion,
-            )
-
             if profit_mode:
                 routes = greedy_profit_insertion(
                     routes,

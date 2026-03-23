@@ -30,6 +30,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import PSOMAParams
 from .particle import PSOMAParticle
 
@@ -164,8 +165,6 @@ class PSOMAsSolver:
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style)."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,

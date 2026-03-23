@@ -14,7 +14,9 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import numpy as np
 
 from logic.src.interfaces.adapter import IPolicyAdapter
+from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
+from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
@@ -195,8 +197,6 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         Returns:
             Tuple of (capacity, revenue, cost_unit, merged_values_dict)
         """
-        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
-
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
 
         # Build the policy config dict from the typed config or raw dict
@@ -376,8 +376,6 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         if getattr(self, "_params_logged", False):
             return
         self._params_logged = True
-
-        from logic.src.tracking.core.run import get_active_run
 
         run = get_active_run()
         if run is None:

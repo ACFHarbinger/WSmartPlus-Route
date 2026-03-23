@@ -37,6 +37,8 @@ from ..other.operators import (
     greedy_profit_insertion,
     random_removal,
 )
+from ..other.operators.destroy.shaw import shaw_profit_removal
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import SLCParams
 
 
@@ -230,8 +232,6 @@ class SLCSolver:
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style)."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -260,8 +260,6 @@ class SLCSolver:
 
         try:
             if use_profit:
-                from ..other.operators.destroy.shaw import shaw_profit_removal
-
                 partial, removed = shaw_profit_removal(
                     routes,
                     n,

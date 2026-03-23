@@ -34,6 +34,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .params import ABCParams
 
 
@@ -184,10 +185,6 @@ class ABCSolver:
         """
         Builds a random initial solution using greedy constructive heuristic.
         """
-        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
-            build_greedy_routes,
-        )
-
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

@@ -31,6 +31,7 @@ from ..other.operators import (
     greedy_profit_insertion,
     random_removal,
 )
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .params import HVPLParams
 
 
@@ -223,10 +224,6 @@ class HVPLSolver:
 
     def _random_construction(self) -> List[List[int]]:
         """Build a random routing solution."""
-        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
-            build_greedy_routes,
-        )
-
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

@@ -14,6 +14,7 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
+from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast
 
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
@@ -97,8 +98,6 @@ class CombinedSelection(IMustGoSelectionStrategy):
         """
         Create a shallow copy of context with updated parameters.
         """
-        from dataclasses import replace
-
         # Map params to context fields
         updates = {}
 

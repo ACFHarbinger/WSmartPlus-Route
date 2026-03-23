@@ -7,6 +7,7 @@ from typing import Any
 
 import optuna
 import torch
+from logic.src import tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import ROOT_DIR, SIM_METRICS
 from logic.src.pipeline.simulations.repository import (
@@ -139,8 +140,6 @@ def run_hpo_sim(cfg: Config) -> float:
     Returns:
         Best metric value found across all trials.
     """
-    import logic.src.tracking as wst
-
     sim = cfg.sim
     hpo_sim = cfg.hpo_sim
 

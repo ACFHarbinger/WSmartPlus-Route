@@ -1,3 +1,4 @@
+import pickle
 from collections import deque
 from typing import Any, Deque, Dict, Optional
 
@@ -54,15 +55,11 @@ class BanditAgent(RLAgent):
 
     def save(self, path: str) -> None:
         """Save the agent's state to a file using pickle."""
-        import pickle
-
         with open(path, "wb") as f:
             pickle.dump(self.__dict__, f)
 
     def load(self, path: str) -> None:
         """Load the agent's state from a file."""
-        import pickle
-
         with open(path, "rb") as f:
             state = pickle.load(f)
         self.__dict__.update(state)

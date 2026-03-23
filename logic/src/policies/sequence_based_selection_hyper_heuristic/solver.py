@@ -49,6 +49,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
+from ..other.operators.heuristics.nn_initialization import build_nn_routes
 from .params import SSHHParams
 
 
@@ -427,8 +428,6 @@ class SSHHSolver:
 
     def _build_initial_solution(self) -> List[List[int]]:
         """Algorithm 1, line 12: construct initial solution."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
         return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
