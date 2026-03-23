@@ -10,6 +10,11 @@ from logic.src.ui.components.charts import (
 )
 from logic.src.ui.services.data_loader import compute_daily_stats, compute_summary_statistics
 from logic.src.ui.services.log_parser import filter_entries, get_unique_policies
+from logic.src.ui.services.tracking_service import (
+    list_metric_keys,
+    load_run_metrics,
+    load_run_params,
+)
 
 
 def render_policy_comparison(entries: List[Any], selected_day: int) -> None:
@@ -101,7 +106,8 @@ def render_tracking_run_metrics(
     run_id: str,
     tracking_uri: Optional[str] = None,
 ) -> None:
-    """Render step-by-step metrics from WSTracker for a given run.
+    """
+    Render step-by-step metrics from WSTracker for a given run.
 
     Fetches per-day metrics logged by :class:`DataLineageCallback` and
     renders them as interactive line charts so they can be viewed
@@ -112,12 +118,6 @@ def render_tracking_run_metrics(
         tracking_uri: Path to the tracking directory (defaults to
             ``assets/tracking`` relative to the project root).
     """
-    from logic.src.ui.services.tracking_service import (
-        list_metric_keys,
-        load_run_metrics,
-        load_run_params,
-    )
-
     st.subheader("WSTracker Run Metrics")
 
     # --- Run params summary --------------------------------------------------

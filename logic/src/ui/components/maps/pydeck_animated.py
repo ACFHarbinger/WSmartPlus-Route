@@ -40,6 +40,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import streamlit as st
 
+try:
+    import pydeck as pdk
+except ImportError:
+    pdk = None
+
 # ---------------------------------------------------------------------------
 # Main render function
 # ---------------------------------------------------------------------------
@@ -85,9 +90,7 @@ def render_pydeck_animated_map(
         height: Map widget height in pixels. Default 600.
         title: Section heading rendered above the map.
     """
-    try:
-        import pydeck as pdk
-    except ImportError:
+    if pdk is None:
         st.error(
             "**pydeck** is required for the animated map. Run: `pip install pydeck`  (also bundled with Streamlit)."
         )

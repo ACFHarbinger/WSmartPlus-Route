@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 import streamlit as st
 
+from logic.src.constants import ROOT_DIR
 from logic.src.ui.pages.simulation_summary_sections import (
     _render_daily_timeseries,
     _render_distribution_comparison,
@@ -36,7 +37,6 @@ _DIST_PATTERN = re.compile(r"_(emp|gamma\d*|uniform)$", re.IGNORECASE)
 
 def _discover_output_dirs() -> List[str]:
     """Find directories under assets/output/ that contain simulation JSONs."""
-    from logic.src.constants import ROOT_DIR
 
     output_root = os.path.join(ROOT_DIR, "assets", "output")
     dirs: List[str] = []
@@ -68,7 +68,6 @@ def _find_json_files(output_dir: str) -> Dict[str, str]:
     Returns dict with keys like 'mean', 'std', 'full', 'daily_*' mapping
     to absolute file paths.
     """
-    from logic.src.constants import ROOT_DIR
 
     abs_dir = os.path.join(ROOT_DIR, "assets", "output", output_dir)
     result: Dict[str, str] = {}

@@ -6,6 +6,7 @@ Extracted from ``data_loader.py`` to keep module sizes under 400 LoC.
 Functions are re-exported from ``data_loader.py`` for backward compatibility.
 """
 
+import statistics as stats_mod
 from typing import Dict, List, Optional
 
 from logic.src.ui.services.log_parser import DayLogEntry
@@ -124,8 +125,6 @@ def compute_summary_statistics(
     Returns:
         Dict of metric_name -> {mean, std, min, max, total}.
     """
-    import statistics as stats_mod
-
     filtered = _filter_entries(entries, policy)
     if not filtered:
         return {}
