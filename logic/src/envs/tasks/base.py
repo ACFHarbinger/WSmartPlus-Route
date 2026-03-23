@@ -9,7 +9,9 @@ from typing import Any, Dict, Optional
 import torch
 from tensordict import TensorDict
 
+from logic.src.envs import get_env
 from logic.src.interfaces import ITraversable
+from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 from logic.src.utils.decoding import beam_search as beam_search_func
 
 
@@ -106,11 +108,7 @@ class BaseProblem:
         Bridge to RL4CO environments.
         Initializes a TensorDict from the input and returns a state wrapper.
         """
-        from logic.src.envs import get_env
-        from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
-
         env_name = cls.NAME
-
         if isinstance(input_data, ITraversable):
             bs, device = cls._get_batch_info(input_data)
             env = get_env(env_name, batch_size=torch.Size([bs]), device=device)

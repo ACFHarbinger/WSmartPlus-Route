@@ -11,6 +11,7 @@ import pandas as pd
 import torch
 
 from logic.src.constants import MAX_WASTE
+from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 from logic.src.utils.graph import (
     adj_to_idx,
     get_adj_knn,
@@ -170,8 +171,6 @@ class SimulationDataMapper:
 
     def _load_profit_vars(self, area: str, waste_type: str) -> Dict[str, float]:
         """Load profit-related variables for the simulation."""
-        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
-
         (
             VEHICLE_CAPACITY,
             REVENUE_KG,

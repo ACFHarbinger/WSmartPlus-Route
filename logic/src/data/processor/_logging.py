@@ -3,6 +3,11 @@
 import contextlib
 import sys
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
+
 
 def _log_processor_event(event_name, variable_name="data", event_type="mutate", shape=None, **kwargs):
     """Log a data processing event to the active tracking run (if any)."""
@@ -12,9 +17,7 @@ def _log_processor_event(event_name, variable_name="data", event_type="mutate", 
         source_line = 0
 
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             metadata = {
                 "event": event_name,
