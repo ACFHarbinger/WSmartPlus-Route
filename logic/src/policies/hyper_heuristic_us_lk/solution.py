@@ -4,7 +4,7 @@ Solution representation for HULK hyper-heuristic.
 Provides efficient solution evaluation and manipulation for VRP problems.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -80,17 +80,17 @@ class Solution:
         return total_waste * self.R
 
     @property
-    def cost(self) -> float:
+    def cost(self) -> Optional[float]:
         """Get solution cost."""
         return self._cost
 
     @property
-    def revenue(self) -> float:
+    def revenue(self) -> Optional[float]:
         """Get solution revenue."""
         return self._revenue
 
     @property
-    def profit(self) -> float:
+    def profit(self) -> Optional[float]:
         """Get solution profit."""
         return self._profit
 

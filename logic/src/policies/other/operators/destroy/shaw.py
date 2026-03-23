@@ -26,10 +26,8 @@ def shaw_removal(  # noqa: C901
     routes: List[List[int]],
     n_remove: int,
     dist_matrix: np.ndarray,
-    wastes: Optional[List[int]] = None,
-    waste_dict: Optional[Dict[Any, Any]] = None,
+    wastes: Optional[Dict[int, float]] = None,
     time_windows: Optional[Dict[Any, Any]] = None,
-    relatedness_weights: Tuple[float, float, float] = (0.5, 0.3, 0.2),
     randomization_factor: float = 2.0,
     phi: float = 9.0,
     chi: float = 3.0,
@@ -37,19 +35,20 @@ def shaw_removal(  # noqa: C901
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Shaw Removal: Remove related customers based on multi-criteria similarity.
+    Shaw Removal: Remove related customers based on multi_criteria similarity.
 
     Relatedness R(i,j) = phi * d(i,j) + chi * |T_i - T_j| + psi * |q_i - q_j|
 
+    Args:
+        routes: Current routes.
+        n_remove: Number of nodes to remove.
         dist_matrix: Distance matrix.
-        wastes: List of wastes for each node (optional).
-        waste_dict: Node waste dictionary {node: waste} (optional).
+        wastes: Waste/profit values for each node.
         time_windows: Time window dict {node: (earliest, latest)} (optional).
-        relatedness_weights: Weights for (dist, time, waste) - deprecated/unused if phi/chi/psi used directly.
         randomization_factor: Power for randomized selection (higher = more random).
         phi: Distance weight in relatedness.
         chi: Time window weight in relatedness.
-        psi: waste weight in relatedness.
+        psi: Waste weight in relatedness.
         rng: Random number generator.
 
     Returns:
@@ -58,7 +57,7 @@ def shaw_removal(  # noqa: C901
     if not any(routes) or n_remove <= 0:
         return routes, []
 
-    waste = waste_dict or {}
+    waste = wastes or {}
     time_windows = time_windows or {}
 
     # Build node map
@@ -146,7 +145,6 @@ def shaw_profit_removal(  # noqa: C901
     wastes: Dict[int, float],
     R: float = 1.0,
     C: float = 1.0,
-    relatedness_weights: Tuple[float, float] = (0.6, 0.4),
     randomization_factor: float = 2.0,
     phi: float = 9.0,
     psi: float = 5.0,
@@ -167,7 +165,6 @@ def shaw_profit_removal(  # noqa: C901
         wastes: Waste/profit values for each node.
         R: Revenue per unit waste.
         C: Cost per unit distance.
-        relatedness_weights: Weights for (dist, profit) - deprecated if phi/psi used directly.
         randomization_factor: Power for randomized selection (higher = more random).
         phi: Distance weight in relatedness.
         psi: Profit weight in relatedness.

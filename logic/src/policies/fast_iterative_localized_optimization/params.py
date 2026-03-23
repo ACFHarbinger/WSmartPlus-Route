@@ -1,14 +1,8 @@
-"""
-Configuration parameters for Fast Iterative Localized Optimization (FILO).
-"""
-
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from logic.src.configs.policies.filo import FILOConfig
+from typing import Any, Optional
 
 
 @dataclass
@@ -27,6 +21,8 @@ class FILOParams:
         gamma_base: Base probability for neighborhood evaluation.
         omega_base_multiplier: Base shaking intensity multiplier.
         seed: Random seed for reproducibility.
+        vrpp (bool): Whether the problem is VRP with Profits.
+        profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
     """
 
     time_limit: float = 60.0
@@ -38,29 +34,36 @@ class FILOParams:
     delta_gamma: float = 0.1
     gamma_base: float = 1.0
     omega_base_multiplier: float = 1.0
-    seed: int = 42
     local_search_iterations: int = 500
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     @classmethod
-    def from_config(cls, config: FILOConfig) -> FILOParams:
-        """Create FILOParams from a FILOConfig dataclass.
+    def from_config(cls, config: Any) -> FILOParams:
+        """Create FILOParams from a configuration object.
 
         Args:
-            config: FILOConfig dataclass with solver parameters.
+            config: Configuration object or dictionary.
 
         Returns:
             FILOParams instance with values from config.
         """
+        if isinstance(config, dict):
+            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+
         return cls(
-            time_limit=config.time_limit,
-            max_iterations=config.max_iterations,
-            initial_temperature_factor=config.initial_temperature_factor,
-            final_temperature_factor=config.final_temperature_factor,
-            shaking_lb_factor=config.shaking_lb_factor,
-            shaking_ub_factor=config.shaking_ub_factor,
-            delta_gamma=config.delta_gamma,
-            gamma_base=config.gamma_base,
-            omega_base_multiplier=config.omega_base_multiplier,
-            seed=config.seed,
+            time_limit=getattr(config, "time_limit", 60.0),
+            max_iterations=getattr(config, "max_iterations", 50000),
+            initial_temperature_factor=getattr(config, "initial_temperature_factor", 10.0),
+            final_temperature_factor=getattr(config, "final_temperature_factor", 100.0),
+            shaking_lb_factor=getattr(config, "shaking_lb_factor", 0.5),
+            shaking_ub_factor=getattr(config, "shaking_ub_factor", 2.0),
+            delta_gamma=getattr(config, "delta_gamma", 0.1),
+            gamma_base=getattr(config, "gamma_base", 1.0),
+            omega_base_multiplier=getattr(config, "omega_base_multiplier", 1.0),
             local_search_iterations=getattr(config, "local_search_iterations", 500),
+            seed=getattr(config, "seed", 42),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )

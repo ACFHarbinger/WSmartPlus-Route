@@ -57,6 +57,9 @@ class HVPLParams:
 
     # Global Parameters
     time_limit: float = 300.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     # Sub-algorithm Parameters
     aco_params: Optional[KSACOParams] = field(default_factory=lambda: None)
@@ -80,7 +83,13 @@ class HVPLParams:
                 local_search=False,  # ALNS handles local search
                 local_search_iterations=0,
                 elitist_weight=1.0,
+                vrpp=self.vrpp,
+                profit_aware_operators=self.profit_aware_operators,
             )
+        else:
+            # Sync flags if they were already provided but maybe not consistent
+            self.aco_params.vrpp = self.vrpp
+            self.aco_params.profit_aware_operators = self.profit_aware_operators
 
         if self.alns_params is None:
             self.alns_params = ALNSParams(
@@ -91,7 +100,12 @@ class HVPLParams:
                 min_removal=1,
                 max_removal_pct=0.3,
                 time_limit=60.0,
+                vrpp=self.vrpp,
+                profit_aware_operators=self.profit_aware_operators,
             )
+        else:
+            self.alns_params.vrpp = self.vrpp
+            self.alns_params.profit_aware_operators = self.profit_aware_operators
 
         # Validate constraints
         assert self.n_teams > 0, "n_teams must be positive"
@@ -102,30 +116,18 @@ class HVPLParams:
 
     @classmethod
     def from_config(cls, config: Any) -> HVPLParams:
-        """Create HVPLParams from an HVPLConfig dataclass or dict."""
-        if isinstance(config, dict):
-            return cls(
-                n_teams=config.get("n_teams", 30),
-                max_iterations=config.get("max_iterations", 100),
-                substitution_rate=config.get("substitution_rate", 0.2),
-                crossover_rate=config.get("crossover_rate", 0.8),
-                mutation_rate=config.get("mutation_rate", 0.1),
-                elite_size=config.get("elite_size", 3),
-                aco_init_iterations=config.get("aco_init_iterations", 50),
-                time_limit=config.get("time_limit", 300.0),
-                aco_params=KSACOParams.from_config(config.get("aco")) if config.get("aco") else None,
-                alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
-            )
-
+        """Create HVPLParams from a configuration object."""
         return cls(
-            n_teams=config.n_teams,
-            max_iterations=config.max_iterations,
-            substitution_rate=config.substitution_rate,
-            crossover_rate=config.crossover_rate,
-            mutation_rate=config.mutation_rate,
-            elite_size=config.elite_size,
-            aco_init_iterations=config.aco_init_iterations,
-            time_limit=config.time_limit,
-            aco_params=KSACOParams.from_config(config.aco) if config.aco else None,
-            alns_params=ALNSParams.from_config(config.alns) if config.alns else None,
+            n_teams=getattr(config, "n_teams", 30),
+            max_iterations=getattr(config, "max_iterations", 100),
+            substitution_rate=getattr(config, "substitution_rate", 0.2),
+            crossover_rate=getattr(config, "crossover_rate", 0.8),
+            mutation_rate=getattr(config, "mutation_rate", 0.1),
+            elite_size=getattr(config, "elite_size", 3),
+            aco_init_iterations=getattr(config, "aco_init_iterations", 50),
+            time_limit=getattr(config, "time_limit", 300.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            aco_params=KSACOParams.from_config(getattr(config, "aco", {})) if getattr(config, "aco", None) else None,
+            alns_params=ALNSParams.from_config(getattr(config, "alns", {})) if getattr(config, "alns", None) else None,
         )

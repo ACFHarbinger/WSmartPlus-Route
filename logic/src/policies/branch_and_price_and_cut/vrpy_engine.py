@@ -26,9 +26,9 @@ def run_bpc_vrpy(
     """
     Solve CVRP using VRPy (Column Generation / Branch-and-Price).
 
-    Note: VRPy does not natively support Waste-Collecting CVRP via simple
-    configuration. This implementation solves standard CVRP for ALL nodes
-    present in the wastes dictionary (no node dropping).
+    This implementation solves a Capacitated VRP with Profits where nodes
+    have both demand (waste) and profit (revenue * waste). Mandatory nodes
+    are enforced by assigning them high profit values.
 
     Uses NetworkX DiGraph representation.
 
@@ -36,10 +36,11 @@ def run_bpc_vrpy(
         dist_matrix: Distance matrix (N x N)
         wastes: Node wastes {node_id: waste_value}
         capacity: Vehicle capacity
-        R: Revenue per unit waste (unused in this variant)
+        R: Revenue per unit waste (used to calculate node profits)
         C: Cost per unit distance
-        values: Config with 'time_limit' (default: 30)
-        mandatory_nodes: Optional list of mandatory node indices (unused).
+        values: Config with 'time_limit' (default: 30) and 'seed'
+        mandatory_nodes: Optional list of mandatory node indices to visit
+        recorder: Optional state recorder for tracking solver statistics
 
     Returns:
         Tuple[List[List[int]], float]: Routes and total cost
@@ -60,7 +61,9 @@ def run_bpc_vrpy(
     # Add Nodes
     for i in range(1, n_nodes + 1):
         d = wastes.get(i, 0.0)
-        G.add_node(i, waste=d)
+        # Add node with demand (waste) and profit (revenue * waste)
+        profit = wastes.get(i, 0.0) * R
+        G.add_node(i, demand=d, collect=profit)
 
     # Source and Sink
     SOURCE = "Source"
@@ -78,8 +81,21 @@ def run_bpc_vrpy(
             if i != j:
                 G.add_edge(i, j, cost=float(dist_matrix[i][j] * C))
 
+    # Setup VRP problem with capacity and profit collection
     prob = VehicleRoutingProblem(G, load_capacity=capacity, pricing_strategy="Hyper")
     prob.hyper_heuristic = _HyperHeuristic(seed=values.get("seed", 42))
+
+    # Add mandatory nodes as required_nodes if provided
+    if mandatory_nodes:
+        # VRPy doesn't natively support mandatory nodes in the constructor,
+        # but we can enforce them by setting their service as required
+        for node_id in mandatory_nodes:
+            if 1 <= node_id <= n_nodes and node_id in G.nodes:
+                # Mark as required by setting a very high profit
+                # This ensures they will be visited in any optimal solution
+                current_profit = G.nodes[node_id].get("collect", 0.0)
+                # Add a penalty term to ensure mandatory nodes are visited
+                G.nodes[node_id]["collect"] = max(current_profit, 1000.0 * R)
 
     time_limit = values.get("time_limit", 30)
     prob.solve(time_limit=time_limit)

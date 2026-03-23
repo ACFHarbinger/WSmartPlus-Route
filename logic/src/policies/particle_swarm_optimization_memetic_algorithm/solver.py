@@ -22,7 +22,14 @@ import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
 
-from ..other.operators import greedy_insertion, worst_removal
+from ..ant_colony_optimization_k_sparse.params import KSACOParams
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+    worst_profit_removal,
+    worst_removal,
+)
 from .params import PSOMAParams
 from .particle import PSOMAParticle
 
@@ -41,7 +48,6 @@ class PSOMAsSolver:
         C: float,
         params: PSOMAParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -52,12 +58,17 @@ class PSOMAsSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Initialize Local Search once for reuse
-        from ..ant_colony_optimization_k_sparse.params import KSACOParams
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            time_limit=self.params.time_limit,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
 
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -65,7 +76,6 @@ class PSOMAsSolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -263,21 +273,35 @@ class PSOMAsSolver:
         Returns:
             Perturbed routes.
         """
-        flat = [n for r in routes for n in r]
-        if not flat:
+        if not routes:
             return routes
-        node = self.random.choice(flat)
-        new_routes = [[n for n in r if n != node] for r in routes]
-        new_routes = [r for r in new_routes if r]
+
+        new_routes, nodes = random_removal(routes, 1, self.random)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
         with contextlib.suppress(Exception):
-            new_routes = greedy_insertion(
-                new_routes,
-                [node],
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if use_profit:
+                new_routes = greedy_profit_insertion(
+                    new_routes,
+                    nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                new_routes = greedy_insertion(
+                    new_routes,
+                    nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
         return new_routes
 
     def _local_search(self, routes: List[List[int]]) -> List[List[int]]:
@@ -285,16 +309,34 @@ class PSOMAsSolver:
         Memetic local search: worst-removal + greedy-insertion + ACO.
         """
         n = max(3, self.params.n_removal)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
         try:
-            partial, removed = worst_removal(routes, n, self.dist_matrix)
-            repaired = greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if use_profit:
+                partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R)
+                repaired = greedy_profit_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                partial, removed = worst_removal(routes, n, self.dist_matrix)
+                repaired = greedy_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
             return self.ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)

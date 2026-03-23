@@ -39,6 +39,15 @@ class RLHVPLParams:
     # ===== RL Configuration (Centralized) =====
     rl_config: RLConfig = field(default_factory=RLConfig)
 
+    def __post_init__(self):
+        """Sync flags across sub-parameters."""
+        if self.aco_params:
+            self.aco_params.vrpp = self.vrpp
+            self.aco_params.profit_aware_operators = self.profit_aware_operators
+        if self.alns_params:
+            self.alns_params.vrpp = self.vrpp
+            self.alns_params.profit_aware_operators = self.profit_aware_operators
+
     # ===== ACO Parameters (with Q-Learning) =====
     aco_params: KSACOParams = field(
         default_factory=lambda: KSACOParams(
@@ -84,11 +93,6 @@ class RLHVPLParams:
     # --- Legacy / Compatibility Properties ---
     # These properties allow existing code to access RL parameters without modification,
     # maintaining consistency with RL-AHVPL interface.
-
-    # --- Legacy / Compatibility Properties ---
-    # These properties allow existing code to access RL parameters without modification,
-    # maintaining consistency with RL-AHVPL interface.
-
     def _get_val(self, category: str, key: str, default: Any = None) -> Any:
         # Resolve the category (e.g. td_learning, sarsa)
         if isinstance(self.rl_config, dict):

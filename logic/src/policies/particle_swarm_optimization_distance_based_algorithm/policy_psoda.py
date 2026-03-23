@@ -57,16 +57,21 @@ class DistancePSOPolicy(BaseRoutingPolicy):
         """
         params = DistancePSOParams(
             population_size=values.get("population_size", 20),
-            initial_attraction=values.get("initial_attraction", 1.0),
-            distance_decay=values.get("distance_decay", 0.01),
-            exploration_rate=values.get("exploration_rate", 0.1),
-            n_removal=values.get("n_removal", 3),
             max_iterations=values.get("max_iterations", 500),
-            local_search_iterations=values.get("local_search_iterations", 500),
+            inertia_weight_start=values.get("inertia_weight_start", 0.9),
+            inertia_weight_end=values.get("inertia_weight_end", 0.4),
+            cognitive_coef=values.get("cognitive_coef", 2.0),
+            social_coef=values.get("social_coef", 2.0),
+            n_removal=values.get("n_removal", 3),
+            velocity_to_mutation_rate=values.get("velocity_to_mutation_rate", 0.1),
+            local_search_iterations=values.get("local_search_iterations", 100),
             time_limit=values.get("time_limit", 60.0),
             alpha_profit=values.get("alpha_profit", 1.0),
             beta_will=values.get("beta_will", 0.5),
             gamma_cost=values.get("gamma_cost", 0.3),
+            vrpp=values.get("vrpp", False),
+            profit_aware_operators=values.get("profit_aware_operators", True),
+            seed=values.get("seed", 42),
         )
 
         solver = DistancePSOSolver(
@@ -77,7 +82,6 @@ class DistancePSOPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

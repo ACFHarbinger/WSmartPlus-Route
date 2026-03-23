@@ -88,6 +88,7 @@ def run_local_branching_gurobi(
     model.setParam("OutputFlag", 0)
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
+    model.setParam("NodeLimit", mip_limit_nodes)
 
     # 1. Setup the core mathematical formulation with DFJ lazy constraints
     # CRITICAL: use_binary_vars=True because LB needs integer solutions, not LP relaxation

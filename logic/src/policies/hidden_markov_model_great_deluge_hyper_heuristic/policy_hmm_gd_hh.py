@@ -55,8 +55,11 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
             learning_rate=float(values.get("learning_rate", 0.1)),
             n_removal=int(values.get("n_removal", 2)),
             n_llh=int(values.get("n_llh", 5)),
-            time_limit=float(values.get("time_limit", 60.0)),
             local_search_iterations=int(values.get("local_search_iterations", 500)),
+            time_limit=float(values.get("time_limit", 60.0)),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         solver = HMMGDHHSolver(
@@ -67,7 +70,6 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

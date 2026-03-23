@@ -122,7 +122,6 @@ class ALNSSARSASolver:
         params: Any,
         rl_params: Any,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
         evaluator=None,
     ):
         """Initialize enhanced ALNS-SARSA solver."""
@@ -138,7 +137,7 @@ class ALNSSARSASolver:
         self.expand_pool = getattr(rl_params, "vrpp", False)
         self.profit_aware_operators = getattr(rl_params, "profit_aware_operators", False)
         self.improvement_thresholds = rl_params.sarsa_improvement_thresholds
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -164,10 +163,10 @@ class ALNSSARSASolver:
             epsilon=rl_params.sarsa_epsilon,
             epsilon_decay=rl_params.sarsa_epsilon_decay,
             epsilon_min=rl_params.sarsa_epsilon_min,
-            seed=seed,
+            seed=params.seed,
         )
         # Seeds for agent
-        self.agent_rng = np.random.default_rng(seed)
+        self.agent_rng = np.random.default_rng(params.seed)
 
         # Tracking
         self.stagnation_count = 0

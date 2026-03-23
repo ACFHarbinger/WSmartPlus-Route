@@ -1,28 +1,35 @@
 """
-RL-GD-HH Solver for VRPP.
+Reinforcement Learning + Great Deluge Hyper-Heuristic (RL-GD-HH) for VRPP.
 
-This solver implements the Reinforcement Learning – Great Deluge Hyper-Heuristic
-framework. It utilizes online learning to select the most effective
-neighborhood-search operators (Low-Level Heuristics) and a threshold-based
-Great Deluge algorithm to manage move acceptance across the search trajectory.
+This solver implements the adaptive selection of Low-Level Heuristics (LLHs)
+using a Reinforcement Learning (RL) mechanism paired with a Great Deluge (GD)
+acceptance criterion.
 
-Reference:
-    Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. (2010).
-    "A Reinforcement Learning – Great-Deluge Hyper-heuristic for Examination Timetabling".
-    Bibliography: bibliography/Reinforcement_Learning_Great_Deluge_Hyper-Heuristic.pdf
+Key components:
+1.  **RL-Based Selection**: Maintains a utility/score for each LLH, updated
+    based on its performance (reward) in terms of solution improvement.
+2.  **Great Deluge Acceptance**: Accept any candidate solution whose quality
+    (profit) is above a linearly increasing water level.
+3.  **LLH Pool**: A diverse set of ruin-and-recreate operators.
+
+References:
+    - Ozcan, E., et al. (2010). "Reinforcement learning-great deluge
+      hyper-heuristic for solving examination timetabling problems."
 """
 
-import contextlib
 import copy
 import random
 import time
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
 from ..other.operators import (
     greedy_insertion,
+    random_removal,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    shaw_profit_removal,
     shaw_removal,
     string_removal,
 )
@@ -31,17 +38,7 @@ from .params import RLGDHHParams
 
 class RLGDHHSolver:
     """
-    Reinforcement Learning Great Deluge Hyper-Heuristic Solver.
-
-    The solver coordinates multiple independent search operators (LLHs)
-    using a Reinforcement Learning scheme (RL) that assigns utilities
-    based on success. Solution eligibility is determined by the "Water Level"
-    of the Great Deluge mechanism, which provides a deterministic,
-    time-dependent threshold for escaping local optima.
-
-    Algorithm Structure:
-    - RL: 'Max' selection strategy based on success-driven utility.
-    - GD: Time-based linear level growth (Section 3.2 of the paper).
+    RL-GD-HH solver implementation for VRPP.
     """
 
     def __init__(
@@ -53,21 +50,7 @@ class RLGDHHSolver:
         C: float,
         params: RLGDHHParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
-        """
-        Initialize the RL-GD-HH solver.
-
-        Args:
-            dist_matrix: Pairwise node distances.
-            wastes: Node profits ($).
-            capacity: Vehicle capacity constraint.
-            R: Revenue coefficient ($/unit).
-            C: Cost coefficient ($/km).
-            params: Parameters for RL selection and GD acceptance.
-            mandatory_nodes: Nodes that must appear in even feasible routes.
-            seed: RNG seed for reproducible execution.
-        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -77,161 +60,121 @@ class RLGDHHSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
-        self.start_time = time.process_time()
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
-        # Define our pool of Low-Level Heuristics (LLHs)
-        self.heuristics: List[Callable] = [
-            self._llh_swap,
+        # Initialise LLH utilities (scores)
+        self.utilities = [self.params.initial_utility] * 4
+        self._llh_pool = [
             self._llh_relocate,
-            self._llh_2opt,
             self._llh_shaw,
             self._llh_string,
             self._llh_regret2,
         ]
 
-        # 1. Optimistic Initialization (Paper p. 16: "set all utilities to 0.75 * UB")
-        # This encourages early exploration of all operators.
-        init_val = 0.75 * self.params.utility_upper_bound
-        self.utilities = [init_val for _ in self.heuristics]
+    def solve(self) -> Tuple[List[List[int]], float, float]:
+        """Runs the RL-GD-HH metaheuristic."""
+        if not self.nodes:
+            return [], 0.0, 0.0
 
-    def solve(self) -> Tuple[List[List[int]], float]:
-        """
-        Executive main loop for the RL-GD-HH algorithm.
+        start_time = time.process_time()
 
-        Follows Figure 2 (Step-by-step logic) of Ozcan et al. (2010).
+        # Initial solution
+        current_routes = self._initialize_solution()
+        current_profit = self._evaluate(current_routes)
 
-        Algorithm Process:
-        1.  Initialize: Create initial feasible solution and calculate f0.
-        2.  Select: Choose heuristic with max utility ('Max' strategy).
-        3.  Apply & Evaluate: Transform current solution and measure fitness.
-        4.  Accept/Reject (GD): Compare candidate fitness against time-based level.
-        5.  Reinforce (RL): Increment/Decrement utility based on move quality.
+        best_routes = copy.deepcopy(current_routes)
+        best_profit = current_profit
 
-        Returns:
-            Tuple[List[List[int]], float]:
-                - best_solution: The most profitable routing found.
-                - best_fitness: The net profit score.
-        """
-        # Phase 1: Initial state construction
-        current_solution = self._initialize_solution()
-        current_fitness = self._evaluate(current_solution)
-        f0 = current_fitness  # Benchmark fitness for slope calculation
+        # water level (initialised based on initial profit)
+        water_level = current_profit * (1.0 - self.params.flood_margin) if current_profit > 0 else -100.0
 
-        best_solution = copy.deepcopy(current_solution)
-        best_fitness = current_fitness
-
-        # Estimate the target fitness (ideal end-of-search objective)
-        target_f = f0 * self.params.target_fitness_multiplier
-
-        # Main search loop
         for iteration in range(self.params.max_iterations):
-            elapsed = time.process_time() - self.start_time
-            if elapsed > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
                 break
 
-            # 2. Heuristic Selection (Paper Section 3.2: Max Strategy)
-            # Picks the 'best' performing operator currently in memory.
-            chosen_idx = self._select_heuristic()
-            heuristic = self.heuristics[chosen_idx]
+            # Selection Phase: Select LLH based on max utility (Ozcan et al. 2010)
+            # or epsilon-greedy/tournament
+            llh_idx = self._select_llh()
+            llh = self._llh_pool[llh_idx]
 
-            # Exploratory action
-            candidate_solution = heuristic(copy.deepcopy(current_solution))
-            candidate_fitness = self._evaluate(candidate_solution)
+            # Application Phase
+            new_routes = llh(copy.deepcopy(current_routes))
+            new_profit = self._evaluate(new_routes)
 
-            # 3. Dynamic Move Acceptance (Great Deluge Figure 2, Step 19)
-            # Level(t) = f0 + (TargetF - f0) * (t/T)
-            # Ozcan et al. (2010) Step 19-20: If f(S') >= f(S) OR f(S') >= Level, accept.
-            progress = min(1.0, elapsed / self.params.time_limit)
-            water_level = f0 + (target_f - f0) * progress
+            # Acceptance Phase: Great Deluge (Maximisation)
+            accepted = new_profit >= water_level
 
-            if candidate_fitness >= current_fitness:
-                # Improving or Equal Move: Always Accept (Paper Step 14)
-                current_solution = candidate_solution
-                current_fitness = candidate_fitness
-
-                # RL Reward (Step 15: "u_i = reward(u_i)")
-                self.utilities[chosen_idx] = min(
-                    self.params.utility_upper_bound,
-                    self.utilities[chosen_idx] + self.params.reward_improvement,
-                )
-
-                # Update Global Best
-                if current_fitness > best_fitness:
-                    best_solution = copy.deepcopy(current_solution)
-                    best_fitness = current_fitness
-            elif candidate_fitness >= water_level:
-                # Worsening but Acceptable Move (Paper Step 19-20)
-                current_solution = candidate_solution
-                current_fitness = candidate_fitness
-
-                # RL Penalty (Step 18: "u_i = punish(u_i)")
-                self.utilities[chosen_idx] = max(
-                    self.params.min_utility,
-                    self.utilities[chosen_idx] - self.params.penalty_worsening,
-                )
+            # Adaptation Phase (Reward RL)
+            reward = 0.0
+            if new_profit > current_profit:
+                reward = self.params.reward_improvement
+            elif new_profit == current_profit:
+                reward = self.params.reward_neutral
             else:
-                # Move Rejected (Below Water Level)
-                # RL Penalty (Step 18: "u_i = punish(u_i)")
-                self.utilities[chosen_idx] = max(
-                    self.params.min_utility,
-                    self.utilities[chosen_idx] - self.params.penalty_worsening,
-                )
+                reward = self.params.penalty_worsening
 
-            # Telemetry for visualization
-            if iteration % 10 == 0:
-                getattr(self, "_viz_record", lambda **k: None)(
-                    iteration=iteration,
-                    best_profit=best_fitness,
-                    best_cost=self._cost(best_solution),
-                )
+            self.utilities[llh_idx] = max(
+                self.params.utility_upper_bound, min(self.params.min_utility, self.utilities[llh_idx] + reward)
+            )
 
-        return best_solution, best_fitness
+            if accepted:
+                current_routes = new_routes
+                current_profit = new_profit
 
-    # ------------------------------------------------------------------
-    # Heuristic Selection Strategy
-    # ------------------------------------------------------------------
+                if current_profit > best_profit:
+                    best_routes = copy.deepcopy(current_routes)
+                    best_profit = current_profit
 
-    def _select_heuristic(self) -> int:
-        """
-        Selects an LLH using the 'Max' strategy.
+            # Update water level (flood rises linearly)
+            water_level += self.params.rain_speed * abs(best_profit + 1)
 
-        Paper Reference (p. 16):
-        "using maximal utility value to select a heuristic... reported to
-        outperform [roulette wheel] selection."
-        """
-        max_val = max(self.utilities)
-        indices = [i for i, val in enumerate(self.utilities) if val == max_val]
-        return self.random.choice(indices)
+            getattr(self, "_viz_record", lambda **k: None)(
+                iteration=iteration,
+                best_profit=best_profit,
+                current_profit=current_profit,
+                water_level=water_level,
+                selected_llh=llh_idx,
+            )
 
-    # ------------------------------------------------------------------
-    # Low-Level Heuristics (LLHs)
-    # ------------------------------------------------------------------
+        best_cost = self._cost(best_routes)
+        return best_routes, best_profit, best_cost
 
-    def _llh_swap(self, routes: List[List[int]]) -> List[List[int]]:
-        """Inter/Intra-route exchange of two randomly selected nodes."""
-        flat = [n for r in routes for n in r]
-        if len(flat) < 2:
-            return routes
-
-        n1, n2 = self.random.sample(flat, 2)
-        new_routes = []
-        for route in routes:
-            new_r = [n2 if n == n1 else n1 if n == n2 else n for n in route]
-            new_routes.append(new_r)
-        return new_routes
+    def _select_llh(self) -> int:
+        """Selects LLH index using max-utility with ties broken randomly."""
+        max_util = max(self.utilities)
+        candidates = [i for i, u in enumerate(self.utilities) if u == max_util]
+        return self.random.choice(candidates)
 
     def _llh_relocate(self, routes: List[List[int]]) -> List[List[int]]:
-        """Random node relocation using greedy insertion feasibility check."""
-        flat = [n for r in routes for n in r]
-        if not flat:
+        """Simple node relocation (1-0 exchange)."""
+        if not routes:
             return routes
+        new_routes = copy.deepcopy(routes)
+        ridx = self.random.randint(0, len(new_routes) - 1)
+        if not new_routes[ridx]:
+            return new_routes
 
-        node = self.random.choice(flat)
-        new_routes = [[n for n in r if n != node] for r in routes]
-        new_routes = [r for r in new_routes if r]
+        n_idx = self.random.randint(0, len(new_routes[ridx]) - 1)
+        node = new_routes[ridx].pop(n_idx)
 
-        with contextlib.suppress(Exception):
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        if use_profit:
+            from ..other.operators import greedy_profit_insertion
+
+            new_routes = greedy_profit_insertion(
+                new_routes,
+                [node],
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+        else:
             new_routes = greedy_insertion(
                 new_routes,
                 [node],
@@ -239,62 +182,103 @@ class RLGDHHSolver:
                 self.wastes,
                 self.capacity,
                 mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
             )
         return new_routes
-
-    def _llh_2opt(self, routes: List[List[int]]) -> List[List[int]]:
-        """Geometric-based route inversion to untangle crossed edges."""
-        if not routes:
-            return routes
-        ridx = self.random.randint(0, len(routes) - 1)
-        route = routes[ridx]
-
-        if len(route) >= 3:
-            i, j = sorted(self.random.sample(range(len(route)), 2))
-            routes[ridx] = route[:i] + route[i:j][::-1] + route[j:]
-
-        return routes
 
     def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
         """Shaw removal + regret-2 insertion."""
         n = max(1, min(len(self.nodes) // 4, 10))
-        partial, removed = shaw_removal(routes, n, self.dist_matrix)
-        return regret_2_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        if use_profit:
+            partial, removed = shaw_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return regret_2_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+        else:
+            partial, removed = shaw_removal(routes, n, self.dist_matrix)
+            return regret_2_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
 
     def _llh_string(self, routes: List[List[int]]) -> List[List[int]]:
         """String removal + greedy insertion."""
         n = max(1, min(len(self.nodes) // 4, 10))
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
         partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
-        return greedy_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+
+        if use_profit:
+            from ..other.operators import greedy_profit_insertion
+
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+        else:
+            return greedy_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
 
     def _llh_regret2(self, routes: List[List[int]]) -> List[List[int]]:
         """Random removal + regret-2 insertion."""
         n = max(1, min(len(self.nodes) // 5, 5))
-        from ..other.operators import random_removal
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
         partial, removed = random_removal(routes, n, rng=self.random)
-        return regret_2_insertion(
-            partial,
-            removed,
-            self.dist_matrix,
-            self.wastes,
-            self.capacity,
-            mandatory_nodes=self.mandatory_nodes,
-        )
+        if use_profit:
+            return regret_2_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
+        else:
+            return regret_2_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=expand_pool,
+            )
 
     # ------------------------------------------------------------------
     # Functional Helpers
@@ -302,11 +286,13 @@ class RLGDHHSolver:
 
     def _initialize_solution(self) -> List[List[int]]:
         """Randomized greedy construction of a starting feasible routing."""
+        import copy
+
         nodes = copy.copy(self.nodes)
         self.random.shuffle(nodes)
         from ..other.operators import greedy_profit_insertion
 
-        with contextlib.suppress(Exception):
+        try:
             return greedy_profit_insertion(
                 [],
                 nodes,
@@ -317,7 +303,8 @@ class RLGDHHSolver:
                 C=self.C,
                 mandatory_nodes=self.mandatory_nodes,
             )
-        return [[n] for n in nodes]
+        except Exception:
+            return [[n] for n in nodes]
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Calculates fitness F(g) as Net Profit ($)."""
@@ -333,7 +320,7 @@ class RLGDHHSolver:
             if not route:
                 continue
             total += self.dist_matrix[0][route[0]]
-            for k in range(len(route) - 1):
-                total += self.dist_matrix[route[k]][route[k + 1]]
+            for i in range(len(route) - 1):
+                total += self.dist_matrix[route[i]][route[i + 1]]
             total += self.dist_matrix[route[-1]][0]
         return total

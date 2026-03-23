@@ -32,8 +32,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion
+from ..other.operators import greedy_insertion, greedy_profit_insertion
+from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
 from .params import DEParams
 
 
@@ -57,7 +60,6 @@ class DESolver:
         C: float,
         params: DEParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the DE solver.
@@ -70,7 +72,6 @@ class DESolver:
             C: Cost per unit distance traveled.
             params: DE configuration parameters.
             mandatory_nodes: Nodes that must be included in any solution.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -81,12 +82,15 @@ class DESolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Pre-instantiate local search for reuse
-        from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -94,7 +98,6 @@ class DESolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -220,14 +223,28 @@ class DESolver:
 
         # Build solution using greedy insertion for feasibility
         try:
-            mutant = greedy_insertion(
-                [],
-                sorted(list(mutant_nodes)),
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                mutant = greedy_profit_insertion(
+                    [],
+                    sorted(list(mutant_nodes)),
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                mutant = greedy_insertion(
+                    [],
+                    sorted(list(mutant_nodes)),
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
             # Local search is an extension common in VRP-DE
             return self.ls.optimize(mutant)
         except Exception:
@@ -279,14 +296,28 @@ class DESolver:
             return copy.deepcopy(target)
 
         try:
-            trial_routes = greedy_insertion(
-                [],
-                sorted(list(trial_nodes)),
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                trial_routes = greedy_profit_insertion(
+                    [],
+                    sorted(list(trial_nodes)),
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                trial_routes = greedy_insertion(
+                    [],
+                    sorted(list(trial_nodes)),
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
             return trial_routes
         except Exception:
             return copy.deepcopy(target)
@@ -297,24 +328,20 @@ class DESolver:
 
     def _initialize_solution(self) -> List[List[int]]:
         """
-        Create initial solution using nearest neighbor heuristic.
+        Create initial solution using greedy constructive heuristic.
 
         Returns:
             Initial routing solution.
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
-
-        routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.rng,
         )
-        return routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """

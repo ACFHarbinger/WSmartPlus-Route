@@ -18,9 +18,6 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 def _run_hexaly_optimizer(  # noqa: C901
     bins: NDArray[np.float64],
     distancematrix: List[List[float]],
-    param: float,
-    media: NDArray[np.float64],
-    desviopadrao: NDArray[np.float64],
     values: Dict[str, float],
     must_go: List[int],
     number_vehicles: int = 1,

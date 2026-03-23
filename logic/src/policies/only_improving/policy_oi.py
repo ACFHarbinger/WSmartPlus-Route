@@ -46,6 +46,9 @@ class OnlyImprovingPolicy(BaseRoutingPolicy):
             n_removal=values.get("n_removal", 2),
             n_llh=values.get("n_llh", 5),
             time_limit=values.get("time_limit", 60.0),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
         solver = OISolver(
             dist_matrix=sub_dist_matrix,
@@ -55,6 +58,5 @@ class OnlyImprovingPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
         return solver.solve()

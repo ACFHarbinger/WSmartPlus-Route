@@ -44,8 +44,14 @@ import numpy as np
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-from ..other.operators import greedy_insertion, random_removal
-from .params import HybridMemeticSearchParams
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+    worst_profit_removal,
+    worst_removal,
+)
+from .params import HMSParams
 
 
 class HybridMemeticSearchSolver:
@@ -61,9 +67,8 @@ class HybridMemeticSearchSolver:
         capacity: float,
         R: float,
         C: float,
-        params: HybridMemeticSearchParams,
+        params: HMSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize HMS solver.
@@ -76,7 +81,6 @@ class HybridMemeticSearchSolver:
             C: Cost per unit of distance traveled.
             params: HMS algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -87,7 +91,7 @@ class HybridMemeticSearchSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Initialize ACO solver for population initialization
         self.aco_solver = KSparseACOSolver(
@@ -98,7 +102,6 @@ class HybridMemeticSearchSolver:
             C=C,
             params=params.aco_params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
 
         # Initialize ALNS solver for coaching phase
@@ -110,7 +113,6 @@ class HybridMemeticSearchSolver:
             C=C,
             params=params.alns_params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -339,32 +341,94 @@ class HybridMemeticSearchSolver:
 
         # Rebuild routes
         try:
-            return greedy_insertion(
-                [],
-                child_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                return greedy_profit_insertion(
+                    [],
+                    child_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                return greedy_insertion(
+                    [],
+                    child_nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
         except Exception:
             return copy.deepcopy(parent1)
 
     def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
         """Mutation operator using destroy-repair."""
         try:
-            n_remove = max(2, int(sum(len(r) for r in routes) * 0.2))
+            n_remove = max(1, int(len([n for r in routes for n in r]) * 0.1))
             partial, removed = random_removal(routes, n_remove, self.random)
-            return greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+
+            if self.params.profit_aware_operators:
+                return greedy_profit_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                return greedy_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+        except Exception:
+            return copy.deepcopy(routes)
+
+    def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
+        """Intra-team perturbation: worst-removal and greedy-insertion."""
+        n = max(3, self.params.n_removal)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        try:
+            if use_profit:
+                partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R)
+                repaired = greedy_profit_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                partial, removed = worst_removal(routes, n, self.dist_matrix)
+                repaired = greedy_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    R=self.R,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            return self.ls.optimize(repaired)
         except Exception:
             return copy.deepcopy(routes)
 

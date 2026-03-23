@@ -26,7 +26,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..other.operators import greedy_insertion_with_blinks, string_removal
+from ..other.operators import (
+    greedy_insertion_with_blinks,
+    greedy_profit_insertion_with_blinks,
+    string_removal,
+)
 from .params import SISRParams
 
 
@@ -44,7 +48,6 @@ class SISRSolver:
         C: float,
         params: SISRParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize SISR Solver.
@@ -56,7 +59,6 @@ class SISRSolver:
             R: Revenue multiplier.
             C: Cost multiplier.
             params: Parameters for the SISR algorithm.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -65,7 +67,7 @@ class SISRSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """
@@ -91,26 +93,41 @@ class SISRSolver:
             # SISR Iteration
             # 1. Destroy
             partial_routes, removed = string_removal(
-                copy.deepcopy(current_routes),
-                n_remove,
-                self.dist_matrix,
+                routes=copy.deepcopy(current_routes),
+                n_remove=n_remove,
+                dist_matrix=self.dist_matrix,
                 max_string_len=self.params.max_string_len,
                 avg_string_len=self.params.avg_string_len,
                 rng=self.random,
             )
 
             # 2. Repair
-            new_routes = greedy_insertion_with_blinks(
-                partial_routes,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                capacity=self.capacity,
-                blink_rate=self.params.blink_rate,
-                mandatory_nodes=self.mandatory_nodes,
-                rng=self.random,
-                expand_pool=True,
-            )
+            if self.params.profit_aware_operators:
+                new_routes = greedy_profit_insertion_with_blinks(
+                    routes=partial_routes,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    blink_rate=self.params.blink_rate,
+                    mandatory_nodes=self.mandatory_nodes,
+                    rng=self.random,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                new_routes = greedy_insertion_with_blinks(
+                    routes=partial_routes,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    blink_rate=self.params.blink_rate,
+                    mandatory_nodes=self.mandatory_nodes,
+                    rng=self.random,
+                    expand_pool=self.params.vrpp,
+                )
 
             # Calculate profit instead of cost for maximizing
             collected_revenue = sum(self.wastes.get(node, 0) * self.R for route in new_routes for node in route)

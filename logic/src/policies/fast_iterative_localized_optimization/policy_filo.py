@@ -4,7 +4,6 @@ FILO Policy Adapter.
 Adapts the Fast Iterative Localized Optimization (FILO) logic to the agnostic interface.
 """
 
-from dataclasses import fields as dc_fields
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -57,11 +56,22 @@ class FILOPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
-        # Build configuration and extract structured params
-        valid_fields = {f.name for f in dc_fields(FILOConfig)}
-        filtered_values = {k: v for k, v in values.items() if k in valid_fields}
-        filo_config = FILOConfig(**filtered_values)
-        params = FILOParams.from_config(filo_config)
+        # Build parameters from config
+        params = FILOParams(
+            time_limit=float(values.get("time_limit", 60.0)),
+            max_iterations=int(values.get("max_iterations", 100)),
+            initial_temperature_factor=float(values.get("initial_temperature_factor", 10.0)),
+            final_temperature_factor=float(values.get("final_temperature_factor", 100.0)),
+            shaking_lb_factor=float(values.get("shaking_lb_factor", 0.5)),
+            shaking_ub_factor=float(values.get("shaking_ub_factor", 2.0)),
+            delta_gamma=float(values.get("delta_gamma", 0.1)),
+            gamma_base=float(values.get("gamma_base", 1.0)),
+            omega_base_multiplier=float(values.get("omega_base_multiplier", 1.0)),
+            local_search_iterations=int(values.get("local_search_iterations", 500)),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+        )
 
         solver = FILOSolver(
             dist_matrix=sub_dist_matrix,

@@ -26,7 +26,11 @@ import numpy as np
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-from ..other.operators import greedy_insertion, random_removal
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+)
 from .params import HVPLParams
 
 
@@ -45,7 +49,6 @@ class HVPLSolver:
         C: float,
         params: HVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize HVPL solver.
@@ -58,7 +61,6 @@ class HVPLSolver:
             C: Cost per unit of distance traveled.
             params: HVPL algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
-            seed: Random seed for reproducibility.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -69,7 +71,11 @@ class HVPLSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+
+        # Ensure parameters are properly initialized
+        assert params.aco_params is not None, "aco_params must be initialized"
+        assert params.alns_params is not None, "alns_params must be initialized"
 
         # Initialize ACO solver for population initialization
         self.aco_solver = KSparseACOSolver(
@@ -80,7 +86,6 @@ class HVPLSolver:
             C=C,
             params=params.aco_params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
 
         # Initialize ALNS solver for coaching phase
@@ -92,7 +97,6 @@ class HVPLSolver:
             C=C,
             params=params.alns_params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -219,16 +223,17 @@ class HVPLSolver:
 
     def _random_construction(self) -> List[List[int]]:
         """Build a random routing solution."""
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+            build_greedy_routes,
+        )
 
-        return build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
         )
 
@@ -323,15 +328,28 @@ class HVPLSolver:
 
         # Rebuild routes
         try:
-            return greedy_insertion(
-                [],
-                child_nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                return greedy_profit_insertion(
+                    routes=[],
+                    removed_nodes=child_nodes,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                return greedy_insertion(
+                    routes=[],
+                    removed_nodes=child_nodes,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
         except Exception:
             return copy.deepcopy(parent1)
 
@@ -340,15 +358,28 @@ class HVPLSolver:
         try:
             n_remove = max(2, int(sum(len(r) for r in routes) * 0.2))
             partial, removed = random_removal(routes, n_remove, self.random)
-            return greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                return greedy_profit_insertion(
+                    routes=partial,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
+            else:
+                return greedy_insertion(
+                    routes=partial,
+                    removed_nodes=removed,
+                    dist_matrix=self.dist_matrix,
+                    wastes=self.wastes,
+                    capacity=self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.params.vrpp,
+                )
         except Exception:
             return copy.deepcopy(routes)
 
@@ -441,6 +472,7 @@ class HVPLSolver:
             return
 
         # Evaporate
+        assert self.params.aco_params is not None
         self.aco_solver.pheromone.evaporate_all(self.params.aco_params.rho)
 
         # Deposit on best solution edges

@@ -39,7 +39,6 @@ class HGSSolver:
         C: float,
         params: HGSParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the HGS solver.
@@ -52,7 +51,6 @@ class HGSSolver:
             C: Cost multiplier.
             params: Detailed HGS parameters.
             mandatory_nodes: List of local node indices that MUST be visited.
-            seed: Random seed for reproducibility.
         """
         self.d = dist_matrix
         self.wastes = wastes
@@ -61,13 +59,15 @@ class HGSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
-        self.split_manager = LinearSplit(dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes)
-        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params, seed=seed)
+        self.split_manager = LinearSplit(
+            dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes, vrpp=params.vrpp
+        )
+        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params)
 
     def _initialize_population(self, penalty_capacity: float) -> Tuple[List[Individual], List[Individual]]:
         """

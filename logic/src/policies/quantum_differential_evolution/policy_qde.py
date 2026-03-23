@@ -51,7 +51,11 @@ class QDEPolicy(BaseRoutingPolicy):
             CR=float(values.get("CR", 0.7)),
             max_iterations=int(values.get("max_iterations", 200)),
             time_limit=float(values.get("time_limit", 60.0)),
-            n_removal=int(values.get("n_removal", 2)),
+            delta_theta=float(values.get("delta_theta", 0.01 * 3.14159)),
+            local_search_iterations=int(values.get("local_search_iterations", 100)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = QDESolver(
@@ -62,7 +66,6 @@ class QDEPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

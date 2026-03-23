@@ -61,7 +61,6 @@ class RLAHVPLSolver:
         C: float,
         params: RLAHVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize ultimate RL-AHVPL solver.
@@ -74,7 +73,6 @@ class RLAHVPLSolver:
             C: Cost multiplier.
             params: RLAHVPLParams parameters.
             mandatory_nodes: Mandatory nodes to visit.
-            seed: Random seed.
         """
         self.dist_matrix = np.array(dist_matrix)
         self.wastes = wastes.copy()
@@ -89,7 +87,7 @@ class RLAHVPLSolver:
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # Enhanced ACO with Q-Learning
         self.aco_solver = KSparseACOQLSolver(
@@ -101,7 +99,6 @@ class RLAHVPLSolver:
             params.aco_params,
             rl_params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=seed,
         )
         self.pheromone = self.aco_solver.pheromone
         self.constructor = self.aco_solver.constructor
@@ -116,7 +113,6 @@ class RLAHVPLSolver:
             params.alns_params,
             params,
             mandatory_nodes,
-            seed=seed,
             evaluator=self._augmented_evaluate,
         )
 
@@ -129,6 +125,7 @@ class RLAHVPLSolver:
             C,
             params.hgs_params.max_vehicles,
             mandatory_nodes,
+            params.vrpp,
         )
 
         cfe_params = {

@@ -5,6 +5,7 @@ Configuration parameters for the Guided Local Search (GLS) solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -33,3 +34,6 @@ class GLSParams:
     n_llh: int = 5
     inner_iterations: int = 20
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False

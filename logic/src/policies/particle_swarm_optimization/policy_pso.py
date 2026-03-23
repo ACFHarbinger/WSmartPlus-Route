@@ -67,18 +67,20 @@ class PSOPolicyAdapter(BaseRoutingPolicy):
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
-        cfg = self._parse_config(values, PSOConfig)
         params = PSOParams(
-            pop_size=cfg.pop_size,
-            inertia_weight_start=cfg.inertia_weight_start,
-            inertia_weight_end=cfg.inertia_weight_end,
-            cognitive_coef=cfg.cognitive_coef,
-            social_coef=cfg.social_coef,
-            position_min=cfg.position_min,
-            position_max=cfg.position_max,
-            velocity_max=cfg.velocity_max,
-            max_iterations=cfg.max_iterations,
-            time_limit=cfg.time_limit,
+            pop_size=values.get("pop_size", 30),
+            inertia_weight_start=values.get("inertia_weight_start", 0.9),
+            inertia_weight_end=values.get("inertia_weight_end", 0.4),
+            cognitive_coef=values.get("cognitive_coef", 2.0),
+            social_coef=values.get("social_coef", 2.0),
+            position_min=values.get("position_min", -1.0),
+            position_max=values.get("position_max", 1.0),
+            velocity_max=values.get("velocity_max", 0.5),
+            max_iterations=values.get("max_iterations", 500),
+            time_limit=values.get("time_limit", 60.0),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = PSOSolver(
@@ -89,7 +91,6 @@ class PSOPolicyAdapter(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=cfg.seed if cfg.seed is not None else kwargs.get("seed"),
         )
         return solver.solve()
 

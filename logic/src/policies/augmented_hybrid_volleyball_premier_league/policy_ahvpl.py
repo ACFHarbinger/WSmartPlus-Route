@@ -75,6 +75,9 @@ class AHVPLPolicy(BaseRoutingPolicy):
             local_search_iterations=values.get("aco_local_search_iterations", 0),
             elitist_weight=values.get("aco_elitist_weight", 1.0),
             time_limit=values.get("aco_time_limit", values.get("time_limit", 60.0)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         alns_params = ALNSParams(
@@ -85,6 +88,9 @@ class AHVPLPolicy(BaseRoutingPolicy):
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
             time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         hgs_params = HGSParams(
@@ -101,6 +107,9 @@ class AHVPLPolicy(BaseRoutingPolicy):
             nb_granular=values.get("hgs_neighbor_list_size", 10),
             local_search_iterations=values.get("hgs_local_search_iterations", 500),
             max_vehicles=values.get("hgs_max_vehicles", 0),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         params = AHVPLParams(
@@ -113,6 +122,9 @@ class AHVPLPolicy(BaseRoutingPolicy):
             hgs_params=hgs_params,
             aco_params=aco_params,
             alns_params=alns_params,
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = AHVPLSolver(
@@ -123,7 +135,6 @@ class AHVPLPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, solver_cost = solver.solve()

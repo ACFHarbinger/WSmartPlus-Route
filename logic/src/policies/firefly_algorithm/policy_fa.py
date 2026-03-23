@@ -53,9 +53,13 @@ class FAPolicy(BaseRoutingPolicy):
             beta_will=float(values.get("beta_will", 0.3)),
             gamma_cost=float(values.get("gamma_cost", 0.2)),
             alpha_rnd=float(values.get("alpha_rnd", 0.2)),
+            n_removal=int(values.get("n_removal", 3)),
             max_iterations=int(values.get("max_iterations", 100)),
-            time_limit=float(values.get("time_limit", 60.0)),
             local_search_iterations=int(values.get("local_search_iterations", 500)),
+            time_limit=float(values.get("time_limit", 60.0)),
+            seed=values.get("seed", 42),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
         solver = FASolver(
@@ -66,7 +70,6 @@ class FAPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

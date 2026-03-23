@@ -1,187 +1,127 @@
 """
-Policy adapter for Branch-and-Cut VRPP solver.
+Branch-and-Cut (BC) Policy Adapter.
 
-Integrates the Branch-and-Cut algorithm into the WSmart+ Route policy framework.
+Adapts the core Branch-and-Cut solver logic to the systems-agnostic
+policy interface, handling parameter mapping, profit calculation, and environment
+integration.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
-import pandas as pd
 
-from logic.src.policies.branch_and_cut.bc import GUROBI_AVAILABLE, BranchAndCutSolver
-from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
+from logic.src.configs.policies import BCConfig
+from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.base.factory import PolicyRegistry
+
+from .bc import BranchAndCutSolver
+from .vrpp_model import VRPPModel
 
 
-class PolicyBC:
+@PolicyRegistry.register("bc")
+class BranchAndCutPolicy(BaseRoutingPolicy):
     """
-    Branch-and-Cut policy for VRPP.
+    Adapter for the Branch-and-Cut routing solver.
 
-    This policy uses an exact branch-and-cut algorithm to solve the Vehicle Routing
-    Problem with Profits optimally (within time limits and MIP gap tolerance).
+    This policy implements an exact optimization method that combines:
+    - Cutting planes to strengthen LP relaxations
+    - Branch-and-bound for integer optimization
+    - Separation algorithms for subtour elimination and capacity constraints
+
+    As an exact solver, it provides provable optimality guarantees within
+    the specified MIP gap and time limit.
     """
 
-    def __init__(
-        self,
-        time_limit: float = 60.0,
-        mip_gap: float = 0.01,
-        max_cuts_per_round: int = 50,
-        use_heuristics: bool = True,
-        verbose: bool = False,
-        profit_aware_operators: bool = False,
-        vrpp: bool = False,
-    ):
-        """
-        Initialize Branch-and-Cut policy.
+    def __init__(self, config: Optional[Union[BCConfig, Dict[str, Any]]] = None):
+        """Initialize the BC policy adapter.
 
         Args:
-            time_limit: Maximum solving time in seconds.
-            mip_gap: Relative MIP gap tolerance.
-            max_cuts_per_round: Maximum cuts to add per separation round.
-            use_heuristics: Whether to use primal heuristics for warm start.
-            verbose: Print detailed solving information.
-            profit_aware_operators: Whether to use profit-aware heuristics.
-            vrpp: Whether to use VRPP pool expansion in heuristics.
+            config: A typed BCConfig dataclass, a raw dictionary for parsing,
+                or None to use framework defaults.
         """
-        if not GUROBI_AVAILABLE:
-            raise ImportError(
-                "Gurobi is required for Branch-and-Cut solver. Please ensure Gurobi is installed and licensed."
-            )
+        super().__init__(config)
 
-        self.time_limit = time_limit
-        self.mip_gap = mip_gap
-        self.max_cuts_per_round = max_cuts_per_round
-        self.use_heuristics = use_heuristics
-        self.verbose = verbose
-        self.profit_aware_operators = profit_aware_operators
-        self.vrpp = vrpp
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        """Return the configuration dataclass type for automatic parsing."""
+        return BCConfig
 
-        self.name = "branch_and_cut"
-        self.stats: Dict[str, Any] = {}
+    def _get_config_key(self) -> str:
+        """Return the unique identification key for this policy's configuration."""
+        return "bc"
 
-    def __call__(
+    def _run_solver(
         self,
-        coords: pd.DataFrame,
-        must_go: List[int],
-        distance_matrix: np.ndarray,
-        wastes: Dict[int, float],
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
         capacity: float,
-        R: float,
-        C: float,
-        **kwargs,
-    ) -> Tuple[List[int], float, Dict[str, Any]]:
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
         """
-        Solve VRPP instance using Branch-and-Cut.
+        Run Branch-and-Cut solver.
+
+        All nodes in mandatory_nodes are treated as must-go for the solver.
+        In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
 
         Args:
-            coords: DataFrame with node coordinates (unused, we use distance_matrix).
-            must_go: List of mandatory node indices to visit.
-            distance_matrix: N×N distance matrix.
-            wastes: Dictionary mapping node index to waste/demand.
-            capacity: Vehicle capacity.
-            R: Revenue per kg of waste collected.
-            C: Cost per km traveled.
-            **kwargs: Additional arguments.
+            sub_dist_matrix: The localized distance matrix for candidates.
+            sub_wastes: Current fill levels for available customer nodes.
+            capacity: The maximum payload of the vehicle.
+            revenue: Expected revenue per unit of waste collected.
+            cost_unit: Cost per unit of distance traveled.
+            values: Merged configuration dictionary from simulation and YAML.
+            mandatory_nodes: Indices of nodes that MUST be visited.
+            **kwargs: Additional solver parameters.
 
         Returns:
-            Tuple of (tour, profit, statistics).
+            A tuple containing (List of routes, total profit, total travel cost).
         """
-        n_nodes = len(distance_matrix)
+        n_nodes = len(sub_dist_matrix)
 
         # Build VRPP model
         model = VRPPModel(
             n_nodes=n_nodes,
-            cost_matrix=distance_matrix,
-            wastes=wastes,
+            cost_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
             capacity=capacity,
-            revenue_per_kg=R,
-            cost_per_km=C,
-            mandatory_nodes=set(must_go) if must_go else set(),
+            revenue_per_kg=revenue,
+            cost_per_km=cost_unit,
+            mandatory_nodes=set(mandatory_nodes),
         )
 
-        # Create solver
+        # Create solver with configuration parameters
         solver = BranchAndCutSolver(
             model=model,
-            time_limit=self.time_limit,
-            mip_gap=self.mip_gap,
-            max_cuts_per_round=self.max_cuts_per_round,
-            use_heuristics=self.use_heuristics,
-            verbose=self.verbose,
-            profit_aware_operators=self.profit_aware_operators,
-            vrpp=self.vrpp,
+            time_limit=values.get("time_limit", 300.0),
+            mip_gap=values.get("mip_gap", 0.0),
+            max_cuts_per_round=values.get("max_cuts_per_round", 50),
+            use_heuristics=values.get("use_heuristics", True),
+            verbose=values.get("verbose", False),
+            profit_aware_operators=kwargs.get("profit_aware_operators", False),
+            vrpp=kwargs.get("vrpp", False),
         )
 
         # Solve
         tour, profit, stats = solver.solve()
 
-        # Validate solution
-        is_valid, message = model.validate_tour(tour)
-        if not is_valid and self.verbose:
-            print(f"Warning: Invalid solution - {message}")
+        # Convert tour to routes format (single route for single vehicle)
+        # Remove depot (0) from tour for route representation
+        if tour and len(tour) > 2:  # More than just depot visits
+            route = [node for node in tour if node != 0]
+            routes = [route] if route else []
+        else:
+            routes = []
 
-        # Store statistics
-        self.stats = stats
-        self.stats["valid"] = is_valid
-        self.stats["validation_message"] = message
+        # Calculate actual distance cost
+        dist_cost = 0.0
+        if tour:
+            for i in range(len(tour) - 1):
+                dist_cost += sub_dist_matrix[tour[i]][tour[i + 1]]
+            dist_cost *= cost_unit
 
-        # Convert profit to cost for consistency with other policies
-        # (other policies minimize cost, so we return negative profit)
-        cost = -profit if profit > 0 else 0.0
-
-        return tour, cost, self.stats
-
-
-def run_branch_and_cut(
-    coords: pd.DataFrame,
-    must_go: List[int],
-    distance_matrix: np.ndarray,
-    wastes: Dict[int, float],
-    capacity: float,
-    R: float,
-    C: float,
-    time_limit: float = 60.0,
-    mip_gap: float = 0.01,
-    verbose: bool = False,
-    profit_aware_operators: bool = False,
-    vrpp: bool = False,
-    **kwargs,
-) -> Tuple[List[int], float, Dict[str, Any]]:
-    """
-    Convenience function for running Branch-and-Cut solver.
-
-    Args:
-        coords: DataFrame with node coordinates.
-        must_go: List of mandatory node indices.
-        distance_matrix: N×N distance matrix.
-        wastes: Dictionary mapping node index to waste/demand.
-        capacity: Vehicle capacity.
-        R: Revenue per kg.
-        C: Cost per km.
-        time_limit: Maximum solving time.
-        mip_gap: MIP gap tolerance.
-        verbose: Print detailed output.
-        profit_aware_operators: Whether to use profit-aware heuristics.
-        vrpp: Whether to use VRPP pool expansion in heuristics.
-        **kwargs: Additional arguments.
-
-    Returns:
-        Tuple of (tour, cost, statistics).
-    """
-    policy = PolicyBC(
-        time_limit=time_limit,
-        mip_gap=mip_gap,
-        verbose=verbose,
-        profit_aware_operators=profit_aware_operators,
-        vrpp=vrpp,
-    )
-
-    return policy(
-        coords=coords,
-        must_go=must_go,
-        distance_matrix=distance_matrix,
-        wastes=wastes,
-        capacity=capacity,
-        R=R,
-        C=C,
-        **kwargs,
-    )
+        # Return routes, profit, and distance cost
+        return routes, profit, dist_cost

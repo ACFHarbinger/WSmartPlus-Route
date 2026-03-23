@@ -5,6 +5,7 @@ Configuration parameters for the Genetic Programming Hyper-Heuristic (GPHH) solv
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -48,3 +49,25 @@ class GPHHParams:
     n_llh: int = 5
     n_removal: int = 2
     time_limit: float = 60.0
+
+    # Infrastructure
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+
+    @classmethod
+    def from_config(cls, config: Any) -> "GPHHParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            gp_pop_size=getattr(config, "gp_pop_size", 20),
+            max_gp_generations=getattr(config, "max_gp_generations", 30),
+            eval_steps=getattr(config, "eval_steps", 50),
+            apply_steps=getattr(config, "apply_steps", 200),
+            tree_depth=getattr(config, "tree_depth", 3),
+            tournament_size=getattr(config, "tournament_size", 3),
+            n_llh=getattr(config, "n_llh", 5),
+            n_removal=getattr(config, "n_removal", 2),
+            time_limit=getattr(config, "time_limit", 60.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

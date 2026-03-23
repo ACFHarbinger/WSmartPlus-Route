@@ -6,6 +6,7 @@ for diversity-driven population management and genetic crossover operators.
 """
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
@@ -28,6 +29,9 @@ class AHVPLParams:
     elite_alns_iterations: int = 500
     not_coached_alns_iterations: int = 100
     time_limit: float = 60.0
+    vrpp: bool = True
+    seed: Optional[int] = None
+    profit_aware_operators: bool = False
 
     # HGS Components (Diversity Management & Crossover)
     hgs_params: HGSParams = field(
@@ -45,6 +49,8 @@ class AHVPLParams:
             nb_granular=10,
             local_search_iterations=100,
             time_limit=30.0,
+            vrpp=True,
+            profit_aware_operators=False,
         )
     )
 
@@ -65,6 +71,8 @@ class AHVPLParams:
             local_search=False,
             local_search_iterations=0,
             elitist_weight=1.0,
+            vrpp=True,
+            profit_aware_operators=False,
         )
     )
 
@@ -78,5 +86,19 @@ class AHVPLParams:
             reaction_factor=0.1,
             min_removal=1,
             max_removal_pct=0.2,
+            vrpp=True,
+            profit_aware_operators=False,
         )
     )
+
+    def __post_init__(self):
+        """Sync flags across sub-parameters."""
+        if self.aco_params:
+            self.aco_params.vrpp = self.vrpp
+            self.aco_params.profit_aware_operators = self.profit_aware_operators
+        if self.alns_params:
+            self.alns_params.vrpp = self.vrpp
+            self.alns_params.profit_aware_operators = self.profit_aware_operators
+        if self.hgs_params:
+            self.hgs_params.vrpp = self.vrpp
+            self.hgs_params.profit_aware_operators = self.profit_aware_operators

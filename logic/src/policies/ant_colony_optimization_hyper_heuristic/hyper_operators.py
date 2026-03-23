@@ -21,6 +21,7 @@ import numpy as np
 
 from ..other.operators import (
     greedy_insertion,
+    greedy_profit_insertion,
     kick,
     move_2opt_intra,
     move_2opt_star,
@@ -29,6 +30,8 @@ from ..other.operators import (
     move_swap,
     move_swap_star,
     perturb,
+    random_removal,
+    shaw_profit_removal,
     shaw_removal,
     string_removal,
 )
@@ -50,6 +53,8 @@ class HyperOperatorContext:
         C: float,
         mandatory_nodes: Optional[List[int]] = None,
         rng: Optional[random.Random] = None,
+        profit_aware_operators: bool = False,
+        vrpp: bool = True,
     ):
         """
         Initialize HyperOperatorContext.
@@ -57,11 +62,14 @@ class HyperOperatorContext:
         Args:
             routes: Current routes.
             dist_matrix: Distance matrix.
-            wastes: Node wastes.
+            waste: Node wastes.
             capacity: Vehicle capacity.
             R: Revenue multiplier.
             C: Cost multiplier.
             mandatory_nodes: List of mandatory node indices.
+            rng: Random number generator.
+            profit_aware_operators: Whether to use profit-aware heuristics.
+            vrpp: Whether to consider all unvisited nodes in insertion.
         """
         self.routes = routes
         self.d = dist_matrix
@@ -70,6 +78,8 @@ class HyperOperatorContext:
         self.R = R
         self.C = C
         self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
+        self.profit_aware_operators = profit_aware_operators
+        self.vrpp = vrpp
         self.route_loads: List[float] = []
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}
@@ -290,15 +300,33 @@ def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bo
     """Wrapper for shaw removal followed by greedy insertion."""
     n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
     try:
-        partial, removed = shaw_removal(ctx.routes, n_remove, ctx.d)
-        ctx.routes = greedy_insertion(
-            partial,
-            removed,
-            ctx.d,
-            ctx.waste,
-            ctx.Q,
-            mandatory_nodes=list(ctx.mandatory_nodes),
-        )
+        if ctx.profit_aware_operators:
+            partial, removed = shaw_profit_removal(ctx.routes, n_remove, ctx.d, ctx.waste, ctx.R, ctx.C)
+        else:
+            partial, removed = shaw_removal(ctx.routes, n_remove, ctx.d)
+
+        if ctx.profit_aware_operators:
+            ctx.routes = greedy_profit_insertion(
+                partial,
+                removed,
+                ctx.d,
+                ctx.waste,
+                ctx.Q,
+                R=ctx.R,
+                C=ctx.C,
+                mandatory_nodes=list(ctx.mandatory_nodes),
+                expand_pool=ctx.vrpp,
+            )
+        else:
+            ctx.routes = greedy_insertion(
+                partial,
+                removed,
+                ctx.d,
+                ctx.waste,
+                ctx.Q,
+                mandatory_nodes=list(ctx.mandatory_nodes),
+                expand_pool=ctx.vrpp,
+            )
         ctx._build_structures()
         return True
     except Exception:
@@ -310,14 +338,61 @@ def apply_string_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> 
     n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
     try:
         partial, removed = string_removal(ctx.routes, n_remove, ctx.d, rng=ctx.rng)
-        ctx.routes = greedy_insertion(
-            partial,
-            removed,
-            ctx.d,
-            ctx.waste,
-            ctx.Q,
-            mandatory_nodes=list(ctx.mandatory_nodes),
-        )
+        if ctx.profit_aware_operators:
+            ctx.routes = greedy_profit_insertion(
+                partial,
+                removed,
+                ctx.d,
+                ctx.waste,
+                ctx.Q,
+                R=ctx.R,
+                C=ctx.C,
+                mandatory_nodes=list(ctx.mandatory_nodes),
+                expand_pool=ctx.vrpp,
+            )
+        else:
+            ctx.routes = greedy_insertion(
+                partial,
+                removed,
+                ctx.d,
+                ctx.waste,
+                ctx.Q,
+                mandatory_nodes=list(ctx.mandatory_nodes),
+                expand_pool=ctx.vrpp,
+            )
+        ctx._build_structures()
+        return True
+    except Exception:
+        return False
+
+
+def apply_random_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
+    """Wrapper for random removal followed by greedy insertion."""
+    n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
+    try:
+        partial, removed = random_removal(ctx.routes, n_remove, rng=ctx.rng)
+        if ctx.profit_aware_operators:
+            ctx.routes = greedy_profit_insertion(
+                partial,
+                removed,
+                ctx.d,
+                ctx.waste,
+                ctx.Q,
+                R=ctx.R,
+                C=ctx.C,
+                mandatory_nodes=list(ctx.mandatory_nodes),
+                expand_pool=ctx.vrpp,
+            )
+        else:
+            ctx.routes = greedy_insertion(
+                partial,
+                removed,
+                ctx.d,
+                ctx.waste,
+                ctx.Q,
+                mandatory_nodes=list(ctx.mandatory_nodes),
+                expand_pool=ctx.vrpp,
+            )
         ctx._build_structures()
         return True
     except Exception:
@@ -336,6 +411,7 @@ HYPER_OPERATORS: Dict[str, Callable[[HyperOperatorContext], bool]] = {
     "kick": apply_kick,
     "shaw_removal": apply_shaw_removal,
     "string_removal": apply_string_removal,
+    "random_removal": apply_random_removal,
 }
 
 OPERATOR_NAMES = list(HYPER_OPERATORS.keys())

@@ -5,6 +5,7 @@ Configuration parameters for the Record-to-Record Travel (RRT) solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -22,6 +23,8 @@ class RRParams:
         n_removal: Nodes removed per destroy step.
         n_llh: Number of LLHs in the pool.
         time_limit: Wall-clock time limit in seconds.
+        vrpp: Whether to use pool expansion for VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     tolerance: float = 0.05
@@ -29,3 +32,6 @@ class RRParams:
     n_removal: int = 2
     n_llh: int = 5
     time_limit: float = 60.0
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None

@@ -18,7 +18,7 @@ Reference:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
+from typing import Any, List, Optional
 
 
 @dataclass
@@ -60,7 +60,7 @@ class MemeticAlgorithmDualPopulationParams:
     diversity_injection_rate: float = 0.2  # Probability of diversity injection
 
     # Elite-guided construction (VPL: coaching from top 3)
-    elite_learning_weights: List[float] = None  # Will be set in __post_init__
+    elite_learning_weights: Optional[List[float]] = None  # Will be set in __post_init__
     elite_count: int = 3  # Number of elite solutions (top-k)
 
     # Local search refinement
@@ -68,6 +68,24 @@ class MemeticAlgorithmDualPopulationParams:
 
     # Resource constraints
     time_limit: float = 300.0
+    vrpp: bool = True
+    profit_aware_operators: bool = False
+    seed: Optional[int] = None
+
+    @classmethod
+    def from_config(cls, config: Any) -> "MemeticAlgorithmDualPopulationParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            population_size=getattr(config, "population_size", 30),
+            max_iterations=getattr(config, "max_iterations", 200),
+            diversity_injection_rate=getattr(config, "diversity_injection_rate", 0.2),
+            elite_learning_weights=getattr(config, "elite_learning_weights", None),
+            elite_count=getattr(config, "elite_count", 3),
+            local_search_iterations=getattr(config, "local_search_iterations", 100),
+            time_limit=getattr(config, "time_limit", 300.0),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )
 
     def __post_init__(self):
         """Validate parameter constraints and set default elite weights."""
@@ -109,14 +127,17 @@ class MemeticAlgorithmDualPopulationParams:
     @property
     def coaching_weight_1(self) -> float:
         """Alias for first elite learning weight to match VPL exactly."""
+        assert self.elite_learning_weights is not None and len(self.elite_learning_weights) >= 1
         return self.elite_learning_weights[0]
 
     @property
     def coaching_weight_2(self) -> float:
         """Alias for second elite learning weight to match VPL exactly."""
+        assert self.elite_learning_weights is not None and len(self.elite_learning_weights) >= 2
         return self.elite_learning_weights[1]
 
     @property
     def coaching_weight_3(self) -> float:
         """Alias for third elite learning weight to match VPL exactly."""
+        assert self.elite_learning_weights is not None and len(self.elite_learning_weights) >= 3
         return self.elite_learning_weights[2]

@@ -10,9 +10,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from ..other.operators import (
-    greedy_insertion as greedy_insertion_op,
-)
-from ..other.operators import (
+    greedy_insertion,
     greedy_profit_insertion,
     regret_2_insertion,
     regret_2_profit_insertion,
@@ -166,15 +164,13 @@ class HULKOperators:
                 expand_pool=self.expand_pool,
             )
         else:
-            routes = greedy_insertion_op(
+            routes = greedy_insertion(
                 [list(r) for r in solution.routes],
                 removed,
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                self.R,
                 self.mandatory_nodes,
-                cost_unit=self.C,
                 expand_pool=self.expand_pool,
             )
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
@@ -199,9 +195,7 @@ class HULKOperators:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                self.R,
                 self.mandatory_nodes,
-                cost_unit=self.C,
                 expand_pool=self.expand_pool,
             )
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
@@ -268,7 +262,7 @@ class HULKOperators:
                 continue
 
             # Simplified 3-opt: try random 3-edge reconnections
-            for _ in range(5):  # Simplified intensity
+            for _ in range(5):
                 if len(route) < 4:
                     break
                 i, j, k = sorted(self.rng.sample(range(len(route)), 3))

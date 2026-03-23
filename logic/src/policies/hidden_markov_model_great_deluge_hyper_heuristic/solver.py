@@ -33,10 +33,14 @@ import numpy as np
 from ..other.operators import (
     cluster_removal,
     greedy_insertion,
+    greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
+    regret_2_profit_insertion,
+    shaw_profit_removal,
     shaw_removal,
     string_removal,
+    worst_profit_removal,
     worst_removal,
 )
 from .params import HMMGDHHParams
@@ -79,7 +83,6 @@ class HMMGDHHSolver:
         C: float,
         params: HMMGDHHParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -91,7 +94,7 @@ class HMMGDHHSolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.n_llh = params.n_llh
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         # LLH pool
         self._llh_pool = [
@@ -281,86 +284,145 @@ class HMMGDHHSolver:
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L0: random_removal + greedy_insertion."""
-        partial, removed = random_removal(routes, n, self.random)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        p, r = random_removal(routes, n, self.random)
+        if use_profit:
+            return greedy_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
         return greedy_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L1: worst_removal + regret_2_insertion."""
-        partial, removed = worst_removal(routes, n, self.dist_matrix)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        if use_profit:
+            p, r = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return regret_2_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
+        p, r = worst_removal(routes, n, self.dist_matrix)
         return regret_2_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L2: cluster_removal + greedy_insertion."""
-        partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        p, r = cluster_removal(routes, n, self.dist_matrix, self.nodes)
+        if use_profit:
+            return greedy_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
         return greedy_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L3: worst_removal + greedy_insertion."""
-        partial, removed = worst_removal(routes, n, self.dist_matrix)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        if use_profit:
+            p, r = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
+            return greedy_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
+        p, r = worst_removal(routes, n, self.dist_matrix)
         return greedy_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L4: random_removal + regret_2_insertion."""
-        partial, removed = random_removal(routes, n, self.random)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        p, r = random_removal(routes, n, self.random)
+        if use_profit:
+            return regret_2_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
         return regret_2_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L5: shaw_removal + greedy_insertion."""
-        partial, removed = shaw_removal(routes, n, self.dist_matrix)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        if use_profit:
+            p, r = shaw_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C, rng=self.random)
+            return greedy_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
+        p, r = shaw_removal(routes, n, self.dist_matrix)
         return greedy_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     def _llh6(self, routes: List[List[int]], n: int) -> List[List[int]]:
         """L6: string_removal + regret_2_insertion."""
-        partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
+        p, r = string_removal(routes, n, self.dist_matrix, rng=self.random)
+        if use_profit:
+            return regret_2_profit_insertion(
+                p, r, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, expand_pool=expand_pool
+            )
         return regret_2_insertion(
-            partial,
-            removed,
+            p,
+            r,
             self.dist_matrix,
             self.wastes,
             self.capacity,
             mandatory_nodes=self.mandatory_nodes,
+            expand_pool=expand_pool,
         )
 
     # ------------------------------------------------------------------

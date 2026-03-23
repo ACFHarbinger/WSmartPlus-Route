@@ -106,6 +106,9 @@ class MAPolicy(BaseRoutingPolicy):
             tournament_size=int(values.get("tournament_size", 3)),
             n_removal=int(values.get("n_removal", 2)),
             time_limit=float(values.get("time_limit", 60.0)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         # 2. Solver Initialization
@@ -117,7 +120,6 @@ class MAPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         # 3. Evolutionary Optimization (Moscato FIG 3.1)

@@ -4,50 +4,81 @@ Policy adapter for HULK hyper-heuristic.
 Provides the interface between the simulator and the HULK solver.
 """
 
-from typing import List
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-from ..hyper_heuristic_us_lk import HULKParams, HULKSolver
+import numpy as np
+
+from logic.src.configs.policies.hulk import HULKConfig
+from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.hyper_heuristic_us_lk.hulk import HULKSolver
+from logic.src.policies.hyper_heuristic_us_lk.params import HULKParams
 
 
-def policy_hulk(context) -> List[List[int]]:
-    """
-    HULK hyper-heuristic policy adapter.
+@PolicyRegistry.register("hulk")
+class HULKPolicy(BaseRoutingPolicy):
+    """HULK hyper-heuristic policy class."""
 
-    Args:
-        context: Problem context containing:
-            - dist_matrix: Distance matrix
-            - wastes: Waste dictionary
-            - capacity: Vehicle capacity
-            - R: Revenue multiplier
-            - C: Cost multiplier
-            - params: HULK parameters (optional)
-            - mandatory_nodes: Must-visit nodes (optional)
-            - seed: Random seed (optional)
+    def __init__(self, config: Optional[Union[HULKConfig, Dict[str, Any]]] = None):
+        super().__init__(config)
 
-    Returns:
-        Best routes found by HULK.
-    """
-    # Extract parameters from context
-    params = context.params if hasattr(context, "params") and context.params is not None else HULKParams()
+    @classmethod
+    def _config_class(cls) -> Optional[Type]:
+        return HULKConfig
 
-    # Create solver
-    solver = HULKSolver(
-        dist_matrix=context.dist_matrix,
-        wastes=context.wastes,
-        capacity=context.capacity,
-        R=context.R,
-        C=context.C,
-        params=params,
-        mandatory_nodes=getattr(context, "mandatory_nodes", None),
-        seed=getattr(context, "seed", None),
-    )
+    def _get_config_key(self) -> str:
+        return "hulk"
 
-    # Solve
-    best_routes, best_profit, best_cost = solver.solve()
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        params = HULKParams(
+            seed=values.get("seed", 42),
+            max_iterations=int(values.get("max_iterations", 1000)),
+            time_limit=float(values.get("time_limit", 300.0)),
+            restarts=int(values.get("restarts", 3)),
+            restart_threshold=int(values.get("restart_threshold", 100)),
+            vrpp=bool(values.get("vrpp", True)),
+            profit_aware_operators=bool(values.get("profit_aware_operators", False)),
+            epsilon=float(values.get("epsilon", 0.3)),
+            epsilon_decay=float(values.get("epsilon_decay", 0.995)),
+            min_epsilon=float(values.get("min_epsilon", 0.05)),
+            memory_size=int(values.get("memory_size", 50)),
+            accept_worse_prob=float(values.get("accept_worse_prob", 0.1)),
+            acceptance_decay=float(values.get("acceptance_decay", 0.99)),
+            start_temp=float(values.get("start_temp", 100.0)),
+            cooling_rate=float(values.get("cooling_rate", 0.99)),
+            min_temp=float(values.get("min_temp", 0.01)),
+            min_destroy_size=int(values.get("min_destroy_size", 2)),
+            max_destroy_pct=float(values.get("max_destroy_pct", 0.3)),
+            local_search_iterations=int(values.get("local_search_iterations", 10)),
+            local_search_operators=values.get("local_search_operators", ["2-opt", "3-opt", "swap", "relocate"]),
+            unstring_operators=values.get("unstring_operators", ["type_i", "type_ii", "type_iii", "type_iv"]),
+            string_operators=values.get("string_operators", ["type_i", "type_ii", "type_iii", "type_iv"]),
+            score_alpha=float(values.get("score_alpha", 10.0)),
+            score_beta=float(values.get("score_beta", 5.0)),
+            score_gamma=float(values.get("score_gamma", -1.0)),
+            score_delta=float(values.get("score_delta", 20.0)),
+            weight_learning_rate=float(values.get("weight_learning_rate", 0.1)),
+            weight_decay=float(values.get("weight_decay", 0.95)),
+        )
 
-    # Store results in context if possible
-    if hasattr(context, "results"):
-        context.results["profit"] = best_profit
-        context.results["cost"] = best_cost
+        solver = HULKSolver(
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
+            params=params,
+            mandatory_nodes=mandatory_nodes,
+        )
 
-    return best_routes
+        return solver.solve()

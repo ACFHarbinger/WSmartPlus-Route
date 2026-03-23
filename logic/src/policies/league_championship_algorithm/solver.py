@@ -25,10 +25,15 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..other.operators import greedy_insertion, worst_removal
+from ..other.local_search.local_search_aco import ACOLocalSearch
+from ..other.operators import (
+    greedy_insertion,
+    greedy_profit_insertion,
+    random_removal,
+    worst_profit_removal,
+    worst_removal,
+)
 from .params import LCAParams
 
 
@@ -46,7 +51,6 @@ class LCASolver:
         C: float,
         params: LCAParams,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -58,10 +62,15 @@ class LCASolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         self.mandatory_set = set(self.mandatory_nodes)
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random(42)
 
         # Pre-instantiate Local Search for reuse
-        aco_params = KSACOParams(local_search_iterations=self.params.local_search_iterations)
+        aco_params = KSACOParams(
+            local_search_iterations=self.params.local_search_iterations,
+            vrpp=self.params.vrpp,
+            profit_aware_operators=self.params.profit_aware_operators,
+            seed=self.params.seed,
+        )
         self.ls = ACOLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
@@ -69,7 +78,6 @@ class LCASolver:
             R=self.R,
             C=self.C,
             params=aco_params,
-            seed=seed,
         )
 
     # ------------------------------------------------------------------
@@ -160,19 +168,19 @@ class LCASolver:
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
         """
-        from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+        from logic.src.policies.other.operators.heuristics.greedy_initialization import (
+            build_greedy_routes,
+        )
 
-        optimized_routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
         )
-        return optimized_routes
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
         """
@@ -185,17 +193,47 @@ class LCASolver:
             Perturbed routes.
         """
         n = max(3, self.params.n_removal)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
+
         try:
-            partial, removed = worst_removal(routes, n, self.dist_matrix)
-            repaired = greedy_insertion(
-                partial,
-                removed,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if use_profit:
+                removal_op = self.random.choice([random_removal, worst_profit_removal])
+                if removal_op == random_removal:
+                    partial, removed = random_removal(routes, n, rng=self.random)
+                else:
+                    partial, removed = worst_profit_removal(
+                        routes, n, self.dist_matrix, self.wastes, R=self.R, C=self.C
+                    )
+
+                repaired = greedy_profit_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+            else:
+                removal_op = self.random.choice([random_removal, worst_removal])
+                if removal_op == random_removal:
+                    partial, removed = random_removal(routes, n, rng=self.random)
+                else:
+                    partial, removed = worst_removal(routes, n, self.dist_matrix)
+
+                repaired = greedy_insertion(
+                    partial,
+                    removed,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=expand_pool,
+                )
+
             # Apply comprehensive local search (reusing instance)
             return self.ls.optimize(repaired)
         except Exception:
@@ -228,23 +266,41 @@ class LCASolver:
         new_nodes = [n for n in segment if n not in loser_visited]
 
         child = copy.deepcopy(loser_routes)
+        use_profit = self.params.profit_aware_operators
+        expand_pool = self.params.vrpp
 
         # First remove some worst nodes to make room
         n_remove = min(len(new_nodes), max(1, self.params.n_removal))
         with contextlib.suppress(Exception):
-            child, _ = worst_removal(child, n_remove, self.dist_matrix)
+            if use_profit:
+                child, _ = worst_profit_removal(child, n_remove, self.dist_matrix, self.wastes, R=self.R, C=self.C)
+            else:
+                child, _ = worst_removal(child, n_remove, self.dist_matrix)
 
         if new_nodes:
             with contextlib.suppress(Exception):
-                child = greedy_insertion(
-                    child,
-                    new_nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    R=self.R,
-                    mandatory_nodes=self.mandatory_nodes,
-                )
+                if use_profit:
+                    child = greedy_profit_insertion(
+                        child,
+                        new_nodes,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        self.R,
+                        self.C,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                    )
+                else:
+                    child = greedy_insertion(
+                        child,
+                        new_nodes,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                    )
 
         # Apply comprehensive local search (reusing instance)
         return self.ls.optimize(child)

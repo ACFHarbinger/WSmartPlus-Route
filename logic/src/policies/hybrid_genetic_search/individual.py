@@ -22,12 +22,14 @@ class Individual:
     Follows Vidal et al. (2022) HGS-CVRP implementation.
     """
 
-    def __init__(self, giant_tour: List[int]):
+    def __init__(self, giant_tour: List[int], expand_pool: bool = False):
         """
         Initialize an individual with a giant tour.
 
         Args:
             giant_tour: A list representing the visit order of all clients.
+            expand_pool: If True (VRPP mode), repair operators consider all unvisited nodes.
+                        If False (CVRP mode), repair operators only consider removed nodes.
         """
         self.giant_tour = giant_tour
         self.routes: List[List[int]] = []
@@ -46,6 +48,9 @@ class Individual:
         self.rank_profit = 0
         self.rank_diversity = 0
         self.is_coached = False
+
+        # VRPP-specific: controls whether repair operators expand node pool
+        self.expand_pool = expand_pool
 
     def __lt__(self, other: "Individual") -> bool:
         """Comparison based on biased fitness (used for sorting)."""

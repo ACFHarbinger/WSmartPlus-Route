@@ -9,6 +9,7 @@ which is mathematically equivalent to PSO without velocity momentum.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -88,6 +89,9 @@ class PSOParams:
     # Runtime Control
     max_iterations: int = 500
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     def get_inertia_weight(self, iteration: int) -> float:
         """
@@ -130,3 +134,22 @@ class PSOParams:
     def w_end(self) -> float:
         """Alias for inertia_weight_end."""
         return self.inertia_weight_end
+
+    @classmethod
+    def from_config(cls, config: Any) -> "PSOParams":
+        """Create parameters from a configuration object."""
+        return cls(
+            pop_size=getattr(config, "pop_size", 30),
+            inertia_weight_start=getattr(config, "inertia_weight_start", 0.9),
+            inertia_weight_end=getattr(config, "inertia_weight_end", 0.4),
+            cognitive_coef=getattr(config, "cognitive_coef", 2.0),
+            social_coef=getattr(config, "social_coef", 2.0),
+            position_min=getattr(config, "position_min", -1.0),
+            position_max=getattr(config, "position_max", 1.0),
+            velocity_max=getattr(config, "velocity_max", 0.5),
+            max_iterations=getattr(config, "max_iterations", 500),
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+        )

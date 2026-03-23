@@ -28,5 +28,6 @@ class MemeticAlgorithmIslandModelConfig:
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True
+    profit_aware_operators: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

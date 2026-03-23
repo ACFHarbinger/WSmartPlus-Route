@@ -105,6 +105,9 @@ class RLGDHHPolicy(BaseRoutingPolicy):
             utility_upper_bound=float(values.get("utility_upper_bound", 40.0)),
             target_fitness_multiplier=float(values.get("target_fitness_multiplier", 1.20)),
             min_utility=float(values.get("min_utility", 0.0)),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         # 2. Solver Initialization
@@ -116,13 +119,11 @@ class RLGDHHPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         # 3. Learning-based Optimization (Ozcan et al. 2010 Algorithm)
-        best_routes, best_reward = solver.solve()
+        best_routes, best_reward, best_cost = solver.solve()
 
         # 4. Result Formatting
-        total_cost = solver._cost(best_routes) * cost_unit
-
+        total_cost = best_cost * cost_unit
         return best_routes, best_reward, total_cost

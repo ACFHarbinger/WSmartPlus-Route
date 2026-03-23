@@ -10,6 +10,7 @@ Reference:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -52,3 +53,24 @@ class GENIUSParams:
     vrpp: bool = False
     profit_aware_operators: bool = False
     time_limit: float = 60.0
+    seed: Optional[int] = None
+
+    @classmethod
+    def from_config(cls, config: Any) -> GENIUSParams:
+        """Build parameters from a configuration object."""
+        if isinstance(config, dict):
+            import dataclasses
+
+            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+
+        return cls(
+            neighborhood_size=getattr(config, "neighborhood_size", 5),
+            us_cycles=getattr(config, "us_cycles", 10),
+            unstring_type=getattr(config, "unstring_type", 1),
+            string_type=getattr(config, "string_type", 1),
+            n_iterations=getattr(config, "n_iterations", 1),
+            vrpp=getattr(config, "vrpp", False),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+        )

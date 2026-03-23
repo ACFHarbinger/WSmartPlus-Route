@@ -3,7 +3,7 @@ Ensemble Move Acceptance (EMA) parameters.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -30,3 +30,6 @@ class EMAParams:
     n_removal: int = 2
     n_llh: int = 5
     time_limit: float = 60.0
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False

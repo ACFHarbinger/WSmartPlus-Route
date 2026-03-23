@@ -55,7 +55,6 @@ class LocalSearch(ABC):
         R: float,
         C: float,
         params: Any,
-        seed: Optional[int] = None,
         neighbors: Optional[Dict[int, List[int]]] = None,
     ):
         """
@@ -77,7 +76,7 @@ class LocalSearch(ABC):
         self.R = R
         self.C = C
         self.params = params
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         if neighbors is not None:
             self.neighbors = neighbors

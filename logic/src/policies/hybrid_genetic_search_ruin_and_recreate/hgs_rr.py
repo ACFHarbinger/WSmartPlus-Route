@@ -12,7 +12,7 @@ Reference:
 
 import random
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -21,7 +21,6 @@ from logic.src.policies.hybrid_genetic_search.evolution import evaluate, update_
 from logic.src.policies.hybrid_genetic_search.split import LinearSplit
 from logic.src.policies.other.operators.crossover import ordered_crossover
 
-from .params import HGSRRParams
 from .ruin_recreate import AdaptiveOperatorManager, RuinRecreateOperator
 
 
@@ -40,9 +39,8 @@ class HGSRRSolver:
         capacity: float,
         R: float,
         C: float,
-        params: HGSRRParams,
+        params: Any,
         mandatory_nodes: Optional[List[int]] = None,
-        seed: Optional[int] = None,
     ):
         """
         Initialize the HGS-RR solver.
@@ -64,13 +62,15 @@ class HGSRRSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(seed) if seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
         # Split manager for evaluating giant tours
-        self.split_manager = LinearSplit(dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes)
+        self.split_manager = LinearSplit(
+            dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes, params.vrpp
+        )
 
         # Ruin-and-recreate operator with adaptive selection
         self.rr_operator = RuinRecreateOperator(
@@ -81,7 +81,6 @@ class HGSRRSolver:
             cost_unit=C,
             params=params,
             split_manager=self.split_manager,
-            seed=seed,
         )
 
         # Adaptive operator manager
@@ -106,7 +105,7 @@ class HGSRRSolver:
         for _ in range(self.params.population_size):
             gt = self.nodes[:]
             self.random.shuffle(gt)
-            ind = Individual(gt)
+            ind = Individual(gt, expand_pool=self.params.vrpp)
             evaluate(ind, self.split_manager)
             population.append(ind)
 
@@ -130,7 +129,7 @@ class HGSRRSolver:
                 child = ordered_crossover(p1, p2, rng=self.random)
             else:
                 # If tours are too small, just copy one parent
-                child = Individual(p1.giant_tour[:])
+                child = Individual(p1.giant_tour[:], expand_pool=self.params.vrpp)
 
             # 3. Adaptive Ruin-and-Recreate (Mutation)
             if self.random.random() < self.params.mutation_rate:
@@ -150,6 +149,7 @@ class HGSRRSolver:
 
             # Re-evaluate child
             evaluate(child, self.split_manager)
+            child.expand_pool = self.params.vrpp
             population.append(child)
 
             # Track improvements
@@ -237,7 +237,7 @@ class HGSRRSolver:
         return self.params.score_sigma_3
 
 
-def run_hgs_rr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
+def run_hgs_rr(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes=None, *args):
     """
     Main HGS-RR entry point.
 
@@ -247,7 +247,7 @@ def run_hgs_rr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None
         capacity: Vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
-        values: Dictionary of parameters and config.
+        params: Parameters for the HGS-RR algorithm.
         mandatory_nodes: List of local node indices that MUST be visited.
         *args: Additional arguments (ignored).
 
@@ -266,28 +266,5 @@ def run_hgs_rr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None
         else:
             return [], 0.0, 0.0
 
-    params = HGSRRParams(
-        time_limit=values.get("time_limit", 10),
-        population_size=values.get("population_size", 50),
-        elite_size=values.get("elite_size", 10),
-        mutation_rate=values.get("mutation_rate", 0.3),
-        n_generations=values.get("n_generations", 100),
-        alpha_diversity=values.get("alpha_diversity", 0.5),
-        min_diversity=values.get("min_diversity", 0.2),
-        diversity_change_rate=values.get("diversity_change_rate", 0.05),
-        no_improvement_threshold=values.get("no_improvement_threshold", 20),
-        survivor_threshold=values.get("survivor_threshold", 2.0),
-        max_vehicles=values.get("max_vehicles", 0),
-        crossover_rate=values.get("crossover_rate", 0.7),
-        neighbor_list_size=values.get("neighbor_list_size", 10),
-        # Ruin-recreate specific
-        min_removal_pct=values.get("min_removal_pct", 0.1),
-        max_removal_pct=values.get("max_removal_pct", 0.4),
-        noise_factor=values.get("noise_factor", 0.015),
-        reaction_factor=values.get("reaction_factor", 0.1),
-        decay_parameter=values.get("decay_parameter", 0.95),
-        seed=values.get("seed"),
-    )
-
-    solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
+    solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
     return solver.solve()

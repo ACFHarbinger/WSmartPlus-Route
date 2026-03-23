@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 # Local imports
 from logic.src.configs.policies.other import RLConfig
@@ -33,6 +33,9 @@ class RLALNSParams:
     cooling_rate: float = 0.995
     min_removal: int = 1
     max_removal_pct: float = 0.3
+    seed: Optional[int] = None
+    vrpp: bool = True
+    profit_aware_operators: bool = False
 
     # RL Configuration (Centralized)
     rl_config: RLConfig = field(default_factory=RLConfig)
@@ -144,5 +147,7 @@ class RLALNSParams:
             cooling_rate=config.cooling_rate,
             min_removal=config.min_removal,
             max_removal_pct=config.max_removal_pct,
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
             rl_config=config.rl_config,
         )

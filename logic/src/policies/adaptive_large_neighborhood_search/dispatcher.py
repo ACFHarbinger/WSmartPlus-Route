@@ -44,8 +44,9 @@ def run_alns(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, 
         reaction_factor=values.get("reaction_factor", 0.1),
         min_removal=values.get("min_removal", 1),
         max_removal_pct=values.get("max_removal_pct", 0.3),
+        vrpp=values.get("vrpp", True),
+        profit_aware_operators=values.get("profit_aware_operators", False),
+        seed=values.get("seed", 42),
     )
-    solver = ALNSSolver(
-        dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"), recorder=recorder
-    )
+    solver = ALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, recorder=recorder)
     return solver.solve()

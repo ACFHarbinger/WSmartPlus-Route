@@ -47,8 +47,11 @@ class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
             max_generations=values.get("max_generations", 50),
             stagnation_limit=values.get("stagnation_limit", 5),
             n_removal=values.get("n_removal", 1),
-            local_search_iterations=values.get("local_search_iterations", 500),
+            local_search_iterations=values.get("local_search_iterations", 100),
             time_limit=values.get("time_limit", 60.0),
+            vrpp=values.get("vrpp", True),
+            profit_aware_operators=values.get("profit_aware_operators", False),
+            seed=values.get("seed", 42),
         )
 
         solver = MemeticAlgorithmIslandModelSolver(
@@ -59,7 +62,6 @@ class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
             C=cost_unit,
             params=params,
             mandatory_nodes=mandatory_nodes,
-            seed=values.get("seed"),
         )
 
         routes, profit, cost = solver.solve()

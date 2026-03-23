@@ -69,6 +69,9 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         initial_penalty_capacity=values.get("initial_penalty_capacity", 1.0),
         penalty_increase=values.get("penalty_increase", 1.2),
         penalty_decrease=values.get("penalty_decrease", 0.85),
+        vrpp=values.get("vrpp", True),
+        profit_aware_operators=values.get("profit_aware_operators", False),
+        seed=values.get("seed", 42),
     )
-    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, seed=values.get("seed"))
+    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
     return solver.solve()
