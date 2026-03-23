@@ -17,25 +17,37 @@ when ``cfg.tracking.zenml_enabled`` is ``True``.
 
 from __future__ import annotations
 
-import contextlib
 from typing import Any, Dict
 
-from logic.src.tracking.logging.pylogger import get_pylogger
+from omegaconf import OmegaConf
 
-logger = get_pylogger(__name__)
+import logic.src.pipeline.features.train.engine as engine_module
+from logic.src.configs import Config
+from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
 
-# ---------------------------------------------------------------------------
-# Lazy ZenML imports — guarded so the module can be imported even when the
-# zenml package is not installed.
-# ---------------------------------------------------------------------------
+try:
+    from zenml.client import Client  # type: ignore[import-not-found]
+except ImportError:
+    Client = None  # type: ignore[assignment,misc]
 
-_ZENML_AVAILABLE = False
-with contextlib.suppress(ImportError):
+try:
     from zenml import pipeline as zenml_pipeline  # type: ignore[import-not-found]
     from zenml import step  # type: ignore[import-not-found]
 
     _ZENML_AVAILABLE = True
+except ImportError:
+    _ZENML_AVAILABLE = False
+    zenml_pipeline = None  # type: ignore[assignment]
+    step = None  # type: ignore[assignment]
 
+try:
+    from zenml.client import Client  # type: ignore[import-not-found]
+except ImportError:
+    Client = None  # type: ignore[assignment,misc]
+
+from logic.src.tracking.logging.pylogger import get_pylogger
+
+logger = get_pylogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Steps
@@ -57,19 +69,13 @@ if _ZENML_AVAILABLE:
         :class:`~logic.src.tracking.integrations.zenml_bridge.ZenMLBridge`
         is attached to the WSTracker run so metrics/params are dual-written.
         """
-        from omegaconf import OmegaConf
-
-        from logic.src.configs import Config
-        from logic.src.pipeline.features.train.engine import run_training
-        from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
-
         cfg = OmegaConf.structured(Config)
         cfg = OmegaConf.merge(cfg, OmegaConf.create(config_dict))
         cfg = OmegaConf.to_object(cfg)
         assert isinstance(cfg, Config)
 
         bridge = ZenMLBridge()
-        return run_training(cfg, sinks=[bridge])
+        return engine_module.run_training(cfg, sinks=[bridge])
 
     @step  # type: ignore[misc]
     def log_training_summary(val_reward: float) -> float:
@@ -98,9 +104,6 @@ def training_pipeline(cfg: Any) -> float:
     """Serialise *cfg* and launch the ZenML training pipeline."""
     if not _ZENML_AVAILABLE:
         raise ImportError("zenml is not installed — cannot run ZenML training pipeline")
-
-    from omegaconf import OmegaConf
-    from zenml.client import Client
 
     config_dict: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)  # type: ignore
 

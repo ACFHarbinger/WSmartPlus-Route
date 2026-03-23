@@ -12,7 +12,9 @@ from tensordict import TensorDict
 from torch import nn
 from torch.utils.data import DataLoader
 
+from logic.src.data.datasets import FastTdDataset
 from logic.src.pipeline.rl.common.base import RL4COLitModule
+from logic.src.utils.data.rl_utils import safe_td_copy
 
 
 class StepwisePPO(RL4COLitModule):
@@ -68,9 +70,6 @@ class StepwisePPO(RL4COLitModule):
 
     def training_step(self, batch: TensorDict, batch_idx: int):
         """Execute one StepwisePPO training step."""
-        from logic.src.data.datasets import FastTdDataset
-        from logic.src.utils.data.rl_utils import safe_td_copy
-
         env = self.env
         td = env.reset(batch)
 

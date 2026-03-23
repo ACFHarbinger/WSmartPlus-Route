@@ -1,4 +1,3 @@
-import contextlib
 import statistics
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
@@ -8,26 +7,28 @@ from logic.src.configs import Config
 from logic.src.tracking.logging.log_utils import output_stats
 from logic.src.utils.configs.setup_utils import get_pol_name
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
+
 
 def _log_sim_metrics(log: Dict[str, Any], log_std: Optional[Dict[str, Any]] = None) -> None:
     """Forward aggregated per-policy metrics to the active WSTracker run."""
-    with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
-        if run is None:
-            return
-        for pol_name_k, metrics in log.items():
-            metrics_obj: object = metrics
-            if isinstance(metrics_obj, (list, tuple)):
-                for metric_name, val in zip(udef.SIM_METRICS, metrics_obj):
-                    run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
-        if log_std is not None:
-            for pol_name_k, std_metrics in log_std.items():
-                std_metrics_obj: object = std_metrics
-                if isinstance(std_metrics_obj, (list, tuple)):
-                    for metric_name, val in zip(udef.SIM_METRICS, std_metrics_obj):
-                        run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
+    run = get_active_run() if get_active_run is not None else None
+    if run is None:
+        return
+    for pol_name_k, metrics in log.items():
+        metrics_obj: object = metrics
+        if isinstance(metrics_obj, (list, tuple)):
+            for metric_name, val in zip(udef.SIM_METRICS, metrics_obj):
+                run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
+    if log_std is not None:
+        for pol_name_k, std_metrics in log_std.items():
+            std_metrics_obj: object = std_metrics
+            if isinstance(std_metrics_obj, (list, tuple)):
+                for metric_name, val in zip(udef.SIM_METRICS, std_metrics_obj):
+                    run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
 
 def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:

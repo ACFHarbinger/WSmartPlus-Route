@@ -38,12 +38,35 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import pickle
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
+
+try:
+    import evidently  # type: ignore[import]
+    from evidently import ColumnMapping  # type: ignore[import]
+    from evidently.metric_preset import DataDriftPreset, DataQualityPreset  # type: ignore[import]
+    from evidently.metrics import (  # type: ignore[import]
+        ColumnDriftMetric,
+        ColumnSummaryMetric,
+        DatasetDriftMetric,
+        DatasetMissingValuesMetric,
+    )
+    from evidently.report import Report  # type: ignore[import]
+except ImportError:
+    evidently = None  # type: ignore[assignment]
+    ColumnMapping = None  # type: ignore[assignment]
+    DataDriftPreset = None  # type: ignore[assignment]
+    DataQualityPreset = None  # type: ignore[assignment]
+    ColumnDriftMetric = None  # type: ignore[assignment]
+    ColumnSummaryMetric = None  # type: ignore[assignment]
+    DatasetDriftMetric = None  # type: ignore[assignment]
+    DatasetMissingValuesMetric = None  # type: ignore[assignment]
+    Report = None  # type: ignore[assignment]
 
 log = logging.getLogger(__name__)
 
@@ -100,15 +123,6 @@ def run_drift_detection(
         ValueError: If no shared columns are found between the two datasets.
     """
     _check_evidently()
-
-    from evidently import ColumnMapping  # type: ignore[import]
-    from evidently.metric_preset import DataDriftPreset, DataQualityPreset  # type: ignore[import]
-    from evidently.metrics import (  # type: ignore[import]
-        ColumnDriftMetric,
-        DatasetDriftMetric,
-        DatasetMissingValuesMetric,
-    )
-    from evidently.report import Report  # type: ignore[import]
 
     # ── Load datasets ────────────────────────────────────────────────────────
     reference_df = load_and_flatten(reference_path, problem=problem)
@@ -212,10 +226,6 @@ def run_column_drift_suite(
     """
     _check_evidently()
 
-    from evidently import ColumnMapping  # type: ignore[import]
-    from evidently.metrics import ColumnDriftMetric, ColumnSummaryMetric  # type: ignore[import]
-    from evidently.report import Report  # type: ignore[import]
-
     reference_df = load_and_flatten(reference_path, problem=problem)
     current_df = load_and_flatten(current_path, problem=problem)
 
@@ -285,8 +295,6 @@ def load_and_flatten(path: str, problem: str = "vrpp") -> pd.DataFrame:
     elif ext == ".jsonl":
         df = pd.read_json(path, lines=True)
     elif ext in (".pkl", ".pickle"):
-        import pickle
-
         with open(path, "rb") as fh:
             obj = pickle.load(fh)
         if isinstance(obj, pd.DataFrame):
@@ -351,10 +359,8 @@ def _npz_to_dataframe(path: str) -> pd.DataFrame:
 
 def _check_evidently() -> None:
     """Raise a helpful ImportError if evidently is not installed."""
-    try:
-        import evidently  # noqa: F401  # type: ignore[import]
-    except ImportError as exc:
-        raise ImportError("evidently is required for drift detection. Run: pip install evidently") from exc
+    if evidently is None:
+        raise ImportError("evidently is required for drift detection. Run: pip install evidently")
 
 
 def _log_drift_summary(report: Any) -> None:

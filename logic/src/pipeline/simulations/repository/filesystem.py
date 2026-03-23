@@ -13,6 +13,11 @@ import logic.src.constants as udef
 
 from .base import SimulationRepository
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
+
 
 class FileSystemRepository(SimulationRepository):
     """
@@ -87,9 +92,7 @@ class FileSystemRepository(SimulationRepository):
                     lock.release()
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
-            run = get_active_run()
+            run = get_active_run() if get_active_run is not None else None
             if run is not None:
                 run.log_params({"data.indices_source": _indices_source})
                 run.log_metric("data/n_index_groups", float(len(indices)))
@@ -146,9 +149,7 @@ class FileSystemRepository(SimulationRepository):
             bins_coordinates = bins_coordinates.sort_values(by="ID").reset_index(drop=True)
 
             with contextlib.suppress(Exception):
-                from logic.src.tracking.core.run import get_active_run
-
-                run = get_active_run()
+                run = get_active_run() if get_active_run is not None else None
                 if run is not None:
                     run.log_dataset_event(
                         "mutate",
@@ -201,9 +202,7 @@ class FileSystemRepository(SimulationRepository):
                 _n_before = len(coords_tmp)
                 coords_tmp = coords_tmp[coords_tmp["Tipo de Residuos"] == wtype]
                 with contextlib.suppress(Exception):
-                    from logic.src.tracking.core.run import get_active_run
-
-                    run = get_active_run()
+                    run = get_active_run() if get_active_run is not None else None
                     if run is not None:
                         run.log_params(
                             {
@@ -228,9 +227,7 @@ class FileSystemRepository(SimulationRepository):
             _n_before = len(coords_tmp)
             coords_tmp = coords_tmp[coords_tmp["Tipo de Residuos"] == wtype]
             with contextlib.suppress(Exception):
-                from logic.src.tracking.core.run import get_active_run
-
-                run = get_active_run()
+                run = get_active_run() if get_active_run is not None else None
                 if run is not None:
                     run.log_params(
                         {
@@ -331,9 +328,7 @@ class FileSystemRepository(SimulationRepository):
         ) / (new_data[["Stock", "Accum_Rate"]].max() - new_data[["Stock", "Accum_Rate"]].min())
 
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
-            run = get_active_run()
+            run = get_active_run() if get_active_run is not None else None
             if run is not None:
                 run.log_params(
                     {

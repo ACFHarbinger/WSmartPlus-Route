@@ -5,7 +5,7 @@ Display a summary of the policies that will be run in the simulation.
 """
 
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List, cast
 
 from rich import box
 from rich.console import Console
@@ -15,6 +15,7 @@ from logic.src.configs import Config, MustGoConfig
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
 from logic.src.tracking.logging.logger_writer import LoggerWriter
+from logic.src.utils.configs.config_loader import load_config
 
 
 class PolicySummaryCallback:
@@ -57,8 +58,6 @@ class PolicySummaryCallback:
             # Resolve config
             config = config_paths.get(policy_name, {})
             if isinstance(config, str):
-                from logic.src.utils.configs.config_loader import load_config
-
                 try:
                     config = load_config(config)
                 except Exception:
@@ -121,8 +120,6 @@ class PolicySummaryCallback:
             items = list(config_must_go)
         elif not isinstance(config_must_go, (str, dict, type(None))) and hasattr(config_must_go, "__iter__"):
             # config_must_go is Iterable but not str/dict/None
-            from typing import Iterable, cast
-
             items = list(cast(Iterable[Any], config_must_go))
         elif config_must_go is not None:
             items = [config_must_go]

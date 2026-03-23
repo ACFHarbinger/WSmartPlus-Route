@@ -6,6 +6,8 @@ import copy
 import os
 from typing import Any, Dict, List, Tuple, cast
 
+from omegaconf import OmegaConf
+
 import logic.src.constants as udef
 from logic.src.configs import Config
 from logic.src.interfaces import ITraversable
@@ -28,9 +30,6 @@ def expand_policy_configs(cfg: Config) -> None:
 
     config_path: Dict[str, Any] = dict(sim.config_path) if sim.config_path else {}
     dist_suffix = f"_{sim.data_distribution}"
-
-    from omegaconf import OmegaConf
-
     resolved_policies = OmegaConf.to_container(sim.policies, resolve=True)
     if not isinstance(resolved_policies, list):
         resolved_policies = [resolved_policies]

@@ -10,6 +10,9 @@ import numpy as np
 import torch
 from omegaconf import DictConfig, OmegaConf
 
+from logic.src.policies import PolicyFactory
+from logic.src.policies.base import PolicyRegistry
+
 from .base import SimulationAction, _flatten_config
 
 
@@ -20,9 +23,6 @@ class PolicyExecutionAction(SimulationAction):
 
     def execute(self, context: Dict[str, Any]) -> None:
         """Execute the selected routing policy."""
-        from logic.src.policies import PolicyFactory
-        from logic.src.policies.base import PolicyRegistry
-
         # Ensure all adapters are imported so the registry is fully populated
         PolicyFactory.ensure_registered()
 

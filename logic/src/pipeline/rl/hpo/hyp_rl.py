@@ -21,6 +21,11 @@ import torch
 
 from logic.src.configs import Config
 
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment,misc]
+
 from .base import BaseHPO, ParamSpec, apply_params
 from .hyp_rl_pol import HypRLPolicy
 
@@ -78,7 +83,7 @@ class HypRLHPO(BaseHPO):
 
         # Best configuration tracking
         self.best_value = float("-inf")
-        self.best_config = None
+        self.best_config: Dict[str, Any] = {}
 
     def run(self) -> float:
         """Run the Hyp-RL optimization.
@@ -119,9 +124,7 @@ class HypRLHPO(BaseHPO):
                 self._reset_episode()
 
         # Log to tracking system
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             run.log_params({f"hpo/best/{k}": v for k, v in self.best_config.items()})
             run.log_metric("hpo/best_value", self.best_value)

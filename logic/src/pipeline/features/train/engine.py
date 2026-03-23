@@ -7,10 +7,12 @@ import os
 from typing import Any, List, Optional
 
 import hydra
+import omegaconf
 import torch
 from pytorch_lightning import seed_everything
 from pytorch_lightning.loggers import CSVLogger
 
+import logic.src.pipeline.features.train.zenml_train_pipeline as zenml_train_pipeline_module
 import logic.src.tracking as wst
 from logic.src.configs import Config
 from logic.src.interfaces import ITraversable
@@ -18,6 +20,11 @@ from logic.src.pipeline.callbacks import SpeedMonitor
 from logic.src.pipeline.features.train.model_factory.builder import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 from logic.src.tracking.logging.pylogger import get_pylogger
+
+try:
+    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
+except ImportError:
+    configure_zenml_stack = None  # type: ignore[assignment]
 
 logger = get_pylogger(__name__)
 
@@ -184,8 +191,6 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
 
 def _log_training_params(run: wst.Run, cfg: Config) -> None:
     """Flatten and log relevant config sections as run parameters."""
-    import omegaconf
-
     sections = {}
     for attr in ("train", "rl", "env", "model"):
         section = getattr(cfg, attr, None)
@@ -223,16 +228,11 @@ def _run_training_via_zenml(cfg: Config) -> float:
     stack_name = str(getattr(tracking, "zenml_stack_name", "wsmart-route-stack"))
 
     # Ensure the ZenML stack is configured before launching the pipeline
-    from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
-
-    if not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
+    if configure_zenml_stack is None or not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
         logger.warning("ZenML stack configuration failed — falling back to direct training.")
         return run_training(cfg, sinks=[])
-
     try:
-        from logic.src.pipeline.features.train.zenml_train_pipeline import training_pipeline
-
-        result = training_pipeline(cfg)
+        result = zenml_train_pipeline_module.training_pipeline(cfg)
         return result if isinstance(result, float) else 0.0
     except Exception as exc:
         logger.warning(f"ZenML training pipeline failed — falling back to direct training: {exc}")

@@ -4,7 +4,8 @@ Evaluation Dispatcher.
 
 from typing import Any, Dict
 
-from torch.utils.data import DataLoader
+import torch
+from torch.utils.data import DataLoader, Subset
 
 from logic.src.pipeline.features.eval.evaluators import (
     AugmentationEval,
@@ -30,9 +31,6 @@ def get_automatic_batch_size(
     """
     Automatically find the maximum batch size that fits in GPU memory.
     """
-    import torch
-    from torch.utils.data import Subset
-
     # Try a small subset first to find the batch size
     dataset = data_loader.dataset
     try:

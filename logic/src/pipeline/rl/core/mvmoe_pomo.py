@@ -18,6 +18,7 @@ from typing import Callable, Optional, Union
 from torch import nn
 
 from logic.src.constants.models import DEFAULT_MOE_KWARGS
+from logic.src.models.core.attention_model import AttentionModelPolicy
 from logic.src.pipeline.rl.core.pomo import POMO
 
 
@@ -61,8 +62,6 @@ class MVMoE_POMO(POMO):
             moe_kwargs = DEFAULT_MOE_KWARGS
 
         if policy is None:
-            from logic.src.models.core.attention_model import AttentionModelPolicy
-
             env_name = kwargs.get("env_name", "vrpp")
             # Inject MoE kwargs into policy, using MVMoE recommended defaults
             policy = AttentionModelPolicy(

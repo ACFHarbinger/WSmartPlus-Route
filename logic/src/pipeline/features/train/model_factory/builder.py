@@ -32,7 +32,13 @@ from logic.src.models.policies import (
 )
 from logic.src.pipeline.features.base import deep_sanitize, remap_legacy_keys
 from logic.src.pipeline.rl import REINFORCE, MetaRLModule
+from logic.src.policies.other.must_go import create_selector_from_config
 from logic.src.tracking.logging.pylogger import get_pylogger
+
+try:
+    from logic.src.tracking.core.run import get_active_run
+except ImportError:
+    get_active_run = None  # type: ignore[assignment]
 
 from .registry import _ALGO_REGISTRY
 
@@ -67,9 +73,7 @@ def create_model(cfg: Config) -> pl.LightningModule:
         )
 
     with contextlib.suppress(Exception):
-        from logic.src.tracking.core.run import get_active_run
-
-        run = get_active_run()
+        run = get_active_run() if get_active_run is not None else None
         if run is not None:
             params: Dict[str, Any] = {
                 "model.name": str(cfg.model.name),
@@ -299,11 +303,8 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
     # Must-go selector
     must_go_selector = None
     if hasattr(cfg, "must_go") and cfg.must_go is not None:
-        from logic.src.policies.other.must_go import create_selector_from_config
-
         must_go_selector = create_selector_from_config(cfg.must_go)
         if must_go_selector:
             logger.info(f"Must-go selector created: {cfg.must_go.strategy}")
     common_kwargs["must_go_selector"] = must_go_selector
-
     return common_kwargs

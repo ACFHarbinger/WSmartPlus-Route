@@ -9,6 +9,9 @@ import pytorch_lightning as pl
 from hydra.utils import instantiate
 
 from logic.src.configs import Config
+from logic.src.models.common.critic_network.policy import create_critic_from_actor
+from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
+from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
 
 def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
@@ -23,8 +26,6 @@ def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.Lightn
     Returns:
         Configured ImitationLearning module.
     """
-    from logic.src.pipeline.rl.core.imitation import ImitationLearning
-
     # Validate policy config is provided
     if cfg.rl.imitation.policy_config is None:
         raise ValueError("imitation.policy_config must be provided for ImitationLearning")
@@ -74,8 +75,6 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
     Returns:
         Configured AdaptiveImitation module.
     """
-    from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
-
     # Validate policy config is provided
     if cfg.rl.adaptive_imitation.policy_config is None:
         raise ValueError("adaptive_imitation.policy_config must be provided for AdaptiveImitation")
@@ -132,8 +131,6 @@ def _create_critic_helper(policy, cfg: Config) -> Any:
     Returns:
         Initialized critic network.
     """
-    from logic.src.models.common.critic_network.policy import create_critic_from_actor
-
     return create_critic_from_actor(
         policy,
         env_name=cfg.env.name,

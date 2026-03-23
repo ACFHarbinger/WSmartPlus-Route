@@ -10,6 +10,7 @@ import sys
 from typing import Any, Dict, List, Optional
 
 from loguru import logger
+from omegaconf import OmegaConf
 
 import logic.src.constants as udef
 import logic.src.tracking as wst
@@ -42,9 +43,6 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
     """
     sim = cfg.sim
     log_file = setup_logger_redirection()
-
-    from omegaconf import OmegaConf
-
     if OmegaConf.is_config(cfg):
         OmegaConf.set_struct(cfg, False)  # type: ignore[arg-type]
         cfg.tracking.log_file = log_file

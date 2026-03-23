@@ -13,6 +13,8 @@ import pytorch_lightning as pl
 import torch
 from omegaconf import OmegaConf
 
+from logic.src.pipeline.rl.common.baselines import WarmupBaseline, get_baseline
+from logic.src.pipeline.rl.common.epoch import apply_time_step, prepare_epoch, regenerate_dataset
 from logic.src.tracking.logging.pylogger import get_pylogger
 
 from .data import DataMixin
@@ -169,8 +171,6 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
     def _init_baseline(self):
         """Initialize baseline for advantage estimation."""
-        from logic.src.pipeline.rl.common.baselines import WarmupBaseline, get_baseline
-
         if self.baseline_type is None:
             self.baseline_type = "rollout"
 
@@ -186,8 +186,6 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
     def on_train_epoch_start(self) -> None:
         """Prepare dataset for the new epoch (e.g. wrap with baseline)."""
-        from logic.src.pipeline.rl.common.epoch import prepare_epoch
-
         assert self.train_dataset is not None
         self.train_dataset = prepare_epoch(
             self.policy,  # type: ignore[arg-type]
@@ -200,8 +198,6 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
     def on_train_epoch_end(self):
         """Update baseline and regenerate dataset."""
-        from logic.src.pipeline.rl.common.epoch import apply_time_step, regenerate_dataset
-
         if hasattr(self.baseline, "epoch_callback"):
             # For RolloutBaseline, we pass val_dataset for the T-test
             self.baseline.epoch_callback(

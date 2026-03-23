@@ -9,7 +9,6 @@ def is_type_checking_block(node: ast.stmt) -> bool:
     """Check if a node is an `if TYPE_CHECKING:` block."""
     if not isinstance(node, ast.If):
         return False
-
     if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
         return True
     return bool(isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING")
@@ -19,7 +18,6 @@ def is_import_error_try_block(node: ast.stmt) -> bool:
     """Check if a node is a `try...except ImportError:` block."""
     if not isinstance(node, ast.Try):
         return False
-
     for handler in node.handlers:
         if handler.type is None:
             continue
@@ -36,12 +34,9 @@ def is_suppress_import_error_block(node: ast.stmt) -> bool:
     """Check if a node is a `with contextlib.suppress(ImportError):` block."""
     if not isinstance(node, ast.With):
         return False
-
     for item in node.items:
         if isinstance(item.context_expr, ast.Call):
             func = item.context_expr.func
-
-            # Check if the function being called is 'suppress' or 'contextlib.suppress'
             is_suppress = False
             if (
                 isinstance(func, ast.Name)
@@ -52,11 +47,21 @@ def is_suppress_import_error_block(node: ast.stmt) -> bool:
                 is_suppress = True
 
             if is_suppress:
-                # Check if ImportError or ModuleNotFoundError is passed as an argument
                 for arg in item.context_expr.args:
                     if isinstance(arg, ast.Name) and arg.id in ("ImportError", "ModuleNotFoundError"):
                         return True
     return False
+
+
+def is_header_assignment(node: ast.stmt) -> bool:
+    """
+    Check if a node is a simple assignment (e.g., _FLAG = False).
+    These are common in headers and shouldn't close the import window.
+    """
+    if not isinstance(node, ast.Assign):
+        return False
+    # Only allow simple constant values (True, False, None, strings, numbers)
+    return isinstance(node.value, (ast.Constant, ast.NameConstant, ast.Num, ast.Str))
 
 
 def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
@@ -84,7 +89,7 @@ def analyze_file(filepath: Path) -> List[Tuple[int, str]]:
 
     # 1. Identify valid top-level imports
     for i, node in enumerate(tree.body):
-        # Check for module docstring
+        # Handle module docstring
         is_docstring = False
         if (
             i == 0
@@ -108,12 +113,15 @@ def analyze_file(filepath: Path) -> List[Tuple[int, str]]:
                 is_type_checking_block(node) or is_import_error_try_block(node) or is_suppress_import_error_block(node)
             ):
                 valid_top_level_imports.update(extract_all_imports(node))  # type: ignore[arg-type]
+            elif is_header_assignment(node):
+                # Simple assignments like _ZENML_AVAILABLE = False are allowed in headers
+                continue
             else:
-                # Any other statement closes the top-level window
+                # Any other statement (def, class, complex logic) closes the window
                 found_non_import = True
 
     # 2. Walk the AST to find nested imports
-    for node in ast.walk(tree):
+    for node in ast.walk(tree):  # type: ignore[assignment]
         if isinstance(node, (ast.Import, ast.ImportFrom)) and node not in valid_top_level_imports:
             if isinstance(node, ast.Import):
                 names = [alias.name for alias in node.names]
@@ -132,13 +140,7 @@ def analyze_file(filepath: Path) -> List[Tuple[int, str]]:
 def main():
     parser = argparse.ArgumentParser(description="Find nested/delayed imports in Python files.")
     parser.add_argument("directory", type=str, help="The target directory to scan")
-    parser.add_argument(
-        "-e",
-        "--exclude",
-        nargs="+",
-        default=[],
-        help="Directory names to exclude from the search (e.g. .venv node_modules tests)",
-    )
+    parser.add_argument("-e", "--exclude", nargs="+", default=[], help="Directories to exclude")
     args = parser.parse_args()
 
     target_root = Path(args.directory)
@@ -147,10 +149,7 @@ def main():
         return
 
     exclude_set = set(args.exclude)
-
     print(f"Scanning '{target_root}'...")
-    if exclude_set:
-        print(f"Excluding directories: {', '.join(exclude_set)}")
     print("=" * 60)
 
     files_found = 0
@@ -158,12 +157,10 @@ def main():
 
     for root, dirs, files in os.walk(target_root):
         dirs[:] = [d for d in dirs if d not in exclude_set]
-
         for filename in files:
             if filename.endswith(".py"):
                 filepath = Path(root) / filename
                 results = analyze_file(filepath)
-
                 if results:
                     files_found += 1
                     print(f"\n📄 {filepath}")

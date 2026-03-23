@@ -23,6 +23,7 @@ from logic.src.constants import (
 )
 from logic.src.utils.configs.setup_utils import deep_sanitize, get_pol_name
 
+from ..initializing import InitializingState
 from .base import SimState
 
 if TYPE_CHECKING:
@@ -159,10 +160,6 @@ class SimulationContext:
         self.tic: float = 0
         self.config: Optional[Dict[str, Any]] = None
         self.vehicle_capacity: Optional[float] = None
-
-        # Early import to avoid circular dependency
-        from ..initializing import InitializingState
-
         self.transition_to(InitializingState())
 
     def transition_to(self, state: Optional[SimState]) -> None:
