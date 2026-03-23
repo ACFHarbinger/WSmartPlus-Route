@@ -10,6 +10,7 @@ Sections: Run Table, Run Detail, Metric Explorer, Run Comparison,
 MLflow Explorer, ZenML Pipeline Runs, Artifacts.
 """
 
+import json
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -384,10 +385,8 @@ def _render_dataset_events(run_id: str) -> None:
         icon = _EVENT_TYPE_ICONS.get(etype, "❓")
         meta = e.get("metadata") or {}
         if isinstance(meta, str):
-            import json as _json
-
             try:
-                meta = _json.loads(meta)
+                meta = json.loads(meta)
             except (ValueError, TypeError):
                 meta = {}
 

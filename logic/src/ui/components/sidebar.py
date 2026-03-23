@@ -5,9 +5,17 @@ Sidebar control panel widgets for the dashboard.
 Provides reusable sidebar components for mode selection and controls.
 """
 
+import os
 from typing import Any, Dict, List, Tuple
 
 import streamlit as st
+
+from logic.src.constants import ROOT_DIR
+from logic.src.ui import __version__
+from logic.src.ui.services.data_loader import (
+    discover_simulation_logs,
+    discover_training_runs,
+)
 
 
 def render_mode_selector() -> str:
@@ -216,10 +224,6 @@ def _render_matrix_loader(distance_strategy: str) -> Dict[str, Any]:
     selected_index_file = None
 
     if distance_strategy == "load_matrix":
-        import os
-
-        from logic.src.constants import ROOT_DIR
-
         with st.sidebar.expander("Distance Matrix", expanded=False):
             matrix_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix")
 
@@ -329,12 +333,6 @@ def render_simulation_controls(
 
 def render_about_section() -> None:
     """Render an about section at the bottom of the sidebar."""
-    from logic.src.ui import __version__
-    from logic.src.ui.services.data_loader import (
-        discover_simulation_logs,
-        discover_training_runs,
-    )
-
     st.sidebar.markdown("---")
 
     # Quick stats

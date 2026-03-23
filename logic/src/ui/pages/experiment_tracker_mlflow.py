@@ -4,6 +4,7 @@ MLflow explorer section for the Experiment Tracker page.
 Extracted from ``experiment_tracker.py`` to keep module sizes under 400 LoC.
 """
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -44,7 +45,6 @@ def _render_mlflow_explorer(tracking_uri: str, experiment_name: str) -> None:
         return
 
     # To use DataFrame-specific methods (.columns, .head), cast it or narrow it
-    import pandas as pd
 
     if not isinstance(mlflow_df, pd.DataFrame):
         # Convert list to DataFrame if necessary

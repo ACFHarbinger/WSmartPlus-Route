@@ -9,6 +9,12 @@ import folium
 import pandas as pd
 
 from logic.src.constants.dashboard import BIN_COLORS, ROUTE_COLORS
+from logic.src.data.network import (
+    EuclideanStrategy,
+    GeodesicStrategy,
+    HaversineStrategy,
+    haversine_distance,
+)
 from logic.src.utils.ui.maps_utils import get_map_center
 
 
@@ -237,13 +243,6 @@ def create_simulation_map(  # noqa: C901
 
     # Draw route polyline segments
     if show_route and len(route_coords) > 1:
-        from logic.src.data.network import (
-            EuclideanStrategy,
-            GeodesicStrategy,
-            HaversineStrategy,
-            haversine_distance,
-        )
-
         strategy_calc = None
         strategy_label = "Haversine"
 

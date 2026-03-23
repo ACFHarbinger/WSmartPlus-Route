@@ -9,8 +9,10 @@ simulation-output analysis features (distribution filtering, Pareto front).
 Ported & enhanced from ``gui/src/tabs/analysis/``.
 """
 
+import gc
 import io
 import json
+import os
 import re
 from collections import abc, defaultdict
 from typing import Any, Dict, List, Optional, Tuple
@@ -19,6 +21,11 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+
+try:
+    import torch
+except ImportError:
+    torch = None
 
 from logic.src.ui.components.charts import (
     PLOTLY_LAYOUT_DEFAULTS,
@@ -137,9 +144,11 @@ def _load_td_file(uploaded_file: Any, cache_key: str) -> Dict[str, pd.DataFrame]
     tables: Dict[str, pd.DataFrame] = {}
     name = uploaded_file.name
 
-    try:
-        import torch
+    if torch is None:
+        st.error("PyTorch is required for TensorDict files. Run: `pip install torch`")
+        return tables
 
+    try:
         buf = io.BytesIO(uploaded_file.getvalue())
         td = torch.load(buf, map_location="cpu", weights_only=False)
     except Exception as exc:
@@ -440,16 +449,15 @@ def _load_td_from_path(path: str, cache_key: str) -> Dict[str, pd.DataFrame]:
     The result is that session state only holds a small structure-summary
     DataFrame, keeping dashboard interactions fast regardless of file size.
     """
-    import gc
-    import os
+    if torch is None:
+        st.error("PyTorch is required for TensorDict files. Run: `pip install torch`")
+        return {}
 
     if not os.path.isfile(path):
         st.error(f"File not found: `{path}`")
         return {}
 
     try:
-        import torch
-
         td = torch.load(path, map_location="cpu", weights_only=False)
     except Exception as exc:
         st.error(f"Failed to load TensorDict file: {exc}")
@@ -502,14 +510,11 @@ def _lazy_load_td_tensor(
         return st.session_state[tensor_state_key]
 
     filepath: Optional[str] = td_meta.get("filepath")
-    if not filepath:
+
+    if torch is None:
         return None
 
-    import gc
-
     try:
-        import torch
-
         td = torch.load(filepath, map_location="cpu", weights_only=False)
         arr = td[key].float().numpy()
         del td

@@ -30,7 +30,7 @@ from .kpi import (
     render_kpi_dashboard,
     render_policy_info,
 )
-from .map import render_map_view
+from .map import reconstruct_tour, render_map_view
 from .tour import render_raw_data_view, render_tour_details
 
 
@@ -92,8 +92,6 @@ def render_simulation_visualizer() -> None:
     display_entry = filtered[0]
     tour = display_entry.data.get("tour", [])
     if tour:
-        from .map import reconstruct_tour
-
         all_bin_coords = display_entry.data.get("all_bin_coords")
         display_entry.data["tour"] = normalize_tour_points(reconstruct_tour(tour, all_bin_coords))
 

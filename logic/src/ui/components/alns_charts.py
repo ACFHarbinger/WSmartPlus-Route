@@ -35,7 +35,20 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import numpy as np
+import pandas as pd
 import streamlit as st
+
+try:
+    import plotly.graph_objects as go
+except ImportError:
+    go = None
+
+try:
+    import torch
+except ImportError:
+    torch = None
+
+from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
 
 # ---------------------------------------------------------------------------
 # Tracked ALNS subclass (zero-interference, opt-in)
@@ -56,11 +69,6 @@ class TrackedVectorizedALNS:
     """
 
     def __init__(self, *args: Any, log_freq: int = 25, **kwargs: Any) -> None:
-        # Lazy import to avoid circular dependency at module load time
-        from logic.src.models.policies.adaptive_large_neighborhood_search import (
-            VectorizedALNS,
-        )
-
         self._inner = VectorizedALNS(*args, **kwargs)
         self.log_freq = log_freq
         self.weight_history: Dict[str, List[List[float]]] = {
@@ -211,9 +219,7 @@ def render_alns_operator_charts(
         title: Section heading.
         color_palette: Optional list of hex colour strings (one per operator).
     """
-    try:
-        import plotly.graph_objects as go  # noqa: F401 — validate import
-    except ImportError:
+    if go is None:
         st.error("**plotly** is required. Run: `pip install plotly`")
         return
 
@@ -305,9 +311,7 @@ def _build_chart(
     colors: List[str],
 ) -> Optional[Any]:
     """Build a Plotly line or stacked-area chart for one operator group."""
-    try:
-        import plotly.graph_objects as go
-    except ImportError:
+    if go is None:
         return None
 
     if not data:
@@ -372,7 +376,6 @@ def _render_prob_table(
     r_names: List[str],
 ) -> None:
     """Render a concise table of final operator selection probabilities."""
-    import pandas as pd
 
     rows: List[Dict[str, Any]] = []
 
@@ -392,14 +395,15 @@ def _render_prob_table(
 
 def _softmax_probs(weights: Any) -> List[float]:
     """Convert raw ALNS weights to selection probabilities via normalisation."""
-    try:
-        import torch
+    if torch is not None:
+        try:
+            w = weights.float().cpu() if hasattr(weights, "cpu") else torch.tensor(weights, dtype=torch.float32)
+            w = w.clamp(min=1e-8)
+            return (w / w.sum()).tolist()
+        except Exception:
+            pass
 
-        w = weights.float().cpu() if hasattr(weights, "cpu") else torch.tensor(weights, dtype=torch.float32)
-        w = w.clamp(min=1e-8)
-        return (w / w.sum()).tolist()
-    except Exception:
-        # Fallback: plain NumPy normalisation
-        arr = np.asarray(weights, dtype=np.float64)
-        arr = np.clip(arr, 1e-8, None)
-        return (arr / arr.sum()).tolist()
+    # Fallback: plain NumPy normalisation
+    arr = np.asarray(weights, dtype=np.float64)
+    arr = np.clip(arr, 1e-8, None)
+    return (arr / arr.sum()).tolist()
