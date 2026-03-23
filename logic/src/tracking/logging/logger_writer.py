@@ -4,6 +4,7 @@ Provides LoggerWriter to tee stdout/stderr to both terminal and file,
 filtering tqdm progress bars from file output.
 """
 
+import contextlib
 import os
 import re
 import sys
@@ -11,6 +12,7 @@ from datetime import datetime
 from typing import Optional
 
 import hydra
+from loguru import logger
 
 
 class LoggerWriter:
@@ -113,13 +115,9 @@ def setup_logger_redirection(
             sys.stderr.echo_to_terminal = echo_to_terminal
 
     # Reconfigure Loguru to use the redirected sys.stderr
-    try:
-        from loguru import logger
-
+    with contextlib.suppress(ImportError):
         logger.remove()
         logger.add(sys.stderr, format="[{level}] {message}", colorize=False)
-    except ImportError:
-        pass
 
     # Print to ORIGINAL stderr so user knows where logs are, before redirection takes full effect
     if not silent:

@@ -7,10 +7,62 @@ import os
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import pytorch_lightning as pl
+import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.logging.pylogger import get_pylogger
+
+try:
+    from logic.src.tracking.hooks import (
+        add_activation_statistics_hook,
+        add_gradient_monitoring_hooks,
+        add_gradient_nan_detector_hook,
+        add_weight_distribution_monitor,
+        compute_activation_statistics,
+        register_hooks_with_run,
+    )
+except ImportError:
+    add_activation_statistics_hook = None  # type: ignore[assignment]
+    add_gradient_monitoring_hooks = None  # type: ignore[assignment]
+    add_gradient_nan_detector_hook = None  # type: ignore[assignment]
+    add_weight_distribution_monitor = None  # type: ignore[assignment]
+    compute_activation_statistics = None  # type: ignore[assignment]
+    register_hooks_with_run = None  # type: ignore[assignment]
+
+try:
+    from logic.src.tracking.hooks.activation_hooks import remove_all_hooks as remove_act_hooks
+except ImportError:
+    remove_act_hooks = None  # type: ignore[assignment]
+
+try:
+    from logic.src.tracking.hooks.gradient_hooks import remove_all_hooks as remove_grad_hooks
+except ImportError:
+    remove_grad_hooks = None  # type: ignore[assignment]
+
+try:
+    from logic.src.tracking.logging.visualization.heatmaps import plot_attention_heatmaps
+except ImportError:
+    plot_attention_heatmaps = None  # type: ignore[assignment]
+
+try:
+    from logic.src.tracking.logging.visualization.embeddings import (
+        log_weight_distributions,
+        project_node_embeddings,
+    )
+except ImportError:
+    log_weight_distributions = None  # type: ignore[assignment]
+    project_node_embeddings = None  # type: ignore[assignment]
+
+try:
+    from logic.src.tracking.logging.visualization.landscape import plot_loss_landscape
+except ImportError:
+    plot_loss_landscape = None  # type: ignore[assignment]
+
+try:
+    from logic.src.tracking.profiling.profiler import _profiler_instance
+except ImportError:
+    _profiler_instance = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from logic.src.configs.tracking import TrackingConfig
@@ -34,14 +86,7 @@ def register_monitoring_hooks(
     cfg: Optional["TrackingConfig"], pl_module: pl.LightningModule, hook_data: Dict[str, Any]
 ) -> None:
     """Register monitoring hooks based on tracking config flags."""
-    try:
-        from logic.src.tracking.hooks import (
-            add_activation_statistics_hook,
-            add_gradient_monitoring_hooks,
-            add_gradient_nan_detector_hook,
-            add_weight_distribution_monitor,
-        )
-    except ImportError:
+    if add_activation_statistics_hook is None:
         logger.debug("Hooks module not available, skipping hook registration")
         return
 
@@ -72,12 +117,7 @@ def register_monitoring_hooks(
 
 def log_hook_stats_to_run(run: Any, epoch: int, hook_data: Dict[str, Any]) -> None:
     """Forward accumulated hook statistics to WSTracker."""
-    try:
-        from logic.src.tracking.hooks import (
-            compute_activation_statistics,
-            register_hooks_with_run,
-        )
-    except ImportError:
+    if register_hooks_with_run is None:
         return
 
     # Gradient stats
@@ -104,14 +144,7 @@ def log_hook_stats_to_run(run: Any, epoch: int, hook_data: Dict[str, Any]) -> No
 
 def remove_monitoring_hooks(hook_data: Dict[str, Any]) -> None:
     """Remove all registered monitoring hooks."""
-    try:
-        from logic.src.tracking.hooks.activation_hooks import (
-            remove_all_hooks as remove_act_hooks,
-        )
-        from logic.src.tracking.hooks.gradient_hooks import (
-            remove_all_hooks as remove_grad_hooks,
-        )
-    except ImportError:
+    if remove_grad_hooks is None or remove_act_hooks is None:
         return
 
     for key in ["gradient", "nan_guard"]:
@@ -132,6 +165,86 @@ def remove_monitoring_hooks(hook_data: Dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _log_attention_heatmaps(
+    log_dir: str,
+    cfg: Optional["TrackingConfig"],
+    pl_module: pl.LightningModule,
+    epoch: int,
+) -> None:
+    """Log attention heatmaps."""
+    if _opt(cfg, "log_attention_heatmaps"):
+        try:
+            if plot_attention_heatmaps is not None:
+                output_dir = os.path.join(log_dir, "attention_heatmaps")
+                plot_attention_heatmaps(pl_module.policy, output_dir, epoch=epoch)
+
+                run = get_active_run()
+                if run is not None:
+                    run.log_artifact(output_dir, artifact_type="visualization")
+        except Exception:
+            logger.debug("Failed to plot attention heatmaps", exc_info=True)
+
+
+def _log_embeddings(
+    log_dir: str,
+    cfg: Optional["TrackingConfig"],
+    pl_module: pl.LightningModule,
+    epoch: int,
+) -> None:
+    """Log node embeddings."""
+    if _opt(cfg, "log_embeddings"):
+        try:
+            if log_weight_distributions is not None and project_node_embeddings is not None:
+                tb_log_dir = os.path.join(log_dir, "tensorboard")
+                log_weight_distributions(pl_module.policy, epoch, tb_log_dir)
+
+                # Project embeddings if a validation batch is available
+                if hasattr(pl_module, "val_dataset") and pl_module.val_dataset is not None:
+                    try:
+                        val_loader = pl_module.val_dataloader()
+                        x_batch = next(iter(val_loader))
+                        if isinstance(x_batch, torch.Tensor):
+                            x_batch = x_batch.to(pl_module.device)
+                            project_node_embeddings(pl_module.policy, x_batch, tb_log_dir, epoch=epoch)
+                        else:
+                            project_node_embeddings(pl_module.policy, x_batch, tb_log_dir, epoch=epoch)
+                    except Exception:
+                        logger.debug("Failed to project node embeddings", exc_info=True)
+        except Exception:
+            logger.debug("Failed to log embeddings", exc_info=True)
+
+
+def _log_loss_landscape(
+    log_dir: str,
+    cfg: Optional["TrackingConfig"],
+    pl_module: pl.LightningModule,
+    epoch: int,
+) -> None:
+    """Log loss landscape."""
+    if _opt(cfg, "log_loss_landscape"):
+        try:
+            if plot_loss_landscape is not None:
+                output_dir = os.path.join(log_dir, "loss_landscape")
+
+                # Requires root cfg on pl_module — safe access
+                root_cfg = getattr(pl_module, "cfg", None)
+                if root_cfg is not None and hasattr(pl_module, "policy"):
+                    plot_loss_landscape(
+                        pl_module.policy,
+                        root_cfg,
+                        output_dir,
+                        epoch=epoch,
+                        size=20,
+                        batch_size=8,
+                        resolution=10,
+                    )
+                    run = get_active_run()
+                    if run is not None:
+                        run.log_artifact(output_dir, artifact_type="visualization")
+        except Exception:
+            logger.debug("Failed to plot loss landscape", exc_info=True)
+
+
 def run_periodic_visualisations(
     cfg: Optional["TrackingConfig"],
     pl_module: pl.LightningModule,
@@ -139,79 +252,15 @@ def run_periodic_visualisations(
 ) -> None:
     """Run configured visualisations (attention heatmaps, embeddings, loss landscape)."""
     log_dir = _opt(cfg, "log_dir", "logs")
-
-    if _opt(cfg, "log_attention_heatmaps"):
-        try:
-            from logic.src.tracking.logging.visualization.heatmaps import (
-                plot_attention_heatmaps,
-            )
-
-            output_dir = os.path.join(log_dir, "attention_heatmaps")
-            plot_attention_heatmaps(pl_module.policy, output_dir, epoch=epoch)
-
-            run = get_active_run()
-            if run is not None:
-                run.log_artifact(output_dir, artifact_type="visualization")
-        except Exception:
-            logger.debug("Failed to plot attention heatmaps", exc_info=True)
-
-    if _opt(cfg, "log_embeddings"):
-        try:
-            from logic.src.tracking.logging.visualization.embeddings import (
-                log_weight_distributions,
-                project_node_embeddings,
-            )
-
-            tb_log_dir = os.path.join(log_dir, "tensorboard")
-            log_weight_distributions(pl_module.policy, epoch, tb_log_dir)
-
-            # Project embeddings if a validation batch is available
-            if hasattr(pl_module, "val_dataset") and pl_module.val_dataset is not None:
-                try:
-                    import torch
-
-                    val_loader = pl_module.val_dataloader()
-                    x_batch = next(iter(val_loader))
-                    if isinstance(x_batch, torch.Tensor):
-                        pass  # skip if not dict-like
-                    else:
-                        project_node_embeddings(pl_module.policy, x_batch, tb_log_dir, epoch=epoch)
-                except Exception:
-                    logger.debug("Failed to project node embeddings", exc_info=True)
-        except Exception:
-            logger.debug("Failed to log embeddings/weight distributions", exc_info=True)
-
-    if _opt(cfg, "log_loss_landscape"):
-        try:
-            from logic.src.tracking.logging.visualization.landscape import (
-                plot_loss_landscape,
-            )
-
-            output_dir = os.path.join(log_dir, "loss_landscape")
-            # Requires root cfg on pl_module — safe access
-            root_cfg = getattr(pl_module, "cfg", None)
-            if root_cfg is not None and hasattr(pl_module, "policy"):
-                plot_loss_landscape(
-                    pl_module.policy,
-                    root_cfg,
-                    output_dir,
-                    epoch=epoch,
-                    size=20,
-                    batch_size=8,
-                    resolution=10,
-                )
-                run = get_active_run()
-                if run is not None:
-                    run.log_artifact(output_dir, artifact_type="visualization")
-        except Exception:
-            logger.debug("Failed to plot loss landscape", exc_info=True)
+    _log_attention_heatmaps(log_dir, cfg, pl_module, epoch)
+    _log_embeddings(log_dir, cfg, pl_module, epoch)
+    _log_loss_landscape(log_dir, cfg, pl_module, epoch)
+    return
 
 
 def log_execution_profiling_report() -> None:
     """Generate and log execution profiling report to WSTracker."""
     try:
-        from logic.src.tracking.profiling.profiler import _profiler_instance
-
         if _profiler_instance is not None:
             report = _profiler_instance.get_report()
             report.log_to_run()

@@ -69,10 +69,15 @@ Typical usage (profiling)
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+import os
+from pathlib import Path
+from typing import Dict, Optional
+
+from logic.src.constants import ROOT_DIR
 
 from . import hooks, logging, profiling
-from .core.run import Run, get_active_run, set_active_run
+from .core import tracker as _tracker_mod
+from .core.run import Run, get_active_run
 from .core.tracker import Tracker, get_tracker
 from .integrations.data import RuntimeDataTracker
 from .integrations.filesystem import FilesystemTracker
@@ -141,19 +146,9 @@ def init(
     Returns:
         The initialised :class:`Tracker` singleton.
     """
-    import logic.src.tracking.core.tracker as _tracker_mod
-
     if tracking_uri is None:
-        try:
-            import os
-            from pathlib import Path
-
-            from logic.src.constants import ROOT_DIR
-
-            base_uri = "test_tracking" if os.environ.get("TEST_MODE") == "true" else _DEFAULT_TRACKING_URI
-            tracking_uri = str(Path(ROOT_DIR).joinpath(base_uri).resolve())
-        except ImportError:
-            tracking_uri = _DEFAULT_TRACKING_URI
+        base_uri = "test_tracking" if os.environ.get("TEST_MODE") == "true" else _DEFAULT_TRACKING_URI
+        tracking_uri = str(Path(ROOT_DIR).joinpath(base_uri).resolve())
 
     tracker = Tracker(tracking_uri=tracking_uri, buffer_size=buffer_size)
     _tracker_mod._tracker = tracker
@@ -179,8 +174,6 @@ def init_worker(
         The attached :class:`Run` (now also set as the process-local active
         run), or ``None`` if *run_id* is not found.
     """
-    import logic.src.tracking.core.tracker as _tracker_mod
-
     try:
         tracker = Tracker(tracking_uri=tracking_uri, buffer_size=buffer_size)
         _tracker_mod._tracker = tracker

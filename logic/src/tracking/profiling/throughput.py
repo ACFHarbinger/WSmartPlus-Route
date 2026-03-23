@@ -15,6 +15,8 @@ import contextlib
 import time
 from typing import Any, Dict, Generator, List, Optional, Tuple
 
+from logic.src.tracking.core.run import get_active_run
+
 
 class ThroughputTracker:
     """Tracks items-per-second throughput over a configurable sliding window.
@@ -175,8 +177,6 @@ class ThroughputTracker:
             prefix: Metric key prefix.
         """
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_metrics(

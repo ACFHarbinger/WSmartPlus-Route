@@ -20,6 +20,8 @@ import functools
 import time
 from typing import Any, Callable, Dict, Generator, List, Optional
 
+from logic.src.tracking.core.run import get_active_run
+
 
 class BlockTimer:
     """Times a named code block and optionally logs elapsed time to WSTracker.
@@ -82,8 +84,6 @@ class BlockTimer:
         """Forward the elapsed time to the active WSTracker run (silent no-op
         when no run is active or an error occurs)."""
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 run.log_metric(f"{self.prefix}/{self.name}_sec", self.elapsed, step=self.step)
@@ -172,8 +172,6 @@ class MultiStepTimer:
     def log_to_run(self, prefix: str = "time", step: int = 0) -> None:
         """Log per-phase totals and overall total to the active WSTracker run."""
         with contextlib.suppress(Exception):
-            from logic.src.tracking.core.run import get_active_run
-
             run = get_active_run()
             if run is not None:
                 metrics: Dict[str, Any] = {f"{prefix}/{phase}_sec": total for phase, total in self.summary().items()}

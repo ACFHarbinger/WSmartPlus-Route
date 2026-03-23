@@ -31,6 +31,7 @@ from __future__ import annotations
 import contextlib
 from typing import Any, Dict, Optional
 
+import numpy as np
 import torch
 
 from logic.src.tracking.core.run import get_active_run
@@ -175,8 +176,6 @@ def _log_cumulative_bins(sim_tracker: "SimulationRunTracker", bins: Any, day: in
             scalars[f"{prefix}/km"] = float(travel)
 
     with contextlib.suppress(Exception):
-        import numpy as np
-
         collected = getattr(bins, "collected", None)
         if collected is not None:
             scalars[f"{prefix}/kg"] = float(np.sum(collected))
