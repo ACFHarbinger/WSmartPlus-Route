@@ -6,6 +6,14 @@ from __future__ import annotations
 
 from typing import Any, Type
 
+from logic.src.envs.problems import (
+    CVRPP,
+    CWCVRP,
+    SCWCVRP,
+    VRPP,
+    WCVRP,
+)
+
 
 def load_problem(name: str) -> Type[Any]:
     """
@@ -20,14 +28,6 @@ def load_problem(name: str) -> Type[Any]:
     Raises:
         AssertionError: If problem name is unsupported.
     """
-    from logic.src.envs.problems import (
-        CVRPP,
-        CWCVRP,
-        SCWCVRP,
-        VRPP,
-        WCVRP,
-    )
-
     problem = {
         "vrpp": VRPP,
         "cvrpp": CVRPP,

@@ -36,6 +36,22 @@ from typing import Dict, List, Optional
 import torch
 import torch.nn as nn
 
+try:
+    import onnx
+
+    ONNX_AVAILABLE = True
+except ImportError:
+    onnx = None  # type: ignore[assignment]
+    ONNX_AVAILABLE = False
+
+try:
+    import onnxsim
+
+    ONNXSIM_AVAILABLE = True
+except ImportError:
+    onnxsim = None  # type: ignore[assignment]
+    ONNXSIM_AVAILABLE = False
+
 log = logging.getLogger(__name__)
 
 
@@ -226,32 +242,31 @@ def _infer_device(module: nn.Module) -> torch.device:
 
 def _validate_onnx(path: str) -> None:
     """Run onnx.checker on the exported model. Logs a warning if onnx is not installed."""
-    try:
-        import onnx  # type: ignore[import]
+    if not ONNX_AVAILABLE:
+        log.warning("onnx package not installed; skipping validation. Run: pip install onnx")
+        return
 
+    try:
         model = onnx.load(path)
         onnx.checker.check_model(model)
         log.info("ONNX validation passed for %s", path)
-    except ImportError:
-        log.warning("onnx package not installed; skipping validation. Run: pip install onnx")
     except Exception as exc:
         raise RuntimeError(f"ONNX model validation failed: {exc}") from exc
 
 
 def _try_simplify(path: str) -> None:
     """Attempt onnxsim simplification, logging a warning on failure."""
-    try:
-        import onnx  # type: ignore[import]
-        import onnxsim  # type: ignore[import]
+    if not ONNXSIM_AVAILABLE:
+        log.warning("onnxsim not installed; skipping simplification. Run: pip install onnxsim")
+        return
 
+    try:
         model_simp, ok = onnxsim.simplify(path)
         if ok:
             onnx.save(model_simp, path)
             log.info("ONNX graph simplified successfully.")
         else:
             log.warning("onnxsim returned ok=False; keeping original graph.")
-    except ImportError:
-        log.warning("onnxsim not installed; skipping simplification. Run: pip install onnxsim")
     except Exception as exc:
         log.warning("onnxsim simplification failed: %s", exc)
 

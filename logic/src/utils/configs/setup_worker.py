@@ -11,6 +11,7 @@ from typing import Any, Dict, Tuple
 import torch
 from torch import nn
 
+from logic.src.constants import ROOT_DIR
 from logic.src.utils.functions import load_model
 
 
@@ -68,8 +69,6 @@ def setup_model(
 
         if not os.path.exists(model_path):
             # Try joining with ROOT_DIR as fallback if it's a semi-absolute path like 'assets/...'
-            from logic.src.constants import ROOT_DIR
-
             root_joined = os.path.join(ROOT_DIR, model_name)
             if os.path.exists(root_joined):
                 model_path = root_joined

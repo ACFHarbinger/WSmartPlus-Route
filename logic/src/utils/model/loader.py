@@ -11,6 +11,18 @@ from typing import Any, Dict, Optional, Tuple, Type, cast
 from omegaconf import OmegaConf
 from torch import nn
 
+from logic.src.models import (
+    AttentionModel,
+    TemporalAttentionModel,
+)
+from logic.src.models.subnets.factories.attention import AttentionComponentFactory
+from logic.src.models.subnets.factories.base import NeuralComponentFactory
+from logic.src.models.subnets.factories.gac import GACComponentFactory
+from logic.src.models.subnets.factories.gcn import GCNComponentFactory
+from logic.src.models.subnets.factories.ggac import GGACComponentFactory
+from logic.src.models.subnets.factories.mlp import MLPComponentFactory
+from logic.src.models.subnets.factories.tgc import TGCComponentFactory
+
 from .checkpoint_utils import torch_load_cpu
 from .config_utils import load_args
 from .problem_factory import load_problem
@@ -30,17 +42,6 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
     Raises:
         ValueError: If no valid epoch files found in directory.
     """
-    from logic.src.models import (
-        AttentionModel,
-        TemporalAttentionModel,
-    )
-    from logic.src.models.subnets.factories.attention import AttentionComponentFactory
-    from logic.src.models.subnets.factories.base import NeuralComponentFactory
-    from logic.src.models.subnets.factories.gac import GACComponentFactory
-    from logic.src.models.subnets.factories.gcn import GCNComponentFactory
-    from logic.src.models.subnets.factories.ggac import GGACComponentFactory
-    from logic.src.models.subnets.factories.mlp import MLPComponentFactory
-    from logic.src.models.subnets.factories.tgc import TGCComponentFactory
 
     if os.path.isfile(path):
         model_filename = path

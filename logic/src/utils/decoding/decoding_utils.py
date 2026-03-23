@@ -10,6 +10,8 @@ import torch
 import torch.nn.functional as F
 from tensordict import TensorDict
 
+from logic.src.utils.functions.lexsort import torch_lexsort
+
 
 def top_k_filter(logits: torch.Tensor, k: int) -> torch.Tensor:
     """
@@ -213,8 +215,6 @@ def segment_topk_idx(x: torch.Tensor, k: int, ids: torch.Tensor) -> torch.Tensor
     """
     assert x.dim() == 1
     assert ids.dim() == 1
-
-    from logic.src.utils.functions.lexsort import torch_lexsort
 
     # Since we may have varying beam size per batch entry we cannot reshape to (batch_size, beam_size)
     # And use default topk along dim -1, so we have to be creative
