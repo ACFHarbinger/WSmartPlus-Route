@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Tuple
 
 import pandas as pd
 
+from logic.src.constants import ROOT_DIR
+
 # Constants
 _DIST_PATTERN = re.compile(r"_(emp|gamma\d*|uniform)$", re.IGNORECASE)
 _DISPLAY_METRICS = [
@@ -54,8 +56,6 @@ def _load_json(path: str) -> Any:
 
 def discover_and_aggregate() -> pd.DataFrame:
     """Find all log directories and aggregate results into a DataFrame."""
-    from logic.src.constants import ROOT_DIR
-
     output_root = os.path.join(ROOT_DIR, "assets", "output")
     all_rows: List[Dict[str, Any]] = []
 
@@ -119,10 +119,7 @@ def main() -> None:
         print("No simulation data found.")
         return
 
-    from logic.src.constants import ROOT_DIR
-
     output_path = os.path.join(ROOT_DIR, "assets", "output", "simulation_summary.xlsx")
-
     print(f"Found {len(df)} policy entries. Exporting to Excel...")
 
     # Sort for readability

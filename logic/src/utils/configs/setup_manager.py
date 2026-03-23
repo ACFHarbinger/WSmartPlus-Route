@@ -5,16 +5,13 @@ HRL Manager setup utilities.
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import torch
 from torch import nn
 
+from logic.src.models import MustGoManager
 from logic.src.utils.functions import torch_load_cpu
-
-if TYPE_CHECKING:
-    from logic.src.models import MustGoManager
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -102,8 +99,6 @@ def setup_hrl_manager(
     Returns:
         The initialized manager model, or None if not applicable.
     """
-    from logic.src.models import MustGoManager
-
     if configs is None:
         configs = {}
 

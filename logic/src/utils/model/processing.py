@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 from typing import Union
 
+import numpy as np
 import torch
 from torch import nn
 
@@ -34,8 +35,6 @@ def parse_softmax_temperature(raw_temp: Union[str, float]) -> float:
     Returns:
         The parsed temperature.
     """
-    import numpy as np
-
     if isinstance(raw_temp, str) and os.path.isfile(raw_temp):
         return np.loadtxt(raw_temp)[-1, 0]
     return float(raw_temp)
