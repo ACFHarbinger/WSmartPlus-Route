@@ -5,6 +5,8 @@ from typing import Tuple, cast
 import torch
 from torch import nn
 
+from logic.src.models.subnets.modules import ActivationFunction
+
 
 class GatedRecurrentUnitFillPredictor(nn.Module):
     """
@@ -44,8 +46,6 @@ class GatedRecurrentUnitFillPredictor(nn.Module):
         if uniform_range is None:
             uniform_range = [0.125, 1 / 3]
         super(GatedRecurrentUnitFillPredictor, self).__init__()
-        from logic.src.models.subnets.modules import ActivationFunction
-
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.bidirectional = bidirectional

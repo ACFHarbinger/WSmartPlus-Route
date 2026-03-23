@@ -22,6 +22,9 @@ from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories import NeuralComponentFactory
+from logic.src.models.subnets.modules import ActivationFunction
+from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 
 
 class TemporalAttentionModel(AttentionModel):
@@ -103,10 +106,6 @@ class TemporalAttentionModel(AttentionModel):
             activation_config = ActivationConfig()
 
         self.temporal_horizon = temporal_horizon
-        from logic.src.models.subnets.modules import ActivationFunction
-        from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
-        from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
-
         if predictor_type == "lstm":
             self.fill_predictor = LongShortTermMemoryFillPredictor(
                 input_dim=1,

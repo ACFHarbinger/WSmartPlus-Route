@@ -10,6 +10,7 @@ from tensordict import TensorDict
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 from logic.src.models.core.pointer_network import PointerNetwork
+from logic.src.utils.tasks.dummy_problem import DummyProblem
 
 
 class PointerNetworkPolicy(AutoregressivePolicy):
@@ -28,8 +29,6 @@ class PointerNetworkPolicy(AutoregressivePolicy):
     ):
         """Initialize PointerNetworkPolicy."""
         super().__init__(env_name=env_name, embed_dim=embed_dim)
-        from logic.src.utils.tasks.dummy_problem import DummyProblem
-
         self.model = PointerNetwork(
             embed_dim=embed_dim,
             hidden_dim=hidden_dim,

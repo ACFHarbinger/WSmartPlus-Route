@@ -11,10 +11,12 @@ from typing import Any, Dict, Optional
 from tensordict import TensorDict
 from torch import nn
 
+from logic.src.envs import get_env
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.non_autoregressive.decoder import NonAutoregressiveDecoder
 from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
 from logic.src.models.common.non_autoregressive.policy import NonAutoregressivePolicy
+from logic.src.models.subnets.decoders.nar import SimpleNARDecoder
 from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
 from logic.src.utils.decoding import get_log_likelihood
 
@@ -115,8 +117,6 @@ class NARGNNPolicy(NonAutoregressivePolicy):
             )
 
         if decoder is None:
-            from logic.src.models.subnets.decoders.nar import SimpleNARDecoder
-
             decoder = SimpleNARDecoder()
 
         # Pass to constructive policy
@@ -152,8 +152,6 @@ class NARGNNPolicy(NonAutoregressivePolicy):
 
         # Instantiate environment if needed
         if env is None:
-            from logic.src.envs import get_env
-
             env = get_env(self.env_name)  # type: ignore[arg-type]
 
         # Use common_decoding

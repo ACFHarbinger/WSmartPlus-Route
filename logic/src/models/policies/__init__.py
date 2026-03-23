@@ -10,6 +10,8 @@ Registries:
 - ``get_policy(name, **kwargs)``: Factory function for instantiation.
 """
 
+import importlib
+
 from torch import nn
 
 from logic.src.models.common import (
@@ -81,8 +83,6 @@ def get_policy_class(name: str) -> type:
     Raises:
         ValueError: If the name is not found in the registry.
     """
-    import importlib
-
     if name not in _POLICY_REGISTRY_SPEC:
         raise ValueError(f"Unknown policy: {name!r}. Available: {sorted(_POLICY_REGISTRY_SPEC.keys())}")
     module_path, class_name = _POLICY_REGISTRY_SPEC[name]

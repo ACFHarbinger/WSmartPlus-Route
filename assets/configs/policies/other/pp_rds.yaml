@@ -39,7 +39,7 @@
 # =============================================================================
 
 methods:
-  - random_local_search
+  - "random_local_search"
 
 # Operator selection probabilities (weights for random choice)
 params:

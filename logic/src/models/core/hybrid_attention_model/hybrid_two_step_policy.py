@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Tuple
+import inspect
+from typing import Any, Dict, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -8,13 +9,43 @@ from torch import nn
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
+from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
+from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS
+from logic.src.models.policies.operators import (
+    # Destroy
+    vectorized_cluster_removal,
+    # Exchange
+    vectorized_cross_exchange,
+    vectorized_ejection_chain,
+    # Repair
+    vectorized_greedy_insertion,
+    vectorized_lambda_interchange,
+    # Route
+    vectorized_lkh,
+    vectorized_or_opt,
+    vectorized_random_removal,
+    vectorized_regret_k_insertion,
+    # Move
+    vectorized_relocate,
+    vectorized_shaw_removal,
+    vectorized_string_removal,
+    vectorized_swap,
+    vectorized_swap_star,
+    vectorized_three_opt,
+    vectorized_two_opt,
+    vectorized_two_opt_star,
+    # Unstringing
+    vectorized_type_i_unstringing,
+    vectorized_type_ii_unstringing,
+    vectorized_type_iii_unstringing,
+    vectorized_type_iv_unstringing,
+    vectorized_worst_removal,
+)
 from logic.src.models.subnets.embeddings import get_init_embedding
 from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
 
 from .improvement_step_decoder import ImprovementStepDecoder
-
-if TYPE_CHECKING:
-    pass
 
 
 class HybridTwoStagePolicy(AutoregressivePolicy):
@@ -51,38 +82,6 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         self.INIT_ALGOS = ["hgs", "alns", "aco"]
 
         # Stage 2: Improvement Decoder
-        # Import Vectorized Operators locally to avoid circular imports
-        from logic.src.models.policies.operators import (
-            # Destroy
-            vectorized_cluster_removal,
-            # Exchange
-            vectorized_cross_exchange,
-            vectorized_ejection_chain,
-            # Repair
-            vectorized_greedy_insertion,
-            vectorized_lambda_interchange,
-            # Route
-            vectorized_lkh,
-            vectorized_or_opt,
-            vectorized_random_removal,
-            vectorized_regret_k_insertion,
-            # Move
-            vectorized_relocate,
-            vectorized_shaw_removal,
-            vectorized_string_removal,
-            vectorized_swap,
-            vectorized_swap_star,
-            vectorized_three_opt,
-            vectorized_two_opt,
-            vectorized_two_opt_star,
-            # Unstringing
-            vectorized_type_i_unstringing,
-            vectorized_type_ii_unstringing,
-            vectorized_type_iii_unstringing,
-            vectorized_type_iv_unstringing,
-            vectorized_worst_removal,
-        )
-
         # Available Operators
         self.OPERATORS = [
             # Destroy
@@ -144,10 +143,6 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         self, td: TensorDict, env: RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Stage 1: Initialization."""
-        from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
-        from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
-        from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS
-
         batch_size = td.size(0)
         device = td["locs"].device
 
@@ -265,8 +260,6 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         device: torch.device,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Helper to safely execute a refinement operator."""
-        import inspect
-
         sig = inspect.signature(operator_fn)
         valid_kwargs = {}
         if "max_iterations" in sig.parameters:
