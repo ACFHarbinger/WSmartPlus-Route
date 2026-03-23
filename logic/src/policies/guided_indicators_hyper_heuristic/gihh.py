@@ -339,7 +339,6 @@ class GIHHSolver:
                         self.d,
                         self.wastes,
                         self.Q,
-                        R=self.R,
                         mandatory_nodes=self.mandatory_nodes,
                     )
 

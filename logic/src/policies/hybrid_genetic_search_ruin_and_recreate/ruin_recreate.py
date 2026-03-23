@@ -362,17 +362,16 @@ class RuinRecreateOperator:
             }
 
             # Map specific parameters based on operator type
-            if "blink" in operator_name:
+            if "profit" in operator_name:
+                kwargs["R"] = self.revenue
+                kwargs["C"] = self.cost_unit
+                kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
+            elif "blink" in operator_name:
                 kwargs["blink_rate"] = self.params.noise_factor
                 kwargs["rng"] = self.rng
-                if "profit" in operator_name:
-                    kwargs["R"] = self.revenue
-                    kwargs["C"] = self.cost_unit
-                    kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
+                kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
             else:
-                # Standard greedy or regret operators
-                kwargs["R"] = self.revenue
-                kwargs["cost_unit"] = self.cost_unit
+                # Standard greedy or regret operators - distance only
                 kwargs["mandatory_nodes"] = list(self.split_manager.mandatory_nodes)
                 if operator_name == "greedy_insertion":
                     kwargs["expand_pool"] = True

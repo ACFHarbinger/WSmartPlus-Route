@@ -238,7 +238,6 @@ class RLGDHHSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
         return new_routes
@@ -266,7 +265,6 @@ class RLGDHHSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
         )
 
@@ -280,7 +278,6 @@ class RLGDHHSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
         )
 
@@ -296,7 +293,6 @@ class RLGDHHSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
         )
 
@@ -308,14 +304,17 @@ class RLGDHHSolver:
         """Randomized greedy construction of a starting feasible routing."""
         nodes = copy.copy(self.nodes)
         self.random.shuffle(nodes)
+        from ..other.operators import greedy_profit_insertion
+
         with contextlib.suppress(Exception):
-            return greedy_insertion(
+            return greedy_profit_insertion(
                 [],
                 nodes,
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
                 R=self.R,
+                C=self.C,
                 mandatory_nodes=self.mandatory_nodes,
             )
         return [[n] for n in nodes]

@@ -393,7 +393,6 @@ class TSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
             )
 
@@ -469,7 +468,6 @@ class TSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
         )
 
@@ -664,9 +662,7 @@ class TSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     def _llh_worst_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
@@ -677,9 +673,7 @@ class TSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     def _llh_cluster_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
@@ -690,9 +684,7 @@ class TSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     def _llh_worst_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
@@ -703,9 +695,7 @@ class TSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     def _llh_random_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
@@ -716,9 +706,7 @@ class TSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     # ========================================================================
