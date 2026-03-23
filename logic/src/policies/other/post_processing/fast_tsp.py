@@ -56,11 +56,13 @@ class FastTSPPostProcessor(IPostProcessor):
         for trip in trips:
             if len(trip) > 1:
                 # Re-optimize with fast_tsp
+                time_limit = kwargs.get("time_limit", self.config.get("time_limit", 2.0))
+                seed = kwargs.get("seed", self.config.get("seed", 42))
                 refined_trip = find_route(
                     distance_matrix,
                     np.array(trip),
-                    time_limit=kwargs.get("time_limit", 2.0),
-                    seed=kwargs.get("seed", 42),
+                    time_limit=time_limit,
+                    seed=seed,
                 )
                 # strip depot 0s from the constructed route to avoid doubles
                 refined_tour.extend([n for n in refined_trip if n != 0])

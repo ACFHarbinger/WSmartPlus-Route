@@ -38,7 +38,9 @@ class PathPostProcessor(IPostProcessor):
         if current_fill is None or paths is None:
             return tour
 
-        capacity = kwargs.get("max_capacity") or kwargs.get("vehicle_capacity", 100.0)
+        capacity = kwargs.get("max_capacity") or kwargs.get(
+            "vehicle_capacity", self.config.get("vehicle_capacity", 100.0)
+        )
 
         selected_nodes = set(tour)
         if 0 in selected_nodes:
