@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 import pandas as pd
 
-from logic.src.policies.travelling_salesman_problem.tsp import find_route
+from logic.src.policies.travelling_salesman_problem.tsp import calculate_tour_cost, find_route
 
 
 def run_cf_rs(
@@ -63,21 +63,33 @@ def run_cf_rs(
         return [0, 0], 0.0, {}
 
     # Determine number of clusters (K)
-    k = num_clusters if num_clusters > 0 else n_vehicles
+    if num_clusters > 0:
+        k = num_clusters
+    else:
+        # Dynamic calculation: as many clusters as necessary to fit total waste
+        total_waste = sum(wastes.get(node, 0) for node in must_go)
+        # At least 1 cluster if nodes exist, and at least n_vehicles
+        min_k = math.ceil(total_waste / capacity) if capacity > 0 else 1
+        k = max(n_vehicles, min_k)
+        if k == 0 and must_go:
+            k = 1
 
     # STAGE 1: CLUSTERING
     # Group bins by their angular coordinate relative to the depot, applying capacity/profit checks
-    clusters = angular_clustering(coords, must_go, k, wastes, capacity, R, C, distance_matrix)
+    clusters = fisher_jaikumar_clustering(coords, must_go, k, wastes, capacity, R, C, distance_matrix)
 
     # STAGE 2: ROUTING
     # Solve a separate TSP for each cluster. Tours start and end at the depot (0).
     full_tour = [0]
-    for _i, cluster in enumerate(clusters):
+    total_cluster_cost = 0.0
+    for cluster in clusters:
         if not cluster:
             continue
 
         # Solve TSP for the current sector
         cluster_tour = find_route(distance_matrix, cluster, time_limit=time_limit, seed=seed)
+        cluster_cost = calculate_tour_cost(distance_matrix, cluster_tour)
+        total_cluster_cost += cluster_cost
 
         # Append the cluster tour to the master tour.
         # Since find_route returns [0, n1, n2, ..., 0], we skip the leading 0
@@ -86,7 +98,6 @@ def run_cf_rs(
 
     # Recalculate combined tour cost to ensure precision
     total_cost = calculate_tour_cost(distance_matrix, full_tour)
-
     return full_tour, total_cost, {"clusters": clusters, "num_sectors": len(clusters)}
 
 
@@ -111,105 +122,128 @@ def fisher_jaikumar_clustering(
     if not must_go:
         return []
 
-    # 1. Seed Selection: Partition space into K sectors and pick furthest node in each
-    depot_lat, depot_lng = coords.iloc[0]["Lat"], coords.iloc[0]["Lng"]
+    # 1. Depot and node feature extraction
+    depot_lat, depot_lng = _get_depot_coords(coords)
+    df_nodes = _compute_node_features(coords, must_go, depot_lat, depot_lng, distance_matrix)
+
+    # 2. Seed Selection
+    seeds = _select_initial_seeds(df_nodes, k)
+    if not seeds:
+        return []
+
+    # 3. Assignment (GAP approximation)
+    clusters = _perform_gap_assignment(seeds, must_go, wastes, capacity, distance_matrix)
+
+    # Filter out empty clusters
+    return [c for c in clusters if c]
+
+
+def _get_depot_coords(coords: Any) -> Tuple[float, float]:
+    """Extract coordinates of the depot node (index 0)."""
+    if isinstance(coords, pd.DataFrame):
+        return float(coords.iloc[0]["Lat"]), float(coords.iloc[0]["Lng"])
+    return float(coords[0, 0]), float(coords[0, 1])
+
+
+def _compute_node_features(
+    coords: Any,
+    must_go: List[int],
+    depot_lat: float,
+    depot_lng: float,
+    distance_matrix: np.ndarray,
+) -> pd.DataFrame:
+    """Compute angular positions and distances for all nodes relative to depot."""
     node_data = []
     for idx in must_go:
-        lat, lng = coords.iloc[idx]["Lat"], coords.iloc[idx]["Lng"]
+        if isinstance(coords, pd.DataFrame):
+            lat, lng = coords.iloc[idx]["Lat"], coords.iloc[idx]["Lng"]
+        else:
+            lat, lng = coords[idx, 0], coords[idx, 1]
         angle = math.atan2(lat - depot_lat, lng - depot_lng)
         dist = distance_matrix[0, idx]
         node_data.append({"idx": idx, "angle": angle, "dist": dist})
 
-    df_nodes = pd.DataFrame(node_data)
-    df_nodes = df_nodes.sort_values("angle")
+    return pd.DataFrame(node_data).sort_values("angle")
 
-    # Divide into K sectors and pick furthest node in each as seed
-    # Fisher & Jaikumar (1981): Seeds should be the most "difficult" nodes to serve,
-    # typically those furthest from the depot in distinct angular regions.
-    # We use actual distance to depot for robustness.
+
+def _select_initial_seeds(df_nodes: pd.DataFrame, k: int) -> List[int]:
+    """Partition space into K sectors and pick furthest node in each as seed."""
     seeds = []
-
-    # Sort by angle first to partition
     df_sorted = df_nodes.sort_values("angle")
-
     for i in range(k):
         start_angle = -math.pi + (i * 2 * math.pi / k)
         end_angle = -math.pi + ((i + 1) * 2 * math.pi / k)
 
         sector = df_sorted[(df_sorted["angle"] >= start_angle) & (df_sorted["angle"] < end_angle)]
         if not sector.empty:
-            # Fisher-Jaikumar: Seeds should be furthest nodes in each sector
             seed_idx = int(sector.loc[sector["dist"].idxmax(), "idx"])
             seeds.append(seed_idx)
         else:
-            # If sector is empty, pick the furthest unassigned node overall to keep K seeds
-            assigned_seeds = [s for s in seeds]
-            available = df_sorted[~df_sorted["idx"].isin(assigned_seeds)]
+            # Fallback if sector is empty: pick furthest unassigned node overall
+            available = df_sorted[~df_sorted["idx"].isin(seeds)]
             if not available.empty:
-                seed_idx = int(available.loc[available["dist"].idxmax(), "idx"])
-                seeds.append(seed_idx)
+                seeds.append(int(available.loc[available["dist"].idxmax(), "idx"]))
 
-    # 2. Assignment based on Generalized Assignment Problem (GAP) cost approximation
-    # Fisher & Jaikumar (1981) insertion cost: c_ik = d(0, i) + d(i, k) - d(0, k)
-    clusters = [[] for _ in range(len(seeds))]
+    return seeds
+
+
+def _perform_gap_assignment(
+    seeds: List[int],
+    must_go: List[int],
+    wastes: Dict[int, float],
+    capacity: float,
+    distance_matrix: np.ndarray,
+) -> List[List[int]]:
+    """Assign each node to the seed minimizing insertion cost, respecting capacity."""
+    clusters: List[List[int]] = [[] for _ in range(len(seeds))]
     loads = [0.0] * len(seeds)
 
-    # Sort nodes by distance to depot (furthest first) to prioritize difficult nodes
+    # Sort nodes by distance to depot (furthest first)
     remaining_nodes = sorted(must_go, key=lambda x: distance_matrix[0, x], reverse=True)
 
     for node in remaining_nodes:
         if node in seeds:
-            # Seeds are already at the "center" of their clusters
             s_idx = seeds.index(node)
             clusters[s_idx].append(node)
             loads[s_idx] += wastes.get(node, 0)
             continue
 
-        best_seed_idx = -1
-        min_insertion = float("inf")
+        best_idx = _find_best_seed(node, seeds, loads, wastes, capacity, distance_matrix)
 
-        for s_idx, seed in enumerate(seeds):
-            # Fisher & Jaikumar (1981) Equation (3):
-            # f(i, k) = d(0, i) + d(i, k) - d(0, k)
-            # This represents the additional distance to visit node i given seed k is visited.
-            insertion_cost = distance_matrix[0, node] + distance_matrix[node, seed] - distance_matrix[0, seed]
-
-            if insertion_cost < min_insertion and loads[s_idx] + wastes.get(node, 0) <= capacity:
-                min_insertion = insertion_cost
-                best_seed_idx = s_idx
-
-        if best_seed_idx != -1:
-            clusters[best_seed_idx].append(node)
-            loads[best_seed_idx] += wastes.get(node, 0)
+        if best_idx != -1:
+            clusters[best_idx].append(node)
+            loads[best_idx] += wastes.get(node, 0)
         else:
-            # Fallback: find the cluster with most remaining capacity
-            best_fallback = -1
-            max_remaining = -1.0
-            for s_idx in range(len(seeds)):
-                rem = capacity - loads[s_idx]
-                if rem > max_remaining:
-                    max_remaining = rem
-                    best_fallback = s_idx
+            # Force-assign to least-utilized cluster if it doesn't fit anywhere
+            best_fallback = int(np.argmin(loads))
+            clusters[best_fallback].append(node)
+            loads[best_fallback] += wastes.get(node, 0)
 
-            if best_fallback != -1:
-                clusters[best_fallback].append(node)
-                loads[best_fallback] += wastes.get(node, 0)
-
-    return [c for c in clusters if c]
+    return clusters
 
 
-def angular_clustering(
-    coords: pd.DataFrame,
-    must_go: List[int],
-    k: int,
+def _find_best_seed(
+    node: int,
+    seeds: List[int],
+    loads: List[float],
     wastes: Dict[int, float],
     capacity: float,
-    R: float,
-    C: float,
     distance_matrix: np.ndarray,
-) -> List[List[int]]:
-    """Legacy angular clustering - now delegates to Fisher-Jaikumar for better 5/5 faithfulness."""
-    return fisher_jaikumar_clustering(coords, must_go, k, wastes, capacity, R, C, distance_matrix)
+) -> int:
+    """Find the cluster seed that minimizes insertion cost for the given node."""
+    best_seed_idx = -1
+    min_insertion = float("inf")
+    waste = wastes.get(node, 0)
+
+    for s_idx, seed in enumerate(seeds):
+        # Fisher & Jaikumar cost: f(i, k) = d(0, i) + d(i, k) - d(0, k)
+        insertion_cost = distance_matrix[0, node] + distance_matrix[node, seed] - distance_matrix[0, seed]
+
+        if insertion_cost < min_insertion and loads[s_idx] + waste <= capacity:
+            min_insertion = insertion_cost
+            best_seed_idx = s_idx
+
+    return best_seed_idx
 
 
 def _bounded_partition(
@@ -267,22 +301,3 @@ def _unbounded_partition(
         loads[-1] += waste
 
     return clusters
-
-
-def calculate_tour_cost(distance_matrix: np.ndarray, tour: List[int]) -> float:
-    """
-    Calculate the total distance of a given tour sequence.
-
-    Useful for validating the combined cost of concatenated sector tours.
-
-    Args:
-        distance_matrix: NxN matrix of shortest path distances.
-        tour: Sequence of node indices representing the path.
-
-    Returns:
-        float: Sum of distances between consecutive nodes in the tour.
-    """
-    cost = 0.0
-    for i in range(len(tour) - 1):
-        cost += distance_matrix[tour[i], tour[i + 1]]
-    return float(cost)
