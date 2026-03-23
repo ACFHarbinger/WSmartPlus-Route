@@ -27,7 +27,7 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "swc_tcf,bpc,ils_rvnd_sp,popmusic,aks,hgs,hgs_rr,alns,filo,sisr,rl_gd_hh,gphh,sa,ema"
+policies := "abc,aco_hh,aco_ks,ahvpl,aks,alns,bb,bc,bp,bpc,cf_rs,cvrp,de,ema,es_mcl,es_mkl,es_mpl,fa,filo,ga,gd,genius,gihh,gls,gphh,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ie,ils_rvnd_sp,ils,kgls,ks,lahc,lb_vns,lb,lca,ma_dp,ma_im,ma_ts,ma,oba,oi,popmusic,pso,psoda,psoma,qde,rens,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rrt,rts,sa,sans,sca,schc,sisr,slc,ss_hh,swc_tcf,ta,ts,tsp,vns,vpl"
 
 # --- Setup & Environment ---
 

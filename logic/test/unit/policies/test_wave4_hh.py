@@ -44,13 +44,13 @@ def test_qde_rotation_gate(sample_data):
     assert solver._rotation_gate(0, 0, True, 0.0) == 0.0
     assert solver._rotation_gate(1, 1, True, 0.0) == 0.0
 
-def test_bpc_internal_engine(sample_data):
+def test_bpc_custom_engine(sample_data):
     dist, wastes, cap = sample_data
     # Wrap in a tiny trial config
     values = {"time_limit": 10, "max_cg_iterations": 2}
-    from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_internal_bpc
+    from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_custom_bpc
 
-    routes, cost = run_internal_bpc(dist, wastes, cap, R=1.0, C=1.0, values=values)
+    routes, cost = run_custom_bpc(dist, wastes, cap, R=1.0, C=1.0, values=values)
 
     assert isinstance(routes, list)
     assert cost >= 0

@@ -4,7 +4,7 @@ import pytest
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
 from logic.src.policies.travelling_salesman_problem.tsp import find_route
 
-def test_internal_cvrp_clarke_wright():
+def test_custom_cvrp_clarke_wright():
     # Simple instance
     dist_mat = np.array([
         [0, 10, 10, 12],
@@ -17,7 +17,7 @@ def test_internal_cvrp_clarke_wright():
     to_collect = [1, 2, 3] # node indices
 
     # Internal engine (Clark-Wright)
-    routes = find_routes(dist_mat, wastes, max_caps, to_collect, n_vehicles=2, engine="internal")
+    routes = find_routes(dist_mat, wastes, max_caps, to_collect, n_vehicles=2, engine="custom")
 
     # Expect at least two routes due to capacity (10+10 > 15)
     # Clark-Wright should group 1 and 2 if capacity allowed, but here it won't.
@@ -33,7 +33,7 @@ def test_internal_cvrp_clarke_wright():
     for node in to_collect:
         assert node in routes
 
-def test_internal_tsp_2opt():
+def test_custom_tsp_2opt():
     # Simple instance
     dist_mat = np.array([
         [0, 10, 20, 10],
@@ -46,7 +46,7 @@ def test_internal_tsp_2opt():
     # Optimal TSP should be 0-1-2-3-0 (cost 10+10+10+10=40)
     # vs 0-2-1-3-0 (cost 20+10+20+10=60)
 
-    tour = find_route(dist_mat, to_collect, engine="internal")
+    tour = find_route(dist_mat, to_collect, engine="custom")
 
     assert isinstance(tour, list)
     assert tour[0] == 0

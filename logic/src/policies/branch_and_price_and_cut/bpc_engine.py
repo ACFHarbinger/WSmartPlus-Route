@@ -75,7 +75,7 @@ def _solve_pricing_step(
     return added
 
 
-def run_internal_bpc(
+def run_custom_bpc(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
