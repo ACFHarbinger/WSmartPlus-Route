@@ -236,7 +236,6 @@ class MuKappaLambdaESSolver:
                     dist_matrix=self.dist_matrix,
                     wastes=self.wastes,
                     capacity=self.capacity,
-                    R=self.R,
                     mandatory_nodes=self.mandatory_nodes,
                 )
         else:
@@ -293,7 +292,6 @@ class MuKappaLambdaESSolver:
                         self.dist_matrix,
                         self.wastes,
                         self.capacity,
-                        R=self.R,
                         mandatory_nodes=self.mandatory_nodes,
                     )
                     # Memetic optimization

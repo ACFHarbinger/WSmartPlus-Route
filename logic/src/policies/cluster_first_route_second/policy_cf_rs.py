@@ -5,10 +5,6 @@ Adapts the classic geometric decomposition algorithm (Fisher & Jaikumar, 1981)
 to the WSmart+ Route simulator interface. This adapter facilitates the
 integration of the solver into the simulation pipeline, handling parameter
 mapping, data extraction, and result formatting.
-
-Pattern:
-    The adapter follows the 'Policy Adapter' pattern, acting as a bridge
-    between Hydra-managed configurations and the core routing logic.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -21,7 +17,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.cluster_first_route_second.solver import run_cf_rs
 
 
-@PolicyRegistry.register("cluster_first_route_second")
+@PolicyRegistry.register("cf_rs")
 class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
     """
     Simulator adapter for the Cluster-First Route-Second (CF-RS) routing algorithm.
@@ -35,7 +31,7 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
 
     Architecture:
         - Inherits from `BaseRoutingPolicy` for standardized parameter loading.
-        - Registered under the key 'cluster_first_route_second' for dynamic instantiation.
+        - Registered under the key 'cf_rs' for dynamic instantiation.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -63,9 +59,9 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         Identify the configuration key in the root YAML structure.
 
         Returns:
-            The string key 'cluster_first_route_second'.
+            The string key 'cf_rs'.
         """
-        return "cluster_first_route_second"
+        return "cf_rs"
 
     def _run_solver(
         self,
@@ -84,25 +80,36 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
+        # 1. Parse policy-specific config
         cfg = self._parse_config(values, CFRSConfig)
-        coords = kwargs["coords"]
+
+        # 2. Extract coordinates and fleet size
+        coords = kwargs.get("coords")
+        if coords is None:
+            # Fallback to 'all_coords' if 'coords' is missing (simulators vary)
+            coords = kwargs.get("all_coords")
+
         subset_indices = kwargs.get("subset_indices", list(range(sub_dist_matrix.shape[0])))
-        n_vehicles = kwargs.get("n_vehicles", 1)
+        n_vehicles = kwargs.get("n_vehicles") or 1
 
-        # Subset coordinates matching the sub_dist_matrix nodes
-        sub_coords = coords.iloc[subset_indices]
+        if not mandatory_nodes:
+            # Return an empty list of routes, 0 profit, 0 cost
+            return [], 0.0, 0.0
 
-        # Priority-aware seeding (Config seed > Simulation seed)
+        # 3. Subset coordinates matching the search space (Depot + Bins)
+        # Handle both DataFrame (iloc) and Array-like
+        sub_coords = coords.iloc[subset_indices].values if hasattr(coords, "iloc") else np.array(coords)[subset_indices]
+
+        if sub_coords is None:
+            return [], 0.0, 0.0
+
+        # 4. Priority-aware seeding
         seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
 
-        # Map global mandatory_nodes to local subset indices
-        global_to_local = {idx: i for i, idx in enumerate(subset_indices)}
-        local_must_go = [global_to_local[idx] for idx in mandatory_nodes if idx in global_to_local]
-
-        # Run core algorithm.
+        # 5. Run core algorithm (Atomic Phase)
         tour, solver_cost, extra_data = run_cf_rs(
             coords=sub_coords,
-            must_go=local_must_go,
+            must_go=mandatory_nodes,
             distance_matrix=sub_dist_matrix,
             wastes=sub_wastes,
             capacity=capacity,
@@ -114,7 +121,8 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
             time_limit=cfg.time_limit,
         )
 
-        routes = []
+        # 6. Transform single composite tour into CVRP-style routes
+        routes: List[List[int]] = []
         current_route: List[int] = []
         for node in tour:
             if node == 0:
@@ -124,5 +132,8 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
             else:
                 current_route.append(node)
 
-        total_profit = sum(sub_wastes.get(n, 0.0) for r in routes for n in r) * revenue - solver_cost
+        # 7. Final Profit Calculation (Revenue - Distance Cost)
+        total_fill = sum(sub_wastes.get(n, 0.0) for r in routes for n in r)
+        total_profit = (total_fill * revenue) - solver_cost
+
         return routes, total_profit, solver_cost

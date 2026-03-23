@@ -50,8 +50,9 @@ def find_route(C, to_collect, time_limit=2.0, seed=42, engine="fast_tsp"):
     Returns:
         List[int]: Tour starting and ending at depot. Format: [0, node1, node2, ..., 0]
     """
-    if engine == "internal":
+    if engine == "custom":
         return solve_tsp_2opt(C, list(to_collect), depot=0)
+
     to_collect_tmp = [0] + list(to_collect)
     tmpC = C[to_collect_tmp, :][:, to_collect_tmp]
     # fast_tsp requires integer distance matrix
@@ -210,3 +211,22 @@ def dist_matrix_from_graph(G: nx.Graph) -> Tuple[np.ndarray, List[List[List[int]
             paths_between_states[id_i].append(p)
             dist_matrix[id_i, id_j] = int(get_path_cost(G, p))
     return dist_matrix, paths_between_states
+
+
+def calculate_tour_cost(distance_matrix: np.ndarray, tour: List[int]) -> float:
+    """
+    Calculate the total distance of a given tour sequence.
+
+    Useful for validating the combined cost of concatenated sector tours.
+
+    Args:
+        distance_matrix: NxN matrix of shortest path distances.
+        tour: Sequence of node indices representing the path.
+
+    Returns:
+        float: Sum of distances between consecutive nodes in the tour.
+    """
+    cost = 0.0
+    for i in range(len(tour) - 1):
+        cost += distance_matrix[tour[i], tour[i + 1]]
+    return float(cost)

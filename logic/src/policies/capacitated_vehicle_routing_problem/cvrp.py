@@ -68,10 +68,11 @@ def find_routes(
     Returns:
         List[int]: Flattened tour with depot separators. Format: [0, route1..., 0, route2..., 0]
     """
-    if engine == "internal":
+    if engine == "custom":
         # Mapper for wastes dict
         w_dict = {i: wastes[i - 1] for i in to_collect}
         return clarke_wright_solve(dist_mat, w_dict, max_caps, to_collect, depot)
+
     # Mapping: subset index -> original index
     subset_indices = [depot] + list(to_collect)
 
