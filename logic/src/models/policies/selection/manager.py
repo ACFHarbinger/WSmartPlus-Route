@@ -7,6 +7,8 @@ from typing import Optional
 import torch
 from torch import Tensor
 
+from logic.src.models.meta.hrl_manager import MustGoManager
+
 from .base import VectorizedSelector
 
 
@@ -41,9 +43,6 @@ class ManagerSelector(VectorizedSelector):
         if manager is not None:
             self.manager = manager
         else:
-            # Lazy import to avoid circular dependencies
-            from logic.src.models.meta.hrl_manager import MustGoManager
-
             config = manager_config or {}
             self.manager = MustGoManager(
                 hidden_dim=config.get("hidden_dim", 128),

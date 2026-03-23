@@ -28,19 +28,25 @@ class PostProcessorFactory:
         Create a post-processor instance by name.
         """
         from ..fast_tsp import FastTSPPostProcessor
+        from ..lkh import LinKernighanHelsgaunPostProcessor
         from ..local_search import ClassicalLocalSearchPostProcessor
+        from ..path import PathPostProcessor
         from ..random_local_search import RandomLocalSearchPostProcessor
 
         cls = PostProcessorRegistry.get(name)
         if not cls:
             # Fallback for dynamic/mapped names
             n_lower = name.lower()
-            if n_lower == "fast_tsp":
+            if n_lower in ["fast_tsp", "tsp"]:
                 return FastTSPPostProcessor()
-            elif n_lower in ["2opt", "2opt_star", "swap", "relocate", "swap_star", "3opt"]:
+            elif n_lower in ["local_search", "classical_local_search", "cls"]:
                 return ClassicalLocalSearchPostProcessor(operator_name=n_lower)
-            elif n_lower in ["random", "random_local_search"]:
+            elif n_lower in ["random", "random_local_search", "rls"]:
                 return RandomLocalSearchPostProcessor()
+            elif n_lower in ["lkh", "lkh3", "lkh-3", "lin_kernighan_helsgaun"]:
+                return LinKernighanHelsgaunPostProcessor()
+            elif n_lower == "path":
+                return PathPostProcessor()
 
             raise ValueError(f"Unknown post-processor: {name}")
         return cls()

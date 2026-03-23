@@ -6,17 +6,15 @@ Multi-Decoder Attention Model policy combining encoder and multi-path decoder.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import Any, Dict, Optional
 
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
+from logic.src.models.subnets.decoders.mdam import MDAMDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding
-
-if TYPE_CHECKING:
-    from logic.src.models.subnets.decoders.mdam import MDAMDecoder
-    from logic.src.models.subnets.encoders.mdam.encoder import MDAMGraphAttentionEncoder
+from logic.src.models.subnets.encoders.mdam.encoder import MDAMGraphAttentionEncoder
 
 
 class MDAMPolicy(AutoregressivePolicy):
@@ -64,9 +62,6 @@ class MDAMPolicy(AutoregressivePolicy):
             test_strategy: Decoding type during testing.
             **decoder_kwargs: Additional decoder arguments.
         """
-        from logic.src.models.subnets.decoders.mdam import MDAMDecoder
-        from logic.src.models.subnets.encoders.mdam.encoder import MDAMGraphAttentionEncoder
-
         # Create encoder if not provided
         if encoder is None:
             encoder = MDAMGraphAttentionEncoder(

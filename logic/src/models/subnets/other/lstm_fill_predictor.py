@@ -4,6 +4,8 @@ from typing import Tuple, cast
 
 from torch import nn
 
+from logic.src.models.subnets.modules import ActivationFunction
+
 
 class LongShortTermMemoryFillPredictor(nn.Module):
     """
@@ -43,8 +45,6 @@ class LongShortTermMemoryFillPredictor(nn.Module):
         if uniform_range is None:
             uniform_range = [0.125, 1 / 3]
         super(LongShortTermMemoryFillPredictor, self).__init__()
-        from logic.src.models.subnets.modules import ActivationFunction
-
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.bidirectional = bidirectional
