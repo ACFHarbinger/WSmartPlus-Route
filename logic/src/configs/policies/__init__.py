@@ -43,6 +43,7 @@ from .lahc import LAHCConfig
 from .lb import LocalBranchingConfig
 from .lb_vns import LocalBranchingVNSConfig
 from .lca import LCAConfig
+from .lkh3 import LKH3Config
 from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
 from .ma_im import MemeticAlgorithmIslandModelConfig
@@ -99,6 +100,7 @@ __all__ = [
     "HVPLConfig",
     "KGLSConfig",
     "LKHConfig",
+    "LKH3Config",
     "NeuralConfig",
     "RLAHVPLConfig",
     "RLALNSConfig",

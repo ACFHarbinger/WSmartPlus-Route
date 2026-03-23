@@ -1,0 +1,77 @@
+# Policy Configuration
+
+# =============================================================================
+# LKH-3 (Lin-Kernighan-Helsgaun 3) Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Advanced local-search metaheuristic for TSP and CVRP, based on the
+#   LKH-3 framework (Helsgaun 2017). Uses k-opt moves (k=2..5) with
+#   alpha-measure candidate sets, double-bridge perturbation, and tour-pool
+#   merging for multi-start iterated local search.
+#
+# ALGORITHM:
+#   1. Alpha-measure candidate sets via minimum spanning tree sensitivity
+#   2. Sequential k-opt local search (k = 2..5) with don't-look bits
+#   3. Double-bridge kick for perturbation (ILS)
+#   4. POPMUSIC candidate generation for large instances (N > 1000)
+#   5. IP-based tour merging for elite solution recombination
+#   6. Lexicographic penalty (P, C) for constraint handling
+#
+# TYPICAL USE CASES:
+#   - Medium instances (50-500 nodes) as primary solver
+#   - Post-processing refinement of existing tours
+#   - Benchmarking against constructive neural methods
+#
+# REFERENCE:
+#   Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
+#   traveling salesman and vehicle routing problems.
+# =============================================================================
+
+lkh3:
+  custom:
+    # ---------------------------------------------------------------------
+    # Runtime Control
+    # ---------------------------------------------------------------------
+    - max_trials: 1000
+      # Maximum local-search iterations per run
+      # Range: 100-10000
+
+    - runs: 10
+      # Number of independent multi-start runs
+      # Range: 1-50 (more runs = better coverage, slower)
+      # Recommendation: 10 for production, 1 for quick testing
+
+    # ---------------------------------------------------------------------
+    # LKH-3 Extensions
+    # ---------------------------------------------------------------------
+    - popmusic_subpath_size: 50
+      # Sub-path size r for POPMUSIC candidate generation (N > 1000)
+      # Range: 20-200
+
+    - popmusic_trials: 50
+      # Number of POPMUSIC decomposition runs
+      # Range: 10-100
+
+    - max_k_opt: 5
+      # Maximum k for k-opt moves
+      # Range: 2-5 (2 = fast/weak, 5 = slow/strong)
+      # 5 is full LKH-3; use 3 for large instances
+
+    - use_ip_merging: true
+      # Use IP-based tour merging for elite recombination
+      # false = greedy shared-edge merging (faster, weaker)
+
+    # ---------------------------------------------------------------------
+    # Infrastructure Settings
+    # ---------------------------------------------------------------------
+    - time_limit: 60
+
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
+    - engine: "custom"
+
+    - must_go: ["other/mg_lookahead.yaml"]
+    - post_processing: []
+# =============================================================================
