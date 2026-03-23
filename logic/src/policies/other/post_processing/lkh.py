@@ -77,13 +77,15 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
             if len(trip) > 2:
                 # Build closed sub-tour: [0, ...nodes..., 0]
                 sub_tour = [0] + trip + [0]
+                max_iterations = kwargs.get("max_iterations", self.config.get("max_iterations", 1000))
+                seed = kwargs.get("seed", self.config.get("seed", 42))
                 optimized, _ = solve_lkh(
                     distance_matrix,
                     initial_tour=sub_tour,
-                    max_iterations=kwargs.get("max_iterations", 1000),
+                    max_iterations=max_iterations,
                     waste=waste_arr,
                     capacity=capacity,
-                    np_rng=np.random.default_rng(kwargs.get("seed", 42)),
+                    np_rng=np.random.default_rng(seed),
                 )
                 # Strip depot from result
                 refined_tour.extend([n for n in optimized if n != 0])

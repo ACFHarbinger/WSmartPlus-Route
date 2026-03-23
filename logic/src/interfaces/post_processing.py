@@ -16,6 +16,10 @@ class IPostProcessor(ABC):
     Interface for all routing post-processors.
     """
 
+    def __init__(self, **kwargs: Any):
+        """Initialize post-processor with config."""
+        self.config = kwargs
+
     @abstractmethod
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """

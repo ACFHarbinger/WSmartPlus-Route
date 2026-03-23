@@ -27,17 +27,13 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
     logic/src/models/policies/classical/local_search.py
     """
 
-    def __init__(self, **kwargs: Any):
-        """Initialize post-processor."""
-        self.config = kwargs
-
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """
         Apply vectorized local search to the tour.
 
         Args:
             tour: The initial tour to refine.
-            **kwargs: Context containing 'distance_matrix' and optionally 'n_iterations'.
+            **kwargs: Context containing 'distance_matrix', 'iterations', 'ls_operator', 'seed'.
 
         Returns:
             List[int]: The refined tour after applying the local search operator.
@@ -47,7 +43,10 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
         if distance_matrix is None:
             return tour
 
-        max_iter = kwargs.get("n_iterations", kwargs.get("post_process_iterations", 50))
+        # Get parameters from config (via kwargs) with fallbacks
+        max_iter = kwargs.get("iterations", kwargs.get("n_iterations", self.config.get("iterations", 1000)))
+        operator_name = kwargs.get("ls_operator", kwargs.get("operator_name", self.config.get("ls_operator", "2opt")))
+        seed = kwargs.get("seed", self.config.get("seed", 42))
 
         # Ensure Tensors
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -73,8 +72,8 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
             "three_opt": vectorized_three_opt,
         }
 
-        op_fn = ops.get(kwargs.get("operator_name", "2opt"), vectorized_two_opt)
-        generator = torch.Generator(device=device).manual_seed(kwargs.get("seed", 42))
+        op_fn = ops.get(operator_name, vectorized_two_opt)
+        generator = torch.Generator(device=device).manual_seed(seed)
         try:
             refined_tensor = op_fn(tour_tensor, dm_tensor, max_iterations=max_iter, generator=generator)
             return refined_tensor.squeeze(0).cpu().tolist()

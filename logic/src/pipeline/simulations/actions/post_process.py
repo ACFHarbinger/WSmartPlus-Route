@@ -67,7 +67,6 @@ class PostProcessAction(SimulationAction):
         """Handle legacy string/file configuration for processors."""
         pp_name = ""
         pp_params = {k: v for k, v in context.items() if k != "tour"}
-
         if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
             fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
             try:
@@ -90,8 +89,6 @@ class PostProcessAction(SimulationAction):
             return []
 
         try:
-            # We can't easily pass params here to create(), maybe factory handles it?
-            # The original code only passed pp_name to create().
             return [factory.create(pp_name)]
         except Exception as e:
             logger.warning(f"Failed to create post-processor {pp_name}: {e}")
@@ -100,12 +97,10 @@ class PostProcessAction(SimulationAction):
     def _apply_processors(self, processors: list, context: Dict[str, Any]) -> None:
         """Apply a list of processors to the tour in the context."""
         tour = context.get("tour")
-
         for processor in processors:
             try:
                 pf_params = {k: v for k, v in context.items() if k != "tour"}
                 refined_tour = processor.process(tour, **pf_params)
-
                 if refined_tour != tour:
                     dist_matrix = context.get("distance_matrix")
                     new_cost = get_route_cost(dist_matrix, refined_tour)

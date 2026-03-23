@@ -59,12 +59,53 @@ class PostProcessorFactory:
         Args:
             config: PostProcessingConfig instance.
         """
+        from ..fast_tsp import FastTSPPostProcessor
+        from ..lkh import LinKernighanHelsgaunPostProcessor
+        from ..local_search import ClassicalLocalSearchPostProcessor
+        from ..path import PathPostProcessor
+        from ..random_local_search import RandomLocalSearchPostProcessor
+
         processors: List[IPostProcessor] = []
         if not config.methods:
             return processors
 
         for method in config.methods:
-            processor = cls.create(method)
+            method_lower = method.lower()
+
+            # Create post-processor with method-specific config parameters
+            if method_lower in ["fast_tsp", "tsp"]:
+                processor = FastTSPPostProcessor(
+                    time_limit=config.fast_tsp.time_limit,
+                    seed=config.fast_tsp.seed,
+                )
+            elif method_lower in ["lkh", "lkh3", "lkh-3", "lin_kernighan_helsgaun"]:
+                processor = LinKernighanHelsgaunPostProcessor(
+                    max_iterations=config.lkh.max_iterations,
+                    time_limit=config.lkh.time_limit,
+                    seed=config.lkh.seed,
+                )
+            elif method_lower in ["local_search", "classical_local_search", "cls"]:
+                processor = ClassicalLocalSearchPostProcessor(
+                    ls_operator=config.local_search.ls_operator,
+                    iterations=config.local_search.iterations,
+                    time_limit=config.local_search.time_limit,
+                    seed=config.local_search.seed,
+                )
+            elif method_lower in ["random", "random_local_search", "rls"]:
+                processor = RandomLocalSearchPostProcessor(
+                    iterations=config.random_local_search.iterations,
+                    params=config.random_local_search.params,
+                    time_limit=config.random_local_search.time_limit,
+                    seed=config.random_local_search.seed,
+                )
+            elif method_lower == "path":
+                processor = PathPostProcessor(
+                    vehicle_capacity=config.path.vehicle_capacity,
+                )
+            else:
+                # Fallback to registry
+                processor = cls.create(method)
+
             processors.append(processor)
 
         return processors

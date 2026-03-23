@@ -28,10 +28,12 @@ class LKHPostConfig:
 
     Attributes:
         max_iterations: Maximum number of LKH iterations.
+        time_limit: Maximum time in seconds for the solver.
         seed: Random seed for reproducibility.
     """
 
     max_iterations: int = 1000
+    time_limit: float = 30.0
     seed: int = 42
 
 
@@ -40,13 +42,15 @@ class LocalSearchPostConfig:
     """Configuration for classical local search refinement.
 
     Attributes:
-        operator_name: Local search operator (e.g., '2opt', 'swap', 'relocate').
-        n_iterations: Maximum number of local search iterations.
+        ls_operator: Local search operator (e.g., '2opt', 'swap', 'relocate').
+        iterations: Maximum number of local search iterations.
+        time_limit: Maximum time in seconds for the operator.
         seed: Random seed for reproducibility.
     """
 
-    operator_name: str = "2opt"
-    n_iterations: int = 50
+    ls_operator: str = "2opt"
+    iterations: int = 1000
+    time_limit: float = 30.0
     seed: int = 42
 
 
@@ -66,22 +70,24 @@ class RandomLocalSearchPostConfig:
     """Configuration for stochastic (random) local search refinement.
 
     Attributes:
-        n_iterations: Number of random local search iterations.
-        op_probs: Probabilities for selecting different local search operators.
+        iterations: Number of random local search iterations.
+        params: Probabilities for selecting different local search operators.
+        time_limit: Maximum time in seconds for the operator.
         seed: Random seed for reproducibility.
     """
 
-    n_iterations: int = 50
-    op_probs: Dict[str, float] = field(
+    iterations: int = 1000
+    params: Dict[str, float] = field(
         default_factory=lambda: {
-            "two_opt": 0.25,
-            "swap": 0.15,
-            "relocate": 0.15,
+            "two_opt": 0.2,
             "two_opt_star": 0.2,
+            "swap": 0.15,
             "swap_star": 0.15,
+            "relocate": 0.15,
             "three_opt": 0.1,
         }
     )
+    time_limit: float = 30.0
     seed: int = 42
 
 

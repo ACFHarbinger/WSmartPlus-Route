@@ -33,7 +33,7 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
 
         Args:
             tour: The initial tour to refine.
-            **kwargs: Context containing 'distance_matrix', 'n_iterations', and optionally 'op_probs'.
+            **kwargs: Context containing 'distance_matrix', 'iterations', 'params', 'seed'.
 
         Returns:
             List[int]: The refined tour.
@@ -43,15 +43,25 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
         if distance_matrix is None or len(tour) < 4:
             return tour
 
-        n_iterations = kwargs.get("n_iterations", kwargs.get("post_process_iterations", 50))
-        op_probs = kwargs.get("op_probs") or {
-            "two_opt": 0.25,
-            "swap": 0.15,
-            "relocate": 0.15,
-            "two_opt_star": 0.2,
-            "swap_star": 0.15,
-            "three_opt": 0.1,
-        }
+        # Get parameters from config (via kwargs) with fallbacks
+        n_iterations = kwargs.get("iterations", kwargs.get("n_iterations", self.config.get("iterations", 1000)))
+        op_probs = kwargs.get(
+            "params",
+            kwargs.get(
+                "op_probs",
+                self.config.get(
+                    "params",
+                    {
+                        "two_opt": 0.2,
+                        "two_opt_star": 0.2,
+                        "swap": 0.15,
+                        "swap_star": 0.15,
+                        "relocate": 0.15,
+                        "three_opt": 0.1,
+                    },
+                ),
+            ),
+        )
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if not isinstance(distance_matrix, torch.Tensor):
@@ -74,8 +84,9 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
         probs = torch.tensor([op_probs.get(op, 0.0) for op in ops_sorted], dtype=torch.float32)
         probs = probs / (probs.sum() + 1e-10)
 
-        iter_count = int(n_iterations) if n_iterations is not None else 50
-        generator = torch.Generator(device=device).manual_seed(kwargs.get("seed", 42))
+        iter_count = int(n_iterations) if n_iterations is not None else 1000
+        seed = kwargs.get("seed", self.config.get("seed", 42))
+        generator = torch.Generator(device=device).manual_seed(seed)
         try:
             op_indices = torch.multinomial(probs, iter_count, replacement=True, generator=generator).tolist()
             for op_idx in op_indices:
