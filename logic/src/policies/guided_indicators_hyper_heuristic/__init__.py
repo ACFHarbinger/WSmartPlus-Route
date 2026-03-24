@@ -12,7 +12,7 @@ Reference:
     on Genetic and Evolutionary Computation (pp. 417-424).
 """
 
-from .gihh import run_gihh
+from .gihh import GIHHSolver
 from .params import GIHHParams
 
-__all__ = ["run_gihh", "GIHHParams"]
+__all__ = ["GIHHSolver", "GIHHParams"]

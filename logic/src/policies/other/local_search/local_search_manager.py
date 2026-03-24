@@ -79,6 +79,7 @@ class LocalSearchManager:
         self.R = R
         self.C = C
         self.improvement_threshold = improvement_threshold
+        self.seed = seed
         self.rng = np.random.default_rng(seed)
         self.random_std = random.Random(seed)
 
@@ -540,9 +541,8 @@ class LocalSearchManager:
 
             # Apply LKH
             improved_tour, improved_cost = solve_lkh(
-                self.d, initial_tour=nodes, max_iterations=20, waste=waste_array, capacity=self.Q, np_rng=self.rng
+                self.d, initial_tour=nodes, max_iterations=20, np_rng=self.rng, seed=self.seed
             )
-
             if improved_cost < initial_cost - 1e-6:
                 # Extract route from tour (remove depot duplicates)
                 new_route = [n for n in improved_tour if n != 0]

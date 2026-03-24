@@ -1,8 +1,8 @@
 """
-LKH-3 Heuristic Module.
+LKH Heuristic Module.
 
-Full implementation of the Lin-Kernighan-Helsgaun heuristic (LKH-3) for solving
-the Traveling Salesman Problem (TSP) and Capacitated Vehicle Routing Problem (CVRP).
+Full implementation of the Lin-Kernighan-Helsgaun heuristic for solving
+the Traveling Salesman Problem (TSP).
 
 Key features (following Helsgaun 2000 and LKH-3 extension paper):
 
@@ -38,11 +38,7 @@ Key features (following Helsgaun 2000 and LKH-3 extension paper):
 7. **Tour merging** (pool-based recombination):
    Combines shared edges from several elite tours to seed new searches.
 
-8. **VRP penalty / lexicographic objective** (LKH-3):
-   Objective = (penalty, cost); penalty = total excess demand. All
-   improvement checks use ``is_better(p1, c1, p2, c2)``.
-
-9. **_improve_tour** — outer driver.  Iterates over every non-masked node
+8. **_improve_tour** — outer driver.  Iterates over every non-masked node
    t1 and tries 2-opt first; if unsuccessful it attempts 3-, 4-, and 5-opt
    in order (each gated by an instance-size threshold).  Accepts the first
    improvement found (first-improvement strategy) and returns immediately.
@@ -52,25 +48,23 @@ Key features (following Helsgaun 2000 and LKH-3 extension paper):
 References:
     Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
       traveling salesman heuristic. EJOR 126, 106-130.
-    Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
-      traveling salesman and vehicle routing problems.
 
 Example:
     >>> tour, cost = solve_lkh(distance_matrix)
-    >>> tour, cost = solve_lkh(distance_matrix, waste=demands, capacity=cap)
 """
 
 from __future__ import annotations
 
 import random
+from collections import deque
 from random import Random
-from typing import Dict, List, Optional, Tuple
+from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.sparse.csgraph import minimum_spanning_tree
 
 from logic.src.policies.other.operators.heuristics._objective import (
-    get_score,
+    get_cost,
     is_better,
 )
 from logic.src.policies.other.operators.heuristics._tour_construction import (
@@ -92,54 +86,6 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 # ---------------------------------------------------------------------------
 
 
-def _find_mst_path_max(mst_adj: np.ndarray, start: int, end: int, n: int) -> float:
-    """
-    Find maximum edge weight on the unique path in an MST between two nodes.
-
-    Uses BFS to trace the path in the (undirected) MST and returns the weight
-    of the heaviest edge encountered.
-
-    Args:
-        mst_adj: (n × n) adjacency matrix of the MST (upper-triangular sparse).
-        start: Source node index.
-        end: Destination node index.
-        n: Number of nodes.
-
-    Returns:
-        Maximum edge weight on the path; 0.0 if start == end or no path exists.
-    """
-    if start == end:
-        return 0.0
-
-    visited = np.zeros(n, dtype=bool)
-    parent = np.full(n, -1, dtype=int)
-    queue = [start]
-    visited[start] = True
-
-    while queue:
-        current = queue.pop(0)
-        if current == end:
-            break
-        for neighbor in range(n):
-            if not visited[neighbor] and (mst_adj[current, neighbor] > 0 or mst_adj[neighbor, current] > 0):
-                visited[neighbor] = True
-                parent[neighbor] = current
-                queue.append(neighbor)
-
-    if parent[end] == -1:
-        return 0.0
-
-    max_edge = 0.0
-    current = end
-    while parent[current] != -1:
-        prev = parent[current]
-        edge_weight = max(mst_adj[prev, current], mst_adj[current, prev])
-        max_edge = max(max_edge, edge_weight)
-        current = prev
-
-    return max_edge
-
-
 def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
     """
     Compute α-nearness for every edge using minimum-spanning-tree sensitivity.
@@ -158,15 +104,38 @@ def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
     """
     n = len(distance_matrix)
     mst_sparse = minimum_spanning_tree(distance_matrix)
+    # Convert directed result to symmetric dense MST
     mst = mst_sparse.toarray()
+    mst = np.maximum(mst, mst.T)
+
+    # Build explicit adjacency list for faster MST traversal (fixes O(V^3) bottleneck)
+    adj: List[List[Tuple[int, float]]] = [[] for _ in range(n)]
+    rows, cols = np.where(mst > 0)
+    for r, c in zip(rows, cols):
+        adj[r].append((c, float(mst[r, c])))
 
     alpha = np.zeros((n, n), dtype=float)
+
     for i in range(n):
+        # BFS to find max edge weight from root i to all other nodes
+        max_edge_to = np.zeros(n, dtype=float)
+        visited = np.zeros(n, dtype=bool)
+        queue: Deque[int] = deque([i])
+        visited[i] = True
+
+        while queue:
+            current = queue.popleft()
+            for neighbor, weight in adj[current]:
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    # Max edge on path to neighbor is max(max edge to current, weight)
+                    max_edge_to[neighbor] = max(max_edge_to[current], weight)
+                    queue.append(neighbor)
+
+        # After BFS for root i, populate alpha row for pairs (i, j)
         for j in range(i + 1, n):
-            max_mst_edge = _find_mst_path_max(mst, i, j, n)
-            alpha_val = distance_matrix[i, j] - max_mst_edge
-            alpha[i, j] = alpha_val
-            alpha[j, i] = alpha_val
+            alpha_val = distance_matrix[i, j] - max_edge_to[j]
+            alpha[i, j] = alpha[j, i] = max(0.0, alpha_val)
 
     return alpha
 
@@ -208,51 +177,52 @@ def get_candidate_set(
 
 def _improve_tour(  # noqa: C901
     curr_tour: List[int],
-    curr_pen: float,
     curr_cost: float,
     candidates: Dict[int, List[int]],
     distance_matrix: np.ndarray,
-    waste: Optional[np.ndarray],
-    capacity: Optional[float],
     rng: Random,
     dont_look_bits: Optional[np.ndarray] = None,
-) -> Tuple[List[int], float, float, bool, Optional[np.ndarray]]:
+    max_k: int = 5,
+) -> Tuple[List[int], float, bool, Optional[np.ndarray]]:
     """
-    Execute one complete pass of sequential k-opt local search (k = 2..5).
+    Execute one complete pass of sequential k-opt local search (k = 2..max_k).
 
     For each node t1 (not masked by a don't-look bit) and its successor t2
     in the current tour, the following hierarchy is attempted in order:
 
     1. **2-opt** — exact gain pre-screen over α-nearest neighbours of t2;
        move applied via :func:`move_kopt_intra` (k=2).
-    2. **3-opt** — exact gain pre-screen for all seven patterns; move applied
-       via :func:`move_kopt_intra` (k=3).  Restricted to n < 500.
-    3. **4-opt** — exact gain pre-screen for three patterns; move applied via
-       :func:`move_kopt_intra` (k=4).  Restricted to n < 300.
-    4. **5-opt** — exact gain pre-screen for five patterns; move applied via
-       :func:`move_kopt_intra` (k=5).  Restricted to n < 200.
+    2. **3-opt** — exact gain pre-screen for all seven patterns; direct segment
+       swapping.  Enabled when max_k >= 3 and n < 500.
+    3. **4-opt** — exact gain pre-screen for three patterns; direct segment
+       swapping.  Enabled when max_k >= 4 and n < 300.
+    4. **5-opt** — exact gain pre-screen for five patterns; direct segment
+       swapping.  Enabled when max_k >= 5 and n < 200.
 
-    Only exact positive gains trigger an operator call.  The first improving
-    move at the lowest k is accepted (first-improvement strategy) and the
-    function returns immediately so the outer loop can restart.
+    Only exact positive gains trigger a move.  The first improving move at the
+    lowest k is accepted (first-improvement strategy) and the function returns
+    immediately so the outer loop can restart.
 
     Don't-look bits (Helsgaun 2000, Section 5.3) are reset for all nodes
     involved in an accepted move and set for nodes whose search found nothing.
 
     Args:
         curr_tour: Current closed tour.
-        curr_pen, curr_cost: Current (penalty, cost).
+        curr_cost: Current tour cost.
         candidates: α-nearest-neighbour candidate lists.
         distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters (None for TSP).
         rng: Random number generator forwarded to operators.
         dont_look_bits: Boolean array of length n; nodes with True are skipped.
+        max_k: Maximum k-opt depth (2-5). Throttles search for small instances.
 
     Returns:
-        (new_tour, new_penalty, new_cost, any_improvement, updated_bits).
+        (new_tour, new_cost, any_improvement, updated_bits).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
+
+    # O(1) position map for tour index lookups
+    pos_map = {node: idx for idx, node in enumerate(curr_tour[:-1])}
 
     if dont_look_bits is None:
         dont_look_bits = np.zeros(nodes_count, dtype=bool)
@@ -265,7 +235,6 @@ def _improve_tour(  # noqa: C901
             continue
 
         t2 = curr_tour[i + 1]
-        found_improvement_for_t1 = False
 
         # ---- 2-opt ----
         for t3 in candidates[t2]:
@@ -276,12 +245,8 @@ def _improve_tour(  # noqa: C901
                 if t3 == t2:
                     continue
 
-            try:
-                j = curr_tour.index(t3)
-            except ValueError:
-                continue
-
-            if j <= i + 1:
+            j = pos_map.get(t3, -1)
+            if j == -1 or j <= i + 1:
                 continue
 
             t4 = curr_tour[j + 1]
@@ -290,39 +255,33 @@ def _improve_tour(  # noqa: C901
             if gain > 1e-6:
                 new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
                 if new_tour is not None:
-                    p_new, c_new = get_score(new_tour, d, waste, capacity)
-                    if is_better(p_new, c_new, curr_pen, curr_cost):
-                        curr_tour, curr_pen, curr_cost = new_tour, p_new, c_new
-                        improved_overall = True
-                        found_improvement_for_t1 = True
+                    c_new = get_cost(new_tour, d)
+                    if is_better(c_new, curr_cost):
+                        curr_tour, curr_cost = new_tour, c_new
                         dont_look_bits[t1] = False
                         dont_look_bits[t2] = False
                         dont_look_bits[t3] = False
                         dont_look_bits[t4] = False
-                        return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+                        return curr_tour, curr_cost, True, dont_look_bits
 
             # ---- 3-opt ----
-            if nodes_count < 500:
-                res_tour, res_p, res_c, res_imp = _try_3opt_move(
-                    curr_tour, i, j, t1, t2, t3, t4, d, waste, capacity, rng
-                )
-                if res_imp and res_tour is not None and is_better(res_p, res_c, curr_pen, curr_cost):
-                    curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
-                    improved_overall = True
-                    found_improvement_for_t1 = True
+            if max_k >= 3 and nodes_count < 500:
+                res_tour, res_c, res_imp = _try_3opt_move(curr_tour, i, j, t1, t2, t3, t4, d, rng)
+                if res_imp and res_tour is not None and is_better(res_c, curr_cost):
+                    curr_tour, curr_cost = res_tour, res_c
                     dont_look_bits[t1] = False
                     dont_look_bits[t2] = False
                     dont_look_bits[t3] = False
                     dont_look_bits[t4] = False
-                    return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+                    return curr_tour, curr_cost, True, dont_look_bits
 
                 # ---- 4-opt ----
-                if nodes_count < 300:
+                if max_k >= 4 and nodes_count < 300:
                     for k_idx in range(j + 2, nodes_count):
                         t5 = curr_tour[k_idx]
                         t6 = curr_tour[k_idx + 1]
 
-                        res4, rp4, rc4, ri4 = _try_4opt_move(
+                        res4, rc4, ri4 = _try_4opt_move(
                             curr_tour,
                             i,
                             j,
@@ -334,25 +293,22 @@ def _improve_tour(  # noqa: C901
                             t5,
                             t6,
                             d,
-                            waste,
-                            capacity,
                             rng,
                         )
-                        if ri4 and res4 is not None and is_better(rp4, rc4, curr_pen, curr_cost):
-                            curr_tour, curr_pen, curr_cost = res4, rp4, rc4
-                            improved_overall = True
-                            found_improvement_for_t1 = True
+                        if ri4 and res4 is not None and is_better(rc4, curr_cost):
+                            curr_tour, curr_cost = res4, rc4
                             dont_look_bits[t1] = dont_look_bits[t2] = dont_look_bits[t3] = dont_look_bits[
                                 t4
                             ] = dont_look_bits[t5] = dont_look_bits[t6] = False
-                            return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+                            return curr_tour, curr_cost, True, dont_look_bits
 
                         # ---- 5-opt ----
-                        if nodes_count < 200:
+                        if max_k >= 5 and nodes_count < 200:
                             for l_idx in range(k_idx + 2, nodes_count):
                                 t7 = curr_tour[l_idx]
                                 t8 = curr_tour[l_idx + 1]
-                                res5, rp5, rc5, ri5 = _try_5opt_move(
+
+                                res5, rc5, ri5 = _try_5opt_move(
                                     curr_tour,
                                     i,
                                     j,
@@ -367,24 +323,18 @@ def _improve_tour(  # noqa: C901
                                     t7,
                                     t8,
                                     d,
-                                    waste,
-                                    capacity,
                                     rng,
                                 )
-                                if ri5 and res5 is not None and is_better(rp5, rc5, curr_pen, curr_cost):
-                                    curr_tour, curr_pen, curr_cost = res5, rp5, rc5
-                                    improved_overall = True
-                                    found_improvement_for_t1 = True
-                                    dont_look_bits[t1] = dont_look_bits[t2] = dont_look_bits[t3] = dont_look_bits[
-                                        t4
-                                    ] = dont_look_bits[t5] = dont_look_bits[t6] = dont_look_bits[t7] = dont_look_bits[
-                                        t8
-                                    ] = False
-                                    return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+                                if ri5 and res5 is not None and is_better(rc5, curr_cost):
+                                    # _try_5opt_move found an improving 5-opt move
+                                    # Since 5-opt involves 5 cuts (10 nodes total) and we don't track
+                                    # which specific m was used, clear all don't-look bits to be safe
+                                    curr_tour, curr_cost = res5, rc5
+                                    dont_look_bits.fill(False)  # Reset all bits after major improvement
+                                    return curr_tour, curr_cost, True, dont_look_bits
 
-        if not found_improvement_for_t1:
-            dont_look_bits[t1] = True
-    return curr_tour, curr_pen, curr_cost, improved_overall, dont_look_bits
+        dont_look_bits[t1] = True
+    return curr_tour, curr_cost, improved_overall, dont_look_bits
 
 
 # ---------------------------------------------------------------------------
@@ -396,36 +346,35 @@ def solve_lkh(
     distance_matrix: np.ndarray,
     initial_tour: Optional[List[int]] = None,
     max_iterations: int = 100,
-    waste: Optional[np.ndarray] = None,
-    capacity: Optional[float] = None,
+    max_k: int = 5,
     recorder: Optional[PolicyStateRecorder] = None,
     np_rng: Optional[np.random.Generator] = None,
+    seed: Optional[int] = None,
 ) -> Tuple[List[int], float]:
     """
-    Solve a TSP or CVRP instance using the LKH-3 iterated local-search scheme.
+    Solve a TSP instance using the LKH iterated local-search scheme.
 
-    Algorithm outline (Helsgaun 2000 / LKH-3):
+    Algorithm outline (Helsgaun 2000):
 
     1. **Initialisation** — nearest-neighbour or provided tour.
     2. **Candidate sets** — α-measure computed from minimum spanning tree.
-    3. **Local-search loop** — repeated k-opt passes (k = 2..5) with
-       don't-look bits until a local optimum is reached.  All k-opt moves
-       are executed via :func:`move_kopt_intra`.
-    4. **Perturbation** — double-bridge kick via :func:`double_bridge` to
-       escape the basin of attraction of the current local optimum.
+    3. **Local-search loop** — repeated k-opt passes (k = 2..max_k) with
+       don't-look bits until a local optimum is reached.
+    4. **Perturbation** — double-bridge kick to escape the basin of
+       attraction of the current local optimum.
     5. **Tour-pool merging** — every 10 kicks, two elite tours from the pool
        are merged to create a new starting point.
-    6. **Best-solution tracking** — lexicographic (penalty, cost) objective.
+    6. **Best-solution tracking** — simple distance minimization.
 
     Args:
         distance_matrix: (n × n) symmetric cost matrix.
         initial_tour: Optional starting tour (closed).  Nearest-neighbour
             construction is used when not provided.
         max_iterations: Maximum number of kicks / restarts.
-        waste: 1-D demand array for CVRP (None = pure TSP).
-        capacity: Vehicle capacity for CVRP (None = pure TSP).
+        max_k: Maximum k-opt depth (2-5). Lower values speed up small instances.
         recorder: Optional recorder for visualisation / diagnostics.
         np_rng: Numpy random generator; seeded from 42 if not provided.
+        seed: Alternative seed parameter (for compatibility).
 
     Returns:
         (best_tour, best_cost) where best_tour is a closed node sequence.
@@ -437,7 +386,7 @@ def solve_lkh(
         return tour, float(cost)
 
     if np_rng is None:
-        np_rng = np.random.default_rng(42)
+        np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
 
     # Bridge numpy RNG (used for array ops) → stdlib Random (operator interfaces)
     stdlib_rng = Random(int(np_rng.integers(0, 2**31)))
@@ -449,9 +398,9 @@ def solve_lkh(
     alpha = compute_alpha_measures(distance_matrix)
     candidates = get_candidate_set(distance_matrix, alpha, max_candidates=5)
 
-    curr_pen, curr_cost = get_score(curr_tour, distance_matrix, waste, capacity)
+    curr_cost = get_cost(curr_tour, distance_matrix)
     best_tour = curr_tour[:]
-    best_pen, best_cost = curr_pen, curr_cost
+    best_cost = curr_cost
 
     dont_look_bits: Optional[np.ndarray] = None
 
@@ -463,24 +412,22 @@ def solve_lkh(
     for restart in range(max_iterations):
         # Inner local-search until no improving k-opt move exists
         while True:
-            curr_tour, curr_pen, curr_cost, improved_local, dont_look_bits = _improve_tour(
+            curr_tour, curr_cost, improved_local, dont_look_bits = _improve_tour(
                 curr_tour,
-                curr_pen,
                 curr_cost,
                 candidates,
                 distance_matrix,
-                waste,
-                capacity,
                 stdlib_rng,
                 dont_look_bits,
+                max_k,
             )
             if not improved_local:
                 break
 
         # Update global best
-        if is_better(curr_pen, curr_cost, best_pen, best_cost):
+        if is_better(curr_cost, best_cost):
             best_tour = curr_tour[:]
-            best_pen, best_cost = curr_pen, curr_cost
+            best_cost = curr_cost
             tour_pool.append(best_tour[:])
             if len(tour_pool) > max_pool_size:
                 tour_pool.pop(0)
@@ -490,29 +437,28 @@ def solve_lkh(
                 restart=restart,
                 best_cost=best_cost,
                 curr_cost=curr_cost,
-                best_penalty=best_pen,
             )
 
         # Every 10 restarts: try tour-pool merging
         if restart > 0 and restart % 10 == 0 and len(tour_pool) >= 2:
             idx1, idx2 = random.sample(range(len(tour_pool)), 2)
             merged_tour = merge_tours(tour_pool[idx1], tour_pool[idx2], distance_matrix)
-            merged_pen, merged_cost = get_score(merged_tour, distance_matrix, waste, capacity)
+            merged_cost = get_cost(merged_tour, distance_matrix)
 
-            if is_better(merged_pen, merged_cost, best_pen, best_cost):
+            if is_better(merged_cost, best_cost):
                 best_tour = merged_tour[:]
-                best_pen, best_cost = merged_pen, merged_cost
+                best_cost = merged_cost
                 tour_pool.append(merged_tour[:])
                 if len(tour_pool) > max_pool_size:
                     tour_pool.pop(0)
 
             curr_tour = merged_tour
-            curr_pen, curr_cost = merged_pen, merged_cost
+            curr_cost = merged_cost
             dont_look_bits = None
         else:
             # Double-bridge perturbation via the shared operator
             curr_tour = _double_bridge_kick(best_tour, distance_matrix, stdlib_rng)
-            curr_pen, curr_cost = get_score(curr_tour, distance_matrix, waste, capacity)
+            curr_cost = get_cost(curr_tour, distance_matrix)
             dont_look_bits = None
 
     return best_tour, best_cost
