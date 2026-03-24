@@ -62,6 +62,7 @@ Example:
 
 from __future__ import annotations
 
+import warnings
 from random import Random
 from typing import Dict, List, Optional, Tuple
 
@@ -456,8 +457,6 @@ def solve_lkh(  # noqa: C901
     if n > 1:
         mask = ~np.eye(n, dtype=bool)
         if not np.all(distance_matrix[mask] > 0):
-            import warnings
-
             warnings.warn(
                 "Zero off-diagonal distances detected in the distance matrix. "
                 "Co-located nodes may cause infinite loops in LKH-3 k-opt search.",

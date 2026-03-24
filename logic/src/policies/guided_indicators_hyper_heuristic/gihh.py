@@ -73,7 +73,6 @@ class GIHHSolver:
 
         # 1. Initial Solution
         initial_routes = build_greedy_routes(
-            nodes=list(range(1, len(self.dist_matrix))),
             mandatory_nodes=self.mandatory_nodes,
             wastes=self.wastes,
             capacity=self.capacity,
@@ -83,7 +82,14 @@ class GIHHSolver:
             rng=self.rng,
         )
 
-        current_sol = Solution(initial_routes, self._evaluate(initial_routes))
+        current_sol = Solution(
+            initial_routes,
+            self.dist_matrix,
+            self.wastes,
+            self.capacity,
+            self.R,
+            self.C,
+        )
         best_sol = copy.deepcopy(current_sol)
 
         iteration = 0
@@ -101,7 +107,7 @@ class GIHHSolver:
             # 3. Update Indicators
             delta = candidate_sol.profit - current_sol.profit
             for indicator in self.indicators:
-                indicator.update(delta, elapsed)
+                indicator.update(delta, elapsed)  # type: ignore[attr-defined]
 
             # 4. Acceptance (Greedy)
             if candidate_sol.profit >= current_sol.profit:

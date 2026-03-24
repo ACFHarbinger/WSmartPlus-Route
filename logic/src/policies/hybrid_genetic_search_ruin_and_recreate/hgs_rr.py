@@ -235,36 +235,3 @@ class HGSRRSolver:
 
         # Accepted (added to population)
         return self.params.score_sigma_3
-
-
-def run_hgs_rr(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes=None, *args):
-    """
-    Main HGS-RR entry point.
-
-    Args:
-        dist_matrix: Distance matrix.
-        wastes: Bin wastes.
-        capacity: Vehicle capacity.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        params: Parameters for the HGS-RR algorithm.
-        mandatory_nodes: List of local node indices that MUST be visited.
-        *args: Additional arguments (ignored).
-
-    Returns:
-        Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
-    """
-    if len(dist_matrix) <= 1:
-        return [], 0.0, 0.0
-
-    if len(dist_matrix) == 2:
-        d = wastes.get(1, 0)
-        if d <= capacity:
-            cost = dist_matrix[0][1] + dist_matrix[1][0]
-            profit = d * R
-            return [[1]], profit, C * cost
-        else:
-            return [], 0.0, 0.0
-
-    solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
-    return solver.solve()

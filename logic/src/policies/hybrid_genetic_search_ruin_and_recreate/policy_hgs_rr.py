@@ -12,8 +12,8 @@ import numpy as np
 from logic.src.configs.policies import HGSRRConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr import run_hgs_rr
 
+from .hgs_rr import HGSRRSolver
 from .params import HGSRRParams
 
 
@@ -96,13 +96,13 @@ class HGSRRPolicy(BaseRoutingPolicy):
             profit_aware_operators=values.get("profit_aware_operators", False),
         )
 
-        routes, profit, solver_cost = run_hgs_rr(
+        solver = HGSRRSolver(
             sub_dist_matrix,
             sub_wastes,
             capacity,
             revenue,
             cost_unit,
             params,
-            mandatory_nodes=mandatory_nodes,
+            mandatory_nodes,
         )
-        return routes, profit, solver_cost
+        return solver.solve()

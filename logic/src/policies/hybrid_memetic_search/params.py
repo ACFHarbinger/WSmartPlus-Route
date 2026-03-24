@@ -87,7 +87,7 @@ class HybridMemeticSearchParams:
 
     @classmethod
     def from_config(cls, config: Any) -> HybridMemeticSearchParams:
-        """Create HMSParams from an HMSConfig dataclass or dict."""
+        """Create HybridMemeticSearchParams from an HMSConfig dataclass or dict."""
         if isinstance(config, dict):
             return cls(
                 population_size=config.get("population_size", 30),
