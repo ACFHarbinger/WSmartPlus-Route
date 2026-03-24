@@ -69,6 +69,7 @@ from random import Random
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_adapter import TourAdapter
 from logic.src.policies.other.operators.perturbation.double_bridge import double_bridge
@@ -170,8 +171,6 @@ def merge_tours_ip(
     Returns:
         A new closed tour combining edges from the elite pool.
     """
-    from scipy.optimize import linear_sum_assignment
-
     if len(tour_pool) < 2:
         return tour_pool[0][:] if tour_pool else []
 
@@ -446,7 +445,7 @@ class KoptTopologyFactory:
                 continue
 
             # Build adjacency list
-            adj = {v: [] for v in endpoints}
+            adj: Dict[int, List[int]] = {v: [] for v in endpoints}
             for u, v in segments:
                 adj[u].append(v)
                 adj[v].append(u)
@@ -561,7 +560,7 @@ def build_tour_from_segments(
             curr_endpoint = 2 * seg_idx + 1  # arrive at start of segment
 
     # Remove consecutive duplicates that occur from gluing
-    cleaned = []
+    cleaned: List[int] = []
     for node in new_tour_open:
         if not cleaned or cleaned[-1] != node:
             cleaned.append(node)

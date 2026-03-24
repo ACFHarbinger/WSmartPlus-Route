@@ -38,9 +38,9 @@ from .differential_evolution.params import DEParams
 from .differential_evolution.solver import DESolver
 from .evolution_strategy_mu_comma_lambda.solver import MuCommaLambdaESParams, MuCommaLambdaESSolver
 from .evolution_strategy_mu_plus_lambda.solver import MuPlusLambdaESParams, MuPlusLambdaESSolver
-from .guided_indicators_hyper_heuristic.policy_gihh import run_gihh
+from .guided_indicators_hyper_heuristic.policy_gihh import GIHHParams, GIHHSolver
 from .hybrid_genetic_search.policy_hgs import run_hgs
-from .hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr import run_hgs_rr
+from .hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr import HGSRRParams, HGSRRSolver
 from .hybrid_memetic_search.params import HybridMemeticSearchParams
 from .hybrid_memetic_search.solver import HybridMemeticSearchSolver
 from .memetic_algorithm_dual_population.params import MemeticAlgorithmDualPopulationParams
@@ -61,9 +61,11 @@ __all__ = [
     "PolicyRegistry",
     "find_routes",
     "find_routes_ortools",
-    "run_gihh",
+    "GIHHSolver",
+    "GIHHParams",
     "run_hgs",
-    "run_hgs_rr",
+    "HGSRRSolver",
+    "HGSRRParams",
     "NeuralAgent",
     "find_route",
     "MuPlusLambdaESSolver",
