@@ -72,7 +72,7 @@ import numpy as np
 from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
     get_score,
     is_better,
-    is_better_or_equal,
+    penalty_delta,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_adapter import TourAdapter
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
@@ -80,6 +80,7 @@ from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
     _3opt_gains,
     _4opt_gains,
     _5opt_gains,
+    _should_accept_kopt_move,
 )
 from logic.src.policies.other.operators.intra_route.k_opt import move_kopt_intra
 
@@ -164,14 +165,18 @@ def _try_2opt_move(
     waste: Optional[np.ndarray],
     capacity: Optional[float],
     rng: Random,
+    n_original: Optional[int] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool, int]:
     """
     Search for an improving 2-opt move starting from edge (t1, t2).
 
     Iterates over α-nearest neighbours of t2 as the candidate for t3.
-    Uses an exact gain pre-screen (:func:`_2opt_gain`) to skip clearly
-    non-improving pairs, then delegates the actual move to
-    :func:`move_kopt_intra` (k=2) via :func:`_apply_kopt_via_operator`.
+    Uses lexicographic pre-screening to accept moves that either:
+    1. Reduce capacity violations (ΔP < 0), OR
+    2. Maintain feasibility (ΔP == 0) AND improve cost (ΔC > 0)
+
+    This allows the search to transit through infeasible space by accepting
+    penalty-reducing moves even if they increase routing cost.
 
     Args:
         curr_tour: Current closed tour.
@@ -181,6 +186,7 @@ def _try_2opt_move(
         distance_matrix: Cost matrix.
         waste, capacity: VRP parameters (None for TSP).
         rng: Random number generator.
+        n_original: Original graph size (for augmented dummy depot mode).
 
     Returns:
         (new_tour, penalty, cost, improved, j) where j is the position of t3.
@@ -188,6 +194,9 @@ def _try_2opt_move(
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
+
+    # Get current tour score for penalty delta calculation
+    p_curr, c_curr = get_score(curr_tour, d, waste, capacity, n_original)
 
     for t3 in candidates[t2]:
         if t3 == t1:
@@ -205,13 +214,30 @@ def _try_2opt_move(
 
         t4 = curr_tour[j + 1]
 
-        # Exact gain pre-screen: only call the operator when gain > 0
-        gain = _2opt_gain(t1, t2, t3, t4, d)
-        if gain > 1e-6:
-            new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
-            if new_tour is not None:
-                p_new, c_new = get_score(new_tour, d, waste, capacity)
-                return new_tour, p_new, c_new, True, j
+        # Compute distance gain (ΔC)
+        delta_c = _2opt_gain(t1, t2, t3, t4, d)
+
+        # For VRP: Compute candidate new tour to evaluate penalty change
+        if waste is not None and capacity is not None:
+            # Create candidate tour for penalty evaluation
+            candidate_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
+            if candidate_tour is None:
+                continue
+
+            # Compute penalty delta (ΔP)
+            delta_p = penalty_delta(curr_tour, candidate_tour, waste, capacity, n_original)
+
+            # Lexicographic pre-screening
+            if _should_accept_kopt_move(delta_p, delta_c):
+                p_new, c_new = get_score(candidate_tour, d, waste, capacity, n_original)
+                return candidate_tour, p_new, c_new, True, j
+        else:
+            # TSP mode: pure cost gain
+            if delta_c > 1e-6:
+                new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
+                if new_tour is not None:
+                    p_new, c_new = get_score(new_tour, d, waste, capacity, n_original)
+                    return new_tour, p_new, c_new, True, j
 
     return None, 0.0, 0.0, False, -1
 
@@ -228,19 +254,14 @@ def _try_3opt_move(
     waste: Optional[np.ndarray],
     capacity: Optional[float],
     rng: Random,
+    n_original: Optional[int] = None,
+    load_state: Optional[object] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
     """
-    Search for an improving 3-opt move extending the (t1,t2), (t3,t4) pair.
+    Search for an improving 3-opt move with O(1) lexicographic pre-screening.
 
-    For each valid third cut position k_pos (t5, t6), computes exact gains
-    (:func:`_3opt_gains`) for all seven non-trivial reconnection cases.
-    When at least one non-redundant case has a positive gain the move is
-    delegated to :func:`move_kopt_intra` (k=3) via
-    :func:`_apply_kopt_via_operator`, which selects the best of the patterns
-    it evaluates at a sampled third cut.
-
-    Cases 1 and 2 (pure 2-opt sub-moves) are excluded from the pre-screen to
-    avoid redundant work with the 2-opt phase.
+    **CRITICAL FIX**: Moves _apply_kopt_via_operator() call AFTER lexicographic
+    gate to avoid O(N^4) → O(N^3) complexity reduction.
 
     Args:
         curr_tour: Current closed tour.
@@ -249,6 +270,8 @@ def _try_3opt_move(
         distance_matrix: Cost matrix.
         waste, capacity: VRP parameters.
         rng: Random number generator passed to the operator.
+        n_original: Original graph size (for augmented dummy depot mode).
+        load_state: Optional LoadState for O(1) penalty calculation.
 
     Returns:
         (new_tour, penalty, cost, improved).
@@ -256,25 +279,44 @@ def _try_3opt_move(
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
-    curr_p, curr_c = get_score(curr_tour, d, waste, capacity)
+    curr_p, curr_c = get_score(curr_tour, d, waste, capacity, n_original)
 
     for k_pos in range(j + 2, nodes_count):
         t5 = curr_tour[k_pos]
         t6 = curr_tour[k_pos + 1]
 
+        # Step 1: Compute distance gains (O(1))
         gains = _3opt_gains(t1, t2, t3, t4, t5, t6, d)
-        # Cases 1 & 2 are pure 2-opt on one sub-segment; skip to avoid duplication
-        improving = any(g > 1e-6 for idx, g in enumerate(gains) if idx not in (1, 2))
-        if not improving:
+        # Cases 1 & 2 are pure 2-opt; skip to avoid duplication
+        relevant_gains = [g for idx, g in enumerate(gains) if idx not in (1, 2)]
+        best_gain = max(relevant_gains) if relevant_gains else 0.0
+
+        # Step 2: O(1) penalty delta via load_state
+        if load_state is not None and waste is not None and capacity is not None:
+            from logic.src.policies.lin_kernighan_helsgaun_three.load_tracker import (
+                calculate_penalty_delta_fast,
+            )
+
+            broken_edges = [(t1, t2), (t3, t4), (t5, t6)]
+            delta_p = calculate_penalty_delta_fast(broken_edges, curr_tour, load_state, waste, capacity, n_original)
+        else:
+            delta_p = 0.0
+
+        delta_c = best_gain
+
+        # Step 3: Lexicographic gate
+        if not _should_accept_kopt_move(delta_p, delta_c):
+            continue  # Skip expensive tour construction
+
+        # Step 4: LAZY EVALUATION
+        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=3, distance_matrix=d, rng=rng)
+        if new_tour is None:
             continue
 
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=3, distance_matrix=d, rng=rng)
-        if new_tour is not None:
-            p3, c3 = get_score(new_tour, d, waste, capacity)
-            # LKH-3: accept if strictly better OR penalty decreases
-            # (infeasible transit — allows escaping local minima)
-            if is_better(p3, c3, curr_p, curr_c) or (p3 < curr_p - 1e-6 and is_better_or_equal(p3, c3, curr_p, curr_c)):
-                return new_tour, p3, c3, True
+        p3, c3 = get_score(new_tour, d, waste, capacity, n_original)
+
+        if is_better(p3, c3, curr_p, curr_c):
+            return new_tour, p3, c3, True
 
     return None, 0.0, 0.0, False
 
@@ -294,14 +336,14 @@ def _try_4opt_move(
     waste: Optional[np.ndarray],
     capacity: Optional[float],
     rng: Random,
+    n_original: Optional[int] = None,
+    load_state: Optional[object] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
     """
-    Search for an improving 4-opt move extending three broken edges.
+    Search for an improving 4-opt move with O(1) lexicographic pre-screening.
 
-    For each valid fourth cut position l (t7, t8), computes exact gains
-    (:func:`_4opt_gains`) for three common 4-opt patterns and delegates to
-    :func:`move_kopt_intra` (k=4) via :func:`_apply_kopt_via_operator` when
-    at least one pattern is improving.
+    **CRITICAL FIX**: Moves _apply_kopt_via_operator() call AFTER lexicographic
+    gate to avoid O(N^5) → O(N^4) complexity reduction.
 
     Args:
         curr_tour: Current closed tour.
@@ -310,28 +352,50 @@ def _try_4opt_move(
         distance_matrix: Cost matrix.
         waste, capacity: VRP parameters.
         rng: Random number generator.
+        n_original: Original graph size (for augmented dummy depot mode).
+        load_state: Optional LoadState for O(1) penalty calculation.
 
     Returns:
         (new_tour, penalty, cost, improved).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
-    curr_p, curr_c = get_score(curr_tour, d, waste, capacity)
+    curr_p, curr_c = get_score(curr_tour, d, waste, capacity, n_original)
 
     for l in range(k + 2, nodes_count):
         t7 = curr_tour[l]
         t8 = curr_tour[l + 1]
 
+        # Step 1: Compute distance gains (O(1))
         gains = _4opt_gains(t1, t2, t3, t4, t5, t6, t7, t8, d)
-        if not any(g > 1e-6 for g in gains):
+        best_gain = max(gains) if gains else 0.0
+
+        # Step 2: O(1) penalty delta via load_state
+        if load_state is not None and waste is not None and capacity is not None:
+            from logic.src.policies.lin_kernighan_helsgaun_three.load_tracker import (
+                calculate_penalty_delta_fast,
+            )
+
+            broken_edges = [(t1, t2), (t3, t4), (t5, t6), (t7, t8)]
+            delta_p = calculate_penalty_delta_fast(broken_edges, curr_tour, load_state, waste, capacity, n_original)
+        else:
+            delta_p = 0.0
+
+        delta_c = best_gain
+
+        # Step 3: Lexicographic gate
+        if not _should_accept_kopt_move(delta_p, delta_c):
+            continue  # Skip expensive tour construction
+
+        # Step 4: LAZY EVALUATION
+        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=4, distance_matrix=d, rng=rng)
+        if new_tour is None:
             continue
 
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=4, distance_matrix=d, rng=rng)
-        if new_tour is not None:
-            p4, c4 = get_score(new_tour, d, waste, capacity)
-            # LKH-3: accept if strictly better OR penalty decreases
-            if is_better(p4, c4, curr_p, curr_c) or (p4 < curr_p - 1e-6 and is_better_or_equal(p4, c4, curr_p, curr_c)):
-                return new_tour, p4, c4, True
+        p4, c4 = get_score(new_tour, d, waste, capacity, n_original)
+
+        if is_better(p4, c4, curr_p, curr_c):
+            return new_tour, p4, c4, True
 
     return None, 0.0, 0.0, False
 
@@ -354,15 +418,23 @@ def _try_5opt_move(
     waste: Optional[np.ndarray],
     capacity: Optional[float],
     rng: Random,
+    n_original: Optional[int] = None,
+    load_state: Optional[object] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
     """
-    Search for an improving 5-opt move extending four broken edges.
+    Search for an improving 5-opt move with O(1) lexicographic pre-screening.
 
-    Implements Helsgaun (2000) Section 4.3: the basic LKH move is a
-    sequential 5-opt.  For each valid fifth cut position m (t9, t10), exact
-    gains (:func:`_5opt_gains`) are computed; when at least one is positive
-    the move is delegated to :func:`move_kopt_intra` (k=5) via
-    :func:`_apply_kopt_via_operator`.
+    **CRITICAL FIX**: Moves _apply_kopt_via_operator() call AFTER lexicographic
+    gate to avoid O(N^6) complexity explosion.
+
+    Algorithm:
+    1. Compute distance gains (O(1))
+    2. Identify broken edges and compute penalty delta via load_state (O(1))
+    3. Lexicographic gate: accept if ΔP<0 OR (ΔP≈0 AND ΔC>0)
+    4. LAZY EVALUATION: Only construct new tour if gate passes (O(N))
+
+    Complexity: O(N^5) inner loop × O(1) gate × rare O(N) tour construction
+                = O(N^5) amortized instead of O(N^6)
 
     Args:
         curr_tour: Current closed tour.
@@ -371,27 +443,58 @@ def _try_5opt_move(
         distance_matrix: Cost matrix.
         waste, capacity: VRP parameters.
         rng: Random number generator.
+        n_original: Original graph size (for augmented dummy depot mode).
+        load_state: Optional LoadState for O(1) penalty calculation.
 
     Returns:
         (new_tour, penalty, cost, improved).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
-    curr_p, curr_c = get_score(curr_tour, d, waste, capacity)
+    curr_p, curr_c = get_score(curr_tour, d, waste, capacity, n_original)
 
     for m in range(l + 2, nodes_count):
         t9 = curr_tour[m]
         t10 = curr_tour[m + 1]
 
+        # Step 1: Compute distance gains (O(1))
         gains = _5opt_gains(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, d)
-        if not any(g > 1e-6 for g in gains):
+        best_gain = max(gains) if gains else 0.0
+
+        # Step 2: O(1) penalty delta via load_state (if available)
+        if load_state is not None and waste is not None and capacity is not None:
+            from logic.src.policies.lin_kernighan_helsgaun_three.load_tracker import (
+                calculate_penalty_delta_fast,
+            )
+
+            # Identify broken edges for 5-opt
+            broken_edges = [(t1, t2), (t3, t4), (t5, t6), (t7, t8), (t9, t10)]
+
+            # Fast penalty delta (O(1) relative to N)
+            delta_p = calculate_penalty_delta_fast(broken_edges, curr_tour, load_state, waste, capacity, n_original)
+        else:
+            # Fallback: assume no penalty change (pure TSP)
+            delta_p = 0.0
+
+        delta_c = best_gain  # Positive = cost reduction
+
+        # Step 3: Lexicographic gate
+        # Accept if: (ΔP < -ε) OR (|ΔP| ≤ ε AND ΔC > ε)
+        gate_passed = _should_accept_kopt_move(delta_p, delta_c)
+
+        if not gate_passed:
+            continue  # CRITICAL: Skip expensive tour construction!
+
+        # Step 4: LAZY EVALUATION - only construct tour if gate passed
+        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=5, distance_matrix=d, rng=rng)
+        if new_tour is None:
             continue
 
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=5, distance_matrix=d, rng=rng)
-        if new_tour is not None:
-            p5, c5 = get_score(new_tour, d, waste, capacity)
-            # LKH-3: accept if strictly better OR penalty decreases
-            if is_better(p5, c5, curr_p, curr_c) or (p5 < curr_p - 1e-6 and is_better_or_equal(p5, c5, curr_p, curr_c)):
-                return new_tour, p5, c5, True
+        # Verify actual improvement (gate is conservative estimate)
+        p5, c5 = get_score(new_tour, d, waste, capacity, n_original)
+
+        # Final check: strictly better under lexicographic objective
+        if is_better(p5, c5, curr_p, curr_c):
+            return new_tour, p5, c5, True
 
     return None, 0.0, 0.0, False

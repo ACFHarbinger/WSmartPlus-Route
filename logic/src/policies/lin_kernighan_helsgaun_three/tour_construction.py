@@ -383,13 +383,71 @@ def _2opt_gain(
     d: np.ndarray,
 ) -> float:
     """
-    Exact gain for a 2-opt move that removes (t1,t2) and (t3,t4).
+    Exact distance gain for a 2-opt move that removes (t1,t2) and (t3,t4).
 
     Gain = c(t1,t2) + c(t3,t4) − c(t1,t3) − c(t2,t4).
 
     A positive gain means the 2-opt move strictly reduces tour length.
+
+    NOTE: For lexicographic objectives, this function only computes ΔC (cost change).
+    The caller must separately evaluate ΔP (penalty change) to determine if the
+    move should be accepted. See _should_accept_kopt_move() for the full logic.
     """
     return d[t1, t2] + d[t3, t4] - d[t1, t3] - d[t2, t4]
+
+
+def _should_accept_kopt_move(
+    delta_penalty: float,
+    delta_cost: float,
+) -> bool:
+    """
+    Lexicographic pre-screening for k-opt moves.
+
+    A k-opt move should be passed to the operator for full evaluation if:
+    1. It reduces capacity violations (ΔP < 0), OR
+    2. It maintains feasibility (ΔP == 0) AND improves cost (ΔC > 0)
+
+    This allows the search to transit through infeasible space by accepting
+    moves that reduce penalty, even if they increase routing cost.
+
+    Args:
+        delta_penalty: Change in capacity penalty (P_new - P_old).
+                       Negative values mean reduced violations.
+        delta_cost: Change in routing cost (C_new - C_old).
+                    Positive values mean cost reduction.
+
+    Returns:
+        True if the move should be accepted for evaluation, False otherwise.
+
+    Mathematical Formulation:
+        Accept iff: (ΔP < -ε) OR (|ΔP| ≤ ε AND ΔC > ε)
+        where ε = 1e-6 is numerical tolerance.
+
+    Examples:
+        >>> # Case 1: Reduces penalty (even if cost increases)
+        >>> _should_accept_kopt_move(delta_penalty=-5.0, delta_cost=-2.0)
+        True
+        >>>
+        >>> # Case 2: Maintains feasibility and improves cost
+        >>> _should_accept_kopt_move(delta_penalty=0.0, delta_cost=3.0)
+        True
+        >>>
+        >>> # Case 3: Increases penalty (blocked)
+        >>> _should_accept_kopt_move(delta_penalty=2.0, delta_cost=5.0)
+        False
+        >>>
+        >>> # Case 4: No change (blocked)
+        >>> _should_accept_kopt_move(delta_penalty=0.0, delta_cost=0.0)
+        False
+    """
+    eps = 1e-6
+
+    # Condition 1: Reduces capacity violation
+    if delta_penalty < -eps:
+        return True
+
+    # Condition 2: Maintains feasibility AND improves cost
+    return bool(abs(delta_penalty) <= eps and delta_cost > eps)
 
 
 def _3opt_gains(

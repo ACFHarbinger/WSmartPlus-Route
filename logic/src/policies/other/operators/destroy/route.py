@@ -200,15 +200,15 @@ def _select_profit_route(
         metrics.append({"idx": i, "profit": profit, "efficiency": efficiency})
 
     if strategy == "worst_profit":
-        return min(metrics, key=lambda x: x["profit"])["idx"]
+        return int(min(metrics, key=lambda x: x["profit"])["idx"])
 
     if strategy == "lowest_efficiency":
-        return min(metrics, key=lambda x: x["efficiency"])["idx"]
+        return int(min(metrics, key=lambda x: x["efficiency"])["idx"])
 
     if strategy == "negative_profit":
         unprofitable = [m for m in metrics if m["profit"] < 0]
         if unprofitable:
-            return min(unprofitable, key=lambda x: x["profit"])["idx"]
+            return int(min(unprofitable, key=lambda x: x["profit"])["idx"])
         return rng.choice([i for i, _ in non_empty])
 
     return rng.choice([i for i, _ in non_empty])

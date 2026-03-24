@@ -32,17 +32,17 @@ lkh3:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - max_trials: 1000
-      # Maximum local-search iterations per run
-      # Range: 100-10000
-
     - runs: 10
       # Number of independent multi-start runs
       # Range: 1-50 (more runs = better coverage, slower)
       # Recommendation: 10 for production, 1 for quick testing
 
+    - max_trials: 1000
+      # Maximum local-search iterations per run
+      # Range: 100-10000
+
     # ---------------------------------------------------------------------
-    # LKH-3 Extensions
+    # POPMUSIC Settings
     # ---------------------------------------------------------------------
     - popmusic_subpath_size: 50
       # Sub-path size r for POPMUSIC candidate generation (N > 1000)
@@ -52,6 +52,13 @@ lkh3:
       # Number of POPMUSIC decomposition runs
       # Range: 10-100
 
+    - popmusic_max_candidates: 5
+      # Maximum number of candidates to consider for each node
+      # Range: 2-10
+
+    # ---------------------------------------------------------------------
+    # LKH-3 Extensions
+    # ---------------------------------------------------------------------
     - max_k_opt: 5
       # Maximum k for k-opt moves
       # Range: 2-5 (2 = fast/weak, 5 = slow/strong)
@@ -61,13 +68,36 @@ lkh3:
       # Use IP-based tour merging for elite recombination
       # false = greedy shared-edge merging (faster, weaker)
 
+    - max_pool_size: 5
+      # Maximum number of tours to keep in the pool for merging
+      # Range: 2-20
+
+    # ---------------------------------------------------------------------
+    # Large Neighborhood Search (LNS) Settings
+    # ---------------------------------------------------------------------
+    - lns_iterations: 100
+      # Number of LNS iterations
+      # Range: 10-1000
+
+    - plateau_limit: 10
+      # Number of iterations without improvement before triggering deep plateau
+      # Range: 5-50
+
+    - deep_plateau_limit: 30
+      # Number of iterations without improvement before triggering deep plateau
+      # Range: 10-100
+
+    - perturb_operator_weights: [0.6, 0.4]
+      # Weights for perturbation operators (double_bridge, random_swap)
+      # Range: [0.0, 1.0] sum to 1.0
+
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - time_limit: 60
 
     # VRPP Settings
-    - profit_aware_operators: false
+    - profit_aware_operators: true
     - vrpp: true
 
     - engine: "custom"
