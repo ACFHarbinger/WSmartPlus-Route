@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+from collections import deque
 from typing import Dict, List
 
 import numpy as np
@@ -7,52 +9,72 @@ from scipy.sparse.csgraph import minimum_spanning_tree
 
 # ---------------------------------------------------------------------------
 # Alpha-measure and candidate-set construction
+#
+# NOTE: The α-measure as implemented here ignores π-penalties (subgradient
+# optimisation is NOT implemented).  True LKH-3 computes π via iterative
+# 1-tree lower-bound ascent; here α(i,j) = c(i,j) − β(i,j) with the raw
+# edge costs.
 # ---------------------------------------------------------------------------
 
 
-def _find_mst_path_max(mst_adj: np.ndarray, start: int, end: int, n: int) -> float:
+def _compute_all_pairs_max_edge(mst_adj: np.ndarray, n: int) -> np.ndarray:
     """
-    Find maximum edge weight on the unique path in an MST between two nodes.
+    Compute the maximum edge weight on the unique MST path between all pairs.
 
-    Uses BFS to trace the path in the (undirected) MST and returns the weight
-    of the heaviest edge encountered.
+    Runs a BFS from EACH node to ALL other nodes, tracking the heaviest edge
+    on the path.  Since the MST is a tree, BFS visits each node exactly once
+    and naturally discovers the unique path.
+
+    Complexity: O(N²) — each BFS is O(N) on a tree, and we run N of them.
 
     Args:
-        mst_adj: (n × n) adjacency matrix of the MST (upper-triangular sparse).
-        start: Source node index.
-        end: Destination node index.
+        mst_adj: (n × n) adjacency matrix of the MST (upper-triangular sparse,
+                 as returned by ``scipy.sparse.csgraph.minimum_spanning_tree``
+                 converted to dense).
         n: Number of nodes.
 
     Returns:
-        Maximum edge weight on the path; 0.0 if start == end or no path exists.
+        (n × n) symmetric matrix where entry [i, j] is the maximum edge weight
+        on the unique MST path from i to j.  Diagonal entries are 0.
     """
-    if start == end:
-        return 0.0
+    max_edge = np.zeros((n, n), dtype=float)
 
-    visited = np.zeros(n, dtype=bool)
-    parent = np.full(n, -1, dtype=int)
-    queue = [start]
-    visited[start] = True
-    while queue:
-        current = queue.pop(0)
-        if current == end:
-            break
-        for neighbor in range(n):
-            if not visited[neighbor] and (mst_adj[current, neighbor] > 0 or mst_adj[neighbor, current] > 0):
-                visited[neighbor] = True
-                parent[neighbor] = current
-                queue.append(neighbor)
+    # Build explicit adjacency list for faster traversal (avoid scanning
+    # the full row each time).
+    adj: Dict[int, List[tuple]] = {i: [] for i in range(n)}
+    for i in range(n):
+        for j in range(n):
+            w = mst_adj[i, j]
+            if w > 0:
+                adj[i].append((j, w))
+                adj[j].append((i, w))
 
-    if parent[end] == -1:
-        return 0.0
+    for start in range(n):
+        visited = np.zeros(n, dtype=bool)
+        visited[start] = True
+        queue: deque = deque()
+        queue.append((start, 0.0))
 
-    max_edge = 0.0
-    current = end
-    while parent[current] != -1:
-        prev = parent[current]
-        edge_weight = max(mst_adj[prev, current], mst_adj[current, prev])
-        max_edge = max(max_edge, edge_weight)
-        current = prev
+        while queue:
+            current, path_max = queue.popleft()
+            max_edge[start, current] = path_max
+
+            for neighbor, weight in adj[current]:
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    new_max = max(path_max, weight)
+                    queue.append((neighbor, new_max))
+
+        # Safety check: warn if any node is unreachable in a supposedly
+        # connected graph (i.e., max_edge == 0 for a pair that is not self).
+        for end in range(n):
+            if end != start and not visited[end]:
+                warnings.warn(
+                    f"MST is disconnected: no path from node {start} to node {end}. "
+                    f"α-measures involving this pair will be artificially high.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
 
     return max_edge
 
@@ -67,23 +89,30 @@ def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
     Edges with α = 0 belong to some MST; edges with small α are "nearly
     spanning" and hence strong candidates for an optimal tour.
 
+    NOTE: This implementation does NOT use subgradient-optimised π-penalties.
+    The α-measure is computed on raw edge costs only.
+
     Args:
         distance_matrix: (n × n) symmetric cost matrix.
 
     Returns:
         (n × n) array of α-values (symmetric, non-negative).
+
+    Complexity:
+        O(N² log N) for MST construction + O(N²) for all-pairs max-edge.
     """
     n = len(distance_matrix)
     mst_sparse = minimum_spanning_tree(distance_matrix)
     mst = mst_sparse.toarray()
 
-    alpha = np.zeros((n, n), dtype=float)
-    for i in range(n):
-        for j in range(i + 1, n):
-            max_mst_edge = _find_mst_path_max(mst, i, j, n)
-            alpha_val = distance_matrix[i, j] - max_mst_edge
-            alpha[i, j] = alpha_val
-            alpha[j, i] = alpha_val
+    # Single O(N²) pass instead of O(N³)
+    beta = _compute_all_pairs_max_edge(mst, n)
+
+    alpha = distance_matrix - beta
+    # Ensure non-negative (numerical precision)
+    np.maximum(alpha, 0.0, out=alpha)
+    # Zero diagonal
+    np.fill_diagonal(alpha, 0.0)
 
     return alpha
 

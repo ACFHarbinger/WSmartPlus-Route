@@ -94,8 +94,7 @@ from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
     merge_tours_best,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_improvement import (
-    _2opt_gain,
-    _apply_kopt_via_operator,
+    _try_2opt_move,
     _try_3opt_move,
     _try_4opt_move,
     _try_5opt_move,
@@ -127,7 +126,7 @@ def _improve_tour(  # noqa: C901
     in the current tour, the following hierarchy is attempted in order:
 
     1. **2-opt** — exact gain pre-screen over α-nearest neighbours of t2;
-       move applied via :func:`move_kopt_intra` (k=2).
+       move applied via _try_2opt_move with lazy lexicographic gate.
     2. **3-opt** — exact gain pre-screen for all seven patterns; move applied
        via :func:`move_kopt_intra` (k=3).  Restricted to n < 500.
     3. **4-opt** — exact gain pre-screen for three patterns; move applied via
@@ -135,9 +134,9 @@ def _improve_tour(  # noqa: C901
     4. **5-opt** — exact gain pre-screen for five patterns; move applied via
        :func:`move_kopt_intra` (k=5).  Restricted to n < 200.
 
-    **Critical**: All k-opt functions use lazy evaluation — the expensive
-    ``_apply_kopt_via_operator()`` call is deferred until AFTER the O(1)
-    lexicographic gate passes. This reduces complexity from O(N^6) to O(N^5).
+    **Don't-look bit policy**: After an accepted k-opt move, only the nodes
+    whose tour-adjacency physically changed have their don't-look bits reset.
+    For 2-opt on (t1,t2,t3,t4): only t1 and t3 are new edge endpoints.
 
     Args:
         curr_tour: Current closed tour.
@@ -146,11 +145,11 @@ def _improve_tour(  # noqa: C901
         distance_matrix: Cost matrix.
         waste, capacity: VRP parameters (None for TSP).
         rng: Random number generator forwarded to operators.
-        dont_look_bits: Boolean array of length n; nodes with True are skipped.
+        dont_look_bits: Boolean array; nodes with True are skipped.
+            Allocated up to max(nodes_count, n_original + n_vehicles) to
+            avoid IndexError on augmented graphs.
         max_k_opt: Maximum k for k-opt moves (2-5).
-        n_original: Original graph size before augmentation (for penalty
-            calculation with augmented dummy depots).  If None, full graph
-            size is used.
+        n_original: Original graph size before augmentation.
 
     Returns:
         (new_tour, new_penalty, new_cost, any_improvement, updated_bits).
@@ -158,10 +157,19 @@ def _improve_tour(  # noqa: C901
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
 
+    # Allocate dont_look_bits safely for augmented graphs
     if dont_look_bits is None:
-        dont_look_bits = np.zeros(nodes_count, dtype=bool)
+        # Use max of nodes_count and distance_matrix size to handle
+        # augmented dummy depots whose IDs may exceed nodes_count
+        max_idx = max(nodes_count, len(distance_matrix))
+        dont_look_bits = np.zeros(max_idx, dtype=bool)
+    elif len(dont_look_bits) < nodes_count:
+        # Resize if needed (e.g. after augmentation change)
+        expanded = np.zeros(nodes_count, dtype=bool)
+        expanded[: len(dont_look_bits)] = dont_look_bits
+        dont_look_bits = expanded
 
-    # Build load state for O(1) penalty queries (VRP mode only)
+    # Build load state for exact penalty queries (VRP mode only)
     load_state = None
     if waste is not None and capacity is not None and n_original is not None:
         load_state = build_load_state(curr_tour, waste, capacity, n_original)
@@ -170,64 +178,70 @@ def _improve_tour(  # noqa: C901
     for i in range(nodes_count):
         t1 = curr_tour[i]
 
-        if dont_look_bits[t1]:
+        # Guard against IndexError on augmented dummy node IDs
+        if t1 < len(dont_look_bits) and dont_look_bits[t1]:
             continue
 
         t2 = curr_tour[i + 1]
         found_improvement_for_t1 = False
 
-        # ---- 2-opt ----
-        for t3 in candidates[t2]:
-            if nodes_count >= 5:
-                if t3 == t1 or t3 == curr_tour[(i + 2) % nodes_count]:
+        # ---- 2-opt (via _try_2opt_move with lazy evaluation) ----
+        res_tour, res_p, res_c, res_imp, j = _try_2opt_move(
+            curr_tour,
+            i,
+            t1,
+            t2,
+            candidates,
+            d,
+            waste,
+            capacity,
+            rng,
+            n_original=n_original,
+            load_state=load_state,
+        )
+        if res_imp and res_tour is not None:
+            curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
+            improved_overall = True
+            found_improvement_for_t1 = True
+            # Don't-look bits: only reset nodes whose adjacency changed.
+            # 2-opt creates edges (t1,t3) and (t2,t4) — only t1 and t3
+            # sit at the endpoints of the newly created edges.
+            t3 = curr_tour[j] if j >= 0 else t1
+            if t1 < len(dont_look_bits):
+                dont_look_bits[t1] = False
+            if t3 < len(dont_look_bits):
+                dont_look_bits[t3] = False
+            # Rebuild load state after accepted move
+            if load_state is not None:
+                load_state = update_load_state_after_move(
+                    load_state,
+                    curr_tour,
+                    waste,  # type: ignore[arg-type]
+                    capacity,  # type: ignore[arg-type]
+                    n_original,  # type: ignore[arg-type]
+                )
+            return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+
+        # ---- 3-opt ----
+        if nodes_count < 500 and max_k_opt >= 3:
+            for t3_cand in candidates[t2]:
+                if t3_cand == t1 or t3_cand == curr_tour[(i + 2) % nodes_count]:
                     continue
-            else:
-                if t3 == t2:
+                try:
+                    j = curr_tour.index(t3_cand)
+                except ValueError:
                     continue
+                if j <= i + 1:
+                    continue
+                t4 = curr_tour[j + 1]
 
-            try:
-                j = curr_tour.index(t3)
-            except ValueError:
-                continue
-
-            if j <= i + 1:
-                continue
-
-            t4 = curr_tour[j + 1]
-
-            gain = _2opt_gain(t1, t2, t3, t4, d)
-            if gain > 1e-6:
-                new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
-                if new_tour is not None:
-                    p_new, c_new = get_score(new_tour, d, waste, capacity, n_original)
-                    if is_better(p_new, c_new, curr_pen, curr_cost):
-                        curr_tour, curr_pen, curr_cost = new_tour, p_new, c_new
-                        improved_overall = True
-                        found_improvement_for_t1 = True
-                        dont_look_bits[t1] = False
-                        dont_look_bits[t2] = False
-                        dont_look_bits[t3] = False
-                        dont_look_bits[t4] = False
-                        # Rebuild load state after accepted move
-                        if load_state is not None:
-                            load_state = update_load_state_after_move(
-                                load_state,
-                                curr_tour,
-                                waste,  # type: ignore[arg-type]
-                                capacity,  # type: ignore[arg-type]
-                                n_original,  # type: ignore[arg-type]
-                            )
-                        return curr_tour, curr_pen, curr_cost, True, dont_look_bits
-
-            # ---- 3-opt ----
-            if nodes_count < 500 and max_k_opt >= 3:
                 res_tour, res_p, res_c, res_imp = _try_3opt_move(
                     curr_tour,
                     i,
                     j,
                     t1,
                     t2,
-                    t3,
+                    t3_cand,
                     t4,
                     d,
                     waste,
@@ -240,12 +254,18 @@ def _improve_tour(  # noqa: C901
                     curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
                     improved_overall = True
                     found_improvement_for_t1 = True
-                    dont_look_bits[t1] = False
-                    dont_look_bits[t2] = False
-                    dont_look_bits[t3] = False
-                    dont_look_bits[t4] = False
+                    # Reset only new edge endpoints
+                    for nd in [t1, t3_cand]:
+                        if nd < len(dont_look_bits):
+                            dont_look_bits[nd] = False
                     if load_state is not None:
-                        load_state = update_load_state_after_move(load_state, curr_tour, waste, capacity, n_original)  # type: ignore[arg-type]
+                        load_state = update_load_state_after_move(
+                            load_state,
+                            curr_tour,
+                            waste,  # type: ignore[arg-type]
+                            capacity,  # type: ignore[arg-type]
+                            n_original,  # type: ignore[arg-type]
+                        )
                     return curr_tour, curr_pen, curr_cost, True, dont_look_bits
 
                 # ---- 4-opt ----
@@ -261,7 +281,7 @@ def _improve_tour(  # noqa: C901
                             k_idx,
                             t1,
                             t2,
-                            t3,
+                            t3_cand,
                             t4,
                             t5,
                             t6,
@@ -276,9 +296,9 @@ def _improve_tour(  # noqa: C901
                             curr_tour, curr_pen, curr_cost = res4, rp4, rc4
                             improved_overall = True
                             found_improvement_for_t1 = True
-                            dont_look_bits[t1] = dont_look_bits[t2] = dont_look_bits[t3] = dont_look_bits[
-                                t4
-                            ] = dont_look_bits[t5] = dont_look_bits[t6] = False
+                            for nd in [t1, t3_cand, t5]:
+                                if nd < len(dont_look_bits):
+                                    dont_look_bits[nd] = False
                             if load_state is not None:
                                 load_state = update_load_state_after_move(
                                     load_state,
@@ -302,7 +322,7 @@ def _improve_tour(  # noqa: C901
                                     l_idx,
                                     t1,
                                     t2,
-                                    t3,
+                                    t3_cand,
                                     t4,
                                     t5,
                                     t6,
@@ -319,11 +339,9 @@ def _improve_tour(  # noqa: C901
                                     curr_tour, curr_pen, curr_cost = res5, rp5, rc5
                                     improved_overall = True
                                     found_improvement_for_t1 = True
-                                    dont_look_bits[t1] = dont_look_bits[t2] = dont_look_bits[t3] = dont_look_bits[
-                                        t4
-                                    ] = dont_look_bits[t5] = dont_look_bits[t6] = dont_look_bits[t7] = dont_look_bits[
-                                        t8
-                                    ] = False
+                                    for nd in [t1, t3_cand, t5, t7]:
+                                        if nd < len(dont_look_bits):
+                                            dont_look_bits[nd] = False
                                     if load_state is not None:
                                         load_state = update_load_state_after_move(
                                             load_state,
@@ -334,7 +352,7 @@ def _improve_tour(  # noqa: C901
                                         )
                                     return curr_tour, curr_pen, curr_cost, True, dont_look_bits
 
-        if not found_improvement_for_t1:
+        if not found_improvement_for_t1 and t1 < len(dont_look_bits):
             dont_look_bits[t1] = True
     return curr_tour, curr_pen, curr_cost, improved_overall, dont_look_bits
 
@@ -344,7 +362,7 @@ def _improve_tour(  # noqa: C901
 # ---------------------------------------------------------------------------
 
 
-def solve_lkh(
+def solve_lkh(  # noqa: C901
     distance_matrix: np.ndarray,
     initial_tour: Optional[List[int]] = None,
     waste: Optional[np.ndarray] = None,
@@ -431,6 +449,20 @@ def solve_lkh(
         (best_tour, best_cost) where best_tour is a closed node sequence.
     """
     n = len(distance_matrix)
+
+    # Degeneracy check: zero off-diagonal distances cause infinite loops
+    if n > 1:
+        mask = ~np.eye(n, dtype=bool)
+        if not np.all(distance_matrix[mask] > 0):
+            import warnings
+
+            warnings.warn(
+                "Zero off-diagonal distances detected in the distance matrix. "
+                "Co-located nodes may cause infinite loops in LKH-3 k-opt search.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+
     if n < 3:
         tour = list(range(n)) + [0]
         cost = sum(distance_matrix[tour[i], tour[i + 1]] for i in range(n))

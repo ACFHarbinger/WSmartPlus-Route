@@ -37,6 +37,7 @@ Example
 
 from __future__ import annotations
 
+import logging
 from random import Random
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -92,6 +93,8 @@ from logic.src.policies.other.operators.repair.savings import (
     savings_profit_insertion,
 )
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
+logger = logging.getLogger(__name__)
 
 
 class LKH3_LNS:
@@ -249,6 +252,7 @@ class LKH3_LNS:
         current_routes = [r[:] for r in best_routes]
 
         iterations_since_improvement = 0
+        iterations_since_last_deep_perturb = 0
 
         # 2. Main LNS loop
         for _iteration in range(max_iterations):
@@ -269,9 +273,11 @@ class LKH3_LNS:
                 best_routes = [r[:] for r in optimized_routes]
                 best_obj = obj
                 iterations_since_improvement = 0
+                iterations_since_last_deep_perturb = 0
                 self._update_elite_pool(best_routes)
             else:
                 iterations_since_improvement += 1
+                iterations_since_last_deep_perturb += 1
 
             # Record state for visualization
             if self._viz:
@@ -284,15 +290,15 @@ class LKH3_LNS:
             # Update historical scores for adaptive operator selection
             self._update_history(optimized_routes, obj)
 
-            # 2c. Plateau check: Apply Destroy-Repair
+            # 2c. Standard plateau: Destroy-Repair
             if iterations_since_improvement >= plateau_limit:
                 current_routes = self._destroy_repair(optimized_routes)
-                iterations_since_improvement = 0
+                iterations_since_improvement = 0  # Only reset standard counter
 
-            # 2d. Deep plateau: Apply Perturbation
-            elif iterations_since_improvement >= deep_plateau_limit and self.elite_pool:
+            # 2d. Deep plateau: Perturbation (INDEPENDENT check, not elif)
+            if iterations_since_last_deep_perturb >= deep_plateau_limit and self.elite_pool:
                 current_routes = self._perturbation(optimized_routes)
-                iterations_since_improvement = 0
+                iterations_since_last_deep_perturb = 0  # Only reset deep counter
 
         return best_routes, best_obj
 
@@ -324,29 +330,48 @@ class LKH3_LNS:
         Returns:
             Tuple of (routes, objective).
         """
-        # VRPP: Start with mandatory nodes + greedy profit selection
+        # VRPP: Start with mandatory nodes + greedy Clarke-Wright savings
         active_nodes = list(self.mandatory_nodes)
         n = len(self.distance_matrix)
 
-        # Compute marginal profit for each optional node
+        # Compute Clarke-Wright savings-based score for each optional node.
+        # savings(node) = (d(0, node) + d(node, 0) - d(node, nearest_neighbor))
+        #                 * fill_factor
+        # Higher savings → stronger candidate for merging into existing routes.
         profit_scores: List[Tuple[float, int]] = []
         for node in range(1, n):
             if node not in self.mandatory_nodes:
                 fill = self.wastes.get(node, 0.0)
-                revenue = self.revenue * fill
-                # Estimate routing cost as direct depot round-trip
-                cost = self.distance_matrix[0, node] + self.distance_matrix[node, 0]
-                profit = revenue - self.cost_unit * cost
-                profit_scores.append((profit, node))
+                depot_cost = self.distance_matrix[0, node] + self.distance_matrix[node, 0]
 
-        # Sort by profit descending
+                # Find nearest neighbor (not depot, not self)
+                nn_dist = float("inf")
+                for other in range(1, n):
+                    if other != node and self.distance_matrix[node, other] < nn_dist:
+                        nn_dist = self.distance_matrix[node, other]
+
+                # Clarke-Wright savings: how much we save by merging node
+                # into an existing route vs. serving it with a dedicated route
+                savings = depot_cost - nn_dist if nn_dist < float("inf") else 0.0
+
+                # Combine savings with profit signal
+                revenue = self.revenue * fill
+                profit = revenue - self.cost_unit * depot_cost
+
+                # Score = profit * (1 + savings_ratio) to favor
+                # clustered profitable nodes
+                savings_ratio = savings / max(depot_cost, 1e-6)
+                score = profit * (1.0 + savings_ratio)
+                profit_scores.append((score, node))
+
+        # Sort by score descending
         profit_scores.sort(reverse=True)
 
         # Greedily add profitable nodes within capacity
         total_load = sum(self.wastes.get(n, 0.0) for n in active_nodes)
         total_capacity = self.capacity * n_vehicles
-        for profit, node in profit_scores:
-            if profit > 0 and total_load + self.wastes.get(node, 0.0) <= total_capacity:
+        for score, node in profit_scores:
+            if score > 0 and total_load + self.wastes.get(node, 0.0) <= total_capacity:
                 active_nodes.append(node)
                 total_load += self.wastes.get(node, 0.0)
 
@@ -361,7 +386,7 @@ class LKH3_LNS:
             use_ip_merging,
         )
 
-    def _route_nodes(
+    def _route_nodes(  # noqa: C901
         self,
         nodes: List[int],
         lkh_trials: int,
@@ -405,12 +430,23 @@ class LKH3_LNS:
         if not nodes:
             return [[]], 0.0
 
+        # Validate mandatory nodes in warm-start
+        if initial_routes is not None and self.mandatory_nodes:
+            warm_start_nodes = {n for r in initial_routes for n in r}
+            missing = self.mandatory_nodes - warm_start_nodes
+            if missing:
+                logger.warning(
+                    "Warm-start dropped mandatory nodes: %s — adding them back.",
+                    missing,
+                )
+                nodes = list(set(nodes) | missing)
+
         # Build sub-problem distance matrix and demand array
-        node_map = {0: 0}  # Depot always at index 0
-        reverse_map = {0: 0}  # Global → Local mapping
+        local_to_global = {0: 0}  # Depot always at index 0
+        global_to_local = {0: 0}  # Global → Local mapping
         for idx, node in enumerate(nodes, start=1):
-            node_map[idx] = node
-            reverse_map[node] = idx
+            local_to_global[idx] = node
+            global_to_local[node] = idx
 
         n_sub = len(nodes) + 1
         sub_dist = np.zeros((n_sub, n_sub))
@@ -418,12 +454,12 @@ class LKH3_LNS:
 
         for i in range(n_sub):
             for j in range(n_sub):
-                orig_i = node_map[i]
-                orig_j = node_map[j]
+                orig_i = local_to_global[i]
+                orig_j = local_to_global[j]
                 sub_dist[i, j] = self.distance_matrix[orig_i, orig_j]
 
         for i in range(1, n_sub):
-            orig_node = node_map[i]
+            orig_node = local_to_global[i]
             sub_waste[i] = self.wastes.get(orig_node, 0.0)
 
         # Phase 2: Flatten initial_routes to 1D augmented tour (warm-start)
@@ -432,7 +468,7 @@ class LKH3_LNS:
             # Map global routes to local sub-problem indices
             local_routes: List[List[int]] = []
             for route in initial_routes:
-                local_route = [reverse_map[n] for n in route if n in reverse_map]
+                local_route = [global_to_local[n] for n in route if n in global_to_local]
                 if local_route:
                     local_routes.append(local_route)
 
@@ -453,7 +489,7 @@ class LKH3_LNS:
                         initial_tour_local.append(dummy_idx)
                 initial_tour_local.append(0)
 
-        # Phase 2: Generate and cache candidate sets on first call
+        # Phase 2: Generate and cache OR remap candidate sets
         if self.cached_candidates is None:
             alpha = compute_alpha_measures(sub_dist)
             self.cached_candidates = get_candidate_set(
@@ -461,8 +497,19 @@ class LKH3_LNS:
                 alpha,
                 max_candidates=popmusic_max_candidates,
             )
+            local_candidates = self.cached_candidates
+        else:
+            # Remap cached candidates (global indices) to local subproblem indices
+            local_candidates = {}
+            for local_idx in range(n_sub):
+                global_node = local_to_global[local_idx]
+                if global_node in self.cached_candidates:
+                    local_candidates[local_idx] = [
+                        global_to_local[g] for g in self.cached_candidates[global_node] if g in global_to_local
+                    ]
+                else:
+                    local_candidates[local_idx] = []
 
-        # Run LKH-3 with warm-start
         routes, cost = solve_lkh(
             distance_matrix=sub_dist,
             initial_tour=initial_tour_local,  # Phase 2: Pass warm-start tour
@@ -476,7 +523,7 @@ class LKH3_LNS:
             use_ip_merging=use_ip_merging,
             max_pool_size=self.max_pool_size,
             n_vehicles=n_vehicles,
-            candidate_set=self.cached_candidates,  # Phase 2: Reuse cached candidates
+            candidate_set=local_candidates,  # Phase 3: Use correctly-mapped candidates
             recorder=self._viz,
             np_rng=self.np_rng,
             rng=self.rng,
@@ -485,7 +532,7 @@ class LKH3_LNS:
         )
 
         # Extract routes and map back to original indices
-        routes_global = [[node_map[n] for n in route] for route in routes]
+        routes_global = [[local_to_global[n] for n in route] for route in routes]
 
         # Compute objective
         routing_cost = self._compute_routing_cost(routes_global)
@@ -885,7 +932,8 @@ class LKH3_LNS:
         Update historical cost scores for nodes.
 
         Uses exponential moving average to track node quality over time.
-        Nodes frequently appearing in high-quality solutions get lower scores.
+        Nodes frequently appearing in high-quality solutions get HIGHER scores,
+        since higher obj is better (VRPP: profit, CVRP: negative cost).
 
         Args:
             routes: Current solution.
@@ -896,10 +944,10 @@ class LKH3_LNS:
         for route in routes:
             for node in route:
                 if node not in self.history:
-                    self.history[node] = -obj  # Lower obj is better for history
+                    self.history[node] = obj  # Higher obj ↔ better node
                 else:
-                    # Update: history[n] ← α·(-obj) + (1-α)·history[n]
-                    self.history[node] = alpha * (-obj) + (1 - alpha) * self.history[node]
+                    # Update: history[n] ← α·obj + (1-α)·history[n]
+                    self.history[node] = alpha * obj + (1 - alpha) * self.history[node]
 
     def _update_elite_pool(self, routes: List[List[int]]) -> None:
         """

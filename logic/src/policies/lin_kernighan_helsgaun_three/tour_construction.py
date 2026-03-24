@@ -64,6 +64,7 @@ Typical usage
 
 from __future__ import annotations
 
+import logging
 from random import Random
 from typing import Dict, List, Optional
 
@@ -71,6 +72,8 @@ import numpy as np
 
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_adapter import TourAdapter
 from logic.src.policies.other.operators.perturbation.double_bridge import double_bridge
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Tour construction and perturbation
@@ -252,7 +255,14 @@ def _build_tour_from_successor(
     while True:
         nxt = successor.get(current)
         if nxt is None or visited[nxt]:
-            # Find nearest unvisited node to continue
+            # Nearest-neighbor fallback: the linear-sum assignment produced
+            # subtours rather than a Hamiltonian cycle.  This is expected
+            # since LSA solves matching, not TSP.
+            logger.warning(
+                "merge_tours_ip: successor chain broken at node %d — "
+                "patching with nearest-neighbor fallback (subtour detected)",
+                current,
+            )
             best_dist = float("inf")
             best_node = -1
             for j in range(n):
@@ -469,6 +479,11 @@ def _3opt_gains(
     ``move_kopt_intra`` (k=3).
 
     Gain > 0 means an improving move for that case.
+
+    NOTE: Cases 1 and 2 are pure 2-opt sub-moves (single segment reversal).
+    The calling code in _try_3opt_move deliberately excludes them because
+    the preceding _try_2opt_move search has already proven them unprofitable
+    for the current (i, j) pair.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6]
     return [
@@ -532,11 +547,14 @@ def _5opt_gains(
     d: np.ndarray,
 ) -> List[float]:
     """
-    Exact gains for five common 5-opt reconnection cases.
+    Exact gains for five representative 5-opt reconnection cases.
 
     Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8), (t9,t10).
 
-    Returns a list of five gain values (indices 0–4).
+    Returns a list of five gain values (indices 0–4).  These cover the
+    sequential 5-opt moves central to Helsgaun (2000), Section 4.3.
+    The full 5-opt exhaustive enumeration has 60 non-trivial cases;
+    only these 5 representative patterns are evaluated for efficiency.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8] + d[t9, t10]
     return [

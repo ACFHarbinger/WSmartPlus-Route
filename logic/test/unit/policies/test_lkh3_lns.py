@@ -201,9 +201,9 @@ def test_historical_tracking(small_instance):
     solver._update_history(routes, 60.0)
 
     # Scores should be updated (EMA)
-    # After first update: history[1] = -50.0
-    # After second: history[1] = 0.1 * (-60) + 0.9 * (-50) = -51.0
-    expected = 0.1 * (-60.0) + 0.9 * (-50.0)
+    # After first update: history[1] = 50.0  (stores +obj, not -obj)
+    # After second: history[1] = 0.1 * 60 + 0.9 * 50 = 51.0
+    expected = 0.1 * 60.0 + 0.9 * 50.0
     assert abs(solver.history[1] - expected) < 1e-6
 
 
