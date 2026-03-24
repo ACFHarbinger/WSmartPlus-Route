@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -537,12 +539,14 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.seed</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.operator_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.n_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.ls_operator"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.ls_operator</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.iterations"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.seed</span></code></a></li>
 </ul>
 </li>
@@ -551,8 +555,9 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.n_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.iterations"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.params"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.params</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.seed</span></code></a></li>
 </ul>
 </li>
@@ -643,11 +648,18 @@ seed: Random seed for reproducibility.</p>
 <dd><p>Configuration for Lin-Kernighan-Helsgaun (LKH) refinement.</p>
 <p>Attributes:
 max_iterations: Maximum number of LKH iterations.
+time_limit: Maximum time in seconds for the solver.
 seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LKHPostConfig.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LKHPostConfig.max_iterations" title="Link to this definition">#</a></dt>
 <dd><p>1000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LKHPostConfig.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LKHPostConfig.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>30.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -663,19 +675,26 @@ seed: Random seed for reproducibility.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">LocalSearchPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for classical local search refinement.</p>
 <p>Attributes:
-operator_name: Local search operator (e.g., ‘2opt’, ‘swap’, ‘relocate’).
-n_iterations: Maximum number of local search iterations.
+ls_operator: Local search operator (e.g., ‘2opt’, ‘swap’, ‘relocate’).
+iterations: Maximum number of local search iterations.
+time_limit: Maximum time in seconds for the operator.
 seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name">
-<span class="sig-name descname"><span class="pre">operator_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.ls_operator">
+<span class="sig-name descname"><span class="pre">ls_operator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.ls_operator" title="Link to this definition">#</a></dt>
 <dd><p>‘2opt’</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations">
-<span class="sig-name descname"><span class="pre">n_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations" title="Link to this definition">#</a></dt>
-<dd><p>50</p>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.iterations">
+<span class="sig-name descname"><span class="pre">iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.iterations" title="Link to this definition">#</a></dt>
+<dd><p>1000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.LocalSearchPostConfig.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>30.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -705,19 +724,26 @@ vehicle_capacity: Maximum vehicle capacity for picking up extra nodes.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.post_processing.</span></span><span class="sig-name descname"><span class="pre">RandomLocalSearchPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for stochastic (random) local search refinement.</p>
 <p>Attributes:
-n_iterations: Number of random local search iterations.
-op_probs: Probabilities for selecting different local search operators.
+iterations: Number of random local search iterations.
+params: Probabilities for selecting different local search operators.
+time_limit: Maximum time in seconds for the operator.
 seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations">
-<span class="sig-name descname"><span class="pre">n_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations" title="Link to this definition">#</a></dt>
-<dd><p>50</p>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.iterations">
+<span class="sig-name descname"><span class="pre">iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.iterations" title="Link to this definition">#</a></dt>
+<dd><p>1000</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs">
-<span class="sig-name descname"><span class="pre">op_probs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.params">
+<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.params" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>30.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -846,12 +872,14 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LKHPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LKHPostConfig.seed</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.operator_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.n_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.ls_operator"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.ls_operator</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.iterations"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.LocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">LocalSearchPostConfig.seed</span></code></a></li>
 </ul>
 </li>
@@ -860,8 +888,9 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.n_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.op_probs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.iterations"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.params"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.params</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.seed"><code class="docutils literal notranslate"><span class="pre">RandomLocalSearchPostConfig.seed</span></code></a></li>
 </ul>
 </li>

@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.soccer_league_competition.params.SLCParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.params.SLCParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.soccer_league_competition.params.SLCParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.params.SLCParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.soccer_league_competition.params.SLCParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.params.SLCParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.soccer_league_competition.params.SLCParams
+:canonical: src.policies.soccer_league_competition.params.SLCParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.soccer_league_competition.params.SLCParams.from_config
+```
+
+````
+
 `````

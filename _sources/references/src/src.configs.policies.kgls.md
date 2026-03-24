@@ -119,4 +119,15 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.kgls.KGLSConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.kgls.KGLSConfig.profit_aware_operators
+```
+
+````
+
 `````

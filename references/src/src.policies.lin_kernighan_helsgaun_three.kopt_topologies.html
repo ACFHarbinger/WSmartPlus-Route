@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.policies.lin_kernighan_helsgaun_three.kopt_topologies &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.lin_kernighan_helsgaun_three.kopt_topologies';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.policies.lin_kernighan_helsgaun_three.policy_lkh3" href="src.policies.lin_kernighan_helsgaun_three.policy_lkh3.html" />
+    <link rel="prev" title="src.policies.lin_kernighan_helsgaun_three.tour_adapter" href="src.policies.lin_kernighan_helsgaun_three.tour_adapter.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_and_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_great_deluge_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.step_counting_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.step_counting_hill_climbing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.great_deluge</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hidden_markov_model_great_deluge_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_tolerance_based_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_tolerance_based_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_bound.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_bound</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_heuristic_us_lk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_heuristic_us_lk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.knowledge_guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.knowledge_guided_local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.cluster_first_route_second.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cluster_first_route_second</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.travelling_salesman_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.travelling_salesman_problem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.sequence_based_selection_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sequence_based_selection_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.threshold_accepting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.threshold_accepting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ensemble_move_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ensemble_move_acceptance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.late_acceptance_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.late_acceptance_hill_climbing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.league_championship_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.league_championship_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_kappa_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_kappa_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.fast_iterative_localized_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.fast_iterative_localized_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.smart_waste_collection_two_commodity_flow.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.smart_waste_collection_two_commodity_flow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.firefly_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.firefly_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.soccer_league_competition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.soccer_league_competition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.harmony_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.harmony_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.old_bachelor_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.old_bachelor_acceptance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_distance_based_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_distance_based_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_comma_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_comma_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.record_to_record_travel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.record_to_record_travel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_kernel_search</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.policies.lin_kernighan_helsgaun_three.kopt_topologies.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.policies.lin_kernighan_helsgaun_three.kopt_topologies</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-foundation">Mathematical Foundation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm">Algorithm</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_all_perfect_matchings"><code class="docutils literal notranslate"><span class="pre">_generate_all_perfect_matchings()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle"><code class="docutils literal notranslate"><span class="pre">_is_hamiltonian_cycle()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_trivial_move"><code class="docutils literal notranslate"><span class="pre">_is_trivial_move()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_non_sequential_kopt"><code class="docutils literal notranslate"><span class="pre">_is_non_sequential_kopt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_valid_kopt_topologies"><code class="docutils literal notranslate"><span class="pre">_generate_valid_kopt_topologies()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_2OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_2OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_3OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_3OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_4OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_4OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_5OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_5OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXPECTED_COUNTS"><code class="docutils literal notranslate"><span class="pre">EXPECTED_COUNTS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.verify_topology_counts"><code class="docutils literal notranslate"><span class="pre">verify_topology_counts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.lin_kernighan_helsgaun_three.kopt_topologies">
+<span id="src-policies-lin-kernighan-helsgaun-three-kopt-topologies"></span><h1><a class="reference internal" href="#module-src.policies.lin_kernighan_helsgaun_three.kopt_topologies" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies</span></code></a><a class="headerlink" href="#module-src.policies.lin_kernighan_helsgaun_three.kopt_topologies" title="Link to this heading">#</a></h1>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h2>
+<p>For a k-opt move with 2k nodes (t1, t2, …, t2k), we define:</p>
+<ul class="simple">
+<li><p><strong>Broken edges</strong>: (t1,t2), (t3,t4), …, (t_{2k-1},t_{2k})</p></li>
+<li><p><strong>Segments</strong>: The k tour fragments between broken edges</p></li>
+<li><p><strong>Added edges</strong>: The k new edges that reconnect the segments</p></li>
+</ul>
+<p>A valid k-opt topology must satisfy:</p>
+<ol class="arabic simple">
+<li><p><strong>Degree constraint</strong>: Each node has exactly degree 2 in the new tour</p></li>
+<li><p><strong>Hamiltonian cycle</strong>: The added edges + segments form exactly ONE cycle</p></li>
+<li><p><strong>Non-sequential</strong>: The move cannot be reduced to a lower-order k-opt</p></li>
+</ol>
+</section>
+<section id="mathematical-foundation">
+<h2>Mathematical Foundation<a class="headerlink" href="#mathematical-foundation" title="Link to this heading">#</a></h2>
+<p>The number of valid non-sequential k-opt reconnections grows as:</p>
+<ul class="simple">
+<li><p>2-opt: 1 (unique)</p></li>
+<li><p>3-opt: 7 (including 2-opt sub-moves)</p></li>
+<li><p>4-opt: 25 (pure non-sequential)</p></li>
+<li><p>5-opt: 60 (pure non-sequential)</p></li>
+</ul>
+<p>For 5-opt, there are 945 ways to match 10 endpoints into 5 edges, but only
+60 produce valid Hamiltonian cycles with no sequential simplifications.</p>
+</section>
+<section id="algorithm">
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading">#</a></h2>
+<p>The generator uses recursive backtracking with graph-theoretic validation:</p>
+<ol class="arabic simple">
+<li><p><strong>Generate all perfect matchings</strong> of the 2k endpoints</p></li>
+<li><p><strong>Degree check</strong>: Verify each endpoint appears exactly once</p></li>
+<li><p><strong>Cycle check</strong>: Build implicit graph (segments + added edges) and verify
+it forms a single Hamiltonian cycle via DFS traversal</p></li>
+<li><p><strong>Sequential filter</strong>: Exclude configurations that preserve any broken edge</p></li>
+</ol>
+<p>Complexity: O(k! × k) preprocessing time, O(1) lookup during search.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>from logic.src.policies.lin_kernighan_helsgaun_three.kopt_topologies import (
+…     EXHAUSTIVE_5OPT_CASES,
+… )
+print(f”Number of 5-opt cases: {len(EXHAUSTIVE_5OPT_CASES)}”)
+Number of 5-opt cases: 60</p>
+<h1 class="rubric" id="each-case-is-a-list-of-5-edges-as-u-v-tuples-with-indices-0-9">Each case is a list of 5 edges as (u, v) tuples with indices 0..9</h1>
+<p>print(EXHAUSTIVE_5OPT_CASES[0])
+[(0, 2), (1, 4), (3, 6), (5, 8), (7, 9)]</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
+traveling salesman heuristic. <em>European Journal of Operational Research</em>,
+126(1), 106-130.</p>
+</section>
+<p>Exhaustive k-opt Topology Generator with Module-Level Caching.</p>
+<p>This module generates and caches all valid, non-sequential k-opt reconnection
+topologies at import time to eliminate runtime overhead from repeated topology
+generation during the LKH-3 inner loop.</p>
+<p>The cached topologies are stored as global constants and accessed directly by
+the tour improvement routines.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_all_perfect_matchings" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_all_perfect_matchings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_generate_all_perfect_matchings</span></code></a></p></td>
+<td><p>Generate all perfect matchings of an even-length list of nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_hamiltonian_cycle</span></code></a></p></td>
+<td><p>Check if segments + added_edges form a single Hamiltonian cycle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_trivial_move" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_trivial_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_trivial_move</span></code></a></p></td>
+<td><p>Check if a k-opt topology is trivial (the “do nothing” move).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_non_sequential_kopt" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_non_sequential_kopt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_non_sequential_kopt</span></code></a></p></td>
+<td><p>Check if a k-opt topology is truly non-sequential.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_valid_kopt_topologies" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_valid_kopt_topologies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_generate_valid_kopt_topologies</span></code></a></p></td>
+<td><p>Generate all valid non-sequential k-opt reconnection topologies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.verify_topology_counts" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.verify_topology_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">verify_topology_counts</span></code></a></p></td>
+<td><p>Verify that the cached topology counts match expected values.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_2OPT_CASES" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_2OPT_CASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EXHAUSTIVE_2OPT_CASES</span></code></a></p></td>
+<td><p>All valid 2-opt reconnection topologies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_3OPT_CASES" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_3OPT_CASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EXHAUSTIVE_3OPT_CASES</span></code></a></p></td>
+<td><p>All valid 3-opt reconnection topologies (including 2-opt sub-moves).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_4OPT_CASES" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_4OPT_CASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EXHAUSTIVE_4OPT_CASES</span></code></a></p></td>
+<td><p>All valid non-sequential 4-opt reconnection topologies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_5OPT_CASES" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_5OPT_CASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EXHAUSTIVE_5OPT_CASES</span></code></a></p></td>
+<td><p>All valid non-sequential 5-opt reconnection topologies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXPECTED_COUNTS" title="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXPECTED_COUNTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EXPECTED_COUNTS</span></code></a></p></td>
+<td><p>Expected number of valid topologies for each k-opt order.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_all_perfect_matchings">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">_generate_all_perfect_matchings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_all_perfect_matchings" title="Link to this definition">#</a></dt>
+<dd><p>Generate all perfect matchings of an even-length list of nodes.</p>
+<p>A perfect matching is a set of edges such that every node appears in
+exactly one edge. For 2k nodes, there are (2k-1)!! = 1×3×5×…×(2k-1)
+distinct perfect matchings.</p>
+<p>The algorithm fixes the first node and recursively pairs it with each
+remaining node, ensuring each matching is generated exactly once.</p>
+<p>Args:
+nodes: List of node indices (must have even length).</p>
+<p>Yields:
+All perfect matchings as lists of (u, v) edge tuples.</p>
+<p>Examples:
+&gt;&gt;&gt; list(_generate_all_perfect_matchings([0, 1, 2, 3]))
+[[(0, 1), (2, 3)], [(0, 2), (1, 3)], [(0, 3), (1, 2)]]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">_is_hamiltonian_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle" title="Link to this definition">#</a></dt>
+<dd><p>Check if segments + added_edges form a single Hamiltonian cycle.</p>
+<p>The implicit graph consists of:</p>
+<ul class="simple">
+<li><p><strong>Segment edges</strong>: Fixed paths between consecutive endpoints
+(e.g., (1, 2), (3, 4), …, (2k-1, 0) for k segments)</p></li>
+<li><p><strong>Added edges</strong>: The k new edges from the matching</p></li>
+</ul>
+<p>A valid k-opt move must form exactly ONE cycle visiting all 2k nodes.</p>
+<p>Args:
+num_nodes: Total number of endpoints (2k).
+segments: Fixed segment connections as (u, v) pairs.
+added_edges: New edges from the matching as (u, v) pairs.</p>
+<p>Returns:
+True if the graph forms a single Hamiltonian cycle, False otherwise.</p>
+<p>Algorithm:
+1. Build undirected adjacency list from segments + added_edges
+2. DFS from node 0 to find all reachable nodes
+3. Verify all num_nodes nodes were visited (single component)
+4. Verify each node has exactly degree 2 (simple cycle)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_trivial_move">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">_is_trivial_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_trivial_move" title="Link to this definition">#</a></dt>
+<dd><p>Check if a k-opt topology is trivial (the “do nothing” move).</p>
+<p>A k-opt move is trivial if ALL added edges match the original broken edges.
+This represents no change to the tour and must always be excluded.</p>
+<p>NOTE: We check exact edge direction <code class="docutils literal notranslate"><span class="pre">(u,</span> <span class="pre">v)</span> <span class="pre">in</span> <span class="pre">broken</span></code>, not both orientations.
+This is because the matching generator produces directed edges and the broken
+edges are also directed (endpoint pairs in sequence).</p>
+<p>Args:
+k: The k-opt order (2, 3, 4, 5, …).
+added_edges: The k new edges as (u, v) tuples with 0-based indices.</p>
+<p>Returns:
+True if the move is trivial (all edges unchanged), False otherwise.</p>
+<p>Examples:
+&gt;&gt;&gt; # Broken edges: (0,1), (2,3)
+&gt;&gt;&gt; # Added edges that restore both are trivial
+&gt;&gt;&gt; _is_trivial_move(2, [(0, 1), (2, 3)])
+True
+&gt;&gt;&gt; # Added edges that change the tour
+&gt;&gt;&gt; _is_trivial_move(2, [(0, 2), (1, 3)])
+False</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_non_sequential_kopt">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">_is_non_sequential_kopt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_non_sequential_kopt" title="Link to this definition">#</a></dt>
+<dd><p>Check if a k-opt topology is truly non-sequential.</p>
+<p>For k ≥ 4, we enforce strict non-sequential moves by excluding any
+configuration where ANY broken edge reappears. This prevents lower-order
+moves from being counted (e.g., a 4-opt that’s really 2+2-opt).</p>
+<p>For k &lt; 4, we allow 2-opt sub-moves (matching Helsgaun LKH-3 behavior).</p>
+<p>NOTE: We check exact edge direction <code class="docutils literal notranslate"><span class="pre">(u,</span> <span class="pre">v)</span> <span class="pre">in</span> <span class="pre">broken</span></code>, not both orientations.
+This matches the reference implementation in KoptTopologyFactory.</p>
+<p>Args:
+k: The k-opt order (2, 3, 4, 5, …).
+added_edges: The k new edges as (u, v) tuples with 0-based indices.</p>
+<p>Returns:
+True if the move is pure (non-sequential), False otherwise.</p>
+<p>Examples:
+&gt;&gt;&gt; # For k=3, allow 2-opt sub-moves
+&gt;&gt;&gt; _is_non_sequential_kopt(3, [(0, 1), (2, 4), (3, 5)])
+True
+&gt;&gt;&gt; # For k=4, broken edges: (0,1), (2,3), (4,5), (6,7)
+&gt;&gt;&gt; # Reject if ANY broken edge appears (exact direction)
+&gt;&gt;&gt; _is_non_sequential_kopt(4, [(0, 1), (2, 5), (4, 7), (3, 6)])
+False
+&gt;&gt;&gt; _is_non_sequential_kopt(4, [(0, 2), (1, 4), (3, 6), (5, 7)])
+True</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_valid_kopt_topologies">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">_generate_valid_kopt_topologies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_valid_kopt_topologies" title="Link to this definition">#</a></dt>
+<dd><p>Generate all valid non-sequential k-opt reconnection topologies.</p>
+<p>This function programmatically enumerates every possible way to reconnect
+2k nodes after removing k edges, filters for Hamiltonian cycles, and
+excludes sequential (lower-order) moves.</p>
+<p>Args:
+k: The k-opt order (must be ≥ 2).</p>
+<p>Returns:
+List of valid topologies. Each topology is a list of k edge tuples
+with 0-based endpoint indices [0..2k-1].</p>
+<p>Algorithm:
+1. Generate all (2k-1)!! perfect matchings of endpoints [0..2k-1]
+2. For each matching:
+a. Check degree constraint (implicit in perfect matching)
+b. Build implicit graph with segment edges:
+(1→2), (3→4), …, ((2k-1)→0)
+c. Verify single Hamiltonian cycle via DFS
+d. Filter out sequential moves (where broken edges reappear)
+3. Cache and return valid topologies</p>
+<p>Complexity:
+- Time: O((2k-1)!! × k) = O(945 × 5) for k=5
+- Space: O(number of valid topologies × k)</p>
+<p>Examples:
+&gt;&gt;&gt; topologies_2opt = _generate_valid_kopt_topologies(2)
+&gt;&gt;&gt; len(topologies_2opt)
+1
+&gt;&gt;&gt; topologies_2opt[0]
+[(0, 2), (1, 3)]</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; topologies_5opt = _generate_valid_kopt_topologies(5)
+&gt;&gt;&gt; len(topologies_5opt)
+60
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_2OPT_CASES">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">EXHAUSTIVE_2OPT_CASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_2OPT_CASES" title="Link to this definition">#</a></dt>
+<dd><p>‘_generate_valid_kopt_topologies(…)’</p>
+<p>All valid 2-opt reconnection topologies.</p>
+<p><strong>Count</strong>: 1 (unique)</p>
+<p><strong>Format</strong>: List of topologies, where each topology is a list of 2 edges.</p>
+<p><strong>Example</strong>:
+&gt;&gt;&gt; EXHAUSTIVE_2OPT_CASES
+[[(0, 2), (1, 3)]]</p>
+<p><strong>Interpretation</strong>:
+- Broken edges: (t1,t2) and (t3,t4) → indices (0,1) and (2,3)
+- Added edges: (t1,t3) and (t2,t4) → indices (0,2) and (1,3)
+- This reverses the segment between the two cuts</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_3OPT_CASES">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">EXHAUSTIVE_3OPT_CASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_3OPT_CASES" title="Link to this definition">#</a></dt>
+<dd><p>‘_generate_valid_kopt_topologies(…)’</p>
+<p>All valid 3-opt reconnection topologies (including 2-opt sub-moves).</p>
+<p><strong>Count</strong>: 7</p>
+<p><strong>Format</strong>: List of topologies, where each topology is a list of 3 edges.</p>
+<p><strong>Note</strong>: Cases 1 and 2 are pure 2-opt sub-moves (single segment reversals).
+The calling code in _try_3opt_move may choose to exclude these if the
+preceding _try_2opt_move search has already proven them unprofitable.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_4OPT_CASES">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">EXHAUSTIVE_4OPT_CASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_4OPT_CASES" title="Link to this definition">#</a></dt>
+<dd><p>‘_generate_valid_kopt_topologies(…)’</p>
+<p>All valid non-sequential 4-opt reconnection topologies.</p>
+<p><strong>Count</strong>: 25 (pure moves only)</p>
+<p><strong>Format</strong>: List of topologies, where each topology is a list of 4 edges.</p>
+<p><strong>Sequential Filter</strong>: Excludes all configurations where any broken edge
+(0,1), (2,3), (4,5), or (6,7) appears in the added edges.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_5OPT_CASES">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">EXHAUSTIVE_5OPT_CASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_5OPT_CASES" title="Link to this definition">#</a></dt>
+<dd><p>‘_generate_valid_kopt_topologies(…)’</p>
+<p>All valid non-sequential 5-opt reconnection topologies.</p>
+<p><strong>Count</strong>: 208 (exhaustive Hamiltonian reconnections with sequential filter)</p>
+<p><strong>Format</strong>: List of topologies, where each topology is a list of 5 edges.</p>
+<p><strong>Mathematical Derivation</strong>:
+- Total matchings of 10 endpoints: 9!! = 945
+- After trivial filter (exclude do-nothing): 944
+- Valid Hamiltonian cycles: 383
+- After k≥4 sequential filter (exclude any broken edge): 208</p>
+<p><strong>Rationale for 208</strong>:
+The count of 208 represents a conservative exhaustive enumeration that
+excludes:
+1. The trivial matching (all broken edges restored)
+2. Non-Hamiltonian reconnections (disjoint sub-tours)
+3. Any matching containing a broken edge in exact direction (k≥4 filter)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>This ensures NO valid improving 5-opt move is missed, even if some of
+these 208 cases could theoretically be decomposed into sequential lower-
+order moves under certain tour configurations. The cost of evaluating
+208 cases is acceptable given the O(1) distance lookups.
+</pre></div>
+</div>
+<p><strong>Usage</strong>:
+This constant is directly consumed by _try_5opt_move() in the LKH-3
+inner loop to eliminate the previous shortcut of only evaluating 5
+representative cases.</p>
+<p><strong>Performance</strong>:
+- Generation time: ~50ms (one-time at module import)
+- Lookup time: O(1) pointer access
+- Inner-loop overhead: Zero (already materialized)
+- Memory: 208 topologies × 5 edges × 2 ints = ~8KB</p>
+<p><strong>Example</strong>:
+&gt;&gt;&gt; len(EXHAUSTIVE_5OPT_CASES)
+208
+&gt;&gt;&gt; EXHAUSTIVE_5OPT_CASES[0]  # doctest: +SKIP
+[(0, 2), (1, 3), (4, 6), (5, 8), (7, 9)]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXPECTED_COUNTS">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">EXPECTED_COUNTS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXPECTED_COUNTS" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+<p>Expected number of valid topologies for each k-opt order.</p>
+<p>Used in unit tests to verify correctness of the generator.</p>
+<p>Note on 5-opt count:
+The value of 208 represents ALL valid Hamiltonian reconnections of 10 endpoints
+with the k≥4 sequential filter applied (excluding any matching that contains a
+broken edge in exact orientation). This is more conservative than the theoretical
+minimum of 60 “pure” 5-opt moves, ensuring we don’t miss any valid improving moves.</p>
+<p>The reference implementation produces the same count when using the identical
+filtering logic (trivial exclusion + Hamiltonian + sequential for k≥4).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.lin_kernighan_helsgaun_three.kopt_topologies.verify_topology_counts">
+<span class="sig-prename descclassname"><span class="pre">src.policies.lin_kernighan_helsgaun_three.kopt_topologies.</span></span><span class="sig-name descname"><span class="pre">verify_topology_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.verify_topology_counts" title="Link to this definition">#</a></dt>
+<dd><p>Verify that the cached topology counts match expected values.</p>
+<p>Returns:
+True if all counts are correct, False otherwise.</p>
+<p>Raises:
+AssertionError: If any count mismatches (when assertions enabled).</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.policies.lin_kernighan_helsgaun_three.tour_adapter.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three.tour_adapter</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.policies.lin_kernighan_helsgaun_three.policy_lkh3.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three.policy_lkh3</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-foundation">Mathematical Foundation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm">Algorithm</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_all_perfect_matchings"><code class="docutils literal notranslate"><span class="pre">_generate_all_perfect_matchings()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle"><code class="docutils literal notranslate"><span class="pre">_is_hamiltonian_cycle()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_trivial_move"><code class="docutils literal notranslate"><span class="pre">_is_trivial_move()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._is_non_sequential_kopt"><code class="docutils literal notranslate"><span class="pre">_is_non_sequential_kopt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies._generate_valid_kopt_topologies"><code class="docutils literal notranslate"><span class="pre">_generate_valid_kopt_topologies()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_2OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_2OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_3OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_3OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_4OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_4OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXHAUSTIVE_5OPT_CASES"><code class="docutils literal notranslate"><span class="pre">EXHAUSTIVE_5OPT_CASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.EXPECTED_COUNTS"><code class="docutils literal notranslate"><span class="pre">EXPECTED_COUNTS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.lin_kernighan_helsgaun_three.kopt_topologies.verify_topology_counts"><code class="docutils literal notranslate"><span class="pre">verify_topology_counts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

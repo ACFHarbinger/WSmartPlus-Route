@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} RandomLocalSearchPostProcessor
+`````{py:class} RandomLocalSearchPostProcessor(**kwargs: typing.Any)
 :canonical: src.policies.other.post_processing.random_local_search.RandomLocalSearchPostProcessor
 
 Bases: {py:obj}`logic.src.interfaces.IPostProcessor`
 
 ```{autodoc2-docstring} src.policies.other.post_processing.random_local_search.RandomLocalSearchPostProcessor
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.other.post_processing.random_local_search.RandomLocalSearchPostProcessor.__init__
 ```
 
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]

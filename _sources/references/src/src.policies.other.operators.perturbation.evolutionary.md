@@ -23,24 +23,24 @@
   - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit
     :summary:
     ```
-* - {py:obj}`_cluster_profit <src.policies.other.operators.perturbation.evolutionary._cluster_profit>`
-  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._cluster_profit
+* - {py:obj}`_decode_chromosome <src.policies.other.operators.perturbation.evolutionary._decode_chromosome>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._decode_chromosome
     :summary:
     ```
-* - {py:obj}`_sequence_profit <src.policies.other.operators.perturbation.evolutionary._sequence_profit>`
-  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_profit
+* - {py:obj}`_eval_cvrp_chromosome <src.policies.other.operators.perturbation.evolutionary._eval_cvrp_chromosome>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._eval_cvrp_chromosome
     :summary:
     ```
-* - {py:obj}`_select_target_routes <src.policies.other.operators.perturbation.evolutionary._select_target_routes>`
-  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._select_target_routes
+* - {py:obj}`_eval_vrpp_chromosome <src.policies.other.operators.perturbation.evolutionary._eval_vrpp_chromosome>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._eval_vrpp_chromosome
     :summary:
     ```
-* - {py:obj}`_cluster_cost <src.policies.other.operators.perturbation.evolutionary._cluster_cost>`
-  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._cluster_cost
+* - {py:obj}`_map_target_to_global <src.policies.other.operators.perturbation.evolutionary._map_target_to_global>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._map_target_to_global
     :summary:
     ```
-* - {py:obj}`_sequence_cost <src.policies.other.operators.perturbation.evolutionary._sequence_cost>`
-  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_cost
+* - {py:obj}`_apply_to_solution <src.policies.other.operators.perturbation.evolutionary._apply_to_solution>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._apply_to_solution
     :summary:
     ```
 * - {py:obj}`_order_crossover <src.policies.other.operators.perturbation.evolutionary._order_crossover>`
@@ -51,60 +51,68 @@
   - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._mutate_swap
     :summary:
     ```
-* - {py:obj}`_apply_cluster <src.policies.other.operators.perturbation.evolutionary._apply_cluster>`
-  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._apply_cluster
+* - {py:obj}`_get_waste_val <src.policies.other.operators.perturbation.evolutionary._get_waste_val>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._get_waste_val
+    :summary:
+    ```
+* - {py:obj}`_sequence_cost <src.policies.other.operators.perturbation.evolutionary._sequence_cost>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_cost
+    :summary:
+    ```
+* - {py:obj}`_sequence_profit <src.policies.other.operators.perturbation.evolutionary._sequence_profit>`
+  - ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_profit
     :summary:
     ```
 ````
 
 ### API
 
-````{py:function} evolutionary_perturbation(ls: typing.Any, target_routes: typing.Optional[typing.List[int]] = None, pop_size: int = 10, n_generations: int = 5, rng: typing.Optional[random.Random] = None) -> bool
+````{py:function} evolutionary_perturbation(routes: typing.List[typing.List[int]], distance_matrix: numpy.ndarray, capacity: float, wastes: typing.Union[typing.Dict[int, float], numpy.ndarray], target_routes: typing.List[typing.List[int]], pop_size: int = 10, n_generations: int = 5, rng: typing.Optional[random.Random] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation
 ```
 ````
 
-````{py:function} evolutionary_perturbation_profit(ls: typing.Any, target_routes: typing.Optional[typing.List[int]] = None, pop_size: int = 10, n_generations: int = 5, rng: typing.Optional[random.Random] = None) -> bool
+````{py:function} evolutionary_perturbation_profit(routes: typing.List[typing.List[int]], distance_matrix: numpy.ndarray, capacity: float, wastes: typing.Union[typing.Dict[int, float], numpy.ndarray], revenue: float, cost_unit: float, target_routes: typing.List[typing.List[int]], pop_size: int = 10, n_generations: int = 5, rng: typing.Optional[random.Random] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary.evolutionary_perturbation_profit
 ```
 ````
 
-````{py:function} _cluster_profit(ls: typing.Any, route_indices: typing.List[int]) -> float
-:canonical: src.policies.other.operators.perturbation.evolutionary._cluster_profit
+````{py:function} _decode_chromosome(seq: typing.List[int]) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.perturbation.evolutionary._decode_chromosome
 
-```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._cluster_profit
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._decode_chromosome
 ```
 ````
 
-````{py:function} _sequence_profit(ls: typing.Any, seq: typing.List[int]) -> float
-:canonical: src.policies.other.operators.perturbation.evolutionary._sequence_profit
+````{py:function} _eval_cvrp_chromosome(seq: typing.List[int], d: numpy.ndarray, cap: float, wastes: typing.Union[typing.Dict[int, float], numpy.ndarray]) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._eval_cvrp_chromosome
 
-```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_profit
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._eval_cvrp_chromosome
 ```
 ````
 
-````{py:function} _select_target_routes(ls: typing.Any, n: int = 2) -> typing.List[int]
-:canonical: src.policies.other.operators.perturbation.evolutionary._select_target_routes
+````{py:function} _eval_vrpp_chromosome(seq: typing.List[int], d: numpy.ndarray, cap: float, wastes: typing.Union[typing.Dict[int, float], numpy.ndarray], R: float, C: float) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._eval_vrpp_chromosome
 
-```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._select_target_routes
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._eval_vrpp_chromosome
 ```
 ````
 
-````{py:function} _cluster_cost(ls: typing.Any, route_indices: typing.List[int]) -> float
-:canonical: src.policies.other.operators.perturbation.evolutionary._cluster_cost
+````{py:function} _map_target_to_global(routes: typing.List[typing.List[int]], targets: typing.List[typing.List[int]]) -> typing.List[int]
+:canonical: src.policies.other.operators.perturbation.evolutionary._map_target_to_global
 
-```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._cluster_cost
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._map_target_to_global
 ```
 ````
 
-````{py:function} _sequence_cost(d, seq: typing.List[int]) -> float
-:canonical: src.policies.other.operators.perturbation.evolutionary._sequence_cost
+````{py:function} _apply_to_solution(routes: typing.List[typing.List[int]], indices: typing.List[int], best_seq: typing.List[int]) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.perturbation.evolutionary._apply_to_solution
 
-```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_cost
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._apply_to_solution
 ```
 ````
 
@@ -115,16 +123,30 @@
 ```
 ````
 
-````{py:function} _mutate_swap(seq: typing.List[int], rng: random.Random, prob: float = 0.3) -> None
+````{py:function} _mutate_swap(seq: typing.List[int], rng: random.Random, prob: float) -> None
 :canonical: src.policies.other.operators.perturbation.evolutionary._mutate_swap
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._mutate_swap
 ```
 ````
 
-````{py:function} _apply_cluster(ls: typing.Any, route_indices: typing.List[int], best_seq: typing.List[int]) -> None
-:canonical: src.policies.other.operators.perturbation.evolutionary._apply_cluster
+````{py:function} _get_waste_val(wastes: typing.Union[typing.Dict[int, float], numpy.ndarray], node: int) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._get_waste_val
 
-```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._apply_cluster
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._get_waste_val
+```
+````
+
+````{py:function} _sequence_cost(d: numpy.ndarray, seq: typing.List[int]) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._sequence_cost
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_cost
+```
+````
+
+````{py:function} _sequence_profit(seq: typing.List[int], d: numpy.ndarray, wastes: typing.Union[typing.Dict[int, float], numpy.ndarray], R: float, C: float) -> float
+:canonical: src.policies.other.operators.perturbation.evolutionary._sequence_profit
+
+```{autodoc2-docstring} src.policies.other.operators.perturbation.evolutionary._sequence_profit
 ```
 ````

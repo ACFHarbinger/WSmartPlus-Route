@@ -183,6 +183,39 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed
+```
+
+````
+
 ````{py:method} __post_init__() -> None
 :canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.__post_init__
 

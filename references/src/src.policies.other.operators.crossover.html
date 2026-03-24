@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -552,7 +554,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.other.operators.crossover">
 <span id="src-policies-other-operators-crossover"></span><h1><a class="reference internal" href="#module-src.policies.other.operators.crossover" title="src.policies.other.operators.crossover"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.crossover</span></code></a><a class="headerlink" href="#module-src.policies.other.operators.crossover" title="Link to this heading">#</a></h1>
 <p>Crossover Operators for Hybrid Genetic Search.</p>
-<p>This module implements five advanced crossover operators for VRP genetic algorithms:</p>
+<p>This module implements seven advanced crossover operators for VRP genetic algorithms:</p>
 <ol class="arabic simple">
 <li><p><strong>Ordered Crossover (OX)</strong> - Davis, 1985</p>
 <ul class="simple">
@@ -582,6 +584,16 @@ document.write(`
 <ul class="simple">
 <li><p>Preserves edges from parents</p></li>
 <li><p>Builds offspring by following edge adjacencies</p></li>
+</ul>
+</li>
+<li><p><strong>Capacity-Aware ERX (C-ERX)</strong> - VRPP Adaptation</p>
+<ul class="simple">
+<li><p>ERX with capacity constraints and profit tie-breaking</p></li>
+</ul>
+</li>
+<li><p><strong>Route-based Profit GPX (RP-GPX)</strong> - VRPP Adaptation</p>
+<ul class="simple">
+<li><p>GPX operating on decoded routes with profit packing</p></li>
 </ul>
 </li>
 </ol>
@@ -636,7 +648,7 @@ Nagata &amp; Bräysy, “Edge assembly-based memetic algorithm”, 2009.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.other.operators.crossover.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.other.operators.crossover.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.other.operators.crossover.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘CROSSOVER_NAMES’, ‘CROSSOVER_OPERATORS’, ‘edge_recombination_crossover’, ‘generalized_partition_cr…</p>
+<dd><p>[‘CROSSOVER_NAMES’, ‘CROSSOVER_OPERATORS’, ‘capacity_aware_erx’, ‘edge_recombination_crossover’, ‘ge…</p>
 </dd></dl>
 
 </section>

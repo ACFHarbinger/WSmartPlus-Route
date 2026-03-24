@@ -21,21 +21,9 @@
     ```
 ````
 
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`run_hgs_rr <src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.run_hgs_rr>`
-  - ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.run_hgs_rr
-    :summary:
-    ```
-````
-
 ### API
 
-`````{py:class} HGSRRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} HGSRRSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.HGSRRSolver
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.HGSRRSolver
@@ -72,10 +60,3 @@
 ````
 
 `````
-
-````{py:function} run_hgs_rr(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args)
-:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.run_hgs_rr
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr.run_hgs_rr
-```
-````

@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams
+:canonical: src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams.from_config
+```
+
+````
+
 `````

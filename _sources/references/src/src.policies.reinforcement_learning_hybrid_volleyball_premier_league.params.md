@@ -117,6 +117,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__
+```
+
+````
+
 ````{py:attribute} aco_params
 :canonical: src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.aco_params
 :type: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} Individual(giant_tour: typing.List[int])
+`````{py:class} Individual(giant_tour: typing.List[int], expand_pool: bool = False)
 :canonical: src.policies.hybrid_genetic_search.individual.Individual
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual

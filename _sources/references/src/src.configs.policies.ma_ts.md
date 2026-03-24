@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} n_removal
+:canonical: src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.n_removal
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.n_removal
+```
+
+````
+
 ````{py:attribute} local_search_iterations
 :canonical: src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.local_search_iterations
 :type: int
@@ -135,6 +146,17 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.profit_aware_operators
 ```
 
 ````

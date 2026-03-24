@@ -205,6 +205,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.__post_init__
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.__post_init__
+```
+
+````
+
 ````{py:attribute} gls_penalty_lambda
 :canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.gls_penalty_lambda
 :type: float

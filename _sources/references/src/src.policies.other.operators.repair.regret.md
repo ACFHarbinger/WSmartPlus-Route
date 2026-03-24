@@ -39,14 +39,14 @@
 
 ### API
 
-````{py:function} regret_2_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: typing.Optional[float] = None, mandatory_nodes: typing.Optional[typing.List[int]] = None, cost_unit: float = 1.0, expand_pool: bool = True, noise: float = 0.0) -> typing.List[typing.List[int]]
+````{py:function} regret_2_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = True, noise: float = 0.0) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.repair.regret.regret_2_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_2_insertion
 ```
 ````
 
-````{py:function} regret_k_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, k: int = 2, R: typing.Optional[float] = None, mandatory_nodes: typing.Optional[typing.List[int]] = None, cost_unit: float = 1.0, expand_pool: bool = True, noise: float = 0.0) -> typing.List[typing.List[int]]
+````{py:function} regret_k_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, k: int = 2, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = True, noise: float = 0.0) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.repair.regret.regret_k_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_k_insertion

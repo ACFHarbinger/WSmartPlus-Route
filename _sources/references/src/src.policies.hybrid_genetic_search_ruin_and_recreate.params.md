@@ -73,17 +73,6 @@
 
 ````
 
-````{py:attribute} n_offspring
-:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_offspring
-:type: int
-:value: >
-   40
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_offspring
-```
-
-````
-
 ````{py:attribute} n_generations
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_generations
 :type: int
@@ -311,6 +300,37 @@
    None
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams
+:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.from_config
 ```
 
 ````

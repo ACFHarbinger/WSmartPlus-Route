@@ -95,4 +95,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams
+:canonical: src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_comma_lambda.params.MuCommaLambdaESParams.from_config
+```
+
+````
+
 `````

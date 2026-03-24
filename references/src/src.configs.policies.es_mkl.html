@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -535,13 +537,21 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.kappa"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.kappa</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.lambda_"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.lambda_</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.rho"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.rho</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_local"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.tau_local</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_global"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.tau_global</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.initial_sigma"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.initial_sigma</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.min_sigma"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.min_sigma</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_sigma"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.max_sigma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.recombination_type"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.recombination_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_min"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.bounds_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_max"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.bounds_max</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.n_removal"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.n_removal</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.stagnation_limit"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.stagnation_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.max_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.seed"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.must_go"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.post_processing</span></code></a></li>
@@ -611,9 +621,51 @@ document.write(`
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_local">
+<span class="sig-name descname"><span class="pre">tau_local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_local" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_global">
+<span class="sig-name descname"><span class="pre">tau_global</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_global" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.initial_sigma">
+<span class="sig-name descname"><span class="pre">initial_sigma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.initial_sigma" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.min_sigma">
+<span class="sig-name descname"><span class="pre">min_sigma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.min_sigma" title="Link to this definition">#</a></dt>
+<dd><p>1e-10</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_sigma">
+<span class="sig-name descname"><span class="pre">max_sigma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_sigma" title="Link to this definition">#</a></dt>
+<dd><p>10.0</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.recombination_type">
 <span class="sig-name descname"><span class="pre">recombination_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.recombination_type" title="Link to this definition">#</a></dt>
 <dd><p>‘intermediate’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_min">
+<span class="sig-name descname"><span class="pre">bounds_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_min" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_max">
+<span class="sig-name descname"><span class="pre">bounds_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_max" title="Link to this definition">#</a></dt>
+<dd><p>5.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -650,6 +702,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp">
 <span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp" title="Link to this definition">#</a></dt>
 <dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -729,13 +787,21 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.kappa"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.kappa</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.lambda_"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.lambda_</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.rho"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.rho</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_local"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.tau_local</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_global"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.tau_global</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.initial_sigma"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.initial_sigma</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.min_sigma"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.min_sigma</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_sigma"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.max_sigma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.recombination_type"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.recombination_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_min"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.bounds_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_max"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.bounds_max</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.n_removal"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.n_removal</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.stagnation_limit"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.stagnation_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.max_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.seed"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.must_go"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">MuKappaLambdaESConfig.post_processing</span></code></a></li>

@@ -128,4 +128,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.genetic_programming_hyper_heuristic.params.GPHHParams
+:canonical: src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.params.GPHHParams.from_config
+```
+
+````
+
 `````

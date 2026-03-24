@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.simulated_annealing.params.SAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.simulated_annealing.params.SAParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.simulated_annealing.params.SAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.simulated_annealing.params.SAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.simulated_annealing.params.SAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.simulated_annealing.params.SAParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.simulated_annealing.params.SAParams
+:canonical: src.policies.simulated_annealing.params.SAParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.simulated_annealing.params.SAParams.from_config
+```
+
+````
+
 `````

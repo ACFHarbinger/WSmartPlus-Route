@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -558,9 +560,6 @@ document.write(`
 to the WSmart+ Route simulator interface. This adapter facilitates the
 integration of the solver into the simulation pipeline, handling parameter
 mapping, data extraction, and result formatting.</p>
-<p>Pattern:
-The adapter follows the ‘Policy Adapter’ pattern, acting as a bridge
-between Hydra-managed configurations and the core routing logic.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -591,7 +590,7 @@ waste collection routing. It manages:</p>
 </ol>
 <p>Architecture:
 - Inherits from <code class="docutils literal notranslate"><span class="pre">BaseRoutingPolicy</span></code> for standardized parameter loading.
-- Registered under the key ‘cluster_first_route_second’ for dynamic instantiation.</p>
+- Registered under the key ‘cf_rs’ for dynamic instantiation.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the CF-RS policy adapter.</p>
 <p>Args:
@@ -610,7 +609,7 @@ The <code class="docutils literal notranslate"><span class="pre">CFRSConfig</spa
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Identify the configuration key in the root YAML structure.</p>
 <p>Returns:
-The string key ‘cluster_first_route_second’.</p>
+The string key ‘cf_rs’.</p>
 </dd></dl>
 
 <dl class="py method">

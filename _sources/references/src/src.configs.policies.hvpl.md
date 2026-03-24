@@ -172,6 +172,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.hvpl.HVPLConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.hvpl.HVPLConfig.must_go
 :type: typing.List[str]

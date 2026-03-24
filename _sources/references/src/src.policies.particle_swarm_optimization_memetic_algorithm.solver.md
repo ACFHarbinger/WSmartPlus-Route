@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PSOMAsSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} PSOMAsSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver
 
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver

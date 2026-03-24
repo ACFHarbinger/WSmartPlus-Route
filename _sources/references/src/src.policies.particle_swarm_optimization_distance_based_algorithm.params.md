@@ -172,6 +172,39 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.seed
+```
+
+````
+
 ````{py:method} get_inertia_weight(iteration: int) -> float
 :canonical: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.get_inertia_weight
 
@@ -221,6 +254,15 @@
 :type: int
 
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.pop_size
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams
+:canonical: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.from_config
 ```
 
 ````

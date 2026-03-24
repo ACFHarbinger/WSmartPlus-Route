@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -550,6 +552,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.tbi_window"><code class="docutils literal notranslate"><span class="pre">GIHHParams.tbi_window</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.restarts"><code class="docutils literal notranslate"><span class="pre">GIHHParams.restarts</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.restart_threshold"><code class="docutils literal notranslate"><span class="pre">GIHHParams.restart_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.vrpp"><code class="docutils literal notranslate"><span class="pre">GIHHParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">GIHHParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.from_config"><code class="docutils literal notranslate"><span class="pre">GIHHParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -737,6 +742,24 @@ restart_threshold (int): Iterations without improvement before restart.
 <dd><p>100</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams" title="src.policies.guided_indicators_hyper_heuristic.params.GIHHParams"><span class="pre">src.policies.guided_indicators_hyper_heuristic.params.GIHHParams</span></a></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create parameters from a configuration object.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -811,6 +834,9 @@ restart_threshold (int): Iterations without improvement before restart.
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.tbi_window"><code class="docutils literal notranslate"><span class="pre">GIHHParams.tbi_window</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.restarts"><code class="docutils literal notranslate"><span class="pre">GIHHParams.restarts</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.restart_threshold"><code class="docutils literal notranslate"><span class="pre">GIHHParams.restart_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.vrpp"><code class="docutils literal notranslate"><span class="pre">GIHHParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">GIHHParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.from_config"><code class="docutils literal notranslate"><span class="pre">GIHHParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>

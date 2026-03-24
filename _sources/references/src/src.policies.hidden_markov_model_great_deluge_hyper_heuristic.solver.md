@@ -87,7 +87,7 @@
 
 ````
 
-`````{py:class} HMMGDHHSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} HMMGDHHSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver
 
 ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver

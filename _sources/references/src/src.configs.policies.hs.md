@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.hs.HSConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hs.HSConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.hs.HSConfig.must_go
 :type: typing.Optional[typing.List[typing.Any]]

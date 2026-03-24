@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} alns_education_iterations
-:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_education_iterations
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_education_iterations
-```
-
-````
-
 ````{py:attribute} hgs_max_iter
 :canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter
 :type: int
@@ -58,6 +47,39 @@
    100
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.profit_aware_operators
 ```
 
 ````

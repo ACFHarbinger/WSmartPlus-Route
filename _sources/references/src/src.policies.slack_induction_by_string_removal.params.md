@@ -117,7 +117,40 @@
 
 ````
 
-````{py:method} from_config(config: logic.src.configs.policies.SISRConfig) -> src.policies.slack_induction_by_string_removal.params.SISRParams
+````{py:attribute} vrpp
+:canonical: src.policies.slack_induction_by_string_removal.params.SISRParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.params.SISRParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.slack_induction_by_string_removal.params.SISRParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.params.SISRParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.slack_induction_by_string_removal.params.SISRParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.slack_induction_by_string_removal.params.SISRParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.slack_induction_by_string_removal.params.SISRParams
 :canonical: src.policies.slack_induction_by_string_removal.params.SISRParams.from_config
 :classmethod:
 

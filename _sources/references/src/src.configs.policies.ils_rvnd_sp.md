@@ -185,6 +185,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.time_limit
 :type: float

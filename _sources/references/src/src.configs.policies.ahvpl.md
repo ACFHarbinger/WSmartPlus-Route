@@ -128,6 +128,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.ahvpl.AHVPLConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.ahvpl.AHVPLConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} hgs
 :canonical: src.configs.policies.ahvpl.AHVPLConfig.hgs
 :type: src.configs.policies.hgs.HGSConfig

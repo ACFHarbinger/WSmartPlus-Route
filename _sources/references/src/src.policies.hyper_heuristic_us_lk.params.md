@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.seed
+```
+
+````
+
 ````{py:attribute} epsilon
 :canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.epsilon
 :type: float
@@ -212,17 +223,6 @@
    0.3
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.max_destroy_pct
-```
-
-````
-
-````{py:attribute} ls_intensity
-:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.ls_intensity
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.ls_intensity
 ```
 
 ````
@@ -370,6 +370,17 @@
 
 ````
 
+````{py:attribute} weight_decay
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.weight_decay
+:type: float
+:value: >
+   0.95
+
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.weight_decay
+```
+
+````
+
 ````{py:attribute} weight_learning_rate
 :canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.weight_learning_rate
 :type: float
@@ -381,13 +392,11 @@
 
 ````
 
-````{py:attribute} weight_decay
-:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.weight_decay
-:type: float
-:value: >
-   0.95
+````{py:method} from_config(config: typing.Any) -> src.policies.hyper_heuristic_us_lk.params.HULKParams
+:canonical: src.policies.hyper_heuristic_us_lk.params.HULKParams.from_config
+:classmethod:
 
-```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.weight_decay
+```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.params.HULKParams.from_config
 ```
 
 ````

@@ -15,59 +15,51 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`PolicyBP <src.policies.branch_and_price.policy_bp.PolicyBP>`
-  - ```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.PolicyBP
-    :summary:
-    ```
-````
-
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`run_branch_and_price <src.policies.branch_and_price.policy_bp.run_branch_and_price>`
-  - ```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.run_branch_and_price
+* - {py:obj}`BranchAndPricePolicy <src.policies.branch_and_price.policy_bp.BranchAndPricePolicy>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} PolicyBP(max_iterations: int = 100, max_routes_per_iteration: int = 10, optimality_gap: float = 0.0001, use_ryan_foster_branching: bool = False, max_branch_nodes: int = 1000, use_exact_pricing: bool = False, **kwargs: typing.Any)
-:canonical: src.policies.branch_and_price.policy_bp.PolicyBP
+`````{py:class} BranchAndPricePolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.BPConfig, typing.Dict[str, typing.Any]]] = None)
+:canonical: src.policies.branch_and_price.policy_bp.BranchAndPricePolicy
 
-```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.PolicyBP
+Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
+
+```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.PolicyBP.__init__
+```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy.__init__
 ```
 
-````{py:method} solve(cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.List[int]] = None) -> typing.Dict[str, typing.Any]
-:canonical: src.policies.branch_and_price.policy_bp.PolicyBP.solve
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._config_class
+:classmethod:
 
-```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.PolicyBP.solve
+```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._config_class
 ```
 
 ````
 
-````{py:method} __call__(*args: typing.Any, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
-:canonical: src.policies.branch_and_price.policy_bp.PolicyBP.__call__
+````{py:method} _get_config_key() -> str
+:canonical: src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._get_config_key
 
-```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.PolicyBP.__call__
+```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._get_config_key
+```
+
+````
+
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._run_solver
+
+```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._run_solver
 ```
 
 ````
 
 `````
-
-````{py:function} run_branch_and_price(cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, max_iterations: int = 100, max_routes_per_iteration: int = 10, optimality_gap: float = 0.0001, use_ryan_foster_branching: bool = False, max_branch_nodes: int = 1000) -> typing.Dict[str, typing.Any]
-:canonical: src.policies.branch_and_price.policy_bp.run_branch_and_price
-
-```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.run_branch_and_price
-```
-````

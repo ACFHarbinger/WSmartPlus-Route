@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -529,13 +531,13 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.PolicyBC"><code class="docutils literal notranslate"><span class="pre">PolicyBC</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.PolicyBC.__call__"><code class="docutils literal notranslate"><span class="pre">PolicyBC.__call__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy._config_class()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy._run_solver()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.run_branch_and_cut"><code class="docutils literal notranslate"><span class="pre">run_branch_and_cut()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -553,27 +555,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_cut.policy_bc">
 <span id="src-policies-branch-and-cut-policy-bc"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_cut.policy_bc" title="src.policies.branch_and_cut.policy_bc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut.policy_bc</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_cut.policy_bc" title="Link to this heading">#</a></h1>
-<p>Policy adapter for Branch-and-Cut VRPP solver.</p>
-<p>Integrates the Branch-and-Cut algorithm into the WSmart+ Route policy framework.</p>
+<p>Branch-and-Cut (BC) Policy Adapter.</p>
+<p>Adapts the core Branch-and-Cut solver logic to the systems-agnostic
+policy interface, handling parameter mapping, profit calculation, and environment
+integration.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_cut.policy_bc.PolicyBC" title="src.policies.branch_and_cut.policy_bc.PolicyBC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyBC</span></code></a></p></td>
-<td><p>Branch-and-Cut policy for VRPP.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_cut.policy_bc.run_branch_and_cut" title="src.policies.branch_and_cut.policy_bc.run_branch_and_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_branch_and_cut</span></code></a></p></td>
-<td><p>Convenience function for running Branch-and-Cut solver.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy" title="src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BranchAndCutPolicy</span></code></a></p></td>
+<td><p>Adapter for the Branch-and-Cut routing solver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -582,60 +575,54 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.PolicyBC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.policy_bc.</span></span><span class="sig-name descname"><span class="pre">PolicyBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts_per_round</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_heuristics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.PolicyBC" title="Link to this definition">#</a></dt>
-<dd><p>Branch-and-Cut policy for VRPP.</p>
-<p>This policy uses an exact branch-and-cut algorithm to solve the Vehicle Routing
-Problem with Profits optimally (within time limits and MIP gap tolerance).</p>
+<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.policy_bc.</span></span><span class="sig-name descname"><span class="pre">BranchAndCutPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.BCConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
+<p>Adapter for the Branch-and-Cut routing solver.</p>
+<p>This policy implements an exact optimization method that combines:</p>
+<ul class="simple">
+<li><p>Cutting planes to strengthen LP relaxations</p></li>
+<li><p>Branch-and-bound for integer optimization</p></li>
+<li><p>Separation algorithms for subtour elimination and capacity constraints</p></li>
+</ul>
+<p>As an exact solver, it provides provable optimality guarantees within
+the specified MIP gap and time limit.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Branch-and-Cut policy.</p>
+<p>Initialize the BC policy adapter.</p>
 <p>Args:
-time_limit: Maximum solving time in seconds.
-mip_gap: Relative MIP gap tolerance.
-max_cuts_per_round: Maximum cuts to add per separation round.
-use_heuristics: Whether to use primal heuristics for warm start.
-verbose: Print detailed solving information.
-profit_aware_operators: Whether to use profit-aware heuristics.
-vrpp: Whether to use VRPP pool expansion in heuristics.</p>
+config: A typed BCConfig dataclass, a raw dictionary for parsing,
+or None to use framework defaults.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.PolicyBC.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.PolicyBC.__call__" title="Link to this definition">#</a></dt>
-<dd><p>Solve VRPP instance using Branch-and-Cut.</p>
-<p>Args:
-coords: DataFrame with node coordinates (unused, we use distance_matrix).
-must_go: List of mandatory node indices to visit.
-distance_matrix: N×N distance matrix.
-wastes: Dictionary mapping node index to waste/demand.
-capacity: Vehicle capacity.
-R: Revenue per kg of waste collected.
-C: Cost per km traveled.
-**kwargs: Additional arguments.</p>
-<p>Returns:
-Tuple of (tour, profit, statistics).</p>
+<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._config_class">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._config_class" title="Link to this definition">#</a></dt>
+<dd><p>Return the configuration dataclass type for automatic parsing.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._get_config_key">
+<span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._get_config_key" title="Link to this definition">#</a></dt>
+<dd><p>Return the unique identification key for this policy’s configuration.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.run_branch_and_cut">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.policy_bc.</span></span><span class="sig-name descname"><span class="pre">run_branch_and_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.run_branch_and_cut" title="Link to this definition">#</a></dt>
-<dd><p>Convenience function for running Branch-and-Cut solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._run_solver">
+<span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._run_solver" title="Link to this definition">#</a></dt>
+<dd><p>Run Branch-and-Cut solver.</p>
+<p>All nodes in mandatory_nodes are treated as must-go for the solver.
+In VRPP mode, additional nodes from sub_wastes might be collected if profitable.</p>
 <p>Args:
-coords: DataFrame with node coordinates.
-must_go: List of mandatory node indices.
-distance_matrix: N×N distance matrix.
-wastes: Dictionary mapping node index to waste/demand.
-capacity: Vehicle capacity.
-R: Revenue per kg.
-C: Cost per km.
-time_limit: Maximum solving time.
-mip_gap: MIP gap tolerance.
-verbose: Print detailed output.
-profit_aware_operators: Whether to use profit-aware heuristics.
-vrpp: Whether to use VRPP pool expansion in heuristics.
-**kwargs: Additional arguments.</p>
+sub_dist_matrix: The localized distance matrix for candidates.
+sub_wastes: Current fill levels for available customer nodes.
+capacity: The maximum payload of the vehicle.
+revenue: Expected revenue per unit of waste collected.
+cost_unit: Cost per unit of distance traveled.
+values: Merged configuration dictionary from simulation and YAML.
+mandatory_nodes: Indices of nodes that MUST be visited.
+**kwargs: Additional solver parameters.</p>
 <p>Returns:
-Tuple of (tour, cost, statistics).</p>
+A tuple containing (List of routes, total profit, total travel cost).</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -689,13 +676,13 @@ Tuple of (tour, cost, statistics).</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.PolicyBC"><code class="docutils literal notranslate"><span class="pre">PolicyBC</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.PolicyBC.__call__"><code class="docutils literal notranslate"><span class="pre">PolicyBC.__call__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy._config_class()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">BranchAndCutPolicy._run_solver()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.policy_bc.run_branch_and_cut"><code class="docutils literal notranslate"><span class="pre">run_branch_and_cut()</span></code></a></li>
 </ul>
 </li>
 </ul>

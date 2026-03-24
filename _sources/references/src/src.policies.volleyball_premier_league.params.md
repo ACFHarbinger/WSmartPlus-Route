@@ -128,10 +128,52 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.volleyball_premier_league.params.VPLParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.volleyball_premier_league.params.VPLParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.volleyball_premier_league.params.VPLParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.volleyball_premier_league.params.VPLParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.volleyball_premier_league.params.VPLParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.volleyball_premier_league.params.VPLParams.profit_aware_operators
+```
+
+````
+
 ````{py:method} __post_init__()
 :canonical: src.policies.volleyball_premier_league.params.VPLParams.__post_init__
 
 ```{autodoc2-docstring} src.policies.volleyball_premier_league.params.VPLParams.__post_init__
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.volleyball_premier_league.params.VPLParams
+:canonical: src.policies.volleyball_premier_league.params.VPLParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.volleyball_premier_league.params.VPLParams.from_config
 ```
 
 ````

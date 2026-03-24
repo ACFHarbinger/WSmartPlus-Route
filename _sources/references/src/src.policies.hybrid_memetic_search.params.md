@@ -117,6 +117,39 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} aco_params
 :canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.aco_params
 :type: typing.Optional[src.policies.ant_colony_optimization_k_sparse.params.KSACOParams]

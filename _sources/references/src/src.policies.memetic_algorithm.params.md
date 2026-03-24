@@ -117,4 +117,46 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.memetic_algorithm.params.MAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.memetic_algorithm.params.MAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.memetic_algorithm.params.MAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.memetic_algorithm.params.MAParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.memetic_algorithm.params.MAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.memetic_algorithm.params.MAParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.memetic_algorithm.params.MAParams
+:canonical: src.policies.memetic_algorithm.params.MAParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.memetic_algorithm.params.MAParams.from_config
+```
+
+````
+
 `````

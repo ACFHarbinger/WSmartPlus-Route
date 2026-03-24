@@ -27,27 +27,17 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`logger <src.pipeline.rl.hpo.zenml_hpo_pipeline.logger>`
-  - ```{autodoc2-docstring} src.pipeline.rl.hpo.zenml_hpo_pipeline.logger
-    :summary:
-    ```
 * - {py:obj}`_ZENML_AVAILABLE <src.pipeline.rl.hpo.zenml_hpo_pipeline._ZENML_AVAILABLE>`
   - ```{autodoc2-docstring} src.pipeline.rl.hpo.zenml_hpo_pipeline._ZENML_AVAILABLE
+    :summary:
+    ```
+* - {py:obj}`logger <src.pipeline.rl.hpo.zenml_hpo_pipeline.logger>`
+  - ```{autodoc2-docstring} src.pipeline.rl.hpo.zenml_hpo_pipeline.logger
     :summary:
     ```
 ````
 
 ### API
-
-````{py:data} logger
-:canonical: src.pipeline.rl.hpo.zenml_hpo_pipeline.logger
-:value: >
-   'get_pylogger(...)'
-
-```{autodoc2-docstring} src.pipeline.rl.hpo.zenml_hpo_pipeline.logger
-```
-
-````
 
 ````{py:data} _ZENML_AVAILABLE
 :canonical: src.pipeline.rl.hpo.zenml_hpo_pipeline._ZENML_AVAILABLE
@@ -55,6 +45,16 @@
    False
 
 ```{autodoc2-docstring} src.pipeline.rl.hpo.zenml_hpo_pipeline._ZENML_AVAILABLE
+```
+
+````
+
+````{py:data} logger
+:canonical: src.pipeline.rl.hpo.zenml_hpo_pipeline.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.rl.hpo.zenml_hpo_pipeline.logger
 ```
 
 ````

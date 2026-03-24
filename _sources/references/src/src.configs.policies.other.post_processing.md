@@ -90,6 +90,17 @@
 
 ````
 
+````{py:attribute} time_limit
+:canonical: src.configs.policies.other.post_processing.LKHPostConfig.time_limit
+:type: float
+:value: >
+   30.0
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LKHPostConfig.time_limit
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.other.post_processing.LKHPostConfig.seed
 :type: int
@@ -109,24 +120,35 @@
 ```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig
 ```
 
-````{py:attribute} operator_name
-:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name
+````{py:attribute} ls_operator
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.ls_operator
 :type: str
 :value: >
    '2opt'
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.operator_name
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.ls_operator
 ```
 
 ````
 
-````{py:attribute} n_iterations
-:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations
+````{py:attribute} iterations
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.iterations
 :type: int
 :value: >
-   50
+   1000
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.n_iterations
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.iterations
+```
+
+````
+
+````{py:attribute} time_limit
+:canonical: src.configs.policies.other.post_processing.LocalSearchPostConfig.time_limit
+:type: float
+:value: >
+   30.0
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.LocalSearchPostConfig.time_limit
 ```
 
 ````
@@ -169,24 +191,35 @@
 ```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig
 ```
 
-````{py:attribute} n_iterations
-:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations
+````{py:attribute} iterations
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.iterations
 :type: int
 :value: >
-   50
+   1000
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.n_iterations
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.iterations
 ```
 
 ````
 
-````{py:attribute} op_probs
-:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs
+````{py:attribute} params
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.params
 :type: typing.Dict[str, float]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.op_probs
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.params
+```
+
+````
+
+````{py:attribute} time_limit
+:canonical: src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.time_limit
+:type: float
+:value: >
+   30.0
+
+```{autodoc2-docstring} src.configs.policies.other.post_processing.RandomLocalSearchPostConfig.time_limit
 ```
 
 ````

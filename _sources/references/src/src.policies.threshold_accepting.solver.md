@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} TASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.threshold_accepting.solver.TASolver
 
 Bases: {py:obj}`src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver`

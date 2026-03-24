@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.gihh.GIHHConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} move_operators
 :canonical: src.configs.policies.gihh.GIHHConfig.move_operators
 :type: typing.List[str]

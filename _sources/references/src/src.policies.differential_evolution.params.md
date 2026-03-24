@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.differential_evolution.params.DEParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.differential_evolution.params.DEParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.differential_evolution.params.DEParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.differential_evolution.params.DEParams
+:canonical: src.policies.differential_evolution.params.DEParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.from_config
+```
+
+````
+
 `````

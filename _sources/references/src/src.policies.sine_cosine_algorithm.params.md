@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} local_search_iterations
+:canonical: src.policies.sine_cosine_algorithm.params.SCAParams.local_search_iterations
+:type: int
+:value: >
+   500
+
+```{autodoc2-docstring} src.policies.sine_cosine_algorithm.params.SCAParams.local_search_iterations
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.sine_cosine_algorithm.params.SCAParams.time_limit
 :type: float
@@ -69,6 +80,48 @@
    60.0
 
 ```{autodoc2-docstring} src.policies.sine_cosine_algorithm.params.SCAParams.time_limit
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.sine_cosine_algorithm.params.SCAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.sine_cosine_algorithm.params.SCAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.sine_cosine_algorithm.params.SCAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.sine_cosine_algorithm.params.SCAParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.sine_cosine_algorithm.params.SCAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.sine_cosine_algorithm.params.SCAParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.sine_cosine_algorithm.params.SCAParams
+:canonical: src.policies.sine_cosine_algorithm.params.SCAParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.sine_cosine_algorithm.params.SCAParams.from_config
 ```
 
 ````

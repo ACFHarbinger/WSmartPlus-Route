@@ -39,6 +39,10 @@
   - ```{autodoc2-docstring} src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph
     :summary:
     ```
+* - {py:obj}`calculate_tour_cost <src.policies.travelling_salesman_problem.tsp.calculate_tour_cost>`
+  - ```{autodoc2-docstring} src.policies.travelling_salesman_problem.tsp.calculate_tour_cost
+    :summary:
+    ```
 ````
 
 ### API
@@ -82,5 +86,12 @@
 :canonical: src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph
 
 ```{autodoc2-docstring} src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph
+```
+````
+
+````{py:function} calculate_tour_cost(distance_matrix: numpy.ndarray, tour: typing.List[int]) -> float
+:canonical: src.policies.travelling_salesman_problem.tsp.calculate_tour_cost
+
+```{autodoc2-docstring} src.policies.travelling_salesman_problem.tsp.calculate_tour_cost
 ```
 ````

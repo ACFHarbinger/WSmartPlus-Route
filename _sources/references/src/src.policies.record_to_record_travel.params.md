@@ -84,4 +84,37 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.record_to_record_travel.params.RRParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.record_to_record_travel.params.RRParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.record_to_record_travel.params.RRParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.record_to_record_travel.params.RRParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.record_to_record_travel.params.RRParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.record_to_record_travel.params.RRParams.seed
+```
+
+````
+
 `````

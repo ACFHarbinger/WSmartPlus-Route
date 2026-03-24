@@ -15,6 +15,7 @@
 
 src.utils.validation.tree_loc
 src.utils.validation.check_multi_classes
+src.utils.validation.check_nested_imports
 src.utils.validation.debug_utils
 src.utils.validation.count_loc
 ```

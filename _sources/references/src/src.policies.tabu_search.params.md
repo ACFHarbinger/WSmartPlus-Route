@@ -249,6 +249,39 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.tabu_search.params.TSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.tabu_search.params.TSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.tabu_search.params.TSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.tabu_search.params.TSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.tabu_search.params.TSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.tabu_search.params.TSParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} use_swap
 :canonical: src.policies.tabu_search.params.TSParams.use_swap
 :type: bool
@@ -289,6 +322,15 @@
    True
 
 ```{autodoc2-docstring} src.policies.tabu_search.params.TSParams.use_insertion
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.tabu_search.params.TSParams
+:canonical: src.policies.tabu_search.params.TSParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.tabu_search.params.TSParams.from_config
 ```
 
 ````

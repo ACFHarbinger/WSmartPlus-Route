@@ -23,12 +23,18 @@
 
 ### API
 
-`````{py:class} FastTSPPostProcessor
+`````{py:class} FastTSPPostProcessor(**kwargs: typing.Any)
 :canonical: src.policies.other.post_processing.fast_tsp.FastTSPPostProcessor
 
 Bases: {py:obj}`logic.src.interfaces.IPostProcessor`
 
 ```{autodoc2-docstring} src.policies.other.post_processing.fast_tsp.FastTSPPostProcessor
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.other.post_processing.fast_tsp.FastTSPPostProcessor.__init__
 ```
 
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.List[int]

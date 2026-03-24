@@ -117,4 +117,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config
+```
+
+````
+
 `````

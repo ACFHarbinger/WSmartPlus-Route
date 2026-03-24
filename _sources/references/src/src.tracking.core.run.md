@@ -252,7 +252,7 @@
 
 ````
 
-````{py:method} __exit__(exc_type: typing.Any, exc_val: typing.Any, exc_tb: typing.Any) -> bool
+````{py:method} __exit__(exc_type: typing.Any, exc_val: typing.Any, _exc_tb: typing.Any) -> typing_extensions.Literal[False]
 :canonical: src.tracking.core.run.Run.__exit__
 
 ```{autodoc2-docstring} src.tracking.core.run.Run.__exit__

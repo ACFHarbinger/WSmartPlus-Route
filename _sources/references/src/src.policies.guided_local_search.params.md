@@ -106,4 +106,37 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.guided_local_search.params.GLSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.guided_local_search.params.GLSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.guided_local_search.params.GLSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.profit_aware_operators
+```
+
+````
+
 `````

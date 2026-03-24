@@ -106,4 +106,37 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.ensemble_move_acceptance.params.EMAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.ensemble_move_acceptance.params.EMAParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.ensemble_move_acceptance.params.EMAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.ensemble_move_acceptance.params.EMAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.ensemble_move_acceptance.params.EMAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.ensemble_move_acceptance.params.EMAParams.profit_aware_operators
+```
+
+````
+
 `````

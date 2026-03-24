@@ -106,6 +106,39 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.seed
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.adaptive_large_neighborhood_search.params.ALNSParams
 :canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.from_config
 :classmethod:

@@ -84,4 +84,37 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.step_counting_hill_climbing.params.SCHCParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.step_counting_hill_climbing.params.SCHCParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.step_counting_hill_climbing.params.SCHCParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.step_counting_hill_climbing.params.SCHCParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.step_counting_hill_climbing.params.SCHCParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.step_counting_hill_climbing.params.SCHCParams.seed
+```
+
+````
+
 `````

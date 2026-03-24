@@ -84,4 +84,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.great_deluge.params.GDParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.great_deluge.params.GDParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.great_deluge.params.GDParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.great_deluge.params.GDParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.great_deluge.params.GDParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.great_deluge.params.GDParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.great_deluge.params.GDParams
+:canonical: src.policies.great_deluge.params.GDParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.great_deluge.params.GDParams.from_config
+```
+
+````
+
 `````

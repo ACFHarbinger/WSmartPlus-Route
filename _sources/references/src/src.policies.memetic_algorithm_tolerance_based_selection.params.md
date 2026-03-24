@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams
 ```
 
+````{py:attribute} seed
+:canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.seed
+```
+
+````
+
 ````{py:attribute} population_size
 :canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.population_size
 :type: int
@@ -84,6 +95,17 @@
 
 ````
 
+````{py:attribute} n_removal
+:canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.n_removal
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.n_removal
+```
+
+````
+
 ````{py:attribute} local_search_iterations
 :canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.local_search_iterations
 :type: int
@@ -95,6 +117,28 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.time_limit
 :type: float
@@ -102,6 +146,15 @@
    60.0
 
 ```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.time_limit
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams
+:canonical: src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.from_config
 ```
 
 ````

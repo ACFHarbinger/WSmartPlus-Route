@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} IESolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} IESolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.improving_and_equal.solver.IESolver
 
 Bases: {py:obj}`src.policies.base.base_acceptance_criteria.BaseAcceptanceSolver`

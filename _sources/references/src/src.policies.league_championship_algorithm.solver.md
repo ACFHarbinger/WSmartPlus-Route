@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LCASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.league_championship_algorithm.params.LCAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} LCASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.league_championship_algorithm.params.LCAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.league_championship_algorithm.solver.LCASolver
 
 ```{autodoc2-docstring} src.policies.league_championship_algorithm.solver.LCASolver

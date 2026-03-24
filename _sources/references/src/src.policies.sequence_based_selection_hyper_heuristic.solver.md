@@ -68,7 +68,7 @@
 
 `````
 
-`````{py:class} SSHHSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} SSHHSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.sequence_based_selection_hyper_heuristic.params.SSHHParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver
 
 ```{autodoc2-docstring} src.policies.sequence_based_selection_hyper_heuristic.solver.SSHHSolver

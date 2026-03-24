@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -539,6 +541,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.vrpp"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.rl_config"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.rl_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.aco_params"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.aco_params</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.alns_params"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.alns_params</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.pheromone_update_strategy"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.pheromone_update_strategy</span></code></a></li>
@@ -662,6 +665,12 @@ without the full genetic evolution complexity.</p>
 <dt class="sig sig-object py" id="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.rl_config">
 <span class="sig-name descname"><span class="pre">rl_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.configs.policies.other.RLConfig</span></em><a class="headerlink" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.rl_config" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__" title="Link to this definition">#</a></dt>
+<dd><p>Sync flags across sub-parameters.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -874,6 +883,7 @@ without the full genetic evolution complexity.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.vrpp"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.rl_config"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.rl_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.aco_params"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.aco_params</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.alns_params"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.alns_params</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.pheromone_update_strategy"><code class="docutils literal notranslate"><span class="pre">RLHVPLParams.pheromone_update_strategy</span></code></a></li>

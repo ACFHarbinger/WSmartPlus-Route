@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -540,8 +542,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.delta_gamma"><code class="docutils literal notranslate"><span class="pre">FILOParams.delta_gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.gamma_base"><code class="docutils literal notranslate"><span class="pre">FILOParams.gamma_base</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_base_multiplier"><code class="docutils literal notranslate"><span class="pre">FILOParams.omega_base_multiplier</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.seed"><code class="docutils literal notranslate"><span class="pre">FILOParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">FILOParams.local_search_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.seed"><code class="docutils literal notranslate"><span class="pre">FILOParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.vrpp"><code class="docutils literal notranslate"><span class="pre">FILOParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">FILOParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config"><code class="docutils literal notranslate"><span class="pre">FILOParams.from_config()</span></code></a></li>
 </ul>
 </li>
@@ -562,7 +566,6 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.fast_iterative_localized_optimization.params">
 <span id="src-policies-fast-iterative-localized-optimization-params"></span><h1><a class="reference internal" href="#module-src.policies.fast_iterative_localized_optimization.params" title="src.policies.fast_iterative_localized_optimization.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.fast_iterative_localized_optimization.params</span></code></a><a class="headerlink" href="#module-src.policies.fast_iterative_localized_optimization.params" title="Link to this heading">#</a></h1>
-<p>Configuration parameters for Fast Iterative Localized Optimization (FILO).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -592,7 +595,9 @@ shaking_ub_factor: Upper bound intensification factor for the shaking phase.
 delta_gamma: Update factor for gamma node activation penalties.
 gamma_base: Base probability for neighborhood evaluation.
 omega_base_multiplier: Base shaking intensity multiplier.
-seed: Random seed for reproducibility.</p>
+seed: Random seed for reproducibility.
+vrpp (bool): Whether the problem is VRP with Profits.
+profit_aware_operators (bool): Whether to use profit-aware insertion/removal.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.time_limit" title="Link to this definition">#</a></dt>
@@ -648,23 +653,35 @@ seed: Random seed for reproducibility.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.seed">
-<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.seed" title="Link to this definition">#</a></dt>
-<dd><p>42</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations">
 <span class="sig-name descname"><span class="pre">local_search_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations" title="Link to this definition">#</a></dt>
 <dd><p>500</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.filo.FILOConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams" title="src.policies.fast_iterative_localized_optimization.params.FILOParams"><span class="pre">src.policies.fast_iterative_localized_optimization.params.FILOParams</span></a></span></span><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config" title="Link to this definition">#</a></dt>
-<dd><p>Create FILOParams from a FILOConfig dataclass.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams" title="src.policies.fast_iterative_localized_optimization.params.FILOParams"><span class="pre">src.policies.fast_iterative_localized_optimization.params.FILOParams</span></a></span></span><a class="headerlink" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create FILOParams from a configuration object.</p>
 <p>Args:
-config: FILOConfig dataclass with solver parameters.</p>
+config: Configuration object or dictionary.</p>
 <p>Returns:
 FILOParams instance with values from config.</p>
 </dd></dl>
@@ -733,8 +750,10 @@ FILOParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.delta_gamma"><code class="docutils literal notranslate"><span class="pre">FILOParams.delta_gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.gamma_base"><code class="docutils literal notranslate"><span class="pre">FILOParams.gamma_base</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_base_multiplier"><code class="docutils literal notranslate"><span class="pre">FILOParams.omega_base_multiplier</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.seed"><code class="docutils literal notranslate"><span class="pre">FILOParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">FILOParams.local_search_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.seed"><code class="docutils literal notranslate"><span class="pre">FILOParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.vrpp"><code class="docutils literal notranslate"><span class="pre">FILOParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">FILOParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config"><code class="docutils literal notranslate"><span class="pre">FILOParams.from_config()</span></code></a></li>
 </ul>
 </li>

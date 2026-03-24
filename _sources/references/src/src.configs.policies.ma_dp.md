@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.must_go
 :type: typing.List[str]

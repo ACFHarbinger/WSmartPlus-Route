@@ -79,6 +79,10 @@
   - ```{autodoc2-docstring} src.constants.routing.SCALE
     :summary:
     ```
+* - {py:obj}`DEFAULT_HIGH_PENALTY <src.constants.routing.DEFAULT_HIGH_PENALTY>`
+  - ```{autodoc2-docstring} src.constants.routing.DEFAULT_HIGH_PENALTY
+    :summary:
+    ```
 ````
 
 ### API
@@ -243,6 +247,16 @@
    10000
 
 ```{autodoc2-docstring} src.constants.routing.SCALE
+```
+
+````
+
+````{py:data} DEFAULT_HIGH_PENALTY
+:canonical: src.constants.routing.DEFAULT_HIGH_PENALTY
+:value: >
+   1000000000.0
+
+```{autodoc2-docstring} src.constants.routing.DEFAULT_HIGH_PENALTY
 ```
 
 ````

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VNSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.variable_neighborhood_search.params.VNSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} VNSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.variable_neighborhood_search.params.VNSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.variable_neighborhood_search.solver.VNSSolver
 
 ```{autodoc2-docstring} src.policies.variable_neighborhood_search.solver.VNSSolver

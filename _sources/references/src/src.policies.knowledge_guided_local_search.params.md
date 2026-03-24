@@ -106,6 +106,28 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.knowledge_guided_local_search.params.KGLSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.knowledge_guided_local_search.params.KGLSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.knowledge_guided_local_search.params.KGLSParams.profit_aware_operators
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.knowledge_guided_local_search.params.KGLSParams.profit_aware_operators
+```
+
+````
+
 ````{py:method} from_config(config: logic.src.configs.policies.KGLSConfig) -> src.policies.knowledge_guided_local_search.params.KGLSParams
 :canonical: src.policies.knowledge_guided_local_search.params.KGLSParams.from_config
 :classmethod:

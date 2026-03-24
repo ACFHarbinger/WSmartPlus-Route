@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -536,6 +538,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.get_multi_tour"><code class="docutils literal notranslate"><span class="pre">get_multi_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.get_partial_tour"><code class="docutils literal notranslate"><span class="pre">get_partial_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="docutils literal notranslate"><span class="pre">dist_matrix_from_graph()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="docutils literal notranslate"><span class="pre">calculate_tour_cost()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -603,6 +606,9 @@ seed (int): Random seed for reproducibility</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph" title="src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist_matrix_from_graph</span></code></a></p></td>
 <td><p>Compute all-pairs shortest path distances and paths from a NetworkX graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.travelling_salesman_problem.tsp.calculate_tour_cost" title="src.policies.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_tour_cost</span></code></a></p></td>
+<td><p>Calculate the total distance of a given tour sequence.</p></td>
 </tr>
 </tbody>
 </table>
@@ -688,6 +694,18 @@ Distance matrix is N x N numpy array of shortest path lengths.
 Path matrix contains the sequence of nodes for each shortest path.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.travelling_salesman_problem.tsp.calculate_tour_cost">
+<span class="sig-prename descclassname"><span class="pre">src.policies.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">calculate_tour_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.travelling_salesman_problem.tsp.calculate_tour_cost" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the total distance of a given tour sequence.</p>
+<p>Useful for validating the combined cost of concatenated sector tours.</p>
+<p>Args:
+distance_matrix: NxN matrix of shortest path distances.
+tour: Sequence of node indices representing the path.</p>
+<p>Returns:
+float: Sum of distances between consecutive nodes in the tour.</p>
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -746,6 +764,7 @@ Path matrix contains the sequence of nodes for each shortest path.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.get_multi_tour"><code class="docutils literal notranslate"><span class="pre">get_multi_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.get_partial_tour"><code class="docutils literal notranslate"><span class="pre">get_partial_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="docutils literal notranslate"><span class="pre">dist_matrix_from_graph()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="docutils literal notranslate"><span class="pre">calculate_tour_cost()</span></code></a></li>
 </ul>
 </li>
 </ul>

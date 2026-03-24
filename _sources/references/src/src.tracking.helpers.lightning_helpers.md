@@ -31,6 +31,18 @@
   - ```{autodoc2-docstring} src.tracking.helpers.lightning_helpers.remove_monitoring_hooks
     :summary:
     ```
+* - {py:obj}`_log_attention_heatmaps <src.tracking.helpers.lightning_helpers._log_attention_heatmaps>`
+  - ```{autodoc2-docstring} src.tracking.helpers.lightning_helpers._log_attention_heatmaps
+    :summary:
+    ```
+* - {py:obj}`_log_embeddings <src.tracking.helpers.lightning_helpers._log_embeddings>`
+  - ```{autodoc2-docstring} src.tracking.helpers.lightning_helpers._log_embeddings
+    :summary:
+    ```
+* - {py:obj}`_log_loss_landscape <src.tracking.helpers.lightning_helpers._log_loss_landscape>`
+  - ```{autodoc2-docstring} src.tracking.helpers.lightning_helpers._log_loss_landscape
+    :summary:
+    ```
 * - {py:obj}`run_periodic_visualisations <src.tracking.helpers.lightning_helpers.run_periodic_visualisations>`
   - ```{autodoc2-docstring} src.tracking.helpers.lightning_helpers.run_periodic_visualisations
     :summary:
@@ -98,6 +110,27 @@
 :canonical: src.tracking.helpers.lightning_helpers.remove_monitoring_hooks
 
 ```{autodoc2-docstring} src.tracking.helpers.lightning_helpers.remove_monitoring_hooks
+```
+````
+
+````{py:function} _log_attention_heatmaps(log_dir: str, cfg: typing.Optional[logic.src.configs.tracking.TrackingConfig], pl_module: pytorch_lightning.LightningModule, epoch: int) -> None
+:canonical: src.tracking.helpers.lightning_helpers._log_attention_heatmaps
+
+```{autodoc2-docstring} src.tracking.helpers.lightning_helpers._log_attention_heatmaps
+```
+````
+
+````{py:function} _log_embeddings(log_dir: str, cfg: typing.Optional[logic.src.configs.tracking.TrackingConfig], pl_module: pytorch_lightning.LightningModule, epoch: int) -> None
+:canonical: src.tracking.helpers.lightning_helpers._log_embeddings
+
+```{autodoc2-docstring} src.tracking.helpers.lightning_helpers._log_embeddings
+```
+````
+
+````{py:function} _log_loss_landscape(log_dir: str, cfg: typing.Optional[logic.src.configs.tracking.TrackingConfig], pl_module: pytorch_lightning.LightningModule, epoch: int) -> None
+:canonical: src.tracking.helpers.lightning_helpers._log_loss_landscape
+
+```{autodoc2-docstring} src.tracking.helpers.lightning_helpers._log_loss_landscape
 ```
 ````
 

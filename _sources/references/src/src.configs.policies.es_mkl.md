@@ -73,6 +73,61 @@
 
 ````
 
+````{py:attribute} tau_local
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_local
+:type: float
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_local
+```
+
+````
+
+````{py:attribute} tau_global
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_global
+:type: float
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.tau_global
+```
+
+````
+
+````{py:attribute} initial_sigma
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.initial_sigma
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.initial_sigma
+```
+
+````
+
+````{py:attribute} min_sigma
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.min_sigma
+:type: float
+:value: >
+   1e-10
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.min_sigma
+```
+
+````
+
+````{py:attribute} max_sigma
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_sigma
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.max_sigma
+```
+
+````
+
 ````{py:attribute} recombination_type
 :canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.recombination_type
 :type: str
@@ -80,6 +135,28 @@
    'intermediate'
 
 ```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.recombination_type
+```
+
+````
+
+````{py:attribute} bounds_min
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_min
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_min
+```
+
+````
+
+````{py:attribute} bounds_max
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_max
+:type: typing.Optional[float]
+:value: >
+   5.0
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.bounds_max
 ```
 
 ````
@@ -146,6 +223,17 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.es_mkl.MuKappaLambdaESConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.es_mkl.MuKappaLambdaESConfig.profit_aware_operators
 ```
 
 ````

@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.quantum_differential_evolution.params.QDEParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.quantum_differential_evolution.params.QDEParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.quantum_differential_evolution.params.QDEParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.quantum_differential_evolution.params.QDEParams
+:canonical: src.policies.quantum_differential_evolution.params.QDEParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.quantum_differential_evolution.params.QDEParams.from_config
+```
+
+````
+
 `````

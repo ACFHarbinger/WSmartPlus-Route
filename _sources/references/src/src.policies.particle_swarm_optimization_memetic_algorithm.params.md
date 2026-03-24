@@ -128,4 +128,37 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed
+```
+
+````
+
 `````

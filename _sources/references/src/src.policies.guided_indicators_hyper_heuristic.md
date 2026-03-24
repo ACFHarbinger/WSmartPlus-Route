@@ -39,7 +39,7 @@ src.policies.guided_indicators_hyper_heuristic.gihh
 ````{py:data} __all__
 :canonical: src.policies.guided_indicators_hyper_heuristic.__all__
 :value: >
-   ['run_gihh', 'GIHHParams']
+   ['GIHHSolver', 'GIHHParams']
 
 ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.__all__
 ```

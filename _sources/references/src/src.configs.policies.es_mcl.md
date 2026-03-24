@@ -106,6 +106,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.es_mcl.MuCommaLambdaESConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.es_mcl.MuCommaLambdaESConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.es_mcl.MuCommaLambdaESConfig.seed
 :type: typing.Optional[int]

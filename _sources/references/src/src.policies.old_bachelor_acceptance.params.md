@@ -95,4 +95,37 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.old_bachelor_acceptance.params.OBAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.old_bachelor_acceptance.params.OBAParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.old_bachelor_acceptance.params.OBAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.old_bachelor_acceptance.params.OBAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.old_bachelor_acceptance.params.OBAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.old_bachelor_acceptance.params.OBAParams.profit_aware_operators
+```
+
+````
+
 `````

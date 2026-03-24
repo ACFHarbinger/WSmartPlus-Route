@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.configs.policies.hgs';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.configs.policies.cf_rs" href="src.configs.policies.cf_rs.html" />
+    <link rel="next" title="src.configs.policies.lkh3" href="src.configs.policies.lkh3.html" />
     <link rel="prev" title="src.configs.policies.hs" href="src.configs.policies.hs.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -553,6 +555,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.penalty_decrease"><code class="docutils literal notranslate"><span class="pre">HGSConfig.penalty_decrease</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.engine"><code class="docutils literal notranslate"><span class="pre">HGSConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">HGSConfig.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HGSConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">HGSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">HGSConfig.post_processing</span></code></a></li>
 </ul>
@@ -754,6 +757,12 @@ post_processing: List of post-processing operations to apply.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.must_go">
 <span class="sig-name descname"><span class="pre">must_go</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.policies.other.must_go.html#src.configs.policies.other.must_go.MustGoConfig" title="src.configs.policies.other.must_go.MustGoConfig"><span class="pre">src.configs.policies.other.must_go.MustGoConfig</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.must_go" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -792,11 +801,11 @@ post_processing: List of post-processing operations to apply.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.configs.policies.cf_rs.html"
+       href="src.configs.policies.lkh3.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.cf_rs</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.lkh3</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -842,6 +851,7 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.penalty_decrease"><code class="docutils literal notranslate"><span class="pre">HGSConfig.penalty_decrease</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.engine"><code class="docutils literal notranslate"><span class="pre">HGSConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">HGSConfig.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HGSConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.must_go"><code class="docutils literal notranslate"><span class="pre">HGSConfig.must_go</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.post_processing"><code class="docutils literal notranslate"><span class="pre">HGSConfig.post_processing</span></code></a></li>
 </ul>

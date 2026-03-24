@@ -99,7 +99,7 @@
 
 `````
 
-`````{py:class} RuinRecreateOperator(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, params: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams, split_manager, seed: typing.Optional[int] = None)
+`````{py:class} RuinRecreateOperator(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, params: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams, split_manager)
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.RuinRecreateOperator
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.RuinRecreateOperator

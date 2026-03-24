@@ -51,6 +51,8 @@ src.configs.policies.pso
 src.configs.policies.ks
 src.configs.policies.hs
 src.configs.policies.hgs
+src.configs.policies.lkh3
+src.configs.policies.genius
 src.configs.policies.cf_rs
 src.configs.policies.rts
 src.configs.policies.sisr

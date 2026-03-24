@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams
+:canonical: src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.from_config
+```
+
+````
+
 `````

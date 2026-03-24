@@ -67,6 +67,10 @@
   - ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal
     :summary:
     ```
+* - {py:obj}`apply_random_removal <src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_random_removal>`
+  - ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_random_removal
+    :summary:
+    ```
 ````
 
 ### Data
@@ -87,7 +91,7 @@
 
 ### API
 
-`````{py:class} HyperOperatorContext(routes: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None)
+`````{py:class} HyperOperatorContext(routes: typing.List[typing.List[int]], dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, profit_aware_operators: bool = False, vrpp: bool = True)
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext
@@ -200,6 +204,13 @@
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal
+```
+````
+
+````{py:function} apply_random_removal(ctx: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext, n: typing.Optional[int] = None) -> bool
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_random_removal
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_random_removal
 ```
 ````
 

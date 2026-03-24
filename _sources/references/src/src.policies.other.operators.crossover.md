@@ -67,7 +67,7 @@ src.policies.other.operators.crossover.selective_route_exchange
 ````{py:data} __all__
 :canonical: src.policies.other.operators.crossover.__all__
 :value: >
-   ['CROSSOVER_NAMES', 'CROSSOVER_OPERATORS', 'edge_recombination_crossover', 'generalized_partition_cr...
+   ['CROSSOVER_NAMES', 'CROSSOVER_OPERATORS', 'capacity_aware_erx', 'edge_recombination_crossover', 'ge...
 
 ```{autodoc2-docstring} src.policies.other.operators.crossover.__all__
 ```

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DistancePSOSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} DistancePSOSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver
 
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization_distance_based_algorithm.solver.DistancePSOSolver

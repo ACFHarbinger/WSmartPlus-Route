@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.other.operators.heuristics';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.other.operators.heuristics.nn_initialization" href="src.policies.other.operators.heuristics.nn_initialization.html" />
+    <link rel="next" title="src.policies.other.operators.heuristics._tour_construction" href="src.policies.other.operators.heuristics._tour_construction.html" />
     <link rel="prev" title="src.policies.other.operators" href="src.policies.other.operators.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -554,8 +556,12 @@ document.write(`
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics._tour_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics._tour_construction</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics.nn_initialization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics.nn_initialization</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics._objective.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics._objective</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics._tour_adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics._tour_adapter</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics.lin_kernighan_helsgaun.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics.lin_kernighan_helsgaun</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics._tour_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics._tour_improvement</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.other.operators.heuristics.greedy_initialization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics.greedy_initialization</span></code></a></li>
 </ul>
 </div>
@@ -606,11 +612,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.other.operators.heuristics.nn_initialization.html"
+       href="src.policies.other.operators.heuristics._tour_construction.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics.nn_initialization</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other.operators.heuristics._tour_construction</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

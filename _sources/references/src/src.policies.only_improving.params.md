@@ -73,4 +73,37 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.only_improving.params.OIParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.only_improving.params.OIParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.only_improving.params.OIParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.only_improving.params.OIParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.only_improving.params.OIParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.only_improving.params.OIParams.seed
+```
+
+````
+
 `````

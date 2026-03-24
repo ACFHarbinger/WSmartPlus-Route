@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -534,7 +536,12 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.pop_size"><code class="docutils literal notranslate"><span class="pre">SCAParams.pop_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.a_max"><code class="docutils literal notranslate"><span class="pre">SCAParams.a_max</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.max_iterations"><code class="docutils literal notranslate"><span class="pre">SCAParams.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">SCAParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.time_limit"><code class="docutils literal notranslate"><span class="pre">SCAParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.vrpp"><code class="docutils literal notranslate"><span class="pre">SCAParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">SCAParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.seed"><code class="docutils literal notranslate"><span class="pre">SCAParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.from_config"><code class="docutils literal notranslate"><span class="pre">SCAParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -554,7 +561,6 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.sine_cosine_algorithm.params">
 <span id="src-policies-sine-cosine-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.sine_cosine_algorithm.params" title="src.policies.sine_cosine_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.sine_cosine_algorithm.params" title="Link to this heading">#</a></h1>
-<p>Configuration parameters for the Sine Cosine Algorithm (SCA) solver.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -583,7 +589,11 @@ solution using the Largest Rank Value (LRV) rule.</p>
 pop_size: Population size.
 a_max: Initial value of the control parameter (decays to 0).
 max_iterations: Maximum SCA iterations.
-time_limit: Wall-clock time limit in seconds.</p>
+local_search_iterations: Maximum iterations for local search refinement.
+time_limit: Wall-clock time limit in seconds.
+vrpp: Whether to use VRPP expanded pool (True).
+profit_aware_operators: Whether to use profit-aware operators (True).
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.pop_size" title="Link to this definition">#</a></dt>
@@ -603,9 +613,43 @@ time_limit: Wall-clock time limit in seconds.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.local_search_iterations">
+<span class="sig-name descname"><span class="pre">local_search_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.local_search_iterations" title="Link to this definition">#</a></dt>
+<dd><p>500</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>60.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.sine_cosine_algorithm.params.SCAParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.sine_cosine_algorithm.params.SCAParams" title="src.policies.sine_cosine_algorithm.params.SCAParams"><span class="pre">src.policies.sine_cosine_algorithm.params.SCAParams</span></a></span></span><a class="headerlink" href="#src.policies.sine_cosine_algorithm.params.SCAParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create SCAParams from a configuration object.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+SCAParams instance with values from config.</p>
 </dd></dl>
 
 </dd></dl>
@@ -666,7 +710,12 @@ time_limit: Wall-clock time limit in seconds.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.pop_size"><code class="docutils literal notranslate"><span class="pre">SCAParams.pop_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.a_max"><code class="docutils literal notranslate"><span class="pre">SCAParams.a_max</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.max_iterations"><code class="docutils literal notranslate"><span class="pre">SCAParams.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">SCAParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.time_limit"><code class="docutils literal notranslate"><span class="pre">SCAParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.vrpp"><code class="docutils literal notranslate"><span class="pre">SCAParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">SCAParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.seed"><code class="docutils literal notranslate"><span class="pre">SCAParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.sine_cosine_algorithm.params.SCAParams.from_config"><code class="docutils literal notranslate"><span class="pre">SCAParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>

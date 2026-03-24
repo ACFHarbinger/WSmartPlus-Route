@@ -64,7 +64,7 @@
 
 ````{py:attribute} elite_learning_weights
 :canonical: src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.elite_learning_weights
-:type: typing.List[float]
+:type: typing.Optional[typing.List[float]]
 :value: >
    None
 
@@ -102,6 +102,48 @@
    300.0
 
 ```{autodoc2-docstring} src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.time_limit
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.seed
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams
+:canonical: src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.from_config
 ```
 
 ````

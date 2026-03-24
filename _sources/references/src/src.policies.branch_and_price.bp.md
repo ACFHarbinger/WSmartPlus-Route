@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} _solve_with_branching() -> typing.Tuple[typing.List[int], float, typing.Dict]
+````{py:method} _solve_with_branching() -> typing.Tuple[typing.List[int], typing.Optional[float], typing.Dict]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._solve_with_branching
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._solve_with_branching

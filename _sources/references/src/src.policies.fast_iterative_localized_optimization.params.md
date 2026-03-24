@@ -128,17 +128,6 @@
 
 ````
 
-````{py:attribute} seed
-:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.seed
-:type: int
-:value: >
-   42
-
-```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.seed
-```
-
-````
-
 ````{py:attribute} local_search_iterations
 :canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.local_search_iterations
 :type: int
@@ -150,7 +139,40 @@
 
 ````
 
-````{py:method} from_config(config: logic.src.configs.policies.filo.FILOConfig) -> src.policies.fast_iterative_localized_optimization.params.FILOParams
+````{py:attribute} seed
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.fast_iterative_localized_optimization.params.FILOParams
 :canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.from_config
 :classmethod:
 

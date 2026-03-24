@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} reward_neutral
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.reward_neutral
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.reward_neutral
+```
+
+````
+
 ````{py:attribute} penalty_worsening
 :canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.penalty_worsening
 :type: float

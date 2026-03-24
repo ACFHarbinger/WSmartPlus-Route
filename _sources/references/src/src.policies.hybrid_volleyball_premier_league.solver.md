@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_volleyball_premier_league.params.HVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} HVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_volleyball_premier_league.params.HVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.hybrid_volleyball_premier_league.solver.HVPLSolver
 
 ```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.solver.HVPLSolver

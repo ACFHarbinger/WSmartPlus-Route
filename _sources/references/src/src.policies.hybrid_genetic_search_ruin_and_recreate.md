@@ -38,7 +38,7 @@ src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr
 ````{py:data} __all__
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.__all__
 :value: >
-   ['run_hgs_rr', 'HGSRRParams']
+   ['HGSRRSolver', 'HGSRRParams']
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.__all__
 ```

@@ -117,6 +117,39 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_volleyball_premier_league.params.HVPLParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} aco_params
 :canonical: src.policies.hybrid_volleyball_premier_league.params.HVPLParams.aco_params
 :type: typing.Optional[src.policies.ant_colony_optimization_k_sparse.params.KSACOParams]

@@ -173,6 +173,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.popmusic.POPMUSICConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

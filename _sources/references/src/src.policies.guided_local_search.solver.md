@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GLSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.guided_local_search.params.GLSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} GLSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.guided_local_search.params.GLSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.guided_local_search.solver.GLSSolver
 
 ```{autodoc2-docstring} src.policies.guided_local_search.solver.GLSSolver

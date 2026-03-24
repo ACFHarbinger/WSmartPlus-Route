@@ -27,7 +27,7 @@
 
 ### API
 
-`````{py:class} TSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.tabu_search.params.TSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} TSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.tabu_search.params.TSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.tabu_search.solver.TSSolver
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver

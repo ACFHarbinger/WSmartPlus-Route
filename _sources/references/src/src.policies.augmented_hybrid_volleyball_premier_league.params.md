@@ -95,6 +95,39 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.vrpp
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.seed
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} hgs_params
 :canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.hgs_params
 :type: src.policies.hybrid_genetic_search.params.HGSParams
@@ -124,6 +157,14 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.alns_params
+```
+
+````
+
+````{py:method} __post_init__()
+:canonical: src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.__post_init__
+
+```{autodoc2-docstring} src.policies.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.__post_init__
 ```
 
 ````

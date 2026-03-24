@@ -15,51 +15,51 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`PolicyBC <src.policies.branch_and_cut.policy_bc.PolicyBC>`
-  - ```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.PolicyBC
-    :summary:
-    ```
-````
-
-### Functions
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`run_branch_and_cut <src.policies.branch_and_cut.policy_bc.run_branch_and_cut>`
-  - ```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.run_branch_and_cut
+* - {py:obj}`BranchAndCutPolicy <src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy>`
+  - ```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} PolicyBC(time_limit: float = 60.0, mip_gap: float = 0.01, max_cuts_per_round: int = 50, use_heuristics: bool = True, verbose: bool = False, profit_aware_operators: bool = False, vrpp: bool = False)
-:canonical: src.policies.branch_and_cut.policy_bc.PolicyBC
+`````{py:class} BranchAndCutPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.BCConfig, typing.Dict[str, typing.Any]]] = None)
+:canonical: src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy
 
-```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.PolicyBC
+Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
+
+```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.PolicyBC.__init__
+```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy.__init__
 ```
 
-````{py:method} __call__(coords: pandas.DataFrame, must_go: typing.List[int], distance_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, **kwargs) -> typing.Tuple[typing.List[int], float, typing.Dict[str, typing.Any]]
-:canonical: src.policies.branch_and_cut.policy_bc.PolicyBC.__call__
+````{py:method} _config_class() -> typing.Optional[typing.Type]
+:canonical: src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._config_class
+:classmethod:
 
-```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.PolicyBC.__call__
+```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._config_class
+```
+
+````
+
+````{py:method} _get_config_key() -> str
+:canonical: src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._get_config_key
+```
+
+````
+
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._run_solver
+
+```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.BranchAndCutPolicy._run_solver
 ```
 
 ````
 
 `````
-
-````{py:function} run_branch_and_cut(coords: pandas.DataFrame, must_go: typing.List[int], distance_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, time_limit: float = 60.0, mip_gap: float = 0.01, verbose: bool = False, profit_aware_operators: bool = False, vrpp: bool = False, **kwargs) -> typing.Tuple[typing.List[int], float, typing.Dict[str, typing.Any]]
-:canonical: src.policies.branch_and_cut.policy_bc.run_branch_and_cut
-
-```{autodoc2-docstring} src.policies.branch_and_cut.policy_bc.run_branch_and_cut
-```
-````

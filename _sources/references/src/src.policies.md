@@ -58,6 +58,7 @@ src.policies.guided_local_search
 src.policies.quantum_differential_evolution
 src.policies.memetic_algorithm
 src.policies.memetic_algorithm_dual_population
+src.policies.genius
 src.policies.simulated_annealing_neighborhood_search
 src.policies.iterated_local_search
 src.policies.improving_and_equal
@@ -84,6 +85,7 @@ src.policies.record_to_record_travel
 src.policies.adaptive_large_neighborhood_search
 src.policies.base
 src.policies.sine_cosine_algorithm
+src.policies.lin_kernighan_helsgaun_three
 src.policies.differential_evolution
 src.policies.relaxation_enforced_neighborhood_search
 src.policies.memetic_algorithm_island_model

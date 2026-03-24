@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.league_championship_algorithm.params.LCAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.league_championship_algorithm.params.LCAParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.league_championship_algorithm.params.LCAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.league_championship_algorithm.params.LCAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.league_championship_algorithm.params.LCAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.league_championship_algorithm.params.LCAParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.league_championship_algorithm.params.LCAParams
+:canonical: src.policies.league_championship_algorithm.params.LCAParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.league_championship_algorithm.params.LCAParams.from_config
+```
+
+````
+
 `````

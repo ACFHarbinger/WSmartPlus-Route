@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} alns_education_iterations
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.alns_education_iterations
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.alns_education_iterations
-```
-
-````
-
 ````{py:attribute} hgs_max_iter
 :canonical: src.configs.policies.hgs_alns.HGSALNSConfig.hgs_max_iter
 :type: int
@@ -69,6 +58,17 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.profit_aware_operators
 ```
 
 ````

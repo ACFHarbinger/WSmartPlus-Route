@@ -95,4 +95,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.iterated_local_search.params.ILSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.iterated_local_search.params.ILSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.iterated_local_search.params.ILSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.iterated_local_search.params.ILSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.iterated_local_search.params.ILSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.iterated_local_search.params.ILSParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.iterated_local_search.params.ILSParams
+:canonical: src.policies.iterated_local_search.params.ILSParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.iterated_local_search.params.ILSParams.from_config
+```
+
+````
+
 `````

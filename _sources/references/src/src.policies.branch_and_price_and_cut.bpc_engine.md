@@ -23,8 +23,8 @@
   - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step
     :summary:
     ```
-* - {py:obj}`run_internal_bpc <src.policies.branch_and_price_and_cut.bpc_engine.run_internal_bpc>`
-  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine.run_internal_bpc
+* - {py:obj}`run_custom_bpc <src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc
     :summary:
     ```
 ````
@@ -45,9 +45,9 @@
 ```
 ````
 
-````{py:function} run_internal_bpc(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = False, profit_aware_operators: bool = False, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
-:canonical: src.policies.branch_and_price_and_cut.bpc_engine.run_internal_bpc
+````{py:function} run_custom_bpc(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = False, profit_aware_operators: bool = False, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
+:canonical: src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine.run_internal_bpc
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc
 ```
 ````

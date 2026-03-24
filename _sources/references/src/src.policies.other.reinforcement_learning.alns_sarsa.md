@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ALNSSARSASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, rl_params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None, evaluator=None)
+`````{py:class} ALNSSARSASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, rl_params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, evaluator=None)
 :canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver
@@ -243,7 +243,7 @@
 
 ````
 
-````{py:method} _calculate_diversity(routes: typing.List[typing.List[int]]) -> float
+````{py:method} _calculate_diversity(routes: typing.List[typing.List[int]]) -> typing.Union[typing.SupportsDunderLT[typing.Any], typing.SupportsDunderGT[typing.Any]]
 :canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity

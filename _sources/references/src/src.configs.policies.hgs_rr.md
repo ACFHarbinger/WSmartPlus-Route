@@ -194,6 +194,17 @@
 
 ````
 
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.hgs_rr.HGSRRConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} min_removal_pct
 :canonical: src.configs.policies.hgs_rr.HGSRRConfig.min_removal_pct
 :type: float

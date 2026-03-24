@@ -139,6 +139,39 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.particle_swarm_optimization.params.PSOParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization.params.PSOParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.particle_swarm_optimization.params.PSOParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization.params.PSOParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.particle_swarm_optimization.params.PSOParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization.params.PSOParams.profit_aware_operators
+```
+
+````
+
 ````{py:method} get_inertia_weight(iteration: int) -> float
 :canonical: src.policies.particle_swarm_optimization.params.PSOParams.get_inertia_weight
 
@@ -179,6 +212,15 @@
 :type: float
 
 ```{autodoc2-docstring} src.policies.particle_swarm_optimization.params.PSOParams.w_end
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.particle_swarm_optimization.params.PSOParams
+:canonical: src.policies.particle_swarm_optimization.params.PSOParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.particle_swarm_optimization.params.PSOParams.from_config
 ```
 
 ````

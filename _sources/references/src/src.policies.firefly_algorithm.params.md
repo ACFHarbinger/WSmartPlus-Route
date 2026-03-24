@@ -150,4 +150,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.firefly_algorithm.params.FAParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.firefly_algorithm.params.FAParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.firefly_algorithm.params.FAParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.firefly_algorithm.params.FAParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.firefly_algorithm.params.FAParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.firefly_algorithm.params.FAParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.firefly_algorithm.params.FAParams
+:canonical: src.policies.firefly_algorithm.params.FAParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.firefly_algorithm.params.FAParams.from_config
+```
+
+````
+
 `````

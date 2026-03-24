@@ -238,6 +238,39 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.profit_aware_operators
+```
+
+````
+
 ````{py:method} from_config(config: logic.src.configs.policies.HGSConfig) -> src.policies.hybrid_genetic_search.params.HGSParams
 :canonical: src.policies.hybrid_genetic_search.params.HGSParams.from_config
 :classmethod:

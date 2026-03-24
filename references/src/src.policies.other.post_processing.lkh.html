@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -559,7 +561,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor" title="src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinKernighanHelsgaunPostProcessor</span></code></a></p></td>
-<td><p>Refines tours using the Lin-Kernighan-Helsgaun heuristic.</p></td>
+<td><p>Refines tours using the Lin-Kernighan-Helsgaun heuristic for TSP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -569,21 +571,28 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.other.post_processing.lkh.</span></span><span class="sig-name descname"><span class="pre">LinKernighanHelsgaunPostProcessor</span></span><a class="headerlink" href="#src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.other.post_processing.lkh.</span></span><span class="sig-name descname"><span class="pre">LinKernighanHelsgaunPostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IPostProcessor</span></code></p>
-<p>Refines tours using the Lin-Kernighan-Helsgaun heuristic.</p>
-<p>Splits the tour into sub-tours by depot, re-optimizes each segment
-with LKH (2-opt / 3-opt + double-bridge kicks), and reconstruct.</p>
+<p>Refines tours using the Lin-Kernighan-Helsgaun heuristic for TSP.</p>
+<p>Handles VRPP subset routes by extracting a dense sub-matrix containing
+only the visited nodes, running LKH on this sub-problem, and mapping
+the results back to the original node IDs.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize post-processor with config.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.other.post_processing.lkh.LinKernighanHelsgaunPostProcessor.process" title="Link to this definition">#</a></dt>
-<dd><p>Apply LKH refinement to each sub-tour.</p>
+<dd><p>Apply LKH refinement to a tour using sub-matrix extraction.</p>
+<p>For VRPP instances where only a subset of nodes are visited, this
+method creates a dense sub-problem by extracting only the relevant
+rows and columns from the full distance matrix. This prevents index
+out-of-bounds errors and eliminates performance bottlenecks from
+hallucinated nodes during tour merging.</p>
 <p>Args:
-tour: The initial tour to refine (list of node IDs).
-**kwargs: Must contain ‘distance_matrix’; optionally ‘wastes’
-and ‘capacity’ for VRP penalty evaluation.</p>
+tour: The initial tour to refine (list of node IDs from the full problem).
+**kwargs: Must contain ‘distance_matrix’. Optionally ‘max_iterations’ and ‘seed’.</p>
 <p>Returns:
-List[int]: The refined tour.</p>
+List[int]: The refined tour with original node IDs.</p>
 </dd></dl>
 
 </dd></dl>

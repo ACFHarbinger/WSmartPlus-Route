@@ -13,8 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.other.operators.heuristics._tour_construction
 src.policies.other.operators.heuristics.nn_initialization
+src.policies.other.operators.heuristics._objective
+src.policies.other.operators.heuristics._tour_adapter
 src.policies.other.operators.heuristics.lin_kernighan_helsgaun
+src.policies.other.operators.heuristics._tour_improvement
 src.policies.other.operators.heuristics.greedy_initialization
 ```
 

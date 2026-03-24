@@ -95,6 +95,39 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.profit_aware_operators
+```
+
+````
+
 ````{py:attribute} rl_config
 :canonical: src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.rl_config
 :type: logic.src.configs.policies.other.RLConfig

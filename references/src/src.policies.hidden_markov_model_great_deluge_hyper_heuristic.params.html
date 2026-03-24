@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -539,6 +541,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.n_llh"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.n_llh</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.seed"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.vrpp"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -598,7 +604,10 @@ learning_rate: Online HMM transition probability update step size.
 n_removal: Nodes removed per destroy step.
 n_llh: Number of LLHs in the pool (fixed at 5).
 local_search_iterations: Number of local search iterations.
-time_limit: Wall-clock time limit in seconds.</p>
+time_limit: Wall-clock time limit in seconds.
+seed: Random seed for reproducibility.
+vrpp: Whether to use VRPP (True) or CVRP (False) mode.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.max_iterations" title="Link to this definition">#</a></dt>
@@ -645,6 +654,30 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dt class="sig sig-object py" id="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>60.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams" title="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams"><span class="pre">src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams</span></a></span></span><a class="headerlink" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create parameters from a configuration object.</p>
 </dd></dl>
 
 </dd></dl>
@@ -710,6 +743,10 @@ time_limit: Wall-clock time limit in seconds.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.n_llh"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.n_llh</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.seed"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.vrpp"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config"><code class="docutils literal notranslate"><span class="pre">HMMGDHHParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>

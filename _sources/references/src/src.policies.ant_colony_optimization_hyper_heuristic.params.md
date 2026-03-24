@@ -172,6 +172,39 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.seed
+```
+
+````
+
 ````{py:method} __post_init__() -> None
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.__post_init__
 
@@ -180,7 +213,7 @@
 
 ````
 
-````{py:method} from_config(config: logic.src.configs.policies.HyperHeuristicACOConfig) -> src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams
+````{py:method} from_config(config: typing.Any) -> src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.from_config
 :classmethod:
 

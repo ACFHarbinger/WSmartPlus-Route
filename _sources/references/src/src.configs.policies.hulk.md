@@ -52,17 +52,6 @@
 
 ````
 
-````{py:attribute} vrpp
-:canonical: src.configs.policies.hulk.HULKConfig.vrpp
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.vrpp
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.hulk.HULKConfig.max_iterations
 :type: int
@@ -103,6 +92,17 @@
    100
 
 ```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.restart_threshold
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.policies.hulk.HULKConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.vrpp
 ```
 
 ````
@@ -283,46 +283,46 @@
 
 ````
 
-````{py:attribute} score_improvement
-:canonical: src.configs.policies.hulk.HULKConfig.score_improvement
+````{py:attribute} score_alpha
+:canonical: src.configs.policies.hulk.HULKConfig.score_alpha
 :type: float
 :value: >
    10.0
 
-```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_improvement
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_alpha
 ```
 
 ````
 
-````{py:attribute} score_accept
-:canonical: src.configs.policies.hulk.HULKConfig.score_accept
+````{py:attribute} score_beta
+:canonical: src.configs.policies.hulk.HULKConfig.score_beta
 :type: float
 :value: >
    5.0
 
-```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_accept
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_beta
 ```
 
 ````
 
-````{py:attribute} score_reject
-:canonical: src.configs.policies.hulk.HULKConfig.score_reject
+````{py:attribute} score_gamma
+:canonical: src.configs.policies.hulk.HULKConfig.score_gamma
 :type: float
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_reject
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_gamma
 ```
 
 ````
 
-````{py:attribute} score_best
-:canonical: src.configs.policies.hulk.HULKConfig.score_best
+````{py:attribute} score_delta
+:canonical: src.configs.policies.hulk.HULKConfig.score_delta
 :type: float
 :value: >
    20.0
 
-```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_best
+```{autodoc2-docstring} src.configs.policies.hulk.HULKConfig.score_delta
 ```
 
 ````

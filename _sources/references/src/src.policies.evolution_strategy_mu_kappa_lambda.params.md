@@ -216,10 +216,52 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.profit_aware_operators
+```
+
+````
+
 ````{py:method} __post_init__()
 :canonical: src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.__post_init__
 
 ```{autodoc2-docstring} src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.__post_init__
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams
+:canonical: src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.from_config
 ```
 
 ````

@@ -61,7 +61,7 @@
 
 ````{py:property} cost
 :canonical: src.policies.hyper_heuristic_us_lk.solution.Solution.cost
-:type: float
+:type: typing.Optional[float]
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.solution.Solution.cost
 ```
@@ -70,7 +70,7 @@
 
 ````{py:property} revenue
 :canonical: src.policies.hyper_heuristic_us_lk.solution.Solution.revenue
-:type: float
+:type: typing.Optional[float]
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.solution.Solution.revenue
 ```
@@ -79,7 +79,7 @@
 
 ````{py:property} profit
 :canonical: src.policies.hyper_heuristic_us_lk.solution.Solution.profit
-:type: float
+:type: typing.Optional[float]
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.solution.Solution.profit
 ```

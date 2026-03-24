@@ -51,6 +51,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.seed
+```
+
+````
+
 ````{py:attribute} reward_improvement
 :canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_improvement
 :type: float
@@ -58,6 +69,17 @@
    1.0
 
 ```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_improvement
+```
+
+````
+
+````{py:attribute} reward_neutral
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_neutral
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_neutral
 ```
 
 ````
@@ -102,6 +124,37 @@
    1.2
 
 ```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.target_fitness_multiplier
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.from_config
 ```
 
 ````

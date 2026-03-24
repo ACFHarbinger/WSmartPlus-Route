@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} FASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.firefly_algorithm.params.FAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} FASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.firefly_algorithm.params.FAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.firefly_algorithm.solver.FASolver
 
 ```{autodoc2-docstring} src.policies.firefly_algorithm.solver.FASolver

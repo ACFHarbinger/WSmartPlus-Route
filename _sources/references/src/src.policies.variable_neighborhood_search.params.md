@@ -95,4 +95,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.variable_neighborhood_search.params.VNSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.variable_neighborhood_search.params.VNSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.variable_neighborhood_search.params.VNSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.variable_neighborhood_search.params.VNSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.variable_neighborhood_search.params.VNSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.variable_neighborhood_search.params.VNSParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.variable_neighborhood_search.params.VNSParams
+:canonical: src.policies.variable_neighborhood_search.params.VNSParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.variable_neighborhood_search.params.VNSParams.from_config
+```
+
+````
+
 `````

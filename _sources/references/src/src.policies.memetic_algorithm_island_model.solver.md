@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MemeticAlgorithmIslandModelSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, seed: typing.Optional[int] = None)
+`````{py:class} MemeticAlgorithmIslandModelSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver
 
 ```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver
@@ -59,10 +59,10 @@
 
 ````
 
-````{py:method} _perturb(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._perturb
+````{py:method} _mutate(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._mutate
 
-```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._perturb
+```{autodoc2-docstring} src.policies.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._mutate
 ```
 
 ````

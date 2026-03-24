@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -532,7 +534,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.zenml_train_pipeline.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.zenml_train_pipeline._ZENML_AVAILABLE"><code class="docutils literal notranslate"><span class="pre">_ZENML_AVAILABLE</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.zenml_train_pipeline.training_pipeline"><code class="docutils literal notranslate"><span class="pre">training_pipeline()</span></code></a></li>
 </ul>
 </li>
@@ -585,9 +586,6 @@ when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.z
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.zenml_train_pipeline.logger" title="src.pipeline.features.train.zenml_train_pipeline.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.zenml_train_pipeline._ZENML_AVAILABLE" title="src.pipeline.features.train.zenml_train_pipeline._ZENML_AVAILABLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ZENML_AVAILABLE</span></code></a></p></td>
-<td></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -598,12 +596,6 @@ when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.z
 <dt class="sig sig-object py" id="src.pipeline.features.train.zenml_train_pipeline.logger">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.zenml_train_pipeline.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.pipeline.features.train.zenml_train_pipeline.logger" title="Link to this definition">#</a></dt>
 <dd><p>‘get_pylogger(…)’</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.pipeline.features.train.zenml_train_pipeline._ZENML_AVAILABLE">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.zenml_train_pipeline.</span></span><span class="sig-name descname"><span class="pre">_ZENML_AVAILABLE</span></span><a class="headerlink" href="#src.pipeline.features.train.zenml_train_pipeline._ZENML_AVAILABLE" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
 </dd></dl>
 
 <dl class="py function">
@@ -666,7 +658,6 @@ when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.z
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.zenml_train_pipeline.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.zenml_train_pipeline._ZENML_AVAILABLE"><code class="docutils literal notranslate"><span class="pre">_ZENML_AVAILABLE</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.zenml_train_pipeline.training_pipeline"><code class="docutils literal notranslate"><span class="pre">training_pipeline()</span></code></a></li>
 </ul>
 </li>

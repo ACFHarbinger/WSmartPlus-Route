@@ -238,4 +238,35 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.guided_indicators_hyper_heuristic.params.GIHHParams
+:canonical: src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.params.GIHHParams.from_config
+```
+
+````
+
 `````

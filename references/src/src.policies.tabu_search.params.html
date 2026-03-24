@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -551,10 +553,14 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.n_removal"><code class="docutils literal notranslate"><span class="pre">TSParams.n_removal</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.n_llh"><code class="docutils literal notranslate"><span class="pre">TSParams.n_llh</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.time_limit"><code class="docutils literal notranslate"><span class="pre">TSParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.seed"><code class="docutils literal notranslate"><span class="pre">TSParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.vrpp"><code class="docutils literal notranslate"><span class="pre">TSParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">TSParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_swap"><code class="docutils literal notranslate"><span class="pre">TSParams.use_swap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_relocate"><code class="docutils literal notranslate"><span class="pre">TSParams.use_relocate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_2opt"><code class="docutils literal notranslate"><span class="pre">TSParams.use_2opt</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_insertion"><code class="docutils literal notranslate"><span class="pre">TSParams.use_insertion</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.from_config"><code class="docutils literal notranslate"><span class="pre">TSParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -628,6 +634,9 @@ max_iterations_no_improve: Restart if no improvement for this many iterations.
 n_removal: Number of nodes to remove per destroy step.
 n_llh: Number of low-level heuristics in the pool.
 time_limit: Wall-clock time limit in seconds.
+seed: Random seed for reproducibility.
+vrpp: Whether the problem is VRPP (True) or CVRP (False).
+profit_aware_operators: Whether to use profit-aware insertion/removal.
 
 # Neighborhood structure
 use_swap: Enable swap neighborhood.
@@ -757,6 +766,24 @@ use_insertion: Enable insertion-based neighborhoods.
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.tabu_search.params.TSParams.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.tabu_search.params.TSParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.tabu_search.params.TSParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.tabu_search.params.TSParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.tabu_search.params.TSParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.tabu_search.params.TSParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.tabu_search.params.TSParams.use_swap">
 <span class="sig-name descname"><span class="pre">use_swap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.tabu_search.params.TSParams.use_swap" title="Link to this definition">#</a></dt>
 <dd><p>True</p>
@@ -778,6 +805,12 @@ use_insertion: Enable insertion-based neighborhoods.
 <dt class="sig sig-object py" id="src.policies.tabu_search.params.TSParams.use_insertion">
 <span class="sig-name descname"><span class="pre">use_insertion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.tabu_search.params.TSParams.use_insertion" title="Link to this definition">#</a></dt>
 <dd><p>True</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.tabu_search.params.TSParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.tabu_search.params.TSParams" title="src.policies.tabu_search.params.TSParams"><span class="pre">src.policies.tabu_search.params.TSParams</span></a></span></span><a class="headerlink" href="#src.policies.tabu_search.params.TSParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Build parameters from a configuration object.</p>
 </dd></dl>
 
 </dd></dl>
@@ -855,10 +888,14 @@ use_insertion: Enable insertion-based neighborhoods.
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.n_removal"><code class="docutils literal notranslate"><span class="pre">TSParams.n_removal</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.n_llh"><code class="docutils literal notranslate"><span class="pre">TSParams.n_llh</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.time_limit"><code class="docutils literal notranslate"><span class="pre">TSParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.seed"><code class="docutils literal notranslate"><span class="pre">TSParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.vrpp"><code class="docutils literal notranslate"><span class="pre">TSParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">TSParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_swap"><code class="docutils literal notranslate"><span class="pre">TSParams.use_swap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_relocate"><code class="docutils literal notranslate"><span class="pre">TSParams.use_relocate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_2opt"><code class="docutils literal notranslate"><span class="pre">TSParams.use_2opt</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.use_insertion"><code class="docutils literal notranslate"><span class="pre">TSParams.use_insertion</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.tabu_search.params.TSParams.from_config"><code class="docutils literal notranslate"><span class="pre">TSParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>

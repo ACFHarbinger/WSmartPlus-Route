@@ -84,4 +84,37 @@
 
 ````
 
+````{py:attribute} vrpp
+:canonical: src.policies.late_acceptance_hill_climbing.params.LAHCParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.late_acceptance_hill_climbing.params.LAHCParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.late_acceptance_hill_climbing.params.LAHCParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.late_acceptance_hill_climbing.params.LAHCParams.profit_aware_operators
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.late_acceptance_hill_climbing.params.LAHCParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.late_acceptance_hill_climbing.params.LAHCParams.seed
+```
+
+````
+
 `````

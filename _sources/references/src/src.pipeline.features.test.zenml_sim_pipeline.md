@@ -31,10 +31,6 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.zenml_sim_pipeline.logger
     :summary:
     ```
-* - {py:obj}`_ZENML_AVAILABLE <src.pipeline.features.test.zenml_sim_pipeline._ZENML_AVAILABLE>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.zenml_sim_pipeline._ZENML_AVAILABLE
-    :summary:
-    ```
 ````
 
 ### API
@@ -45,16 +41,6 @@
    'get_pylogger(...)'
 
 ```{autodoc2-docstring} src.pipeline.features.test.zenml_sim_pipeline.logger
-```
-
-````
-
-````{py:data} _ZENML_AVAILABLE
-:canonical: src.pipeline.features.test.zenml_sim_pipeline._ZENML_AVAILABLE
-:value: >
-   False
-
-```{autodoc2-docstring} src.pipeline.features.test.zenml_sim_pipeline._ZENML_AVAILABLE
 ```
 
 ````

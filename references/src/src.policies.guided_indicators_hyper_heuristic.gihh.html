@@ -283,6 +283,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
@@ -309,6 +310,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
@@ -529,20 +531,15 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver"><code class="docutils literal notranslate"><span class="pre">GIHHSolver</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve"><code class="docutils literal notranslate"><span class="pre">GIHHSolver.solve()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._select_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._apply_operator()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_move_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._apply_move_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._apply_perturbation_operator()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._accept_solution"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._accept_solution()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_indicators"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._update_indicators()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._roulette_wheel_selection"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._roulette_wheel_selection()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._evaluate"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._evaluate()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._cost"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._cost()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.run_gihh"><code class="docutils literal notranslate"><span class="pre">run_gihh()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -560,13 +557,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.guided_indicators_hyper_heuristic.gihh">
 <span id="src-policies-guided-indicators-hyper-heuristic-gihh"></span><h1><a class="reference internal" href="#module-src.policies.guided_indicators_hyper_heuristic.gihh" title="src.policies.guided_indicators_hyper_heuristic.gihh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic.gihh</span></code></a><a class="headerlink" href="#module-src.policies.guided_indicators_hyper_heuristic.gihh" title="Link to this heading">#</a></h1>
-<p>GIHH (Hyper-Heuristic with Two Guidance Indicators) implementation.</p>
-<p>A selection hyper-heuristic that uses two complementary indicators to guide
-the adaptive selection of low-level heuristics during local search.</p>
+<p>Guided Indicators Hyper-Heuristic (GIHH) for VRPP.</p>
+<p>GIHH is an adaptive hyper-heuristic that selects Low-Level Heuristics (LLHs)
+based on their historical performance, guided by specific indicators
+(e.g., improvement rate, time since last improvement).</p>
 <p>Reference:
-Chen, B., Qu, R., Bai, R., &amp; Laesanklang, W.,
-“A hyper-heuristic with two guidance indicators for bi-objective
-mixed-shift vehicle routing problem with time windows”, 2018</p>
+- Akpinar, S. (2016). “A guided indicators hyper-heuristic for solving the
+vehicle routing problem with time windows.”</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -574,18 +571,7 @@ mixed-shift vehicle routing problem with time windows”, 2018</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver" title="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GIHHSolver</span></code></a></p></td>
-<td><p>Hyper-Heuristic with Two Guidance Indicators for VRPP.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.guided_indicators_hyper_heuristic.gihh.run_gihh" title="src.policies.guided_indicators_hyper_heuristic.gihh.run_gihh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_gihh</span></code></a></p></td>
-<td><p>Main GIHH entry point.</p></td>
+<td><p>GIHH solver implementation for VRPP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -595,111 +581,40 @@ mixed-shift vehicle routing problem with time windows”, 2018</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.guided_indicators_hyper_heuristic.gihh.</span></span><span class="sig-name descname"><span class="pre">GIHHSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.params.html#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams" title="src.policies.guided_indicators_hyper_heuristic.params.GIHHParams"><span class="pre">src.policies.guided_indicators_hyper_heuristic.params.GIHHParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver" title="Link to this definition">#</a></dt>
-<dd><p>Hyper-Heuristic with Two Guidance Indicators for VRPP.</p>
-<p>Uses Improvement Rate Indicator (IRI) and Time-based Indicator (TBI)
-to adaptively select low-level heuristics during search.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.guided_indicators_hyper_heuristic.gihh.</span></span><span class="sig-name descname"><span class="pre">GIHHSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.params.html#src.policies.guided_indicators_hyper_heuristic.params.GIHHParams" title="src.policies.guided_indicators_hyper_heuristic.params.GIHHParams"><span class="pre">src.policies.guided_indicators_hyper_heuristic.params.GIHHParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver" title="Link to this definition">#</a></dt>
+<dd><p>GIHH solver implementation for VRPP.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the GIHH solver.</p>
-<p>Args:
-dist_matrix: NxN distance matrix.
-wastes: Dictionary of node wastes.
-capacity: Maximum vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-params: GIHH parameters.
-mandatory_nodes: List of local node indices that MUST be visited.
-seed: Random seed for reproducibility.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve" title="Link to this definition">#</a></dt>
-<dd><p>Run the GIHH algorithm.</p>
-<p>Returns:
-Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator">
-<span class="sig-name descname"><span class="pre">_select_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator" title="Link to this definition">#</a></dt>
-<dd><p>Select an operator using epsilon-greedy with weighted guidance indicators.</p>
-<p>Follows Chen et al. (2018):
-Score(op) = w1 * IRI(op) + w2 * TBI(op)
-Selection is done via roulette wheel on these normalized scores.</p>
-<p>Returns:
-Operator name.</p>
+<dd><p>Runs the GIHH metaheuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator">
-<span class="sig-name descname"><span class="pre">_apply_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator" title="Link to this definition">#</a></dt>
-<dd><p>Apply a low-level heuristic operator to the solution.</p>
-<p>Args:
-solution: Current solution.
-operator: Operator name.</p>
-<p>Returns:
-Modified solution (neighbor).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_move_operator">
-<span class="sig-name descname"><span class="pre">_apply_move_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_move_operator" title="Link to this definition">#</a></dt>
-<dd><p>Apply a move operator (intra-route or inter-route).</p>
+<span class="sig-name descname"><span class="pre">_apply_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator" title="Link to this definition">#</a></dt>
+<dd><p>Selects and applies a ruin-and-recreate operator based on indicators.
+In this simplified GIHH, we pick destroy/repair operators.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator">
-<span class="sig-name descname"><span class="pre">_apply_perturbation_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator" title="Link to this definition">#</a></dt>
-<dd><p>Apply a perturbation operator to escape local optima.</p>
+<span class="sig-name descname"><span class="pre">_apply_perturbation_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator" title="Link to this definition">#</a></dt>
+<dd><p>Applies a stronger ruin-and-recreate for stagnation escape.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._accept_solution">
-<span class="sig-name descname"><span class="pre">_accept_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.solution.html#src.policies.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._accept_solution" title="Link to this definition">#</a></dt>
-<dd><p>Decide whether to accept the neighbor solution.</p>
-<p>Args:
-current: Current solution.
-neighbor: Candidate neighbor solution.</p>
-<p>Returns:
-Tuple of (accepted: bool, improvement: float).</p>
+<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._evaluate">
+<span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._evaluate" title="Link to this definition">#</a></dt>
+<dd><p>Calculates Net Profit ($).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_indicators">
-<span class="sig-name descname"><span class="pre">_update_indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improvement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_indicators" title="Link to this definition">#</a></dt>
-<dd><p>Update guidance indicators based on operator performance.</p>
-<p>Args:
-operator: Operator name.
-improvement: Improvement in objective value.
-elapsed_time: Time taken by operator.</p>
+<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._cost">
+<span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._cost" title="Link to this definition">#</a></dt>
+<dd><p>Calculates total distance (km).</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._roulette_wheel_selection">
-<span class="sig-name descname"><span class="pre">_roulette_wheel_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._roulette_wheel_selection" title="Link to this definition">#</a></dt>
-<dd><p>Roulette wheel selection based on operator scores.</p>
-<p>Args:
-scores: Dictionary mapping operator names to scores.</p>
-<p>Returns:
-Selected operator name.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.guided_indicators_hyper_heuristic.gihh.run_gihh">
-<span class="sig-prename descclassname"><span class="pre">src.policies.guided_indicators_hyper_heuristic.gihh.</span></span><span class="sig-name descname"><span class="pre">run_gihh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.guided_indicators_hyper_heuristic.gihh.run_gihh" title="Link to this definition">#</a></dt>
-<dd><p>Main GIHH entry point.</p>
-<p>Args:
-dist_matrix: Distance matrix.
-wastes: Bin wastes.
-capacity: Vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-values: Dictionary of parameters and config.
-mandatory_nodes: List of local node indices that MUST be visited.
-*args: Additional arguments (ignored).</p>
-<p>Returns:
-Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
 </dd></dl>
 
 </section>
@@ -753,20 +668,15 @@ Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver"><code class="docutils literal notranslate"><span class="pre">GIHHSolver</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve"><code class="docutils literal notranslate"><span class="pre">GIHHSolver.solve()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._select_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._apply_operator()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_move_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._apply_move_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._apply_perturbation_operator()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._accept_solution"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._accept_solution()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_indicators"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._update_indicators()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._roulette_wheel_selection"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._roulette_wheel_selection()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._evaluate"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._evaluate()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._cost"><code class="docutils literal notranslate"><span class="pre">GIHHSolver._cost()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.guided_indicators_hyper_heuristic.gihh.run_gihh"><code class="docutils literal notranslate"><span class="pre">run_gihh()</span></code></a></li>
 </ul>
 </li>
 </ul>

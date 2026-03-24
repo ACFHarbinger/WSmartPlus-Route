@@ -106,4 +106,46 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.policies.harmony_search.params.HSParams.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.harmony_search.params.HSParams.seed
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.policies.harmony_search.params.HSParams.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.harmony_search.params.HSParams.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.policies.harmony_search.params.HSParams.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.harmony_search.params.HSParams.profit_aware_operators
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.harmony_search.params.HSParams
+:canonical: src.policies.harmony_search.params.HSParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.harmony_search.params.HSParams.from_config
+```
+
+````
+
 `````
