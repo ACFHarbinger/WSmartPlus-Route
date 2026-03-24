@@ -10,6 +10,11 @@ violation — the sum of excess demand over all VRP route segments — and is
 always minimised before tour cost is considered.  For pure TSP instances the
 penalty is always zero and the objective reduces to plain cost minimisation.
 
+**Penalty Evaluation (Route-Level)**:
+The penalty is computed at the ROUTE level: each route's total demand is
+compared against the vehicle capacity, and any excess is accumulated.
+This avoids double-counting that occurs in per-node penalty accumulation.
+
 **Augmented Dummy Depot Encoding (Current Standard)**:
 To enable native multi-route optimization, the graph is augmented with
 explicit dummy depot nodes at indices [N, N+1, ..., N+M-2] where N is the
@@ -22,11 +27,6 @@ Example (N=5 original nodes, M=3 vehicles):
   - Routes: [[3, 1], [2, 4]]
 
 This avoids NumPy negative-indexing bugs and provides O(1) array access.
-
-**Legacy Mode (Deprecated)**:
-Old code used negative indices (-1, -2, -3) for dummy depots. This is
-maintained for backward compatibility via n_original=None parameter, but
-causes catastrophic NumPy indexing failures. Use augmented mode instead!
 
 Public API
 ----------
@@ -41,9 +41,6 @@ is_better(p1, c1, p2, c2) -> bool
 
 split_tour_at_dummies(tour) -> List[List[int]]
     Extract multi-route representation from a dummy-depot-encoded tour.
-
-inject_dummy_depots(routes, n_vehicles) -> List[int]
-    Inject dummy depots into a flat tour to enable multi-route k-opt.
 
 Typical usage
 -------------
@@ -64,9 +61,6 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Dummy Depot Constants
 # ---------------------------------------------------------------------------
-
-# DEPRECATED: Negative-index dummy depots (causes NumPy indexing bugs)
-DUMMY_DEPOT_START = -1  # Legacy only - use augmented mode instead!
 
 # Current standard: Augmented dummy depots at indices [N, N+1, ..., N+M-2]
 DEPOT_NODE = 0  # Main depot (always index 0)
@@ -120,7 +114,6 @@ def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> 
 
     Args:
         tour: Closed tour with dummy depot markers.
-              Legacy example: [0, 3, 5, -1, 7, 2, -2, 9, 0]
               Augmented example: [0, 3, 5, 6, 7, 2, 7, 9, 0] (n_original=6)
         n_original: Original graph size (for augmented mode). If None,
                     uses legacy negative-index detection.
@@ -146,37 +139,6 @@ def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> 
     return routes
 
 
-def inject_dummy_depots(routes: List[List[int]]) -> List[int]:
-    """
-    Inject dummy depots into a multi-route solution to create a flat tour.
-
-    Dummy depots are inserted between consecutive routes to mark vehicle boundaries.
-    The resulting tour can be processed by k-opt operators that treat dummies as
-    swappable nodes, enabling dynamic route rebalancing.
-
-    Args:
-        routes: List of routes (no depot nodes).
-
-    Returns:
-        Closed tour with dummy depots.
-        Example: routes=[[3,5], [7,2], [9]] → [0, 3, 5, -1, 7, 2, -2, 9, 0]
-    """
-    if not routes:
-        return [DEPOT_NODE, DEPOT_NODE]
-
-    tour = [DEPOT_NODE]
-
-    for idx, route in enumerate(routes):
-        tour.extend(route)
-        if idx < len(routes) - 1:
-            # Insert dummy depot: -1, -2, -3, ...
-            dummy_id = DUMMY_DEPOT_START - idx
-            tour.append(dummy_id)
-
-    tour.append(DEPOT_NODE)
-    return tour
-
-
 # ---------------------------------------------------------------------------
 # Penalty / objective helpers (LKH-3 lexicographic objective)
 # ---------------------------------------------------------------------------
@@ -191,12 +153,14 @@ def calculate_penalty(
     """
     Compute total capacity-violation penalty for a VRP tour with dummy depots.
 
-    The tour is scanned left-to-right. Each time a depot (real or dummy) is
-    encountered, the vehicle load resets to 0. Dummy depots have zero demand.
+    The penalty is computed at the ROUTE level: for each route segment
+    (delimited by depot/dummy depot nodes), the total demand is summed,
+    and any excess over capacity is added to the penalty.  This avoids
+    the double-counting bug where per-node penalty accumulation inflates
+    the result for multi-node overloads.
 
     Args:
         tour: Node sequence with possible dummy depot markers.
-              Legacy: [0, 3, 5, -1, 7, 2, 0]
               Augmented: [0, 3, 5, 6, 7, 2, 0] (n_original=6)
         waste: 1-D array of node demands (index 0 = depot demand, usually 0).
                For augmented mode, includes zero demands for dummy depots.
@@ -215,14 +179,13 @@ def calculate_penalty(
 
     for node in tour:
         if node == DEPOT_NODE or is_dummy_depot(node, n_original):
-            # Reset load at any depot (real or dummy)
+            # Route boundary: evaluate route-level overload
+            penalty += max(0.0, current_load - capacity)
             current_load = 0.0
         else:
             # Accumulate demand for customer nodes
             if 0 <= node < len(waste):
                 current_load += waste[node]
-                if current_load > capacity + 1e-6:
-                    penalty += current_load - capacity
 
     return penalty
 
@@ -282,28 +245,6 @@ def is_better(p1: float, c1: float, p2: float, c2: float) -> bool:
     if abs(p1 - p2) > 1e-6:
         return p1 < p2
     return c1 < c2 - 1e-6
-
-
-def is_better_or_equal(p1: float, c1: float, p2: float, c2: float) -> bool:
-    """
-    Non-strict lexicographic dominance: penalty first, then cost.
-
-    Returns True iff (p1, c1) is at least as good as (p2, c2) under the
-    lexicographic ordering.  Used by LKH-3 for infeasible-transit moves
-    where the search is allowed to accept moves that *maintain* the current
-    objective while transiting through infeasible space.
-
-    The key difference from :func:`is_better`:
-
-    - ``is_better``:          strictly better (used for best-solution updates)
-    - ``is_better_or_equal``: weakly better   (used for move acceptance in
-      the local-search loop to allow lateral moves through infeasible space)
-    """
-    if p1 < p2 - 1e-6:
-        return True
-    if abs(p1 - p2) > 1e-6:
-        return False
-    return c1 <= c2 + 1e-6
 
 
 def penalty_delta(

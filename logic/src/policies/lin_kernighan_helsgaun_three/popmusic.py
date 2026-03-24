@@ -93,7 +93,8 @@ def decompose_tour(
             # Wrap around: take from end of tour + beginning
             wrap = open_tour[start:] + open_tour[: end - n]
             subpaths.append(wrap)
-            break  # One wrap-around sub-path is sufficient
+            # Do NOT break here --- continue until we've covered all nodes.
+            # The range termination at `n` handles stopping naturally.
 
     return subpaths
 
@@ -136,9 +137,9 @@ def optimize_subpath(
         trials += 1
         for i in range(n - 2):
             for j in range(i + 2, n):
-                # Skip if j is the last and i is the first (would just reverse entire path)
-                if i == 0 and j == n - 1:
-                    continue
+                # Reversing the entire open path (i=0, j=n-1) IS a valid
+                # 2-opt move --- it mirrors the path direction,  which can
+                # be improving when the sub-path is asymmetric.
 
                 # 2-opt gain: remove (i, i+1) and (j, j+1 mod n),
                 # reconnect as (i, j) and (i+1, j+1 mod n)
