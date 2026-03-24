@@ -22,8 +22,8 @@ from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
     augment_graph,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
-    solve_lkh,
-    solve_lkh_with_lns,
+    solve_lkh3,
+    solve_lkh3_with_lns,
 )
 
 
@@ -89,7 +89,7 @@ class LKH3Policy(BaseRoutingPolicy):
         """Main LKH-3 entry point for the simulator.
 
         Extracts LKH-3 hyperparameters from the ``values`` dict, builds the
-        demand array, invokes :func:`solve_lkh`, and reformats the result.
+        demand array, invokes :func:`solve_lkh3`, and reformats the result.
 
         Args:
             sub_dist_matrix: (N × N) distance matrix (local indices).
@@ -121,14 +121,14 @@ class LKH3Policy(BaseRoutingPolicy):
             capacity=capacity,
         )
 
-        # Convert to Optional types for solve_lkh API
+        # Convert to Optional types for solve_lkh3 API
         waste_arr: Optional[np.ndarray] = augmented_waste if capacity > 0 else None
         cap: float = capacity if capacity > 0 else 100.0
 
         # Select LKH-3 variant (with or without Large Neighborhood Search)
         vrpp = values.get("vrpp", True)
         profit_aware_operators = values.get("profit_aware_operators", False)
-        policy_function = solve_lkh_with_lns if vrpp else solve_lkh
+        policy_function = solve_lkh3_with_lns if vrpp else solve_lkh3
 
         # --- Run the LKH-3 engine on augmented graph ---
         best_routes: Optional[List[List[int]]] = None

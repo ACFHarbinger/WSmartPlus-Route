@@ -9,7 +9,7 @@ Reference:
     In Handbook of metaheuristics (pp. 99-127). Springer, Cham.
 """
 
-from .hgs_rr import run_hgs_rr
+from .hgs_rr import HGSRRSolver
 from .params import HGSRRParams
 
-__all__ = ["run_hgs_rr", "HGSRRParams"]
+__all__ = ["HGSRRSolver", "HGSRRParams"]

@@ -1,5 +1,5 @@
 """
-LKH-3 Tour Improvement Components.
+LKH Tour Improvement Components.
 
 Implements the sequential k-opt local-search loop (k = 2..5) used
 in the Lin-Kernighan-Helsgaun heuristic (Helsgaun 2000, Sections 3–4).
@@ -45,7 +45,7 @@ they are restricted by route length:
 
 Dependencies
 ------------
-- :func:`get_score`, :func:`is_better` from ``._objective``
+- :func:`get_cost`, :func:`is_better` from ``._objective``
 - :class:`TourAdapter` from ``._tour_adapter``
 - :func:`_2opt_gain`, :func:`_3opt_gains`, :func:`_4opt_gains`,
   :func:`_5opt_gains` from ``._tour_construction``
@@ -70,7 +70,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.operators.heuristics._objective import (
-    get_score,
+    get_cost,
     is_better,
 )
 from logic.src.policies.other.operators.heuristics._tour_adapter import TourAdapter
@@ -160,10 +160,9 @@ def _try_2opt_move(
     t2: int,
     candidates: Dict[int, List[int]],
     distance_matrix: np.ndarray,
-    waste: Optional[np.ndarray],
-    capacity: Optional[float],
     rng: Random,
-) -> Tuple[Optional[List[int]], float, float, bool, int]:
+    pos_map: Dict[int, int],
+) -> Tuple[Optional[List[int]], float, bool, int]:
     """
     Search for an improving 2-opt move starting from edge (t1, t2).
 
@@ -178,12 +177,12 @@ def _try_2opt_move(
         t1, t2: Endpoints of the edge being considered for removal.
         candidates: α-nearest-neighbour lists.
         distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters (None for TSP).
         rng: Random number generator.
+        pos_map: $O(1)$ position map for tour index lookups.
 
     Returns:
-        (new_tour, penalty, cost, improved, j) where j is the position of t3.
-        Returns (None, 0, 0, False, -1) if no improvement found.
+        (new_tour, cost, improved, j) where j is the position of t3.
+        Returns (None, 0.0, False, -1) if no improvement found.
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -194,12 +193,8 @@ def _try_2opt_move(
         if t3 == curr_tour[(i + 2) % nodes_count]:
             continue
 
-        try:
-            j = curr_tour.index(t3)
-        except ValueError:
-            continue
-
-        if j <= i + 1:
+        j = pos_map.get(t3, -1)
+        if j == -1 or j <= i + 1:
             continue
 
         t4 = curr_tour[j + 1]
@@ -209,10 +204,10 @@ def _try_2opt_move(
         if gain > 1e-6:
             new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
             if new_tour is not None:
-                p_new, c_new = get_score(new_tour, d, waste, capacity)
-                return new_tour, p_new, c_new, True, j
+                c_new = get_cost(new_tour, d)
+                return new_tour, c_new, True, j
 
-    return None, 0.0, 0.0, False, -1
+    return None, 0.0, False, -1
 
 
 def _try_3opt_move(
@@ -224,56 +219,75 @@ def _try_3opt_move(
     t3: int,
     t4: int,
     distance_matrix: np.ndarray,
-    waste: Optional[np.ndarray],
-    capacity: Optional[float],
     rng: Random,
-) -> Tuple[Optional[List[int]], float, float, bool]:
+) -> Tuple[Optional[List[int]], float, bool]:
     """
     Search for an improving 3-opt move extending the (t1,t2), (t3,t4) pair.
 
     For each valid third cut position k_pos (t5, t6), computes exact gains
     (:func:`_3opt_gains`) for all seven non-trivial reconnection cases.
-    When at least one non-redundant case has a positive gain the move is
-    delegated to :func:`move_kopt_intra` (k=3) via
-    :func:`_apply_kopt_via_operator`, which selects the best of the patterns
-    it evaluates at a sampled third cut.
+    Applies the best improving reconnection directly using deterministic list
+    slicing to avoid the operator disconnect.
 
-    Cases 1 and 2 (pure 2-opt sub-moves) are excluded from the pre-screen to
-    avoid redundant work with the 2-opt phase.
+    Cases 1 and 2 (pure 2-opt sub-moves) are excluded to avoid redundancy
+    with the 2-opt phase.
 
     Args:
         curr_tour: Current closed tour.
         i, j: Break-point positions of the first two cuts in the open route.
         t1..t4: Node pairs for the two existing broken edges.
         distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters.
-        rng: Random number generator passed to the operator.
+        rng: Random number generator (unused, kept for API compatibility).
 
     Returns:
-        (new_tour, penalty, cost, improved).
-        Returns (None, 0, 0, False) if no improvement found.
+        (new_tour, cost, improved).
+        Returns (None, 0.0, False) if no improvement found.
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
-    curr_p, curr_c = get_score(curr_tour, d, waste, capacity)
+    curr_c = get_cost(curr_tour, d)
 
     for k_pos in range(j + 2, nodes_count):
         t5 = curr_tour[k_pos]
         t6 = curr_tour[k_pos + 1]
 
         gains = _3opt_gains(t1, t2, t3, t4, t5, t6, d)
-        # Cases 1 & 2 are pure 2-opt on one sub-segment; skip to avoid duplication
-        improving = any(g > 1e-6 for idx, g in enumerate(gains) if idx not in (1, 2))
-        if not improving:
-            continue
 
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=3, distance_matrix=d, rng=rng)
-        if new_tour is not None:
-            p3, c3 = get_score(new_tour, d, waste, capacity)
-            if is_better(p3, c3, curr_p, curr_c):
-                return new_tour, p3, c3, True
+        # Cases 1 & 2 are pure 2-opt; skip them
+        best_gain = 1e-6
+        best_case = -1
 
-    return None, 0.0, 0.0, False
+        for idx, g in enumerate(gains):
+            if idx not in (1, 2) and g > best_gain:
+                best_gain = g
+                best_case = idx
+
+        if best_case != -1:
+            # Reconstruct tour via direct slicing
+            # Segments: A = tour[:i+1], B = tour[i+1:j+1], C = tour[j+1:k_pos+1], D = tour[k_pos+1:]
+            A = curr_tour[: i + 1]
+            B = curr_tour[i + 1 : j + 1]
+            C = curr_tour[j + 1 : k_pos + 1]
+            D = curr_tour[k_pos + 1 :]
+
+            if best_case == 0:
+                new_tour = A + B[::-1] + C[::-1] + D
+            elif best_case == 3:
+                new_tour = A + C + B + D
+            elif best_case == 4:
+                new_tour = A + C + B[::-1] + D
+            elif best_case == 5:
+                new_tour = A + C[::-1] + B + D
+            elif best_case == 6:
+                new_tour = A + C[::-1] + B[::-1] + D
+            else:
+                continue
+
+            c3 = get_cost(new_tour, d)
+            if is_better(c3, curr_c):
+                return new_tour, c3, True
+
+    return None, 0.0, False
 
 
 def _try_4opt_move(
@@ -288,48 +302,74 @@ def _try_4opt_move(
     t5: int,
     t6: int,
     distance_matrix: np.ndarray,
-    waste: Optional[np.ndarray],
-    capacity: Optional[float],
     rng: Random,
-) -> Tuple[Optional[List[int]], float, float, bool]:
+) -> Tuple[Optional[List[int]], float, bool]:
     """
     Search for an improving 4-opt move extending three broken edges.
 
     For each valid fourth cut position l (t7, t8), computes exact gains
-    (:func:`_4opt_gains`) for three common 4-opt patterns and delegates to
-    :func:`move_kopt_intra` (k=4) via :func:`_apply_kopt_via_operator` when
-    at least one pattern is improving.
+    (:func:`_4opt_gains`) for three common 4-opt patterns. Applies the best
+    improving reconnection directly using deterministic list slicing to avoid
+    the operator disconnect.
 
     Args:
         curr_tour: Current closed tour.
         i, j, k: Break-point positions of the first three cuts.
         t1..t6: Node pairs for the three existing broken edges.
         distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters.
-        rng: Random number generator.
+        rng: Random number generator (unused, kept for API compatibility).
 
     Returns:
-        (new_tour, penalty, cost, improved).
+        (new_tour, cost, improved).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
-    curr_p, curr_c = get_score(curr_tour, d, waste, capacity)
+    curr_c = get_cost(curr_tour, d)
 
     for l in range(k + 2, nodes_count):
         t7 = curr_tour[l]
         t8 = curr_tour[l + 1]
 
         gains = _4opt_gains(t1, t2, t3, t4, t5, t6, t7, t8, d)
-        if not any(g > 1e-6 for g in gains):
-            continue
 
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=4, distance_matrix=d, rng=rng)
-        if new_tour is not None:
-            p4, c4 = get_score(new_tour, d, waste, capacity)
-            if is_better(p4, c4, curr_p, curr_c):
-                return new_tour, p4, c4, True
+        # Find best improving case
+        best_gain = 1e-6
+        best_case = -1
 
-    return None, 0.0, 0.0, False
+        for idx, g in enumerate(gains):
+            if g > best_gain:
+                best_gain = g
+                best_case = idx
+
+        if best_case != -1:
+            # Reconstruct tour via direct slicing
+            # Segments: A=tour[:i+1], B=tour[i+1:j+1], C=tour[j+1:k+1], D=tour[k+1:l+1], E=tour[l+1:]
+            A = curr_tour[: i + 1]
+            B = curr_tour[i + 1 : j + 1]
+            C = curr_tour[j + 1 : k + 1]
+            D = curr_tour[k + 1 : l + 1]
+            E = curr_tour[l + 1 :]
+
+            if best_case == 0:
+                # case 0: double-bridge A+C+B+D+E → t1-t5, t6-t3, t4-t7, t2-t8
+                # A(ending t1) + C(t5..t6) + B(reversed: t3..t2) + D(t7..t8) + E
+                new_tour = A + C + B[::-1] + D + E
+            elif best_case == 1:
+                # case 1: reverse B and D → t1-t3, t2-t4, t5-t7, t6-t8
+                # A(ending t1) + B(reversed t3..t2) + C(t5..t6) + D(reversed t7..t6) + E
+                new_tour = A + B[::-1] + C + D[::-1] + E
+            elif best_case == 2:
+                # case 2: swap B and D → t1-t7, t8-t5, t6-t3, t4-t2
+                # A(ending t1) + D(reversed t7..t6) + C(reversed t5..t4) + B(reversed t3..t2) + E
+                new_tour = A + D[::-1] + C[::-1] + B[::-1] + E
+            else:
+                continue
+
+            c4 = get_cost(new_tour, d)
+            if is_better(c4, curr_c):
+                return new_tour, c4, True
+
+    return None, 0.0, False
 
 
 def _try_5opt_move(
@@ -347,46 +387,76 @@ def _try_5opt_move(
     t7: int,
     t8: int,
     distance_matrix: np.ndarray,
-    waste: Optional[np.ndarray],
-    capacity: Optional[float],
     rng: Random,
-) -> Tuple[Optional[List[int]], float, float, bool]:
+) -> Tuple[Optional[List[int]], float, bool]:
     """
     Search for an improving 5-opt move extending four broken edges.
 
     Implements Helsgaun (2000) Section 4.3: the basic LKH move is a
-    sequential 5-opt.  For each valid fifth cut position m (t9, t10), exact
-    gains (:func:`_5opt_gains`) are computed; when at least one is positive
-    the move is delegated to :func:`move_kopt_intra` (k=5) via
-    :func:`_apply_kopt_via_operator`.
+    sequential 5-opt. For each valid fifth cut position m (t9, t10), exact
+    gains (:func:`_5opt_gains`) are computed. Applies the best improving
+    reconnection directly using deterministic list slicing to avoid the
+    operator disconnect.
 
     Args:
         curr_tour: Current closed tour.
         i, j, k, l: Break-point positions of the first four cuts.
         t1..t8: Node pairs for the four existing broken edges.
         distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters.
-        rng: Random number generator.
+        rng: Random number generator (unused, kept for API compatibility).
 
     Returns:
-        (new_tour, penalty, cost, improved).
+        (new_tour, cost, improved).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
-    curr_p, curr_c = get_score(curr_tour, d, waste, capacity)
+    curr_c = get_cost(curr_tour, d)
 
     for m in range(l + 2, nodes_count):
         t9 = curr_tour[m]
         t10 = curr_tour[m + 1]
 
         gains = _5opt_gains(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, d)
-        if not any(g > 1e-6 for g in gains):
-            continue
 
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=5, distance_matrix=d, rng=rng)
-        if new_tour is not None:
-            p5, c5 = get_score(new_tour, d, waste, capacity)
-            if is_better(p5, c5, curr_p, curr_c):
-                return new_tour, p5, c5, True
+        # Find best improving case
+        best_gain = 1e-6
+        best_case = -1
 
-    return None, 0.0, 0.0, False
+        for idx, g in enumerate(gains):
+            if g > best_gain:
+                best_gain = g
+                best_case = idx
+
+        if best_case != -1:
+            # Reconstruct tour via direct slicing
+            # Segments: A=tour[:i+1], B=tour[i+1:j+1], C=tour[j+1:k+1], D=tour[k+1:l+1], E=tour[l+1:m+1], F=tour[m+1:]
+            A = curr_tour[: i + 1]
+            B = curr_tour[i + 1 : j + 1]
+            C = curr_tour[j + 1 : k + 1]
+            D = curr_tour[k + 1 : l + 1]
+            E = curr_tour[l + 1 : m + 1]
+            F = curr_tour[m + 1 :]
+
+            if best_case == 0:
+                # case 0: A + B' + C + D' + E + F → t1-t3, t2-t4, t5-t7, t6-t8, t9-t10
+                new_tour = A + B[::-1] + C + D[::-1] + E + F
+            elif best_case == 1:
+                # case 1: A + C + B' + D + E + F → t1-t5, t6-t3, t4-t2, t7-t8, t9-t10
+                new_tour = A + C + B[::-1] + D + E + F
+            elif best_case == 2:
+                # case 2: A + B + D + C' + E + F → t1-t2, t3-t7, t8-t5, t6-t4, t9-t10
+                new_tour = A + B + D + C[::-1] + E + F
+            elif best_case == 3:
+                # case 3: A + C + D + B + E + F → t1-t5, t6-t7, t8-t3, t4-t2, t9-t10
+                new_tour = A + C + D + B + E + F
+            elif best_case == 4:
+                # case 4: A + D + B' + C + E + F → t1-t7, t8-t3, t4-t5, t6-t2, t9-t10
+                new_tour = A + D + B[::-1] + C + E + F
+            else:
+                continue
+
+            c5 = get_cost(new_tour, d)
+            if is_better(c5, curr_c):
+                return new_tour, c5, True
+
+    return None, 0.0, False

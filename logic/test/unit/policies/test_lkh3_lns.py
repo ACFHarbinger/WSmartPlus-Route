@@ -84,7 +84,7 @@ def test_lns_cvrp_solve(small_instance):
         seed=42,
     )
 
-    routes, obj = solver.solve(
+    routes, obj, _ = solver.solve(
         max_iterations=5,
         lkh_trials=50,
         n_vehicles=3,
@@ -120,7 +120,7 @@ def test_lns_vrpp_solve(small_instance):
         seed=42,
     )
 
-    routes, profit = solver.solve(
+    routes, profit, _ = solver.solve(
         max_iterations=5,
         lkh_trials=50,
         n_vehicles=2,
@@ -337,7 +337,7 @@ def test_mandatory_nodes_enforcement(small_instance):
         seed=42,
     )
 
-    routes, profit = solver.solve(
+    routes, profit, _ = solver.solve(
         max_iterations=5,
         lkh_trials=50,
         n_vehicles=2,
