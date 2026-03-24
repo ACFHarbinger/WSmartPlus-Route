@@ -56,8 +56,8 @@ References:
       traveling salesman and vehicle routing problems.
 
 Example:
-    >>> tour, cost = solve_lkh(distance_matrix)
-    >>> tour, cost = solve_lkh(distance_matrix, waste=demands, capacity=cap)
+    >>> tour, cost = solve_lkh3(distance_matrix)
+    >>> tour, cost = solve_lkh3(distance_matrix, waste=demands, capacity=cap)
 """
 
 from __future__ import annotations
@@ -364,7 +364,7 @@ def _improve_tour(  # noqa: C901
 # ---------------------------------------------------------------------------
 
 
-def solve_lkh(  # noqa: C901
+def solve_lkh3(  # noqa: C901
     distance_matrix: np.ndarray,
     initial_tour: Optional[List[int]] = None,
     waste: Optional[np.ndarray] = None,
@@ -616,7 +616,7 @@ def solve_lkh(  # noqa: C901
 # ---------------------------------------------------------------------------
 
 
-def solve_lkh_with_lns(
+def solve_lkh3_with_lns(
     distance_matrix: np.ndarray,
     initial_tour: Optional[List[int]] = None,
     waste: Optional[np.ndarray] = None,
@@ -705,7 +705,7 @@ def solve_lkh_with_lns(
 
     Example:
         >>> # VRPP mode
-        >>> routes, profit = solve_lkh_with_lns(
+        >>> routes, profit = solve_lkh3_with_lns(
         ...     distance_matrix=dist,
         ...     wastes={1: 10, 2: 20, 3: 30},
         ...     capacity=100,

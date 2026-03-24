@@ -48,7 +48,7 @@ from logic.src.policies.lin_kernighan_helsgaun_three.candidate_set import (
     get_candidate_set,
 )
 
-# solve_lkh imported locally in _optimize_routes or solve() to break circularity
+# solve_lkh3 imported locally in _optimize_routes or solve() to break circularity
 from logic.src.policies.other.operators.destroy.historical import (
     historical_profit_removal,
     historical_removal,
@@ -449,7 +449,7 @@ class LKH3_LNS:
             max_k_opt: Maximum k for k-opt.
             use_ip_merging: IP-based tour merging flag.
             initial_routes: Optional warm-start routes (global node indices).
-                If provided, flattened to 1D tour and passed to solve_lkh.
+                If provided, flattened to 1D tour and passed to solve_lkh3.
 
         Returns:
             Tuple of (routes_global, objective) where:
@@ -546,10 +546,10 @@ class LKH3_LNS:
                     local_candidates[local_idx] = []
 
         from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
-            solve_lkh,
+            solve_lkh3,
         )
 
-        routes, cost, penalty = solve_lkh(
+        routes, cost, penalty = solve_lkh3(
             distance_matrix=sub_dist,
             initial_tour=initial_tour_local,  # Phase 2: Pass warm-start tour
             waste=sub_waste,
