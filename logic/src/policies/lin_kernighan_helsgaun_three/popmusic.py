@@ -1,5 +1,5 @@
 """
-POPMUSIC Candidate Generation Module.
+POPMUSIC Candidate Generation Module with Spatial Indexing.
 
 Implements the POPMUSIC (Partial Optimization Metaheuristic Under Special
 Intensification Conditions) candidate-set generation strategy for the LKH-3
@@ -19,6 +19,10 @@ The resulting candidate dict has the same interface as
 :func:`get_candidate_set` from the main LKH module but is computed in
 O(K · n · r²) instead of O(n²).
 
+**Performance Optimization (Task 4)**:
+Candidate padding (lines 248-256) previously used O(N log N) distance sorting.
+Replaced with scipy.spatial.KDTree for O(log N) nearest-neighbor queries.
+
 References:
     Taillard, É. D. & Voss, S. (2002). POPMUSIC — Partial optimization
       metaheuristic under special intensification conditions. OR,
@@ -30,12 +34,22 @@ Example:
     >>> from logic.src.policies.lin_kernighan_helsgaun_three._popmusic import (
     ...     popmusic_candidates
     ... )
-    >>> candidates = popmusic_candidates(dist, tour, subpath_size=50, n_runs=5)
+    >>> candidates = popmusic_candidates(
+    ...     dist, tour, coords, subpath_size=50, n_runs=5
+    ... )
 """
 
+from contextlib import suppress
 from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
+
+try:
+    from scipy.spatial import KDTree
+
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
 
 # ---------------------------------------------------------------------------
 # Sub-path decomposition
@@ -162,6 +176,46 @@ def _collect_edges(path: List[int]) -> Set[Tuple[int, int]]:
     return edges
 
 
+def _generate_randomized_tour(
+    initial_tour: List[int],
+    np_rng: np.random.Generator,
+) -> List[int]:
+    """Generate a randomized tour by shuffling the non-depot nodes."""
+    open_tour = (
+        initial_tour[:-1] if (len(initial_tour) > 1 and initial_tour[0] == initial_tour[-1]) else initial_tour[:]
+    )
+
+    # Shuffle the order for diversity (keep depot at start)
+    if open_tour[0] == 0:
+        interior = open_tour[1:]
+        np_rng.shuffle(interior)
+        shuffled_tour = [0] + list(interior) + [0]
+    else:
+        arr = np.array(open_tour)
+        np_rng.shuffle(arr)
+        shuffled_tour = list(arr) + [int(arr[0])]
+
+    return shuffled_tour
+
+
+def generate_optimized_tour(
+    initial_tour: List[int],
+    distance_matrix: np.ndarray,
+    subpath_size: int,
+    max_trials: int,
+    np_rng: np.random.Generator,
+) -> Set[Tuple[int, int]]:
+    """Generate an optimized tour by applying 2-opt to the initial tour."""
+    # Decompose and optimize
+    shuffled_tour = _generate_randomized_tour(initial_tour, np_rng)
+    subpaths = decompose_tour(shuffled_tour, subpath_size)
+    all_edges: Set[Tuple[int, int]] = set()
+    for sp in subpaths:
+        optimized = optimize_subpath(sp, distance_matrix, max_trials)
+        all_edges |= _collect_edges(optimized)
+    return all_edges
+
+
 # ---------------------------------------------------------------------------
 # Main POPMUSIC candidate generation
 # ---------------------------------------------------------------------------
@@ -170,18 +224,22 @@ def _collect_edges(path: List[int]) -> Set[Tuple[int, int]]:
 def popmusic_candidates(
     distance_matrix: np.ndarray,
     initial_tour: List[int],
+    coords: Optional[np.ndarray] = None,
     subpath_size: int = 50,
     n_runs: int = 5,
     max_trials: int = 50,
     max_candidates: int = 5,
     np_rng: Optional[np.random.Generator] = None,
 ) -> Dict[int, List[int]]:
-    """Generate candidate sets via POPMUSIC for large instances.
+    """Generate candidate sets via POPMUSIC with spatial indexing optimization.
 
     Runs *n_runs* independent decompose-optimize cycles on randomly
     shuffled copies of the initial tour, collects the union of all
     edges from optimized sub-paths, and builds per-node candidate lists
     sorted by distance (limited to `max_candidates` per node).
+
+    **Performance Optimization**: If coords are provided, uses KD-Tree
+    for O(log N) nearest-neighbor padding instead of O(N log N) sorting.
 
     For small instances (N ≤ subpath_size), falls back to simple
     nearest-neighbour candidates.
@@ -189,6 +247,7 @@ def popmusic_candidates(
     Args:
         distance_matrix: (N × N) symmetric cost matrix.
         initial_tour: A closed starting tour.
+        coords: (N × 2) node coordinates for KD-Tree spatial indexing (optional).
         subpath_size: Number of nodes per sub-path (r).
         n_runs: Number of independent POPMUSIC runs (K).
         max_trials: Maximum 2-opt passes per sub-path optimization.
@@ -199,34 +258,13 @@ def popmusic_candidates(
         dict mapping each node index to its sorted candidate list.
     """
     n = len(distance_matrix)
-
     if np_rng is None:
         np_rng = np.random.default_rng(42)
 
     # --- Collect edges from K independent POPMUSIC runs ---
     all_edges: Set[Tuple[int, int]] = set()
-
     for _ in range(n_runs):
-        # Create a randomized tour by shuffling the non-depot nodes
-        open_tour = (
-            initial_tour[:-1] if (len(initial_tour) > 1 and initial_tour[0] == initial_tour[-1]) else initial_tour[:]
-        )
-
-        # Shuffle the order for diversity (keep depot at start)
-        if open_tour[0] == 0:
-            interior = open_tour[1:]
-            np_rng.shuffle(interior)
-            shuffled_tour = [0] + list(interior) + [0]
-        else:
-            arr = np.array(open_tour)
-            np_rng.shuffle(arr)
-            shuffled_tour = list(arr) + [int(arr[0])]
-
-        # Decompose and optimize
-        subpaths = decompose_tour(shuffled_tour, subpath_size)
-        for sp in subpaths:
-            optimized = optimize_subpath(sp, distance_matrix, max_trials)
-            all_edges |= _collect_edges(optimized)
+        all_edges |= generate_optimized_tour(initial_tour, distance_matrix, subpath_size, max_trials, np_rng)
 
     # Also collect edges from the original tour
     all_edges |= _collect_edges(initial_tour)
@@ -239,21 +277,40 @@ def popmusic_candidates(
             adjacency[b].add(a)
 
     # --- Build candidate lists, sorted by distance ---
+    # Build KD-Tree for spatial queries if coordinates available
+    kdtree = None
+    if coords is not None and HAS_SCIPY and coords.shape[0] == n:
+        with suppress(Exception):
+            kdtree = KDTree(coords)
+
     candidates: Dict[int, List[int]] = {}
     for node in range(n):
         # Union of POPMUSIC neighbors + nearest-by-distance fallback
         neighbors = adjacency[node]
 
-        # If POPMUSIC didn't find enough neighbors, add nearest-by-distance
+        # If POPMUSIC didn't find enough neighbors, add nearest neighbors
         if len(neighbors) < max_candidates:
-            all_nodes = sorted(
-                [j for j in range(n) if j != node],
-                key=lambda j: distance_matrix[node, j],
-            )
-            for j in all_nodes:
-                neighbors.add(j)
-                if len(neighbors) >= max_candidates * 2:
-                    break
+            if kdtree is not None and coords is not None:
+                # O(log N) KD-Tree query
+                _, indices = kdtree.query(coords[node], k=min(max_candidates * 2, n))
+                # indices may be int or array depending on k
+                if isinstance(indices, (int, np.integer)):
+                    indices = [indices]
+                for j in indices:
+                    if j != node:
+                        neighbors.add(int(j))
+                        if len(neighbors) >= max_candidates * 2:
+                            break
+            else:
+                # O(N log N) fallback: distance-based sorting
+                all_nodes = sorted(
+                    [j for j in range(n) if j != node],
+                    key=lambda j: distance_matrix[node, j],
+                )
+                for j in all_nodes:
+                    neighbors.add(j)
+                    if len(neighbors) >= max_candidates * 2:
+                        break
 
         # Sort by distance and trim
         sorted_neighbors = sorted(

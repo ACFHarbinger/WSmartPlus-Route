@@ -9,6 +9,8 @@ Reference:
     traveling salesman and vehicle routing problems.
 """
 
+import time
+from random import Random
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -16,8 +18,12 @@ import numpy as np
 from logic.src.configs.policies.lkh3 import LKH3Config
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
+    augment_graph,
+)
 from logic.src.policies.lin_kernighan_helsgaun_three.lin_kernighan_helsgaun import (
     solve_lkh,
+    solve_lkh_with_lns,
 )
 
 
@@ -99,80 +105,84 @@ class LKH3Policy(BaseRoutingPolicy):
             ``(routes, profit, cost)`` — routes as list-of-lists (local indices),
             total profit, and total routing cost.
         """
-        n = len(sub_dist_matrix)
+        n_original = len(sub_dist_matrix)
 
-        # --- Build demand array (0 = depot, 1..M = customer nodes) ---
-        waste_arr: Optional[np.ndarray] = None
-        cap: Optional[float] = None
-        if sub_wastes and capacity > 0:
-            waste_arr = np.zeros(n, dtype=float)
-            for idx, fill in sub_wastes.items():
-                if 0 <= idx < n:
-                    waste_arr[idx] = fill
-            cap = capacity
-
-        # --- Extract LKH-3 hyperparameters ---
-        max_trials = int(values.get("max_trials", 1000))
-        runs = int(values.get("runs", 10))
-        popmusic_subpath_size = int(values.get("popmusic_subpath_size", 50))
-        popmusic_trials = int(values.get("popmusic_trials", 50))
-        max_k_opt = int(values.get("max_k_opt", 5))
-        use_ip_merging = bool(values.get("use_ip_merging", True))
+        # --- Extract hyperparameters for augmentation ---
         seed = values.get("seed", 42)
-        vrpp = values.get("vrpp", True)
-        profit_aware_operators = values.get("profit_aware_operators", False)
+        n_vehicles = int(values.get("n_vehicles", 3))  # Number of vehicles
 
         np_rng = np.random.default_rng(seed if seed is not None else 42)
 
-        # --- Run the LKH-3 engine ---
-        best_tour: Optional[List[int]] = None
+        # --- Phase 1: Graph Augmentation (fixes NumPy negative-index bug) ---
+        augmented_dist, augmented_waste, n_original = augment_graph(
+            distance_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            n_vehicles=n_vehicles,
+            capacity=capacity,
+        )
+
+        # Convert to Optional types for solve_lkh API
+        waste_arr: Optional[np.ndarray] = augmented_waste if capacity > 0 else None
+        cap: float = capacity if capacity > 0 else 100.0
+
+        # Select LKH-3 variant (with or without Large Neighborhood Search)
+        vrpp = values.get("vrpp", True)
+        profit_aware_operators = values.get("profit_aware_operators", False)
+        policy_function = solve_lkh_with_lns if vrpp else solve_lkh
+
+        # --- Run the LKH-3 engine on augmented graph ---
+        best_routes: Optional[List[List[int]]] = None
         best_cost = float("inf")
+        rng = Random(seed)
+        runs = int(values.get("runs", 10))
+        time_limit = values.get("time_limit", 60.0)
+        start_time = time.process_time()
         for _ in range(runs):
-            tour, cost = solve_lkh(
-                distance_matrix=sub_dist_matrix,
+            current_time = time.process_time()
+            if time_limit > 0 and (current_time - start_time) > time_limit:
+                break
+            routes, cost = policy_function(
+                distance_matrix=augmented_dist,
                 initial_tour=None,
-                max_iterations=max_trials,
                 waste=waste_arr,
                 capacity=cap,
+                revenue=revenue,
+                cost_unit=cost_unit,
+                mandatory_nodes=mandatory_nodes,
+                coords=sub_dist_matrix,
+                max_iterations=int(values.get("max_trials", 1000)),
+                popmusic_subpath_size=int(values.get("popmusic_subpath_size", 50)),
+                popmusic_trials=int(values.get("popmusic_trials", 50)),
+                popmusic_max_candidates=values.get("popmusic_max_candidates", 5),
+                max_k_opt=int(values.get("max_k_opt", 5)),
+                use_ip_merging=bool(values.get("use_ip_merging", True)),
+                max_pool_size=values.get("max_pool_size", 5),
+                profit_aware_operators=profit_aware_operators,
+                lns_iterations=values.get("lns_iterations", 100),
+                plateau_limit=values.get("plateau_limit", 10),
+                deep_plateau_limit=values.get("deep_plateau_limit", 30),
+                perturb_operator_weights=values.get("perturb_operator_weights", [0.6, 0.4]),
+                n_vehicles=n_vehicles,
+                n_original=n_original,  # Pass for augmented mode
                 recorder=self._viz,
                 np_rng=np_rng,
-                popmusic_subpath_size=popmusic_subpath_size,
-                popmusic_trials=popmusic_trials,
-                max_k_opt=max_k_opt,
-                use_ip_merging=use_ip_merging,
-                vrpp=vrpp,
-                profit_aware_operators=profit_aware_operators,
+                rng=rng,
+                seed=seed,
             )
             if cost < best_cost:
                 best_cost = cost
-                best_tour = tour
+                best_routes = routes
 
-        if best_tour is None:
+        if best_routes is None:
             # Fallback: depot-only tour
-            return [[]], 0.0, 0.0
-
-        # --- Convert flat tour → routes ---
-        routes = self._tour_to_routes(best_tour)
-
-        # --- Mandatory-node enforcement + optional-node filtering ---
-        mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
-        if mandatory_set:
-            routes = self._enforce_mandatory_and_filter(
-                routes,
-                mandatory_set,
-                sub_dist_matrix,
-                sub_wastes,
-                capacity,
-                revenue,
-                cost_unit,
-            )
+            return [[0]], 0.0, 0.0
 
         # --- Profit calculation (VRPP: revenue * collected − routing cost) ---
-        collected_nodes = {node for route in routes for node in route}
-        routing_cost = self._route_cost(routes, sub_dist_matrix)
+        collected_nodes = {node for route in best_routes for node in route}
+        routing_cost = self._route_cost(best_routes, sub_dist_matrix)
         total_fill = sum(sub_wastes.get(node, 0.0) for node in collected_nodes)
         profit = revenue * total_fill - cost_unit * routing_cost
-        return routes, profit, routing_cost
+        return best_routes, profit, routing_cost
 
     # ------------------------------------------------------------------
     # Mandatory-node helpers
@@ -258,9 +268,10 @@ class LKH3Policy(BaseRoutingPolicy):
                 route_load = sum(wastes.get(n, 0.0) for n in kept)
                 if route_load <= capacity + 1e-6:
                     filtered_routes.append(kept)
-                else:
-                    # Split into capacity-feasible sub-routes
-                    filtered_routes.extend(self._split_by_capacity(kept, wastes, capacity))
+                # NOTE: No post-hoc capacity splitting! The LKH-3 engine with
+                # augmented dummy depots handles multi-route optimization natively.
+                # If a filtered route exceeds capacity, it's discarded rather than
+                # split, as splitting would destroy the LKH-3 optimization.
 
         # Ensure every mandatory node is visited
         visited = {node for route in filtered_routes for node in route}
@@ -269,34 +280,3 @@ class LKH3Policy(BaseRoutingPolicy):
             filtered_routes.append([node])
 
         return filtered_routes
-
-    @staticmethod
-    def _split_by_capacity(
-        nodes: List[int],
-        wastes: Dict[int, float],
-        capacity: float,
-    ) -> List[List[int]]:
-        """Split a node sequence into capacity-feasible sub-routes.
-
-        Args:
-            nodes: Ordered node sequence.
-            wastes: Node fill levels.
-            capacity: Vehicle capacity.
-
-        Returns:
-            List of sub-routes, each within capacity.
-        """
-        routes: List[List[int]] = []
-        current: List[int] = []
-        load = 0.0
-        for node in nodes:
-            w = wastes.get(node, 0.0)
-            if load + w > capacity + 1e-6 and current:
-                routes.append(current)
-                current = []
-                load = 0.0
-            current.append(node)
-            load += w
-        if current:
-            routes.append(current)
-        return routes
