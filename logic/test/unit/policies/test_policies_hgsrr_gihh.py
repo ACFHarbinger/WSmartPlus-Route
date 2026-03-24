@@ -7,7 +7,8 @@ and the Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 
 import numpy as np
 import pytest
-from logic.src.policies import run_gihh, run_hgs_rr
+from logic.src.policies.hgs_rr import HGSRRSolver, HGSRRParams
+from logic.src.policies.gihh import GIHHSolver, GIHHParams
 from logic.src.policies.base import PolicyFactory
 
 
@@ -35,17 +36,9 @@ class TestHGSRRPolicy:
     def test_hgs_rr_basic_execution(self, simple_instance):
         """Test that HGS-RR executes without errors."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        values = {
-            "time_limit": 1.0,
-            "population_size": 10,
-            "n_generations": 20,
-            "mutation_rate": 0.3,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_hgs_rr(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = HGSRRParams(time_limit=1.0, population_size=10, n_generations=20, mutation_rate=0.3, seed=42)
+        solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert isinstance(routes, list)
         assert isinstance(profit, float)
@@ -54,16 +47,9 @@ class TestHGSRRPolicy:
     def test_hgs_rr_respects_capacity(self, simple_instance):
         """Test that HGS-RR respects capacity constraints."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        values = {
-            "time_limit": 1.0,
-            "population_size": 10,
-            "n_generations": 20,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_hgs_rr(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = HGSRRParams(time_limit=1.0, population_size=10, n_generations=20, mutation_rate=0.3, seed=42)
+        solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         # Check capacity for each route
         for route in routes:
@@ -74,16 +60,9 @@ class TestHGSRRPolicy:
         """Test that HGS-RR visits mandatory nodes."""
         dist_matrix, wastes, capacity, R, C = simple_instance
         mandatory_nodes = [1, 3]  # Local indices
-        values = {
-            "time_limit": 1.0,
-            "population_size": 10,
-            "n_generations": 20,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_hgs_rr(
-            dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=mandatory_nodes
-        )
+        params = HGSRRParams(time_limit=1.0, population_size=10, n_generations=20, mutation_rate=0.3, seed=42)
+        solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+        routes, profit, cost = solver.solve()
 
         # Check that mandatory nodes are visited
         visited_nodes = set()
@@ -100,11 +79,10 @@ class TestHGSRRPolicy:
         capacity = 1.0
         R = 10.0
         C = 1.0
-        values = {"seed": 42}
+        params = HGSRRParams(seed=42)
 
-        routes, profit, cost = run_hgs_rr(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert routes == []
         assert profit == 0.0
@@ -120,11 +98,9 @@ class TestHGSRRPolicy:
         capacity = 1.0
         R = 10.0
         C = 1.0
-        values = {"seed": 42}
-
-        routes, profit, cost = run_hgs_rr(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = HGSRRParams(seed=42)
+        solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert len(routes) == 1
         assert routes[0] == [1]
@@ -172,15 +148,9 @@ class TestGIHHPolicy:
     def test_gihh_basic_execution(self, simple_instance):
         """Test that GIHH executes without errors."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        values = {
-            "time_limit": 1.0,
-            "max_iterations": 5,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = GIHHParams(time_limit=1.0, max_iterations=5, seed=42)
+        solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert isinstance(routes, list)
         assert isinstance(profit, float)
@@ -189,15 +159,9 @@ class TestGIHHPolicy:
     def test_gihh_respects_capacity(self, simple_instance):
         """Test that GIHH respects capacity constraints."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        values = {
-            "time_limit": 1.0,
-            "max_iterations": 5,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = GIHHParams(time_limit=1.0, max_iterations=5, seed=42)
+        solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         # Check capacity for each route
         for route in routes:
@@ -208,15 +172,9 @@ class TestGIHHPolicy:
         """Test that GIHH visits mandatory nodes."""
         dist_matrix, wastes, capacity, R, C = simple_instance
         mandatory_nodes = [1, 3]  # Local indices
-        values = {
-            "time_limit": 1.0,
-            "max_iterations": 5,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=mandatory_nodes
-        )
+        params = GIHHParams(time_limit=1.0, max_iterations=5, seed=42)
+        solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+        routes, profit, cost = solver.solve()
 
         # Check that mandatory nodes are visited
         visited_nodes = set()
@@ -233,11 +191,9 @@ class TestGIHHPolicy:
         capacity = 1.0
         R = 10.0
         C = 1.0
-        values = {"seed": 42}
-
-        routes, profit, cost = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = GIHHParams(seed=42)
+        solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert routes == []
         assert profit == 0.0
@@ -253,11 +209,9 @@ class TestGIHHPolicy:
         capacity = 1.0
         R = 10.0
         C = 1.0
-        values = {"seed": 42}
-
-        routes, profit, cost = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = GIHHParams(seed=42)
+        solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert len(routes) == 1
         assert routes[0] == [1]
@@ -267,17 +221,9 @@ class TestGIHHPolicy:
     def test_gihh_indicator_weights(self, simple_instance):
         """Test GIHH with custom indicator weights."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        values = {
-            "time_limit": 1.0,
-            "max_iterations": 5,
-            "iri_weight": 0.7,
-            "tbi_weight": 0.3,
-            "seed": 42,
-        }
-
-        routes, profit, cost = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values
-        )
+        params = GIHHParams(time_limit=1.0, max_iterations=5, iri_weight=0.7, tbi_weight=0.3, seed=42)
+        solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
+        routes, profit, cost = solver.solve()
 
         assert isinstance(routes, list)
         assert isinstance(profit, float)
@@ -321,28 +267,26 @@ class TestPolicyComparison:
         """Test that both policies produce feasible solutions."""
         dist_matrix, wastes, capacity, R, C = test_instance
 
-        values_hgs_rr = {
-            "time_limit": 2.0,
-            "population_size": 20,
-            "n_generations": 50,
-            "min_removal_pct": 0.05,  # Reduce removal to avoid edge cases
-            "max_removal_pct": 0.2,
-            "seed": 42,
-        }
-
-        values_gihh = {
-            "time_limit": 2.0,
-            "max_iterations": 100,
-            "seed": 42,
-        }
-
-        routes_hgs_rr, profit_hgs_rr, cost_hgs_rr = run_hgs_rr(
-            dist_matrix, wastes, capacity, R, C, values_hgs_rr
+        params_hgs_rr = HGSRRParams(
+            time_limit=2.0,
+            population_size=20,
+            n_generations=50,
+            min_removal_pct=0.05,  # Reduce removal to avoid edge cases
+            max_removal_pct=0.2,
+            seed=42,
         )
 
-        routes_gihh, profit_gihh, cost_gihh = run_gihh(
-            dist_matrix, wastes, capacity, R, C, values_gihh
+        params_gihh = GIHHParams(
+            time_limit=2.0,
+            max_iterations=100,
+            seed=42,
         )
+
+        solver_hgs_rr = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params_hgs_rr, None)
+        routes_hgs_rr, profit_hgs_rr, cost_hgs_rr = solver_hgs_rr.solve()
+
+        solver_gihh = GIHHSolver(dist_matrix, wastes, capacity, R, C, params_gihh, None)
+        routes_gihh, profit_gihh, cost_gihh = solver_gihh.solve()
 
         # Both should produce valid solutions
         assert isinstance(routes_hgs_rr, list)

@@ -52,7 +52,7 @@ from ..other.operators import (
     worst_removal,
 )
 from ..other.operators.heuristics.nn_initialization import build_nn_routes
-from .params import HMSParams
+from .params import HybridMemeticSearchParams
 
 
 class HybridMemeticSearchSolver:
@@ -68,7 +68,7 @@ class HybridMemeticSearchSolver:
         capacity: float,
         R: float,
         C: float,
-        params: HMSParams,
+        params: HybridMemeticSearchParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
         """
