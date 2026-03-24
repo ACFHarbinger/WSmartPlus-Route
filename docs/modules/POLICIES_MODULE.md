@@ -45,13 +45,13 @@ The `policies` module provides a comprehensive technical ecosystem of routing op
 
 ### Supported Problems
 
-| Problem     | Description                         | Policies                      |
-| ----------- | ----------------------------------- | ----------------------------- |
-| **TSP**     | Traveling Salesman Problem          | LKH, fast_tsp, exact solvers  |
-| **CVRP**    | Capacitated Vehicle Routing Problem | HGS, OR-Tools, Gurobi         |
-| **VRPP**    | VRP with Profits                    | Gurobi, Hexaly                |
-| **WCVRP**   | Waste Collection VRP                | ALNS, HGS, SANS, SISR, Neural |
-| **SCWCVRP** | Stochastic Capacitated WCVRP        | Neural, Adaptive Heuristics   |
+| Problem     | Description                         | Policies                       |
+| ----------- | ----------------------------------- | ------------------------------ |
+| **TSP**     | Traveling Salesman Problem          | LKH-3, fast_tsp, exact solvers |
+| **CVRP**    | Capacitated Vehicle Routing Problem | LKH-3, HGS, OR-Tools, Gurobi   |
+| **VRPP**    | VRP with Profits                    | LKH-3, Gurobi, Hexaly          |
+| **WCVRP**   | Waste Collection VRP                | ALNS, HGS, SANS, SISR, Neural  |
+| **SCWCVRP** | Stochastic Capacitated WCVRP        | Neural, Adaptive Heuristics    |
 
 ### Policy Categories
 
@@ -64,7 +64,7 @@ The `policies` module provides a comprehensive technical ecosystem of routing op
    - SANS (Simulated Annealing Neighborhood Search)
    - SISR (Slack Induction by String Removal)
 3. **Neural Policies**: Deep RL models (AM, TAM, DDAM)
-4. **Classical Heuristics**: TSP, CVRP solvers (LKH, OR-Tools)
+4. **Classical & Matheuristic Policies**: TSP, CVRP, VRPP solvers (LKH-3 LNS, OR-Tools)
 5. **Specialized**: VRPP exact optimizers
 
 ---
@@ -266,7 +266,19 @@ logic/src/policies/
 ├── cvrp.py                                  # CVRP solver entry
 ├── tsp.py                                   # TSP solver entry
 ├── hgs_alns.py                              # HGS-ALNS entry
-└── lin_kernighan_helsgaun.py                # LKH entry
+├── lin_kernighan_helsgaun.py                # LKH-3 entry
+├── lin_kernighan_helsgaun_three/            # LKH-3 LNS Matheuristic
+│   ├── large_neighborhood_search.py         # LNS orchestrator
+│   ├── candidate_set.py                     # Alpha-measure / 1-tree logic
+│   ├── subgradient.py                       # Held-Karp pi-penalties
+│   ├── tour_improvement.py                  # k-opt (2-5) kernels
+│   ├── tour_construction.py                 # Initialization & merging
+│   ├── load_tracker.py                      # O(L) penalty updates
+│   ├── graph_augmentation.py                # Multi-vehicle dummy depots
+│   ├── objective.py                         # Lexicographic (P, C) scoring
+│   ├── popmusic.py                          # POPMUSIC subset selection
+│   ├── tour_adapter.py                      # Global/Local mapping
+│   └── policy_lkh3.py                       # Adapter implementation
 ```
 
 ### Statistics
@@ -3818,18 +3830,18 @@ from logic.src.policies import find_route, find_routes
 
 ### 14.2 Policy Summary
 
-| Policy       | Type          | Best For                             | Typical Runtime |
-| ------------ | ------------- | ------------------------------------ | --------------- |
-| **BPC**      | Exact         | Small instances (<50 nodes), optimal | Minutes-Hours   |
-| **HGS**      | Metaheuristic | Medium-large instances, high quality | Seconds-Minutes |
-| **ALNS**     | Metaheuristic | Diverse instances, robustness        | Seconds-Minutes |
-| **HGS-ALNS** | Hybrid        | Large instances, best quality        | Minutes         |
-| **ACO**      | Bio-inspired  | Sparse graphs, parallel execution    | Minutes         |
-| **SANS**     | SA-based      | Complex constraints                  | Seconds-Minutes |
-| **SISR**     | Specialized   | String patterns in routes            | Seconds         |
-| **Neural**   | Deep RL       | Fast inference, generalization       | Milliseconds    |
-| **LKH**      | TSP heuristic | TSP instances, excellent quality     | Seconds         |
-| **VRPP**     | Exact         | Profit-oriented VRP                  | Minutes         |
+| Policy        | Type          | Best For                             | Typical Runtime |
+| ------------- | ------------- | ------------------------------------ | --------------- |
+| **BPC**       | Exact         | Small instances (<50 nodes), optimal | Minutes-Hours   |
+| **HGS**       | Metaheuristic | Medium-large instances, high quality | Seconds-Minutes |
+| **ALNS**      | Metaheuristic | Diverse instances, robustness        | Seconds-Minutes |
+| **HGS-ALNS**  | Hybrid        | Large instances, best quality        | Minutes         |
+| **ACO**       | Bio-inspired  | Sparse graphs, parallel execution    | Minutes         |
+| **SANS**      | SA-based      | Complex constraints                  | Seconds-Minutes |
+| **SISR**      | Specialized   | String patterns in routes            | Seconds         |
+| **Neural**    | Deep RL       | Fast inference, generalization       | Milliseconds    |
+| **LKH-3 LNS** | Matheuristic  | CVRP/VRPP/TSP high quality           | Seconds         |
+| **VRPP**      | Exact         | Profit-oriented VRP                  | Minutes         |
 
 ### 14.3 Operator Complexity
 

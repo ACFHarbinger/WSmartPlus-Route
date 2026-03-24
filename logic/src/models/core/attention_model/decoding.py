@@ -8,8 +8,6 @@ from typing import Any, Dict, Optional, Tuple
 
 import torch
 
-from logic.src.utils.functions import sample_many
-
 
 class DecodingMixin:
     """Mixin for decoding strategies (Greedy, Sampling, Beam Search, POMO)."""
@@ -96,7 +94,9 @@ class DecodingMixin:
                 costs: Tensor of costs for each sampled solution.
                 pis: Tensor of action indices for each sampled solution.
         """
-        return sample_many(
+        from logic.src.utils.functions import sample_many as _sample_many
+
+        return _sample_many(
             lambda i: self.forward(  # type: ignore[attr-defined]
                 i,
                 strategy="sampling",

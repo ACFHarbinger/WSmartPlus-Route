@@ -205,6 +205,20 @@ def decode_augmented_tour(tour: List[int], n_original: int) -> List[List[int]]:
     return routes
 
 
+def is_dummy_depot(node: int, n_original: int) -> bool:
+    """
+    Check if a node is an augmented dummy depot.
+    """
+    return node >= n_original
+
+
+def is_any_depot(node: int, n_original: int) -> bool:
+    """
+    Check if a node is either the main depot (0) or a dummy depot.
+    """
+    return node == 0 or node >= n_original
+
+
 def inject_augmented_dummies(routes: List[List[int]], n_original: int, n_vehicles: int) -> List[int]:
     """
     Inject augmented dummy depots into a multi-route solution to create a flat tour.

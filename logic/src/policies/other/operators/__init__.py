@@ -47,7 +47,6 @@ from .destroy import (
 from .heuristics import (
     build_greedy_routes,
     build_nn_routes,
-    solve_lkh,
 )
 
 # Inter-route operators
@@ -237,5 +236,4 @@ __all__ = [
     # Heuristics
     "build_greedy_routes",
     "build_nn_routes",
-    "solve_lkh",
 ]

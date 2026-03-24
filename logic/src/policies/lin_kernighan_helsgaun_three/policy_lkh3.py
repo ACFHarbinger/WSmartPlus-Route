@@ -21,7 +21,7 @@ from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
     augment_graph,
 )
-from logic.src.policies.lin_kernighan_helsgaun_three.lin_kernighan_helsgaun import (
+from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
     solve_lkh,
     solve_lkh_with_lns,
 )
@@ -141,7 +141,7 @@ class LKH3Policy(BaseRoutingPolicy):
             current_time = time.process_time()
             if time_limit > 0 and (current_time - start_time) > time_limit:
                 break
-            routes, cost = policy_function(
+            routes, cost, _ = policy_function(
                 distance_matrix=augmented_dist,
                 initial_tour=None,
                 waste=waste_arr,
@@ -157,6 +157,7 @@ class LKH3Policy(BaseRoutingPolicy):
                 max_k_opt=int(values.get("max_k_opt", 5)),
                 use_ip_merging=bool(values.get("use_ip_merging", True)),
                 max_pool_size=values.get("max_pool_size", 5),
+                subgradient_iterations=int(values.get("subgradient_iterations", 50)),
                 profit_aware_operators=profit_aware_operators,
                 lns_iterations=values.get("lns_iterations", 100),
                 plateau_limit=values.get("plateau_limit", 10),

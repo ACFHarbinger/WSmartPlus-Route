@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from collections import deque
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 from scipy.sparse.csgraph import minimum_spanning_tree
@@ -10,10 +10,9 @@ from scipy.sparse.csgraph import minimum_spanning_tree
 # ---------------------------------------------------------------------------
 # Alpha-measure and candidate-set construction
 #
-# NOTE: The α-measure as implemented here ignores π-penalties (subgradient
-# optimisation is NOT implemented).  True LKH-3 computes π via iterative
-# 1-tree lower-bound ascent; here α(i,j) = c(i,j) − β(i,j) with the raw
-# edge costs.
+# NOTE: The α-measure as implemented here optionally uses π-penalties
+# calculated via subgradient optimisation (subgradient.py).
+# α(i,j) = c(i,j) + pi(i) + pi(j) − β(i,j)
 # ---------------------------------------------------------------------------
 
 
@@ -79,18 +78,19 @@ def _compute_all_pairs_max_edge(mst_adj: np.ndarray, n: int) -> np.ndarray:
     return max_edge
 
 
-def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
+def compute_alpha_measures(distance_matrix: np.ndarray, pi: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Compute α-nearness for every edge using minimum-spanning-tree sensitivity.
 
-    α(i, j) = c(i, j) − β(i, j),  where β(i, j) is the weight of the heaviest
-    edge on the unique MST path between i and j (Helsgaun 2000, Section 4.1).
+    α(i, j) = d(i, j) + pi(i) + pi(j) − β(i, j),  where β(i, j) is the weight
+    of the heaviest edge on the unique MST path between i and j in the
+    penalized graph (Helsgaun 2000, Section 4.1).
 
     Edges with α = 0 belong to some MST; edges with small α are "nearly
     spanning" and hence strong candidates for an optimal tour.
 
-    NOTE: This implementation does NOT use subgradient-optimised π-penalties.
-    The α-measure is computed on raw edge costs only.
+    NOTE: If pi is provided, the measures are computed in the penalized
+    coordinate space. If None, zero penalties are assumed.
 
     Args:
         distance_matrix: (n × n) symmetric cost matrix.
@@ -102,13 +102,20 @@ def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
         O(N² log N) for MST construction + O(N²) for all-pairs max-edge.
     """
     n = len(distance_matrix)
-    mst_sparse = minimum_spanning_tree(distance_matrix)
+
+    if pi is None:
+        pi = np.zeros(n)
+
+    # Transform distances: c'(i, j) = c(i, j) + pi(i) + pi(j)
+    d_penalized = distance_matrix + pi[:, np.newaxis] + pi[np.newaxis, :]
+
+    mst_sparse = minimum_spanning_tree(d_penalized)
     mst = mst_sparse.toarray()
 
     # Single O(N²) pass instead of O(N³)
     beta = _compute_all_pairs_max_edge(mst, n)
 
-    alpha = distance_matrix - beta
+    alpha = d_penalized - beta
     # Ensure non-negative (numerical precision)
     np.maximum(alpha, 0.0, out=alpha)
     # Zero diagonal
