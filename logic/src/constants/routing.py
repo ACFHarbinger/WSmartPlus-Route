@@ -122,3 +122,6 @@ DEFAULT_ROLLOUT_BATCH_SIZE: int = 64  # episodes per rollout (baseline computati
 
 # TSP and CVRP distance matrix scaling factor
 SCALE = 10000
+
+# Default penalty for inter-dummy edges (prevents empty intermediate routes)
+DEFAULT_HIGH_PENALTY = 1e9

@@ -30,15 +30,22 @@ class LKH3Config:
     """
 
     engine: str = "lkh3"
-    max_trials: int = 1000
     runs: int = 10
+    max_trials: int = 1000
     popmusic_subpath_size: int = 50
     popmusic_trials: int = 50
+    popmusic_max_candidates: int = 5
     max_k_opt: int = 5
     use_ip_merging: bool = True
-    time_limit: float = 60.0
-    seed: Optional[int] = None
-    vrpp: bool = True
+    max_pool_size: int = 5
     profit_aware_operators: bool = False
+    lns_iterations: int = 100
+    plateau_limit: int = 10
+    deep_plateau_limit: int = 30
+    perturb_operator_weights: List[float] = [0.6, 0.4]
+    time_limit: float = 60.0
+    vrpp: bool = True
+    seed: Optional[int] = None
+
     must_go: Optional[List[Any]] = field(default_factory=list)
     post_processing: Optional[List[Any]] = field(default_factory=list)
