@@ -16,7 +16,6 @@ from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 from logic.src.models.subnets.decoders.gat import DeepGATDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding
 from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
-from logic.src.utils.data import TensorDictStateWrapper
 
 
 class DeepDecoderPolicy(AutoregressivePolicy):
@@ -93,6 +92,8 @@ class DeepDecoderPolicy(AutoregressivePolicy):
         while not td["done"].all():
             # Wrap state
             assert self.env_name is not None, "env_name must be set"
+            from logic.src.utils.data import TensorDictStateWrapper
+
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)

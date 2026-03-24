@@ -11,7 +11,6 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 
 from logic.src.constants import MAX_CAPACITY_PERCENT
-from logic.src.data.generators.waste import generate_waste
 
 from .sim_dataset import SimulationDataset
 
@@ -114,6 +113,8 @@ class GenerativeDataset(SimulationDataset):
         Returns:
             np.ndarray: Waste array of shape ``(n_days, n_bins)``.
         """
+        from logic.src.data.generators.waste import generate_waste
+
         # Build graph tuple expected by generate_waste (batch_size=1 format)
         graph: Tuple[np.ndarray, np.ndarray] = (
             self.depot[None, :],  # (1, coord_dim)

@@ -5,13 +5,13 @@ HRL Manager setup utilities.
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import torch
 from torch import nn
 
-from logic.src.models import MustGoManager
-from logic.src.utils.functions import torch_load_cpu
+if TYPE_CHECKING:
+    from logic.src.models import MustGoManager
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -125,6 +125,8 @@ def setup_hrl_manager(
     shared_encoder_flag: bool = _get_cfg_attr(sim_cfg, "shared_encoder", True)
 
     # --- Load state dict ---
+    from logic.src.utils.functions import torch_load_cpu
+
     load_data: Any = torch_load_cpu(hrl_path)
     state_dict: Dict[str, torch.Tensor] = (
         load_data["manager"] if isinstance(load_data, dict) and "manager" in load_data else load_data
@@ -136,6 +138,8 @@ def setup_hrl_manager(
             global_input_dim = detected_dim
 
     # --- Build manager ---
+    from logic.src.models import MustGoManager
+
     manager: MustGoManager = MustGoManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,

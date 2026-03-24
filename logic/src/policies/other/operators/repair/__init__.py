@@ -9,18 +9,6 @@ Example:
     >>> routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
-from ..unstringing_stringing import (
-    apply_type_i_s,
-    apply_type_i_s_profit,
-    apply_type_ii_s,
-    apply_type_ii_s_profit,
-    apply_type_iii_s,
-    apply_type_iii_s_profit,
-    apply_type_iv_s,
-    apply_type_iv_s_profit,
-    stringing_insertion,
-    stringing_profit_insertion,
-)
 from .deep import deep_insertion, deep_profit_insertion
 from .farthest import farthest_insertion, farthest_profit_insertion
 from .geni import geni_insertion, geni_profit_insertion

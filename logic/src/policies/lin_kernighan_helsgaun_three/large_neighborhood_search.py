@@ -47,9 +47,8 @@ from logic.src.policies.lin_kernighan_helsgaun_three.candidate_set import (
     compute_alpha_measures,
     get_candidate_set,
 )
-from logic.src.policies.lin_kernighan_helsgaun_three.lin_kernighan_helsgaun import (
-    solve_lkh,
-)
+
+# solve_lkh imported locally in _optimize_routes or solve() to break circularity
 from logic.src.policies.other.operators.destroy.historical import (
     historical_profit_removal,
     historical_removal,
@@ -177,7 +176,8 @@ class LKH3_LNS:
         self.coords = coords
         self.seed = seed
         self.rng = rng if rng is not None else Random(seed)
-        self.np_rng = np_rng if np_rng is not None else np.random.default_rng(seed)
+        # Seed np_rng slightly differently to avoid correlation with pure Python Random
+        self.np_rng = np_rng if np_rng is not None else np.random.default_rng(seed + 1 if seed is not None else None)
         self.n_original = n_original
         self.R = R
         self.C = C
@@ -209,7 +209,8 @@ class LKH3_LNS:
         popmusic_max_candidates: int = 5,
         max_k_opt: int = 5,
         use_ip_merging: bool = True,
-    ) -> Tuple[List[List[int]], float]:
+        subgradient_iterations: int = 50,
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Main LNS+LKH-3 matheuristic loop.
 
@@ -235,12 +236,13 @@ class LKH3_LNS:
             use_ip_merging: If True, use IP-based tour recombination.
 
         Returns:
-            Tuple of (best_routes, best_objective) where:
+            Tuple of (best_routes, best_objective, best_penalty) where:
             - best_routes: List of routes (each route is list of node IDs)
             - best_objective: Profit (VRPP) or negative cost (CVRP)
+            - best_penalty: Penalty for infeasible solutions
         """
         # 1. Initialize with greedy solution
-        best_routes, best_obj = self._initialize_solution(
+        best_routes, best_obj, best_penalty = self._initialize_solution(
             lkh_trials,
             n_vehicles,
             popmusic_subpath_size,
@@ -248,6 +250,7 @@ class LKH3_LNS:
             popmusic_max_candidates,
             max_k_opt,
             use_ip_merging,
+            subgradient_iterations,
         )
         current_routes = [r[:] for r in best_routes]
 
@@ -257,7 +260,7 @@ class LKH3_LNS:
         # 2. Main LNS loop
         for _iteration in range(max_iterations):
             # 2a. Optimize current subset with LKH-3
-            optimized_routes, obj = self._optimize_routes(
+            optimized_routes, obj, penalty = self._optimize_routes(
                 current_routes,
                 lkh_trials,
                 n_vehicles,
@@ -266,12 +269,14 @@ class LKH3_LNS:
                 popmusic_max_candidates,
                 max_k_opt,
                 use_ip_merging,
+                subgradient_iterations,
             )
 
             # 2b. Update best solution
             if obj > best_obj + 1e-6:
                 best_routes = [r[:] for r in optimized_routes]
                 best_obj = obj
+                best_penalty = penalty
                 iterations_since_improvement = 0
                 iterations_since_last_deep_perturb = 0
                 self._update_elite_pool(best_routes)
@@ -300,7 +305,7 @@ class LKH3_LNS:
                 current_routes = self._perturbation(optimized_routes)
                 iterations_since_last_deep_perturb = 0  # Only reset deep counter
 
-        return best_routes, best_obj
+        return best_routes, best_obj, best_penalty
 
     def _initialize_solution(
         self,
@@ -311,7 +316,8 @@ class LKH3_LNS:
         popmusic_max_candidates: int,
         max_k_opt: int,
         use_ip_merging: bool,
-    ) -> Tuple[List[List[int]], float]:
+        subgradient_iterations: int,
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Build initial feasible solution:
         - Start with mandatory nodes
@@ -367,13 +373,34 @@ class LKH3_LNS:
         # Sort by score descending
         profit_scores.sort(reverse=True)
 
-        # Greedily add profitable nodes within capacity
-        total_load = sum(self.wastes.get(n, 0.0) for n in active_nodes)
-        total_capacity = self.capacity * n_vehicles
+        # Greedily add profitable nodes within capacity (First-Fit Bin-Packing heuristic)
+        current_loads = [0.0] * n_vehicles
+        # Account for mandatory nodes first
+        for node in active_nodes:
+            node_waste = self.wastes.get(node, 0.0)
+            # Try to fit in existing vehicle
+            fitted = False
+            for v_idx in range(n_vehicles):
+                if current_loads[v_idx] + node_waste <= self.capacity:
+                    current_loads[v_idx] += node_waste
+                    fitted = True
+                    break
+            if not fitted:
+                # If mandatory nodes don't fit, we still proceed but with penalty
+                current_loads[0] += node_waste
+
         for score, node in profit_scores:
-            if score > 0 and total_load + self.wastes.get(node, 0.0) <= total_capacity:
-                active_nodes.append(node)
-                total_load += self.wastes.get(node, 0.0)
+            if node not in active_nodes and (not self.profit_aware_operators or score > 0):
+                node_waste = self.wastes.get(node, 0.0)
+                # First-Fit: try to find a vehicle with enough remaining capacity
+                can_fit = False
+                for v_idx in range(n_vehicles):
+                    if current_loads[v_idx] + node_waste <= self.capacity:
+                        current_loads[v_idx] += node_waste
+                        can_fit = True
+                        break
+                if can_fit:
+                    active_nodes.append(node)
 
         return self._route_nodes(
             active_nodes,
@@ -384,6 +411,7 @@ class LKH3_LNS:
             popmusic_max_candidates,
             max_k_opt,
             use_ip_merging,
+            subgradient_iterations,
         )
 
     def _route_nodes(  # noqa: C901
@@ -396,8 +424,9 @@ class LKH3_LNS:
         popmusic_max_candidates: int,
         max_k_opt: int,
         use_ip_merging: bool,
+        subgradient_iterations: int = 0,
         initial_routes: Optional[List[List[int]]] = None,
-    ) -> Tuple[List[List[int]], float]:
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Route a given set of nodes with LKH-3.
 
@@ -428,7 +457,7 @@ class LKH3_LNS:
             - objective: Profit (VRPP) or negative cost (CVRP)
         """
         if not nodes:
-            return [[]], 0.0
+            return [[]], 0.0, 0.0
 
         # Validate mandatory nodes in warm-start
         if initial_routes is not None and self.mandatory_nodes:
@@ -483,7 +512,8 @@ class LKH3_LNS:
                 initial_tour_local = [0]
                 for idx, route in enumerate(local_routes):
                     initial_tour_local.extend(route)
-                    if idx < n_routes - 1:
+                    # Cap number of dummies at n_vehicles - 1
+                    if idx < n_routes - 1 and idx < n_vehicles - 1:
                         # Insert augmented dummy depot: N, N+1, N+2, ...
                         dummy_idx = n_original + idx
                         initial_tour_local.append(dummy_idx)
@@ -491,15 +521,20 @@ class LKH3_LNS:
 
         # Phase 2: Generate and cache OR remap candidate sets
         if self.cached_candidates is None:
+            # First pass: generate local candidates and cache as global IDs
             alpha = compute_alpha_measures(sub_dist)
-            self.cached_candidates = get_candidate_set(
+            local_candidates_raw = get_candidate_set(
                 sub_dist,
                 alpha,
                 max_candidates=popmusic_max_candidates,
             )
-            local_candidates = self.cached_candidates
+            self.cached_candidates = {}
+            for loc_node, loc_cands in local_candidates_raw.items():
+                glob_node = local_to_global[loc_node]
+                self.cached_candidates[glob_node] = [local_to_global[c] for c in loc_cands]
+            local_candidates = local_candidates_raw
         else:
-            # Remap cached candidates (global indices) to local subproblem indices
+            # Remap cached global candidates to local subproblem indices
             local_candidates = {}
             for local_idx in range(n_sub):
                 global_node = local_to_global[local_idx]
@@ -510,7 +545,11 @@ class LKH3_LNS:
                 else:
                     local_candidates[local_idx] = []
 
-        routes, cost = solve_lkh(
+        from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
+            solve_lkh,
+        )
+
+        routes, cost, penalty = solve_lkh(
             distance_matrix=sub_dist,
             initial_tour=initial_tour_local,  # Phase 2: Pass warm-start tour
             waste=sub_waste,
@@ -522,13 +561,14 @@ class LKH3_LNS:
             max_k_opt=max_k_opt,
             use_ip_merging=use_ip_merging,
             max_pool_size=self.max_pool_size,
+            subgradient_iterations=subgradient_iterations,
             n_vehicles=n_vehicles,
             candidate_set=local_candidates,  # Phase 3: Use correctly-mapped candidates
             recorder=self._viz,
             np_rng=self.np_rng,
             rng=self.rng,
             seed=self.seed,
-            n_original=self.n_original,
+            n_original=0,  # Use sub-problem size for augmentation
         )
 
         # Extract routes and map back to original indices
@@ -540,10 +580,10 @@ class LKH3_LNS:
             # VRPP: Profit = Revenue - Cost
             collected_fill = sum(self.wastes.get(n, 0.0) for route in routes_global for n in route)
             profit = self.revenue * collected_fill - self.cost_unit * routing_cost
-            return routes_global, profit
+            return routes_global, float(profit), penalty
         else:
-            # CVRP: Minimize cost (return negative for maximization framework)
-            return routes_global, -routing_cost
+            # CVRP: Minimize cost + Penalty (return negative for maximization framework)
+            return routes_global, -float(routing_cost + penalty * 1e6), penalty
 
     def _optimize_routes(
         self,
@@ -555,7 +595,8 @@ class LKH3_LNS:
         popmusic_max_candidates: int,
         max_k_opt: int,
         use_ip_merging: bool,
-    ) -> Tuple[List[List[int]], float]:
+        subgradient_iterations: int,
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Re-optimize current routes with LKH-3 using warm-start.
 
@@ -586,6 +627,7 @@ class LKH3_LNS:
             popmusic_max_candidates,
             max_k_opt,
             use_ip_merging,
+            subgradient_iterations=subgradient_iterations,
             initial_routes=routes,  # Phase 2: Warm-start from repaired routes
         )
 
@@ -689,18 +731,26 @@ class LKH3_LNS:
 
     def _wrap_savings_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
         """Wrapper for savings_insertion."""
+        m_nodes = list(self.mandatory_nodes) if self.mandatory_nodes else []
+        if not self.profit_aware_operators:
+            m_nodes = list(set(m_nodes) | set(removed_nodes))
+
         return savings_insertion(
             routes,
             removed_nodes,
             self.distance_matrix,
             self.wastes,
             self.capacity,
-            mandatory_nodes=list(self.mandatory_nodes),
+            mandatory_nodes=m_nodes,
             expand_pool=True,
         )
 
     def _wrap_deep_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
         """Wrapper for deep_insertion."""
+        m_nodes = list(self.mandatory_nodes) if self.mandatory_nodes else []
+        if not self.profit_aware_operators:
+            m_nodes = list(set(m_nodes) | set(removed_nodes))
+
         return deep_insertion(
             routes,
             removed_nodes,
@@ -708,19 +758,23 @@ class LKH3_LNS:
             self.wastes,
             self.capacity,
             alpha=0.3,
-            mandatory_nodes=list(self.mandatory_nodes),
+            mandatory_nodes=m_nodes,
             expand_pool=True,
         )
 
     def _wrap_nearest_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
         """Wrapper for nearest_insertion."""
+        m_nodes = list(self.mandatory_nodes) if self.mandatory_nodes else []
+        if not self.profit_aware_operators:
+            m_nodes = list(set(m_nodes) | set(removed_nodes))
+
         return nearest_insertion(
             routes,
             removed_nodes,
             self.distance_matrix,
             self.wastes,
             self.capacity,
-            mandatory_nodes=list(self.mandatory_nodes),
+            mandatory_nodes=m_nodes,
             expand_pool=True,
         )
 
@@ -943,11 +997,16 @@ class LKH3_LNS:
 
         for route in routes:
             for node in route:
+                # We store -obj in history because destruction operators (like historical_removal)
+                # assume higher scores are WORSE (higher penalty/cost).
+                # VRPP: obj is profit -> store -profit
+                # CVRP: obj is -cost -> store -(-cost) = cost
+                score = -float(obj)
                 if node not in self.history:
-                    self.history[node] = obj  # Higher obj ↔ better node
+                    self.history[node] = score
                 else:
-                    # Update: history[n] ← α·obj + (1-α)·history[n]
-                    self.history[node] = alpha * obj + (1 - alpha) * self.history[node]
+                    # Update: history[n] ← α·score + (1-α)·history[n]
+                    self.history[node] = alpha * score + (1 - alpha) * self.history[node]
 
     def _update_elite_pool(self, routes: List[List[int]]) -> None:
         """

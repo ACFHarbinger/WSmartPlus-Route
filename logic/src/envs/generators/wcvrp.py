@@ -11,9 +11,6 @@ import numpy as np
 import torch
 from tensordict import TensorDict
 
-from logic.src.data.generators.waste import generate_waste
-from logic.src.utils.data.loader import load_grid_base
-
 from .base import Generator
 
 
@@ -82,6 +79,8 @@ class WCVRPGenerator(Generator):
         self.area = area
         self.indices = indices if indices is not None else list(range(0, num_loc))
         try:
+            from logic.src.utils.data.loader import load_grid_base
+
             self.grid = load_grid_base(self.indices, self.area, self.data_dir)
         except FileNotFoundError:
             self.grid = None
@@ -128,6 +127,8 @@ class WCVRPGenerator(Generator):
     def _generate_fill_levels(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate bin fill levels."""
         # Use common utility for consistency
+        from logic.src.data.generators.waste import generate_waste
+
         bs = math.prod(batch_size) if batch_size else 1
         coords = (
             self._generate_depot(batch_size).view(bs, 2),

@@ -47,8 +47,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
-    is_dummy_depot,
+from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
+    is_any_depot,
 )
 
 
@@ -136,7 +136,7 @@ def build_load_state(
     current_load = 0.0
 
     for i, node in enumerate(tour):
-        if node == 0 or is_dummy_depot(node, n_original):
+        if is_any_depot(node, n_original):
             # End of route: compute penalty at route level
             route_penalties[route_idx] = max(0.0, current_load - capacity)
             route_loads[route_idx] = current_load
@@ -184,7 +184,7 @@ def get_route_nodes(tour: List[int], route_idx: int, n_original: int) -> List[in
     current_route: List[int] = []
 
     for node in tour:
-        if node == 0 or is_dummy_depot(node, n_original):
+        if is_any_depot(node, n_original):
             if current_route:
                 routes.append(current_route)
                 current_route = []
@@ -227,8 +227,10 @@ def calculate_route_penalty(nodes: List[int], waste: np.ndarray, capacity: float
     return load, penalty
 
 
-def get_exact_penalty_delta(
-    new_tour: List[int],
+def get_exact_penalty_delta(  # noqa: C901
+    curr_tour: List[int],
+    broken_edges: List[Tuple[int, int]],
+    added_edges: List[Tuple[int, int]],
     state: LoadState,
     waste: np.ndarray,
     capacity: float,
@@ -237,19 +239,20 @@ def get_exact_penalty_delta(
     """
     Compute exact penalty delta for a k-opt move in O(L) time.
 
-    Unlike the previous approximate method, this function accepts the
-    fully-constructed candidate tour and computes the EXACT new penalty
-    by splitting the new tour into routes and summing actual demands.
+    Unlike the previous implementation that required a fully-constructed candidate
+    tour array, this function accepts the exact broken and added edges to compute
+    the EXACT new penalty by virtually tracing the topological reconnections.
 
     ΔP = P(new_tour) - P(old_tour)
 
     The old penalty is retrieved from the LoadState in O(1).
-    The new penalty is computed by scanning the new tour in O(N), but since
-    this is called AFTER the lexicographic gate (which filters ~99% of
-    candidates), the amortised cost is negligible.
+    The new penalty is computed by scanning the topological connections in O(N),
+    entirely bypassing the need for array allocation before the lexicographic gate.
 
     Args:
-        new_tour: Candidate tour after k-opt move (closed).
+        curr_tour: Current tour array.
+        broken_edges: List of edges broken by the k-opt move.
+        added_edges: List of edges added by the k-opt move.
         state: Current load state (for old penalty).
         waste: Demand array.
         capacity: Vehicle capacity.
@@ -259,30 +262,85 @@ def get_exact_penalty_delta(
         ΔP = P_new - P_old (negative = penalty reduction).
 
     Complexity:
-        O(N) per call, but called only after gate passes → amortised O(1).
-
-    Example:
-        >>> # After 2-opt move produces candidate_tour:
-        >>> delta_p = get_exact_penalty_delta(
-        ...     candidate_tour, state, waste, capacity, n_original
-        ... )
-        >>> # Returns -10.0 if move reduces penalty by 10kg
+        O(N) per call.
     """
     # O(1): retrieve old penalty from state
     old_penalty = state.get_total_penalty()
 
-    # O(N): compute new penalty by scanning new tour
+    # O(N): compute new penalty by virtually tracing the transformed graph
+    tour = curr_tour[:-1] if len(curr_tour) > 1 and curr_tour[-1] == curr_tour[0] else curr_tour
+
+    # Fast path: check if move is strictly intra-route
+    is_intra_route = True
+    involved_routes = set()
+    for u, v in broken_edges:
+        r_u = state.route_assignments.get(u, -1)
+        r_v = state.route_assignments.get(v, -1)
+        involved_routes.add(r_u)
+        involved_routes.add(r_v)
+        # Dummy depots and main depot have -1 route_assignment
+        if r_u == -1 or r_v == -1:
+            is_intra_route = False
+            break
+
+    if is_intra_route and len(involved_routes) == 1:
+        # Reordering a single route does not change capacity violations!
+        return 0.0
+
+    # Adjacency for the virtual tour
+    adj: Dict[int, List[int]] = {x: [] for x in tour}
+    n = len(tour)
+
+    broken_set = set()
+    for u, v in broken_edges:
+        broken_set.add((u, v))
+        broken_set.add((v, u))
+
+    for i in range(n):
+        u = tour[i]
+        v = tour[(i + 1) % n]
+        if (u, v) not in broken_set:
+            adj[u].append(v)
+            adj[v].append(u)
+
+    for u, v in added_edges:
+        adj[u].append(v)
+        adj[v].append(u)
+
+    visited = set()
     new_penalty = 0.0
     current_load = 0.0
 
-    for node in new_tour:
-        if node == 0 or is_dummy_depot(node, n_original):
-            # Route boundary: compute route-level penalty
-            new_penalty += max(0.0, current_load - capacity)
+    if not adj[0]:
+        return float("inf")  # Invalid topology
+
+    nxt = adj[0][0]
+    visited.add(0)
+
+    while nxt != 0:
+        visited.add(nxt)
+        if is_any_depot(nxt, n_original):
+            if current_load > capacity + 1e-6:
+                new_penalty += current_load - capacity
             current_load = 0.0
         else:
-            if 0 <= node < len(waste):
-                current_load += waste[node]
+            if 0 <= nxt < len(waste):
+                current_load += waste[nxt]
+
+        neighbors = adj[nxt]
+        next_nxt = None
+        for nn in neighbors:
+            if nn not in visited:
+                next_nxt = nn
+                break
+
+        if next_nxt is None:
+            break
+
+        nxt = next_nxt
+
+    if current_load > capacity + 1e-6:
+        new_penalty += current_load - capacity
 
     return new_penalty - old_penalty
 

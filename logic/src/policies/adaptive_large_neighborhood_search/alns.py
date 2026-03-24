@@ -17,7 +17,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
-from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
     build_greedy_routes,
@@ -176,6 +175,8 @@ class ALNSSolver:
         delta = current_profit - new_profit
         if delta < -1e-6:
             return True
+        from logic.src.utils.functions import safe_exp
+
         prob = safe_exp(-delta / T) if T > 0 else 0
         return self.random.random() < prob
 

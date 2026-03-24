@@ -11,10 +11,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.other.operators.destroy.worst import (
-    worst_profit_removal,
-    worst_removal,
-)
 from logic.src.policies.other.operators.unstringing_stringing.unstringing_i import (
     apply_type_i_us,
     apply_type_i_us_profit,
@@ -159,6 +155,11 @@ def unstringing_removal_wrapper(
     """
     if rng is None:
         rng = random.Random(42)
+
+    from logic.src.policies.other.operators.destroy.worst import (
+        worst_profit_removal,
+        worst_removal,
+    )
 
     removed_nodes = []
     for _ in range(n_remove):

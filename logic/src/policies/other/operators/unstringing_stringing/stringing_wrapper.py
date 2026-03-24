@@ -11,10 +11,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.other.operators.repair.greedy import (
-    greedy_insertion,
-    greedy_profit_insertion,
-)
 from logic.src.policies.other.operators.unstringing_stringing.stringing_i import apply_type_i_s, apply_type_i_s_profit
 from logic.src.policies.other.operators.unstringing_stringing.stringing_ii import (
     apply_type_ii_s,
@@ -167,6 +163,11 @@ def stringing_insertion_wrapper(
     """
     if rng is None:
         rng = random.Random(42)
+
+    from logic.src.policies.other.operators.repair.greedy import (
+        greedy_insertion,
+        greedy_profit_insertion,
+    )
 
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
 
