@@ -12,7 +12,6 @@ import torch
 from torch import nn
 
 from logic.src.constants import ROOT_DIR
-from logic.src.utils.functions import load_model
 
 
 def setup_model(
@@ -74,6 +73,8 @@ def setup_model(
                 model_path = root_joined
 
         with lock:
+            from logic.src.utils.functions import load_model
+
             model, configs = load_model(model_path)
 
         model.to(device)

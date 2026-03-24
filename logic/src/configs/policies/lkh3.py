@@ -38,11 +38,12 @@ class LKH3Config:
     max_k_opt: int = 5
     use_ip_merging: bool = True
     max_pool_size: int = 5
+    subgradient_iterations: int = 50  # Held-Karp ascent iterations for alpha-measure
     profit_aware_operators: bool = False
     lns_iterations: int = 100
     plateau_limit: int = 10
     deep_plateau_limit: int = 30
-    perturb_operator_weights: List[float] = [0.6, 0.4]
+    perturb_operator_weights: List[float] = field(default_factory=lambda: [0.6, 0.4])
     time_limit: float = 60.0
     vrpp: bool = True
     seed: Optional[int] = None

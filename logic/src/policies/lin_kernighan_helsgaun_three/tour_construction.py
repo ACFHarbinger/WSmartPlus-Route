@@ -66,7 +66,7 @@ from __future__ import annotations
 
 import logging
 from random import Random
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -373,11 +373,205 @@ def _initialize_tour(
             curr = next_node
         path.append(0)
         return path
+
     else:
         t = initial_tour[:]
         if t[0] != t[-1]:
             t.append(t[0])
         return t
+
+
+def _get_tour_array(start_node: int, tour_dict: Dict[int, int]) -> List[int]:
+    """Retrieve the tour as a list starting from `start_node`."""
+    tour = [start_node]
+    curr = tour_dict[start_node]
+    while curr != start_node:
+        tour.append(curr)
+        curr = tour_dict[curr]
+    return tour
+
+
+class KoptTopologyFactory:
+    """
+    Programmatic generator for exhaustive non-sequential k-opt topologies.
+    Memoizes the exact valid Hamiltonian reconnections to avoid hardcoding.
+    """
+
+    _cache: Dict[int, List[List[Tuple[int, int]]]] = {}
+
+    @classmethod
+    def get_topologies(cls, k: int) -> List[List[Tuple[int, int]]]:  # noqa: C901
+        """
+        Get all valid added-edge topologies for a given k.
+        Returns a list of topologies. Each topology is a list of exactly k edge tuples.
+        The tuples contain 0-based indices into the broken nodes array (t1..t2k).
+
+        Matches LKH pure non-sequential counts:
+        - 2-opt: 1
+        - 3-opt: 7 (including 2-opt sub-moves as requested)
+        - 4-opt: 25 pure
+        - 5-opt: exhaustive pure valid Hamiltonian reconnections
+        """
+        if k in cls._cache:
+            return cls._cache[k]
+
+        endpoints = list(range(2 * k))
+        # Segments: (t_2, t_3), (t_4, t_5), ..., (t_2k, t_1) -> indices: (1, 2), (3, 4), ..., (2k-1, 0)
+        segments = [(2 * i + 1, (2 * i + 2) % (2 * k)) for i in range(k)]
+        broken = set()
+        for i in range(k):
+            u, v = 2 * i, 2 * i + 1
+            broken.add((u, v))
+            broken.add((v, u))
+
+        def find_matchings(unmatched: List[int]):
+            if not unmatched:
+                yield []
+            else:
+                u = unmatched[0]
+                for i in range(1, len(unmatched)):
+                    v = unmatched[i]
+                    for m in find_matchings(unmatched[1:i] + unmatched[i + 1 :]):
+                        yield [(u, v)] + m
+
+        valid_topologies = []
+        for m in find_matchings(endpoints):
+            # Exclude the original configuration (where all added edges are broken edges)
+            is_original = True
+            for u, v in m:
+                if (u, v) in broken:
+                    is_original = False
+                    break
+            if is_original:
+                continue
+
+            # Build adjacency list
+            adj = {v: [] for v in endpoints}
+            for u, v in segments:
+                adj[u].append(v)
+                adj[v].append(u)
+            for u, v in m:
+                adj[u].append(v)
+                adj[v].append(u)
+
+            # Check for a single Hamiltonian cycle
+            visited = set()
+            curr = 0
+            while curr not in visited:
+                visited.add(curr)
+                nxt = None
+                for n in adj[curr]:
+                    if n not in visited:
+                        nxt = n
+                        break
+                if nxt is None:
+                    break
+                curr = nxt
+
+            if len(visited) == 2 * k:
+                # Filter pure moves for k >= 4
+                pure = True
+                if k >= 4:
+                    for u, v in m:
+                        if (u, v) in broken:
+                            pure = False
+                            break
+                if pure:
+                    valid_topologies.append(m)
+
+        cls._cache[k] = valid_topologies
+        return valid_topologies
+
+
+def build_tour_from_segments(
+    curr_tour: List[int],
+    pos: List[int],
+    added_edges: List[Tuple[int, int]],
+    k: int,
+) -> List[int]:
+    """
+    Constructs the exact topological candidate bypassing heuristic operator ambiguity.
+
+    Given k broken edges (t1,t2), (t3,t4) ... defined by their indices in `pos`,
+    extracts the k segments and connects them according to `added_edges`.
+
+    Args:
+        curr_tour: The original closed tour (length N+1, starts/ends with 0).
+        pos: List of indices in curr_tour for [t1, t2, ..., t2k].
+        added_edges: Matching of endpoints [0..2k-1] defining the reconnection.
+        k: The k-opt order.
+
+    Returns:
+        The new closed tour array.
+    """
+    # 1. Extract the k segments
+    # S_i goes from t_{2i+1} to t_{2i+2} (0-indexed pos: 2i+1 to (2i+2)%2k)
+    segments = []
+    for i in range(k):
+        start_idx = pos[2 * i + 1]
+        end_idx = pos[(2 * i + 2) % (2 * k)]
+
+        if start_idx <= end_idx:
+            seg = curr_tour[start_idx : end_idx + 1]
+        else:
+            # Wrap around (only possible for the last segment t_2k -> t_1)
+            seg = curr_tour[start_idx:-1] + curr_tour[: end_idx + 1]
+        segments.append(seg)
+
+    # Mapping endpoint -> (segment_idx, is_start)
+    endpoint_to_seg = {}
+    for i in range(k):
+        endpoint_to_seg[2 * i + 1] = (i, True)
+        endpoint_to_seg[(2 * i + 2) % (2 * k)] = (i, False)
+
+    # Build fast adjacency for added edges
+    adj = {}
+    for u, v in added_edges:
+        adj[u] = v
+        adj[v] = u
+
+    # 2. Trace the single cycle starting from the depot (node 0)
+    # The depot is ALWAYS in the last segment (k-1) if t1..t2k follows order
+    # but we can just find which segment contains the first node of curr_tour.
+    # Actually, segments[k-1] wraps around, so it contains 0!
+    # Wait, the first element of curr_tour is 0, so 0 is in the segment that wraps around.
+
+    new_tour_open = []
+
+    # We start traversal from endpoint 0 (t1, end of segment k-1).
+    # Wait, the new tour must start and end with 0! It's easier to build any
+    # valid cyclic array, then rotate it so 0 is at the front.
+
+    curr_endpoint = 0
+    for _ in range(k):
+        # We are at curr_endpoint (which is the end of some segment).
+        # We cross the added edge to next_endpoint
+        next_endpoint = adj[curr_endpoint]
+
+        seg_idx, is_start = endpoint_to_seg[next_endpoint]
+        seg_nodes = segments[seg_idx]
+
+        if is_start:
+            # Traverse forward
+            new_tour_open.extend(seg_nodes)
+            curr_endpoint = (2 * seg_idx + 2) % (2 * k)  # arrive at end of segment
+        else:
+            # Traverse backward
+            new_tour_open.extend(reversed(seg_nodes))
+            curr_endpoint = 2 * seg_idx + 1  # arrive at start of segment
+
+    # Remove consecutive duplicates that occur from gluing
+    cleaned = []
+    for node in new_tour_open:
+        if not cleaned or cleaned[-1] != node:
+            cleaned.append(node)
+    if cleaned and cleaned[-1] == cleaned[0]:
+        cleaned.pop()
+
+    # Rotate so 0 is first
+    zero_idx = cleaned.index(0)
+    rotated = cleaned[zero_idx:] + cleaned[:zero_idx] + [0]
+    return rotated
 
 
 # ---------------------------------------------------------------------------

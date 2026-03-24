@@ -72,10 +72,8 @@ from logic.src.policies.lin_kernighan_helsgaun_three.candidate_set import (
     get_candidate_set,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
+    augment_graph,
     decode_augmented_tour,
-)
-from logic.src.policies.lin_kernighan_helsgaun_three.large_neighborhood_search import (
-    LKH3_LNS,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.load_tracker import (
     build_load_state,
@@ -87,6 +85,9 @@ from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.popmusic import (
     popmusic_candidates,
+)
+from logic.src.policies.lin_kernighan_helsgaun_three.subgradient import (
+    solve_subgradient,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
     _double_bridge_kick,
@@ -379,6 +380,7 @@ def solve_lkh(  # noqa: C901
     max_k_opt: int = 5,
     use_ip_merging: bool = True,
     max_pool_size: int = 5,
+    subgradient_iterations: int = 50,
     # LNS parameters
     profit_aware_operators: bool = False,
     lns_iterations: int = 100,
@@ -394,7 +396,7 @@ def solve_lkh(  # noqa: C901
     np_rng: Optional[np.random.Generator] = None,
     rng: Optional[Random] = None,
     seed: int = 42,
-) -> Tuple[List[List[int]], float]:
+) -> Tuple[List[List[int]], float, float]:
     """
     Solve a TSP or CVRP instance using the LKH-3 iterated local-search scheme.
 
@@ -446,7 +448,7 @@ def solve_lkh(  # noqa: C901
         seed: Seed for the random number generator.
 
     Returns:
-        (best_tour, best_cost) where best_tour is a closed node sequence.
+        (best_tour, best_cost, best_penalty) where best_tour is a closed node sequence.
     """
     n = len(distance_matrix)
 
@@ -466,13 +468,30 @@ def solve_lkh(  # noqa: C901
     if n < 3:
         tour = list(range(n)) + [0]
         cost = sum(distance_matrix[tour[i], tour[i + 1]] for i in range(n))
-        return [tour], float(cost)
+        return [tour], float(cost), 0.0
 
     if np_rng is None:
         np_rng = np.random.default_rng(seed)
 
     # Bridge numpy RNG (used for array ops) → stdlib Random (operator interfaces)
     stdlib_rng = Random(seed) if rng is None else rng
+
+    # --- Phase 3: Multi-vehicle Graph Augmentation ---
+    # Dummy depots must be added BEFORE initialization or alpha-measure calculation.
+    # We only augment if n_vehicles > 1 (single vehicle TSP/CVRP uses original graph).
+    if n_vehicles > 1:
+        # Convert waste array back to dict node_id: value for augment_graph
+        waste_dict = {i: float(waste[i]) for i in range(1, len(waste))} if waste is not None else {}
+        distance_matrix, waste, n_original = augment_graph(
+            distance_matrix,
+            waste_dict,
+            n_vehicles=n_vehicles,
+            capacity=capacity,
+        )
+    else:
+        # Single vehicle or TSP
+        if n_original <= 0:
+            n_original = n
 
     # 1. Initialisation
     curr_tour = _initialize_tour(distance_matrix, initial_tour)
@@ -490,8 +509,37 @@ def solve_lkh(  # noqa: C901
             np_rng=np_rng,
         )
     else:
-        alpha = compute_alpha_measures(distance_matrix)
+        # Held-Karp subgradient optimization for pi-penalties
+        pi = None
+        if subgradient_iterations > 0:
+            pi = solve_subgradient(distance_matrix, max_iterations=subgradient_iterations, n_original=n_original)
+
+        alpha = compute_alpha_measures(distance_matrix, pi=pi)
         candidates = get_candidate_set(distance_matrix, alpha, max_candidates=popmusic_max_candidates)
+
+    # --- Phase 3: Candidate Set Validation (Multi-vehicle) ---
+    # If using a provided candidate set for an augmented graph, we must ensure:
+    # 1. Dummy depots have entries (copied from main depot 0)
+    # 2. Other nodes include dummy depots in their candidate lists if they include 0
+    if candidates is not None and n_vehicles > 1:
+        dummy_indices = list(range(n_original, len(distance_matrix)))
+        depot_cands = candidates.get(0, [])
+        new_candidates = candidates.copy()
+
+        # 1. Add entries for dummies themselves
+        for i in dummy_indices:
+            if i not in new_candidates:
+                new_candidates[i] = depot_cands[:]
+
+        # 2. Reciprocal candidates: if node -> 0 is possible, node -> dummy is possible
+        for node, cands in new_candidates.items():
+            if 0 in cands:
+                # Add dummy indices to candidates list (avoid duplicates)
+                filtered_dummies = [d for d in dummy_indices if d not in cands]
+                if filtered_dummies:
+                    new_candidates[node] = cands + filtered_dummies
+
+        candidates = new_candidates
 
     curr_pen, curr_cost = get_score(curr_tour, distance_matrix, waste, capacity, n_original)
     best_tour = curr_tour[:]
@@ -561,7 +609,7 @@ def solve_lkh(  # noqa: C901
 
     # Extract routes from tour
     routes = decode_augmented_tour(best_tour, n_original)
-    return routes, best_cost
+    return routes, best_cost, best_pen
 
 
 # ---------------------------------------------------------------------------
@@ -586,6 +634,7 @@ def solve_lkh_with_lns(
     max_k_opt: int = 5,
     use_ip_merging: bool = True,
     max_pool_size: int = 5,
+    subgradient_iterations: int = 50,
     # LNS parameters
     profit_aware_operators: bool = False,
     lns_iterations: int = 100,
@@ -601,7 +650,7 @@ def solve_lkh_with_lns(
     np_rng: Optional[np.random.Generator] = None,
     rng: Optional[Random] = None,
     seed: int = 42,
-) -> Tuple[List[List[int]], float]:
+) -> Tuple[List[List[int]], float, float]:
     """
     Solve VRP/VRPP using LKH-3 + Large Neighborhood Search matheuristic.
 
@@ -679,6 +728,10 @@ def solve_lkh_with_lns(
     if rng is None:
         rng = Random(seed)
 
+    from logic.src.policies.lin_kernighan_helsgaun_three.large_neighborhood_search import (
+        LKH3_LNS,
+    )
+
     solver = LKH3_LNS(
         distance_matrix=distance_matrix,
         wastes=wastes,
@@ -699,7 +752,7 @@ def solve_lkh_with_lns(
         perturb_operator_weights=perturb_operator_weights,
     )
 
-    routes, objective = solver.solve(
+    routes, objective, penalty = solver.solve(
         max_iterations=lns_iterations,
         lkh_trials=max_iterations,
         n_vehicles=n_vehicles,
@@ -710,6 +763,7 @@ def solve_lkh_with_lns(
         popmusic_max_candidates=popmusic_max_candidates,
         max_k_opt=max_k_opt,
         use_ip_merging=use_ip_merging,
+        subgradient_iterations=subgradient_iterations,
     )
 
-    return routes, objective
+    return routes, objective, penalty

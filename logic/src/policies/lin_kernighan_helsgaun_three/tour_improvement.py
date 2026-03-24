@@ -77,82 +77,16 @@ from logic.src.policies.lin_kernighan_helsgaun_three.load_tracker import (
 from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
     get_score,
     is_better,
-    penalty_delta,
 )
-from logic.src.policies.lin_kernighan_helsgaun_three.tour_adapter import TourAdapter
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
-    _2opt_gain,
-    _3opt_gains,
-    _4opt_gains,
-    _5opt_gains,
+    KoptTopologyFactory,
     _should_accept_kopt_move,
+    build_tour_from_segments,
 )
-from logic.src.policies.other.operators.intra_route.k_opt import move_kopt_intra
 
 # ---------------------------------------------------------------------------
-# k-opt move application via the shared operator
+# Inner search routines with gain pre-screening
 # ---------------------------------------------------------------------------
-
-
-def _apply_kopt_via_operator(
-    tour: List[int],
-    p_u: int,
-    p_v: int,
-    k: int,
-    distance_matrix: np.ndarray,
-    rng: Random,
-) -> Optional[List[int]]:
-    """
-    Attempt a k-opt move via :func:`move_kopt_intra` and return the new tour.
-
-    Wraps the tour in a :class:`TourAdapter`, calls ``move_kopt_intra`` with
-    the given cut positions, and returns the resulting closed tour only if the
-    operator applied an improving move (i.e. ``_update_map`` was called).
-
-    ``move_kopt_intra`` behaviour by k:
-
-    - **k=2**: Checks ``delta * C < -1e-4`` (exact cost improvement).
-    - **k=3**: Randomly samples a third cut and evaluates four reconnection
-      patterns (g4..g7), applying the best improving one.
-    - **k≥4**: Enumerates all permutations × orientations of the middle
-      segments and applies the configuration with the greatest saving.
-
-    Args:
-        tour: Current closed tour.
-        p_u: Position of the first cut node in the open route.
-        p_v: Position of the second cut node in the open route.
-        k: Number of edges to remove (2, 3, 4, or 5).
-        distance_matrix: (n × n) cost matrix.
-        rng: Random number generator (required for k ≥ 3).
-
-    Returns:
-        The new closed tour if an improvement was applied; ``None`` otherwise.
-    """
-    adapter = TourAdapter(tour, distance_matrix)
-    route = adapter.routes[0]
-    n = len(route)
-
-    if p_u < 0 or p_v < 0 or p_u >= n or p_v >= n or p_u == p_v:
-        return None
-
-    u = route[p_u]
-    v = route[p_v]
-
-    applied = move_kopt_intra(
-        adapter,
-        u=u,
-        v=v,
-        r_u=0,
-        p_u=p_u,
-        r_v=0,
-        p_v=p_v,
-        k=k,
-        rng=rng if k >= 3 else None,
-    )
-
-    if applied:
-        return adapter.to_closed_tour()
-    return None
 
 
 # ---------------------------------------------------------------------------
@@ -224,50 +158,40 @@ def _try_2opt_move(
 
         t4 = curr_tour[j + 1]
 
-        # Step 1: Compute distance gain ΔC (O(1))
-        delta_c = _2opt_gain(t1, t2, t3, t4, d)
+        # Step 1: Distance gain ΔC
+        delta_c = d[t1, t2] + d[t3, t4] - d[t1, t3] - d[t2, t4]
 
-        # Step 2: Compute penalty delta ΔP
-        if waste is not None and capacity is not None:
-            if load_state is not None:
-                # For 2-opt we need the candidate tour to compute exact ΔP.
-                # But first, check if the distance gain alone is promising.
-                # If ΔC <= 0, we'd need ΔP < 0 for acceptance.
-                # We defer exact penalty computation to after tour construction.
-                pass
-
-            # TSP shortcut: if pure cost and no gain, skip
-            if load_state is None and delta_c <= 1e-6:
-                continue
-
-            # Construct candidate tour (needed for exact ΔP)
-            candidate_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
-            if candidate_tour is None:
-                continue
-
-            # Compute exact penalty delta
-            if load_state is not None:
-                delta_p = get_exact_penalty_delta(
-                    candidate_tour,
-                    load_state,
-                    waste,
-                    capacity,
-                    n_original,  # type: ignore[arg-type]
-                )
-            else:
-                delta_p = penalty_delta(curr_tour, candidate_tour, waste, capacity, n_original)
-
-            # Lexicographic gate
-            if _should_accept_kopt_move(delta_p, delta_c):
-                p_new, c_new = get_score(candidate_tour, d, waste, capacity, n_original)
-                return candidate_tour, p_new, c_new, True, j
+        # Step 2: Compute penalty delta ΔP virtually
+        if load_state is not None and waste is not None and capacity is not None:
+            delta_p = get_exact_penalty_delta(
+                curr_tour,
+                [(t1, t2), (t3, t4)],
+                [(t1, t3), (t2, t4)],
+                load_state,
+                waste,
+                capacity,
+                n_original,  # type: ignore[arg-type]
+            )
         else:
-            # TSP mode: pure cost gain
-            if delta_c > 1e-6:
-                new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=2, distance_matrix=d, rng=rng)
-                if new_tour is not None:
-                    p_new, c_new = get_score(new_tour, d, waste, capacity, n_original)
-                    return new_tour, p_new, c_new, True, j
+            delta_p = 0.0
+            if delta_c <= 1e-6:
+                continue
+
+        # Step 3: Lexicographic gate
+        if not _should_accept_kopt_move(delta_p, delta_c):
+            continue
+
+        # Step 4: Construct tour EXACTLY using topology
+        new_tour = build_tour_from_segments(
+            curr_tour,
+            [i, i + 1, j, j + 1 if j + 1 < nodes_count else 0],
+            [(0, 2), (1, 3)],  # Exact 2-opt topology matching
+            k=2,
+        )
+
+        p2, c2 = get_score(new_tour, d, waste, capacity, n_original)
+        if is_better(p2, c2, p_curr, c_curr):
+            return new_tour, p2, c2, True, j
 
     return None, 0.0, 0.0, False, -1
 
@@ -316,28 +240,39 @@ def _try_3opt_move(
         t5 = curr_tour[k_pos]
         t6 = curr_tour[k_pos + 1]
 
-        # Step 1: Compute distance gains (O(1))
-        gains = _3opt_gains(t1, t2, t3, t4, t5, t6, d)
-        # Cases 1 & 2 are pure 2-opt; skip to avoid duplication
-        relevant_gains = [g for idx, g in enumerate(gains) if idx not in (1, 2)]
-        best_gain = max(relevant_gains) if relevant_gains else 0.0
+        broken_nodes = [t1, t2, t3, t4, t5, t6]
+        broken_edges = [(t1, t2), (t3, t4), (t5, t6)]
+        base_cost = d[t1, t2] + d[t3, t4] + d[t5, t6]
 
-        delta_c = best_gain
+        topologies = KoptTopologyFactory.get_topologies(3)
 
-        # Step 2: Quick skip if no cost improvement and no load_state for
-        # penalty evaluation
-        if load_state is None and delta_c <= 1e-6:
+        best_topology = None
+        best_delta_c = -float("inf")
+        best_added_edges = None
+
+        for topology in topologies:
+            added_edges = [(broken_nodes[u], broken_nodes[v]) for u, v in topology]
+            added_cost = sum(d[u, v] for u, v in added_edges)
+            delta_c = base_cost - added_cost
+
+            if delta_c > best_delta_c:
+                best_delta_c = delta_c
+                best_topology = topology
+                best_added_edges = added_edges
+
+        if best_topology is None:
             continue
 
-        # Step 3: LAZY EVALUATION — construct tour
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=3, distance_matrix=d, rng=rng)
-        if new_tour is None:
+        # Quick skip
+        if load_state is None and best_delta_c <= 1e-6:
             continue
 
-        # Step 4: Exact penalty delta (using constructed tour)
+        # Exact penalty delta virtually evaluated
         if load_state is not None and waste is not None and capacity is not None:
             delta_p = get_exact_penalty_delta(
-                new_tour,
+                curr_tour,
+                broken_edges,
+                best_added_edges,
                 load_state,
                 waste,
                 capacity,
@@ -346,12 +281,15 @@ def _try_3opt_move(
         else:
             delta_p = 0.0
 
-        # Step 5: Lexicographic gate
-        if not _should_accept_kopt_move(delta_p, delta_c):
+        # Lexicographic gate
+        if not _should_accept_kopt_move(delta_p, best_delta_c):
             continue
 
-        p3, c3 = get_score(new_tour, d, waste, capacity, n_original)
+        # Construct and verify
+        pos = [i, i + 1, j, j + 1, k_pos, k_pos + 1 if k_pos + 1 < nodes_count else 0]
+        new_tour = build_tour_from_segments(curr_tour, pos, best_topology, k=3)
 
+        p3, c3 = get_score(new_tour, d, waste, capacity, n_original)
         if is_better(p3, c3, curr_p, curr_c):
             return new_tour, p3, c3, True
 
@@ -400,26 +338,40 @@ def _try_4opt_move(
         t7 = curr_tour[l]
         t8 = curr_tour[l + 1]
 
-        # Step 1: Compute distance gains (O(1))
-        gains = _4opt_gains(t1, t2, t3, t4, t5, t6, t7, t8, d)
-        best_gain = max(gains) if gains else 0.0
+        broken_nodes = [t1, t2, t3, t4, t5, t6, t7, t8]
+        broken_edges = [(t1, t2), (t3, t4), (t5, t6), (t7, t8)]
+        base_cost = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8]
 
-        delta_c = best_gain
+        topologies = KoptTopologyFactory.get_topologies(4)
+
+        best_topology = None
+        best_delta_c = -float("inf")
+        best_added_edges = None
+
+        for topology in topologies:
+            added_edges = [(broken_nodes[u], broken_nodes[v]) for u, v in topology]
+            added_cost = sum(d[u, v] for u, v in added_edges)
+            delta_c = base_cost - added_cost
+
+            if delta_c > best_delta_c:
+                best_delta_c = delta_c
+                best_topology = topology
+                best_added_edges = added_edges
+
+        if best_topology is None:
+            continue
 
         # Quick skip
-        if load_state is None and delta_c <= 1e-6:
+        if load_state is None and best_delta_c <= 1e-6:
             continue
 
-        # Step 2: LAZY EVALUATION — construct tour
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=4, distance_matrix=d, rng=rng)
-        if new_tour is None:
-            continue
-
-        # Step 3: Exact penalty delta
+        # Exact penalty delta virtually evaluated
         if load_state is not None and waste is not None and capacity is not None:
             delta_p = get_exact_penalty_delta(
-                new_tour,
-                load_state,
+                curr_tour,
+                broken_edges,
+                best_added_edges,
+                load_state,  # type: ignore[arg-type]
                 waste,
                 capacity,
                 n_original,  # type: ignore[arg-type]
@@ -427,12 +379,15 @@ def _try_4opt_move(
         else:
             delta_p = 0.0
 
-        # Step 4: Lexicographic gate
-        if not _should_accept_kopt_move(delta_p, delta_c):
+        # Lexicographic gate
+        if not _should_accept_kopt_move(delta_p, best_delta_c):
             continue
 
-        p4, c4 = get_score(new_tour, d, waste, capacity, n_original)
+        # Construct and verify
+        pos = [i, i + 1, j, j + 1, k, k + 1, l, l + 1 if l + 1 < nodes_count else 0]
+        new_tour = build_tour_from_segments(curr_tour, pos, best_topology, k=4)
 
+        p4, c4 = get_score(new_tour, d, waste, capacity, n_original)
         if is_better(p4, c4, curr_p, curr_c):
             return new_tour, p4, c4, True
 
@@ -498,25 +453,39 @@ def _try_5opt_move(
         t9 = curr_tour[m]
         t10 = curr_tour[m + 1]
 
-        # Step 1: Compute distance gains (O(1))
-        gains = _5opt_gains(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, d)
-        best_gain = max(gains) if gains else 0.0
+        broken_nodes = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
+        broken_edges = [(t1, t2), (t3, t4), (t5, t6), (t7, t8), (t9, t10)]
+        base_cost = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8] + d[t9, t10]
 
-        delta_c = best_gain
+        topologies = KoptTopologyFactory.get_topologies(5)
+
+        best_topology = None
+        best_delta_c = -float("inf")
+        best_added_edges = None
+
+        for topology in topologies:
+            added_edges = [(broken_nodes[u], broken_nodes[v]) for u, v in topology]
+            added_cost = sum(d[u, v] for u, v in added_edges)
+            delta_c = base_cost - added_cost
+
+            if delta_c > best_delta_c:
+                best_delta_c = delta_c
+                best_topology = topology
+                best_added_edges = added_edges
+
+        if best_topology is None:
+            continue
 
         # Quick skip
-        if load_state is None and delta_c <= 1e-6:
+        if load_state is None and best_delta_c <= 1e-6:
             continue
 
-        # Step 2: LAZY EVALUATION — construct tour
-        new_tour = _apply_kopt_via_operator(curr_tour, i, j, k=5, distance_matrix=d, rng=rng)
-        if new_tour is None:
-            continue
-
-        # Step 3: Exact penalty delta
+        # Exact penalty delta virtually evaluated
         if load_state is not None and waste is not None and capacity is not None:
             delta_p = get_exact_penalty_delta(
-                new_tour,
+                curr_tour,
+                broken_edges,
+                best_added_edges,
                 load_state,
                 waste,
                 capacity,
@@ -525,13 +494,15 @@ def _try_5opt_move(
         else:
             delta_p = 0.0
 
-        # Step 4: Lexicographic gate
-        if not _should_accept_kopt_move(delta_p, delta_c):
+        # Lexicographic gate
+        if not _should_accept_kopt_move(delta_p, best_delta_c):
             continue
 
-        # Step 5: Verify actual improvement
-        p5, c5 = get_score(new_tour, d, waste, capacity, n_original)
+        # Construct and verify
+        pos = [i, i + 1, j, j + 1, k, k + 1, l, l + 1, m, m + 1 if m + 1 < nodes_count else 0]
+        new_tour = build_tour_from_segments(curr_tour, pos, best_topology, k=5)
 
+        p5, c5 = get_score(new_tour, d, waste, capacity, n_original)
         if is_better(p5, c5, curr_p, curr_c):
             return new_tour, p5, c5, True
 

@@ -11,10 +11,6 @@ from typing import Any, Dict, Optional, Tuple, Type, cast
 from omegaconf import OmegaConf
 from torch import nn
 
-from logic.src.models import (
-    AttentionModel,
-    TemporalAttentionModel,
-)
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.models.subnets.factories.base import NeuralComponentFactory
 from logic.src.models.subnets.factories.gac import GACComponentFactory
@@ -56,6 +52,8 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
 
     if not args:
         raise ValueError("Could not find hyperparameters in directory: {}".format(path))
+
+    from logic.src.models import AttentionModel, TemporalAttentionModel
 
     problem = load_problem(args["problem"])
 

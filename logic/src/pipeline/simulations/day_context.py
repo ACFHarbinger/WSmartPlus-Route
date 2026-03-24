@@ -12,23 +12,16 @@ import zlib
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
 from multiprocessing.synchronize import Lock
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, cast
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.bins import Bins
 
 import numpy as np
 import pandas as pd
 import torch
 
 from logic.src.constants import DAY_METRICS
-from logic.src.pipeline.simulations.actions import (
-    CollectAction,
-    FillAction,
-    LogAction,
-    MustGoSelectionAction,
-    PolicyExecutionAction,
-    PostProcessAction,
-)
-from logic.src.pipeline.simulations.bins import Bins
-from logic.src.utils.functions import move_to
 
 
 def get_canonical_policy_name(policy_name: str) -> str:
@@ -228,6 +221,9 @@ def set_daily_waste(
         if device.type == "cuda":
             fill_tensor = fill_tensor.pin_memory()
         model_data["current_fill"] = fill_tensor
+
+    from logic.src.utils.functions import move_to
+
     return move_to(model_data, device, non_blocking=True)
 
 
@@ -293,6 +289,15 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         # This gives each (policy, day, sample) tuple its own isolated bin predictions
         bins_seed = (policy_seed + context.day + context.sample_id) % (2**31)
         context.bins.rng = np.random.default_rng(bins_seed)
+
+    from logic.src.pipeline.simulations.actions import (
+        CollectAction,
+        FillAction,
+        LogAction,
+        MustGoSelectionAction,
+        PolicyExecutionAction,
+        PostProcessAction,
+    )
 
     commands = [
         FillAction(),

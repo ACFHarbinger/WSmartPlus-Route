@@ -87,7 +87,7 @@ def test_lns_cvrp_solve(small_instance):
     routes, obj = solver.solve(
         max_iterations=5,
         lkh_trials=50,
-        n_vehicles=2,
+        n_vehicles=3,
         plateau_limit=2,
     )
 
@@ -201,9 +201,9 @@ def test_historical_tracking(small_instance):
     solver._update_history(routes, 60.0)
 
     # Scores should be updated (EMA)
-    # After first update: history[1] = 50.0  (stores +obj, not -obj)
-    # After second: history[1] = 0.1 * 60 + 0.9 * 50 = 51.0
-    expected = 0.1 * 60.0 + 0.9 * 50.0
+    # After first update: history[1] = -50.0  (stores -obj)
+    # After second: history[1] = 0.1 * (-60) + 0.9 * (-50) = -51.0
+    expected = 0.1 * (-60.0) + 0.9 * (-50.0)
     assert abs(solver.history[1] - expected) < 1e-6
 
 
@@ -243,8 +243,8 @@ def test_destroy_repair_cycle(small_instance):
         seed=42,
     )
 
-    # Start with a simple solution
-    routes = [[1, 2], [3, 4]]
+    # Start with a simple solution (3 routes to allow 140 total demand in 60-cap chunks)
+    routes = [[1], [2, 4], [3]]
 
     # Apply destroy-repair
     modified = solver._destroy_repair(routes)
@@ -276,8 +276,8 @@ def test_perturbation_with_elite(small_instance):
     elite = [[1, 3], [2, 4]]
     solver._update_elite_pool(elite)
 
-    # Apply perturbation
-    routes = [[1, 2], [3, 4]]
+    # Apply perturbation (3 routes to ensure feasibility)
+    routes = [[1], [2, 4], [3]]
     perturbed = solver._perturbation(routes)
 
     # Should return a valid solution

@@ -73,36 +73,17 @@ DEPOT_NODE = 0  # Main depot (always index 0)
 def is_dummy_depot(node: int, n_original: Optional[int] = None) -> bool:
     """
     Check if a node is a dummy depot.
-
-    Supports both legacy negative-index encoding and new augmented encoding.
-
-    Args:
-        node: Node index to check.
-        n_original: Original graph size (for augmented mode). If None,
-                    uses legacy negative-index check.
-
-    Returns:
-        True if node is a dummy depot, False otherwise.
-
-    Examples:
-        >>> # Legacy mode (negative indices)
-        >>> is_dummy_depot(-1)
-        True
-        >>> is_dummy_depot(5)
-        False
-        >>>
-        >>> # Augmented mode (indices >= n_original)
-        >>> is_dummy_depot(5, n_original=5)
-        True
-        >>> is_dummy_depot(3, n_original=5)
-        False
     """
     if n_original is not None:
-        # Augmented mode: dummy depots are indices >= n_original
         return node >= n_original
-    else:
-        # Legacy mode: dummy depots are negative indices
-        return node < 0
+    return node < 0
+
+
+def is_any_depot(node: int, n_original: Optional[int] = None) -> bool:
+    """
+    Check if a node is either the main depot (0) or a dummy depot.
+    """
+    return node == DEPOT_NODE or is_dummy_depot(node, n_original)
 
 
 def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> List[List[int]]:
@@ -126,7 +107,7 @@ def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> 
     current: List[int] = []
 
     for node in tour:
-        if node == DEPOT_NODE or is_dummy_depot(node, n_original):
+        if is_any_depot(node, n_original):
             if current:
                 routes.append(current)
                 current = []
@@ -178,7 +159,7 @@ def calculate_penalty(
     current_load = 0.0
 
     for node in tour:
-        if node == DEPOT_NODE or is_dummy_depot(node, n_original):
+        if is_any_depot(node, n_original):
             # Route boundary: evaluate route-level overload
             penalty += max(0.0, current_load - capacity)
             current_load = 0.0
