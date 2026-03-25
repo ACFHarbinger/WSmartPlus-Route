@@ -7,8 +7,8 @@ and the Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 
 import numpy as np
 import pytest
-from logic.src.policies.hgs_rr import HGSRRSolver, HGSRRParams
-from logic.src.policies.gihh import GIHHSolver, GIHHParams
+from logic.src.policies.hybrid_genetic_search_ruin_and_recreate import HGSRRSolver, HGSRRParams
+from logic.src.policies.guided_indicators_hyper_heuristic import GIHHSolver, GIHHParams
 from logic.src.policies.base import PolicyFactory
 
 

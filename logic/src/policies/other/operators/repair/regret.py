@@ -113,8 +113,6 @@ def regret_k_insertion(  # noqa: C901
         all_candidates = []
         unprofitable_nodes = []
 
-        max_dist = dist_matrix.max()
-
         for node in unassigned:
             node_waste = wastes.get(node, 0)
             is_mandatory = node in mandatory_nodes_set
@@ -129,11 +127,13 @@ def regret_k_insertion(  # noqa: C901
                     prev = route[pos - 1] if pos > 0 else 0
                     nxt = route[pos] if pos < len(route) else 0
 
+                    # Calculate base insertion cost
                     cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
 
-                    # Apply noise (Pisinger & Ropke, 2007)
+                    # Apply noise additively (Ropke & Pisinger 2005, Section 3.4.3)
+                    # C' = max{0, C + noise} where noise is a perturbation
                     if noise != 0:
-                        cost += noise * max_dist
+                        cost = max(0.0, cost + noise)
 
                     node_options.append((cost, i, pos))
 
@@ -238,10 +238,11 @@ def _get_insertion_options_with_profit(
             if is_mandatory or profit > -1e-4:
                 node_options.append((profit, i, pos))
 
-    # Evaluate new route (Speculative Seeding)
+    # Evaluate new route (Speculative Seeding Heuristic)
+    # See greedy_profit_insertion for theoretical justification
     new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
     new_profit = revenue - (new_cost * C)
-    seed_hurdle = -0.5 * (new_cost * C)
+    seed_hurdle = -0.5 * (new_cost * C)  # Speculative hurdle: 50% of detour cost
 
     if is_mandatory or new_profit >= seed_hurdle:
         # A new route has its best (and only) insertion at pos 0 in a new index

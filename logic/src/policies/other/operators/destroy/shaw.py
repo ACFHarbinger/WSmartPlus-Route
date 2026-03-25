@@ -35,9 +35,17 @@ def shaw_removal(  # noqa: C901
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Shaw Removal: Remove related customers based on multi_criteria similarity.
+    Shaw Removal: Remove related customers based on multi-criteria similarity.
 
-    Relatedness R(i,j) = phi * d(i,j) + chi * |T_i - T_j| + psi * |q_i - q_j|
+    Implements Ropke & Pisinger (2005) relatedness measure:
+        R(i,j) = φ * d(i,j) + χ * |T_i - T_j| + ψ * |q_i - q_j| + ω * vehicle_compatibility
+
+    **Note on ω (omega) term**: The vehicle compatibility component (ω) is intentionally
+    omitted from this implementation. Theoretical justification: The target domain is
+    CVRP/VRPP with a homogeneous fleet where any vehicle can serve any node. Since all
+    nodes have identical vehicle compatibility, the ω term is mathematically constant
+    across all node pairs and does not affect relative node selection. Therefore, it can
+    be safely omitted without changing the algorithm's behavior.
 
     Args:
         routes: Current routes.
@@ -46,9 +54,9 @@ def shaw_removal(  # noqa: C901
         wastes: Waste/profit values for each node.
         time_windows: Time window dict {node: (earliest, latest)} (optional).
         randomization_factor: Power for randomized selection (higher = more random).
-        phi: Distance weight in relatedness.
-        chi: Time window weight in relatedness.
-        psi: Waste weight in relatedness.
+        phi: Distance weight in relatedness (φ).
+        chi: Time window weight in relatedness (χ).
+        psi: Waste/demand weight in relatedness (ψ).
         rng: Random number generator.
 
     Returns:
@@ -78,8 +86,16 @@ def shaw_removal(  # noqa: C901
     seed: int = rng.choice(all_nodes)
     removed: List[int] = [seed]
 
-    # Normalize factors
-    max_dist: float = float(np.max(dist_matrix)) if np.max(dist_matrix) > 0 else 1.0
+    # Normalize factors using only active route nodes (Ropke & Pisinger 2005)
+    # This prevents geographic outliers from compressing all distance scores to near-zero
+    # Calculate max distance only among nodes currently in routes
+    active_distances = []
+    for i in all_nodes:
+        for j in all_nodes:
+            if i != j:
+                active_distances.append(dist_matrix[i, j])
+    max_dist: float = float(max(active_distances)) if active_distances else 1.0
+
     max_waste: float = float(max(waste.values())) if waste else 1.0
     max_tw: float = 1.0
     if time_windows:
@@ -153,10 +169,17 @@ def shaw_profit_removal(  # noqa: C901
     """
     Profit-based Shaw Removal (VRPP).
 
-    Relatedness R(i,j) = phi * d(i,j)/d_max + psi * |profit_i - profit_j|/profit_max
+    Implements profit-aware relatedness for VRPP problems:
+        R(i,j) = φ * d(i,j)/d_max + ψ * |profit_i - profit_j|/profit_max
 
-    Customers that are similar in terms of distance and profit are removed
-    together, maximizing the potential for rearrangement during repair.
+    Customers that are similar in terms of distance and marginal profit are removed
+    together, maximizing the potential for profitable rearrangement during repair.
+
+    **Note on ω (omega) term**: The vehicle compatibility component (ω) is intentionally
+    omitted from this implementation. Theoretical justification: The target domain is
+    VRPP with a homogeneous fleet where any vehicle can serve any node. Since all nodes
+    have identical vehicle compatibility, the ω term is mathematically constant across
+    all node pairs and does not affect relative node selection.
 
     Args:
         routes: Current routes.
@@ -166,8 +189,8 @@ def shaw_profit_removal(  # noqa: C901
         R: Revenue per unit waste.
         C: Cost per unit distance.
         randomization_factor: Power for randomized selection (higher = more random).
-        phi: Distance weight in relatedness.
-        psi: Profit weight in relatedness.
+        phi: Distance weight in relatedness (φ).
+        psi: Profit weight in relatedness (ψ).
         rng: Random number generator.
 
     Returns:
@@ -201,8 +224,15 @@ def shaw_profit_removal(  # noqa: C901
     seed: int = rng.choice(all_nodes)
     removed: List[int] = [seed]
 
-    # 3. Normalization factors
-    max_dist = float(np.max(dist_matrix)) if np.max(dist_matrix) > 0 else 1.0
+    # 3. Normalization factors using only active route nodes
+    # Calculate max distance only among nodes currently in routes
+    active_distances = []
+    for i in all_nodes:
+        for j in all_nodes:
+            if i != j:
+                active_distances.append(dist_matrix[i, j])
+    max_dist = float(max(active_distances)) if active_distances else 1.0
+
     profit_vals = list(node_profits.values())
     profit_range = float(max(profit_vals) - min(profit_vals)) if len(profit_vals) > 1 else 1.0
     if profit_range == 0:
