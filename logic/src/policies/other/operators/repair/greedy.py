@@ -82,11 +82,13 @@ def greedy_insertion(
                     prev = route[pos - 1] if pos > 0 else 0
                     nxt = route[pos] if pos < len(route) else 0
 
+                    # Calculate base insertion cost
                     cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
 
-                    # Apply noise (Pisinger & Ropke, 2007)
+                    # Apply noise additively (Ropke & Pisinger 2005, Section 3.4.3)
+                    # C' = max{0, C + noise} where noise is a perturbation
                     if noise != 0:
-                        cost += noise * dist_matrix.max()  # Normalized noise
+                        cost = max(0.0, cost + noise)
 
                     if cost < best_cost:
                         best_cost = cost
@@ -196,10 +198,22 @@ def greedy_profit_insertion(
                         best_route_idx = i
                         best_pos = pos
 
-            # Evaluate new route (Speculative Seeding)
+            # Evaluate new route (Speculative Seeding Heuristic)
+            # Theoretical justification: Lower-bound expectation on route profitability
+            #
+            # A new route starting with a single node has immediate profit:
+            #   π₀ = revenue - cost = (waste * R) - (2 * d_{0,node} * C)
+            #
+            # The hurdle π_hurdle = -0.5 * (2 * d_{0,node} * C) allows seeding routes
+            # that are initially unprofitable but likely to become profitable when
+            # additional profitable nodes are inserted later. This threshold represents
+            # a speculative investment based on the expected value of future insertions.
+            #
+            # Empirically, this enables exploration of promising partial solutions that
+            # would otherwise be rejected by pure greedy profit maximization.
             new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
             new_profit = revenue - (new_cost * C)
-            seed_hurdle = -0.5 * (new_cost * C)
+            seed_hurdle = -0.5 * (new_cost * C)  # Speculative hurdle: 50% of detour cost
 
             if is_mandatory or new_profit >= seed_hurdle:
                 new_effective_profit = new_profit + (1e9 if is_mandatory else 0)
