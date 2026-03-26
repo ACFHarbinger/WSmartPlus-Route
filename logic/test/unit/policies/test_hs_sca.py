@@ -27,9 +27,10 @@ def test_hs_solver_basic(small_vrpp_instance):
         HMCR=0.9,
         PAR=0.3,
         max_iterations=10,
-        local_search_iterations=5
+        local_search_iterations=5,
+        seed=42
     )
-    solver = HSSolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = HSSolver(dist_matrix, wastes, capacity, R, C, params)
     routes, profit, cost = solver.solve()
 
     assert isinstance(routes, list)
@@ -45,9 +46,10 @@ def test_sca_solver_basic(small_vrpp_instance):
     params = SCAParams(
         pop_size=5,
         a_max=2.0,
-        max_iterations=10
+        max_iterations=10,
+        seed=42
     )
-    solver = SCASolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = SCASolver(dist_matrix, wastes, capacity, R, C, params)
     routes, profit, cost = solver.solve()
 
     assert isinstance(routes, list)
@@ -66,9 +68,10 @@ def test_hs_pitch_adjustment_logic(small_vrpp_instance):
         HMCR=1.0,
         PAR=1.0,
         max_iterations=5,
-        local_search_iterations=2
+        local_search_iterations=2,
+        seed=42
     )
-    solver = HSSolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = HSSolver(dist_matrix, wastes, capacity, R, C, params)
     # Mocking HM to ensure it's not empty
     hm = [solver._build_random_solution() for _ in range(params.hm_size)]
     new_harmony = solver._improvise(hm)
@@ -79,9 +82,10 @@ def test_sca_oscillation_bounds(small_vrpp_instance):
     params = SCAParams(
         pop_size=2,
         a_max=2.0,
-        max_iterations=2
+        max_iterations=2,
+        seed=42
     )
-    solver = SCASolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = SCASolver(dist_matrix, wastes, capacity, R, C, params)
     # Check if r1 is updated correctly
     # solver.solve() runs the loop; we can check internal state or just run it
     routes, profit, cost = solver.solve()

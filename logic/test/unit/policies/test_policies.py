@@ -42,7 +42,7 @@ def mock_policy_data():
         "bins": bins,
         "distance_matrix": dist_matrix.tolist(),
         "waste_type": "plastic",
-        "area": "test_area",
+        "area": "riomaior",
         "config": {},
         "distancesC": np.zeros((n_bins + 1, n_bins + 1), dtype=np.int32),
         "must_go": [1],  # Pre-selected bin index 1 (ID 1)

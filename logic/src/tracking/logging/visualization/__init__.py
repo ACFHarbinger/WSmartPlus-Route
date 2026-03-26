@@ -23,6 +23,11 @@ from logic.src.tracking.logging.visualization.landscape import (
     rl_loss_fn,
 )
 
+from . import embeddings as embeddings
+from . import heatmaps as heatmaps
+from . import helpers as helpers
+from . import landscape as landscape
+
 
 def visualize_epoch(
     model: Any, problem: Any, cfg: Union[Config, DictConfig], epoch: int, tb_logger: Any = None

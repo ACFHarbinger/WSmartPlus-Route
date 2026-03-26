@@ -18,7 +18,7 @@ def eval_opts():
         "graph_size": 10,
         "focus_graph": False,
         "focus_size": 0,
-        "area": "test_area",
+        "area": "riomaior",
         "edge_threshold": 100,
         "dm_filepath": "path",
         "waste_type": "all",

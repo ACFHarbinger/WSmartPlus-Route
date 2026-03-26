@@ -21,9 +21,6 @@ class TestSolverParity:
             routes_g, profit_g, cost_g = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
-                param=0.0,
-                media=np.zeros(5),
-                desviopadrao=np.zeros(5),
                 values=data["values"],
                 binsids=data["binsids"],
                 must_go=data["must_go"],
@@ -39,9 +36,6 @@ class TestSolverParity:
             routes_h, profit_h, cost_h = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
-                param=0.0,
-                media=np.zeros(5),
-                desviopadrao=np.zeros(5),
                 values=data["values"],
                 binsids=data["binsids"],
                 must_go=data["must_go"],
@@ -92,9 +86,9 @@ class TestSolverParity:
 
             visited_hgs = []
             if routes_hgs and isinstance(routes_hgs[0], list):
-                 for r in routes_hgs: visited_hgs.extend(r)
+                for r in routes_hgs: visited_hgs.extend(r)
             else:
-                 visited_hgs = routes_hgs
+                visited_hgs = routes_hgs
 
             results["hgs"] = (cost_hgs, sorted(list(set(visited_hgs) - {0})))
         except Exception as e:

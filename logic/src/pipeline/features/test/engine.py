@@ -16,15 +16,13 @@ import logic.src.constants as udef
 import logic.src.tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
-from logic.src.pipeline.features.test.zenml_sim_pipeline import simulation_pipeline
+from logic.src.pipeline.features.test.config import expand_policy_configs
+from logic.src.pipeline.features.test.orchestrator import simulator_testing
 from logic.src.pipeline.simulations.repository import (
     load_simulator_data,
     set_repository_from_path,
 )
 from logic.src.tracking.logging.pylogger import get_pylogger
-
-from .config import expand_policy_configs
-from .orchestrator import simulator_testing
 
 try:
     from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
@@ -307,6 +305,10 @@ def _run_sim_via_zenml(cfg: Config) -> None:
         return
 
     try:
+        from logic.src.pipeline.features.test.zenml_sim_pipeline import (
+            simulation_pipeline,
+        )
+
         simulation_pipeline(cfg)
     except Exception as exc:
         logger.warning(f"ZenML simulation pipeline failed — falling back to direct simulation: {exc}")

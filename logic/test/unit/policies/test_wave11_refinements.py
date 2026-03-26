@@ -23,24 +23,24 @@ def tiny_vrpp():
 
 def test_hs_refinement(tiny_vrpp):
     dist, wastes, cap, R, C = tiny_vrpp
-    params = HSParams(max_iterations=10, hm_size=5, BW=0.1)
-    solver = HSSolver(dist, wastes, cap, R, C, params, seed=42)
+    params = HSParams(max_iterations=10, hm_size=5, BW=0.1, seed=42)
+    solver = HSSolver(dist, wastes, cap, R, C, params)
     routes, profit, cost = solver.solve()
     assert len(routes) > 0
     assert profit > 0
 
 def test_sca_refinement(tiny_vrpp):
     dist, wastes, cap, R, C = tiny_vrpp
-    params = SCAParams(max_iterations=10, pop_size=5)
-    solver = SCASolver(dist, wastes, cap, R, C, params, seed=42)
+    params = SCAParams(max_iterations=10, pop_size=5, seed=42)
+    solver = SCASolver(dist, wastes, cap, R, C, params)
     routes, profit, cost = solver.solve()
     assert len(routes) > 0
     assert profit > 0
 
 def test_gihh_refinement(tiny_vrpp):
     dist, wastes, cap, R, C = tiny_vrpp
-    params = GIHHParams(max_iterations=10, restarts=1)
-    solver = GIHHSolver(dist, wastes, cap, R, C, params, seed=42)
+    params = GIHHParams(max_iterations=10, restarts=1, seed=42)
+    solver = GIHHSolver(dist, wastes, cap, R, C, params)
     routes, profit, cost = solver.solve()
     assert len(routes) > 0
     assert profit > 0

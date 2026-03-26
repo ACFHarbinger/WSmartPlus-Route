@@ -104,7 +104,7 @@ class TestTrainingOrchestration:
         cfg = Config()
         cfg.hpo.method = "tpe"
 
-        with patch("logic.src.pipeline.rl.hpo.OptunaHPO") as mock_optuna_cls:
+        with patch("logic.src.pipeline.features.train.hpo.OptunaHPO") as mock_optuna_cls:
             mock_runner = mock_optuna_cls.return_value
             mock_runner.run.return_value = 0.75
 

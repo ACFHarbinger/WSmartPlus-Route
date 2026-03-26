@@ -35,7 +35,7 @@ def bb_test_data():
         "bins": bins,
         "distance_matrix": dist_matrix.tolist(),
         "waste_type": "plastic",
-        "area": "test_area",
+        "area": "riomaior",
         "config": {"bb": {"time_limit": 10, "vrpp": True}},
         "must_go": [1],
     }

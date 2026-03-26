@@ -22,8 +22,8 @@ def profitable_problem():
 
 def test_slc_superstar_influence(profitable_problem):
     dist_matrix, wastes, capacity = profitable_problem
-    params = SLCParams(n_teams=2, team_size=2, max_iterations=5)
-    solver = SLCSolver(dist_matrix, wastes, capacity, R=10.0, C=1.0, params=params, seed=42)
+    params = SLCParams(n_teams=2, team_size=2, max_iterations=5, seed=42)
+    solver = SLCSolver(dist_matrix, wastes, capacity, R=10.0, C=1.0, params=params)
 
     routes, profit, cost = solver.solve()
     assert len(solver.superstars) > 0
@@ -32,8 +32,8 @@ def test_slc_superstar_influence(profitable_problem):
 def test_vpl_coaching_weighted(profitable_problem):
     dist_matrix, wastes, capacity = profitable_problem
     # Relaxed elite_size for testing
-    params = VPLParams(n_teams=4, max_iterations=5, elite_size=3)
-    solver = VPLSolver(dist_matrix, wastes, capacity, R=10.0, C=1.0, params=params, seed=42)
+    params = VPLParams(n_teams=4, max_iterations=5, elite_size=3, seed=42)
+    solver = VPLSolver(dist_matrix, wastes, capacity, R=10.0, C=1.0, params=params)
 
     routes, profit, cost = solver.solve()
     assert profit > 0
@@ -41,7 +41,7 @@ def test_vpl_coaching_weighted(profitable_problem):
 def test_lca_round_robin(profitable_problem):
     dist_matrix, wastes, capacity = profitable_problem
     params = LCAParams(n_teams=4, max_iterations=5)
-    solver = LCASolver(dist_matrix, wastes, capacity, R=10.0, C=1.0, params=params, seed=42)
+    solver = LCASolver(dist_matrix, wastes, capacity, R=10.0, C=1.0, params=params)
 
     routes, profit, cost = solver.solve()
     assert profit > 0

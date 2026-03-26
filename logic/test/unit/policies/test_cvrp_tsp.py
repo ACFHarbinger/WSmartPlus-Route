@@ -25,7 +25,7 @@ def mock_params():
         "bins": MockBins(n_bins),
         "distance_matrix": distancesC,
         "waste_type": "plastic",
-        "area": "test_area",
+        "area": "riomaior",
         "n_vehicles": 2,
         "coords": MagicMock(),
         "must_go": [1, 2, 3, 4, 5],

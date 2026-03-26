@@ -33,7 +33,7 @@ def test_setup_model(tmp_path):
     mock_configs = {"key": "val"}
     lock = MagicMock()
 
-    with patch("logic.src.utils.configs.setup_worker.load_model", return_value=(mock_model, mock_configs)):
+    with patch("logic.src.utils.functions.load_model", return_value=(mock_model, mock_configs)):
         model, configs = setup_model(
             "am_50", "path/", {"am": "am.pt"}, torch.device("cpu"), lock
         )

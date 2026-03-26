@@ -49,9 +49,6 @@ class TestSolverEdgeCases:
             routes, _, _ = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
-                param=0.0,
-                media=np.array([]),
-                desviopadrao=np.array([]),
                 values=data["values"],
                 binsids=data["binsids"],
                 must_go=[],
@@ -123,9 +120,6 @@ class TestSolverEdgeCases:
             routes, _, _ = run_swc_tcf_optimizer(
                 bins=data["bins"],
                 distance_matrix=data["dist_matrix"],
-                param=0.0,
-                media=np.zeros(1),
-                desviopadrao=np.zeros(1),
                 values=data["values"],
                 binsids=data["binsids"],
                 must_go=[1],
@@ -193,9 +187,6 @@ class TestSolverEdgeCases:
              routes, _, _ = run_swc_tcf_optimizer(
                 bins=bins,
                 distance_matrix=dist_matrix,
-                param=0.0,
-                media=np.zeros(2),
-                desviopadrao=np.zeros(2),
                 values={**values, "Q": 1000},
                 binsids=[1,2],
                 must_go=[1,2],
