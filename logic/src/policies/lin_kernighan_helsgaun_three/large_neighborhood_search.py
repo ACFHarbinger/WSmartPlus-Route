@@ -272,8 +272,8 @@ class LKH3_LNS:
                 subgradient_iterations,
             )
 
-            # 2b. Update best solution
-            if obj > best_obj + 1e-6:
+            # 2b. Update best solution (lexicographic: minimize penalty, maximize obj)
+            if penalty < best_penalty - 1e-6 and obj > best_obj + 1e-6:
                 best_routes = [r[:] for r in optimized_routes]
                 best_obj = obj
                 best_penalty = penalty
