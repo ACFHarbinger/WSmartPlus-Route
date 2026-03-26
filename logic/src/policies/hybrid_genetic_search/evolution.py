@@ -13,17 +13,71 @@ from .individual import Individual
 from .split import LinearSplit
 
 
-def update_biased_fitness(
-    population: List[Individual], nb_elite: int, alpha_diversity: float = 0.5, neighbor_size: int = 5
-):
+def _extract_edges(individual: Individual) -> set:
+    """
+    Extract all directed edges from an individual's routes.
+
+    An edge (A, B) exists if node B immediately follows node A in a route,
+    including edges from/to the depot (node 0).
+
+    Args:
+        individual: Individual whose edges to extract.
+
+    Returns:
+        Set of directed edges (tuples of node pairs).
+    """
+    edges = set()
+    for route in individual.routes:
+        if not route:
+            continue
+        # Edge from depot to first node
+        edges.add((0, route[0]))
+        # Edges within route
+        for i in range(len(route) - 1):
+            edges.add((route[i], route[i + 1]))
+        # Edge from last node back to depot
+        edges.add((route[-1], 0))
+    return edges
+
+
+def _compute_broken_pairs_distance(ind1: Individual, ind2: Individual) -> float:
+    """
+    Compute the broken pairs distance (edge-based diversity) between two individuals.
+
+    Following Vidal (2022), the distance is defined as:
+    Δ(A,B) = 1 - |E(A) ∩ E(B)| / max(|E(A)|, |E(B)|)
+
+    Args:
+        ind1: First individual.
+        ind2: Second individual.
+
+    Returns:
+        Broken pairs distance between 0.0 and 1.0.
+    """
+    edges1 = _extract_edges(ind1)
+    edges2 = _extract_edges(ind2)
+
+    if not edges1 and not edges2:
+        return 0.0
+
+    if not edges1 or not edges2:
+        return 1.0
+
+    intersection = len(edges1 & edges2)
+    max_edges = max(len(edges1), len(edges2))
+
+    return 1.0 - (intersection / max_edges)
+
+
+def update_biased_fitness(population: List[Individual], nb_elite: int, neighbor_size: int = 5):
     """
     Update biased fitness based on profit rank and diversity rank.
-    Follows Vidal et al. (2022) HGS-CVRP implementation.
+    Follows Vidal et al. (2022) HGS-CVRP implementation with parameterless
+    diversity weighting.
 
     Args:
         population: List of individuals to update (single subpopulation).
         nb_elite: Number of elite individuals to protect.
-        alpha_diversity: Weight for diversity in fitness calculation (0.0 = pure profit, 1.0 = pure diversity).
         neighbor_size: Number of nearest neighbors (nbClose) to consider for diversity.
     """
     if not population:
@@ -38,17 +92,15 @@ def update_biased_fitness(
     for i, ind in enumerate(population):
         ind.rank_profit = i + 1
 
-    # Diversity: Average distance to nbClose closest individuals
-    # Based on Hamming distance of visited node sets
+    # Diversity: Average broken pairs distance to nbClose closest individuals
+    # Based on edge similarity (topological diversity)
     for i, ind1 in enumerate(population):
         dists = []
-        s1 = set(n for r in ind1.routes for n in r)
         for j, ind2 in enumerate(population):
             if i == j:
                 continue
-            s2 = set(n for r in ind2.routes for n in r)
-            # Hamming-like distance on set of visited nodes
-            dist = len(s1.symmetric_difference(s2))
+            # Compute edge-based distance (broken pairs)
+            dist = _compute_broken_pairs_distance(ind1, ind2)
             dists.append(dist)
 
         # Average distance to nbClose closest individuals
@@ -64,20 +116,27 @@ def update_biased_fitness(
     for i, ind in enumerate(population):
         ind.rank_diversity = i + 1
 
-    # Biased Fitness = Rank(Profit) + alpha_diversity * Rank(Diversity)
-    # ELITE PROTECTION: Ensure top nb_elite profit solutions always survive
+    # Parameterless Biased Fitness (Vidal 2022)
+    # BF(I) = Rank_C(I) + (1 - N_elite/|Pop|) * Rank_D(I)
+    # This automatically balances profit and diversity based on elite proportion
+    diversity_weight = 1.0 - (nb_elite / pop_size)
+
     for ind in population:
-        if ind.rank_profit <= nb_elite:
-            # Pure profit ranking for elite ensures survival
-            ind.fitness = float(ind.rank_profit)
-        else:
-            # Biased fitness for the rest to maintain diversity
-            ind.fitness = ind.rank_profit + alpha_diversity * ind.rank_diversity
+        # Apply biased fitness formula
+        ind.fitness = ind.rank_profit + diversity_weight * ind.rank_diversity
 
 
 def evaluate(ind: Individual, split_manager: LinearSplit, penalty_capacity: float = 1.0):
     """
     Decode giant tour and calculate metrics, including feasibility and penalties.
+
+    This function transforms the genotype (giant_tour) into the phenotype (routes)
+    using the Split algorithm. For VRPP, the Split algorithm may skip unprofitable nodes,
+    resulting in routes that contain a subset of the nodes in giant_tour.
+
+    The giant_tour is preserved unchanged to maintain genetic material for crossover.
+    Nodes not in routes are considered "unvisited" and remain available for future
+    insertion by local search operators.
 
     Args:
         ind: Individual to evaluate.

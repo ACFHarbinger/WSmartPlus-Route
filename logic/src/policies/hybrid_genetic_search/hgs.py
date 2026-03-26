@@ -100,8 +100,8 @@ class HGSSolver:
                 pop_infeasible.append(ind)
 
         # Initialize fitness for both subpopulations
-        update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.alpha_diversity, self.params.nb_close)
-        update_biased_fitness(pop_infeasible, self.params.nb_elite, self.params.alpha_diversity, self.params.nb_close)
+        update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.nb_close)
+        update_biased_fitness(pop_infeasible, self.params.nb_elite, self.params.nb_close)
 
         return pop_feasible, pop_infeasible
 
@@ -116,14 +116,12 @@ class HGSSolver:
         max_pop_size = self.params.mu + self.params.lambda_param
 
         if len(pop_feasible) > max_pop_size:
-            update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.alpha_diversity, self.params.nb_close)
+            update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.nb_close)
             pop_feasible.sort(key=lambda x: x.fitness)
             del pop_feasible[self.params.mu :]
 
         if len(pop_infeasible) > max_pop_size:
-            update_biased_fitness(
-                pop_infeasible, self.params.nb_elite, self.params.alpha_diversity, self.params.nb_close
-            )
+            update_biased_fitness(pop_infeasible, self.params.nb_elite, self.params.nb_close)
             pop_infeasible.sort(key=lambda x: x.fitness)
             del pop_infeasible[self.params.mu :]
 
@@ -165,10 +163,10 @@ class HGSSolver:
                 best_profit_so_far = child.profit_score
                 it_no_improvement = 0
 
-            # Trim populations and adjust penalties
+            # Trim populations and adjust penalties (batched every 100 iterations per Vidal 2022)
             self._trim_populations(pop_feasible, pop_infeasible)
             if it % 100 == 0:
-                penalty_capacity = self._adjust_penalty_coefficients(pop_feasible, pop_infeasible, penalty_capacity)
+                penalty_capacity = self._adjust_penalties(pop_feasible, pop_infeasible, penalty_capacity)
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=it,
@@ -222,12 +220,13 @@ class HGSSolver:
             return [], 0.0, 0.0
         return best_ind.routes, best_ind.profit_score, best_ind.cost
 
-    def _adjust_penalty_coefficients(
+    def _adjust_penalties(
         self, pop_feasible: List[Individual], pop_infeasible: List[Individual], current_penalty: float
     ) -> float:
         """
         Adjust penalty coefficients to maintain target proportion of feasible solutions.
         Following Vidal et al. (2022), targets ~20% feasible solutions.
+        Called every 100 iterations as specified in the paper.
 
         Args:
             pop_feasible: Feasible subpopulation.
