@@ -58,8 +58,7 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         mutation_rate=values.get("mutation_rate", 1.0),
         repair_probability=values.get("repair_probability", 0.5),
         crossover_rate=values.get("crossover_rate", 1.0),
-        # Diversity management
-        alpha_diversity=values.get("alpha_diversity", 0.5),
+        # Diversity management (Vidal 2022: parameterless diversity weighting)
         min_diversity=values.get("min_diversity", 0.2),
         diversity_change_rate=values.get("diversity_change_rate", 0.05),
         # Local search
