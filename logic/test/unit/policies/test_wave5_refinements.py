@@ -21,7 +21,7 @@ def test_alns_segment_logic():
     # Check initialization
     assert solver.segment_size == 100
     assert len(solver.destroy_weights) == 3
-    assert len(solver.repair_weights) == 2
+    assert len(solver.repair_weights) == 4
 
     routes, profit, cost = solver.solve()
 

@@ -42,6 +42,15 @@ rl_gd_hh:
     # 1.25 implies targeting a 25% increase over the initial construction.
     - target_fitness_multiplier: 1.25
 
+    # Rate at which the water level drops per iteration.
+    - rain_speed: 0.001
+
+    # Margin added to the water level to prevent premature flooding.
+    - flood_margin: 0.1
+
+    # Initial utility score before learning begins.
+    - initial_utility: 20.0
+
     # --- Meta Configuration ---
     # VRPP Settings
     - vrpp: true

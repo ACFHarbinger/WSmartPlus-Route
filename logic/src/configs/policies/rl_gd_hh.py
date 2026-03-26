@@ -38,6 +38,13 @@ class RLGDHHConfig:
     # Great Deluge Level Update Settings
     target_fitness_multiplier: float = 1.20
 
+    # Great Deluge specific parameters
+    rain_speed: float = 0.001
+    flood_margin: float = 0.1
+
+    # RL1 Adaptation
+    initial_utility: float = 20.0
+
     # Deterministic Seed
     seed: Optional[int] = None
 

@@ -19,7 +19,6 @@ Transductive / Matrix Models:
 -   `EAS`: Efficient Active Search (Hottung et al. 2022).
 
 Baselines:
--   `CriticNetwork`: Value function approximation for REINFORCE.
 """
 
 from logic.src.pipeline.rl.common.baselines import (
@@ -44,6 +43,10 @@ from logic.src.pipeline.rl.common.baselines import (
     WarmupBaseline as WarmupBaseline,
 )
 
+from . import common as common
+from . import core as core
+from . import meta as meta
+from . import subnets as subnets
 from .common.critic_network.policy import CriticNetwork as CriticNetwork
 from .common.transductive.active_search import ActiveSearch as ActiveSearch
 from .common.transductive.base import TransductiveModel as TransductiveModel

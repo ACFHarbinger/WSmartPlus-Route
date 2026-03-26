@@ -23,6 +23,12 @@ from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
 from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 
+from . import base as base
+from . import baselines as baselines
+from . import reward_scaler as reward_scaler
+from . import reward_scaler_batch as reward_scaler_batch
+from . import trainer as trainer
+
 __all__ = [
     "RL4COLitModule",
     "Baseline",

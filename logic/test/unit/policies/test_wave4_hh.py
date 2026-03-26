@@ -16,8 +16,8 @@ def sample_data():
 
 def test_qde_solver_basic(sample_data):
     dist, wastes, cap = sample_data
-    params = QDEParams(max_iterations=10, pop_size=5)
-    solver = QDESolver(dist, wastes, cap, R=1.0, C=1.0, params=params, seed=42)
+    params = QDEParams(max_iterations=10, pop_size=5, seed=42)
+    solver = QDESolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
 
     routes, profit, cost = solver.solve()
 
@@ -28,8 +28,8 @@ def test_qde_solver_basic(sample_data):
 
 def test_qde_rotation_gate(sample_data):
     dist, wastes, cap = sample_data
-    params = QDEParams(delta_theta=0.1)
-    solver = QDESolver(dist, wastes, cap, R=1.0, C=1.0, params=params, seed=42)
+    params = QDEParams(delta_theta=0.1, seed=42)
+    solver = QDESolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
 
     # Test lookup table logic
     # Case: xi=0, bi=1, worsening=True -> rotation should be +0.1

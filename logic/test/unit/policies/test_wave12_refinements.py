@@ -11,9 +11,9 @@ def test_de_binomial_crossover_j_rand():
     """Verify that j_rand component is always inherited from mutant in DE."""
     dist_matrix = np.zeros((3, 3))
     wastes = {1: 10.0, 2: 10.0}
-    params = DEParams(pop_size=5, crossover_rate=0.0) # CR=0 ensures only j_rand comes from mutant
+    params = DEParams(pop_size=5, crossover_rate=0.0, seed=42) # CR=0 ensures only j_rand comes from mutant
 
-    solver = DESolver(dist_matrix, wastes, 100.0, 1.0, 1.0, params, seed=42)
+    solver = DESolver(dist_matrix, wastes, 100.0, 1.0, 1.0, params)
 
     target = [[1]]
     mutant = [[2]]

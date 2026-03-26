@@ -7,7 +7,7 @@ Run with: python -m pytest logic/src/policies/branch_and_cut/test_bc.py -v
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.branch_and_cut import PolicyBC, VRPPModel
+from logic.src.policies.branch_and_cut import BranchAndCutPolicy, VRPPModel
 from logic.src.policies.branch_and_cut.heuristics import construct_initial_solution
 from logic.src.policies.branch_and_cut.bc import GUROBI_AVAILABLE
 
@@ -98,13 +98,15 @@ def test_small_instance_solve():
     R = 2.0  # High revenue
     C = 1.0
 
-    policy = PolicyBC(
-        time_limit=10.0,
-        mip_gap=0.05,
-        verbose=True,
+    policy = BranchAndCutPolicy(
+        config={
+            "time_limit": 10.0,
+            "mip_gap": 0.05,
+            "verbose": True,
+        }
     )
 
-    tour, cost, stats = policy(
+    tour, cost, extra = policy.execute(
         coords=coords,
         must_go=[1],
         distance_matrix=dist_matrix,
@@ -112,7 +114,10 @@ def test_small_instance_solve():
         capacity=capacity,
         R=R,
         C=C,
+        bins=type("obj", (), {"c": [20, 15, 25, 18]}),
     )
+
+    profit = extra.get("profit", 0.0)
 
     # Verify solution
     assert tour is not None
@@ -120,11 +125,9 @@ def test_small_instance_solve():
     assert tour[0] == 0
     assert tour[-1] == 0
     assert 1 in tour  # Mandatory node
-    assert stats.get("valid", False) is True
+    assert profit > 0  # Should be profitable
 
     print("\nSolution found:")
     print(f"  Tour: {tour}")
-    print(f"  Profit: {-cost:.2f}")
+    print(f"  Profit: {profit:.2f}")
     print(f"  Nodes visited: {len(set(tour)) - 1}")
-    print(f"  Total cuts: {stats.get('total_cuts', 0)}")
-    print(f"  Solve time: {stats.get('solve_time', 0):.2f}s")

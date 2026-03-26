@@ -40,7 +40,7 @@ import copy
 import random
 import time
 from collections import deque
-from typing import Any, Deque, Dict, List, Optional, SupportsDunderGT, SupportsDunderLT, Tuple, Union
+from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -744,7 +744,7 @@ class ALNSSARSASolver:
 
         return self.random.randint(lower_bound, upper_bound)
 
-    def _calculate_diversity(self, routes: List[List[int]]) -> Union[SupportsDunderLT[Any], SupportsDunderGT[Any]]:
+    def _calculate_diversity(self, routes: List[List[int]]) -> Any:
         """Calculate solution diversity (simple measure based on route variation)."""
         if not routes:
             return 0.0

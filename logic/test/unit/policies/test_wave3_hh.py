@@ -56,7 +56,7 @@ def test_rl_gd_hh_solver(sample_data):
     dist, wastes, cap = sample_data
     params = RLGDHHParams(max_iterations=5, time_limit=1.0)
     solver = RLGDHHSolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
-    routes, profit = solver.solve()
+    routes, profit, cost = solver.solve()
     assert isinstance(routes, list)
     assert profit >= 0
 

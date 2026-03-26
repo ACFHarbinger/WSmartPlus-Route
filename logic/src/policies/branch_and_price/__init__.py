@@ -20,7 +20,7 @@ Key Components:
 
 from .bp import BranchAndPriceSolver
 from .master_problem import VRPPMasterProblem
-from .policy_bp import PolicyBP, run_branch_and_price
+from .policy_bp import BranchAndPricePolicy
 from .pricing_subproblem import PricingSubproblem
 from .rcspp_dp import RCSPPSolver
 
@@ -29,6 +29,5 @@ __all__ = [
     "PricingSubproblem",
     "RCSPPSolver",
     "BranchAndPriceSolver",
-    "PolicyBP",
-    "run_branch_and_price",
+    "BranchAndPricePolicy",
 ]

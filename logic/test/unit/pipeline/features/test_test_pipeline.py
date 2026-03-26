@@ -45,7 +45,7 @@ class TestPipelineFeaturesTest:
     def cfg(self):
         return _make_pipeline_cfg()
 
-    @patch("logic.src.pipeline.simulations.repository.filesystem.udef.MAP_DEPOTS", {"testarea": "TEST"})
+    @patch("logic.src.pipeline.simulations.repository.filesystem.udef.MAP_DEPOTS", {"riomaior": "CTEASO"})
     @patch("logic.src.pipeline.features.test.orchestrator.udef")
     @patch("logic.src.pipeline.features.test.orchestrator.load_indices")
     @patch("logic.src.pipeline.features.test.orchestrator.parallel_runner.Pool")

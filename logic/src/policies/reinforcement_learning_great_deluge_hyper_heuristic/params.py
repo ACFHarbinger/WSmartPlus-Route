@@ -57,6 +57,13 @@ class RLGDHHParams:
     # multiplier = 1.20 implies targeting a 20% profit increase.
     target_fitness_multiplier: float = 1.20
 
+    # Great Deluge specific parameters
+    rain_speed: float = 0.001
+    flood_margin: float = 0.1
+
+    # RL1 Adaptation
+    initial_utility: float = 20.0
+
     # Profit-awareness
     vrpp: bool = True
     profit_aware_operators: bool = False
@@ -72,6 +79,9 @@ class RLGDHHParams:
             utility_upper_bound=getattr(config, "utility_upper_bound", 40.0),
             min_utility=getattr(config, "min_utility", 0.0),
             target_fitness_multiplier=getattr(config, "target_fitness_multiplier", 1.20),
+            rain_speed=getattr(config, "rain_speed", 0.001),
+            flood_margin=getattr(config, "flood_margin", 0.1),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            initial_utility=getattr(config, "initial_utility", 20.0),
         )

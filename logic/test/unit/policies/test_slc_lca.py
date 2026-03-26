@@ -28,9 +28,10 @@ def test_slc_solver_basic(small_vrpp_instance):
         max_iterations=5,
         stagnation_limit=2,
         n_removal=1,
-        local_search_iterations=2
+        local_search_iterations=2,
+        seed=42,
     )
-    solver = SLCSolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = SLCSolver(dist_matrix, wastes, capacity, R, C, params)
     routes, profit, cost = solver.solve()
 
     assert isinstance(routes, list)
@@ -50,7 +51,7 @@ def test_slc_coaching_and_superstars(small_vrpp_instance):
         n_removal=1,
         local_search_iterations=1
     )
-    solver = SLCSolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = SLCSolver(dist_matrix, wastes, capacity, R, C, params)
     # Trigger coaching and superstar updates
     solver.solve()
     assert len(solver.superstars) > 0
@@ -66,7 +67,7 @@ def test_lca_solver_basic(small_vrpp_instance):
         tolerance_pct=0.05,
         local_search_iterations=2
     )
-    solver = LCASolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = LCASolver(dist_matrix, wastes, capacity, R, C, params)
     routes, profit, cost = solver.solve()
 
     assert isinstance(routes, list)
@@ -86,7 +87,7 @@ def test_lca_winner_loser_update(small_vrpp_instance):
         tolerance_pct=0.0,
         local_search_iterations=1
     )
-    solver = LCASolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+    solver = LCASolver(dist_matrix, wastes, capacity, R, C, params)
     solver.solve()
     # Ensure some movement happened
     assert solver.n_nodes == 3
