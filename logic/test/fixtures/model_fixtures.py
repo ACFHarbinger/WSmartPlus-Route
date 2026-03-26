@@ -127,9 +127,9 @@ def tam_setup(mocker):
 
     mocker.patch("logic.src.models.subnets.modules.ActivationFunction", new=MockActivationFunction)
 
-    # Patch both to be safe
-    mocker.patch("logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor", autospec=False)
-    mock_grfp_cls = mocker.patch("logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor", autospec=False)
+    # Patch where used in TAM model module
+    mocker.patch("logic.src.models.core.temporal_attention_model.model.LongShortTermMemoryFillPredictor", autospec=False)
+    mock_grfp_cls = mocker.patch("logic.src.models.core.temporal_attention_model.model.GatedRecurrentUnitFillPredictor", autospec=False)
 
     mock_grfp = mock_grfp_cls.return_value
 

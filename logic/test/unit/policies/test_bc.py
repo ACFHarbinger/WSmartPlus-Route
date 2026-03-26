@@ -94,7 +94,6 @@ def test_small_instance_solve():
             )
 
     wastes = {1: 20, 2: 15, 3: 25, 4: 18}
-    capacity = 60.0
     R = 2.0  # High revenue
     C = 1.0
 
@@ -111,7 +110,6 @@ def test_small_instance_solve():
         must_go=[1],
         distance_matrix=dist_matrix,
         wastes=wastes,
-        capacity=capacity,
         R=R,
         C=C,
         bins=type("obj", (), {"c": [20, 15, 25, 18]}),
