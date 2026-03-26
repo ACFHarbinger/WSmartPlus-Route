@@ -85,11 +85,6 @@ hgs:
       # Vidal 2022 default: 0.2
       # Penalty coefficients auto-adjust to maintain this ratio
 
-    - alpha_diversity: 0.5
-      # Weight of diversity in biased fitness calculation
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
-      # Vidal 2022 default: 0.5
-
     - min_diversity: 0.2
       # Minimum diversity threshold
       # Range: 0.0-1.0

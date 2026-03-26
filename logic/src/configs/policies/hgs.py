@@ -27,9 +27,8 @@ class HGSConfig:
         mutation_rate: Probability of applying local search to offspring.
         repair_probability: Probability of repairing infeasible offspring.
         crossover_rate: Probability of applying crossover.
-        alpha_diversity: Weight for diversity in fitness evaluation.
         min_diversity: Minimum diversity threshold.
-        diversity_change_rate: Rate at which alpha diversity changes.
+        diversity_change_rate: Rate at which diversity changes.
         local_search_iterations: Number of local search iterations.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
         initial_penalty_capacity: Initial penalty for capacity violations.
@@ -57,8 +56,7 @@ class HGSConfig:
     repair_probability: float = 0.5
     crossover_rate: float = 1.0
 
-    # Diversity management
-    alpha_diversity: float = 0.5
+    # Diversity management (Vidal 2022: parameterless diversity weighting)
     min_diversity: float = 0.2
     diversity_change_rate: float = 0.05
 

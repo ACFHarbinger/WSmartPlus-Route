@@ -19,7 +19,24 @@ Example:
 class Individual:
     """
     Individual solution representation for genetic algorithm.
-    Follows Vidal et al. (2022) HGS-CVRP implementation.
+    Follows Vidal et al. (2022) HGS-CVRP implementation with VRPP adaptations.
+
+    Genotype/Phenotype Mapping:
+        - Genotype: giant_tour (ordered list of all customer nodes, including unvisited)
+        - Phenotype: routes (actual vehicle routes after Split algorithm)
+
+    For VRPP (Vehicle Routing Problem with Profits):
+        The Split algorithm may skip unprofitable nodes, creating a mismatch between
+        genotype and phenotype. To maintain genetic consistency for crossover:
+
+        1. giant_tour contains ALL nodes in a specific order (genotype)
+        2. routes contains only visited nodes organized into vehicle routes (phenotype)
+        3. Nodes in giant_tour but not in routes are implicitly "unvisited"
+        4. Local search operators may move nodes between visited and unvisited sets
+        5. Crossover operates on giant_tour, preserving genetic material for all nodes
+
+    This approach (Option A: Implicit Dummy Route) treats unvisited nodes as being
+    in a conceptual "dummy route" at the end of the giant tour.
     """
 
     def __init__(self, giant_tour: List[int], expand_pool: bool = False):
@@ -27,7 +44,8 @@ class Individual:
         Initialize an individual with a giant tour.
 
         Args:
-            giant_tour: A list representing the visit order of all clients.
+            giant_tour: A list representing the visit order of all clients (genotype).
+                       For VRPP, this includes both visited and potentially unvisited nodes.
             expand_pool: If True (VRPP mode), repair operators consider all unvisited nodes.
                         If False (CVRP mode), repair operators only consider removed nodes.
         """
@@ -51,6 +69,28 @@ class Individual:
 
         # VRPP-specific: controls whether repair operators expand node pool
         self.expand_pool = expand_pool
+
+    def get_visited_nodes(self) -> set:
+        """
+        Get the set of nodes that are currently visited in the solution.
+
+        Returns:
+            Set of node IDs present in routes (phenotype).
+        """
+        return {node for route in self.routes for node in route}
+
+    def get_unvisited_nodes(self) -> List[int]:
+        """
+        Get the list of nodes in the giant tour that are not currently visited.
+
+        For VRPP, these are nodes that the Split algorithm decided to skip
+        because they were unprofitable, or that local search removed.
+
+        Returns:
+            List of node IDs in giant_tour but not in routes, in giant_tour order.
+        """
+        visited = self.get_visited_nodes()
+        return [node for node in self.giant_tour if node not in visited]
 
     def __lt__(self, other: "Individual") -> bool:
         """Comparison based on biased fitness (used for sorting)."""

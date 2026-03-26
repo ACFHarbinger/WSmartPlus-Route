@@ -14,6 +14,23 @@ import numpy as np
 class LinearSplit:
     """
     Linear-time Split algorithm for decoding giant tours into routes.
+
+    This algorithm partitions a giant tour (genotype) into optimal vehicle routes (phenotype)
+    using dynamic programming. For VRPP (Vehicle Routing Problem with Profits), the algorithm
+    can skip unprofitable nodes by evaluating "skip edges" that bypass nodes when their
+    marginal profit is negative.
+
+    Genotype/Phenotype Transformation:
+        Input (Genotype):  giant_tour = [3, 7, 2, 9, 1, ...]  (all nodes in order)
+        Output (Phenotype): routes = [[3, 7], [9, 1]]        (only profitable nodes, partitioned)
+
+    The nodes that are skipped (e.g., node 2 in the example above) remain in the giant_tour
+    but are not included in any route. This preserves genetic material for crossover while
+    allowing the algorithm to adapt the visited node set to maximize profit.
+
+    References:
+        - Vidal et al. (2022): Hybrid genetic search for the CVRP
+        - Prins (2004): A simple and effective evolutionary algorithm for the VRP
     """
 
     def __init__(

@@ -109,8 +109,9 @@ class HGSRRSolver:
             evaluate(ind, self.split_manager)
             population.append(ind)
 
-        current_alpha = self.params.alpha_diversity
-        update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
+        # Note: alpha_diversity parameter removed in Vidal 2022 refactoring
+        # Diversity weight is now automatically calculated as: 1 - (N_elite / |Pop|)
+        update_biased_fitness(population, self.params.elite_size, self.params.neighbor_list_size)
 
         it = 0
         last_improvement_it = 0
@@ -161,16 +162,13 @@ class HGSRRSolver:
                 best_cost_so_far = child.cost
                 last_improvement_it = it
 
-            # Adaptive alpha diversity
-            avg_dist = np.mean([ind.dist_to_parents for ind in population])
-            if avg_dist < self.params.min_diversity:
-                current_alpha = min(1.0, current_alpha + self.params.diversity_change_rate)
-            elif it - last_improvement_it > self.params.no_improvement_threshold:
-                current_alpha = max(0.0, current_alpha - self.params.diversity_change_rate)
+            # Note: Adaptive alpha_diversity removed in Vidal 2022 refactoring
+            # Diversity weight now automatically calculated as: 1 - (N_elite / |Pop|)
+            # This parameterless approach eliminates the need for manual diversity tuning
 
             # 4. Survivor Selection
             if len(population) > self.params.population_size * self.params.survivor_threshold:
-                update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
+                update_biased_fitness(population, self.params.elite_size, self.params.neighbor_list_size)
                 population.sort(key=lambda x: x.fitness)
                 population = population[: self.params.population_size]
 
@@ -188,7 +186,7 @@ class HGSRRSolver:
             )
 
         # Final evaluation and selection
-        update_biased_fitness(population, self.params.elite_size, current_alpha, self.params.neighbor_list_size)
+        update_biased_fitness(population, self.params.elite_size, self.params.neighbor_list_size)
         best_ind = min(population, key=lambda x: -x.profit_score)
 
         return best_ind.routes, best_ind.profit_score, best_ind.cost
