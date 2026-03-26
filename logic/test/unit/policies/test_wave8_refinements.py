@@ -24,9 +24,10 @@ def test_de_j_rand_enforcement(small_instance):
         max_iterations=2,
         mutation_factor=0.5,
         crossover_rate=0.0,  # Force j_rand to be the ONLY node from mutant
-        local_search_iterations=0
+        local_search_iterations=0,
+        seed=42,
     )
-    solver = DESolver(dist_matrix, wastes, capacity, R=1.0, C=1.0, params=params, seed=42)
+    solver = DESolver(dist_matrix, wastes, capacity, R=1.0, C=1.0, params=params)
 
     # Manually test the crossover logic
     target = [[1]]
@@ -54,9 +55,10 @@ def test_hvpl_phases(small_instance):
     params = HVPLParams(
         n_teams=4,
         max_iterations=2,
-        aco_init_iterations=10
+        aco_init_iterations=10,
+        seed=42
     )
-    solver = HVPLSolver(dist_matrix, wastes, capacity, R=1.0, C=1.0, params=params, seed=42)
+    solver = HVPLSolver(dist_matrix, wastes, capacity, R=1.0, C=1.0, params=params)
 
     routes, profit, cost = solver.solve()
     assert isinstance(routes, list)

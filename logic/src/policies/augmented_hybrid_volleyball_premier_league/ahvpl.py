@@ -97,7 +97,7 @@ class AHVPLSolver:
         if not routes:
             return None
 
-        ind = Individual(self._routes_to_giant_tour(routes), vrpp=self.params.vrpp)
+        ind = Individual(self._routes_to_giant_tour(routes), expand_pool=self.params.vrpp)
         ind.routes = [r[:] for r in routes]
 
         # Calculate precise cost/rev directly from ACO routes
@@ -276,8 +276,8 @@ class AHVPLSolver:
         p2_extra = [n for n in p1.giant_tour if n in (p1_active - p2_active)]
         p2_ordered.extend(p2_extra)
 
-        temp_p1 = Individual(p1_ordered, vrpp=p1.vrpp)
-        temp_p2 = Individual(p2_ordered, vrpp=p2.vrpp)
+        temp_p1 = Individual(p1_ordered, expand_pool=p1.expand_pool)
+        temp_p2 = Individual(p2_ordered, expand_pool=p2.expand_pool)
         child = ordered_crossover(temp_p1, temp_p2, rng=self.random)
 
         # Re-append globally unvisited nodes for genetic consistency

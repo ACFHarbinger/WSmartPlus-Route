@@ -27,10 +27,11 @@ def test_rl_alns_solver():
             rl_config=rl_config,
             max_iterations=5,
             start_temp=100.0,
-            cooling_rate=0.9
+            cooling_rate=0.9,
+            seed=42
         )
 
-        solver = RLALNSSolver(dist_matrix, wastes, capacity, R, C, params, seed=42)
+        solver = RLALNSSolver(dist_matrix, wastes, capacity, R, C, params)
         routes, profit, cost = solver.solve()
 
         print(f"  Result: Routes={routes}, Profit={profit:.2f}, Cost={cost:.2f}")
@@ -64,7 +65,7 @@ def test_ahvpl_rl_solver():
         aco_params=aco_params
     )
 
-    solver = AHVPLRLSolver(dist_matrix, wastes, capacity, R, C, rl_params, seed=42)
+    solver = AHVPLRLSolver(dist_matrix, wastes, capacity, R, C, rl_params)
     routes, profit, cost = solver.solve()
 
     print(f"  Result: Routes={routes}, Profit={profit:.2f}, Cost={cost:.2f}")

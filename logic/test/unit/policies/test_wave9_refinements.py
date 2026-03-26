@@ -27,8 +27,8 @@ def mock_vrpp_data():
 
 def test_ga_local_search_integration(mock_vrpp_data):
     dist, wastes, cap, R, C = mock_vrpp_data
-    params = GAParams(max_generations=2, pop_size=5)
-    solver = GASolver(dist, wastes, cap, R, C, params, seed=42)
+    params = GAParams(max_generations=2, pop_size=5, seed=42)
+    solver = GASolver(dist, wastes, cap, R, C, params)
 
     routes, profit, cost = solver.solve()
     assert len(routes) > 0

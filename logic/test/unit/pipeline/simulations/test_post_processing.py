@@ -27,7 +27,7 @@ class TestPostProcessorFactory:
         assert isinstance(proc, FastTSPPostProcessor)
 
     def test_factory_get_classical_ls(self):
-        proc = PostProcessorFactory.create("2opt")
+        proc = PostProcessorFactory.create("classical_local_search")
         assert isinstance(proc, ClassicalLocalSearchPostProcessor)
 
     def test_factory_invalid(self):

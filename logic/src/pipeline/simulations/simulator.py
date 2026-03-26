@@ -42,10 +42,6 @@ import torch
 from omegaconf import DictConfig
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
-from logic.src.pipeline.features.test.orchestrator.monitor import (
-    initialize_simulation_display,
-    process_display_updates,
-)
 from logic.src.pipeline.simulations.repository import set_repository_from_path
 from logic.src.tracking.logging.log_utils import log_to_json, output_stats
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
@@ -311,6 +307,11 @@ def sequential_simulations(  # noqa: C901
     last_reported_days = {p: 0 for p in policies}
     log_tmp: Dict[str, Any] = {p: {} for p in policies}
     policy_names = [get_pol_name(p) for p in policies]
+    from logic.src.pipeline.features.test.orchestrator.monitor import (
+        initialize_simulation_display,
+        process_display_updates,
+    )
+
     display = (
         initialize_simulation_display(policy_names, sim.n_samples, sim.days)
         if not cfg.tracking.no_progress_bar

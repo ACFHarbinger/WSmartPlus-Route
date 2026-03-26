@@ -62,8 +62,8 @@ def bins_stats(tmp_path, mock_bins_params_loader):
         n=2,
         data_dir=str(tmp_path),
         sample_dist="gamma",
-        area="test_area",
-        waste_type="test_type",
+        area="riomaior",
+        waste_type="plastic",
     )
 
 @pytest.fixture

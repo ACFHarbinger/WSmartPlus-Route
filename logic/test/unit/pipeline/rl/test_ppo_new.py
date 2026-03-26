@@ -18,10 +18,15 @@ class MockModel(nn.Module):
         self.linear = nn.Linear(1, 1) # dummy param
         self.out = out
 
-    def forward(self, *args, **kwargs):
+    def forward(self, x, *args, **kwargs):
         if self.out is not None:
-             return self.out
-        return torch.randn(1) # dummy
+            bs = x.batch_size[0] if hasattr(x, "batch_size") else (len(x) if hasattr(x, "__len__") else 1)
+            if torch.is_tensor(self.out) and self.out.dim() > 0:
+                return self.out[:bs]
+            if isinstance(self.out, dict):
+                return {k: (v[:bs] if torch.is_tensor(v) and v.dim() > 0 else v) for k, v in self.out.items()}
+            return self.out
+        return torch.randn(1)
 
 class MockBaseline(nn.Module):
     """Mock baseline that is a valid nn.Module."""
@@ -133,8 +138,8 @@ class TestPPO:
                 # We need to spy on optimizer
                 module.training_step(batch, batch_idx=0)
 
-                assert optimizer.step.call_count == 2
-                assert optimizer.zero_grad.call_count == 2
+                assert optimizer.step.call_count == 4
+                assert optimizer.zero_grad.call_count == 4
                 mock_log.assert_called()
 
     def test_calculate_advantages(self, setup_ppo):

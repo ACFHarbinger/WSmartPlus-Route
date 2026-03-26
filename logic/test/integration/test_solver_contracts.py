@@ -17,9 +17,6 @@ class TestSWCTCFOptimizerContract:
         routes, profit, cost = run_swc_tcf_optimizer(
             bins=data["bins"],
             distance_matrix=data["dist_matrix"],
-            param=0.0,
-            media=np.zeros(len(data["bins"])),
-            desviopadrao=np.zeros(len(data["bins"])),
             values=data["values"],
             binsids=data["binsids"],
             must_go=data["must_go"],
@@ -54,9 +51,6 @@ class TestSWCTCFOptimizerContract:
         routes, profit, cost = run_swc_tcf_optimizer(
             bins=data["bins"],
             distance_matrix=data["dist_matrix"],
-            param=0.0,
-            media=np.zeros(len(data["bins"])),
-            desviopadrao=np.zeros(len(data["bins"])),
             values=data["values"],
             binsids=data["binsids"],
             must_go=data["must_go"],

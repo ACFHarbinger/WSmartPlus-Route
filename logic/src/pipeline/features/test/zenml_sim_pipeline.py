@@ -24,7 +24,6 @@ from typing import Any, Dict, List
 from omegaconf import OmegaConf
 
 from logic.src.configs import Config
-from logic.src.pipeline.features.test.engine import run_wsr_simulator_test
 from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
 from logic.src.tracking.logging.pylogger import get_pylogger
 
@@ -90,6 +89,8 @@ if _ZENML_AVAILABLE:
         sim.full_policies = filtered_policies
 
         bridge = ZenMLBridge()
+        from logic.src.pipeline.features.test.engine import run_wsr_simulator_test
+
         run_wsr_simulator_test(cfg, sinks=[bridge])
         return batch_id
 

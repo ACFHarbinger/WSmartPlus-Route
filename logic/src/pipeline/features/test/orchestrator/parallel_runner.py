@@ -11,10 +11,6 @@ from logic.src.pipeline.features.test.orchestrator.monitor import (
     monitor_tasks_until_complete,
 )
 from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
-from logic.src.pipeline.simulations.simulator import (
-    init_single_sim_worker,
-    single_simulation,
-)
 from logic.src.utils.configs.setup_utils import get_pol_name
 from logic.src.utils.tasks.simulation_utils import (
     prepare_parallel_task_args,
@@ -70,6 +66,8 @@ def run_parallel_simulations(
     # Create multiprocessing pool
     start_method = "fork" if getattr(sim, "no_cuda", False) else "spawn"
     mp.set_start_method(start_method, force=True)
+    from logic.src.pipeline.simulations.simulator import init_single_sim_worker
+
     pool = Pool(
         processes=n_cores,
         initializer=init_single_sim_worker,
@@ -136,6 +134,8 @@ def execute_and_monitor_tasks(
                 del shared_metrics[key]
 
         log_tmp[pol_name].append(list(result.values())[0])
+
+    from logic.src.pipeline.simulations.simulator import single_simulation
 
     tasks = []
     for arg_tup in args:
