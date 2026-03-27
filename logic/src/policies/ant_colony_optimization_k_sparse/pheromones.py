@@ -54,20 +54,30 @@ class SparsePheromoneTau:
 
     def set(self, i: int, j: int, value: float) -> None:
         """
-        Set pheromone value for edge (i, j).
+        Set pheromone value, strictly maintaining only the top k edges.
 
-        If storage for node i exceeds k, evict the lowest value.
+        Phase 1 Fix: Enforce k-sparse constraint without memory leak.
+        The previous implementation could leak memory by inserting before checking capacity.
         """
         value = max(self.tau_min, min(self.tau_max, value))
 
-        if j in self._pheromone[i] or len(self._pheromone[i]) < self.k:
+        # 1. If edge is already tracked, simply update it
+        if j in self._pheromone[i]:
             self._pheromone[i][j] = value
-        else:
-            # Find minimum value in current storage, use neighbor ID as tie-breaker
-            min_neighbor = min(self._pheromone[i].keys(), key=lambda n: (self._pheromone[i][n], n))
-            if value > self._pheromone[i][min_neighbor]:
-                del self._pheromone[i][min_neighbor]
-                self._pheromone[i][j] = value
+            return
+
+        # 2. If we haven't reached capacity k, add it
+        if len(self._pheromone[i]) < self.k:
+            self._pheromone[i][j] = value
+            return
+
+        # 3. We are at capacity. Find the weakest neighbor.
+        min_neighbor = min(self._pheromone[i].keys(), key=lambda n: self._pheromone[i][n])
+
+        # 4. Only replace if the new value is strictly better than the weakest link
+        if value > self._pheromone[i][min_neighbor]:
+            del self._pheromone[i][min_neighbor]
+            self._pheromone[i][j] = value
 
     def deposit_edge(self, i: int, j: int, delta: float) -> None:
         """

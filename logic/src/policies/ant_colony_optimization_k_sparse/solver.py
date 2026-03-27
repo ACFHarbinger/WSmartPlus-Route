@@ -196,10 +196,8 @@ class KSparseACOSolver:
                 best_cost = iteration_best_cost
                 best_routes = iteration_best_routes
 
-            # Global pheromone update: strictly limit to best-so-far and iteration-best
-            # or top-k ants if k_sparse specifies it.
-            # Following Leguizamon (1999), we update using the rank-based scheme.
-            self._global_pheromone_update(best_routes, best_cost, iteration_solutions)
+            # Global pheromone update: pure ACS (only best-so-far solution)
+            self._global_pheromone_update(best_routes, best_cost)
 
             _tau_vals = [v for nbrs in self.pheromone._pheromone.values() for v in nbrs.values()]
             getattr(self, "_viz_record", lambda **k: None)(
@@ -216,44 +214,37 @@ class KSparseACOSolver:
 
         return best_routes, profit, best_cost
 
-    def _global_pheromone_update(
-        self, best_routes: List[List[int]], best_cost: float, iteration_solutions: List[Tuple[List[List[int]], float]]
-    ) -> None:
+    def _global_pheromone_update(self, best_routes: List[List[int]], best_cost: float) -> None:
         """
-        Apply rank-based global pheromone update.
+        Apply pure ACS global pheromone update.
 
-        Reference: Leguizamon et al. (1999)
-        - Deposit pheromone for best-so-far (elitist)
-        - Deposit pheromone for top (w-1) ants of current iteration
-        - Weight delta by rank: (w - rank) / best_cost
+        Phase 2 Fix: Only the edges of the globally best solution are evaporated and reinforced.
+        Formula: tau(i,j) = (1 - rho) * tau(i,j) + rho * (1 / best_cost)
+
+        This aligns with Ant Colony System principles, where local updates during construction
+        are complemented by global updates only on the best-so-far solution.
         """
         if not best_routes or best_cost <= 0:
             return
 
-        # Evaporate all pheromones
-        self.pheromone.evaporate_all(self.params.rho)
+        delta_bs = 1.0 / best_cost
+        rho = self.params.rho
 
-        # Weight for best-so-far
-        w = 10  # Number of elite ants (common value)
-        delta_bs = w / best_cost
-        self._deposit_solution(best_routes, delta_bs)
-
-        # Weight for top ants in iteration
-        for rank, (routes, cost) in enumerate(iteration_solutions[: w - 1]):
-            delta = (w - (rank + 1)) / cost
-            self._deposit_solution(routes, delta)
-
-    def _deposit_solution(self, routes: List[List[int]], delta: float) -> None:
-        """Helper to deposit pheromone on all edges of a solution."""
-        for route in routes:
+        for route in best_routes:
             if not route:
                 continue
 
             prev = 0
             for node in route:
-                self.pheromone.update_edge(prev, node, delta, evaporate=False)
+                current_tau = self.pheromone.get(prev, node)
+                new_tau = (1 - rho) * current_tau + rho * delta_bs
+                self.pheromone.set(prev, node, new_tau)
                 prev = node
-            self.pheromone.update_edge(prev, 0, delta, evaporate=False)
+
+            # Return to depot
+            current_tau = self.pheromone.get(prev, 0)
+            new_tau = (1 - rho) * current_tau + rho * delta_bs
+            self.pheromone.set(prev, 0, new_tau)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
         """Calculate total routing cost."""
