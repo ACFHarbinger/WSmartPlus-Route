@@ -86,6 +86,10 @@ class HyperOperatorContext:
         self.neighbors: Dict[int, List[int]] = {}
         self.rng = rng or random.Random(42)
 
+        # Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
+        # Maps: node_id -> route_idx -> [(cost_delta, position), ...]
+        self.top_insertions: Dict[int, Dict[int, List[Tuple[float, int]]]] = {}
+
         self._build_structures()
 
     def _build_structures(self):
@@ -112,6 +116,9 @@ class HyperOperatorContext:
                         break
             self.neighbors[i] = cands
 
+        # Compute Top-3 Insertion Cache for SWAP* operator
+        self._compute_top_insertions()
+
     def _calc_load_fresh(self, r: List[int]) -> float:
         return sum(self.waste.get(x, 0) for x in r)
 
@@ -124,6 +131,47 @@ class HyperOperatorContext:
                 for pi, node in enumerate(self.routes[ri]):
                     self.node_map[node] = (ri, pi)
                 self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
+                # Update top insertions for affected route
+                self._compute_top_insertions(route_idx=ri)
+
+    def _compute_top_insertions(self, route_idx: Optional[int] = None):
+        """
+        Compute or update the Top-3 Insertion Cache for O(1) SWAP* evaluation.
+
+        Following Vidal et al. (2022), this cache stores the 3 best insertion positions
+        for each node into each route, enabling constant-time insertion cost evaluation.
+
+        Args:
+            route_idx: If provided, update cache only for this route. If None, initialize for all routes.
+        """
+        routes_to_update = [route_idx] if route_idx is not None else range(len(self.routes))
+
+        for r_idx in routes_to_update:
+            route = self.routes[r_idx]
+            if not route:
+                continue
+
+            # For each node that could potentially be inserted into this route
+            for node in self.neighbors:
+                # Skip nodes already in this route
+                if node in route:
+                    continue
+
+                # Initialize cache structure if needed
+                if node not in self.top_insertions:
+                    self.top_insertions[node] = {}
+
+                # Calculate insertion costs for all positions
+                insertion_costs = []
+                for pos in range(len(route) + 1):
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+                    delta = self.d[prev, node] + self.d[node, nxt] - self.d[prev, nxt]
+                    insertion_costs.append((delta, pos))
+
+                # Keep top 3 (lowest cost) insertions
+                insertion_costs.sort(key=lambda x: x[0])
+                self.top_insertions[node][r_idx] = insertion_costs[:3]
 
 
 # -----------------------------------------------------------------------------
