@@ -1,5 +1,15 @@
 """
 OR-Tools engine for Branch-and-Price-and-Cut module.
+
+IMPORTANT: This is NOT a true Branch-and-Price-and-Cut solver.
+This implementation uses OR-Tools' Constraint Programming (CP) routing solver with
+local search metaheuristics. It does NOT implement:
+- Column Generation
+- Pricing Subproblem (RCSPP)
+- Branch-and-Bound tree
+- Linear Programming relaxations
+
+This is a CP/Local Search solver backend included for comparison purposes.
 """
 
 from typing import Any, Dict, List, Optional, Tuple

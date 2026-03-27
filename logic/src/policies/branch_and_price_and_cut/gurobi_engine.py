@@ -1,5 +1,14 @@
 """
 Gurobi engine for Branch-and-Price-and-Cut module.
+
+IMPORTANT: This is NOT a true Branch-and-Price-and-Cut solver.
+This implementation uses Gurobi's standard Branch-and-Cut algorithm with a compact
+edge-based formulation. It does NOT implement:
+- Column Generation
+- Pricing Subproblem (RCSPP)
+- Branching on edge variables with modified pricing
+
+This is a standard MIP solver backend included for comparison purposes.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
