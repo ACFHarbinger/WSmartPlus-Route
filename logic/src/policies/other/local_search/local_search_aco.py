@@ -39,12 +39,20 @@ class ACOLocalSearch(LocalSearch):
         """Initialize ACO Local Search."""
         super().__init__(dist_matrix, waste, capacity, R, C, params, neighbors)
 
-    def optimize(self, solution: List[List[int]]) -> List[List[int]]:
+    def optimize(self, solution: List[List[int]], target_neighborhood: Optional[str] = None) -> List[List[int]]:
         """
-        Apply full set of local search operators to the solution.
+        Apply local search operators to the solution.
 
         Args:
             solution: List of routes, where each route is a list of node indices.
+            target_neighborhood: If provided, only applies the specified neighborhood operator.
+                               If None or "all", applies all available operators.
+                               Valid values: "intra_relocate", "intra_swap", "intra_2opt",
+                               "intra_3opt", "intra_or_opt", "inter_relocate", "inter_swap",
+                               "inter_2opt_star", "inter_swap_star", "cross_exchange",
+                               "improved_cross_exchange", "lambda_interchange", "cyclic_transfer",
+                               "exchange_chains", "ejection_chains", "relocate_chain", "three_permutation",
+                               "unrouted_insert", "all"
 
         Returns:
             List of optimized routes.
@@ -52,7 +60,7 @@ class ACOLocalSearch(LocalSearch):
         # Create a deep copy of routes to modify
         self.routes = [r[:] for r in solution]
 
-        # Run optimization
-        self._optimize_internal()
+        # Run optimization with optional neighborhood filter
+        self._optimize_internal(target_neighborhood=target_neighborhood)
 
         return self.routes
