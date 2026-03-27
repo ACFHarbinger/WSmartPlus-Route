@@ -2,8 +2,16 @@
 Branch-and-Price-and-Cut (BPC) solver dispatcher.
 
 Reference:
-    Laporte, G., Hane, C. A., & Vance, P. H. "USING BRANCH-AND-PRICE-AND-CUT
-    TO SOLVE ORIGIN-DESTINATION INTEGER MULTICOMMODITY FLOW PROBLEMS.", 1998.
+    Barnhart, C., Hane, C. A., & Vance, P. H. (1998).
+    "Using Branch-and-Price-and-Cut to Solve Origin-Destination Integer
+    Multicommodity Flow Problems." Operations Research, 48(2), 318-326.
+
+Note:
+    This dispatcher coordinates multiple solver backends:
+    - 'bpc_native': True Branch-and-Price-and-Cut (Column Generation + B&B tree)
+    - 'gurobi': Standard Branch-and-Cut (NOT BPC - uses Gurobi's built-in B&C)
+    - 'ortools': Constraint Programming / Local Search (NOT BPC)
+    - 'vrpy': VRPy library wrapper (Column Generation without full BPC)
 """
 
 from typing import Optional

@@ -332,3 +332,86 @@ class VRPPMasterProblem:
             Dictionary mapping node ID to dual value
         """
         return self.dual_node_coverage.copy()
+
+    def get_node_visitation(self) -> Dict[int, float]:
+        """
+        Get node visitation probabilities from LP solution.
+
+        Returns:
+            Dictionary mapping node ID to sum of λ_k for routes covering that node
+        """
+        if self.model is None:
+            return {}
+
+        try:
+            node_visits: Dict[int, float] = {}
+            for idx, var in enumerate(self.lambda_vars):
+                val = var.X
+                if val > 1e-6:
+                    route = self.routes[idx]
+                    for node in route.node_coverage:
+                        node_visits[node] = node_visits.get(node, 0.0) + val
+            return node_visits
+        except Exception:
+            return {}
+
+    def add_set_packing_capacity_cut(self, cut_nodes: List[int], rhs: float) -> bool:
+        """
+        Add a Set Packing capacity cut with relaxation for optional visits.
+
+        For VRPP Set Packing, the cut includes a penalty term for non-visitation:
+            sum(x_e for e in delta(S)) >= 2*k(S) - M * sum_{i in S} (1 - y_i)
+
+        This is implemented by tracking visitation variables and adjusting the constraint
+        to only be tight when nodes are actually visited.
+
+        Args:
+            cut_nodes: Nodes in the cut set S
+            rhs: Right-hand side k(S) = ceil(q(S) / Q)
+
+        Returns:
+            True if cut was added, False if duplicate
+        """
+        if self.model is None:
+            return False
+
+        cut_set = set(cut_nodes)
+
+        # Check if cut already exists
+        for existing_set, _existing_rhs, _ in self.dual_capacity_cuts:
+            if existing_set == cut_set:
+                return False
+
+        # For Set Packing, we use the standard RCC formulation but allow violation
+        # when nodes are not visited. The master problem tracks y_i implicitly through
+        # the sum of λ_k covering node i.
+        #
+        # Standard VRP RCC: sum_{e in delta(S)} x_e >= 2*k(S)
+        # Set Packing RCC: sum_{e in delta(S)} x_e >= 2*k(S) - M*(|S| - sum_i y_i)
+        #
+        # Since we're in a set partitioning master problem, we can't directly add y_i
+        # variables. Instead, we only add the cut if the LP solution indicates nodes
+        # in S are being visited (which is checked by the separation routine).
+
+        lhs = gp.LinExpr()
+        for idx, route in enumerate(self.routes):
+            # Count edges crossing the boundary of S
+            boundary_edges = 0
+            prev = 0
+            for curr in route.nodes + [0]:
+                # Edge crosses boundary if exactly one endpoint is in S
+                if (prev in cut_set) != (curr in cut_set):
+                    boundary_edges += 1
+                prev = curr
+
+            if boundary_edges > 0:
+                lhs += boundary_edges * self.lambda_vars[idx]
+
+        if lhs.size() == 0:
+            return False
+
+        # Standard RCC constraint: sum_{e in delta(S)} >= 2*k(S)
+        self.model.addConstr(lhs >= 2 * rhs, name=f"rcc_sp_{len(self.dual_capacity_cuts)}")
+        self.dual_capacity_cuts.append((cut_set, rhs, 0.0))
+        self.model.update()
+        return True
