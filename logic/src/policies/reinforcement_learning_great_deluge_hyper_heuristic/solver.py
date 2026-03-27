@@ -86,8 +86,20 @@ class RLGDHHSolver:
         best_routes = copy.deepcopy(current_routes)
         best_profit = current_profit
 
-        # water level (initialised based on initial profit)
+        # Initialize Great Deluge water level (Ozcan et al. 2010)
+        # Start below current profit by flood_margin percentage
         water_level = current_profit * (1.0 - self.params.flood_margin) if current_profit > 0 else -100.0
+
+        # Calculate target fitness based on Ozcan et al. (2010)
+        # Target is higher than current by the multiplier factor
+        target_profit = current_profit * self.params.target_fitness_multiplier if current_profit > 0 else 100.0
+
+        # Calculate linear rise rate per iteration (Great Deluge linear boundary update)
+        # The water level must reach target_profit by the end of max_iterations
+        rise_rate = (target_profit - water_level) / self.params.max_iterations
+        if rise_rate <= 0:
+            # Fallback safety: use rain_speed if calculation fails
+            rise_rate = self.params.rain_speed
 
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
@@ -105,17 +117,23 @@ class RLGDHHSolver:
             # Acceptance Phase: Great Deluge (Maximisation)
             accepted = new_profit >= water_level
 
-            # Adaptation Phase (Reward RL)
+            # Adaptation Phase: Update RL utilities based on performance (Ozcan et al. 2010)
             reward = 0.0
             if new_profit > current_profit:
+                # Reward improvement
                 reward = self.params.reward_improvement
             elif new_profit == current_profit:
+                # Small reward for neutral moves (maintain diversity)
                 reward = self.params.reward_neutral
             else:
-                reward = self.params.penalty_worsening
+                # PENALTY for worsening moves (must be NEGATIVE)
+                # Note: penalty_worsening should be negative in params, but we ensure subtraction here
+                reward = -abs(self.params.penalty_worsening)
 
-            self.utilities[llh_idx] = max(
-                self.params.utility_upper_bound, min(self.params.min_utility, self.utilities[llh_idx] + reward)
+            # Update utility with proper bounds (min_utility <= utility <= utility_upper_bound)
+            # Fix: min() clamps to upper bound, max() clamps to lower bound
+            self.utilities[llh_idx] = min(
+                self.params.utility_upper_bound, max(self.params.min_utility, self.utilities[llh_idx] + reward)
             )
 
             if accepted:
@@ -126,8 +144,9 @@ class RLGDHHSolver:
                     best_routes = copy.deepcopy(current_routes)
                     best_profit = current_profit
 
-            # Update water level (flood rises linearly)
-            water_level += self.params.rain_speed * abs(best_profit + 1)
+            # Update water level with pre-computed linear rise rate (Ozcan et al. 2010)
+            # This ensures the boundary increases linearly toward the target fitness
+            water_level += rise_rate
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
