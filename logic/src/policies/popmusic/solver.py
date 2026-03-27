@@ -130,23 +130,37 @@ def run_popmusic(  # noqa: C901
             routes.extend(sub_routes)
 
     # 2. POPMUSIC ITERATIONS
-    improved = True
     iteration = 0
-    while improved and iteration < max_iterations:
-        improved = False
+    # Initialize global unassigned pool for VRPP support
+    unassigned_nodes = set()
+    # Initialize Active List (O-List) for POPMUSIC acceleration
+    active_mask = [True] * len(routes)
+
+    while any(active_mask) and iteration < max_iterations:
         # Calculate centroids of routes for proximity
         centroids = []
         for route in routes:
             # Exclude depot (0) for centroid calculation
             nodes = [n for n in route if n != 0]
             if nodes:
-                center = coords.iloc[nodes][["Lat", "Lng"]].mean().values
+                # Use .loc to guarantee alignment with exact Node IDs
+                center = coords.loc[nodes][["Lat", "Lng"]].mean().values
                 centroids.append(center)
             else:
-                centroids.append(coords.iloc[0][["Lat", "Lng"]].values)
+                # Use .loc for the depot as well
+                centroids.append(coords.loc[0][["Lat", "Lng"]].values)
 
         # Try all possible seeds (routes)
         for i in range(len(routes)):
+            # Skip inactive seeds (Active List optimization)
+            if not active_mask[i]:
+                continue
+
+            # Skip ghost routes (routes without customer nodes)
+            # This prevents wasting computation on depot-only routes before cleanup
+            if not [n for n in routes[i] if n != 0]:
+                continue
+
             # Find R-1 nearest neighbors to route i
             neighborhood_indices = find_route_neighbors(i, centroids, subproblem_size)
 
@@ -157,6 +171,29 @@ def run_popmusic(  # noqa: C901
 
             if not subproblem_nodes:
                 continue
+
+            # Inject nearby unassigned nodes into the subproblem (VRPP support)
+            if vrpp and unassigned_nodes and subproblem_nodes:
+                nearby_unassigned = []
+
+                # Calculate average edge length in the subproblem to use as a threshold
+                sub_dists = [
+                    distance_matrix[subproblem_nodes[i], subproblem_nodes[j]]
+                    for i in range(len(subproblem_nodes))
+                    for j in range(i + 1, len(subproblem_nodes))
+                ]
+                threshold = (np.mean(sub_dists) * 1.5) if sub_dists else distance_matrix.mean()
+
+                for u_node in list(unassigned_nodes):
+                    # Find minimum distance to any node in the active subproblem
+                    min_dist_to_subproblem = min(distance_matrix[u_node, s_node] for s_node in subproblem_nodes)
+                    if min_dist_to_subproblem <= threshold:
+                        nearby_unassigned.append(u_node)
+
+                # Remove from unassigned pool and add to subproblem
+                for node in nearby_unassigned:
+                    unassigned_nodes.remove(node)
+                    subproblem_nodes.append(node)
 
             # Optimize subproblem
             old_cost = sum(get_route_cost(distance_matrix, routes[idx]) for idx in neighborhood_indices)
@@ -181,15 +218,53 @@ def run_popmusic(  # noqa: C901
             )
             if new_profit > old_profit + 1e-6:
                 # Update solution
-                # In a real implementation, we'd replace the old routes with new ones
-                # Here we just update the specific routes in the list
+                # Update existing routes in the neighborhood
                 for local_idx, global_idx in enumerate(neighborhood_indices):
                     if local_idx < len(new_routes):
                         routes[global_idx] = new_routes[local_idx]
+                        # Reactivate modified routes (Active List mechanism)
+                        active_mask[global_idx] = True
                     else:
                         routes[global_idx] = [0, 0]  # Empty route
-                improved = True
-                break
+                        active_mask[global_idx] = True
+
+                # CRITICAL: Append any extra routes created by the sub-solver
+                # This prevents data loss when sub-solver creates more routes than the neighborhood size
+                if len(new_routes) > len(neighborhood_indices):
+                    extra_routes = new_routes[len(neighborhood_indices) :]
+                    routes.extend(extra_routes)
+                    # Extend active_mask for new routes (all marked as active)
+                    active_mask.extend([True] * len(extra_routes))
+
+                # Track unassigned nodes for VRPP support
+                if vrpp:
+                    # Find nodes from subproblem_nodes that are missing from new_routes
+                    nodes_in_new_routes = set()
+                    for route in new_routes:
+                        nodes_in_new_routes.update([n for n in route if n != 0])
+
+                    # Any nodes that were in the subproblem but not in new routes are unassigned
+                    newly_unassigned = set(subproblem_nodes) - nodes_in_new_routes
+                    unassigned_nodes.update(newly_unassigned)
+
+                # Continue evaluating all seed routes in this iteration instead of breaking early
+            else:
+                # No improvement: deactivate the seed route (Active List mechanism)
+                active_mask[i] = False
+
+        # Clean up ghost routes while maintaining active_mask alignment
+        valid_indices = []
+        cleaned_routes = []
+
+        for idx, r in enumerate(routes):
+            # Keep route if it contains at least one non-depot customer node
+            if [n for n in r if n != 0]:
+                cleaned_routes.append(r)
+                valid_indices.append(idx)
+
+        # Sync routes and active_mask
+        routes = cleaned_routes
+        active_mask = [active_mask[idx] for idx in valid_indices]
 
         iteration += 1
 
@@ -248,6 +323,7 @@ def _optimize_subproblem(
             seed,
             vrpp,
             profit_aware_operators,
+            subproblem_nodes,
         )
     elif base_solver == "alns":
         return _optimize_with_alns(
@@ -262,6 +338,7 @@ def _optimize_subproblem(
             seed,
             vrpp,
             profit_aware_operators,
+            subproblem_nodes,
         )
     else:
         raise ValueError(f"Unsupported base_solver: {base_solver}")
@@ -316,8 +393,24 @@ def _optimize_with_hgs(
     seed: int,
     vrpp: bool = True,
     profit_aware_operators: bool = False,
+    subproblem_nodes: Optional[List[int]] = None,
 ) -> Tuple[List[List[int]], float]:
     """Optimize subproblem using Hybrid Genetic Search (HGS)."""
+    # Ensure subproblem isolation: only optimize nodes in the subproblem
+    if subproblem_nodes is None:
+        raise ValueError("subproblem_nodes must be provided for HGS optimization")
+
+    # Create local must_go: intersection of global must_go and subproblem_nodes
+    local_must_go = [n for n in must_go if n in subproblem_nodes]
+
+    # Build local distance matrix: depot (0) + subproblem_nodes
+    local_nodes = [0] + subproblem_nodes
+    node_to_local_idx = {node: i for i, node in enumerate(local_nodes)}
+
+    local_dist_matrix = distance_matrix[np.ix_(local_nodes, local_nodes)]
+    local_wastes = {node_to_local_idx[n]: wastes_dict.get(n, 0.0) for n in subproblem_nodes}
+    local_must_go_indices = [node_to_local_idx[n] for n in local_must_go]
+
     if isinstance(config, HGSConfig):
         params = HGSParams.from_config(config)
     elif isinstance(config, dict):
@@ -341,15 +434,22 @@ def _optimize_with_hgs(
         params.time_limit = time_limit
 
     solver = HGSSolver(
-        dist_matrix=distance_matrix,
-        wastes=wastes_dict,
+        dist_matrix=local_dist_matrix,
+        wastes=local_wastes,
         capacity=capacity,
         R=R,
         C=C,
         params=params,
-        mandatory_nodes=must_go,
+        mandatory_nodes=local_must_go_indices,
     )
-    routes, profit, _ = solver.solve()
+    local_routes, profit, _ = solver.solve()
+
+    # Map local routes back to global node IDs
+    routes = []
+    for local_route in local_routes:
+        global_route = [local_nodes[i] if i < len(local_nodes) else 0 for i in local_route]
+        routes.append(global_route)
+
     return routes, profit
 
 
@@ -365,8 +465,24 @@ def _optimize_with_alns(
     seed: int,
     vrpp: bool = True,
     profit_aware_operators: bool = False,
+    subproblem_nodes: Optional[List[int]] = None,
 ) -> Tuple[List[List[int]], float]:
     """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS)."""
+    # Ensure subproblem isolation: only optimize nodes in the subproblem
+    if subproblem_nodes is None:
+        raise ValueError("subproblem_nodes must be provided for ALNS optimization")
+
+    # Create local must_go: intersection of global must_go and subproblem_nodes
+    local_must_go = [n for n in must_go if n in subproblem_nodes]
+
+    # Build local distance matrix: depot (0) + subproblem_nodes
+    local_nodes = [0] + subproblem_nodes
+    node_to_local_idx = {node: i for i, node in enumerate(local_nodes)}
+
+    local_dist_matrix = distance_matrix[np.ix_(local_nodes, local_nodes)]
+    local_wastes = {node_to_local_idx[n]: wastes_dict.get(n, 0.0) for n in subproblem_nodes}
+    local_must_go_indices = [node_to_local_idx[n] for n in local_must_go]
+
     if config:
         if isinstance(config, ALNSConfig):
             params = ALNSParams.from_config(config)
@@ -396,15 +512,22 @@ def _optimize_with_alns(
         params.time_limit = time_limit
 
     solver = ALNSSolver(
-        dist_matrix=distance_matrix,
-        wastes=wastes_dict,
+        dist_matrix=local_dist_matrix,
+        wastes=local_wastes,
         capacity=capacity,
         R=R,
         C=C,
         params=params,
-        mandatory_nodes=must_go,
+        mandatory_nodes=local_must_go_indices,
     )
-    routes, profit, _ = solver.solve()
+    local_routes, profit, _ = solver.solve()
+
+    # Map local routes back to global node IDs
+    routes = []
+    for local_route in local_routes:
+        global_route = [local_nodes[i] if i < len(local_nodes) else 0 for i in local_route]
+        routes.append(global_route)
+
     return routes, profit
 
 
