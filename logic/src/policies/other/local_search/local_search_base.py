@@ -114,9 +114,13 @@ class LocalSearch(ABC):
         """
         pass
 
-    def _optimize_internal(self):
+    def _optimize_internal(self, target_neighborhood: Optional[str] = None):
         """
         Core local search loop. Assumes self.routes is populated.
+
+        Args:
+            target_neighborhood: If provided, only applies the specified neighborhood operator.
+                               If None or "all", applies all available operators.
         """
         self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
 
@@ -128,6 +132,9 @@ class LocalSearch(ABC):
 
         # Initialize Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
         self._compute_top_insertions()
+
+        # Store target neighborhood for _process_node to filter operators
+        self._target_neighborhood = target_neighborhood if target_neighborhood else "all"
 
         improved = True
         it = 0
@@ -197,6 +204,11 @@ class LocalSearch(ABC):
                 insertion_costs.sort(key=lambda x: x[0])
                 self.top_insertions[node][r_idx] = insertion_costs[:3]
 
+    def _should_try_operator(self, op_name: str) -> bool:
+        """Check if the operator should be tried based on target_neighborhood filter."""
+        target = getattr(self, "_target_neighborhood", "all")
+        return target == "all" or target == op_name
+
     def _process_node(self, u: int) -> bool:  # noqa: C901
         """
         Process node u with all neighbors, handling both visited and unvisited nodes.
@@ -206,6 +218,8 @@ class LocalSearch(ABC):
         - u unvisited, v visited: try inserting u into v's route
         - u visited, v unvisited: try inserting v into u's route
         - Both visited: standard inter/intra route operators
+
+        Operators are filtered based on self._target_neighborhood if set.
         """
         u_loc = self.node_map.get(u)
 
@@ -219,64 +233,108 @@ class LocalSearch(ABC):
             # Scenario B: u is unvisited, v is visited
             # Action: Try inserting unrouted node u into v's route
             if not u_loc and v_loc:
-                r_v, p_v = v_loc
-                if self._move_unrouted_insert(u, r_v, p_v):
-                    return True
+                if self._should_try_operator("unrouted_insert"):
+                    r_v, p_v = v_loc
+                    if self._move_unrouted_insert(u, r_v, p_v):
+                        return True
                 continue
 
             # Scenario C: u is visited, v is unvisited
             # Action: Try inserting unrouted node v into u's route
             if u_loc and not v_loc:
-                r_u, p_u = u_loc
-                if self._move_unrouted_insert(v, r_u, p_u):
-                    return True
+                if self._should_try_operator("unrouted_insert"):
+                    r_u, p_u = u_loc
+                    if self._move_unrouted_insert(v, r_u, p_u):
+                        return True
                 continue
 
             # Scenario D: Both are visited (Standard HGS inter/intra route operators)
             r_u, p_u = u_loc
             r_v, p_v = v_loc
 
-            if self._move_relocate(u, v, r_u, p_u, r_v, p_v):
+            # Relocate (both intra and inter-route)
+            if (
+                self._should_try_operator("relocate")
+                or self._should_try_operator("intra_relocate" if r_u == r_v else "inter_relocate")
+            ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
                 return True
-            if self._move_swap(u, v, r_u, p_u, r_v, p_v):
-                return True
-            if getattr(self.params, "use_relocate_chain", False) and self._move_relocate_chain(u, r_u, p_u, r_v, p_v):
-                return True
-            if r_u != r_v:
-                if self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
-                    return True
-                if self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
-                    return True
 
-                # Advanced inter-route operators
-                if getattr(self.params, "use_cross_exchange", False) and self._try_cross_exchange(r_u, p_u, r_v, p_v):
-                    return True
+            # Swap (both intra and inter-route)
+            if (
+                self._should_try_operator("swap")
+                or self._should_try_operator("intra_swap" if r_u == r_v else "inter_swap")
+            ) and self._move_swap(u, v, r_u, p_u, r_v, p_v):
+                return True
 
-                if getattr(self.params, "use_improved_cross_exchange", False) and self._try_improved_cross_exchange(
-                    r_u, p_u, r_v, p_v
+            # Relocate Chain
+            if self._should_try_operator("relocate_chain"):
+                if getattr(self.params, "use_relocate_chain", False) and self._move_relocate_chain(
+                    u, r_u, p_u, r_v, p_v
                 ):
                     return True
 
-                if getattr(self.params, "use_lambda_interchange", False) and self._try_lambda_interchange(r_u, r_v):
-                    return True
+            # Inter-route operators
+            if r_u != r_v:
+                if self._should_try_operator("inter_2opt_star"):
+                    if self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
+                        return True
 
-                if getattr(self.params, "use_cyclic_transfer", False) and self._try_cyclic_transfer(r_u, p_u, r_v, p_v):
-                    return True
+                if self._should_try_operator("inter_swap_star"):
+                    if self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
+                        return True
 
-                if getattr(self.params, "use_exchange_chains", False) and self._try_exchange_chains(r_u, p_u, r_v, p_v):
-                    return True
+                # Advanced inter-route operators
+                if self._should_try_operator("cross_exchange"):
+                    if getattr(self.params, "use_cross_exchange", False) and self._try_cross_exchange(
+                        r_u, p_u, r_v, p_v
+                    ):
+                        return True
 
-                if getattr(self.params, "use_ejection_chains", False) and self._try_ejection_chain(r_u):
-                    return True
+                if self._should_try_operator("improved_cross_exchange"):
+                    if getattr(self.params, "use_improved_cross_exchange", False) and self._try_improved_cross_exchange(
+                        r_u, p_u, r_v, p_v
+                    ):
+                        return True
+
+                if self._should_try_operator("lambda_interchange"):
+                    if getattr(self.params, "use_lambda_interchange", False) and self._try_lambda_interchange(r_u, r_v):
+                        return True
+
+                if self._should_try_operator("cyclic_transfer"):
+                    if getattr(self.params, "use_cyclic_transfer", False) and self._try_cyclic_transfer(
+                        r_u, p_u, r_v, p_v
+                    ):
+                        return True
+
+                if self._should_try_operator("exchange_chains"):
+                    if getattr(self.params, "use_exchange_chains", False) and self._try_exchange_chains(
+                        r_u, p_u, r_v, p_v
+                    ):
+                        return True
+
+                if self._should_try_operator("ejection_chains"):
+                    if getattr(self.params, "use_ejection_chains", False) and self._try_ejection_chain(r_u):
+                        return True
+
+            # Intra-route operators
             else:
-                if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
-                    return True
-                if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
-                    return True
-                if self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
-                    return True
-                if getattr(self.params, "use_three_permutation", False) and self._move_three_permutation(u, r_u, p_u):
-                    return True
+                if self._should_try_operator("intra_2opt"):
+                    if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
+                        return True
+
+                if self._should_try_operator("intra_3opt"):
+                    if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
+                        return True
+
+                if self._should_try_operator("intra_or_opt"):
+                    if self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
+                        return True
+
+                if self._should_try_operator("three_permutation"):
+                    if getattr(self.params, "use_three_permutation", False) and self._move_three_permutation(
+                        u, r_u, p_u
+                    ):
+                        return True
 
         return False
 
