@@ -14,19 +14,32 @@ class VRPPModel:
     """
     Mathematical model for the Vehicle Routing Problem with Profits (VRPP).
 
+    Uses the Natural Edge Formulation for Branch-and-Cut optimization.
+    MTZ variables are omitted to preserve a tight polyhedral relaxation,
+    relying strictly on the SeparationEngine for SEC and Capacity cuts.
+
     The VRPP seeks to maximize:
         Total Profit = (Waste Collected × R) - (Distance Traveled × C)
 
     Decision Variables:
         - x[i,j] ∈ {0,1}: Edge (i,j) is used in the tour
         - y[i] ∈ {0,1}: Node i is visited
-        - u[i] ∈ [0, Q]: Cumulative load after visiting node i
 
-    Constraints:
-        1. Flow conservation: ∑ x[i,j] = ∑ x[j,i] = y[i] for all i
-        2. Capacity: u[i] + w[i] ≤ u[j] + Q(1 - x[i,j]) (Miller-Tucker-Zemlin)
-        3. Subtour elimination (strengthened via cutting planes)
+    Base Model Constraints (before cutting planes):
+        1. Degree constraints: ∑_{(i,j) ∈ δ(i)} x[i,j] = 2·y[i] for all customers i
+        2. Depot degree: ∑_{(0,j) ∈ δ(0)} x[0,j] = 2 (exactly one route)
+        3. Global capacity: ∑_{i ∈ V\\{0}} demand[i]·y[i] ≤ Q (knapsack constraint)
         4. Mandatory nodes: y[i] = 1 for i ∈ must_go
+
+    Dynamic Constraints (added via lazy callbacks):
+        5. Subtour Elimination Cuts (SEC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2 for S ⊂ V\\{0}
+        6. Rounded Capacity Cuts (RCC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2·⌈demand(S)/Q⌉
+        7. Comb Inequalities: Advanced cuts for strengthening LP relaxation
+
+    Reference:
+        Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the
+        Resolution of Large-scale Symmetric Traveling Salesman Problems".
+        SIAM Review, 33(1), 60-100.
     """
 
     def __init__(
