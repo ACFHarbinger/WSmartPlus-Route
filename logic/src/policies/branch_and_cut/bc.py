@@ -102,7 +102,6 @@ class BranchAndCutSolver:
         self.gurobi_model: Optional[gp.Model] = None
         self.x_vars: Dict[Tuple[int, int], gp.Var] = {}
         self.y_vars: Dict[int, gp.Var] = {}
-        self.u_vars: Dict[int, gp.Var] = {}
 
     def solve(self) -> Tuple[List[int], float, Dict[str, Any]]:
         """
@@ -153,6 +152,10 @@ class BranchAndCutSolver:
                 self._set_start_solution(best_tour)
 
         # Step 3: Enable lazy constraint callback for cutting planes
+        # CRITICAL: LazyConstraints=1 is MANDATORY for correctness.
+        # Without MTZ variables, the base model CANNOT enforce subtours or capacity on its own.
+        # The SeparationEngine dynamically detects and adds violated SEC/RCC cuts via callbacks.
+        # If callbacks fail or are disabled, the solver will return invalid routes.
         assert self.gurobi_model is not None
         self.gurobi_model.Params.LazyConstraints = 1
         self.gurobi_model.Params.PreCrush = 1  # type: ignore[union-attr]
@@ -232,14 +235,39 @@ class BranchAndCutSolver:
         """
         Gurobi callback for lazy constraint generation.
 
-        This is called at integer solutions to add violated cutting planes.
+        This callback is ESSENTIAL for correctness in the Natural Edge Formulation.
+        It is invoked at every integer-feasible MIP solution to detect and add
+        violated Subtour Elimination Constraints (SEC) and Rounded Capacity Cuts (RCC).
+
+        Theoretical Guarantee (Padberg & Rinaldi 1991):
+            If the SeparationEngine successfully detects all violated inequalities,
+            the Branch-and-Cut algorithm will converge to the optimal VRPP solution.
+
+        Args:
+            model: Gurobi model instance.
+            where: Callback location code (GRB.Callback.MIPSOL for integer solutions).
         """
         if where == GRB.Callback.MIPSOL:
             # We found an integer solution - check for violated cuts
+            # This MUST be called unconditionally to maintain correctness
             self._add_lazy_cuts(model)
 
     def _add_lazy_cuts(self, model):
-        """Add violated cuts at integer solutions."""
+        """
+        Add violated cuts at integer solutions.
+
+        This method is the heart of the Branch-and-Cut algorithm:
+        1. Extracts the current integer solution (x_vals, y_vals)
+        2. Invokes the SeparationEngine to detect violated inequalities
+        3. Adds violated cuts as lazy constraints via model.cbLazy()
+
+        Correctness Contract:
+            - If the solution contains a disconnected subtour, the SeparationEngine
+              MUST detect it and return a SubtourEliminationCut.
+            - If the solution violates vehicle capacity constraints for any node set,
+              the SeparationEngine MUST detect it and return a CapacityCut.
+            - If no violated cuts are found, the solution is guaranteed to be valid.
+        """
         # Get current solution values
         x_vals = np.array([model.cbGetSolution(self.x_vars[(i, j)]) for i, j in self.model.edges])
         y_vals = np.array([model.cbGetSolution(self.y_vars[i]) for i in self.model.customers])
