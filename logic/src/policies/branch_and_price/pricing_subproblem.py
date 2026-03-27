@@ -14,18 +14,29 @@ import numpy as np
 
 class PricingSubproblem:
     """
-    Resource-Constrained Shortest Path Problem for Route Generation.
+    Resource-Constrained Shortest Path Problem for Route Generation (Heuristic).
 
+    Pure Branch-and-Price Pricing Subproblem:
     The pricing problem finds a route that maximizes reduced cost:
         reduced_cost = profit - Σ_i dual_i
         profit = (waste * R) - (distance * C)
 
+    where dual_i comes ONLY from node coverage constraints in the Master Problem.
+
     Subject to:
-        - Capacity constraints
+        - Capacity constraints (enforced by ESPPRC resource tracking)
         - All mandatory nodes must be reachable
         - Route starts and ends at depot
+        - Elementarity (no repeated nodes)
 
-    This is an elementary shortest path problem with resource constraints (ESPPRC).
+    This is a heuristic approximation to the Elementary Shortest Path Problem
+    with Resource Constraints (ESPPRC). For exact pricing, use RCSPPSolver.
+
+    Key Design Principle:
+        The reduced cost calculation MUST NOT include any dual values from
+        cutting planes (capacity cuts, etc.), as this would create a dual
+        desync where the pricing subproblem cannot correctly account for
+        constraints added to the Master Problem.
     """
 
     def __init__(
@@ -219,8 +230,11 @@ class PricingSubproblem:
         # Calculate dual contribution
         dual_contribution = sum(dual_values.get(node, 0.0) for node in route)
 
+        # Vehicle limit dual contribution
+        vehicle_dual = dual_values.get("vehicle_limit", 0.0)
+
         # Reduced cost
-        reduced_cost = profit - dual_contribution
+        reduced_cost = profit - dual_contribution - vehicle_dual
 
         return reduced_cost
 

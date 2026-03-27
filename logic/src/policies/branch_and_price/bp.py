@@ -55,6 +55,7 @@ class BranchAndPriceSolver:
         use_ryan_foster: bool = True,
         max_branch_nodes: int = 1000,
         use_exact_pricing: bool = False,
+        vehicle_limit: Optional[int] = None,
     ):
         """
         Initialize the Branch-and-Price solver.
@@ -87,6 +88,7 @@ class BranchAndPriceSolver:
         self.use_ryan_foster = use_ryan_foster
         self.max_branch_nodes = max_branch_nodes
         self.use_exact_pricing = use_exact_pricing
+        self.vehicle_limit = vehicle_limit
         self.depot = 0
 
         # Statistics
@@ -124,6 +126,7 @@ class BranchAndPriceSolver:
             capacity=self.capacity,
             revenue_per_kg=self.R,
             cost_per_km=self.C,
+            vehicle_limit=self.vehicle_limit,
         )
 
         # Initialize pricing solver (exact DP or heuristic)
@@ -314,6 +317,7 @@ class BranchAndPriceSolver:
             capacity=self.capacity,
             revenue_per_kg=self.R,
             cost_per_km=self.C,
+            vehicle_limit=self.vehicle_limit,
         )
 
         # Get all constraints for this node
@@ -379,6 +383,7 @@ class BranchAndPriceSolver:
             capacity=self.capacity,
             revenue_per_kg=self.R,
             cost_per_km=self.C,
+            vehicle_limit=self.vehicle_limit,
         )
 
         # Filter routes by branching constraints

@@ -128,15 +128,17 @@ class RCSPPSolver:
     def solve(
         self,
         dual_values: Dict[int, float],
-        capacity_cut_duals: Optional[List[Tuple[Set[int], float, float]]] = None,
         max_routes: int = 10,
         branching_constraints: Optional[List] = None,
     ) -> List[Tuple[List[int], float]]:
         """
         Solve RCSPP to find routes with positive reduced cost.
 
+        Pure Branch-and-Price: Only node coverage duals are used.
+        Capacity constraints are enforced implicitly by the ESPPRC resource tracking.
+
         Args:
-            dual_values: Dual values from master problem (node coverage constraints)
+            dual_values: Dual values from master problem (node coverage constraints ONLY)
             max_routes: Maximum number of routes to return
             branching_constraints: Optional branching constraints from Ryan-Foster
 
@@ -148,9 +150,8 @@ class RCSPPSolver:
         self.labels_dominated = 0
         self.labels_infeasible = 0
 
-        # Store dual values
+        # Store dual values (only node coverage duals)
         self.dual_values = dual_values
-        self.capacity_cut_duals = capacity_cut_duals or []
 
         # Compute modified costs with dual values
         self._compute_reduced_costs()
@@ -167,18 +168,15 @@ class RCSPPSolver:
         """
         Compute reduced costs for each node visit.
 
-        For node i:
+        Pure Branch-and-Price reduced cost formula:
             reduced_cost_i = revenue_i - dual_i
+
+        where dual_i comes ONLY from the node coverage constraint in the Master Problem.
         """
         self.node_reduced_costs = {}
         for node in range(1, self.n_nodes + 1):
             revenue = self.wastes.get(node, 0.0) * self.R
             dual = self.dual_values.get(node, 0.0)
-
-            # Additional duals from capacity cuts
-            # If node i is in S, and the cut is Σ internal edges <= |S|-k(S),
-            # then an edge (i,j) with both in S contributes to the dual.
-            # However, it's easier to handle this during extension.
             self.node_reduced_costs[node] = revenue - dual
 
     def _label_setting_algorithm(
@@ -308,21 +306,10 @@ class RCSPPSolver:
         new_revenue = label.revenue + node_revenue
 
         # Calculate reduced cost contribution
+        # Pure Branch-and-Price: Only subtract node coverage dual
         node_dual = self.dual_values.get(next_node, 0.0)
 
-        # Contribution from capacity cuts (RCC)
-        # If both current node and next node are in the cut set S,
-        # the edge (label.node, next_node) is internal to S.
-        cut_dual_total = 0.0
-        for cut_set, _, dual_val in self.capacity_cut_duals:
-            if label.node in cut_set and next_node in cut_set:
-                # The constraint is Σ a_k^S λ_k <= |S|-k(S), so dual Pi <= 0.
-                # Reduced cost = profit - Σ dual_j * a_j - dual_cut * internal_edges
-                # Since Pi is non-positive for <= constraint in maximization,
-                # we SUBTRACT dual_val * 1.
-                cut_dual_total += dual_val
-
-        new_reduced_cost = label.reduced_cost + (node_revenue - edge_cost - node_dual - cut_dual_total)
+        new_reduced_cost = label.reduced_cost + (node_revenue - edge_cost - node_dual)
 
         # Create new label
         new_path = label.path + [next_node]
@@ -357,13 +344,9 @@ class RCSPPSolver:
 
         new_cost = label.cost + edge_cost
 
-        # Check if the return edge (label.node, 0) is in any capacity cuts
-        cut_dual_total = 0.0
-        for cut_set, _, dual_val in self.capacity_cut_duals:
-            if label.node in cut_set and self.depot in cut_set:
-                cut_dual_total += dual_val
-
-        new_reduced_cost = label.reduced_cost - edge_cost - cut_dual_total
+        # Pure Branch-and-Price: Account for travel cost and vehicle dual
+        vehicle_dual = self.dual_values.get("vehicle_limit", 0.0)
+        new_reduced_cost = label.reduced_cost - edge_cost - vehicle_dual
 
         # Create final label
         new_path = label.path + [self.depot]
