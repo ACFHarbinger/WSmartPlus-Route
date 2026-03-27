@@ -24,6 +24,50 @@ from logic.src.policies.other.operators.heuristics.greedy_initialization import 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
+def _check_route_capacity(model, G, x_vars, component):
+    """
+    Check if any routes from depot violate capacity constraints and add lazy cuts if needed.
+
+    Args:
+        model: Gurobi model instance
+        G: NetworkX graph of active edges
+        x_vars: Dictionary of edge variables
+        component: Set of nodes in the current component (must contain depot 0)
+    """
+    if 0 not in component:
+        return
+
+    # Find the specific paths originating from the depot within this component
+    depot_edges = [j for j in G.neighbors(0)]
+    for start_node in depot_edges:
+        # Trace the route
+        route_nodes = set()
+        route_edges = []
+        curr = start_node
+        prev = 0
+        route_waste = 0.0
+
+        while curr != 0:
+            route_nodes.add(curr)
+            route_edges.append((prev, curr) if (prev, curr) in x_vars else (curr, prev))
+            route_waste += model._wastes.get(curr, 0.0)
+
+            # Move to next node
+            neighbors = [n for n in G.neighbors(curr) if n != prev]
+            if not neighbors:
+                break  # Dead end
+            prev = curr
+            curr = neighbors[0]
+
+        route_edges.append((prev, 0) if (prev, 0) in x_vars else (0, prev))
+
+        # Add a capacity cut if the route violates the limit
+        if route_waste > model._capacity:
+            route_vars = [x_vars[e] for e in route_edges if e in x_vars]
+            if route_vars:
+                model.cbLazy(quicksum(route_vars) <= len(route_vars) - 1)
+
+
 def _dfj_subtour_elimination_callback(model, where):
     """
     Gurobi callback to dynamically add Dantzig-Fulkerson-Johnson (DFJ) subtour elimination cuts.
@@ -74,6 +118,10 @@ def _dfj_subtour_elimination_callback(model, where):
 
                 if subtour_edges:
                     model.cbLazy(quicksum(subtour_edges) <= len(component) - 1)
+
+        # Check capacity for routes connected to the depot
+        for component in components:
+            _check_route_capacity(model, G, x_vars, component)
 
 
 def _setup_ks_model(
@@ -180,6 +228,8 @@ def _setup_ks_model(
     # Store metadata in model for callback access
     model._x_vars = x
     model._num_nodes = num_nodes
+    model._wastes = wastes
+    model._capacity = capacity
 
     return x, y
 
@@ -318,32 +368,36 @@ def _get_partitioned_vars(
         heuristic_edges.add((route[-1], 0))
         heuristic_nodes.add(route[-1])
 
-    # 2. Rank variables by fractional value
+    # 2. Extract variables, their fractional values, and their reduced costs
     all_vars = []
     for (i, j), var in x.items():
-        all_vars.append((var, var.X, "x", (i, j)))
+        # Ensure we capture var.RC (reduced cost)
+        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "x", (i, j)))
     for i, var in y.items():
-        all_vars.append((var, var.X, "y", i))
+        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "y", i))
 
-    all_vars.sort(key=lambda item: item[1], reverse=True)
+    # Sort logic:
+    # 1. Variables with X > 1e-4 are prioritized (sorted by X descending)
+    # 2. For variables at 0, prioritize Reduced Cost closest to 0 (descending for MAXIMIZE problem)
+    all_vars.sort(key=lambda item: (item[1] > 1e-4, item[1], item[2]), reverse=True)
 
     # 3. Switch types to BINARY for the remainder of the search
-    for v_obj, _, _, _ in all_vars:
+    for v_obj, _, _, _, _ in all_vars:
         v_obj.vtype = GRB.BINARY
 
     # 4. Partition into sets
     # Ensure the kernel captures at least the entire LP support to avoid immediate infeasibility
-    lp_support_size = sum(1 for _, val, _, _ in all_vars if val > 1e-4)
+    lp_support_size = sum(1 for _, val, _, _, _ in all_vars if val > 1e-4)
     actual_kernel_size = max(initial_kernel_size, lp_support_size)
 
     kernel_vars = []
     remaining_vars = []
 
     # We must unconditionally include heuristic variables to guarantee ILP feasibility
-    for v_obj, _, _, _ in all_vars[:actual_kernel_size]:
+    for v_obj, _, _, _, _ in all_vars[:actual_kernel_size]:
         kernel_vars.append(v_obj)
 
-    for v_obj, _, vtype, idx in all_vars[actual_kernel_size:]:
+    for v_obj, _, _, vtype, idx in all_vars[actual_kernel_size:]:
         # If it belongs to the heuristic solution, force it into the kernel
         if (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes):
             kernel_vars.append(v_obj)
