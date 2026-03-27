@@ -33,6 +33,23 @@ class CFRSConfig:
             available in the simulation day (`n_vehicles`).
         time_limit: Maximum time in seconds allowed for the routing phase
             (total across all sectors).
+        assignment_method: Method for assigning nodes to clusters.
+            Options: "greedy" (Fisher & Jaikumar heuristic, default) or
+            "exact" (Mixed-Integer Programming via Gurobi).
+        route_optimizer: TSP solver for routing phase.
+            Options: "default" (fast_tsp), "pso" (Particle Swarm Optimization),
+            "aco" (Ant Colony Optimization), "ga" (Genetic Algorithm).
+            VFJ paper (Sultana & Akhand, 2017) recommends "pso" for best performance.
+        strict_fleet: Enforce fixed fleet size K (benchmark mode).
+            If True, raises ValueError if greedy assignment cannot fit all nodes.
+            If False, dynamically opens new vehicles as needed (simulation mode).
+        seed_criterion: Seed selection method ("distance" or "demand").
+            "distance" selects furthest node from depot in each sector (default).
+            "demand" selects node with maximum waste in each sector.
+            VFJ paper Section 3.2: Two methods for seed selection.
+        mip_objective: MIP objective for exact assignment mode.
+            "minimize_cost" (default): Minimize total insertion cost for benchmarks.
+            "maximize_profit": Maximize profit (revenue - cost) for simulation.
         must_go: List of must-go strategy configuration files or dicts.
             Controls which bins are selected for collection on a given day.
         post_processing: List of post-processing operations (e.g., local search)
@@ -49,6 +66,27 @@ class CFRSConfig:
 
     # Routing time limit (seconds)
     time_limit: float = 60.0
+
+    # Assignment method: "greedy" or "exact"
+    assignment_method: str = "greedy"
+
+    # TSP routing optimizer: "default", "pso", "aco", "ga"
+    # VFJ paper recommends "pso" for best performance
+    route_optimizer: str = "default"
+
+    # Strict fleet sizing for benchmark compliance
+    # If True, raises error if K vehicles insufficient (standard CVRP mode)
+    # If False, dynamically opens new vehicles (simulation mode)
+    strict_fleet: bool = False
+
+    # Seed selection criterion: "distance" or "demand"
+    # VFJ paper Section 3.2: "a. The most distant node from the origin and
+    # b. The node with maximum demand."
+    seed_criterion: str = "distance"
+
+    # MIP objective function: "minimize_cost" or "maximize_profit"
+    # Use "minimize_cost" for benchmark compliance with A-VRP dataset
+    mip_objective: str = "minimize_cost"
 
     # Bin selection strategies (VRPP/WCVRP specific)
     must_go: Optional[List[MustGoConfig]] = None

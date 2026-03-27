@@ -106,8 +106,8 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         # 4. Priority-aware seeding
         seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
 
-        # 5. Run core algorithm (Atomic Phase)
-        tour, solver_cost, extra_data = run_cf_rs(
+        # 5. Run core algorithm (VFJ Algorithm)
+        routes, solver_cost, extra_data = run_cf_rs(
             coords=sub_coords,
             must_go=mandatory_nodes,
             distance_matrix=sub_dist_matrix,
@@ -119,18 +119,12 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
             seed=seed,
             num_clusters=cfg.num_clusters,
             time_limit=cfg.time_limit,
+            assignment_method=cfg.assignment_method,
+            route_optimizer=cfg.route_optimizer,
+            strict_fleet=cfg.strict_fleet,
+            seed_criterion=cfg.seed_criterion,
+            mip_objective=cfg.mip_objective,
         )
-
-        # 6. Transform single composite tour into CVRP-style routes
-        routes: List[List[int]] = []
-        current_route: List[int] = []
-        for node in tour:
-            if node == 0:
-                if current_route:
-                    routes.append(current_route)
-                    current_route = []
-            else:
-                current_route.append(node)
 
         # 7. Final Profit Calculation (Revenue - Distance Cost)
         total_fill = sum(sub_wastes.get(n, 0.0) for r in routes for n in r)
