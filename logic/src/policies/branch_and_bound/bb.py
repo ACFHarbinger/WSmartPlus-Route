@@ -5,7 +5,8 @@ Implements the Land and Doig (1960) methodology for exact integer programming.
 The solver uses Gurobi for Linear Programming (LP) relaxations and manages a
 search tree to ensure global optimality for VRPP/CWC VRP problems.
 
-**REFACTORED**: Now uses DFJ lazy constraints instead of MTZ for subtour elimination.
+**REFACTORED**: Uses the Miller-Tucker-Zemlin (MTZ) compact formulation to ensure
+subtour elimination strictly within the LP relaxations at each node.
 
 Reference:
     Land, A. H., & Doig, A. (1960). "An automatic method for solving discrete
@@ -17,7 +18,6 @@ import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import gurobipy as gp
-import networkx as nx
 import numpy as np
 from gurobipy import GRB, quicksum
 
@@ -91,43 +91,13 @@ class BBSolver:
         self.incumbent_routes: List[List[int]] = []
         self.start_time = 0.0
 
-    def _dfj_callback_bb(self, model, where):
-        """
-        DFJ subtour elimination callback for Branch-and-Bound.
-
-        This is a simplified version for the BB solver that detects subtours
-        in integer solutions during the branch-and-bound tree search.
-        """
-        if where == GRB.Callback.MIPSOL:
-            # Build graph from active edges
-            G = nx.Graph()
-            G.add_nodes_from(range(self.num_nodes))
-
-            for (i, j), var in self._current_x_vars.items():
-                val = model.cbGetSolution(var)
-                if val > 0.5:
-                    G.add_edge(i, j)
-
-            # Find connected components
-            components = list(nx.connected_components(G))
-
-            # Add cuts for subtours (components not containing depot)
-            for component in components:
-                if 0 not in component and len(component) >= 2:
-                    subtour_edges = []
-                    for i in component:
-                        for j in component:
-                            if i != j and (i, j) in self._current_x_vars:
-                                subtour_edges.append(self._current_x_vars[(i, j)])
-
-                    if subtour_edges:
-                        model.cbLazy(quicksum(subtour_edges) <= len(component) - 1)
-
     def _setup_relaxation_model(self, node: Node) -> Tuple[gp.Model, Dict, Dict]:
         """
         Construct and solve the Linear Programming relaxation for a search node.
 
-        **REFACTORED**: Now uses DFJ lazy constraints instead of MTZ variables.
+        Uses Miller-Tucker-Zemlin (MTZ) load-based formulation for subtour elimination.
+        MTZ provides a compact formulation suitable for LP relaxations without callbacks.
+        The load variables (u[i]) track accumulated waste, naturally preventing subtours.
 
         Variable fixing is enforced via lower and upper bounds in the LP model,
         reflecting the integrity constraints of the current search branch.
@@ -141,11 +111,10 @@ class BBSolver:
         model = gp.Model("BB_Relaxation", env=self.env) if self.env else gp.Model("BB_Relaxation")
         model.setParam("OutputFlag", 0)  # Silence Gurobi output for sub-solves
         model.setParam("Threads", 1)  # Single-threaded sub-solves for better control
-        model.Params.LazyConstraints = 1  # Enable lazy constraint mode
 
-        # --- Decision Variables (Binary for exact MIP) ---
+        # --- Decision Variables (CONTINUOUS for LP relaxation) ---
 
-        # x[i,j]: Edge usage
+        # x[i,j]: Edge usage (CONTINUOUS [0,1] for LP relaxation)
         x = {}
         for i in self.nodes_range:
             for j in self.nodes_range:
@@ -153,9 +122,9 @@ class BBSolver:
                     lb, ub = 0.0, 1.0
                     if (i, j) in node.fixed_x:
                         lb = ub = float(node.fixed_x[(i, j)])
-                    x[i, j] = model.addVar(lb=lb, ub=ub, vtype=GRB.BINARY, name=f"x_{i}_{j}")
+                    x[i, j] = model.addVar(lb=lb, ub=ub, vtype=GRB.CONTINUOUS, name=f"x_{i}_{j}")
 
-        # y[i]: Node visit (VRPP/CWC)
+        # y[i]: Node visit (CONTINUOUS [0,1] for LP relaxation)
         y = {}
         for i in self.customers:
             lb, ub = 0.0, 1.0
@@ -163,7 +132,14 @@ class BBSolver:
                 lb = ub = float(node.fixed_y[i])
             elif i in self.must_go_indices:
                 lb = 1.0
-            y[i] = model.addVar(lb=lb, ub=ub, vtype=GRB.BINARY, name=f"y_{i}")
+            y[i] = model.addVar(lb=lb, ub=ub, vtype=GRB.CONTINUOUS, name=f"y_{i}")
+
+        # --- Phase 2: MTZ Variables for subtour elimination ---
+        # u[i] represents the accumulated waste/load at node i
+        # This load-based formulation naturally prevents subtours in LP relaxation
+        u = {}
+        for i in self.customers:
+            u[i] = model.addVar(lb=self.wastes.get(i, 0.0), ub=self.capacity, vtype=GRB.CONTINUOUS, name=f"u_{i}")
 
         # --- Objective: Minimize (Travel Cost + Opportunity Costs) ---
         travel_cost = quicksum(self.dist_matrix[i][j] * self.C * x[i, j] for (i, j) in x)
@@ -183,11 +159,26 @@ class BBSolver:
             name="depot_balance",
         )
 
-        # Store x_vars for callback
-        self._current_x_vars = x
+        # Capacity constraint
+        model.addConstr(
+            quicksum(self.wastes.get(i, 0) * y[i] for i in self.customers) <= self.capacity, name="capacity"
+        )
 
-        # Optimize with DFJ callback
-        model.optimize(self._dfj_callback_bb)
+        # --- Phase 3: MTZ Subtour Elimination Constraints (Load-Based) ---
+        # u[i] + waste[j] <= u[j] + Capacity * (1 - x[i,j])
+        # This prevents any closed loops that do not originate from the depot
+        for i in self.customers:
+            for j in self.customers:
+                if i != j and (i, j) in x:
+                    model.addConstr(
+                        u[i] + self.wastes.get(j, 0.0) <= u[j] + self.capacity * (1 - x[i, j]),
+                        name=f"mtz_{i}_{j}",
+                    )
+
+        # Phase 4: Optimize LP relaxation without callbacks
+        # The model is solved purely as an LP continuous relaxation
+        # MTZ constraints prevent subtours without needing dynamic cuts
+        model.optimize()
         return model, x, y
 
     def _is_integer(self, val: float, tol: float = 1e-6) -> bool:
@@ -261,70 +252,99 @@ class BBSolver:
         """
         Perform the Branch-and-Bound search to find the optimal integer routes.
 
-        Implements the main traversal loop: popping nodes from priority queue,
-        solving relaxations, updating the incumbent, and branching.
+        Phase 2: Implements the core manual B&B loop following Land and Doig (1960):
+        1. Initialize priority queue with root node
+        2. Loop while queue is not empty:
+           - Pop node with best bound
+           - Prune by bound if node cannot improve incumbent
+           - Build and solve LP relaxation with fixed variables
+           - Prune by infeasibility or bound
+           - Check integrality:
+             * If integer and valid → update incumbent
+             * If fractional → branch (Phase 3)
 
         Returns:
             A tuple of (Optimal Integer Routes, Total Objective Value).
         """
         self.start_time = time.process_time()
 
-        # Initialize root subproblem
-        root_model, root_x, root_y = self._setup_relaxation_model(Node(bound=0.0))
-        if root_model.status != GRB.OPTIMAL:
-            return [], 0.0
-
-        # Priority Queue ensures we always explore the node with the best bound
-        pq = [Node(bound=root_model.ObjVal)]
+        # Phase 2 Step 1: Initialize priority queue with root node
+        # Root node has no fixed variables
+        root_node = Node(bound=0.0)
+        queue = [root_node]
 
         nodes_explored = 0
-        while pq and (time.process_time() - self.start_time < self.time_limit):
-            node = heapq.heappop(pq)
+
+        # Phase 2 Step 2: Main B&B loop
+        while queue:
+            # Check time limit
+            if time.process_time() - self.start_time >= self.time_limit:
+                break
+
+            # Pop node with best (lowest) bound
+            current_node = heapq.heappop(queue)
             nodes_explored += 1
 
-            # Pruning by bound: Stop if this branch cannot beat the best integer solution
-            if node.bound >= self.incumbent_obj * (1 - self.mip_gap):
+            # Phase 2: Pruning by Bound
+            # For minimization: if node.bound >= incumbent_obj, prune
+            if current_node.bound >= self.incumbent_obj * (1 - self.mip_gap):
                 continue
 
-            # Solve the subproblem at this node
-            model, x, y = self._setup_relaxation_model(node)
+            # Phase 2: Build & Solve LP relaxation
+            model, x, y = self._setup_relaxation_model(current_node)
+
+            # Phase 2: Pruning by Infeasibility
             if model.status != GRB.OPTIMAL:
                 continue
 
             current_obj = model.ObjVal
+
+            # Phase 2: Pruning by Bound (after LP solve)
             if current_obj >= self.incumbent_obj * (1 - self.mip_gap):
                 continue
 
-            # Check for integer feasibility
+            # Phase 2: Integrality Check
             branch_var = self._get_branching_variable(x, y)
 
             if branch_var is None:
-                # Integer Feasible Node Found: Update Incumbent
-                self.incumbent_obj = current_obj
-                self.incumbent_routes = self._extract_routes(x)
+                # Solution is integer-feasible
+                # Verify no subtours exist (should be prevented by MTZ)
+                routes = self._extract_routes(x)
+                if routes and self._is_valid_solution(routes):
+                    # Update incumbent
+                    self.incumbent_obj = current_obj
+                    self.incumbent_routes = routes
             else:
-                # Variable remains fractional: Branch and continue search
+                # Phase 3: Branching - Variable is fractional
                 var_type, var_idx = branch_var
 
-                # Zero-Branch (Force variable to 0)
-                node_0 = Node(
-                    bound=current_obj, fixed_x=node.fixed_x.copy(), fixed_y=node.fixed_y.copy(), depth=node.depth + 1
-                )
-                if var_type == "x":
-                    node_0.fixed_x[var_idx] = 0
-                else:
-                    node_0.fixed_y[var_idx] = 0
-                heapq.heappush(pq, node_0)
+                # Phase 3: Create two child nodes
 
-                # One-Branch (Force variable to 1)
-                node_1 = Node(
-                    bound=current_obj, fixed_x=node.fixed_x.copy(), fixed_y=node.fixed_y.copy(), depth=node.depth + 1
+                # Left Child (Exclude: variable = 0)
+                left_child = Node(
+                    bound=current_obj,
+                    fixed_x=current_node.fixed_x.copy(),
+                    fixed_y=current_node.fixed_y.copy(),
+                    depth=current_node.depth + 1,
                 )
                 if var_type == "x":
-                    node_1.fixed_x[var_idx] = 1
+                    left_child.fixed_x[var_idx] = 0
                 else:
-                    node_1.fixed_y[var_idx] = 1
-                heapq.heappush(pq, node_1)
+                    left_child.fixed_y[var_idx] = 0
+                heapq.heappush(queue, left_child)
+
+                # Right Child (Enforce: variable = 1)
+                right_child = Node(
+                    bound=current_obj,
+                    fixed_x=current_node.fixed_x.copy(),
+                    fixed_y=current_node.fixed_y.copy(),
+                    depth=current_node.depth + 1,
+                )
+                if var_type == "x":
+                    right_child.fixed_x[var_idx] = 1
+                else:
+                    right_child.fixed_y[var_idx] = 1
+                heapq.heappush(queue, right_child)
 
         # Telemetry updates
         if self.recorder:
@@ -336,6 +356,33 @@ class BBSolver:
             )
 
         return self.incumbent_routes, self.incumbent_obj
+
+    def _is_valid_solution(self, routes: List[List[int]]) -> bool:
+        """
+        Validate that a solution is feasible (no subtours, respects capacity).
+
+        Args:
+            routes: List of routes to validate.
+
+        Returns:
+            True if solution is valid, False otherwise.
+        """
+        # Check capacity constraint
+        for route in routes:
+            load = sum(self.wastes.get(i, 0) for i in route)
+            if load > self.capacity:
+                return False
+
+        # Check that all nodes are visited at most once
+        visited = set()
+        for route in routes:
+            for node in route:
+                if node in visited:
+                    return False  # Node visited multiple times
+                visited.add(node)
+
+        # Check mandatory nodes
+        return all(node in visited for node in self.must_go_indices)
 
     def _extract_routes(self, x_vars: Dict) -> List[List[int]]:
         """
@@ -352,12 +399,19 @@ class BBSolver:
         for start_node in adj[0]:
             route = [start_node]
             curr = start_node
+            visited = {0, start_node}
             while curr != 0 and adj[curr]:
                 next_node = adj[curr][0]
+                if next_node in visited and next_node != 0:
+                    break  # Cycle detected, stop
                 if next_node != 0:
                     route.append(next_node)
+                    visited.add(next_node)
                 curr = next_node
-            routes.append(route)
+                if curr == 0:
+                    break
+            if route:
+                routes.append(route)
         return routes
 
 
@@ -370,6 +424,7 @@ def run_bb(
     values: Dict[str, Any],
     must_go_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
+    seed: Optional[int] = None,
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
@@ -377,5 +432,5 @@ def run_bb(
 
     Constructs the solver instance and executes the combinatorial search.
     """
-    solver = BBSolver(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, recorder)
+    solver = BBSolver(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, seed, recorder)
     return solver.solve()
