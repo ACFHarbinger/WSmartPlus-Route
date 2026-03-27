@@ -82,33 +82,36 @@ def _get_partitioned_vars_aks(
         heuristic_edges.add((route[-1], 0))
         heuristic_nodes.add(route[-1])
 
-    # 2. Extract and sort variables by their fractional values (nearness to 1.0)
+    # 2. Extract variables, their fractional values, and their reduced costs
     all_vars = []
     for (i, j), var in x.items():
-        all_vars.append((var, var.X, "x", (i, j)))
+        # Ensure we capture var.RC (reduced cost)
+        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "x", (i, j)))
     for i, var in y.items():
-        all_vars.append((var, var.X, "y", i))
+        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "y", i))  # type: ignore[arg-type]
 
-    # Sort descending: Variables with value 1.0 are most likely to be in the integer optimum
-    all_vars.sort(key=lambda item: item[1], reverse=True)
+    # Sort logic:
+    # 1. Variables with X > 1e-4 are prioritized (sorted by X descending)
+    # 2. For variables at 0, prioritize Reduced Cost closest to 0 (descending for MAXIMIZE problem)
+    all_vars.sort(key=lambda item: (item[1] > 1e-4, item[1], item[2]), reverse=True)
 
     # 3. Restore variable types to BINARY for the subsequent MIP stages
-    for v_obj, _, _, _ in all_vars:
-        v_obj.vtype = GRB.BINARY
+    for v_obj, _, _, _, _ in all_vars:
+        v_obj.VType = GRB.BINARY
 
     # 4. Partition variables based on the sorted ranking
     # Ensure the kernel captures at least the entire LP support to avoid immediate infeasibility
-    lp_support_size = sum(1 for _, val, _, _ in all_vars if val > 1e-4)
+    lp_support_size = sum(1 for _, val, _, _, _ in all_vars if val > 1e-4)
     actual_kernel_size = max(initial_kernel_size, lp_support_size)
 
     kernel_vars = []
     remaining_vars = []
 
     # We must unconditionally include heuristic variables to guarantee ILP feasibility
-    for v_obj, _, _, _ in all_vars[:actual_kernel_size]:
+    for v_obj, _, _, _, _ in all_vars[:actual_kernel_size]:
         kernel_vars.append(v_obj)
 
-    for v_obj, _, vtype, idx in all_vars[actual_kernel_size:]:
+    for v_obj, _, _, vtype, idx in all_vars[actual_kernel_size:]:
         # If it belongs to the heuristic solution, force it into the kernel
         if (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes):
             kernel_vars.append(v_obj)
@@ -152,7 +155,7 @@ def _solve_aks_iterations(
     """
     active_kernel = set(kernel_vars)
     for v in remaining_vars:
-        v.ub = 0
+        v.UB = 0
 
     best_obj = -float("inf")
     start_time = model.Runtime
@@ -179,14 +182,16 @@ def _solve_aks_iterations(
         end_idx = min(current_idx + current_bucket_size, len(remaining_vars))
         current_bucket = remaining_vars[current_idx:end_idx]
 
-        # Fix/Unfix
-        active_ids = {v.VarName for v in active_kernel}
-        bucket_ids = {v.VarName for v in current_bucket}
-        for v in model.getVars():
-            if v.VarName in active_ids or v.VarName in bucket_ids:
-                v.ub = 1
-            else:
-                v.ub = 0
+        # Fix/Unfix - Use direct object attribute updates instead of slow string matching
+        # 1. Ensure all remaining variables are fixed to 0 initially
+        for v in remaining_vars:
+            v.UB = 0
+
+        # 2. Unfix ONLY the active kernel and the current bucket
+        for v in active_kernel:
+            v.UB = 1
+        for v in current_bucket:
+            v.UB = 1
 
         # Iteration-specific time limit
         iter_time = max(2.0, (time_limit - elapsed) / max(1, max_buckets - buckets_solved))
@@ -292,7 +297,7 @@ def run_adaptive_kernel_search_gurobi(
     # Solve one last MIP restricted to ONLY the variables that proved useful in
     # previous steps. This ensures the best combination is found and feasible.
     for v in used_vars:
-        v.ub = 1
+        v.UB = 1
 
     # Warm-start with greedy heuristic to ensure feasibility
     _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
