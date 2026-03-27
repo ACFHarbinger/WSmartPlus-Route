@@ -36,8 +36,8 @@ class HyperACOParams:
         tau_max: Maximum pheromone level (MMAS bounds).
         max_iterations: Maximum number of iterations.
         time_limit: Maximum runtime in seconds.
-        sequence_length: Length of operator sequence each ant constructs.
         q0: Exploitation probability for pseudo-random proportional rule.
+        lambda_factor: Monotonic conversion factor for negative improvements (default 1.0001).
         operators: List of operator names to include in the sequence construction.
     """
 
@@ -50,9 +50,8 @@ class HyperACOParams:
     tau_max: float = 10.0
     max_iterations: int = 50
     time_limit: float = 30.0
-    sequence_length: int = 5
     q0: float = 0.9
-    Q: float = 100.0
+    lambda_factor: float = 1.0001
     operators: List[str] = field(default_factory=lambda: OPERATOR_NAMES.copy())
     vrpp: bool = True
     profit_aware_operators: bool = False
@@ -85,9 +84,8 @@ class HyperACOParams:
             tau_max=getattr(config, "tau_max", 10.0),
             max_iterations=getattr(config, "max_iterations", 50),
             time_limit=getattr(config, "time_limit", 30.0),
-            sequence_length=getattr(config, "sequence_length", 5),
             q0=getattr(config, "q0", 0.9),
-            Q=getattr(config, "Q", 100.0),
+            lambda_factor=getattr(config, "lambda_factor", 1.0001),
             operators=getattr(config, "operators", None) or OPERATOR_NAMES.copy(),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
