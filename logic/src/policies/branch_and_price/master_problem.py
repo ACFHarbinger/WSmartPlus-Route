@@ -7,7 +7,7 @@ The master problem selects routes to cover all mandatory nodes while maximizing 
 Based on Section 3.2 of Barnhart et al. (1998).
 """
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import gurobipy as gp
 import numpy as np
@@ -48,18 +48,32 @@ class Route:
 
 class VRPPMasterProblem:
     """
-    Set Partitioning Master Problem for VRPP with Column Generation.
+    Pure Set Partitioning/Packing Master Problem for VRPP with Column Generation.
+
+    This is a PURE Branch-and-Price formulation WITHOUT cutting planes.
+    All capacity and routing constraints are handled implicitly by the ESPPRC
+    pricing subproblem, which only generates feasible routes.
 
     Formulation:
         max  Σ_k profit_k * λ_k
         s.t. Σ_k a_{ik} * λ_k = 1    ∀i ∈ mandatory nodes  (partitioning)
-             Σ_k a_{ik} * λ_k ≤ 1    ∀i ∈ optional nodes   (covering)
+             Σ_k a_{ik} * λ_k ≤ 1    ∀i ∈ optional nodes   (packing)
              λ_k ∈ {0,1}             ∀k                    (route selection)
 
     where:
         - λ_k: binary variable indicating if route k is selected
         - a_{ik}: 1 if node i is in route k, 0 otherwise
         - profit_k: profit of route k (revenue - cost)
+
+    Key Design Principle (Barnhart et al. 1998):
+        - The Master Problem only tracks node coverage
+        - Capacity constraints are enforced by the Pricing Subproblem
+        - Each generated column (route) is guaranteed feasible
+        - Dual values from coverage constraints guide the pricing problem
+
+    This avoids the "dual desync" problem where adding dynamic cuts to the
+    Master Problem creates dual variables that the Pricing Subproblem cannot
+    properly account for in reduced cost calculations.
     """
 
     def __init__(
@@ -71,6 +85,7 @@ class VRPPMasterProblem:
         capacity: float,
         revenue_per_kg: float,
         cost_per_km: float,
+        vehicle_limit: Optional[int] = None,
     ):
         """
         Initialize the master problem.
@@ -83,6 +98,7 @@ class VRPPMasterProblem:
             capacity: Vehicle capacity
             revenue_per_kg: Revenue per unit of waste collected
             cost_per_km: Cost per unit of distance traveled
+            vehicle_limit: Maximum number of vehicles (routes) allowed
         """
         self.n_nodes = n_nodes
         self.mandatory_nodes = mandatory_nodes
@@ -92,6 +108,7 @@ class VRPPMasterProblem:
         self.capacity = capacity
         self.R = revenue_per_kg
         self.C = cost_per_km
+        self.vehicle_limit = vehicle_limit
         self.depot = 0
 
         # Column pool
@@ -103,8 +120,7 @@ class VRPPMasterProblem:
 
         # Dual values (for pricing)
         self.dual_node_coverage: Dict[int, float] = {}
-        self.dual_capacity_cuts: List[Tuple[Set[int], float, float]] = []  # [(nodes, rhs, dual_val)]
-        self.dual_convexity: float = 0.0
+        self.dual_vehicle_limit: float = 0.0
 
     def add_route(self, route: Route) -> None:
         """Add a route (column) to the master problem."""
@@ -126,10 +142,9 @@ class VRPPMasterProblem:
             name=f"route_{len(self.lambda_vars)}",
         )
 
-        # Add to coverage constraints
-        for node in route.node_coverage:
-            constr_name = f"coverage_{node}"
-            constr = self.model.getConstrByName(constr_name)
+        # Add to vehicle limit constraint
+        if self.vehicle_limit is not None:
+            constr = self.model.getConstrByName("vehicle_limit")
             if constr is not None:
                 self.model.chgCoeff(constr, var, 1.0)
 
@@ -183,73 +198,15 @@ class VRPPMasterProblem:
                 name=f"coverage_{node}",
             )
 
+        # Vehicle limit constraint
+        if self.vehicle_limit is not None:
+            self.model.addConstr(
+                gp.quicksum(self.lambda_vars) <= self.vehicle_limit,
+                name="vehicle_limit",
+            )
+
         self.model.ModelSense = GRB.MAXIMIZE
         self.model.update()
-
-    def add_capacity_cut(self, cut_nodes: List[int], rhs: float) -> bool:
-        """
-        Add a rounded capacity cut to the master problem.
-        Constraint: Σ_{k: route k crosses cut} λ_k >= RHS
-        Actually, for CVRP, the cut is typically Σ_{i∈S} Σ_{j∉S} x_{ij} >= 2 * ⌈q(S)/Q⌉.
-        In set partitioning, this maps to Σ_{k: route k visits S} λ_k * (number of times k crosses boundary of S) >= ...
-        Or more simply for standard CVRP: Σ_{k: route k HAS at least one node in S} λ_k >= ⌈q(S)/Q⌉
-        Wait, no. A route k can visit S and leave it multiple times.
-        According to Lysgaard (2004), for set partitioning, the constraint is:
-        Σ_{k ∈ Ω} a_k^S λ_k ≤ |S| - k(S)
-        where a_k^S is the number of edges of route k with both endpoints in S.
-        """
-        if self.model is None:
-            return False
-
-        cut_set = set(cut_nodes)
-
-        # Check if cut already exists
-        for existing_set, _existing_rhs, _ in self.dual_capacity_cuts:
-            if existing_set == cut_set:
-                return False
-
-        lhs = gp.LinExpr()
-        for idx, route in enumerate(self.routes):
-            # Number of edges in S
-            # route.nodes is sequence of nodes [n1, n2, ..., nm]
-            # edges are (0, n1), (n1, n2), ..., (nm, 0)
-            internal_edges = 0
-            prev = 0
-            for curr in route.nodes + [0]:
-                if prev in cut_set and curr in cut_set:
-                    internal_edges += 1
-                prev = curr
-
-            if internal_edges > 0:
-                lhs += internal_edges * self.lambda_vars[idx]
-
-        if lhs.size() == 0:
-            return False
-
-        self.model.addConstr(lhs <= len(cut_set) - rhs, name=f"rcc_{len(self.dual_capacity_cuts)}")
-        self.dual_capacity_cuts.append((cut_set, rhs, 0.0))
-        self.model.update()
-        return True
-
-    def get_edge_usage(self) -> Dict[Tuple[int, int], float]:
-        """Map column values back to edge variables for separation."""
-        if self.model is None:
-            return {}
-
-        try:
-            edge_usage: Dict[Tuple[int, int], float] = {}
-            for idx, var in enumerate(self.lambda_vars):
-                val = var.X
-                if val > 1e-6:
-                    route = self.routes[idx]
-                    prev = 0
-                    for curr in route.nodes + [0]:
-                        edge = tuple(sorted((prev, curr)))
-                        edge_usage[edge] = edge_usage.get(edge, 0.0) + val  # type: ignore[index,arg-type]
-                        prev = curr
-            return edge_usage
-        except Exception:
-            return {}
 
     def solve_lp_relaxation(self) -> Tuple[float, Dict[int, float]]:
         """
@@ -275,19 +232,22 @@ class VRPPMasterProblem:
         obj_value = self.model.ObjVal
         route_values = {idx: var.X for idx, var in enumerate(self.lambda_vars)}
 
-        # Extract dual values
+        # Extract dual values for node coverage constraints
         self.dual_node_coverage = {}
         for node in range(1, self.n_nodes + 1):
             constr = self.model.getConstrByName(f"coverage_{node}")
             if constr is not None:
-                self.dual_node_coverage[node] = constr.Pi
+                # For Set Packing (<=1) in MAX problem, Pi should be >= 0.
+                # If Gurobi returns a negative value due to numerical issues
+                # or convention, we take the absolute value as per Phase 3.
+                self.dual_node_coverage[node] = max(0.0, constr.Pi)
 
-        # Extract capacity cut duals
-        for i in range(len(self.dual_capacity_cuts)):
-            nodes, rhs, _ = self.dual_capacity_cuts[i]
-            constr = self.model.getConstrByName(f"rcc_{i}")
-            dual_val = constr.Pi if constr is not None else 0.0
-            self.dual_capacity_cuts[i] = (nodes, rhs, dual_val)
+        # Extract dual value for vehicle limit constraint
+        self.dual_vehicle_limit = 0.0
+        if self.vehicle_limit is not None:
+            constr = self.model.getConstrByName("vehicle_limit")
+            if constr is not None:
+                self.dual_vehicle_limit = max(0.0, constr.Pi)
 
         return obj_value, route_values
 
@@ -321,7 +281,7 @@ class VRPPMasterProblem:
 
         return obj_value, selected_routes
 
-    def get_reduced_cost_coefficients(self) -> Dict[int, float]:
+    def get_reduced_cost_coefficients(self) -> Dict[Union[int, str], float]:
         """
         Get the coefficients for computing reduced costs in the pricing subproblem.
 
@@ -331,7 +291,10 @@ class VRPPMasterProblem:
         Returns:
             Dictionary mapping node ID to dual value
         """
-        return self.dual_node_coverage.copy()
+        duals = self.dual_node_coverage.copy()
+        if self.vehicle_limit is not None:
+            duals["vehicle_limit"] = self.dual_vehicle_limit
+        return duals
 
     def get_node_visitation(self) -> Dict[int, float]:
         """
@@ -354,64 +317,3 @@ class VRPPMasterProblem:
             return node_visits
         except Exception:
             return {}
-
-    def add_set_packing_capacity_cut(self, cut_nodes: List[int], rhs: float) -> bool:
-        """
-        Add a Set Packing capacity cut with relaxation for optional visits.
-
-        For VRPP Set Packing, the cut includes a penalty term for non-visitation:
-            sum(x_e for e in delta(S)) >= 2*k(S) - M * sum_{i in S} (1 - y_i)
-
-        This is implemented by tracking visitation variables and adjusting the constraint
-        to only be tight when nodes are actually visited.
-
-        Args:
-            cut_nodes: Nodes in the cut set S
-            rhs: Right-hand side k(S) = ceil(q(S) / Q)
-
-        Returns:
-            True if cut was added, False if duplicate
-        """
-        if self.model is None:
-            return False
-
-        cut_set = set(cut_nodes)
-
-        # Check if cut already exists
-        for existing_set, _existing_rhs, _ in self.dual_capacity_cuts:
-            if existing_set == cut_set:
-                return False
-
-        # For Set Packing, we use the standard RCC formulation but allow violation
-        # when nodes are not visited. The master problem tracks y_i implicitly through
-        # the sum of λ_k covering node i.
-        #
-        # Standard VRP RCC: sum_{e in delta(S)} x_e >= 2*k(S)
-        # Set Packing RCC: sum_{e in delta(S)} x_e >= 2*k(S) - M*(|S| - sum_i y_i)
-        #
-        # Since we're in a set partitioning master problem, we can't directly add y_i
-        # variables. Instead, we only add the cut if the LP solution indicates nodes
-        # in S are being visited (which is checked by the separation routine).
-
-        lhs = gp.LinExpr()
-        for idx, route in enumerate(self.routes):
-            # Count edges crossing the boundary of S
-            boundary_edges = 0
-            prev = 0
-            for curr in route.nodes + [0]:
-                # Edge crosses boundary if exactly one endpoint is in S
-                if (prev in cut_set) != (curr in cut_set):
-                    boundary_edges += 1
-                prev = curr
-
-            if boundary_edges > 0:
-                lhs += boundary_edges * self.lambda_vars[idx]
-
-        if lhs.size() == 0:
-            return False
-
-        # Standard RCC constraint: sum_{e in delta(S)} >= 2*k(S)
-        self.model.addConstr(lhs >= 2 * rhs, name=f"rcc_sp_{len(self.dual_capacity_cuts)}")
-        self.dual_capacity_cuts.append((cut_set, rhs, 0.0))
-        self.model.update()
-        return True
