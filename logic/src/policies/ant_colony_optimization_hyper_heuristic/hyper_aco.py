@@ -88,10 +88,8 @@ class HyperHeuristicACO:
         # We add one extra row for the start state (0).
         self.tau = np.full((self.n_operators + 1, self.n_operators), self.params.tau_0)
 
-        # Heuristic information: derived from success rates
+        # Heuristic information: derived from success rates (EMA)
         self.eta = np.ones(self.n_operators)
-        self.success_counts = np.zeros(self.n_operators)
-        self.use_counts = np.ones(self.n_operators)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -104,6 +102,9 @@ class HyperHeuristicACO:
         best_cost = self._calculate_cost(best_routes)
         best_profit = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r) - best_cost
 
+        # Phase 1: Initialize current_solution to enable state progression
+        current_solution = copy.deepcopy(self.initial_solution)
+
         start_time = time.process_time()
         for _it in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
@@ -112,7 +113,7 @@ class HyperHeuristicACO:
             # 1. Ant solutions construction
             ant_results: List[Tuple[List[List[int]], float, List[str]]] = []
             for _ant in range(self.params.n_ants):
-                routes, sequence = self.build_solution()
+                routes, sequence = self.build_solution(current_solution)
                 cost = self._calculate_cost(routes)
                 ant_results.append((routes, cost, sequence))
 
@@ -130,14 +131,17 @@ class HyperHeuristicACO:
             self._evaporate_pheromones()
 
             # Pheromone deposit: tau[i][j] += Q / cost for the iteration-best sequence
-            current_op_idx = self.n_operators  # Start state
+            deposit_op_idx = self.n_operators  # Start state
             for op_name in iter_best_sequence:
                 next_op_idx = self.op_to_idx[op_name]
-                self.tau[current_op_idx][next_op_idx] += self.params.Q / max(iter_best_cost, 1e-9)
-                current_op_idx = next_op_idx
+                self.tau[deposit_op_idx][next_op_idx] += self.params.Q / max(iter_best_cost, 1e-9)
+                deposit_op_idx = next_op_idx
 
-            # 4. Success-based Heuristics & Meta-data updates
-            self._update_heuristics()
+            # Phase 4: Clip pheromones after deposit
+            np.clip(self.tau, self.params.tau_min, self.params.tau_max, out=self.tau)
+
+            # Phase 1: Update state progression so ants progress from iteration best
+            current_solution = copy.deepcopy(iter_best_routes)
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=_it,
@@ -152,16 +156,19 @@ class HyperHeuristicACO:
         final_cost = best_cost / self.C if self.C > 0 else best_cost
         return best_routes, collected_rev - best_cost, final_cost
 
-    def build_solution(self) -> Tuple[List[List[int]], List[str]]:
+    def build_solution(self, base_solution: List[List[int]]) -> Tuple[List[List[int]], List[str]]:
         """
         Build a solution by applying a sequence of operators.
+
+        Args:
+            base_solution: The starting solution for this ant.
 
         Returns:
             Tuple[List[List[int]], List[str]]: Modified routes and the operator sequence.
         """
         sequence = self._select_sequence()
         ctx = HyperOperatorContext(
-            routes=copy.deepcopy(self.initial_solution),
+            routes=copy.deepcopy(base_solution),
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,
@@ -173,29 +180,40 @@ class HyperHeuristicACO:
             vrpp=self.params.vrpp,
         )
 
+        # Phase 3: EMA-based heuristic update (smoothing factor 0.1)
         for op_name in sequence:
             op_func = HYPER_OPERATORS.get(op_name)
             if op_func:
                 improved = op_func(ctx)
                 op_idx = self.op_to_idx.get(op_name, 0)
-                self.use_counts[op_idx] += 1
-                if improved:
-                    self.success_counts[op_idx] += 1
+
+                # Exponential Moving Average for eta
+                reward = 1.0 if improved else 0.0
+                self.eta[op_idx] = (1 - 0.1) * self.eta[op_idx] + 0.1 * reward
+                # Clip to prevent zero probability
+                self.eta[op_idx] = np.clip(self.eta[op_idx], 0.01, 1.0)
 
         return ctx.routes, sequence
 
     def _select_sequence(self) -> List[str]:
-        """Construct an operator sequence using ACO rules."""
+        """Construct an operator sequence using ACO rules with ACS q0 exploitation."""
         sequence = []
         current_op_idx = self.n_operators  # Start state (index n_operators in tau)
 
         for _ in range(self.params.sequence_length):
-            # Proportional selection logic (tau[prev][next] * eta[next])
+            # Phase 2: ACS pseudo-random proportional rule
             numerator = (self.tau[current_op_idx] ** self.params.alpha) * (self.eta**self.params.beta)
-            denom = np.sum(numerator)
-            probs = numerator / denom if denom > 1e-12 else np.ones(self.n_operators) / self.n_operators
 
-            next_op_idx = self.np_rng.choice(self.n_operators, p=probs)
+            # ACS q0 rule: exploit vs. explore
+            if self.random.random() < self.params.q0:
+                # Exploit: choose best known operator
+                next_op_idx = int(np.argmax(numerator))
+            else:
+                # Explore: roulette wheel selection
+                denom = np.sum(numerator)
+                probs = numerator / denom if denom > 1e-12 else np.ones(self.n_operators) / self.n_operators
+                next_op_idx = self.np_rng.choice(self.n_operators, p=probs)
+
             sequence.append(self.operator_names[next_op_idx])
             current_op_idx = next_op_idx
 
@@ -214,12 +232,5 @@ class HyperHeuristicACO:
         return total * self.C
 
     def _evaporate_pheromones(self):
-        """Apply pheromone evaporation."""
+        """Apply pheromone evaporation (no clipping here per Phase 4)."""
         self.tau *= 1 - self.params.rho
-        np.clip(self.tau, self.params.tau_min, self.params.tau_max, out=self.tau)
-
-    def _update_heuristics(self):
-        """Update heuristic information based on operator success rates."""
-        # eta = success rate with a floor
-        self.eta = self.success_counts / self.use_counts
-        self.eta = np.clip(self.eta, 0.01, 10.0)
