@@ -36,10 +36,15 @@ class VRPPModel:
         6. Rounded Capacity Cuts (RCC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2·⌈demand(S)/Q⌉
         7. Comb Inequalities: Advanced cuts for strengthening LP relaxation
 
-    Reference:
-        Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the
-        Resolution of Large-scale Symmetric Traveling Salesman Problems".
-        SIAM Review, 33(1), 60-100.
+    References:
+        Fischetti, M., Lodi, A., & Toth, P. (1997). "A Branch-and-Cut Algorithm for the
+        Symmetric Generalized Traveling Salesman Problem". Operations Research, 45(2), 326-349.
+
+        Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004). "A new branch-and-cut algorithm
+        for the capacitated vehicle routing problem". Mathematical Programming, 100(2), 423-445.
+
+        Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the Resolution of
+        Large-scale Symmetric Traveling Salesman Problems". SIAM Review, 33(1), 60-100.
     """
 
     def __init__(
@@ -153,7 +158,7 @@ class VRPPModel:
             return False, f"Mandatory nodes not visited: {missing_mandatory}"
 
         # Check for cycles (no node visited more than once except depot)
-        visited_counts = {}
+        visited_counts: Dict[int, int] = {}
         for node in tour[1:-1]:  # Exclude depot returns
             visited_counts[node] = visited_counts.get(node, 0) + 1
             if visited_counts[node] > 1:

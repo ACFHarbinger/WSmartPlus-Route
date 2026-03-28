@@ -8,9 +8,22 @@ Problem with Profits (VRPP) and Capacitated Waste Collection VRP (CWC VRP).
 Implementation follows the methodology proposed by Land and Doig (1960), utilizing
 Linear Programming (LP) relaxations to provide rigorous mathematical bounds during
 tree exploration.
+
+**Architecture**:
+- `mtz.py`: MTZ (Miller-Tucker-Zemlin) compact formulation
+- `dfj.py`: DFJ (Dantzig-Fulkerson-Johnson) lazy cut formulation
+- `dispatcher.py`: Unified interface for formulation selection
+- `policy_bb.py`: Policy adapter integrating with the simulation framework
 """
 
-from .bb import run_bb
+from .dfj import run_bb_dfj
+from .dispatcher import run_bb_optimizer
+from .mtz import run_bb_mtz
 from .policy_bb import BranchAndBoundPolicy
 
-__all__ = ["BranchAndBoundPolicy", "run_bb"]
+__all__ = [
+    "BranchAndBoundPolicy",
+    "run_bb_optimizer",
+    "run_bb_mtz",
+    "run_bb_dfj",
+]

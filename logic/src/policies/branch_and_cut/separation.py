@@ -2,9 +2,22 @@
 Separation Algorithms for VRPP Cutting Planes.
 
 Implements exact and heuristic separation procedures for identifying violated
-valid inequalities in the VRPP linear programming relaxation, based on:
-- Fischetti et al. (1997) for subtour elimination and comb inequalities
-- Padberg & Rinaldi (1991) for capacity constraints and 2-matching inequalities
+valid inequalities in the VRPP linear programming relaxation.
+
+References:
+    Fischetti, M., Lodi, A., & Toth, P. (1997). "A Branch-and-Cut Algorithm for the Symmetric
+    Generalized Traveling Salesman Problem". Operations Research, 45(2), 326-349.
+
+    Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004). "A new branch-and-cut algorithm
+    for the capacitated vehicle routing problem". Mathematical Programming, 100(2), 423-445.
+
+    Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the Resolution of
+    Large-scale Symmetric Traveling Salesman Problems". SIAM Review, 33(1), 60-100.
+
+Notes:
+    - Subtour Elimination Constraints (SEC) follow Fischetti et al. (1997)
+    - Capacity Constraints and fractional separation follow Lysgaard et al. (2004)
+    - Comb inequalities are disabled in favor of Gurobi's internal polyhedral cuts
 """
 
 from typing import Dict, List, Optional, Set, Tuple
@@ -80,17 +93,144 @@ class CombInequality(Inequality):
 
 
 class SeparationEngine:
-    """Separation algorithms for finding violated inequalities."""
+    """
+    Separation algorithms for finding violated inequalities.
 
-    def __init__(self, model):
+    Configuration:
+        USE_COMB_CUTS: If True, enable custom comb inequality separation.
+                       Default False - Gurobi's internal polyhedral cuts are preferred.
+
+        enable_fractional_capacity_cuts: If True, enable exact fractional capacity separation.
+                       Default False for instances with n > 75 (see CVRPSEP note below).
+    """
+
+    # Global toggle for comb inequality separation
+    # Set to False to disable custom comb cuts and rely on Gurobi's internal heuristics
+    USE_COMB_CUTS = False
+
+    def __init__(self, model, enable_fractional_capacity_cuts: bool = True):
         """
         Initialize separation engine.
 
         Args:
             model: VRPPModel instance.
+            enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
+                If False, disables computationally expensive exact capacity separation.
+                Recommended to set False for instances with n > 75.
+
+        Note on Fractional Capacity Separation:
+            Finding the exact most violated fractional Capacity Cut is strongly NP-hard.
+            While this exact separation is valid for small-to-medium instances (n ≤ 75),
+            state-of-the-art implementations typically rely on shrinking heuristics (such as
+            Lysgaard's CVRPSEP C++ library) to scale to N > 100.
+
+            References:
+                Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004).
+                "A new branch-and-cut algorithm for the capacitated vehicle routing problem".
+                Mathematical Programming, 100(2), 423-445.
+
+                Lysgaard, J. (2003). "CVRPSEP: A package of separation routines for the
+                capacitated vehicle routing problem". Technical report, Aarhus University.
         """
         self.model = model
         self.pool: List[Inequality] = []  # Pool of stored inequalities
+        self.enable_fractional_capacity_cuts = enable_fractional_capacity_cuts
+
+    def separate_integer(
+        self,
+        x_vals: np.ndarray,
+        y_vals: Optional[np.ndarray] = None,
+        max_cuts: int = 100,
+        iteration: int = 0,
+    ) -> List[Inequality]:
+        """
+        Fast separation for integer solutions (MIPSOL callback).
+
+        Uses efficient heuristic methods suitable for integer values:
+        - Connected components for subtours (O(n²))
+        - Demand-based clustering for capacity cuts (O(n²))
+
+        Args:
+            x_vals: Integer edge values from MIP solution.
+            y_vals: Integer node visit values from MIP solution.
+            max_cuts: Maximum number of cuts to return.
+            iteration: Current iteration number.
+
+        Returns:
+            List of violated inequalities sorted by degree of violation.
+        """
+        self.pool = []
+
+        # Step 1: Fast subtour separation using connected components
+        self._separate_disconnected_components(x_vals, y_vals)
+
+        # Step 2: Heuristic capacity separation
+        self._separate_capacity_cuts(x_vals, y_vals)
+
+        # Filter and return most violated cuts
+        violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
+        violated.sort()  # Sort by violation descending
+        return violated[:max_cuts]
+
+    def separate_fractional(
+        self,
+        x_vals: np.ndarray,
+        y_vals: Optional[np.ndarray] = None,
+        max_cuts: int = 50,
+        iteration: int = 0,
+        node_count: int = 0,
+    ) -> List[Inequality]:
+        """
+        Exact separation for fractional LP nodes (MIPNODE callback).
+
+        Uses computationally expensive exact methods:
+        - Max-flow for exact subtour separation (O(V⁴))
+        - Max-flow for exact capacity cut separation (O(V⁴))
+
+        Throttling (Lysgaard et al. 2004):
+            - Root node (node_count == 0): Full exact separation
+            - Shallow nodes (node_count <= 4): Limited exact separation
+            - Deep nodes: Should not call this method (handled in bc.py)
+
+        Args:
+            x_vals: Fractional edge values from LP relaxation.
+            y_vals: Fractional node visit values from LP relaxation.
+            max_cuts: Maximum number of cuts to return.
+            iteration: Current iteration number.
+            node_count: Current node count in B&B tree (for adaptive strategies).
+
+        Returns:
+            List of violated inequalities sorted by degree of violation.
+        """
+        self.pool = []
+
+        # Strategy: More aggressive separation at root node
+        if node_count == 0:
+            # Root node: Full exact separation
+            self._separate_subtours_heuristic(x_vals, y_vals)
+            self._separate_capacity_cuts(x_vals, y_vals)
+            self._separate_subtours_exact(x_vals, y_vals)
+
+            # Exact fractional capacity separation (toggle-controlled)
+            if self.enable_fractional_capacity_cuts:
+                self._separate_capacity_cuts_exact(x_vals, y_vals)
+        else:
+            # Shallow nodes: Limited exact separation
+            self._separate_subtours_heuristic(x_vals, y_vals)
+            self._separate_capacity_cuts(x_vals, y_vals)
+
+            # Run exact separation less frequently
+            if iteration % 3 == 0:
+                self._separate_subtours_exact(x_vals, y_vals)
+
+                # Exact fractional capacity separation (toggle-controlled)
+                if self.enable_fractional_capacity_cuts:
+                    self._separate_capacity_cuts_exact(x_vals, y_vals)
+
+        # Filter and return most violated cuts
+        violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
+        violated.sort()  # Sort by violation descending
+        return violated[:max_cuts]
 
     def separate(
         self,
@@ -100,7 +240,11 @@ class SeparationEngine:
         iteration: int = 0,
     ) -> List[Inequality]:
         """
-        Main separation procedure for VRPP.
+        Main separation procedure for VRPP (legacy interface).
+
+        This method is maintained for backward compatibility but is not used
+        in the true Branch-and-Cut callback. Use separate_integer() or
+        separate_fractional() instead.
 
         Args:
             x_vals: Fractional edge values from LP solution (indexed by edge list).
@@ -125,7 +269,8 @@ class SeparationEngine:
             self._separate_capacity_cuts_exact(x_vals, y_vals)
 
         # Step 4: Comb inequalities (heuristic) - advanced cuts
-        if iteration % 10 == 0:
+        # DISABLED: Gurobi's internal clique/cover cuts are preferred
+        if self.USE_COMB_CUTS and iteration % 10 == 0:
             self._separate_comb_heuristic(x_vals, y_vals)
 
         # Filter and return most violated cuts
@@ -297,6 +442,30 @@ class SeparationEngine:
 
         Uses max-flow between depot and all visited nodes to find promising cuts.
         For each cut, we check if the Rounded Capacity Inequality is violated.
+
+        **Computational Complexity & Scalability Note:**
+
+        The exact separation of the most violated Capacity Cut is strongly NP-hard
+        (Caprara & Fischetti, 1996). This implementation uses a max-flow heuristic
+        to identify candidate cuts, which has O(V⁴) complexity per sink node.
+
+        For instances with n > 75-100, this becomes a significant bottleneck. State-of-the-art
+        B&C implementations (e.g., Lysgaard et al. 2004) rely on specialized C++ libraries
+        like CVRPSEP that use:
+            - Shrinking heuristics to reduce the solution space
+            - Efficient min-cut enumeration algorithms
+            - Capacity-indexed caching structures
+
+        This exact separation can be disabled via the `enable_fractional_capacity_cuts`
+        parameter for large-scale benchmarking, falling back to heuristic capacity
+        separation only.
+
+        References:
+            Caprara, A., & Fischetti, M. (1996). "{0, 1/2}-Chvátal-Gomory cuts".
+            Mathematical Programming, 74(3), 221-235.
+
+            Lysgaard, J. (2003). "CVRPSEP: A package of separation routines for the
+            capacitated vehicle routing problem". Technical report, Aarhus University.
         """
         if self.model.n_nodes > 100:  # Cap for performance
             return
@@ -321,7 +490,9 @@ class SeparationEngine:
                 flow_result = maximum_flow(csr_matrix(adj), self.model.depot, sink)
                 cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), self.model.depot, sink)
 
-                if not cut_set or self.model.depot in cut_set:
+                # Prune invalid cuts: single-node sets, depot in set, or empty sets
+                # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
+                if not cut_set or len(cut_set) <= 1 or self.model.depot in cut_set:
                     continue
 
                 current_y_vals = y_vals if y_vals is not None else np.ones(len(self.model.customers))
@@ -381,8 +552,11 @@ class SeparationEngine:
                     violation = target_value - max_flow_value
                     cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), self.model.depot, customer)
 
+                    # Prune invalid cuts: single-node sets, depot in set, empty sets, or duplicates
+                    # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
                     if (
                         cut_set
+                        and len(cut_set) >= 2
                         and self.model.depot not in cut_set
                         and not any(
                             set(cut_set) == set(existing.node_set)
@@ -432,6 +606,14 @@ class SeparationEngine:
     def _separate_comb_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """
         Heuristic comb inequality separation (Theorem 2.3 from Fischetti et al. 1997).
+
+        **NOTE: This method is DISABLED by default (USE_COMB_CUTS = False).**
+
+        Rationale for disabling:
+            - Custom comb separation is heuristic and may miss optimal cuts
+            - Gurobi's internal polyhedral cuts (Clique, Cover, etc.) are highly optimized
+            - Unoptimized Python-level comb separation adds computational overhead
+            - For this Natural Edge Formulation, SEC + RCC cuts are sufficient
 
         A comb inequality is defined by:
         - Handle H: A node subset

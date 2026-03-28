@@ -26,78 +26,101 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from ..branch_and_cut.separation import SeparationEngine
 from ..branch_and_cut.vrpp_model import VRPPModel
+from ..branch_and_price.branching import BranchAndBoundTree
 from ..branch_and_price.master_problem import Route, VRPPMasterProblem
 from ..branch_and_price.rcspp_dp import RCSPPSolver
-from ..branch_and_price.ryan_foster_branching import (
-    BranchAndBoundTree,
-    RyanFosterBranching,
-)
 from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
+from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
+from .search_strategy import create_search_strategy
 
 
-def _separate_rcc(
+def _apply_branching_to_master(
     master: VRPPMasterProblem,
-    sep_engine: SeparationEngine,
-    v_model: VRPPModel,
+    branching_constraints: List,
+) -> None:
+    """
+    Filter the Master Problem column pool by disabling routes that violate
+    branching constraints at the current B&B node.
+
+    Column Contamination Problem:
+    ------------------------------
+    The Master Problem maintains a global column pool across the entire B&B tree.
+    When we branch at a node, we add constraints (e.g., "nodes r and s must be
+    together" or "arc (u,v) is forbidden"). However, the existing column pool
+    may contain routes generated at ancestor nodes that violate these new constraints.
+
+    If we don't filter these routes, the LP solver will select them, producing
+    fractional solutions that violate the branching decisions. This causes:
+    1. Incorrect LP bounds (too optimistic)
+    2. Infinite branching loops (same fractional solution reappears)
+    3. Invalid integer solutions
+
+    Solution:
+    ---------
+    We temporarily disable violating routes by setting their upper bound to 0:
+        var.UB = 0.0
+
+    This is more efficient than:
+    - Deleting and re-adding columns (expensive Gurobi operations)
+    - Maintaining separate column pools per node (memory intensive)
+    - Adding explicit branching constraints to Gurobi (creates dense constraint matrix)
+
+    The routes remain in the model structure but cannot be selected in the LP solution.
+
+    Implementation:
+    ---------------
+    For each route k and its corresponding Gurobi variable λ_k:
+    1. Reset upper bound to 1.0 (clean state for this node)
+    2. Check if route satisfies all active branching constraints
+    3. If any constraint is violated, set var.UB = 0.0 to disable the route
+
+    Args:
+        master: Master problem instance with Gurobi model
+        branching_constraints: List of active branching constraints from current node
+
+    References:
+    -----------
+    Barnhart et al. (1998), Section 4: "Variable fixing is more efficient than
+    adding explicit branching constraints to the master problem LP."
+    """
+    if not branching_constraints or master.model is None:
+        return
+
+    for route, var in zip(master.routes, master.lambda_vars):
+        # Reset to clean state (allows reactivation when moving to different branches)
+        var.UB = 1.0
+
+        # Check feasibility against all active branching constraints
+        is_feasible = all(bc.is_route_feasible(route) for bc in branching_constraints)
+
+        if not is_feasible:
+            # Temporarily disable this route by forcing its upper bound to 0
+            var.UB = 0.0
+
+    # Update the model to reflect the bound changes
+    master.model.update()
+
+
+def _separate_cuts(
+    master: VRPPMasterProblem,
+    cut_engine: CuttingPlaneEngine,
     max_cuts: int,
 ) -> int:
     """
-    Separate and add Rounded Capacity Cuts (RCC) for VRPP Set Packing.
+    Separate and add valid inequalities using the configured cutting plane engine.
 
-    For VRPP Set Packing, cuts are formulated with exact mathematical relaxation:
-        sum_{e in delta(S)} x_e >= 2*k(S) - M * sum_{i in S} (1 - y_i)
-
-    Where:
-    - delta(S) is the set of edges crossing the boundary of node set S
-    - k(S) = ceil(q(S) / Q) is the minimum number of vehicles needed
-    - y_i is the visitation variable (sum of lambda_k covering node i)
-    - M is a large constant
-
-    The master problem enforces this by only activating the cut when nodes
-    in S have sufficient visitation probability in the LP solution.
+    This is a modular wrapper that delegates to the specific cutting plane
+    engine (RCC, LCI, etc.) configured by the user.
 
     Args:
         master: Master problem instance
-        sep_engine: Separation engine for finding violated cuts
-        v_model: VRPP model for edge indexing
+        cut_engine: Cutting plane separation engine
         max_cuts: Maximum number of cuts to add
 
     Returns:
         Number of cuts added
     """
-    edge_vars = master.get_edge_usage()
-    if not edge_vars:
-        return 0
-
-    # Note: Node visitation probabilities (y_i) are tracked in the master problem
-    # and used by add_set_packing_capacity_cut() to enforce relaxation
-
-    # Map edge_usage to x_vals array for SeparationEngine
-    x_vals = np.zeros(len(v_model.edges))
-    for (i, j), val in edge_vars.items():
-        if (min(i, j), max(i, j)) in v_model.edge_to_idx:
-            idx = v_model.edge_to_idx[(min(i, j), max(i, j))]
-            x_vals[idx] = val
-
-    # Separate cuts
-    violated_ineqs = sep_engine.separate(x_vals, max_cuts=max_cuts)
-    added_cuts = 0
-
-    for ineq in violated_ineqs:
-        if ineq.type == "CAPACITY":
-            node_set = list(ineq.node_set)
-
-            # For exact Set Packing, we add the cut with boundary relaxation
-            # The cut is: sum_{e in delta(S)} >= 2*k(S)
-            # But it only becomes tight when nodes are actually visited
-            # This is enforced by the add_set_packing_capacity_cut method
-            if master.add_set_packing_capacity_cut(node_set, ineq.rhs):
-                added_cuts += 1
-
-    # If we added cuts, re-solve LP and continue
-    if added_cuts > 0:
-        master.solve_lp_relaxation()
-    return added_cuts
+    return cut_engine.separate_and_add_cuts(master, max_cuts)
 
 
 def _solve_pricing_step(
@@ -163,8 +186,7 @@ def _is_solution_integer(route_values: Dict[int, float], tol: float = 1e-6) -> b
 def _column_generation_loop(
     master: VRPPMasterProblem,
     pricing_solver: RCSPPSolver,
-    sep_engine: SeparationEngine,
-    v_model: VRPPModel,
+    cut_engine: CuttingPlaneEngine,
     branching_constraints: Optional[List],
     max_cg_iterations: int,
     max_cuts: int,
@@ -174,11 +196,21 @@ def _column_generation_loop(
     """
     Run Column Generation + Cutting Plane loop at a B&B node.
 
+    CORRECTED SEQUENCING (Barnhart et al. 1998, Section 3):
+    --------------------------------------------------------
+    1. Price out columns until LP is optimal (no more positive reduced cost)
+    2. Attempt to find violated cuts in the current LP solution
+    3. If cuts are found, add them and return to Step 1
+    4. Terminate when no columns price out AND no cuts are violated
+
+    This ensures that cutting planes are separated on a "stable" LP solution
+    where column generation has converged, avoiding premature cut generation
+    on incomplete solutions.
+
     Args:
         master: Master problem
         pricing_solver: RCSPP pricing solver
-        sep_engine: Separation engine for cuts
-        v_model: VRPP model for separation
+        cut_engine: Cutting plane separation engine
         branching_constraints: Active branching constraints
         max_cg_iterations: Maximum CG iterations
         max_cuts: Maximum cuts per iteration
@@ -192,23 +224,31 @@ def _column_generation_loop(
         if time_limit and (time.process_time() - start_time) > time_limit:
             break
 
-        # Solve LP Relaxation
-        try:
-            obj_val, route_vals = master.solve_lp_relaxation()
-        except Exception as e:
-            raise RuntimeError("LP relaxation failed at B&B node") from e
+        # PHASE 1: Column Generation (price until convergence)
+        while True:
+            # Solve LP Relaxation
+            try:
+                obj_val, route_vals = master.solve_lp_relaxation()
+            except Exception as e:
+                raise RuntimeError("LP relaxation failed at B&B node") from e
 
-        # A. Separate Cuts (Rounded Capacity Cuts)
-        _separate_rcc(master, sep_engine, v_model, max_cuts)
+            # Solve Pricing Subproblem
+            added = _solve_pricing_step(master, pricing_solver, branching_constraints)
 
-        # B. Solve Pricing Subproblem
-        added = _solve_pricing_step(master, pricing_solver, branching_constraints)
+            if added == 0:
+                # No more columns with positive reduced cost - pricing converged
+                break
 
-        if added == 0:
-            # No more columns with positive reduced cost
+        # PHASE 2: Cutting Planes (separate on converged LP solution)
+        cuts_added = _separate_cuts(master, cut_engine, max_cuts)
+
+        if cuts_added == 0:
+            # No violated cuts found - both pricing and cutting have converged
             break
 
-    # Get final LP solution
+        # Cuts were added - LP solution has changed, return to pricing phase
+
+    # Get final LP solution after full convergence
     obj_val, route_vals = master.solve_lp_relaxation()
     return obj_val, route_vals
 
@@ -228,22 +268,24 @@ def run_custom_bpc(
     """
     Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.
 
-    This engine implements:
+    This engine implements the Barnhart et al. (1998) BPC framework with
+    configurable algorithmic strategies:
+
     1. Initial Column Generation via greedy heuristics
-    2. Branch-and-Bound tree with Ryan-Foster branching
-    3. Column Generation at every B&B node
+    2. Branch-and-Bound tree with pluggable branching strategies
+    3. Column Generation at every B&B node (corrected sequencing)
     4. Exact Pricing via RCSPP
-    5. Valid Inequalities: Rounded Capacity Cuts adapted for VRPP Set Packing
-    6. Best-first search with bound-based pruning
+    5. Modular Valid Inequalities (RCC, LCI)
+    6. Configurable search strategy (Best-First, Depth-First)
 
     Algorithm Overview:
-    - Initialize B&B tree with root node
+    - Initialize B&B tree with root node and selected strategy
     - While tree is not empty:
-        - Pop best node (highest LP bound)
+        - Select next node using configured search strategy
         - Apply branching constraints to master and pricing
-        - Run Column Generation + Cutting Plane loop
+        - Run Column Generation + Cutting Plane loop (corrected sequencing)
         - If LP is integer: update incumbent
-        - If LP is fractional: branch using Ryan-Foster
+        - If LP is fractional: branch using configured branching rule
         - Prune by bound
 
     Args:
@@ -257,6 +299,9 @@ def run_custom_bpc(
             - max_cuts_per_iteration: Max cuts to add per iteration (default 5)
             - max_bb_nodes: Max B&B nodes to explore (default 1000)
             - time_limit: Time limit in seconds (optional)
+            - search_strategy: "best_first" or "depth_first" (default "best_first")
+            - cutting_planes: "rcc" or "lci" (default "rcc")
+            - branching_strategy: "ryan_foster", "edge", or "divergence" (default "ryan_foster")
         mandatory_nodes: List of mandatory node indices
         expand_pool: Whether to expand initial route pool
         profit_aware_operators: Whether to use profit-aware greedy
@@ -274,6 +319,11 @@ def run_custom_bpc(
     max_cuts = values.get("max_cuts_per_iteration", 5)
     max_bb_nodes = values.get("max_bb_nodes", 1000)
     time_limit = values.get("time_limit")
+
+    # Strategy Configuration
+    search_strategy_name = values.get("search_strategy", "best_first")
+    cutting_planes_name = values.get("cutting_planes", "rcc")
+    branching_strategy_name = values.get("branching_strategy", "ryan_foster")
 
     # 1. Initialize Master Problem
     master = VRPPMasterProblem(
@@ -323,17 +373,21 @@ def run_custom_bpc(
     v_model = VRPPModel(n_nodes + 1, dist_matrix, wastes, capacity, R, C, m_set)
     sep_engine = SeparationEngine(v_model)
 
-    # 4. Initialize Branch-and-Bound Tree
-    bb_tree = BranchAndBoundTree()
+    # 4. Initialize strategy modules
+    search_strategy = create_search_strategy(search_strategy_name)
+    cut_engine = create_cutting_plane_engine(cutting_planes_name, v_model, sep_engine)
+
+    # 5. Initialize Branch-and-Bound Tree with configured branching strategy
+    bb_tree = BranchAndBoundTree(strategy=branching_strategy_name)
     nodes_explored = 0
 
-    # 5. Branch-and-Bound Loop
+    # 6. Branch-and-Bound Loop
     while not bb_tree.is_empty() and nodes_explored < max_bb_nodes:
         if time_limit and (time.process_time() - start_time) > time_limit:
             break
 
-        # Get next node (best-first)
-        current_node = bb_tree.get_next_node()
+        # Get next node using configured search strategy
+        current_node = search_strategy.select_node(bb_tree.open_nodes)
         if current_node is None:
             break
 
@@ -342,13 +396,15 @@ def run_custom_bpc(
         # Get branching constraints for this node
         branching_constraints = current_node.get_all_constraints()
 
-        # Run Column Generation at this node
+        # Apply branching constraints to master problem (filter invalid columns)
+        _apply_branching_to_master(master, branching_constraints)
+
+        # Run Column Generation at this node with corrected sequencing
         try:
             lp_obj, route_values = _column_generation_loop(
                 master=master,
                 pricing_solver=pricing_solver,
-                sep_engine=sep_engine,
-                v_model=v_model,
+                cut_engine=cut_engine,
                 branching_constraints=branching_constraints,
                 max_cg_iterations=max_cg_iter,
                 max_cuts=max_cuts,
@@ -381,25 +437,14 @@ def run_custom_bpc(
                 bb_tree.prune_by_bound()
 
         else:
-            # Solution is fractional - need to branch
-            # Use Ryan-Foster branching to find a pair (r, s)
-            branching_pair = RyanFosterBranching.find_branching_pair(
-                master.routes,
-                route_values,
-            )
+            # Solution is fractional - need to branch using configured strategy
+            children = bb_tree.branch(current_node, master.routes, route_values)
 
-            if branching_pair is None:
-                # Couldn't find branching pair (shouldn't happen)
+            if children is None:
+                # Couldn't find branching decision (shouldn't happen)
                 continue
 
-            node_r, node_s = branching_pair
-
-            # Create two child nodes
-            left_child, right_child = RyanFosterBranching.create_child_nodes(
-                current_node,
-                node_r,
-                node_s,
-            )
+            left_child, right_child = children
 
             # Add children to tree
             bb_tree.add_node(left_child)

@@ -64,7 +64,7 @@ class HGSRRPolicy(BaseRoutingPolicy):
             population_size=values.get("population_size", 50),
             elite_size=values.get("elite_size", 10),
             mutation_rate=values.get("mutation_rate", 0.3),
-            n_generations=values.get("n_generations", 100),
+            n_iterations_no_improvement=values.get("n_iterations_no_improvement", 20000),
             alpha_diversity=values.get("alpha_diversity", 0.5),
             min_diversity=values.get("min_diversity", 0.2),
             diversity_change_rate=values.get("diversity_change_rate", 0.05),

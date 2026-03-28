@@ -1,9 +1,14 @@
 """
-Simplified Branch-and-Bound solver that delegates to Gurobi's built-in B&B.
+DFJ-formulation Branch-and-Bound solver using Gurobi's built-in B&B engine.
 
-This replaces the custom BB implementation which was solving full MIPs at each node,
-causing exponential slowdown. Instead, we just set up the model once and let Gurobi
-handle the branch-and-bound tree internally.
+Uses the Dantzig-Fulkerson-Johnson (DFJ) formulation with lazy subtour elimination
+constraints. This delegates the B&B tree search to Gurobi's highly optimized internal
+engine, adding subtour cuts dynamically during the search.
+
+Reference:
+    Dantzig, G., Fulkerson, R., & Johnson, S. (1954).
+    "Solution of a large-scale traveling-salesman problem".
+    Journal of Operations Research, 2(4), 393-410.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -36,13 +41,10 @@ def _dfj_callback(model, where):
 
         # Add cuts for subtours
         for component in components:
+            # NetworkX connected_components yields sets, which is optimal for lookups
             if 0 not in component and len(component) >= 2:
-                subtour_edges = []
-                for i in component:
-                    for j in component:
-                        if i != j and (i, j) in x_vars:
-                            subtour_edges.append(x_vars[(i, j)])
-
+                # List comprehensions execute at C-speed, bypassing Python's loop overhead
+                subtour_edges = [x_vars[i, j] for i in component for j in component if i != j and (i, j) in x_vars]
                 if subtour_edges:
                     model.cbLazy(quicksum(subtour_edges) <= len(component) - 1)
 
@@ -108,7 +110,7 @@ def _extract_routes_from_adj(adj: Dict[int, List[int]], num_nodes: int) -> List[
     return routes
 
 
-def run_bb_simple(
+def run_bb_dfj(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
@@ -121,25 +123,26 @@ def run_bb_simple(
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
-    Solve VRPP using Gurobi's built-in branch-and-bound with DFJ lazy constraints.
+    Dispatcher entry point for the DFJ-formulation Branch-and-Bound solver.
 
-    This is a simplified version that doesn't implement custom BB logic, but instead
-    delegates to Gurobi's highly optimized internal B&B engine.
+    Uses Dantzig-Fulkerson-Johnson (DFJ) formulation with lazy subtour elimination
+    constraints. Delegates the branch-and-bound tree search to Gurobi's highly
+    optimized internal engine.
 
     Args:
-        dist_matrix: Distance matrix (n x n)
-        wastes: Waste/profit at each node
-        capacity: Vehicle capacity
-        R: Revenue multiplier
-        C: Cost multiplier
-        values: Configuration dict with time_limit, mip_gap, etc.
-        must_go_indices: Nodes that must be visited
-        env: Optional Gurobi environment
-        seed: Optional random seed
-        recorder: Optional state recorder
+        dist_matrix: Symmetric distance matrix (n x n).
+        wastes: Mapping of customer IDs to fill levels/profits.
+        capacity: Vehicle payload capacity.
+        R: Revenue coefficient per unit collected.
+        C: Cost coefficient per unit distance.
+        values: Configuration dictionary (time_limit, mip_gap, etc.).
+        must_go_indices: Set of mandatory customer nodes.
+        env: Optional Gurobi environment for resource management.
+        seed: Optional random seed.
+        recorder: Optional telemetry recorder.
 
     Returns:
-        Tuple of (routes, objective_value)
+        Tuple of (routes, objective_value).
     """
     num_nodes = len(dist_matrix)
     nodes = range(num_nodes)
@@ -202,7 +205,7 @@ def run_bb_simple(
     # Record stats
     if recorder:
         recorder.record(
-            engine="bb_simple",
+            engine="bb_dfj",
             obj_val=model.ObjVal,
             nodes_explored=int(model.NodeCount),
             time=model.Runtime,

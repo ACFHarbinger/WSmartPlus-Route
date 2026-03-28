@@ -7,6 +7,20 @@
 # and using LP relaxations to "prune" non-optimal sub-trees.
 
 bb:
+  # Mathematical formulation for subtour elimination.
+  # - "dfj": Dantzig-Fulkerson-Johnson formulation with lazy subtour elimination.
+  #   Delegates B&B to Gurobi's highly optimized internal engine.
+  #   Best for: Large instances (50+ nodes), when Gurobi license available.
+  #   Performance: Leverages Gurobi's advanced heuristics and cut generation.
+  #
+  # - "mtz": Miller-Tucker-Zemlin compact formulation with load variables.
+  #   Custom B&B implementation with configurable branching strategies.
+  #   Best for: Small-medium instances (< 50 nodes), research experiments.
+  #   Performance: Full control over branching, but slower for large instances.
+  #
+  # Recommendation: Use "dfj" for production, "mtz" for experimentation.
+  formulation: "dfj"
+
   # Maximum time in seconds for the solver to search for the optimal solution.
   # Note: BB can be computationally expensive (exponential complexity);
   # set a reasonable limit for large instances.
@@ -19,10 +33,23 @@ bb:
   mip_gap: 0.01
 
   # Variable selection strategy for branching on fractional variables.
+  # NOTE: Only applies when formulation="mtz". Ignored for "dfj".
+  #
+  # - "strong": True strong branching - evaluates each candidate via LP solve.
+  #   Most accurate but computationally expensive. Best overall performance.
+  #
   # - "most_fractional": Select the variable with value closest to 0.5.
-  #   Usually leads to more balanced trees.
+  #   Fast heuristic, usually leads to more balanced trees.
+  #
   # - "least_fractional": Select variable closest to 0 or 1.
-  branching_strategy: "most_fractional"
+  #   Quick convergence but may explore more nodes.
+  branching_strategy: "strong"
+
+  # Maximum number of candidate variables to evaluate during strong branching.
+  # NOTE: Only applies when branching_strategy="strong" and formulation="mtz".
+  # Higher values = better branching decisions but slower per-node evaluation.
+  # Recommended: 3-10 for balanced performance.
+  strong_branching_limit: 5
 
   # Whether to enable VRPP mode (Vehicle Routing Problem with Profits).
   # - true: The solver considers all bins and selects the most profitable ones to visit.

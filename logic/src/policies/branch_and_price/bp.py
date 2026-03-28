@@ -3,7 +3,7 @@ Branch-and-Price Solver for VRPP.
 
 Implements the complete Branch-and-Price algorithm with:
 - Column generation at each node
-- Ryan-Foster branching for set partitioning
+- Pluggable branching strategy (edge branching or Ryan-Foster)
 - LP relaxation solving with pricing
 - Integer solution recovery
 
@@ -14,18 +14,18 @@ Reference:
     "Branch-and-price: Column Generation for Solving Huge Integer Programs".
 """
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
+from .branching import (
+    AnyBranchingConstraint,
+    BranchAndBoundTree,
+    BranchNode,
+)
 from .master_problem import Route, VRPPMasterProblem
 from .pricing_subproblem import PricingSubproblem
 from .rcspp_dp import RCSPPSolver
-from .ryan_foster_branching import (
-    BranchAndBoundTree,
-    BranchNode,
-    RyanFosterBranching,
-)
 
 
 class BranchAndPriceSolver:
@@ -33,11 +33,32 @@ class BranchAndPriceSolver:
     Branch-and-Price Algorithm for VRPP with Column Generation.
 
     Algorithm:
-        1. Initialize with greedy routes
-        2. Solve LP relaxation with column generation
-        3. If LP solution is integer, terminate
-        4. Otherwise, branch using Ryan-Foster branching
-        5. Solve child nodes recursively
+        1. Initialise with greedy routes.
+        2. Solve LP relaxation with column generation.
+        3. If LP solution is integer, terminate.
+        4. Otherwise branch using the configured strategy and recurse.
+
+    Branching strategies
+    --------------------
+    ``"edge"`` (default)
+        Branches on the most-fractional directed arc (x_{uv}).  Integrates
+        natively with the DP label extension.
+
+    ``"ryan_foster"``
+        Branches on fractional node-pair co-occurrence (Ryan & Foster 1981).
+
+    Exact-pricing mode
+    ------------------
+    When ``use_exact_pricing=True``, the DP-based ``RCSPPSolver`` is used.
+    Two sub-modes are available via ``use_ng_routes``:
+
+    ``use_ng_routes=True`` (default)
+        Uses ng-route relaxation (Baldacci et al. 2011) — far fewer labels,
+        scalable to large instances.
+
+    ``use_ng_routes=False``
+        Falls back to exact ESPPRC — every generated route is elementary,
+        but the label count grows exponentially with instance size.
     """
 
     def __init__(
@@ -52,28 +73,44 @@ class BranchAndPriceSolver:
         max_iterations: int = 100,
         max_routes_per_iteration: int = 10,
         optimality_gap: float = 1e-4,
-        use_ryan_foster: bool = True,
+        use_ryan_foster: bool = False,
+        branching_strategy: str = "edge",
         max_branch_nodes: int = 1000,
         use_exact_pricing: bool = False,
         vehicle_limit: Optional[int] = None,
-    ):
+        use_ng_routes: bool = True,
+        ng_neighborhood_size: int = 8,
+    ) -> None:
         """
-        Initialize the Branch-and-Price solver.
+        Initialise the Branch-and-Price solver.
 
         Args:
-            n_nodes: Number of customer nodes (excluding depot)
-            cost_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 is depot
-            wastes: Dictionary mapping node ID to waste volume
-            capacity: Vehicle capacity
-            revenue_per_kg: Revenue per unit of waste collected
-            cost_per_km: Cost per unit of distance traveled
-            mandatory_nodes: Set of node indices that must be visited
-            max_iterations: Maximum column generation iterations per node
-            max_routes_per_iteration: Maximum routes to generate per pricing call
-            optimality_gap: Convergence tolerance for column generation
-            use_ryan_foster: Use Ryan-Foster branching (True) or direct IP (False)
-            max_branch_nodes: Maximum nodes to explore in branch-and-bound tree
-            use_exact_pricing: Use exact DP RCSPP solver (True) or heuristic (False)
+            n_nodes: Number of customer nodes (excluding depot, depot = 0).
+            cost_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1).
+            wastes: Mapping from node ID to waste volume.
+            capacity: Vehicle payload capacity.
+            revenue_per_kg: Revenue per unit of waste collected.
+            cost_per_km: Operating cost per unit of distance travelled.
+            mandatory_nodes: Node indices that must be visited.
+            max_iterations: Maximum column-generation iterations per B&B node.
+            max_routes_per_iteration: Maximum routes generated per pricing call.
+            optimality_gap: Reduced-cost convergence tolerance.
+            use_ryan_foster: Deprecated — prefer ``branching_strategy``.
+                When True and ``branching_strategy`` is at its default
+                ``"edge"``, the strategy is silently promoted to
+                ``"ryan_foster"``.
+            branching_strategy: ``"edge"`` (default) or ``"ryan_foster"``.
+                Takes precedence over ``use_ryan_foster``.
+            max_branch_nodes: Maximum B&B nodes to explore.
+            use_exact_pricing: Use exact DP RCSPP solver (True) or the greedy
+                heuristic pricer (False).
+            vehicle_limit: Maximum number of routes (vehicles), or None.
+            use_ng_routes: Enable ng-route relaxation in the exact DP pricer
+                (Baldacci et al. 2011).  Only relevant when
+                ``use_exact_pricing=True``.  Default True.
+            ng_neighborhood_size: Size of each node's ng-neighborhood N_i.
+                Larger values tighten the relaxation (approach exact ESPPRC)
+                at the cost of more labels.  Default 8.
         """
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -81,137 +118,93 @@ class BranchAndPriceSolver:
         self.capacity = capacity
         self.R = revenue_per_kg
         self.C = cost_per_km
-        self.mandatory_nodes = mandatory_nodes if mandatory_nodes else set()
+        self.mandatory_nodes: Set[int] = mandatory_nodes or set()
         self.max_iterations = max_iterations
         self.max_routes_per_iteration = max_routes_per_iteration
         self.optimality_gap = optimality_gap
-        self.use_ryan_foster = use_ryan_foster
         self.max_branch_nodes = max_branch_nodes
         self.use_exact_pricing = use_exact_pricing
         self.vehicle_limit = vehicle_limit
         self.depot = 0
+        self.use_ng_routes = use_ng_routes
+        self.ng_neighborhood_size = ng_neighborhood_size
+
+        # Resolve branching strategy.
+        if branching_strategy == "edge" and use_ryan_foster:
+            branching_strategy = "ryan_foster"
+        self.branching_strategy: str = branching_strategy
+        self.use_ryan_foster: bool = branching_strategy == "ryan_foster"
 
         # Statistics
-        self.num_iterations = 0
-        self.num_columns_generated = 0
-        self.lp_bound = 0.0
-        self.ip_solution = 0.0
+        self.num_iterations: int = 0
+        self.num_columns_generated: int = 0
+        self.lp_bound: float = 0.0
+        self.ip_solution: float = 0.0
         self.tree: Optional[BranchAndBoundTree] = None
 
-    def solve(self) -> Tuple[List[int], float, Dict]:
+    # ------------------------------------------------------------------
+    # Top-level solve
+    # ------------------------------------------------------------------
+
+    def solve(self) -> Tuple[List[int], float, Dict[str, Any]]:
         """
         Solve the VRPP using Branch-and-Price.
 
         Returns:
-            Tuple of (tour, profit, statistics)
+            Tuple of ``(tour, profit, statistics)``.
         """
         if self.use_ryan_foster:
-            return self._solve_with_branching()
-        else:
-            return self._solve_without_branching()
+            return self._solve_with_branching()  # type: ignore[return-value]
+        return self._solve_without_branching()
 
-    def _solve_without_branching(self) -> Tuple[List[int], float, Dict]:
-        """
-        Solve using column generation followed by direct IP solving.
+    # ------------------------------------------------------------------
+    # Solve without branching (column generation + direct IP)
+    # ------------------------------------------------------------------
 
-        Returns:
-            Tuple of (tour, profit, statistics)
-        """
-        # Initialize master problem
-        master = VRPPMasterProblem(
-            n_nodes=self.n_nodes,
-            mandatory_nodes=self.mandatory_nodes,
-            cost_matrix=self.cost_matrix,
-            wastes=self.wastes,
-            capacity=self.capacity,
-            revenue_per_kg=self.R,
-            cost_per_km=self.C,
-            vehicle_limit=self.vehicle_limit,
-        )
+    def _solve_without_branching(self) -> Tuple[List[int], float, Dict[str, Any]]:
+        """Solve with column generation followed by a direct MIP solve."""
+        master = self._make_master()
+        pricing = self._make_pricing()
 
-        # Initialize pricing solver (exact DP or heuristic)
-        if self.use_exact_pricing:
-            pricing = RCSPPSolver(
-                n_nodes=self.n_nodes,
-                cost_matrix=self.cost_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                revenue_per_kg=self.R,
-                cost_per_km=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-        else:
-            pricing = PricingSubproblem(  # type: ignore[assignment]
-                n_nodes=self.n_nodes,
-                cost_matrix=self.cost_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                revenue_per_kg=self.R,
-                cost_per_km=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-
-        # Generate initial columns using greedy heuristic
         initial_routes = self._generate_initial_routes(pricing)
         master.build_model(initial_routes)
 
-        # Solve LP relaxation with column generation
         lp_obj, route_values = self._column_generation(master, pricing)
         self.lp_bound = lp_obj
 
-        # Check if LP solution is integer
         if self._is_integer_solution(route_values):
-            # Extract integer solution
-            selected_routes = [master.routes[idx] for idx, val in route_values.items() if val > 0.5]
-            tour = self._routes_to_tour(selected_routes)
-            profit = lp_obj
+            selected = [master.routes[i] for i, v in route_values.items() if v > 0.5]
+            return self._routes_to_tour(selected), lp_obj, self._get_statistics()
 
-            return tour, profit, self._get_statistics()
-
-        # Solve IP directly
-        ip_obj, selected_routes = master.solve_ip()
+        ip_obj, selected = master.solve_ip()
         self.ip_solution = ip_obj
+        return self._routes_to_tour(selected), ip_obj, self._get_statistics()
 
-        tour = self._routes_to_tour(selected_routes)
+    # ------------------------------------------------------------------
+    # Solve with branching
+    # ------------------------------------------------------------------
 
-        return tour, ip_obj, self._get_statistics()
+    def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict[str, Any]]:
+        """Solve using the configured branching strategy in a B&B tree."""
+        self.tree = BranchAndBoundTree(strategy=self.branching_strategy)
 
-    def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict]:
-        """
-        Solve using Ryan-Foster branching.
-
-        Returns:
-            Tuple of (tour, profit, statistics)
-        """
-        # Initialize branch-and-bound tree
-        self.tree = BranchAndBoundTree()
-
-        # Solve root node
         root_lp, root_values, root_routes = self._solve_node(self.tree.root)
         self.tree.root.lp_bound = root_lp
         self.tree.root.route_values = root_values
         self.tree.root.is_integer = self._is_integer_solution(root_values)
-
         self.lp_bound = root_lp  # type: ignore[assignment]
 
         if self.tree.root.is_integer:
-            # Root is integer, we're done
-            selected_routes = [root_routes[idx] for idx, val in root_values.items() if val > 0.5]
-            tour = self._routes_to_tour(selected_routes)
-            return tour, root_lp, self._get_statistics()
+            selected = [root_routes[i] for i, v in root_values.items() if v > 0.5]
+            return self._routes_to_tour(selected), root_lp, self._get_statistics()
 
-        # Add root to tree if not integer
         self.tree.nodes_explored += 1
 
-        # Branch-and-bound loop
         while not self.tree.is_empty() and self.tree.nodes_explored < self.max_branch_nodes:
-            # Get next node to process
             node = self.tree.get_next_node()
-
             if node is None:
                 break
 
-            # Check if node can be pruned by bound
             if (
                 self.tree.best_integer_solution is not None
                 and node.lp_bound is not None
@@ -220,162 +213,233 @@ class BranchAndPriceSolver:
                 self.tree.nodes_pruned += 1
                 continue
 
-            # Solve node
             lp_obj, route_values, routes = self._solve_node(node)
             node.lp_bound = lp_obj
             node.route_values = route_values
 
             if lp_obj is None:
-                # Node is infeasible
                 node.is_infeasible = True
                 self.tree.nodes_pruned += 1
                 continue
 
-            # Check if solution is integer
             if self._is_integer_solution(route_values):
                 node.is_integer = True
                 node.ip_solution = lp_obj
-
-                # Update incumbent
                 if self.tree.update_incumbent(node, lp_obj):
                     self.ip_solution = lp_obj
-
-                    # Prune nodes by bound
                     self.tree.prune_by_bound()
-
                 continue
 
-            # Solution is fractional, branch
-            branching_pair = RyanFosterBranching.find_branching_pair(
-                routes=routes,
-                route_values=route_values,
-            )
-
-            if branching_pair is None:
-                # Couldn't find branching pair, solve IP directly
+            result = self.tree.branch(node, routes, route_values)
+            if result is None:
                 master = self._build_master_for_node(node, routes)
-                ip_obj, selected_routes = master.solve_ip()
-
+                ip_obj, selected = master.solve_ip()
                 if ip_obj is not None:
                     node.is_integer = True
                     node.ip_solution = ip_obj
-
                     if self.tree.update_incumbent(node, ip_obj):
                         self.ip_solution = ip_obj
                         self.tree.prune_by_bound()
+            else:
+                left_child, right_child = result
+                self.tree.add_node(left_child)
+                self.tree.add_node(right_child)
 
-                continue
-
-            # Create child nodes
-            node_r, node_s = branching_pair
-            left_child, right_child = RyanFosterBranching.create_child_nodes(node, node_r, node_s)
-
-            # Add children to tree
-            self.tree.add_node(left_child)
-            self.tree.add_node(right_child)
-
-        # Extract best solution
         if self.tree.best_integer_node is not None:
-            # Reconstruct solution from best node
-            # For simplicity, resolve the node to get routes
-            _, route_values, routes = self._solve_node(self.tree.best_integer_node)
+            _, rv, routes = self._solve_node(self.tree.best_integer_node)
+            if rv:
+                selected = [routes[i] for i, v in rv.items() if v > 0.5]
+                return (
+                    self._routes_to_tour(selected),
+                    self.tree.best_integer_solution,
+                    self._get_statistics(),
+                )
 
-            if route_values:
-                selected_routes = [routes[idx] for idx, val in route_values.items() if val > 0.5]
-                tour = self._routes_to_tour(selected_routes)
-                return tour, self.tree.best_integer_solution, self._get_statistics()
-
-        # Fallback: solve root IP if no integer solution found
         root_master = self._build_master_for_node(self.tree.root, root_routes)
-        ip_obj, selected_routes = root_master.solve_ip()
-
+        ip_obj, selected = root_master.solve_ip()
         if ip_obj is not None:
             self.ip_solution = ip_obj
-            tour = self._routes_to_tour(selected_routes)
-            return tour, ip_obj, self._get_statistics()
+            return self._routes_to_tour(selected), ip_obj, self._get_statistics()
 
-        # No solution found
         return [0], 0.0, self._get_statistics()
 
+    # ------------------------------------------------------------------
+    # Node solving
+    # ------------------------------------------------------------------
+
     def _solve_node(self, node: BranchNode) -> Tuple[Optional[float], Dict[int, float], List[Route]]:
-        """
-        Solve a node in the branch-and-bound tree.
-
-        Args:
-            node: Node to solve
-
-        Returns:
-            Tuple of (lp_objective, route_values, routes)
-            Returns (None, {}, []) if node is infeasible
-        """
-        # Build master problem with branching constraints
-        master = VRPPMasterProblem(
-            n_nodes=self.n_nodes,
-            mandatory_nodes=self.mandatory_nodes,
-            cost_matrix=self.cost_matrix,
-            wastes=self.wastes,
-            capacity=self.capacity,
-            revenue_per_kg=self.R,
-            cost_per_km=self.C,
-            vehicle_limit=self.vehicle_limit,
-        )
-
-        # Get all constraints for this node
+        """Solve the LP relaxation at a single B&B node via column generation."""
+        master = self._make_master()
         constraints = node.get_all_constraints()
+        pricing = self._make_pricing()
 
-        # Initialize pricing solver (exact DP or heuristic)
-        if self.use_exact_pricing:
-            pricing = RCSPPSolver(
-                n_nodes=self.n_nodes,
-                cost_matrix=self.cost_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                revenue_per_kg=self.R,
-                cost_per_km=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-        else:
-            pricing = PricingSubproblem(  # type: ignore[assignment]
-                n_nodes=self.n_nodes,
-                cost_matrix=self.cost_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                revenue_per_kg=self.R,
-                cost_per_km=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-            )
-
-        # Generate initial routes respecting constraints
         initial_routes = self._generate_initial_routes(pricing)
-        feasible_routes = [r for r in initial_routes if node.is_route_feasible(r)]
-
-        if not feasible_routes:
-            # No feasible initial routes
+        feasible = [r for r in initial_routes if node.is_route_feasible(r)]
+        if not feasible:
             return None, {}, []
 
-        master.build_model(feasible_routes)
+        master.build_model(feasible)
 
-        # Column generation with constraint checking
         try:
             lp_obj, route_values = self._column_generation_with_constraints(master, pricing, node, constraints)
         except RuntimeError:
-            # Infeasible
             return None, {}, []
 
         return lp_obj, route_values, master.routes
 
-    def _build_master_for_node(self, node: BranchNode, routes: List[Route]) -> VRPPMasterProblem:
-        """
-        Build master problem for a node with existing routes.
+    # ------------------------------------------------------------------
+    # Column generation
+    # ------------------------------------------------------------------
 
-        Args:
-            node: Branch node
-            routes: Existing routes
+    def _column_generation(
+        self,
+        master: VRPPMasterProblem,
+        pricing: Any,
+    ) -> Tuple[float, Dict[int, float]]:
+        """Perform unconstrained column generation (root / no-branching path)."""
+        for _ in range(self.max_iterations):
+            self.num_iterations += 1
+            lp_obj, route_values = master.solve_lp_relaxation()
+            dual_values = master.get_reduced_cost_coefficients()
+
+            new_routes = self._call_pricing(pricing, dual_values, constraints=None)  # type: ignore[arg-type]
+            if not new_routes:
+                break
+            if max(rc for _, rc in new_routes) < self.optimality_gap:
+                break
+
+            self._add_routes_to_master(master, pricing, new_routes)
+
+        return master.solve_lp_relaxation()
+
+    def _column_generation_with_constraints(
+        self,
+        master: VRPPMasterProblem,
+        pricing: Any,
+        node: BranchNode,
+        constraints: List[AnyBranchingConstraint],
+    ) -> Tuple[float, Dict[int, float]]:
+        """Perform column generation at a constrained B&B node."""
+        for _ in range(self.max_iterations):
+            self.num_iterations += 1
+            lp_obj, route_values = master.solve_lp_relaxation()
+            dual_values = master.get_reduced_cost_coefficients()
+
+            new_routes = self._call_pricing(pricing, dual_values, constraints=constraints)  # type: ignore[arg-type]
+            if not new_routes:
+                break
+
+            feasible: List[Tuple[Route, float]] = []
+            for route_nodes, rc in new_routes:
+                cost, revenue, load, cov = pricing.compute_route_details(route_nodes)
+                route = Route(nodes=route_nodes, cost=cost, revenue=revenue, load=load, node_coverage=cov)
+                if self.use_exact_pricing or node.is_route_feasible(route):
+                    feasible.append((route, rc))
+
+            if not feasible:
+                break
+            if max(rc for _, rc in feasible) < self.optimality_gap:
+                break
+
+            for route, _ in feasible:
+                master.add_route(route)
+                self.num_columns_generated += 1
+
+        return master.solve_lp_relaxation()
+
+    # ------------------------------------------------------------------
+    # Pricing dispatch
+    # ------------------------------------------------------------------
+
+    def _call_pricing(
+        self,
+        pricing: Any,
+        dual_values: Dict[int, float],
+        constraints: Optional[List[AnyBranchingConstraint]],
+    ) -> List[Tuple[List[int], float]]:
+        """
+        Dispatch a pricing call to the correct solver with the right kwargs.
+
+        RCSPPSolver uses ``branching_constraints``; PricingSubproblem uses
+        ``active_constraints``.
+        """
+        if self.use_exact_pricing:
+            return pricing.solve(
+                dual_values=dual_values,
+                max_routes=self.max_routes_per_iteration,
+                branching_constraints=constraints,
+            )
+        else:
+            return pricing.solve(
+                dual_values=dual_values,
+                max_routes=self.max_routes_per_iteration,
+                active_constraints=constraints,
+            )
+
+    # ------------------------------------------------------------------
+    # Initial column generation
+    # ------------------------------------------------------------------
+
+    def _generate_initial_routes(self, pricing: Any) -> List[Route]:
+        """Generate a seed column set using zero dual values."""
+        dummy_duals: Dict[int, float] = {n: 0.0 for n in range(1, self.n_nodes + 1)}
+        candidates = self._call_pricing(pricing, dummy_duals, constraints=None)
+        routes: List[Route] = []
+        for route_nodes, _ in candidates[: min(self.n_nodes, 20)]:
+            cost, revenue, load, cov = pricing.compute_route_details(route_nodes)
+            routes.append(Route(nodes=route_nodes, cost=cost, revenue=revenue, load=load, node_coverage=cov))
+        return routes
+
+    def _add_routes_to_master(
+        self,
+        master: VRPPMasterProblem,
+        pricing: Any,
+        new_routes: List[Tuple[List[int], float]],
+    ) -> None:
+        """Add a batch of new route candidates to the master problem."""
+        for route_nodes, _ in new_routes:
+            cost, revenue, load, cov = pricing.compute_route_details(route_nodes)
+            route = Route(nodes=route_nodes, cost=cost, revenue=revenue, load=load, node_coverage=cov)
+            master.add_route(route)
+            self.num_columns_generated += 1
+
+    # ------------------------------------------------------------------
+    # Tour construction with deduplication
+    # ------------------------------------------------------------------
+
+    def _routes_to_tour(self, routes: List[Route]) -> List[int]:
+        """
+        Convert selected routes to a flat tour, deduplicating customer visits.
+
+        Because the master problem uses Set Covering (≥ 1), the IP may select
+        overlapping routes.  Each customer node is included exactly once in the
+        output; subsequent routes that would revisit a node simply skip it.
+        Empty routes (all nodes already visited) are omitted to avoid bare
+        depot → depot arcs.
 
         Returns:
-            Master problem instance
+            Flat tour: [depot, n1, n2, ..., depot, n3, ..., depot].
         """
-        master = VRPPMasterProblem(
+        tour: List[int] = [self.depot]
+        visited_nodes: Set[int] = {self.depot}
+
+        for route in routes:
+            unique_nodes = [n for n in route.nodes if n not in visited_nodes]
+            if not unique_nodes:
+                continue
+            tour.extend(unique_nodes)
+            tour.append(self.depot)
+            visited_nodes.update(unique_nodes)
+
+        return tour
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _make_master(self) -> VRPPMasterProblem:
+        """Construct a fresh VRPPMasterProblem with the solver's parameters."""
+        return VRPPMasterProblem(
             n_nodes=self.n_nodes,
             mandatory_nodes=self.mandatory_nodes,
             cost_matrix=self.cost_matrix,
@@ -386,249 +450,53 @@ class BranchAndPriceSolver:
             vehicle_limit=self.vehicle_limit,
         )
 
-        # Filter routes by branching constraints
-        feasible_routes = [r for r in routes if node.is_route_feasible(r)]
-        master.build_model(feasible_routes)
+    def _make_pricing(self) -> Any:
+        """
+        Construct the appropriate pricing solver for this configuration.
 
+        When ``use_exact_pricing=True``, the RCSPPSolver receives the ng-route
+        parameters so that the relaxation mode is correctly propagated.
+        """
+        kwargs: Dict[str, Any] = dict(
+            n_nodes=self.n_nodes,
+            cost_matrix=self.cost_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            revenue_per_kg=self.R,
+            cost_per_km=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+        )
+        if self.use_exact_pricing:
+            return RCSPPSolver(
+                **kwargs,
+                use_ng_routes=self.use_ng_routes,
+                ng_neighborhood_size=self.ng_neighborhood_size,
+            )
+        return PricingSubproblem(**kwargs)
+
+    def _build_master_for_node(self, node: BranchNode, routes: List[Route]) -> VRPPMasterProblem:
+        """Build a master problem pre-loaded with constraint-feasible routes."""
+        master = self._make_master()
+        feasible = [r for r in routes if node.is_route_feasible(r)]
+        master.build_model(feasible)
         return master
 
-    def _column_generation_with_constraints(
-        self,
-        master: VRPPMasterProblem,
-        pricing,  # Union[PricingSubproblem, RCSPPSolver]
-        node: BranchNode,
-        constraints: List,
-    ) -> Tuple[float, Dict[int, float]]:
-        """
-        Perform column generation respecting branching constraints.
-
-        Args:
-            master: Master problem
-            pricing: Pricing subproblem (heuristic or exact DP solver)
-            node: Current branch node
-            constraints: List of branching constraints
-
-        Returns:
-            Tuple of (lp_objective, route_values)
-        """
-        iteration = 0
-
-        while iteration < self.max_iterations:
-            iteration += 1
-            self.num_iterations += 1
-
-            # Solve master LP
-            lp_obj, route_values = master.solve_lp_relaxation()
-
-            # Get dual values
-            dual_values = master.get_reduced_cost_coefficients()
-
-            # Solve pricing problem (pass constraints if using exact DP solver)
-            if self.use_exact_pricing:
-                new_routes = pricing.solve(
-                    dual_values=dual_values,
-                    max_routes=self.max_routes_per_iteration,
-                    branching_constraints=constraints,
-                )
-            else:
-                new_routes = pricing.solve(
-                    dual_values=dual_values,
-                    max_routes=self.max_routes_per_iteration,
-                )
-
-            if not new_routes:
-                break
-
-            # Filter by branching constraints (only needed for heuristic pricing)
-            # Exact DP solver already enforces constraints during labeling
-            feasible_new_routes = []
-            for route_nodes, reduced_cost in new_routes:
-                cost, revenue, load, node_coverage = pricing.compute_route_details(route_nodes)
-
-                route = Route(
-                    nodes=route_nodes,
-                    cost=cost,
-                    revenue=revenue,
-                    load=load,
-                    node_coverage=node_coverage,
-                )
-
-                # Skip feasibility check if using exact pricing (already enforced)
-                if self.use_exact_pricing or node.is_route_feasible(route):
-                    feasible_new_routes.append((route, reduced_cost))
-
-            if not feasible_new_routes:
-                # No feasible routes with positive reduced cost
-                break
-
-            max_reduced_cost = max(rc for _, rc in feasible_new_routes)
-
-            if max_reduced_cost < self.optimality_gap:
-                break
-
-            # Add feasible columns to master
-            for route, _ in feasible_new_routes:
-                master.add_route(route)
-                self.num_columns_generated += 1
-
-        # Solve final LP
-        lp_obj, route_values = master.solve_lp_relaxation()
-        return lp_obj, route_values
-
-    def _generate_initial_routes(self, pricing) -> List[Route]:
-        """
-        Generate initial routes using greedy heuristic or exact DP.
-
-        Args:
-            pricing: Pricing solver (PricingSubproblem or RCSPPSolver)
-
-        Returns:
-            List of initial routes
-        """
-        routes = []
-
-        # Use pricing solver with zero dual values to generate initial routes
-        dummy_duals = {node: 0.0 for node in range(1, self.n_nodes + 1)}
-
-        # For exact pricing, no constraints in initial route generation
-        if self.use_exact_pricing:
-            route_candidates = pricing.solve(
-                dual_values=dummy_duals,
-                max_routes=min(self.n_nodes, 20),
-                branching_constraints=None,
-            )
-        else:
-            route_candidates = pricing.solve(
-                dual_values=dummy_duals,
-                max_routes=min(self.n_nodes, 20),
-            )
-
-        for route_nodes, _ in route_candidates:
-            cost, revenue, load, node_coverage = pricing.compute_route_details(route_nodes)
-
-            route = Route(
-                nodes=route_nodes,
-                cost=cost,
-                revenue=revenue,
-                load=load,
-                node_coverage=node_coverage,
-            )
-            routes.append(route)
-
-        return routes
-
-    def _column_generation(
-        self,
-        master: VRPPMasterProblem,
-        pricing,  # Union[PricingSubproblem, RCSPPSolver]
-    ) -> Tuple[float, Dict[int, float]]:
-        """
-        Perform column generation to solve LP relaxation.
-
-        Args:
-            master: Master problem
-            pricing: Pricing solver (heuristic or exact DP)
-
-        Returns:
-            Tuple of (lp_objective, route_values)
-        """
-        iteration = 0
-
-        while iteration < self.max_iterations:
-            iteration += 1
-            self.num_iterations += 1
-
-            # Solve master LP
-            lp_obj, route_values = master.solve_lp_relaxation()
-
-            # Get dual values
-            dual_values = master.get_reduced_cost_coefficients()
-
-            # Solve pricing problem (no constraints in non-branching mode)
-            if self.use_exact_pricing:
-                new_routes = pricing.solve(
-                    dual_values=dual_values,
-                    max_routes=self.max_routes_per_iteration,
-                    branching_constraints=None,
-                )
-            else:
-                new_routes = pricing.solve(
-                    dual_values=dual_values,
-                    max_routes=self.max_routes_per_iteration,
-                )
-
-            if not new_routes:
-                # No new columns with positive reduced cost
-                break
-
-            max_reduced_cost = max(rc for _, rc in new_routes)
-
-            if max_reduced_cost < self.optimality_gap:
-                # Convergence
-                break
-
-            # Add new columns to master
-            for route_nodes, _reduced_cost in new_routes:
-                cost, revenue, load, node_coverage = pricing.compute_route_details(route_nodes)
-
-                route = Route(
-                    nodes=route_nodes,
-                    cost=cost,
-                    revenue=revenue,
-                    load=load,
-                    node_coverage=node_coverage,
-                )
-
-                master.add_route(route)
-                self.num_columns_generated += 1
-
-        # Solve final LP
-        lp_obj, route_values = master.solve_lp_relaxation()
-
-        return lp_obj, route_values
-
     def _is_integer_solution(self, route_values: Dict[int, float], tol: float = 1e-4) -> bool:
-        """
-        Check if the LP solution is integer.
+        """Return True if every LP route value is within *tol* of 0 or 1."""
+        return all(abs(v - round(v)) <= tol for v in route_values.values())
 
-        Args:
-            route_values: Route selection values
-            tol: Tolerance for integrality
-
-        Returns:
-            True if all values are close to 0 or 1
-        """
-        return all(abs(val - round(val)) <= tol for val in route_values.values())
-
-    def _routes_to_tour(self, routes: List[Route]) -> List[int]:
-        """
-        Convert routes to a single tour representation.
-
-        Args:
-            routes: List of selected routes
-
-        Returns:
-            Tour as [depot, node1, node2, ..., depot, node3, ..., depot]
-        """
-        tour = [self.depot]
-
-        for route in routes:
-            tour.extend(route.nodes)
-            tour.append(self.depot)
-
-        return tour
-
-    def _get_statistics(self) -> Dict:
-        """Get solver statistics."""
-        stats = {
+    def _get_statistics(self) -> Dict[str, Any]:
+        """Collect and return solver statistics."""
+        stats: Dict[str, Any] = {
             "num_iterations": self.num_iterations,
             "num_columns_generated": self.num_columns_generated,
             "lp_bound": self.lp_bound,
             "ip_solution": self.ip_solution,
             "gap": abs(self.lp_bound - self.ip_solution) / max(abs(self.lp_bound), 1e-10),
+            "branching_strategy": self.branching_strategy,
+            "use_ng_routes": self.use_ng_routes,
+            "ng_neighborhood_size": self.ng_neighborhood_size,
         }
-
         if self.tree is not None:
             stats.update(self.tree.get_statistics())
-
         return stats
