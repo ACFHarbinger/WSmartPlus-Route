@@ -25,23 +25,35 @@ if TYPE_CHECKING:
 @dataclass
 class KSACOParams:
     """
-    Parameters for K-Sparse Ant Colony Optimization.
+    Parameters for K-Sparse Ant Colony Optimization (MMAS_exp variant).
+
+    This parameter set follows the experimental MAX-MIN Ant System (MMAS_exp)
+    from Hale (2021), using scale-based precision pruning instead of fixed
+    capacity pheromone storage.
 
     Attributes:
         n_ants: Number of ants per iteration.
-        k_sparse: Number of pheromone values to retain per node (candidate list size).
+        k_sparse: Size of candidate lists (k-nearest neighbors for each node).
         alpha: Pheromone importance exponent.
         beta: Heuristic (distance) importance exponent.
         rho: Pheromone evaporation rate (0 < rho < 1).
-        q0: Exploitation probability for pseudo-random proportional rule.
-        tau_0: Initial pheromone level.
-        tau_min: Minimum pheromone level (for MMAS bounds).
-        tau_max: Maximum pheromone level (for MMAS bounds).
+        scale: Precision parameter for pheromone pruning. Edges within 10^-scale
+               of default_value are removed from explicit storage.
+        tau_0: Initial pheromone level (if None, computed from nearest neighbor heuristic).
+        tau_min: Minimum pheromone level (MMAS lower bound).
+        tau_max: Maximum pheromone level (MMAS upper bound).
         max_iterations: Maximum number of iterations.
         time_limit: Maximum runtime in seconds.
         local_search: Whether to apply local search (2-opt) to solutions.
         local_search_iterations: Number of iterations for local search.
         elitist_weight: Weight for best-so-far solution in pheromone update.
+        vrpp: Whether to use VRPP (Vehicle Routing Problem with Profits) mode.
+        profit_aware_operators: Whether to use profit-aware feasibility checks.
+        seed: Random seed for reproducibility.
+
+    Reference:
+        Hale, D. "Investigation of Ant Colony Optimization Implementation
+        Strategies For Low-Memory Operating Environments", 2021.
     """
 
     n_ants: int = 20
@@ -49,7 +61,7 @@ class KSACOParams:
     alpha: float = 1.0
     beta: float = 2.0
     rho: float = 0.1
-    q0: float = 0.9
+    scale: float = 5.0
     tau_0: Optional[float] = None
     tau_min: float = 0.001
     tau_max: float = 10.0
@@ -66,8 +78,8 @@ class KSACOParams:
         """Validate parameters after initialization."""
         if not (0 < self.rho < 1):
             raise ValueError(f"Evaporation rate rho must be in (0, 1), got {self.rho}")
-        if not (0 <= self.q0 <= 1):
-            raise ValueError(f"Exploitation probability q0 must be in [0, 1], got {self.q0}")
+        if self.scale < 0:
+            raise ValueError(f"Scale parameter must be non-negative, got {self.scale}")
 
     @classmethod
     def from_config(cls, config: Union[KSparseACOConfig, Dict[str, Any]]) -> KSACOParams:
@@ -88,7 +100,7 @@ class KSACOParams:
             alpha=getattr(config, "alpha", 1.0),
             beta=getattr(config, "beta", 2.0),
             rho=getattr(config, "rho", 0.1),
-            q0=getattr(config, "q0", 0.9),
+            scale=getattr(config, "scale", 5.0),
             tau_0=getattr(config, "tau_0", None),
             tau_min=getattr(config, "tau_min", 0.001),
             tau_max=getattr(config, "tau_max", 10.0),
