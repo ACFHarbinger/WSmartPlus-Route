@@ -1,9 +1,9 @@
 """
 Solution Construction Module for K-Sparse ACO.
 
-This module implements the solution construction phase of the ACS algorithm.
-Ants construct solutions by probabilistically selecting edges based on pheromone
-levels and heuristic information.
+This module implements the solution construction phase of the MMAS algorithm.
+Ants construct solutions using pure roulette-wheel proportional selection
+based on pheromone levels and heuristic information.
 
 Attributes:
     None
@@ -12,6 +12,11 @@ Example:
     >>> from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
     >>> constructor = SolutionConstructor(...)
     >>> routes = constructor.construct()
+
+Reference:
+    Hale, D. "Investigation of Ant Colony Optimization Implementation
+    Strategies For Low-Memory Operating Environments", 2021.
+    Uses MMAS_exp transition rule (no local updates, no q0 exploitation).
 """
 
 import random
@@ -77,7 +82,11 @@ class SolutionConstructor:
 
     def construct(self) -> List[List[int]]:
         """
-        Construct a solution using the ACS state transition rule.
+        Construct a solution using the MMAS proportional transition rule.
+
+        This method uses pure exploration (roulette-wheel selection) without
+        any local pheromone updates or exploitation bias (q0). All pheromone
+        updates occur globally after construction.
 
         Returns:
             List of routes, each a list of node indices.
@@ -104,11 +113,10 @@ class SolutionConstructor:
                     self._cleanup_unvisited(unvisited, mandatory_unvisited)
                     break
 
-                # Select next node
+                # Select next node using MMAS proportional rule
                 next_node = self._select_next_node(current, sorted(feasible))
 
-                # Local pheromone update (ACS rule)
-                self._local_pheromone_update(current, next_node)
+                # No local pheromone update in MMAS (removed ACS mechanics)
 
                 route.append(next_node)
                 load += self.wastes.get(next_node, 0)
@@ -175,52 +183,45 @@ class SolutionConstructor:
 
     def _select_next_node(self, current: int, feasible: List[int]) -> int:
         """
-        Select next node using pseudo-random proportional rule.
+        Select next node using MMAS proportional (roulette-wheel) selection.
 
-        With probability q0, select best node (exploitation).
-        Otherwise, use roulette wheel selection (exploration).
+        This is pure exploration without exploitation bias. The probability
+        of selecting node j is proportional to:
+            P(j) = [tau(current, j)^alpha] * [eta(current, j)^beta]
+
+        Candidate lists are used to bias selection toward nearby neighbors
+        when available, following the k-sparse optimization strategy.
+
+        Args:
+            current: Current node index.
+            feasible: List of feasible next nodes.
+
+        Returns:
+            Selected next node index.
         """
-        if self.random.random() < self.params.q0:
-            # Exploitation: select best
-            best_node = max(
-                feasible,
-                key=lambda j: (
-                    self.pheromone.get(current, j) ** self.params.alpha * self.eta[current][j] ** self.params.beta
-                ),
-            )
-            return best_node
-        else:
-            # Exploration: proportional selection
-            # Prefer candidates if available
-            candidates_in_feasible = [j for j in self.candidate_lists.get(current, []) if j in feasible]
-            selection_pool = candidates_in_feasible if candidates_in_feasible else feasible
+        # Prefer candidates if available (k-nearest neighbors)
+        candidates_in_feasible = [j for j in self.candidate_lists.get(current, []) if j in feasible]
+        selection_pool = candidates_in_feasible if candidates_in_feasible else feasible
 
-            probs = []
-            for j in selection_pool:
-                tau = self.pheromone.get(current, j)
-                eta = self.eta[current][j]
-                probs.append((tau**self.params.alpha) * (eta**self.params.beta))
+        # Compute selection probabilities
+        probs = []
+        for j in selection_pool:
+            tau = self.pheromone.get(current, j)
+            eta = self.eta[current][j]
+            probs.append((tau**self.params.alpha) * (eta**self.params.beta))
 
-            total = sum(probs)
-            if total <= 0:
-                return self.random.choice(selection_pool)
+        total = sum(probs)
+        if total <= 0:
+            # Fallback to uniform random selection if all probabilities are zero
+            return self.random.choice(selection_pool)
 
-            r = self.random.uniform(0, total)
-            cumsum = 0.0
-            for idx, p in enumerate(probs):
-                cumsum += p
-                if cumsum >= r:
-                    return selection_pool[idx]
+        # Roulette-wheel selection
+        r = self.random.uniform(0, total)
+        cumsum = 0.0
+        for idx, p in enumerate(probs):
+            cumsum += p
+            if cumsum >= r:
+                return selection_pool[idx]
 
-            return selection_pool[-1]
-
-    def _local_pheromone_update(self, i: int, j: int) -> None:
-        """
-        Apply ACS local pheromone update rule.
-
-        tau(i,j) = (1 - rho) * tau(i,j) + rho * tau_0
-        """
-        rho = self.params.rho
-        current = self.pheromone.get(i, j)
-        new_value = (1 - rho) * current + rho * self.tau_0
-        self.pheromone.set(i, j, new_value)
+        # Fallback (should rarely happen due to floating-point precision)
+        return selection_pool[-1]

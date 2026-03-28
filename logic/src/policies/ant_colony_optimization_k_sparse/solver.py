@@ -2,8 +2,8 @@
 K-Sparse ACO Solver Module.
 
 This module implements the main loop of the K-Sparse Ant Colony Optimization
-algorithm. It manages the ant colony, pheromone updates (local and global),
-and coordinates the search process.
+algorithm using MMAS_exp methodology. It manages the ant colony, global
+pheromone updates, and coordinates the search process.
 
 Attributes:
     None
@@ -16,6 +16,8 @@ Example:
 Reference:
     Hale, D. "Investigation of Ant Colony Optimization Implementation
     Strategies For Low-Memory Operating Environments", 2021.
+    Implements MMAS_exp with scale-based sparse pheromone matrix and
+    global-only pheromone updates.
 """
 
 import time
@@ -31,10 +33,14 @@ from .pheromones import SparsePheromoneTau
 
 class KSparseACOSolver:
     """
-    K-Sparse Ant Colony System solver for CVRP/VRPP.
+    K-Sparse MAX-MIN Ant System (MMAS_exp) solver for CVRP/VRPP.
 
-    Implements ACS with sparse pheromone storage for memory efficiency
-    and fast computation on large problem instances.
+    Implements MMAS with scale-based sparse pheromone storage for memory
+    efficiency and fast computation on large problem instances. Follows
+    the experimental MMAS variant (MMAS_exp) from Hale (2021), featuring:
+    - Global-only pheromone updates (no local updates during construction)
+    - Pure roulette-wheel selection (no q0 exploitation)
+    - Dynamic default_value with precision-based pruning
     """
 
     def __init__(
@@ -82,13 +88,13 @@ class KSparseACOSolver:
         else:
             self.tau_0 = params.tau_0
 
-        # Initialize sparse pheromone matrix
+        # Initialize sparse pheromone matrix with scale-based pruning
         self.pheromone = SparsePheromoneTau(
-            self.n_nodes,
-            params.k_sparse,
-            self.tau_0,
-            params.tau_min,
-            params.tau_max,
+            n_nodes=self.n_nodes,
+            tau_0=self.tau_0,
+            scale=params.scale,
+            tau_min=params.tau_min,
+            tau_max=params.tau_max,
         )
 
         # Initialize Local Search
@@ -196,7 +202,7 @@ class KSparseACOSolver:
                 best_cost = iteration_best_cost
                 best_routes = iteration_best_routes
 
-            # Global pheromone update: pure ACS (only best-so-far solution)
+            # Global pheromone update: MMAS (evaporate all, then reinforce best)
             self._global_pheromone_update(best_routes, best_cost)
 
             _tau_vals = [v for nbrs in self.pheromone._pheromone.values() for v in nbrs.values()]
@@ -204,8 +210,8 @@ class KSparseACOSolver:
                 iteration=_iteration,
                 best_cost=best_cost,
                 iter_best_cost=iteration_best_cost,
-                tau_mean=float(sum(_tau_vals) / len(_tau_vals)) if _tau_vals else self.pheromone.tau_0,
-                tau_max=float(max(_tau_vals)) if _tau_vals else self.pheromone.tau_0,
+                tau_mean=float(sum(_tau_vals) / len(_tau_vals)) if _tau_vals else self.pheromone.default_value,
+                tau_max=float(max(_tau_vals)) if _tau_vals else self.pheromone.default_value,
             )
 
         # Calculate profit
@@ -216,34 +222,48 @@ class KSparseACOSolver:
 
     def _global_pheromone_update(self, best_routes: List[List[int]], best_cost: float) -> None:
         """
-        Apply pure ACS global pheromone update.
+        Apply MMAS global pheromone update.
 
-        Phase 2 Fix: Only the edges of the globally best solution are evaporated and reinforced.
-        Formula: tau(i,j) = (1 - rho) * tau(i,j) + rho * (1 / best_cost)
+        This implements the standard MMAS update rule:
+        1. Evaporate ALL pheromones globally (including default_value)
+        2. Reinforce edges in the best-so-far solution
+        3. Precision-based pruning automatically occurs during evaporation
 
-        This aligns with Ant Colony System principles, where local updates during construction
-        are complemented by global updates only on the best-so-far solution.
+        The update formula for edges in the best solution is:
+            tau(i,j) = evaporated_tau(i,j) + delta_bs
+        where delta_bs = 1 / best_cost
+
+        Args:
+            best_routes: Best solution found so far.
+            best_cost: Cost of the best solution.
+
+        Reference:
+            Hale (2021), Section 4.2.2: MMAS global update with evaporate-then-reinforce.
         """
         if not best_routes or best_cost <= 0:
             return
 
+        # Step 1: Global evaporation (affects all pheromones including default_value)
+        self.pheromone.evaporate_all(self.params.rho)
+
+        # Step 2: Reinforce edges in best solution
         delta_bs = 1.0 / best_cost
-        rho = self.params.rho
 
         for route in best_routes:
             if not route:
                 continue
 
+            # Depot to first node
             prev = 0
             for node in route:
                 current_tau = self.pheromone.get(prev, node)
-                new_tau = (1 - rho) * current_tau + rho * delta_bs
+                new_tau = current_tau + delta_bs
                 self.pheromone.set(prev, node, new_tau)
                 prev = node
 
-            # Return to depot
+            # Last node back to depot
             current_tau = self.pheromone.get(prev, 0)
-            new_tau = (1 - rho) * current_tau + rho * delta_bs
+            new_tau = current_tau + delta_bs
             self.pheromone.set(prev, 0, new_tau)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
