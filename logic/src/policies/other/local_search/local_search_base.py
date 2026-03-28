@@ -249,8 +249,8 @@ class LocalSearch(ABC):
                 continue
 
             # Scenario D: Both are visited (Standard HGS inter/intra route operators)
-            r_u, p_u = u_loc
-            r_v, p_v = v_loc
+            r_u, p_u = u_loc  # type: ignore[misc]
+            r_v, p_v = v_loc  # type: ignore[misc]
 
             # Relocate (both intra and inter-route)
             if (
@@ -267,74 +267,83 @@ class LocalSearch(ABC):
                 return True
 
             # Relocate Chain
-            if self._should_try_operator("relocate_chain"):
-                if getattr(self.params, "use_relocate_chain", False) and self._move_relocate_chain(
-                    u, r_u, p_u, r_v, p_v
-                ):
-                    return True
+            if (
+                self._should_try_operator("relocate_chain")
+                and getattr(self.params, "use_relocate_chain", False)
+                and self._move_relocate_chain(u, r_u, p_u, r_v, p_v)
+            ):
+                return True
 
             # Inter-route operators
             if r_u != r_v:
-                if self._should_try_operator("inter_2opt_star"):
-                    if self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
-                        return True
+                if self._should_try_operator("inter_2opt_star") and self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
+                    return True
 
-                if self._should_try_operator("inter_swap_star"):
-                    if self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
-                        return True
+                if self._should_try_operator("inter_swap_star") and self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
+                    return True
 
                 # Advanced inter-route operators
-                if self._should_try_operator("cross_exchange"):
-                    if getattr(self.params, "use_cross_exchange", False) and self._try_cross_exchange(
-                        r_u, p_u, r_v, p_v
-                    ):
-                        return True
+                if (
+                    self._should_try_operator("cross_exchange")
+                    and getattr(self.params, "use_cross_exchange", False)
+                    and self._try_cross_exchange(r_u, p_u, r_v, p_v)
+                ):
+                    return True
 
-                if self._should_try_operator("improved_cross_exchange"):
-                    if getattr(self.params, "use_improved_cross_exchange", False) and self._try_improved_cross_exchange(
-                        r_u, p_u, r_v, p_v
-                    ):
-                        return True
+                if (
+                    self._should_try_operator("improved_cross_exchange")
+                    and getattr(self.params, "use_improved_cross_exchange", False)
+                    and self._try_improved_cross_exchange(r_u, p_u, r_v, p_v)
+                ):
+                    return True
 
-                if self._should_try_operator("lambda_interchange"):
-                    if getattr(self.params, "use_lambda_interchange", False) and self._try_lambda_interchange(r_u, r_v):
-                        return True
+                if (
+                    self._should_try_operator("lambda_interchange")
+                    and getattr(self.params, "use_lambda_interchange", False)
+                    and self._try_lambda_interchange(r_u, r_v)
+                ):
+                    return True
 
-                if self._should_try_operator("cyclic_transfer"):
-                    if getattr(self.params, "use_cyclic_transfer", False) and self._try_cyclic_transfer(
-                        r_u, p_u, r_v, p_v
-                    ):
-                        return True
+                if (
+                    self._should_try_operator("cyclic_transfer")
+                    and getattr(self.params, "use_cyclic_transfer", False)
+                    and self._try_cyclic_transfer(r_u, p_u, r_v, p_v)
+                ):
+                    return True
 
-                if self._should_try_operator("exchange_chains"):
-                    if getattr(self.params, "use_exchange_chains", False) and self._try_exchange_chains(
-                        r_u, p_u, r_v, p_v
-                    ):
-                        return True
+                if (
+                    self._should_try_operator("exchange_chains")
+                    and getattr(self.params, "use_exchange_chains", False)
+                    and self._try_exchange_chains(r_u, p_u, r_v, p_v)
+                ):
+                    return True
 
-                if self._should_try_operator("ejection_chains"):
-                    if getattr(self.params, "use_ejection_chains", False) and self._try_ejection_chain(r_u):
-                        return True
-
-            # Intra-route operators
+                if (
+                    self._should_try_operator("ejection_chains")
+                    and getattr(self.params, "use_ejection_chains", False)
+                    and self._try_ejection_chain(r_u)
+                ):
+                    return True
             else:
-                if self._should_try_operator("intra_2opt"):
-                    if self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
-                        return True
+                if self._should_try_operator("intra_2opt") and self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
+                    return True
 
-                if self._should_try_operator("intra_3opt"):
-                    if self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random):
-                        return True
+                if self._should_try_operator("intra_3opt") and self._move_3opt_intra(
+                    u, v, r_u, p_u, r_v, p_v, self.random
+                ):
+                    return True
 
-                if self._should_try_operator("intra_or_opt"):
-                    if self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
-                        return True
+                if self._should_try_operator("intra_or_opt") and self._move_or_opt(
+                    r_u, p_u, self.random.choice([1, 2, 3])
+                ):
+                    return True
 
-                if self._should_try_operator("three_permutation"):
-                    if getattr(self.params, "use_three_permutation", False) and self._move_three_permutation(
-                        u, r_u, p_u
-                    ):
-                        return True
+                if (
+                    self._should_try_operator("three_permutation")
+                    and getattr(self.params, "use_three_permutation", False)
+                    and self._move_three_permutation(u, r_u, p_u)
+                ):
+                    return True
 
         return False
 

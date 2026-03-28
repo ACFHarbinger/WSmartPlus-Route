@@ -50,8 +50,12 @@ bpc:
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - engine: "custom"
-      # Execution backend: Google OR-Tools with exact BPC mode
-      # Alternative: "vrpy" (VRPy library, slower but more flexible)
+      # Execution backend for Branch-and-Price-and-Cut
+      # Options:
+      #   - "custom": Internal BPC engine (bpc_engine.py) - RECOMMENDED
+      #   - "ortools": Google OR-Tools with exact mode
+      #   - "gurobi": Gurobi B&C (requires license)
+      #   - "vrpy": VRPy library (slower but more flexible)
 
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
@@ -66,6 +70,57 @@ bpc:
     - post_processing: []
       # Route refinement heuristics (not needed for exact solutions)
       # Always empty for BPC since solutions are already optimal
+
+    # ---------------------------------------------------------------------
+    # Branch-and-Bound Search Strategy
+    # ---------------------------------------------------------------------
+    - search_strategy: "best_first"
+      # Node selection strategy for exploring the B&B tree
+      # Options:
+      #   - "best_first": Selects node with highest LP bound (default)
+      #     * Minimizes number of nodes explored
+      #     * Best for VRP with strong LP relaxations
+      #     * Poor LP basis reuse between nodes
+      #   - "depth_first": Selects deepest node in tree (Barnhart 1998)
+      #     * Excellent LP basis warmstart reuse
+      #     * Required for ODIMCF problems
+      #     * May explore more nodes but faster per node
+
+    # ---------------------------------------------------------------------
+    # Cutting Plane Strategy
+    # ---------------------------------------------------------------------
+    - cutting_planes: "rcc"
+      # Valid inequality family for strengthening LP relaxation
+      # Options:
+      #   - "rcc": Rounded Capacity Cuts (Lysgaard 2004) - DEFAULT
+      #     * Standard for CVRP and VRPP
+      #     * Enforces: ∑_{e ∈ δ(S)} x_e ≥ 2⌈demand(S)/Q⌉
+      #     * Well-integrated with Set Packing formulations
+      #   - "lci": Lifted Cover Inequalities (Balas 1975)
+      #     * For knapsack capacity constraints
+      #     * Required for ODIMCF multicommodity flow
+      #     * Enforces: ∑_{k ∈ C} x_k + ∑_{k ∉ C} α_k x_k ≤ |C| - 1
+      #     * More complex separation, use with depth_first search
+
+    # ---------------------------------------------------------------------
+    # Branching Strategy
+    # ---------------------------------------------------------------------
+    - branching_strategy: "ryan_foster"
+      # Branching rule for creating child B&B nodes
+      # Options:
+      #   - "ryan_foster": Node-pair branching (Ryan & Foster 1981) - DEFAULT
+      #     * Standard for Set Partitioning formulations
+      #     * Branches on whether nodes r,s appear together in route
+      #     * Best for VRPP and TSP-based problems
+      #   - "edge": Arc-based branching
+      #     * Branches on whether arc (u,v) is used
+      #     * Integrates naturally with DP pricing
+      #     * Good for general VRP
+      #   - "divergence": Divergence node branching (Barnhart 1998)
+      #     * For multicommodity flow (ODIMCF)
+      #     * Branches on outgoing arc sets from divergence nodes
+      #     * Required for network flow formulations
+      #     * Use with: search_strategy="depth_first", cutting_planes="lci"
 
     # ---------------------------------------------------------------------
     # Solver Parameters (Implicit)

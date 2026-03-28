@@ -114,14 +114,15 @@ class HGSRRSolver:
         update_biased_fitness(population, self.params.elite_size, self.params.neighbor_list_size)
 
         it = 0
-        last_improvement_it = 0
+        it_no_improvement = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
         best_cost_so_far = min(ind.cost for ind in population if ind.profit_score == best_profit_so_far)
 
-        while it < self.params.n_generations:
+        while it_no_improvement < self.params.n_iterations_no_improvement:
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
             it += 1
+            it_no_improvement += 1
 
             # 2. Selection & Crossover
             p1, p2 = self._select_parents(population)
@@ -157,10 +158,10 @@ class HGSRRSolver:
             if child.profit_score > best_profit_so_far:
                 best_profit_so_far = child.profit_score
                 best_cost_so_far = child.cost
-                last_improvement_it = it
+                it_no_improvement = 0
             elif child.profit_score == best_profit_so_far and child.cost < best_cost_so_far:
                 best_cost_so_far = child.cost
-                last_improvement_it = it
+                it_no_improvement = 0
 
             # Note: Adaptive alpha_diversity removed in Vidal 2022 refactoring
             # Diversity weight now automatically calculated as: 1 - (N_elite / |Pop|)

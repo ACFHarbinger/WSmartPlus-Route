@@ -4,11 +4,19 @@ Branch-and-Cut Solver for VRPP using Gurobi.
 Implements the enumerative algorithm described in Section 5 of Fischetti et al. (1997),
 adapted for the Vehicle Routing Problem with Profits.
 
-Reference:
+References:
     Fischetti, M., Lodi, A., & Toth, P. (1997). "A Branch-and-Cut Algorithm for the Symmetric
     Generalized Traveling Salesman Problem". Operations Research, 45(2), 326-349.
+
+    Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004). "A new branch-and-cut algorithm
+    for the capacitated vehicle routing problem". Mathematical Programming, 100(2), 423-445.
+
     Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the Resolution of
     Large-scale Symmetric Traveling Salesman Problems". SIAM Review, 33(1), 60-100.
+
+Notes:
+    - Subtour Elimination Constraints (SEC) follow Fischetti et al. (1997)
+    - Capacity Constraints and fractional separation follow Lysgaard et al. (2004)
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -60,6 +68,7 @@ class BranchAndCutSolver:
         verbose: bool = False,
         profit_aware_operators: bool = False,
         vrpp: bool = False,
+        enable_fractional_capacity_cuts: bool = True,
     ):
         """
         Initialize Branch-and-Cut solver.
@@ -73,6 +82,8 @@ class BranchAndCutSolver:
             verbose: Print detailed logging.
             profit_aware_operators: Whether to use profit-aware heuristics.
             vrpp: Whether to use VRPP pool expansion in heuristics.
+            enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
+                Recommended to set False for instances with n > 75 (see SeparationEngine docs).
         """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi is required for Branch-and-Cut solver")
@@ -86,8 +97,14 @@ class BranchAndCutSolver:
         self.profit_aware_operators = profit_aware_operators
         self.vrpp = vrpp
 
-        # Separation engine
-        self.separator = SeparationEngine(model)
+        # Separation engine with adaptive capacity cut toggling
+        # Auto-disable for large instances (n > 75) to prevent O(V⁴) bottleneck
+        if model.n_nodes > 75 and enable_fractional_capacity_cuts:
+            if verbose:
+                print(f"⚠ Large instance detected (n={model.n_nodes}). Disabling exact fractional capacity cuts.")
+            enable_fractional_capacity_cuts = False
+
+        self.separator = SeparationEngine(model, enable_fractional_capacity_cuts=enable_fractional_capacity_cuts)
 
         # Statistics
         self.stats = {
@@ -233,77 +250,198 @@ class BranchAndCutSolver:
 
     def _lazy_constraint_callback(self, model, where):
         """
-        Gurobi callback for lazy constraint generation.
+        Gurobi callback for true Branch-and-Cut algorithm.
 
         This callback is ESSENTIAL for correctness in the Natural Edge Formulation.
-        It is invoked at every integer-feasible MIP solution to detect and add
-        violated Subtour Elimination Constraints (SEC) and Rounded Capacity Cuts (RCC).
+        It handles both integer solutions (MIPSOL) and fractional LP relaxation nodes (MIPNODE)
+        to implement a complete cutting-plane algorithm.
 
-        Theoretical Guarantee (Padberg & Rinaldi 1991):
+        Callback Modes:
+            1. MIPSOL (Integer Solutions):
+               - Invoked when Gurobi finds an integer-feasible solution
+               - Uses cbGetSolution() to get integer values
+               - Adds violated cuts via cbLazy()
+               - Fast connected-components separation for SECs
+
+            2. MIPNODE (Fractional LP Nodes):
+               - Invoked at LP relaxation nodes during branch-and-bound
+               - Uses cbGetNodeRel() to get fractional values
+               - Adds violated cuts via cbCut()
+               - Throttled exact separation (max-flow) to avoid performance bottlenecks
+
+        Theoretical Guarantee (Lysgaard et al. 2004):
             If the SeparationEngine successfully detects all violated inequalities,
             the Branch-and-Cut algorithm will converge to the optimal VRPP solution.
 
         Args:
             model: Gurobi model instance.
-            where: Callback location code (GRB.Callback.MIPSOL for integer solutions).
+            where: Callback location code (GRB.Callback.MIPSOL or GRB.Callback.MIPNODE).
         """
         if where == GRB.Callback.MIPSOL:
-            # We found an integer solution - check for violated cuts
+            # Integer solution: check for violated cuts and add as lazy constraints
             # This MUST be called unconditionally to maintain correctness
-            self._add_lazy_cuts(model)
+            self._add_integer_cuts(model)
 
-    def _add_lazy_cuts(self, model):
+        elif where == GRB.Callback.MIPNODE and model.cbGet(GRB.Callback.MIPNODE_STATUS) == GRB.OPTIMAL:
+            # Fractional LP node: check if LP relaxation is optimal
+            # Add fractional cuts with throttling to avoid performance bottleneck
+            self._add_fractional_cuts(model)
+
+    def _add_integer_cuts(self, model):
         """
-        Add violated cuts at integer solutions.
+        Add violated cuts at integer solutions (MIPSOL callback).
 
-        This method is the heart of the Branch-and-Cut algorithm:
-        1. Extracts the current integer solution (x_vals, y_vals)
-        2. Invokes the SeparationEngine to detect violated inequalities
+        This method ensures correctness for the Natural Edge Formulation:
+        1. Extracts the current integer solution (x_vals, y_vals) via cbGetSolution()
+        2. Invokes the SeparationEngine to detect violated inequalities (fast heuristics)
         3. Adds violated cuts as lazy constraints via model.cbLazy()
 
-        Correctness Contract:
+        Correctness Contract (Fischetti et al. 1997):
             - If the solution contains a disconnected subtour, the SeparationEngine
               MUST detect it and return a SubtourEliminationCut.
             - If the solution violates vehicle capacity constraints for any node set,
               the SeparationEngine MUST detect it and return a CapacityCut.
             - If no violated cuts are found, the solution is guaranteed to be valid.
-        """
-        # Get current solution values
-        x_vals = np.array([model.cbGetSolution(self.x_vars[(i, j)]) for i, j in self.model.edges])
-        y_vals = np.array([model.cbGetSolution(self.y_vars[i]) for i in self.model.customers])
 
-        # Separate violated inequalities
+        Performance:
+            - Uses fast connected-components check for SECs (NetworkX-based)
+            - Heuristic capacity separation (demand-based clustering)
+            - O(n²) complexity, suitable for integer callback
+        """
+        # Get current integer solution values using bulk API extraction
+        # Performance Optimization: Bulk cbGetSolution() reduces Python-C API overhead
+        x_var_list = [self.x_vars[(i, j)] for i, j in self.model.edges]
+        y_var_list = [self.y_vars[i] for i in self.model.customers]
+
+        x_vals = np.array(model.cbGetSolution(x_var_list))
+        y_vals = np.array(model.cbGetSolution(y_var_list))
+
+        # Separate violated inequalities (integer mode: fast heuristics only)
         iteration = self.stats["lp_iterations"]
-        cuts = self.separator.separate(x_vals, y_vals=y_vals, max_cuts=self.max_cuts_per_round, iteration=iteration)
+        cuts = self.separator.separate_integer(
+            x_vals, y_vals=y_vals, max_cuts=self.max_cuts_per_round, iteration=iteration
+        )
 
         # Add cuts as lazy constraints
         for cut in cuts:
             if isinstance(cut, SubtourEliminationCut):
-                self._add_subtour_cut(model, cut)
+                self._add_subtour_cut_lazy(model, cut)
                 self.stats["sec_cuts"] += 1
             elif isinstance(cut, CapacityCut):
-                self._add_capacity_cut(model, cut)
+                self._add_capacity_cut_lazy(model, cut)
                 self.stats["capacity_cuts"] += 1
 
             self.stats["total_cuts"] += 1
 
         self.stats["lp_iterations"] += 1
 
-    def _add_subtour_cut(self, model, cut: SubtourEliminationCut):
-        """Add a subtour elimination cut to the model."""
+    def _add_fractional_cuts(self, model):
+        """
+        Add violated cuts at fractional LP relaxation nodes (MIPNODE callback).
+
+        This method strengthens the LP relaxation during branch-and-bound:
+        1. Extracts fractional solution values via cbGetNodeRel()
+        2. Invokes exact separation (throttled max-flow) to find deep cuts
+        3. Adds violated cuts via model.cbCut()
+
+        Throttling Strategy (Lysgaard et al. 2004):
+            - Exact max-flow separation is O(V⁴) and computationally expensive
+            - Only run at root node (nodcnt == 0) or very shallow depths (nodcnt < 5)
+            - Deeper in the tree, rely on integer cuts and Gurobi's internal cuts
+
+        Performance:
+            - Root node: Full exact separation (max-flow for SECs and RCCs)
+            - Shallow nodes (depth < 5): Limited exact separation
+            - Deep nodes: Skip fractional separation entirely
+        """
+        # Get current node count (depth indicator)
+        node_count = model.cbGet(GRB.Callback.MIPNODE_NODCNT)
+
+        # Throttle expensive fractional separation based on tree depth
+        # Strategy: Only run at root (node_count == 0) or very shallow depths
+        if node_count > 4:
+            # Deep in the tree: skip fractional separation to avoid bottleneck
+            return
+
+        # Get fractional solution values using bulk API extraction
+        # Performance Optimization: Bulk cbGetNodeRel() is O(n) vs O(n²) for loop-based extraction
+        # This reduces Python-C API overhead from ~1000 calls to 2 calls for n=50 instances
+        x_var_list = [self.x_vars[(i, j)] for i, j in self.model.edges]
+        y_var_list = [self.y_vars[i] for i in self.model.customers]
+
+        x_vals = np.array(model.cbGetNodeRel(x_var_list))
+        y_vals = np.array(model.cbGetNodeRel(y_var_list))
+
+        # Separate violated inequalities (fractional mode: exact max-flow separation)
+        iteration = self.stats["lp_iterations"]
+        max_cuts = self.max_cuts_per_round // 2  # Limit cuts at fractional nodes
+
+        cuts = self.separator.separate_fractional(
+            x_vals, y_vals=y_vals, max_cuts=max_cuts, iteration=iteration, node_count=node_count
+        )
+
+        # Add cuts as user cuts (not lazy - for LP relaxation strengthening)
+        for cut in cuts:
+            if isinstance(cut, SubtourEliminationCut):
+                self._add_subtour_cut_user(model, cut)
+                self.stats["sec_cuts"] += 1
+            elif isinstance(cut, CapacityCut):
+                self._add_capacity_cut_user(model, cut)
+                self.stats["capacity_cuts"] += 1
+
+            self.stats["total_cuts"] += 1
+
+    def _add_subtour_cut_lazy(self, model, cut: SubtourEliminationCut):
+        """
+        Add a subtour elimination cut as a lazy constraint (integer callback).
+
+        Lazy constraints are only checked for integer solutions and are essential
+        for correctness in the Natural Edge Formulation.
+        """
         cut_edges = self.model.delta(cut.node_set)
         edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
 
         if edge_vars:
             model.cbLazy(gp.quicksum(edge_vars) >= cut.rhs)
 
-    def _add_capacity_cut(self, model, cut: CapacityCut):
-        """Add a capacity inequality cut to the model."""
+    def _add_capacity_cut_lazy(self, model, cut: CapacityCut):
+        """
+        Add a capacity cut as a lazy constraint (integer callback).
+
+        Lazy constraints are only checked for integer solutions and are essential
+        for correctness when capacity violations cannot be detected by base constraints.
+        """
         cut_edges = self.model.delta(cut.node_set)
         edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
 
         if edge_vars:
             model.cbLazy(gp.quicksum(edge_vars) >= cut.rhs)
+
+    def _add_subtour_cut_user(self, model, cut: SubtourEliminationCut):
+        """
+        Add a subtour elimination cut as a user cut (fractional callback).
+
+        User cuts strengthen the LP relaxation at fractional nodes but are not
+        required for correctness (unlike lazy constraints).
+        """
+        cut_edges = self.model.delta(cut.node_set)
+        edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
+
+        if edge_vars:
+            model.cbCut(gp.quicksum(edge_vars) >= cut.rhs)
+
+    def _add_capacity_cut_user(self, model, cut: CapacityCut):
+        """
+        Add a capacity cut as a user cut (fractional callback).
+
+        User cuts strengthen the LP relaxation at fractional nodes but are not
+        required for correctness.
+        """
+        cut_edges = self.model.delta(cut.node_set)
+        edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
+
+        if edge_vars:
+            model.cbCut(gp.quicksum(edge_vars) >= cut.rhs)
 
     def _set_start_solution(self, tour: List[int]):
         """Provide a warm start solution to Gurobi."""

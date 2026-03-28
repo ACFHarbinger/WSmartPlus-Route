@@ -20,7 +20,7 @@ class HGSRRConfig:
         elite_size: Number of elite individuals to preserve.
         mutation_rate: Probability of applying ruin-recreate mutation.
         crossover_rate: Probability of crossover operation.
-        n_generations: Number of generations to evolve.
+        n_iterations_no_improvement: Max iterations without improvement.
         alpha_diversity: Initial alpha diversity parameter for population management.
         min_diversity: Minimum diversity threshold for triggering diversity maintenance.
         diversity_change_rate: Rate at which alpha diversity changes.
@@ -57,7 +57,7 @@ class HGSRRConfig:
     elite_size: int = 10
     mutation_rate: float = 0.3
     crossover_rate: float = 0.7
-    n_generations: int = 100
+    n_iterations_no_improvement: int = 20000
     alpha_diversity: float = 0.5
     min_diversity: float = 0.2
     diversity_change_rate: float = 0.05

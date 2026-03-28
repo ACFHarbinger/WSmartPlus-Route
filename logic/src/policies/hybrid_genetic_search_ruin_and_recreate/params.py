@@ -54,7 +54,7 @@ class HGSRRParams:
     population_size: int = 50
     elite_size: int = 10
     mutation_rate: float = 0.3
-    n_generations: int = 100  # Total iterations (preserved as is)
+    n_iterations_no_improvement: int = 20000
     alpha_diversity: float = 0.5
     min_diversity: float = 0.2
     diversity_change_rate: float = 0.05
@@ -108,7 +108,7 @@ class HGSRRParams:
             population_size=getattr(config, "population_size", 50),
             elite_size=getattr(config, "elite_size", 10),
             mutation_rate=getattr(config, "mutation_rate", 0.3),
-            n_generations=getattr(config, "n_generations", 100),
+            n_iterations_no_improvement=getattr(config, "n_iterations_no_improvement", 20000),
             alpha_diversity=getattr(config, "alpha_diversity", 0.5),
             min_diversity=getattr(config, "min_diversity", 0.2),
             diversity_change_rate=getattr(config, "diversity_change_rate", 0.05),

@@ -32,6 +32,11 @@ class BCConfig:
         use_heuristics: Whether to use primal heuristics for warm start.
         use_exact_separation: Use exact max-flow for SEC (slower but stronger).
         max_cuts_per_round: Maximum cuts to add per separation round.
+        enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
+            True = Use O(V⁴) max-flow for fractional capacity cuts (small instances).
+            False = Disable exact fractional capacity separation (large instances).
+            Recommended: True for n ≤ 75, False for n > 75.
+            Note: Automatically disabled for instances with n > 75 regardless of setting.
         profit_aware_operators: Whether to use profit-aware operators.
         vrpp: Whether to use VRPP expand pool.
         must_go: List of must-go strategy config files.
@@ -44,6 +49,7 @@ class BCConfig:
     use_heuristics: bool = True
     use_exact_separation: bool = False
     max_cuts_per_round: int = 50
+    enable_fractional_capacity_cuts: bool = True
     profit_aware_operators: bool = False
     vrpp: bool = False
     must_go: Optional[List[MustGoConfig]] = None

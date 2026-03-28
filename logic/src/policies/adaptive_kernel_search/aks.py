@@ -124,22 +124,6 @@ def _get_partitioned_vars_aks(
     return kernel_vars, remaining_vars, buckets
 
 
-def _update_kernel_aks(
-    kernel_vars: Set[gp.Var], bucket_vars: List[gp.Var], new_active_vars: Set[gp.Var], success: bool
-) -> Set[gp.Var]:
-    """
-    Adaptive Kernel Search (AKS) Variable Management.
-
-    Reference: Guastaroba et al. (2017)
-    - If success (new best): promote variables used in the solution to the kernel.
-    - If failure: we might remove some variables from the kernel (contraction).
-    """
-    if success:
-        # Promotion: add variables used in the new solution to the kernel
-        kernel_vars.update(new_active_vars)
-    return kernel_vars
-
-
 def _solve_aks_iterations(
     model: gp.Model,
     kernel_vars: List[gp.Var],
@@ -149,11 +133,39 @@ def _solve_aks_iterations(
     bucket_growth_factor: float,
     time_limit: float,
     mip_limit_nodes: int,
+    max_scrolls: int = 3,
 ) -> Set[gp.Var]:
     """
     Execute the core Adaptive Kernel Search iterative improvement loop.
+
+    This function implements the AKS methodology from Guastaroba et al. (2017):
+    - Multi-scroll mechanism: Multiple passes through the variable space
+    - Computational effort-based adaptation: Bucket size adjusts based on solver status
+    - Kernel promotion: Variables in improving solutions are promoted to active kernel
+    - Efficient variable fixing: Only current bucket variables are re-fixed after each iteration
+
+    Args:
+        model: Gurobi optimization model.
+        kernel_vars: Initial kernel variables (from LP relaxation).
+        remaining_vars: Variables outside the initial kernel, sorted by priority.
+        initial_bucket_size: Starting size for variable buckets.
+        max_buckets: Maximum number of bucket iterations across all scrolls.
+        bucket_growth_factor: Factor for adaptive bucket resizing.
+        time_limit: Total time budget for the iterative phase.
+        mip_limit_nodes: Node limit for Gurobi MIP solves.
+        max_scrolls: Number of complete passes through remaining_vars.
+
+    Returns:
+        Set of variables used in improving solutions (active kernel).
+
+    Reference:
+        Guastaroba, G., Savelsbergh, M., & Speranza, M. G. (2017).
+        "Adaptive Kernel Search: A heuristic for solving Mixed Integer linear Programs".
+        European Journal of Operational Research, 263(3), 789-804.
     """
     active_kernel = set(kernel_vars)
+
+    # Initialize all remaining variables as fixed to 0
     for v in remaining_vars:
         v.UB = 0
 
@@ -169,51 +181,61 @@ def _solve_aks_iterations(
         # Initial promotion from kernel solve
         active_kernel.update({v for v in kernel_vars if v.X > 0.5})
 
-    # PHASE 2: Adaptive Bucket Solving
-    current_idx = 0
+    # PHASE 2: Multi-Scroll Adaptive Bucket Solving
     buckets_solved = 0
     current_bucket_size = initial_bucket_size
 
-    while current_idx < len(remaining_vars) and buckets_solved < max_buckets:
-        elapsed = model.Runtime - start_time
-        if elapsed > time_limit:
+    for _scroll in range(max_scrolls):
+        # Reset to beginning of variable list for each scroll
+        current_idx = 0
+
+        while current_idx < len(remaining_vars) and buckets_solved < max_buckets:
+            elapsed = model.Runtime - start_time
+            if elapsed > time_limit:
+                break
+
+            # Define current bucket
+            end_idx = min(current_idx + current_bucket_size, len(remaining_vars))
+            current_bucket = remaining_vars[current_idx:end_idx]
+
+            # Unfix active kernel and current bucket
+            for v in active_kernel:
+                v.UB = 1
+            for v in current_bucket:
+                v.UB = 1
+
+            # Iteration-specific time and node limits
+            iter_time = max(2.0, (time_limit - elapsed) / max(1, max_buckets - buckets_solved))
+            model.setParam("TimeLimit", iter_time)
+            model.setParam("NodeLimit", mip_limit_nodes)
+            model.optimize(_dfj_subtour_elimination_callback)
+
+            # Adaptive bucket sizing based on computational effort (Guastaroba 2017, Section 3.2)
+            if model.Status == GRB.NODE_LIMIT or model.Status == GRB.TIME_LIMIT:
+                # Subproblem was too hard - contract bucket size
+                current_bucket_size = max(initial_bucket_size, int(current_bucket_size / bucket_growth_factor))
+            elif model.Status == GRB.OPTIMAL:
+                # Subproblem solved easily - expand bucket size
+                current_bucket_size = int(current_bucket_size * bucket_growth_factor)
+
+            # Kernel promotion: Add variables from improving solutions
+            if model.SolCount > 0 and model.ObjVal > best_obj + 1e-4:
+                best_obj = model.ObjVal
+                # Promote variables with X > 0.5 to active kernel
+                active_vars = {v for v in current_bucket if v.X > 0.5}
+                active_kernel.update(active_vars)
+
+            # Re-fix only the current bucket variables (not promoted ones)
+            for v in current_bucket:
+                if v not in active_kernel:
+                    v.UB = 0
+
+            current_idx = end_idx
+            buckets_solved += 1
+
+        # Check global termination
+        if elapsed > time_limit or buckets_solved >= max_buckets:
             break
-
-        end_idx = min(current_idx + current_bucket_size, len(remaining_vars))
-        current_bucket = remaining_vars[current_idx:end_idx]
-
-        # Fix/Unfix - Use direct object attribute updates instead of slow string matching
-        # 1. Ensure all remaining variables are fixed to 0 initially
-        for v in remaining_vars:
-            v.UB = 0
-
-        # 2. Unfix ONLY the active kernel and the current bucket
-        for v in active_kernel:
-            v.UB = 1
-        for v in current_bucket:
-            v.UB = 1
-
-        # Iteration-specific time limit
-        iter_time = max(2.0, (time_limit - elapsed) / max(1, max_buckets - buckets_solved))
-        model.setParam("TimeLimit", iter_time)
-        model.optimize(_dfj_subtour_elimination_callback)
-
-        if model.SolCount > 0 and model.ObjVal > best_obj + 1e-4:
-            best_obj = model.ObjVal
-            # Promotion: Add variables with X > 0.5 to active_kernel
-            active_vars = {v for v in current_bucket if v.X > 0.5}
-            active_kernel.update(active_vars)
-
-            # Growth: Increase bucket size on success (Guastaroba 2017)
-            current_bucket_size = int(current_bucket_size * bucket_growth_factor)
-        else:
-            # Contraction: If no improvement, we might reduce bucket size or skip
-            # specific variable types to intensify elsewhere.
-            # Here we follow a simple adaptive rule: stabilize or slightly reduce
-            current_bucket_size = max(initial_bucket_size, int(current_bucket_size / bucket_growth_factor))
-
-        current_idx = end_idx
-        buckets_solved += 1
 
     return active_kernel
 

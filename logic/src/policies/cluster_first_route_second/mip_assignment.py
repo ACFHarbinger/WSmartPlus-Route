@@ -13,7 +13,7 @@ Reference:
     for vehicle routing". Networks, 11(2), 109-124.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -24,6 +24,32 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
+
+
+def _add_variables_and_objective(
+    model: "gp.Model",
+    must_go: List[int],
+    seeds: List[int],
+    costs: Dict[Tuple[int, int], float],
+    wastes: Dict[int, float],
+    R: float,
+    C: float,
+    objective: str,
+) -> Dict[Tuple[int, int], "gp.Var"]:
+    """Helper to add variables and setting objective for the MIP model."""
+    x = {}
+    if objective == "minimize_cost":
+        model.ModelSense = GRB.MINIMIZE
+        for i in must_go:
+            for k_idx in range(len(seeds)):
+                x[i, k_idx] = model.addVar(vtype=GRB.BINARY, obj=costs[i, k_idx], name=f"x_{i}_{k_idx}")
+    else:  # objective == "maximize_profit"
+        model.ModelSense = GRB.MAXIMIZE
+        for i in must_go:
+            for k_idx in range(len(seeds)):
+                profit = (wastes.get(i, 0.0) * R) - (costs[i, k_idx] * C)
+                x[i, k_idx] = model.addVar(vtype=GRB.BINARY, obj=profit, name=f"x_{i}_{k_idx}")
+    return x
 
 
 def assign_exact_mip(
@@ -133,30 +159,7 @@ def assign_exact_mip(
         model = gp.Model("Fisher_Jaikumar_GAP", env=env)
 
         # 3. Decision Variables and Objective Function
-        # x[i, k] = 1 if node i is assigned to seed/cluster k
-        x = {}
-
-        if objective == "minimize_cost":
-            # Benchmark Mode: Minimize total insertion cost
-            # Objective: Minimize Σ_i Σ_k (c_ik * x_ik)
-            model.ModelSense = GRB.MINIMIZE
-
-            for i in must_go:
-                for k_idx in range(len(seeds)):
-                    # Coefficient is insertion cost
-                    cost_coeff = costs[i, k_idx]
-                    x[i, k_idx] = model.addVar(vtype=GRB.BINARY, obj=cost_coeff, name=f"x_{i}_{k_idx}")
-
-        else:  # objective == "maximize_profit"
-            # Simulation Mode: Maximize profit (revenue - cost)
-            # Objective: Maximize Σ_i Σ_k [(R * w_i) - (C * c_ik)] * x_ik
-            model.ModelSense = GRB.MAXIMIZE
-
-            for i in must_go:
-                for k_idx in range(len(seeds)):
-                    # Profit = Revenue from waste - Cost of insertion
-                    profit = (wastes.get(i, 0.0) * R) - (costs[i, k_idx] * C)
-                    x[i, k_idx] = model.addVar(vtype=GRB.BINARY, obj=profit, name=f"x_{i}_{k_idx}")
+        x = _add_variables_and_objective(model, must_go, seeds, costs, wastes, R, C, objective)
 
         # 4. Constraint: Assignment (Each node to AT MOST one cluster)
         for i in must_go:

@@ -85,6 +85,20 @@ bc:
       # Range: 10-100 (10 = conservative, 100 = aggressive)
       # Higher values may tighten LP but slow down solving
 
+    - enable_fractional_capacity_cuts: true
+      # Enable exact fractional capacity cut separation
+      # true = Use O(V⁴) max-flow for fractional RCC separation (small instances)
+      # false = Disable exact fractional capacity separation (large instances)
+      # Recommended: true for n ≤ 75, false for n > 75
+      # Note: Automatically disabled for instances with n > 75 regardless of setting
+      #
+      # Background:
+      #   Exact separation of violated Capacity Cuts is strongly NP-hard.
+      #   State-of-the-art solvers (Lysgaard et al. 2004) use specialized C++
+      #   libraries (CVRPSEP) with shrinking heuristics to scale beyond n=100.
+      #   This implementation uses max-flow heuristics which become a bottleneck
+      #   for large instances. Disabling falls back to heuristic capacity cuts.
+
     # ---------------------------------------------------------------------
     # Must-Go Strategy
     # ---------------------------------------------------------------------

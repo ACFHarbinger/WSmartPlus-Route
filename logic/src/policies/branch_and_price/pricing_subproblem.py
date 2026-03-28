@@ -1,13 +1,44 @@
 """
 Pricing Subproblem for Branch-and-Price VRPP.
 
-Solves the resource-constrained shortest path problem (RCSPP) to generate new routes
-with positive reduced cost. The pricing problem finds routes that improve the LP relaxation.
+Solves the resource-constrained shortest path problem (RCSPP) heuristically
+to generate new routes with positive reduced cost.  The pricing problem finds
+routes that improve the LP relaxation of the master problem.
 
 Based on Section 2.2 and Section 4 of Barnhart et al. (1998).
+
+Branching constraint enforcement
+---------------------------------
+Active branching constraints are now passed into every route-generation call
+and are enforced eagerly during the greedy insertion loop — not post-hoc.
+This prevents the heuristic from producing columns that violate the current
+B&B node's branching decisions, which would pollute the master LP and cause
+the LP bound to be over-estimated.
+
+Both constraint flavours defined in ``branching.py`` are handled:
+
+EdgeBranchingConstraint (must_use=False)
+    Forbids arc (u → v).  Before inserting node v after u, check forbidden
+    arcs.
+
+EdgeBranchingConstraint (must_use=True)
+    Requires arc (u → w).  If the current tail of the partial route is u and
+    the candidate node is v ≠ w, reject v (u must be followed by w next).
+    Symmetrically, if v has a required predecessor x and the current tail is
+    not x, reject v.
+
+RyanFosterBranchingConstraint (together=False)
+    Forbids r and s from appearing in the same route.  If v is already in a
+    separate constraint with a node already in the partial route, reject v.
+
+RyanFosterBranchingConstraint (together=True)
+    Best-effort at heuristic level: enforced lazily at route completion by
+    discarding any finished route that contains exactly one node of a
+    together-pair (i.e. partial together enforcement).  Full enforcement
+    would require a DP.
 """
 
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -16,27 +47,11 @@ class PricingSubproblem:
     """
     Resource-Constrained Shortest Path Problem for Route Generation (Heuristic).
 
-    Pure Branch-and-Price Pricing Subproblem:
-    The pricing problem finds a route that maximizes reduced cost:
-        reduced_cost = profit - Σ_i dual_i
-        profit = (waste * R) - (distance * C)
+    Uses a greedy insertion heuristic to quickly generate routes with positive
+    reduced cost.  For exact pricing, use :class:`rcspp_dp.RCSPPSolver`.
 
-    where dual_i comes ONLY from node coverage constraints in the Master Problem.
-
-    Subject to:
-        - Capacity constraints (enforced by ESPPRC resource tracking)
-        - All mandatory nodes must be reachable
-        - Route starts and ends at depot
-        - Elementarity (no repeated nodes)
-
-    This is a heuristic approximation to the Elementary Shortest Path Problem
-    with Resource Constraints (ESPPRC). For exact pricing, use RCSPPSolver.
-
-    Key Design Principle:
-        The reduced cost calculation MUST NOT include any dual values from
-        cutting planes (capacity cuts, etc.), as this would create a dual
-        desync where the pricing subproblem cannot correctly account for
-        constraints added to the Master Problem.
+    The heuristic respects active branching constraints during construction so
+    that generated columns are always feasible at the current B&B node.
     """
 
     def __init__(
@@ -48,18 +63,18 @@ class PricingSubproblem:
         revenue_per_kg: float,
         cost_per_km: float,
         mandatory_nodes: Set[int],
-    ):
+    ) -> None:
         """
-        Initialize the pricing subproblem.
+        Initialise the pricing subproblem.
 
         Args:
-            n_nodes: Number of customer nodes (excluding depot)
-            cost_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 is depot
-            wastes: Dictionary mapping node ID to waste volume
-            capacity: Vehicle capacity
-            revenue_per_kg: Revenue per unit of waste collected
-            cost_per_km: Cost per unit of distance traveled
-            mandatory_nodes: Set of mandatory node indices
+            n_nodes: Number of customer nodes (excluding depot, depot = 0).
+            cost_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1).
+            wastes: Mapping from node ID to waste volume.
+            capacity: Vehicle payload capacity.
+            revenue_per_kg: Revenue earned per unit of waste collected.
+            cost_per_km: Cost per unit of distance travelled.
+            mandatory_nodes: Set of node indices that must be visited.
         """
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -70,124 +85,336 @@ class PricingSubproblem:
         self.mandatory_nodes = mandatory_nodes
         self.depot = 0
 
+    # ------------------------------------------------------------------
+    # Public interface
+    # ------------------------------------------------------------------
+
     def solve(
         self,
         dual_values: Dict[int, float],
         max_routes: int = 10,
+        active_constraints: Optional[List[Any]] = None,
     ) -> List[Tuple[List[int], float]]:
         """
-        Solve the pricing problem to generate new routes with positive reduced cost.
+        Generate routes with positive reduced cost.
 
-        Uses a label-setting dynamic programming algorithm for ESPPRC.
+        Tries multiple starting nodes to diversify the column pool.  Each
+        candidate route is built with the greedy insertion heuristic and is
+        guaranteed to satisfy all active branching constraints.
 
         Args:
-            dual_values: Dual values from master problem (node coverage constraints)
-            max_routes: Maximum number of routes to generate
+            dual_values: Dual values from the master problem.  Keys are
+                customer node IDs (int) and optionally ``"vehicle_limit"``.
+            max_routes: Maximum number of routes to return.
+            active_constraints: Active branching constraints at the current
+                B&B node, or ``None`` / empty list for the root.  Accepts
+                both :class:`branching.EdgeBranchingConstraint` and
+                :class:`branching.RyanFosterBranchingConstraint` instances.
 
         Returns:
-            List of (route_nodes, reduced_cost) tuples, sorted by descending reduced cost
+            List of ``(route_nodes, reduced_cost)`` tuples sorted by
+            descending reduced cost.  ``route_nodes`` excludes the depot.
         """
-        # Use greedy heuristic + local search for generating columns
-        # This is a simplified approximation; exact ESPPRC is NP-hard
-        routes = []
+        constraints: List[Any] = active_constraints or []
 
-        # Try generating routes starting from different nodes
+        # Pre-process constraints into O(1) look-up structures.
+        (
+            forbidden_arcs,
+            req_successors,
+            req_predecessors,
+            rf_separate_pairs,
+            rf_together_pairs,
+        ) = self._preprocess_constraints(constraints)
+
+        routes: List[Tuple[List[int], float]] = []
+
+        # Rank start nodes by their standalone attractiveness.
         candidate_starts = sorted(
-            list(range(1, self.n_nodes + 1)),
-            key=lambda n: dual_values.get(n, 0.0) + (self.wastes.get(n, 0.0) * self.R),
+            range(1, self.n_nodes + 1),
+            key=lambda n: dual_values.get(n, 0.0) + self.wastes.get(n, 0.0) * self.R,
             reverse=True,
         )
 
         for start_node in candidate_starts[:max_routes]:
-            route, reduced_cost = self._greedy_route_construction(start_node, dual_values)
+            route, rc = self._greedy_route_construction(
+                start_node=start_node,
+                dual_values=dual_values,
+                forbidden_arcs=forbidden_arcs,
+                req_successors=req_successors,
+                req_predecessors=req_predecessors,
+                rf_separate_pairs=rf_separate_pairs,
+                rf_together_pairs=rf_together_pairs,
+            )
 
-            if reduced_cost > 1e-4:  # Positive reduced cost
-                routes.append((route, reduced_cost))
+            if rc > 1e-4:
+                routes.append((route, rc))
 
             if len(routes) >= max_routes:
                 break
 
-        # Sort by descending reduced cost
         routes.sort(key=lambda x: x[1], reverse=True)
-
         return routes[:max_routes]
+
+    # ------------------------------------------------------------------
+    # Constraint pre-processing
+    # ------------------------------------------------------------------
+
+    def _preprocess_constraints(
+        self,
+        constraints: List[Any],
+    ) -> Tuple[
+        Set[Tuple[int, int]],  # forbidden_arcs
+        Dict[int, int],  # req_successors:  u → required next node
+        Dict[int, int],  # req_predecessors: v → required previous node
+        Set[Tuple[int, int]],  # rf_separate_pairs: frozenset-like sorted pairs
+        Set[Tuple[int, int]],  # rf_together_pairs: sorted pairs
+    ]:
+        """
+        Convert active constraints into fast look-up structures.
+
+        Separates EdgeBranchingConstraint objects from RyanFosterBranchingConstraint
+        objects without importing the classes (uses duck-typing to stay
+        decoupled from the branching module at import time).
+
+        Args:
+            constraints: Mixed list of active branching constraints.
+
+        Returns:
+            Five look-up structures used by the greedy heuristic.
+        """
+        forbidden_arcs: Set[Tuple[int, int]] = set()
+        req_successors: Dict[int, int] = {}
+        req_predecessors: Dict[int, int] = {}
+        rf_separate: Set[Tuple[int, int]] = set()
+        rf_together: Set[Tuple[int, int]] = set()
+
+        for c in constraints:
+            # Duck-typed dispatch — avoids a hard import dependency on branching.py.
+            if hasattr(c, "must_use"):
+                # EdgeBranchingConstraint
+                if not c.must_use:
+                    forbidden_arcs.add((c.u, c.v))
+                else:
+                    req_successors[c.u] = c.v
+                    req_predecessors[c.v] = c.u
+            elif hasattr(c, "together"):
+                # RyanFosterBranchingConstraint
+                key = (min(c.node_r, c.node_s), max(c.node_r, c.node_s))
+                if not c.together:
+                    rf_separate.add(key)
+                else:
+                    rf_together.add(key)
+
+        return forbidden_arcs, req_successors, req_predecessors, rf_separate, rf_together
+
+    # ------------------------------------------------------------------
+    # Greedy route construction
+    # ------------------------------------------------------------------
+
+    def _evaluate_candidate_insertion(
+        self,
+        v: int,
+        v_waste: float,
+        route: List[int],
+        tail: int,
+        dual_values: Dict[int, float],
+        forbidden_arcs: Set[Tuple[int, int]],
+        req_predecessors: Dict[int, int],
+        rf_separate_pairs: Set[Tuple[int, int]],
+        visited: Set[int],
+    ) -> Tuple[Optional[int], float]:
+        """Evaluate candidate v and find best insertion position and profit."""
+        # Rule 1: Forbidden arc (tail → v).
+        if (tail, v) in forbidden_arcs:
+            return None, -float("inf")
+
+        # Rule 3: Required predecessor of v.
+        if v in req_predecessors and req_predecessors[v] != tail:
+            return None, -float("inf")
+
+        # Rule 4: Ryan-Foster separation.
+        if self._violates_rf_separation(v, visited, rf_separate_pairs):
+            return None, -float("inf")
+
+        best_pos = None
+        best_marginal = -float("inf")
+
+        # ---- Marginal profit (best insertion position) ----------
+        for pos in range(len(route) + 1):
+            prev = self.depot if pos == 0 else route[pos - 1]
+            nxt = self.depot if pos == len(route) else route[pos]
+
+            # Rule 1 also applies to the arc (prev → v) at pos > 0.
+            if pos > 0 and (prev, v) in forbidden_arcs:
+                continue
+            # Rule 3 for v when inserted not at the tail position.
+            if v in req_predecessors and req_predecessors[v] != prev:
+                continue
+
+            detour = self.cost_matrix[prev, v] + self.cost_matrix[v, nxt] - self.cost_matrix[prev, nxt]
+            marginal = v_waste * self.R - detour * self.C - dual_values.get(v, 0.0)
+
+            if marginal > best_marginal:
+                best_marginal = marginal
+                best_pos = pos
+
+        return best_pos, best_marginal
 
     def _greedy_route_construction(
         self,
         start_node: int,
         dual_values: Dict[int, float],
+        forbidden_arcs: Set[Tuple[int, int]],
+        req_successors: Dict[int, int],
+        req_predecessors: Dict[int, int],
+        rf_separate_pairs: Set[Tuple[int, int]],
+        rf_together_pairs: Set[Tuple[int, int]],
     ) -> Tuple[List[int], float]:
         """
-        Construct a route greedily starting from a given node.
+        Build a single route greedily from *start_node*.
 
-        Uses farthest insertion with profit-aware selection.
+        At each step the next insertion is chosen to maximise marginal profit
+        (revenue + dual benefit − detour cost).  All active branching
+        constraints are checked before a candidate node is accepted.
+
+        Constraint enforcement inside the construction loop:
+
+        1. **Forbidden arc** ``(tail, v)``:
+           Reject *v* if the arc from the current route tail to *v* is forbidden.
+
+        2. **Required successor** of tail ``→ w``:
+           If the current tail has a required outgoing arc to *w*, only *w*
+           is a legal next node (any other *v* is rejected).
+
+        3. **Required predecessor** of *v* ``← x``:
+           Reject *v* if it requires a predecessor other than the current tail.
+
+        4. **Ryan-Foster separate** ``(r, s)`` with ``together=False``:
+           Reject *v* if adding *v* would place it in the same route as a
+           node already present that is in a separation pair with *v*.
+
+        After construction, together-pairs are checked at route-completion
+        time.  Any route that contains exactly one member of a together-pair
+        is discarded (reduced cost set to −∞ so it is filtered out).
 
         Args:
-            start_node: Node to start route construction
-            dual_values: Dual values from master problem
+            start_node: First customer node to seed the route.
+            dual_values: Node-coverage and vehicle-limit duals.
+            forbidden_arcs: Set of (u, v) pairs that must not be traversed.
+            req_successors: u → w meaning u must be immediately followed by w.
+            req_predecessors: v → x meaning v must be immediately preceded by x.
+            rf_separate_pairs: Sorted node pairs that must be in different routes.
+            rf_together_pairs: Sorted node pairs that must be in the same route.
 
         Returns:
-            Tuple of (route_nodes, reduced_cost)
+            ``(route_nodes, reduced_cost)`` where route_nodes excludes the depot.
         """
-        route = [start_node]
+        # ---- Validate start node itself ---------------------------------
+        # The depot (0) is the implicit predecessor of start_node.
+        if start_node in req_predecessors and req_predecessors[start_node] != self.depot:
+            # start_node requires a non-depot predecessor; cannot start here.
+            return [], -float("inf")
+
+        route: List[int] = [start_node]
         current_load = self.wastes.get(start_node, 0.0)
-        visited = {start_node}
+        visited: Set[int] = {start_node}
 
-        # Greedy insertion
+        # ---- Greedy insertion -------------------------------------------
         while True:
-            best_node = None
-            best_marginal_profit = -float("inf")
+            tail = route[-1]
 
-            # Try inserting each unvisited node at the best position
-            for node in range(1, self.n_nodes + 1):
-                if node in visited:
-                    continue
-
-                node_waste = self.wastes.get(node, 0.0)
-                if current_load + node_waste > self.capacity:
-                    continue
-
-                # Try all insertion positions
-                for pos in range(len(route) + 1):
-                    # Calculate marginal cost
-                    if pos == 0:
-                        prev = self.depot
-                        nxt = route[0] if route else self.depot
-                    elif pos == len(route):
-                        prev = route[-1]
-                        nxt = self.depot
-                    else:
-                        prev = route[pos - 1]
-                        nxt = route[pos]
-
-                    detour_cost = (
-                        self.cost_matrix[prev, node] + self.cost_matrix[node, nxt] - self.cost_matrix[prev, nxt]
-                    )
-
-                    # Marginal profit with dual value
-                    marginal_profit = (
-                        (node_waste * self.R)  # Revenue
-                        - (detour_cost * self.C)  # Cost
-                        - dual_values.get(node, 0.0)  # Dual value
-                    )
-
-                    if marginal_profit > best_marginal_profit:
-                        best_marginal_profit = marginal_profit
-                        best_node = (node, pos)
-
-            if best_node is None or best_marginal_profit <= 0:
+            # If tail has a required successor that is unvisited, it is the
+            # *only* valid next node; skip the full candidate scan.
+            if tail in req_successors:
+                forced = req_successors[tail]
+                if forced not in visited and forced != self.depot:
+                    forced_waste = self.wastes.get(forced, 0.0)
+                    # Check that forced node's predecessor requirement is met and Ryan-Foster separation.
+                    if (
+                        current_load + forced_waste <= self.capacity
+                        and (forced not in req_predecessors or req_predecessors[forced] == tail)
+                        and not self._violates_rf_separation(forced, visited, rf_separate_pairs)
+                    ):
+                        route.append(forced)
+                        visited.add(forced)
+                        current_load += forced_waste
+                        continue
+                # Cannot satisfy required successor → stop extending.
                 break
 
-            # Insert best node
-            node, pos = best_node
-            route.insert(pos, node)
-            visited.add(node)
-            current_load += self.wastes.get(node, 0.0)
+            # General case: score all unvisited candidates.
+            best_node: Optional[Tuple[int, int]] = None  # (node, insertion_pos)
+            best_profit: float = -float("inf")
+            for v in range(1, self.n_nodes + 1):
+                if v in visited:
+                    continue
 
-        # Calculate total reduced cost
+                v_waste = self.wastes.get(v, 0.0)
+                if current_load + v_waste > self.capacity:
+                    continue
+
+                pos, marginal = self._evaluate_candidate_insertion(
+                    v, v_waste, route, tail, dual_values, forbidden_arcs, req_predecessors, rf_separate_pairs, visited
+                )
+
+                if pos is not None and marginal > best_profit:
+                    best_profit = marginal
+                    best_node = (v, pos)
+
+            if best_node is None or best_profit <= 0:
+                break
+
+            v, pos = best_node
+            route.insert(pos, v)
+            visited.add(v)
+            current_load += self.wastes.get(v, 0.0)
+
+        # ---- Together-pair completion check -----------------------------
+        # Discard any route that contains exactly one member of a together-pair.
+        for r, s in rf_together_pairs:
+            r_in = r in visited
+            s_in = s in visited
+            if r_in != s_in:
+                # Together constraint violated at route completion.
+                return route, -float("inf")
+
         reduced_cost = self._compute_reduced_cost(route, dual_values)
-
         return route, reduced_cost
+
+    # ------------------------------------------------------------------
+    # Ryan-Foster separation helper
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _violates_rf_separation(
+        candidate: int,
+        visited: Set[int],
+        rf_separate_pairs: Set[Tuple[int, int]],
+    ) -> bool:
+        """
+        Return True if adding *candidate* to the route would violate a
+        Ryan-Foster separation constraint.
+
+        A violation occurs when *candidate* is in a ``together=False`` pair
+        with any node already present in ``visited``.
+
+        Args:
+            candidate: Node being evaluated for insertion.
+            visited: Nodes already in the partial route.
+            rf_separate_pairs: Sorted (min, max) pairs that must be separated.
+
+        Returns:
+            True if insertion would violate a separation constraint.
+        """
+        for already in visited:
+            key = (min(candidate, already), max(candidate, already))
+            if key in rf_separate_pairs:
+                return True
+        return False
+
+    # ------------------------------------------------------------------
+    # Reduced cost and route details
+    # ------------------------------------------------------------------
 
     def _compute_reduced_cost(
         self,
@@ -195,78 +422,59 @@ class PricingSubproblem:
         dual_values: Dict[int, float],
     ) -> float:
         """
-        Compute the reduced cost of a route.
+        Compute the reduced cost of a completed route.
 
-        reduced_cost = profit - Σ_i dual_i
-        profit = revenue - cost
+        reduced_cost = profit − Σ_i dual_i − dual_vehicle_limit
+        profit       = revenue − cost
+        revenue      = Σ_i waste_i × R
+        cost         = total_distance × C
 
         Args:
-            route: List of nodes in route
-            dual_values: Dual values from master problem
+            route: Ordered list of customer nodes (depot excluded).
+            dual_values: Node-coverage duals and optional vehicle-limit dual.
 
         Returns:
-            Reduced cost of the route
+            Scalar reduced cost.
         """
-        # Calculate distance
         total_distance = 0.0
         prev = self.depot
-
         for node in route:
             total_distance += self.cost_matrix[prev, node]
             prev = node
-
         total_distance += self.cost_matrix[prev, self.depot]
 
-        # Calculate revenue
-        total_waste = sum(self.wastes.get(node, 0.0) for node in route)
+        total_waste = sum(self.wastes.get(n, 0.0) for n in route)
         revenue = total_waste * self.R
-
-        # Calculate cost
         cost = total_distance * self.C
-
-        # Calculate profit
         profit = revenue - cost
 
-        # Calculate dual contribution
-        dual_contribution = sum(dual_values.get(node, 0.0) for node in route)
+        dual_contribution = sum(dual_values.get(n, 0.0) for n in route)
+        vehicle_dual = dual_values.get("vehicle_limit", 0.0)  # type: ignore[call-overload]
 
-        # Vehicle limit dual contribution
-        vehicle_dual = dual_values.get("vehicle_limit", 0.0)
-
-        # Reduced cost
-        reduced_cost = profit - dual_contribution - vehicle_dual
-
-        return reduced_cost
+        return profit - dual_contribution - vehicle_dual
 
     def compute_route_details(
         self,
         route: List[int],
     ) -> Tuple[float, float, float, Set[int]]:
         """
-        Compute detailed information about a route.
+        Compute cost, revenue, load, and node coverage for a given route.
 
         Args:
-            route: List of nodes in route
+            route: Ordered list of customer nodes (depot excluded).
 
         Returns:
-            Tuple of (cost, revenue, load, node_coverage)
+            Tuple of (cost, revenue, load, node_coverage).
         """
-        # Calculate distance
         total_distance = 0.0
         prev = self.depot
-
         for node in route:
             total_distance += self.cost_matrix[prev, node]
             prev = node
-
         total_distance += self.cost_matrix[prev, self.depot]
 
-        # Calculate revenue and load
-        total_waste = sum(self.wastes.get(node, 0.0) for node in route)
+        total_waste = sum(self.wastes.get(n, 0.0) for n in route)
         revenue = total_waste * self.R
         cost = total_distance * self.C
 
-        # Node coverage
-        node_coverage = set(route)
-
-        return cost, revenue, total_waste, node_coverage
+        return cost, revenue, total_waste, set(route)
