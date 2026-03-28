@@ -1,17 +1,24 @@
 """
 Sparse Pheromone Management Module.
 
-This module implements the sparse pheromone matrix used in K-Sparse ACO.
-It optimizes memory and access time by storing only the k-best neighbors
-for each node.
+This module implements the sparse pheromone matrix used in K-Sparse ACO
+following the MMAS_exp methodology from Hale (2021).
+
+It uses dynamic default_value tracking and precision-based pruning
+instead of fixed-capacity storage.
 
 Attributes:
     None
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization_k_sparse.pheromones import SparsePheromoneTau
-    >>> pheromone = SparsePheromoneTau(n_nodes=100, k=25, tau_0=1.0, ...)
+    >>> pheromone = SparsePheromoneTau(n_nodes=100, tau_0=1.0, scale=5.0, ...)
     >>> val = pheromone.get(0, 1)
+
+Reference:
+    Hale, D. "Investigation of Ant Colony Optimization Implementation
+    Strategies For Low-Memory Operating Environments", 2021.
+    Section 4.2.3: MMAS_exp with scale-based precision pruning.
 """
 
 from collections import defaultdict
@@ -20,96 +27,120 @@ from typing import Dict
 
 class SparsePheromoneTau:
     """
-    Sparse pheromone matrix that stores only k-best values per node.
+    Sparse pheromone matrix using MMAS_exp with precision-based pruning.
 
-    For each node, maintains a heap of the k highest pheromone values
-    to its neighbors. Unrepresented edges default to tau_0.
+    Instead of maintaining a fixed k-capacity cache, this implementation
+    tracks a dynamic default_value that evaporates globally. Edge values
+    are only stored explicitly if they differ from default_value by more
+    than a precision threshold (10^-scale).
+
+    This approach follows the experimental MAX-MIN Ant System (MMAS_exp)
+    described in Hale (2021), optimizing both memory usage and computation
+    time while maintaining MMAS convergence properties.
     """
 
-    def __init__(self, n_nodes: int, k: int, tau_0: float, tau_min: float, tau_max: float):
+    def __init__(self, n_nodes: int, tau_0: float, scale: float, tau_min: float, tau_max: float):
         """
-        Initialize sparse pheromone structure.
+        Initialize sparse pheromone structure with scale-based pruning.
 
         Args:
             n_nodes: Total number of nodes (including depot).
-            k: Maximum edges to store per node.
-            tau_0: Default pheromone value for unrepresented edges.
-            tau_min: Minimum pheromone bound.
-            tau_max: Maximum pheromone bound.
+            tau_0: Initial pheromone value (becomes initial default_value).
+            scale: Precision parameter. Values within 10^-scale of default_value are pruned.
+            tau_min: Minimum pheromone bound (MMAS lower limit).
+            tau_max: Maximum pheromone bound (MMAS upper limit).
         """
         self.n_nodes = n_nodes
-        self.k = k
-        self.tau_0 = tau_0
+        self.scale = scale
         self.tau_min = tau_min
         self.tau_max = tau_max
 
+        # Dynamic default value that evaporates globally
+        self.default_value = tau_0
+
         # Sparse storage: node -> {neighbor: pheromone}
+        # Only stores edges that differ significantly from default_value
         self._pheromone: Dict[int, Dict[int, float]] = defaultdict(dict)
 
     def get(self, i: int, j: int) -> float:
-        """Get pheromone value for edge (i, j)."""
+        """
+        Get pheromone value for edge (i, j).
+
+        Args:
+            i: Source node index.
+            j: Destination node index.
+
+        Returns:
+            Pheromone value (explicit if stored, otherwise default_value).
+        """
         if j in self._pheromone[i]:
             return self._pheromone[i][j]
-        return self.tau_0
+        return self.default_value
 
     def set(self, i: int, j: int, value: float) -> None:
         """
-        Set pheromone value, strictly maintaining only the top k edges.
+        Set pheromone value with MMAS bounds.
 
-        Phase 1 Fix: Enforce k-sparse constraint without memory leak.
-        The previous implementation could leak memory by inserting before checking capacity.
+        This method does NOT enforce capacity limits. Instead, precision-based
+        pruning during evaporation controls memory usage.
+
+        Args:
+            i: Source node index.
+            j: Destination node index.
+            value: New pheromone value (will be clamped to [tau_min, tau_max]).
         """
+        # Apply MMAS bounds
         value = max(self.tau_min, min(self.tau_max, value))
 
-        # 1. If edge is already tracked, simply update it
-        if j in self._pheromone[i]:
-            self._pheromone[i][j] = value
-            return
-
-        # 2. If we haven't reached capacity k, add it
-        if len(self._pheromone[i]) < self.k:
-            self._pheromone[i][j] = value
-            return
-
-        # 3. We are at capacity. Find the weakest neighbor.
-        min_neighbor = min(self._pheromone[i].keys(), key=lambda n: self._pheromone[i][n])
-
-        # 4. Only replace if the new value is strictly better than the weakest link
-        if value > self._pheromone[i][min_neighbor]:
-            del self._pheromone[i][min_neighbor]
-            self._pheromone[i][j] = value
+        # Store the value explicitly (pruning happens during evaporation)
+        self._pheromone[i][j] = value
 
     def deposit_edge(self, i: int, j: int, delta: float) -> None:
         """
         Deposit pheromone on edge (i, j).
 
-        This is an alias for adding to the current value, as expected by
-        memetic algorithms.
+        Adds delta to the current pheromone value. Used during global
+        pheromone updates in MMAS.
+
+        Args:
+            i: Source node index.
+            j: Destination node index.
+            delta: Amount of pheromone to deposit.
         """
         current = self.get(i, j)
         self.set(i, j, current + delta)
 
-    def update_edge(self, i: int, j: int, delta: float, evaporate: bool = True) -> None:
+    def evaporate_all(self, rho: float) -> None:
         """
-        Update pheromone on edge with deposit and optional evaporation.
+        Apply MMAS_exp global evaporation with precision-based pruning.
+
+        This method implements the core memory optimization from Hale (2021):
+        1. Evaporate the default_value globally
+        2. Evaporate all explicitly stored edges
+        3. Prune edges that are within precision tolerance of default_value
 
         Args:
-            i: Source node.
-            j: Destination node.
-            delta: Pheromone to deposit.
-            evaporate: If True, also apply evaporation.
+            rho: Evaporation rate (0 < rho < 1).
         """
-        current = self.get(i, j)
-        if evaporate:
-            # Local update rule: tau = (1-rho)*tau + rho*tau_0
-            # This is applied per-edge during construction
-            pass
-        new_value = current + delta
-        self.set(i, j, new_value)
+        # Step 1: Evaporate the default value and apply MMAS lower bound
+        self.default_value = max(self.tau_min, self.default_value * (1 - rho))
 
-    def evaporate_all(self, rho: float) -> None:
-        """Apply global evaporation to all stored pheromones."""
-        for i in self._pheromone:
+        # Step 2: Calculate precision threshold for pruning
+        precision = 10**-self.scale
+
+        # Step 3: Evaporate all explicit edges and prune if close to default
+        for i in list(self._pheromone.keys()):
             for j in list(self._pheromone[i].keys()):
+                # Evaporate the stored value
                 self._pheromone[i][j] *= 1 - rho
-                self._pheromone[i][j] = max(self._pheromone[i][j], self.tau_min)
+
+                # Apply MMAS bounds
+                self._pheromone[i][j] = max(self.tau_min, min(self.tau_max, self._pheromone[i][j]))
+
+                # Precision pruning: delete if within tolerance of default_value
+                if abs(self._pheromone[i][j] - self.default_value) <= precision:
+                    del self._pheromone[i][j]
+
+            # Clean up empty dictionaries to free memory
+            if not self._pheromone[i]:
+                del self._pheromone[i]
