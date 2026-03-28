@@ -1,8 +1,8 @@
 """
 Master Problem for Branch-and-Price VRPP.
 
-Implements the set partitioning formulation where each column represents a feasible route.
-The master problem selects routes to cover all mandatory nodes while maximizing profit.
+Implements the set covering formulation where each column represents a feasible route.
+The master problem selects routes to cover all mandatory nodes while maximising profit.
 
 Based on Section 3.2 of Barnhart et al. (1998).
 """
@@ -24,16 +24,16 @@ class Route:
         revenue: float,
         load: float,
         node_coverage: Set[int],
-    ):
+    ) -> None:
         """
-        Initialize a route.
+        Initialise a route.
 
         Args:
-            nodes: Sequence of nodes visited (excluding depot returns)
-            cost: Total distance cost of route
-            revenue: Total revenue from collected waste
-            load: Total waste collected
-            node_coverage: Set of nodes covered by this route
+            nodes: Sequence of customer nodes visited (excluding depot returns).
+            cost: Total distance cost of the route.
+            revenue: Total revenue from collected waste.
+            load: Total waste collected on the route.
+            node_coverage: Set of customer node IDs covered by this route.
         """
         self.nodes = nodes
         self.cost = cost
@@ -48,32 +48,40 @@ class Route:
 
 class VRPPMasterProblem:
     """
-    Pure Set Partitioning/Packing Master Problem for VRPP with Column Generation.
+    Set Covering Master Problem for VRPP with Column Generation.
 
-    This is a PURE Branch-and-Price formulation WITHOUT cutting planes.
+    This is a pure Branch-and-Price formulation WITHOUT cutting planes.
     All capacity and routing constraints are handled implicitly by the ESPPRC
     pricing subproblem, which only generates feasible routes.
 
-    Formulation:
-        max  Σ_k profit_k * λ_k
-        s.t. Σ_k a_{ik} * λ_k = 1    ∀i ∈ mandatory nodes  (partitioning)
-             Σ_k a_{ik} * λ_k ≤ 1    ∀i ∈ optional nodes   (packing)
-             λ_k ∈ {0,1}             ∀k                    (route selection)
+    Formulation (Barnhart et al. 1998):
+        max  Σ_k profit_k * λ_k  -  M * Σ_{i ∈ mand} α_i
+        s.t. Σ_k a_{ik} * λ_k + α_i  >=  1   ∀ i ∈ mandatory  (set covering)
+             Σ_k a_{ik} * λ_k         <=  1   ∀ i ∈ optional   (packing)
+             Σ_k λ_k                  <=  K                     (fleet limit, optional)
+             λ_k ∈ {0, 1}             ∀ k                       (route selection)
+             α_i >= 0                 ∀ i ∈ mandatory           (artificial var)
 
-    where:
-        - λ_k: binary variable indicating if route k is selected
-        - a_{ik}: 1 if node i is in route k, 0 otherwise
-        - profit_k: profit of route k (revenue - cost)
+    Key design decisions (Barnhart et al. 1998):
+        Set Covering (>= 1) vs Set Partitioning (== 1):
+            Using >= 1 for mandatory-node coverage constraints improves LP dual
+            stability across B&B nodes.  A strict == 1 constraint produces dual
+            values that can flip sign at every branching step, causing column
+            generation to stall.  The >= relaxation keeps duals non-negative and
+            monotone, which accelerates convergence of the pricing subproblem.
 
-    Key Design Principle (Barnhart et al. 1998):
-        - The Master Problem only tracks node coverage
-        - Capacity constraints are enforced by the Pricing Subproblem
-        - Each generated column (route) is guaranteed feasible
-        - Dual values from coverage constraints guide the pricing problem
+        Artificial variables (Big-M):
+            Adding α_i >= 0 with objective coefficient -M (≫ 0) to each mandatory
+            node's coverage constraint guarantees LP feasibility at *every* node of
+            the B&B tree, even when the current column pool cannot cover all
+            mandatory nodes.  In the optimal solution M drives α_i to zero; if any
+            α_i > 0 in the final solution, the node is declared infeasible and pruned.
 
-    This avoids the "dual desync" problem where adding dynamic cuts to the
-    Master Problem creates dual variables that the Pricing Subproblem cannot
-    properly account for in reduced cost calculations.
+        No dynamic cuts:
+            Capacity and routing feasibility are delegated entirely to the ESPPRC
+            pricing subproblem (rcspp_dp.py).  Adding cutting planes to the master
+            would introduce extra dual variables that the pricing DP cannot account
+            for, creating a dual desync and invalidating the reduced-cost criterion.
     """
 
     def __init__(
@@ -86,19 +94,21 @@ class VRPPMasterProblem:
         revenue_per_kg: float,
         cost_per_km: float,
         vehicle_limit: Optional[int] = None,
-    ):
+    ) -> None:
         """
-        Initialize the master problem.
+        Initialise the master problem.
 
         Args:
-            n_nodes: Number of customer nodes (excluding depot)
-            mandatory_nodes: Set of node indices that must be visited
-            cost_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 is depot
-            wastes: Dictionary mapping node ID to waste volume
-            capacity: Vehicle capacity
-            revenue_per_kg: Revenue per unit of waste collected
-            cost_per_km: Cost per unit of distance traveled
-            vehicle_limit: Maximum number of vehicles (routes) allowed
+            n_nodes: Number of customer nodes (excluding depot, depot = index 0).
+            mandatory_nodes: Set of node indices that must be visited.
+            cost_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1);
+                index 0 is the depot.
+            wastes: Mapping from node ID to waste volume (kg).
+            capacity: Vehicle payload capacity (kg).
+            revenue_per_kg: Revenue earned per kg of waste collected.
+            cost_per_km: Operating cost per km of travel.
+            vehicle_limit: Maximum number of vehicles (routes) allowed, or
+                None to impose no fleet-size constraint.
         """
         self.n_nodes = n_nodes
         self.mandatory_nodes = mandatory_nodes
@@ -118,31 +128,62 @@ class VRPPMasterProblem:
         self.model: Optional[gp.Model] = None
         self.lambda_vars: List[gp.Var] = []
 
-        # Dual values (for pricing)
+        # Artificial variables α_i for mandatory nodes (Big-M penalty).
+        # These are added once in build_model() and never removed, ensuring
+        # LP feasibility is preserved throughout the entire B&B tree.
+        self.artificial_vars: Dict[int, gp.Var] = {}
+
+        # Big-M penalty applied to artificial variables in the objective.
+        # Must be strictly larger than the maximum achievable profit to ensure
+        # that artificial variables are zero in any non-infeasible solution.
+        self.BIG_M: float = 1e6
+
+        # Dual values extracted after each LP solve (used by pricing subproblem)
         self.dual_node_coverage: Dict[int, float] = {}
         self.dual_vehicle_limit: float = 0.0
 
-    def add_route(self, route: Route) -> None:
-        """Add a route (column) to the master problem."""
-        self.routes.append(route)
+    # ------------------------------------------------------------------
+    # Column management
+    # ------------------------------------------------------------------
 
+    def add_route(self, route: Route) -> None:
+        """
+        Add a route (column) to the master problem.
+
+        If the Gurobi model has already been built, the column is inserted
+        into the live model immediately.  Otherwise it is buffered in
+        self.routes and will be included when build_model() is called.
+
+        Args:
+            route: Route to add.
+        """
+        self.routes.append(route)
         if self.model is not None:
-            # Add variable to existing model
             self._add_column_to_model(route)
 
     def _add_column_to_model(self, route: Route) -> None:
-        """Add a column to the Gurobi model."""
+        """
+        Insert a new column (route variable) into the live Gurobi model.
+
+        Args:
+            route: Route whose λ variable is being added.
+        """
         if self.model is None:
             return
 
-        # Create variable
         var = self.model.addVar(
             obj=route.profit,
-            vtype=GRB.BINARY if not self.model.getParamInfo("RelaxIntegral") else GRB.CONTINUOUS,
+            vtype=GRB.BINARY,
             name=f"route_{len(self.lambda_vars)}",
         )
 
-        # Add to vehicle limit constraint
+        # Wire the variable into every coverage constraint it participates in.
+        for node in route.node_coverage:
+            constr = self.model.getConstrByName(f"coverage_{node}")
+            if constr is not None:
+                self.model.chgCoeff(constr, var, 1.0)
+
+        # Wire into the vehicle limit constraint if present.
         if self.vehicle_limit is not None:
             constr = self.model.getConstrByName("vehicle_limit")
             if constr is not None:
@@ -151,21 +192,37 @@ class VRPPMasterProblem:
         self.lambda_vars.append(var)
         self.model.update()
 
+    # ------------------------------------------------------------------
+    # Model construction
+    # ------------------------------------------------------------------
+
     def build_model(self, initial_routes: Optional[List[Route]] = None) -> None:
         """
-        Build the Gurobi model for the master problem.
+        Build the Gurobi model for the set-covering master problem.
+
+        Implements the Big-M / artificial-variable formulation of
+        Barnhart et al. (1998):
+
+        1. Mandatory-node coverage constraints use >= 1 (Set Covering) so that
+           dual values remain non-negative and stable across B&B nodes.
+        2. An artificial variable α_i is added to every mandatory-node constraint
+           with objective coefficient -BIG_M, guaranteeing LP feasibility even
+           when the column pool cannot cover every mandatory node.
+        3. Optional-node constraints are packing inequalities (<= 1).
 
         Args:
-            initial_routes: Initial set of routes to include
+            initial_routes: If provided, replaces self.routes with this list
+                before building the model.
         """
         self.model = gp.Model("VRPP_Master")
         self.model.Params.OutputFlag = 0
         self.lambda_vars = []
+        self.artificial_vars = {}
 
-        if initial_routes:
+        if initial_routes is not None:
             self.routes = initial_routes
 
-        # Create variables for existing routes
+        # ---- Route (λ) variables ----------------------------------------
         for idx, route in enumerate(self.routes):
             var = self.model.addVar(
                 obj=route.profit,
@@ -174,19 +231,44 @@ class VRPPMasterProblem:
             )
             self.lambda_vars.append(var)
 
-        # Coverage constraints for mandatory nodes (equality)
+        # ---- Artificial (α) variables for mandatory nodes ----------------
+        # Each α_i is a non-negative continuous variable penalised with -BIG_M
+        # in the maximisation objective, so the solver is strongly incentivised
+        # to drive them to zero by selecting routes that cover node i.
+        for node in self.mandatory_nodes:
+            alpha = self.model.addVar(
+                obj=-self.BIG_M,  # Penalise artificial variable (maximisation)
+                vtype=GRB.CONTINUOUS,
+                lb=0.0,
+                name=f"artificial_{node}",
+            )
+            self.artificial_vars[node] = alpha
+
+        # ---- Mandatory-node coverage constraints (Set Covering: >= 1) ----
+        # Using >= 1 instead of == 1:
+        #   * Dual values (shadow prices) of >= constraints in a MAX LP are
+        #     non-positive; taking their absolute value gives a non-negative
+        #     contribution to reduced costs, which is the sign convention
+        #     expected by the pricing subproblem.
+        #   * The relaxation allows "over-coverage" (visiting a node on more
+        #     than one route), which is harmless because the objective drives
+        #     the solver towards the most profitable non-redundant solution.
         for node in self.mandatory_nodes:
             lhs = gp.LinExpr()
             for idx, route in enumerate(self.routes):
                 if node in route.node_coverage:
                     lhs += self.lambda_vars[idx]
+            # Artificial variable ensures constraint is always feasible.
+            lhs += self.artificial_vars[node]
 
             self.model.addConstr(
-                lhs == 1,
+                lhs >= 1.0,
                 name=f"coverage_{node}",
             )
 
-        # Coverage constraints for optional nodes (inequality)
+        # ---- Optional-node packing constraints (<= 1) --------------------
+        # Optional nodes may be visited at most once across all selected routes.
+        # No artificial variable is needed: being unvisited (lhs = 0) is valid.
         for node in self.optional_nodes:
             lhs = gp.LinExpr()
             for idx, route in enumerate(self.routes):
@@ -198,7 +280,7 @@ class VRPPMasterProblem:
                 name=f"coverage_{node}",
             )
 
-        # Vehicle limit constraint
+        # ---- Fleet-size constraint (optional) ----------------------------
         if self.vehicle_limit is not None:
             self.model.addConstr(
                 gp.quicksum(self.lambda_vars) <= self.vehicle_limit,
@@ -208,17 +290,31 @@ class VRPPMasterProblem:
         self.model.ModelSense = GRB.MAXIMIZE
         self.model.update()
 
+    # ------------------------------------------------------------------
+    # Solving
+    # ------------------------------------------------------------------
+
     def solve_lp_relaxation(self) -> Tuple[float, Dict[int, float]]:
         """
-        Solve the LP relaxation of the master problem.
+        Solve the LP relaxation of the master problem and extract dual values.
+
+        The integrality constraints on all λ variables are temporarily relaxed
+        to continuous [0, 1] before solving.  Artificial variables are already
+        continuous, so they require no modification.
 
         Returns:
-            Tuple of (objective_value, route_values)
+            Tuple of:
+                obj_value  – LP relaxation objective value.
+                route_values – Mapping {route_index: λ_k value}.
+
+        Raises:
+            ValueError: If build_model() has not been called.
+            RuntimeError: If the LP solve does not terminate optimally.
         """
         if self.model is None:
             raise ValueError("Model not built. Call build_model() first.")
 
-        # Relax integrality
+        # Relax integrality on route variables (λ → continuous).
         for var in self.lambda_vars:
             var.VType = GRB.CONTINUOUS
 
@@ -228,21 +324,21 @@ class VRPPMasterProblem:
         if self.model.Status != GRB.OPTIMAL:
             raise RuntimeError(f"LP relaxation failed with status {self.model.Status}")
 
-        # Extract solution
         obj_value = self.model.ObjVal
         route_values = {idx: var.X for idx, var in enumerate(self.lambda_vars)}
 
-        # Extract dual values for node coverage constraints
+        # ---- Extract dual values -----------------------------------------
+        # For a >= constraint in a MAX LP, Gurobi reports a non-positive π.
+        # The pricing subproblem expects non-negative duals (interpreted as the
+        # "value" of covering a node), so we store |π|.
         self.dual_node_coverage = {}
         for node in range(1, self.n_nodes + 1):
             constr = self.model.getConstrByName(f"coverage_{node}")
             if constr is not None:
-                # For Set Packing (<=1) in MAX problem, Pi should be >= 0.
-                # If Gurobi returns a negative value due to numerical issues
-                # or convention, we take the absolute value as per Phase 3.
-                self.dual_node_coverage[node] = max(0.0, constr.Pi)
+                self.dual_node_coverage[node] = abs(constr.Pi)
 
-        # Extract dual value for vehicle limit constraint
+        # For the <= vehicle-limit constraint in a MAX LP, the dual is the
+        # opportunity cost of using one more vehicle; clamp to non-negative.
         self.dual_vehicle_limit = 0.0
         if self.vehicle_limit is not None:
             constr = self.model.getConstrByName("vehicle_limit")
@@ -253,15 +349,25 @@ class VRPPMasterProblem:
 
     def solve_ip(self) -> Tuple[float, List[Route]]:
         """
-        Solve the integer program.
+        Solve the integer programme at the current B&B node.
+
+        Re-imposes binary integrality on all λ variables and calls Gurobi's
+        MIP solver.  Artificial variables are left continuous (they will be
+        forced to zero by the Big-M penalty if any feasible integer solution
+        exists).
 
         Returns:
-            Tuple of (objective_value, selected_routes)
+            Tuple of:
+                obj_value       – IP objective value.
+                selected_routes – Routes with λ_k = 1 in the optimal solution.
+
+        Raises:
+            ValueError: If build_model() has not been called.
+            RuntimeError: If the MIP solve fails.
         """
         if self.model is None:
             raise ValueError("Model not built. Call build_model() first.")
 
-        # Set integrality
         for var in self.lambda_vars:
             var.VType = GRB.BINARY
 
@@ -271,37 +377,44 @@ class VRPPMasterProblem:
         if self.model.Status not in [GRB.OPTIMAL, GRB.SUBOPTIMAL]:
             raise RuntimeError(f"IP solving failed with status {self.model.Status}")
 
-        # Extract solution
         obj_value = self.model.ObjVal
-        selected_routes = []
-
-        for idx, var in enumerate(self.lambda_vars):
-            if var.X > 0.5:  # Binary variable
-                selected_routes.append(self.routes[idx])
-
+        selected_routes = [self.routes[idx] for idx, var in enumerate(self.lambda_vars) if var.X > 0.5]
         return obj_value, selected_routes
+
+    # ------------------------------------------------------------------
+    # Dual / pricing helpers
+    # ------------------------------------------------------------------
 
     def get_reduced_cost_coefficients(self) -> Dict[Union[int, str], float]:
         """
-        Get the coefficients for computing reduced costs in the pricing subproblem.
+        Return the dual-value coefficients used by the pricing subproblem.
 
-        For a route covering nodes i, the reduced cost is:
-            reduced_cost = profit - Σ_i dual_i
+        The reduced cost of a candidate route r is:
+            rc(r) = profit(r)  −  Σ_{i ∈ r} dual_i  −  dual_vehicle_limit
+
+        This method collects both node-coverage duals and the vehicle-limit
+        dual into a single dictionary consumed by PricingSubproblem /
+        RCSPPSolver.
 
         Returns:
-            Dictionary mapping node ID to dual value
+            Dictionary mapping node ID (int) → dual value, plus the key
+            "vehicle_limit" → vehicle-limit dual if a fleet cap is active.
         """
         duals = self.dual_node_coverage.copy()
         if self.vehicle_limit is not None:
-            duals["vehicle_limit"] = self.dual_vehicle_limit
-        return duals
+            duals["vehicle_limit"] = self.dual_vehicle_limit  # type: ignore[index]
+        return duals  # type: ignore[return-value]
 
     def get_node_visitation(self) -> Dict[int, float]:
         """
-        Get node visitation probabilities from LP solution.
+        Aggregate fractional node-visitation values from the current LP solution.
+
+        For each node i, returns Σ_{k: i ∈ route_k} λ_k, i.e. the total
+        fractional "coverage" of that node across all selected routes.
 
         Returns:
-            Dictionary mapping node ID to sum of λ_k for routes covering that node
+            Mapping from node ID to aggregated λ coverage, or empty dict if
+            the model has not been solved yet.
         """
         if self.model is None:
             return {}
@@ -311,9 +424,29 @@ class VRPPMasterProblem:
             for idx, var in enumerate(self.lambda_vars):
                 val = var.X
                 if val > 1e-6:
-                    route = self.routes[idx]
-                    for node in route.node_coverage:
+                    for node in self.routes[idx].node_coverage:
                         node_visits[node] = node_visits.get(node, 0.0) + val
             return node_visits
         except Exception:
             return {}
+
+    def has_artificial_variables_active(self, tol: float = 1e-6) -> bool:
+        """
+        Check whether any artificial variable is non-zero in the current solution.
+
+        A non-zero α_i after solving the IP indicates that node i cannot be
+        covered by the current column pool under the active branching constraints,
+        so the B&B node should be declared infeasible and pruned.
+
+        Args:
+            tol: Threshold below which a variable value is considered zero.
+
+        Returns:
+            True if at least one α_i > tol, indicating infeasibility.
+        """
+        if self.model is None:
+            return False
+        try:
+            return any(tol < alpha.X for alpha in self.artificial_vars.values())
+        except Exception:
+            return False

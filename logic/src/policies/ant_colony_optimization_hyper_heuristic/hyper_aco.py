@@ -231,9 +231,9 @@ class HyperHeuristicACO:
             if op_func:
                 # Measure execution time T_kj(t)
                 cost_before = self._calculate_cost(ctx.routes)
-                start_time = time.perf_counter()
+                start_time = time.process_time()
                 op_func(ctx)
-                execution_time = time.perf_counter() - start_time
+                execution_time = time.process_time() - start_time
                 cost_after = self._calculate_cost(ctx.routes)
 
                 # Calculate cost improvement I_kj

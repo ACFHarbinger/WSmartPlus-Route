@@ -14,7 +14,7 @@ from logic.src.configs.policies import BBConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
-from .bb import run_bb
+from .dispatcher import run_bb_optimizer
 
 
 @PolicyRegistry.register("bb")
@@ -66,6 +66,10 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
         solver parameters and post-calculates the actual profit returned
         by the found routes.
 
+        The formulation (MTZ or DFJ) is selected based on the configuration:
+        - MTZ: Custom B&B with compact formulation
+        - DFJ: Gurobi's internal B&B with lazy cuts (default)
+
         Args:
             sub_dist_matrix: The localized distance matrix for candidates.
             sub_wastes: Current fill levels for available customer nodes.
@@ -81,17 +85,26 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
         # Convert local mandatory indices to a set for fast lookup in branching
         must_go_indices = set(mandatory_nodes)
 
-        # Trigger core solver logic
-        routes, solver_cost = run_bb(
-            sub_dist_matrix,
-            sub_wastes,
-            capacity,
-            revenue,
-            cost_unit,
-            values,
+        # Extract formulation preference from config
+        # Priority: config.formulation > values["formulation"] > default "dfj"
+        formulation = "dfj"  # Default to DFJ (Gurobi's B&B)
+        if self._config is not None and hasattr(self._config, "formulation"):
+            formulation = self._config.formulation
+        elif "formulation" in values:
+            formulation = values["formulation"]
+
+        # Trigger core solver logic with formulation dispatch
+        routes, solver_cost = run_bb_optimizer(
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
+            values=values,
             must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
             seed=values.get("seed", 42),
+            formulation=formulation,
         )
 
         # Internal Profit Calculation: Revenue - Distance Cost

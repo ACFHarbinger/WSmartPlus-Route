@@ -1,9 +1,18 @@
 """
 Branch-and-Price (BP) Policy Adapter.
 
-Adapts the core Branch-and-Price solver logic to the systems-agnostic
-policy interface, handling parameter mapping, profit calculation, and environment
+Adapts the core Branch-and-Price solver logic to the systems-agnostic policy
+interface, handling parameter mapping, profit calculation, and environment
 integration.
+
+References:
+    Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W. P.,
+    & Vance, P. H. (1998). "Branch-and-price: Column Generation for Solving
+    Huge Integer Programs". Operations Research, 46(3), 316-329.
+
+    Baldacci, R., Mingozzi, A., & Roberti, R. (2011). "New Route Relaxation
+    and Pricing Strategies for the Vehicle Routing Problem". Operations
+    Research, 59(5), 1269-1283.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -22,23 +31,43 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
     """
     Adapter for the Branch-and-Price routing solver.
 
-    This policy implements a column generation method that handles large-scale
-    optimization by implicitly enumerating exponentially many variables (routes).
+    Implements a column generation method that handles large-scale optimisation
+    by implicitly enumerating exponentially many variables (routes).
 
     The algorithm uses:
-    1. Set partitioning master problem (select routes to cover nodes)
-    2. Pricing subproblem (generate profitable routes via RCSPP)
-    3. Column generation (iteratively add routes with positive reduced cost)
-    4. Branch-and-bound for integrality (optional Ryan-Foster branching)
 
-    Key advantages:
-    - Handles problems with huge solution spaces
-    - Provides strong LP bounds (tighter than compact formulations)
-    - Scalable to large instances
+    1. Set Covering master problem — selects routes to cover all mandatory
+       nodes while maximising profit.
+    2. Pricing subproblem — generates profitable routes via RCSPP (exact DP
+       or greedy heuristic).
+    3. Column generation — iteratively adds routes with positive reduced cost.
+    4. Branch-and-bound — optionally enforces integrality via edge branching
+       or Ryan-Foster branching.
+
+    Configuration
+    -------------
+    ``branching_strategy``  (``"edge"`` | ``"ryan_foster"``, default ``"edge"``)
+        Selects the B&B branching scheme.
+
+    ``use_exact_pricing``  (bool, default False)
+        When True, uses the DP-based ``RCSPPSolver``; otherwise uses the
+        greedy heuristic ``PricingSubproblem``.
+
+    ``use_ng_routes``  (bool, default True)
+        When ``use_exact_pricing=True``, enables the ng-route relaxation of
+        Baldacci et al. (2011).  Dramatically reduces the label count on large
+        instances while still producing near-elementary routes.  Set False to
+        restore exact ESPPRC behaviour.
+
+    ``ng_neighborhood_size``  (int, default 8)
+        Size of each node's ng-neighborhood N_i (including the node itself).
+        Larger values tighten the relaxation (approaching exact ESPPRC) at the
+        cost of more labels per solve.
     """
 
-    def __init__(self, config: Optional[Union[BPConfig, Dict[str, Any]]] = None):
-        """Initialize the BP policy adapter.
+    def __init__(self, config: Optional[Union[BPConfig, Dict[str, Any]]] = None) -> None:
+        """
+        Initialise the BP policy adapter.
 
         Args:
             config: A typed BPConfig dataclass, a raw dictionary for parsing,
@@ -67,28 +96,78 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run Branch-and-Price solver.
+        Run the Branch-and-Price solver.
 
-        All nodes in mandatory_nodes are treated as must-go for the solver.
-        In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
+        All nodes in ``mandatory_nodes`` are treated as must-visit.  In VRPP
+        mode, additional nodes from ``sub_wastes`` may be collected if their
+        inclusion is profitable.
+
+        Parameter resolution
+        --------------------
+        Each parameter is looked up in ``values`` first (runtime override),
+        then in ``self._config`` (YAML default), then falls back to a hard
+        default.  This three-tier priority applies to all solver parameters,
+        including the new ng-route parameters.
+
+        ng-Route relaxation
+        -------------------
+        When ``use_exact_pricing=True``, the DP pricer can use the ng-route
+        relaxation (Baldacci et al. 2011).  The two controlling parameters are:
+
+        ``use_ng_routes`` (bool, default True)
+            Enables or disables the ng-route state-space relaxation.
+            Set to False to restore exact ESPPRC.
+
+        ``ng_neighborhood_size`` (int, default 8)
+            Size of each node's ng-neighborhood.  Higher values → tighter
+            relaxation, more labels, longer solve time.
+
+        Branching strategy
+        ------------------
+        ``branching_strategy`` (str) controls edge vs Ryan-Foster branching.
+        The legacy ``use_ryan_foster_branching`` bool is still honoured as a
+        fallback for backward compatibility.
 
         Args:
-            sub_dist_matrix: The localized distance matrix for candidates.
+            sub_dist_matrix: Localised distance matrix for candidate nodes
+                (shape (n+1) × (n+1), index 0 = depot).
             sub_wastes: Current fill levels for available customer nodes.
-            capacity: The maximum payload of the vehicle.
+            capacity: Maximum vehicle payload.
             revenue: Expected revenue per unit of waste collected.
-            cost_unit: Cost per unit of distance traveled.
+            cost_unit: Cost per unit of distance travelled.
             values: Merged configuration dictionary from simulation and YAML.
             mandatory_nodes: Indices of nodes that MUST be visited.
-            **kwargs: Additional solver parameters.
+            **kwargs: Additional solver parameters (forwarded transparently).
 
         Returns:
-            A tuple containing (List of routes, total profit, total travel cost).
+            Tuple of ``(routes, total_profit, total_travel_cost)`` where
+            ``routes`` is a list of node sequences (depot excluded) for each
+            selected route.
         """
-        n_nodes = len(sub_dist_matrix) - 1  # Exclude depot from count
+        n_nodes = len(sub_dist_matrix) - 1
         mandatory_set = set(mandatory_nodes)
 
-        # Create Branch-and-Price solver
+        # ------------------------------------------------------------------
+        # Resolve branching strategy
+        # ------------------------------------------------------------------
+        if "branching_strategy" in values:
+            branching_strategy: str = values["branching_strategy"]
+        elif hasattr(self, "_config") and self._config is not None and hasattr(self._config, "branching_strategy"):
+            branching_strategy = self._config.branching_strategy
+        elif values.get("use_ryan_foster_branching", False):
+            branching_strategy = "ryan_foster"
+        else:
+            branching_strategy = "edge"
+
+        # ------------------------------------------------------------------
+        # Resolve ng-route parameters
+        # ------------------------------------------------------------------
+        use_ng_routes: bool = values.get("use_ng_routes", True)
+        ng_neighborhood_size: int = values.get("ng_neighborhood_size", 8)
+
+        # ------------------------------------------------------------------
+        # Build and run solver
+        # ------------------------------------------------------------------
         solver = BranchAndPriceSolver(
             n_nodes=n_nodes,
             cost_matrix=sub_dist_matrix,
@@ -100,34 +179,37 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
             max_iterations=values.get("max_iterations", 100),
             max_routes_per_iteration=values.get("max_routes_per_iteration", 10),
             optimality_gap=values.get("optimality_gap", 1e-4),
-            use_ryan_foster=values.get("use_ryan_foster_branching", False),
+            branching_strategy=branching_strategy,
             max_branch_nodes=values.get("max_branch_nodes", 1000),
             use_exact_pricing=values.get("use_exact_pricing", False),
+            use_ng_routes=use_ng_routes,
+            ng_neighborhood_size=ng_neighborhood_size,
         )
 
-        # Solve
         tour, profit, statistics = solver.solve()
 
-        # Convert tour to routes format (single route for single vehicle)
-        # Remove depot (0) from tour for route representation
-        if tour and len(tour) > 2:  # More than just depot visits
+        # ------------------------------------------------------------------
+        # Convert flat tour to per-vehicle route lists (depot stripped)
+        # ------------------------------------------------------------------
+        if tour and len(tour) > 2:
             route = [node for node in tour if node != 0]
             routes = [route] if route else []
         else:
             routes = []
 
+        # ------------------------------------------------------------------
         # Calculate actual distance cost
+        # ------------------------------------------------------------------
         dist_cost = 0.0
         if tour:
             prev = 0
             for node in tour:
-                if node != 0:  # Skip depot in middle
+                if node != 0:
                     dist_cost += sub_dist_matrix[prev, node]
                     prev = node
-                elif prev != 0:  # Return to depot
+                elif prev != 0:
                     dist_cost += sub_dist_matrix[prev, 0]
                     prev = 0
             dist_cost *= cost_unit
 
-        # Return routes, profit, and distance cost
         return routes, profit, dist_cost

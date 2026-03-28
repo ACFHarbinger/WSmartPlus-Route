@@ -103,6 +103,7 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
             verbose=values.get("verbose", False),
             profit_aware_operators=kwargs.get("profit_aware_operators", False),
             vrpp=kwargs.get("vrpp", False),
+            enable_fractional_capacity_cuts=values.get("enable_fractional_capacity_cuts", True),
         )
 
         # Solve

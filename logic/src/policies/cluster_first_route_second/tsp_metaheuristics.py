@@ -106,6 +106,63 @@ def _get_swap_sequence(source: List[int], target: List[int]) -> List[Tuple[int, 
     return swaps
 
 
+def _calculate_pso_velocity(
+    particle: List[int],
+    pbest_tour: List[int],
+    gbest_tour: List[int],
+    current_velocity: List[Tuple[int, int]],
+    w: float,
+    c1: float,
+    c2: float,
+) -> List[Tuple[int, int]]:
+    """Calculate new velocity for a PSO particle."""
+    swaps_to_pbest = _get_swap_sequence(particle, pbest_tour)
+    swaps_to_gbest = _get_swap_sequence(particle, gbest_tour)
+
+    new_velocity = []
+
+    # Inertia: keep some of previous velocity
+    if np.random.rand() < w and current_velocity:
+        num_keep = min(len(current_velocity), 2)
+        new_velocity.extend(current_velocity[:num_keep])
+
+    # Cognitive: move toward personal best
+    if np.random.rand() < c1 and swaps_to_pbest:
+        num_cognitive = max(1, int(len(swaps_to_pbest) * c1 / 3))
+        new_velocity.extend(swaps_to_pbest[:num_cognitive])
+
+    # Social: move toward global best
+    if np.random.rand() < c2 and swaps_to_gbest:
+        num_social = max(1, int(len(swaps_to_gbest) * c2 / 3))
+        new_velocity.extend(swaps_to_gbest[:num_social])
+
+    return new_velocity
+
+
+def _apply_2opt_local_search(
+    tour: List[int],
+    distance_matrix: np.ndarray,
+    n_customers: int,
+    max_swaps: int = 10,
+) -> List[int]:
+    """Apply random 2-opt swaps to improve a tour."""
+    best_tour = tour.copy()
+    best_dist = _calculate_tour_distance(best_tour, distance_matrix)
+
+    # Try a limited number of 2-opt swaps
+    for _ in range(min(max_swaps, n_customers)):
+        i = np.random.randint(1, n_customers)
+        k = np.random.randint(i + 1, n_customers + 1)
+        new_tour = _two_opt_swap(best_tour, i, k)
+        new_dist = _calculate_tour_distance(new_tour, distance_matrix)
+
+        if new_dist < best_dist:
+            best_tour = new_tour
+            best_dist = new_dist
+
+    return best_tour
+
+
 def find_route_pso(
     distance_matrix: np.ndarray,
     cluster: List[int],
@@ -209,28 +266,10 @@ def find_route_pso(
             if time.time() - start_time >= time_limit:
                 break
 
-            # Get swap sequences toward pbest and gbest
-            swaps_to_pbest = _get_swap_sequence(particles[p_idx], pbest_tours[p_idx])
-            swaps_to_gbest = _get_swap_sequence(particles[p_idx], gbest_tour)
-
             # Update velocity with inertia, cognitive, and social components
-            new_velocity = []
-
-            # Inertia: keep some of previous velocity
-            if np.random.rand() < w and velocities[p_idx]:
-                num_keep = min(len(velocities[p_idx]), 2)
-                new_velocity.extend(velocities[p_idx][:num_keep])
-
-            # Cognitive: move toward personal best
-            if np.random.rand() < c1 and swaps_to_pbest:
-                num_cognitive = max(1, int(len(swaps_to_pbest) * c1 / 3))
-                new_velocity.extend(swaps_to_pbest[:num_cognitive])
-
-            # Social: move toward global best
-            if np.random.rand() < c2 and swaps_to_gbest:
-                num_social = max(1, int(len(swaps_to_gbest) * c2 / 3))
-                new_velocity.extend(swaps_to_gbest[:num_social])
-
+            new_velocity = _calculate_pso_velocity(
+                particles[p_idx], pbest_tours[p_idx], gbest_tour, velocities[p_idx], w, c1, c2
+            )
             velocities[p_idx] = new_velocity
 
             # Apply velocity to particle
@@ -239,21 +278,7 @@ def find_route_pso(
 
             # Apply 2-opt local search with probability
             if np.random.rand() < 0.3 and n_customers >= 4:
-                best_tour = particles[p_idx].copy()
-                best_dist = _calculate_tour_distance(best_tour, distance_matrix)
-
-                # Try a limited number of 2-opt swaps
-                for _ in range(min(10, n_customers)):
-                    i = np.random.randint(1, n_customers)
-                    k = np.random.randint(i + 1, n_customers + 1)
-                    new_tour = _two_opt_swap(best_tour, i, k)
-                    new_dist = _calculate_tour_distance(new_tour, distance_matrix)
-
-                    if new_dist < best_dist:
-                        best_tour = new_tour
-                        best_dist = new_dist
-
-                particles[p_idx] = best_tour
+                particles[p_idx] = _apply_2opt_local_search(particles[p_idx], distance_matrix, n_customers)
 
             # Evaluate particle fitness
             current_dist = _calculate_tour_distance(particles[p_idx], distance_matrix)
