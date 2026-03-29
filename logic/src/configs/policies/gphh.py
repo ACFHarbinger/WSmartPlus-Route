@@ -21,6 +21,7 @@ class GPHHConfig:
         n_llh: Number of Low-Level Heuristics in the pool (fixed at 5).
         n_removal: Nodes removed per LLH destroy step.
         time_limit: Wall-clock time limit in seconds.
+        parsimony_coefficient: Weight for tree size penalty (0.0 = no penalty).
         vrpp: If True, solver operates in full VRPP mode.
         must_go: Must-go selection strategy config list.
         post_processing: Post-processing operation config list.
@@ -36,6 +37,7 @@ class GPHHConfig:
     n_llh: int = 5
     n_removal: int = 2
     time_limit: float = 60.0
+    parsimony_coefficient: float = 0.0
     seed: Optional[int] = None
     vrpp: bool = True
     profit_aware_operators: bool = False
