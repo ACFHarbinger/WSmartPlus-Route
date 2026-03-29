@@ -57,6 +57,7 @@ class DEConfig:
     # Runtime Control
     max_iterations: int = 500
     local_search_iterations: int = 100
+    evolution_strategy: str = "lamarckian"  # "lamarckian" or "baldwinian"
     time_limit: float = 60.0
 
     # Infrastructure
