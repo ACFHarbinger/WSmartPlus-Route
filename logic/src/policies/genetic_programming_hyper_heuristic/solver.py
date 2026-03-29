@@ -9,17 +9,25 @@ Hyper-heuristic elevates the abstraction: the GP tree controls a set of
 LLHs (destroy + repair operators) rather than modifying routes directly.
 This produces generalised policies that adapt to real-time state.
 
+**Pure Arithmetic GP Architecture**:
+This implementation uses pure arithmetic genetic programming where every
+node evaluates to a continuous float. The root node's output is mapped to
+a discrete LLH index using modulo arithmetic, ensuring the Closure Property
+is satisfied throughout the evolutionary process.
+
 LLH Pool:
   L0: random_removal  + greedy_insertion
   L1: worst_removal   + regret_2_insertion
   L2: cluster_removal + greedy_insertion
   L3: worst_removal   + greedy_insertion
   L4: random_removal  + regret_2_insertion
+  L5: shaw_removal    + greedy_insertion
+  L6: string_removal  + regret_2_insertion
 
-GP Tree Nodes:
+GP Tree Structure:
   Terminals: avg_node_profit, load_factor, route_count, iter_progress
-  Functions: IF_GT(a, b, L_i, L_j) — selects LLH L_i if a>b else L_j
-             MAX_LLH(a, b) — returns argmax(a, b) as LLH index
+  Functions: ADD, SUB, MUL, DIV (protected), MAX, MIN
+  Output Mapping: float → int via modulo arithmetic
 
 Reference:
     Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., & Woodward, J. R.
@@ -185,16 +193,32 @@ class GPHHSolver:
         """
         Evaluate a GP tree by running its LLH selection policy for n_steps.
 
+        Applies parsimony pressure to penalize overly large trees and prevent
+        bloat during extended evolutionary runs. The fitness is computed as:
+
+            fitness = raw_profit - (parsimony_coefficient * tree_size)
+
+        where tree_size is the total number of nodes in the GP tree.
+
         Args:
             tree: GP selection policy tree.
             init_routes: Starting routing solution.
             n_steps: Number of LLH applications.
 
         Returns:
-            Best profit achieved during the run.
+            Fitness score (profit minus parsimony penalty).
         """
+        # Get raw profit from applying the tree's policy
         routes, best_profit = self._apply_tree(tree, copy.deepcopy(init_routes), n_steps)
-        return best_profit
+
+        # Apply parsimony pressure: penalize large trees
+        tree_size = tree.size()
+        parsimony_penalty = self.params.parsimony_coefficient * tree_size
+
+        # Final fitness = raw profit - size penalty
+        fitness = best_profit - parsimony_penalty
+
+        return fitness
 
     def _apply_tree(
         self,
@@ -205,8 +229,21 @@ class GPHHSolver:
         """
         Apply a GP selection policy for n_steps LLH calls.
 
+        The GP tree evaluates to a continuous float representing a priority/action
+        value in the continuous action space. This float is then mapped to a discrete
+        LLH index using modulo arithmetic.
+
+        **Float-to-LLH Mapping**:
+        1. Tree evaluates to raw_float (any real number)
+        2. Take absolute value to ensure non-negative
+        3. Convert to integer
+        4. Apply modulo n_llh to get valid index [0, n_llh-1]
+
+        This mapping preserves the arithmetic semantics while bridging to discrete
+        action selection.
+
         Args:
-            tree: GP selection policy tree.
+            tree: GP selection policy tree (outputs float).
             init_routes: Starting routing solution.
             n_steps: LLH application count.
 
@@ -219,8 +256,16 @@ class GPHHSolver:
         best_profit = profit
 
         for step in range(n_steps):
+            # Build routing feature context
             ctx = self._build_context(routes, step, n_steps)
-            llh_idx = int(round(tree.evaluate(ctx))) % self.params.n_llh
+
+            # Evaluate GP tree to get continuous float
+            raw_tree_output = tree.evaluate(ctx)
+
+            # Map continuous float to discrete LLH index via modulo arithmetic
+            llh_idx = int(abs(raw_tree_output)) % self.params.n_llh
+
+            # Select and execute the chosen LLH
             llh = self._llh_pool[llh_idx]
 
             try:

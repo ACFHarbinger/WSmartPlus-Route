@@ -38,6 +38,7 @@ class GPHHParams:
         n_llh: Number of Low-Level Heuristics in the pool.
         n_removal: Nodes removed per LLH destroy step.
         time_limit: Wall-clock time limit in seconds.
+        parsimony_coefficient: Weight for tree size penalty (0.0 = no penalty).
     """
 
     gp_pop_size: int = 20
@@ -49,6 +50,7 @@ class GPHHParams:
     n_llh: int = 5
     n_removal: int = 2
     time_limit: float = 60.0
+    parsimony_coefficient: float = 0.0
 
     # Infrastructure
     seed: Optional[int] = None
@@ -68,6 +70,7 @@ class GPHHParams:
             n_llh=getattr(config, "n_llh", 5),
             n_removal=getattr(config, "n_removal", 2),
             time_limit=getattr(config, "time_limit", 60.0),
+            parsimony_coefficient=getattr(config, "parsimony_coefficient", 0.0),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )
