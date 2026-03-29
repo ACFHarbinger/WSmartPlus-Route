@@ -82,6 +82,7 @@ class DEPolicyAdapter(BaseRoutingPolicy):
             n_removal=values.get("n_removal", 3),
             max_iterations=values.get("max_iterations", 1000),
             local_search_iterations=values.get("local_search_iterations", 100),
+            evolution_strategy=values.get("evolution_strategy", "lamarckian"),
             time_limit=values.get("time_limit", 60.0),
             seed=values.get("seed", 42),
             vrpp=values.get("vrpp", True),

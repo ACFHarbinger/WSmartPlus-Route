@@ -135,6 +135,34 @@ de:
       # Note: Converts DE to memetic algorithm (DE + local search)
 
     # ---------------------------------------------------------------------
+    # Evolution Strategy
+    # ---------------------------------------------------------------------
+    - evolution_strategy: "lamarckian"
+      # Strategy for incorporating local search improvements
+      # Options: "lamarckian", "baldwinian"
+      # Recommendation: "lamarckian" for faster convergence
+      #
+      # Lamarckian Evolution:
+      #   - Reverse-encode optimized routes back into continuous vector
+      #   - Genetic material is modified by local search
+      #   - Faster convergence to high-quality solutions
+      #   - Offspring inherit learned improvements
+      #
+      # Baldwinian Evolution:
+      #   - Keep original continuous vector unchanged
+      #   - Only use improved fitness for selection
+      #   - Better population diversity
+      #   - Slower convergence, good solutions must be rediscovered
+      #
+      # Theory:
+      #   Lamarck (1809): Acquired characteristics can be inherited
+      #   Baldwin (1896): Learning guides evolution without modifying genes
+      #
+      # References:
+      #   Whitley et al. (1994). "Lamarckian Evolution, the Baldwin Effect
+      #   and Function Optimization." PPSN III, 5-15.
+
+    # ---------------------------------------------------------------------
     # Time Limit
     # ---------------------------------------------------------------------
     - time_limit: 60.0
