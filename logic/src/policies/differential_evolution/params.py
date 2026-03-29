@@ -50,6 +50,14 @@ class DEParams:
             to each trial vector. Governs the fine-tuning of candidate solutions
             post-mutation.
 
+        evolution_strategy (str): Strategy for incorporating local search improvements.
+            Options: "lamarckian", "baldwinian"
+            - "lamarckian": Reverse-encode optimized routes back into continuous vector
+              (genetic material is modified by local search)
+            - "baldwinian": Keep original continuous vector, only use improved fitness
+              (genetic material is unaffected by local search)
+            Default: "lamarckian"
+
         time_limit (float): Wall-clock time limit in seconds. Algorithm terminates
             early if process time exceeds this threshold.
 
@@ -80,6 +88,7 @@ class DEParams:
     n_removal: int = 3  # Mutation strength for discrete operators
     max_iterations: int = 500
     local_search_iterations: int = 100
+    evolution_strategy: str = "lamarckian"  # Evolution strategy: "lamarckian" or "baldwinian"
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True
@@ -95,6 +104,7 @@ class DEParams:
             n_removal=getattr(config, "n_removal", 3),
             max_iterations=getattr(config, "max_iterations", 500),
             local_search_iterations=getattr(config, "local_search_iterations", 100),
+            evolution_strategy=getattr(config, "evolution_strategy", "lamarckian"),
             time_limit=getattr(config, "time_limit", 60.0),
             seed=getattr(config, "seed", None),
             vrpp=getattr(config, "vrpp", True),
