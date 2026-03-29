@@ -114,13 +114,19 @@ class LocalSearch(ABC):
         """
         pass
 
-    def _optimize_internal(self, target_neighborhood: Optional[str] = None):
+    def _optimize_internal(
+        self,
+        target_neighborhood: Optional[str] = None,
+        active_nodes: Optional[Set[int]] = None,
+    ):
         """
         Core local search loop. Assumes self.routes is populated.
 
         Args:
             target_neighborhood: If provided, only applies the specified neighborhood operator.
                                If None or "all", applies all available operators.
+            active_nodes: If provided, restricts search to moves involving at least one active node.
+                        This enables O(1) localization per iteration (FILO).
         """
         self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
 
@@ -135,6 +141,9 @@ class LocalSearch(ABC):
 
         # Store target neighborhood for _process_node to filter operators
         self._target_neighborhood = target_neighborhood if target_neighborhood else "all"
+
+        # Store active nodes set for localization (FILO)
+        self._active_nodes = active_nodes
 
         improved = True
         it = 0
@@ -220,10 +229,15 @@ class LocalSearch(ABC):
         - Both visited: standard inter/intra route operators
 
         Operators are filtered based on self._target_neighborhood if set.
+        Active node localization (FILO) is enforced via self._active_nodes if set.
         """
         u_loc = self.node_map.get(u)
 
         for v in self.neighbors[u]:
+            # FILO LOCALIZATION GUARD: O(1) per iteration
+            # Skip moves that don't involve at least one active node
+            if self._active_nodes is not None and u not in self._active_nodes and v not in self._active_nodes:
+                continue
             v_loc = self.node_map.get(v)
 
             # Scenario A: Both are unvisited -> skip, no routing context
