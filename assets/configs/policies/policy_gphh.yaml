@@ -64,13 +64,21 @@ gphh:
       # Range: 2-7 (2 = nearly random, 5 = strong selection pressure)
 
     # -------------------------------------------------------------------------
-    # GP Tree Depth
+    # GP Tree Depth & Complexity Control
     # -------------------------------------------------------------------------
     - tree_depth: 3
       # Maximum depth of GP expression trees
       # Range: 2-5 (2 = simple rules, 3 = moderate, 5 = complex policies)
       # Deeper trees can express more sophisticated LLH selection logic but
       # increase search space and risk overfitting to evaluation instance
+
+    - parsimony_coefficient: 0.0
+      # Parsimony pressure: penalty weight for tree size (bloat control)
+      # Range: 0.0-1.0 (0.0 = no penalty, 0.01 = light, 0.1 = moderate, 0.5 = strong)
+      # Fitness = raw_profit - (parsimony_coefficient * tree_size)
+      # Non-zero values favor simpler, more generalizable trees by penalizing
+      # excessive node count. Helps prevent "tree bloat" in extended runs.
+      # Recommended: 0.01-0.05 for production, 0.0 for benchmarking
 
     # -------------------------------------------------------------------------
     # Evaluation & Application Budget
