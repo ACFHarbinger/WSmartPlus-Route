@@ -50,6 +50,7 @@ class RuinAndRecreate:
         omega: List[int],
         all_customers: List[int],
         mandatory_nodes: List[int],
+        omega_intensity: float = 1.0,
     ) -> Tuple[List[List[int]], int, List[int]]:
         """
         Apply Ruin and Recreate to the current routing solution.
@@ -59,6 +60,8 @@ class RuinAndRecreate:
             omega: Subset of active localized nodes to pick the seed from.
             all_customers: List of all valid nodes in the environment.
             mandatory_nodes: Nodes that must be collected regardless of profit.
+            omega_intensity: Shaking intensity multiplier (ω parameter from FILO).
+                           Scales the number of nodes to remove. Default is 1.0.
 
         Returns:
             Tuple of (new_routes, number_of_nodes_ruined, list_of_ruined_nodes)
@@ -67,8 +70,18 @@ class RuinAndRecreate:
         current_loads = [sum(self.waste.get(node, 0.0) for node in route) for route in working_routes]
         mandatory_set: Set[int] = set(mandatory_nodes)
 
-        # --- 1. RUIN PHASE (Spatial Localization) ---
-        n_remove = self.rng.integers(5, max(6, int(len(all_customers) * 0.15)))
+        # --- 1. RUIN PHASE (Spatial Localization with Omega Scaling) ---
+        # Base number of nodes to remove (5-15% of customers)
+        base_min = 5
+        base_max = max(6, int(len(all_customers) * 0.15))
+
+        # Scale by omega_intensity and clamp to valid bounds
+        scaled_min = max(1, int(base_min * omega_intensity))
+        scaled_max = max(scaled_min + 1, int(base_max * omega_intensity))
+        # Cap at 50% of customers to avoid over-destruction
+        scaled_max = min(scaled_max, len(all_customers) // 2)
+
+        n_remove = self.rng.integers(scaled_min, scaled_max)
         removed_customers: List[int] = []
 
         if omega:
@@ -91,12 +104,28 @@ class RuinAndRecreate:
             working_routes[r_idx] = [n for n in route if n not in removed_customers]
             current_loads[r_idx] = sum(self.waste.get(n, 0.0) for n in working_routes[r_idx])
 
-        # --- 2. RECREATE PHASE (Profit-Aware Greedy) ---
+        # --- 2. RECREATE PHASE (Localized Profit-Aware Greedy) ---
         if self.vrpp:
-            # Consider all customers not currently in routes (including those just removed)
+            # FILO OPTIMIZATION: Restrict reinsertion pool to spatial neighborhood
+            # Only consider removed customers + their nearest unvisited neighbors
+            # This achieves O(1) complexity instead of O(N) for large instances
+
+            # Get currently visited nodes
             visited = {n for r in working_routes for n in r}
-            reinsertion_pool = [n for n in all_customers if n not in visited]
+
+            # Start with removed customers
+            reinsertion_pool_set = set(removed_customers)
+
+            # Add spatial neighborhood: top 15 nearest neighbors of each removed node
+            for node in removed_customers:
+                for neighbor in self.neighbors[node][:15]:
+                    if neighbor not in visited:
+                        reinsertion_pool_set.add(neighbor)
+
+            # Convert to list for shuffling
+            reinsertion_pool = list(reinsertion_pool_set)
         else:
+            # Standard CVRP: only reinsert removed customers
             reinsertion_pool = removed_customers
 
         # Shuffle pool to avoid deterministic insertion traps

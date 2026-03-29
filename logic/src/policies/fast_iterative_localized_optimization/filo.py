@@ -17,13 +17,12 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.fast_iterative_localized_optimization.params import FILOParams
 from logic.src.policies.fast_iterative_localized_optimization.ruin_recreate import (
     RuinAndRecreate,
 )
-from logic.src.policies.other.local_search.local_search_aco import (
-    ACOLocalSearch,
+from logic.src.policies.other.local_search.local_search_filo import (
+    FILOLocalSearch,
 )
 from logic.src.policies.other.operators.heuristics.greedy_initialization import (
     build_greedy_routes,
@@ -89,26 +88,25 @@ class FILOSolver:
             vrpp=self.params.vrpp,
         )
 
-        # Local search (reordering) runs on distances, so ACO is still valid
-        self.local_search = ACOLocalSearch(
+        # FILO-specific Local Search with active node localization support
+        self.local_search = FILOLocalSearch(
             dist_matrix=self.d,
             waste=self.waste,
             capacity=self.Q,
             R=self.R,
             C=self.C,
-            params=KSACOParams(
-                local_search_iterations=self.params.local_search_iterations,
-                vrpp=self.params.vrpp,
-                profit_aware_operators=self.params.profit_aware_operators,
-                seed=self.params.seed,
-            ),
+            params=self.params,
         )
 
-        self.gamma_base = self.params.gamma_base
-        self.gamma = [self.gamma_base] * (self.n_nodes + 1)
+        # Node-specific gamma parameters (activation probability)
+        self.node_gamma = [self.params.gamma_base] * (self.n_nodes + 1)
 
+        # Node-specific omega parameters (shaking intensity L_it)
         omega_base = max(1, int(math.ceil(self.params.omega_base_multiplier * math.log(self.n_nodes + 1))))
-        self.omega = [omega_base] * (self.n_nodes + 1)
+        self.node_omega = [omega_base] * (self.n_nodes + 1)
+
+        # Global omega intensity for current iteration (average of node-specific omegas)
+        self.omega = 1.0
 
     def _evaluate_routes(self, routes: List[List[int]]) -> Tuple[float, float]:
         """Evaluate VRPP cost and profit."""
@@ -128,13 +126,17 @@ class FILOSolver:
 
         return total_cost, total_revenue - total_cost
 
-    def _get_omega(self, current_routes: List[List[int]]) -> List[int]:
+    def _get_omega_nodes(self, current_routes: List[List[int]]) -> List[int]:
         r"""
-        Extract spatial neighborhood bound omega (Ruined nodes).
+        Extract spatial neighborhood nodes for ruin phase.
 
         Follows Accorsi & Vigo (2021):
-        1. Select a 'center' node $i$ with probability proportional to gamma_i.
-        2. Identify a the $L_{it}$ closest neighbors of $i$ to be ruined.
+        1. Select a 'center' node $i$ with probability proportional to $\gamma_i$.
+        2. Identify the $L_{it}$ closest neighbors of $i$ (from node_omega[i]).
+        3. Return this localized spatial neighborhood for destruction.
+
+        Returns:
+            List of node IDs forming the localized destruction neighborhood.
         """
         visited = []
         for r in current_routes:
@@ -143,23 +145,21 @@ class FILOSolver:
         if not visited:
             return []
 
-        # 1. Select center node i based on gamma
-        # Nodes with high gamma (less successful) are more likely to be centers
-        gammas = np.array([self.gamma[n] for n in visited], dtype=np.float64)
+        # 1. Select center node i based on gamma_i
+        # Nodes with high gamma (stagnant/unsuccessful) are more likely to be centers
+        gammas = np.array([self.node_gamma[n] for n in visited], dtype=np.float64)
         probs = gammas / gammas.sum()
         center_node = self.rng.choice(visited, p=probs)
 
-        # 2. Determine L_it (shaking intensity)
-        # Omega in our code represents the set of nodes to be ruined.
-        # The size L_it is controlled by omega_base_multiplier and log(n)
-        l_it = self.omega[center_node]
+        # 2. Determine L_it (shaking intensity for this center node)
+        l_it = self.node_omega[center_node]
 
-        # 3. Get L_it closest neighbors of center_node that are in visited
+        # 3. Get L_it closest neighbors of center_node that are currently visited
         distances = [(n, self.d[center_node, n]) for n in visited]
         distances.sort(key=lambda x: x[1])
 
-        omega = [n for n, d in distances[:l_it]]
-        return omega
+        omega_nodes = [n for n, d in distances[:l_it]]
+        return omega_nodes
 
     def _update_gamma(self, is_new_best: bool, accepted: bool, ruined: List[int]) -> None:
         """
@@ -171,15 +171,15 @@ class FILOSolver:
         - If accepted: reset gamma for ruined nodes.
         """
         if is_new_best:
-            self.gamma = [self.params.gamma_base] * (self.n_nodes + 1)
+            self.node_gamma = [self.params.gamma_base] * (self.n_nodes + 1)
             return
 
         if not accepted:
             for i in ruined:
-                self.gamma[i] = min(1.0, self.gamma[i] + self.params.delta_gamma)
+                self.node_gamma[i] = min(1.0, self.node_gamma[i] + self.params.delta_gamma)
         else:
             for i in ruined:
-                self.gamma[i] = self.params.gamma_base
+                self.node_gamma[i] = self.params.gamma_base
 
     def _update_omega(self, is_new_best: bool, accepted: bool, ruined: List[int]) -> None:
         """
@@ -189,20 +189,31 @@ class FILOSolver:
         - If new best: reset all omega to base.
         - If NOT accepted: increase L_it for ruined nodes (diversification).
         - If accepted: reset L_it.
+
+        Also updates the global omega intensity for the next iteration.
         """
         omega_base = max(1, int(math.ceil(self.params.omega_base_multiplier * math.log(self.n_nodes + 1))))
 
         if is_new_best:
-            self.omega = [omega_base] * (self.n_nodes + 1)
-            return
-
-        if not accepted:
+            self.node_omega = [omega_base] * (self.n_nodes + 1)
+        elif not accepted:
             for i in ruined:
-                # Increase intensity L_it up to a limit
-                self.omega[i] = min(self.n_nodes // 3, self.omega[i] + 1)
+                # Increase intensity L_it up to a hard cap
+                # Cap at 50 to prevent massive random restarts on large instances (Accorsi & Vigo 2021)
+                self.node_omega[i] = min(50, self.node_omega[i] + 1)
         else:
             for i in ruined:
-                self.omega[i] = omega_base
+                self.node_omega[i] = omega_base
+
+        # Update global omega intensity as normalized average of node-specific values
+        # This scales the number of nodes removed in the ruin phase
+        visited_nodes = [n for r in self.routes if r for n in r] if hasattr(self, "routes") else []
+        if visited_nodes:
+            # Normalize to ~1.0 baseline
+            avg_omega = np.mean([self.node_omega[n] for n in visited_nodes])
+            self.omega = avg_omega / omega_base  # type: ignore[assignment]
+        else:
+            self.omega = 1.0
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -230,6 +241,9 @@ class FILOSolver:
         best_profit = current_profit
         best_cost = current_cost
 
+        # Store routes for omega calculation
+        self.routes = current_routes
+
         # Simulated Annealing Setup
         if current_cost > 0:
             self.sa_start_temp = current_cost / self.params.initial_temperature_factor
@@ -245,15 +259,29 @@ class FILOSolver:
             if self.params.time_limit > 0 and elapsed > self.params.time_limit:
                 break
 
-            omega = self._get_omega(current_routes)
+            # --- STEP 1: GET OMEGA NODES (Spatial Neighborhood for Ruin) ---
+            omega_nodes = self._get_omega_nodes(current_routes)
 
-            # --- SHAKING ---
+            # --- STEP 2: SHAKING (Ruin & Recreate with Omega Intensity) ---
             new_routes, num_ruined, ruined = self.ruin_recreate.apply(
-                current_routes, omega, self.all_customers, self.mandatory_nodes
+                routes=current_routes,
+                omega=omega_nodes,
+                all_customers=self.all_customers,
+                mandatory_nodes=self.mandatory_nodes,
+                omega_intensity=self.omega,  # Pass global intensity parameter
             )
 
-            # --- LOCAL SEARCH ---
-            ls_routes = self.local_search.optimize(new_routes)
+            # --- STEP 3: CALCULATE ACTIVE NODES (Gamma Localization) ---
+            # Active set = Recently disrupted nodes + Historically stagnant nodes
+            active_nodes = set(ruined)  # Start with recently ruined nodes
+
+            # Add nodes with high gamma (stagnant nodes that need attention)
+            for i in range(1, self.n_nodes):
+                if self.node_gamma[i] > self.params.gamma_base:
+                    active_nodes.add(i)
+
+            # --- STEP 4: LOCAL SEARCH (Restricted to Active Neighborhood) ---
+            ls_routes = self.local_search.optimize(new_routes, active_nodes=active_nodes)
 
             # --- EVALUATION ---
             ls_cost, ls_profit = self._evaluate_routes(ls_routes)
@@ -283,6 +311,7 @@ class FILOSolver:
                 current_routes = ls_routes
                 current_profit = ls_profit
                 current_cost = ls_cost
+                self.routes = current_routes  # Update for omega calculation
 
             # Annealing Schedule
             if temperature > self.sa_final_temp:
