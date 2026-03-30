@@ -54,15 +54,10 @@ class AdaptiveKernelSearchConfig:
             computational reproducibility across different runs. Defaults to 42.
         vrpp (bool): Whether the problem is a VRP with Profits.
 
-        # Adaptive Features (AKS)
-        bucket_growth_factor (float): The factor by which `current_bucket_size`
-            is multiplied when an objective improvement is found.
-            This allows the search to expand when it finds evidence of
-            interdependencies between variables. Defaults to 1.2.
-        time_limit_stage_1 (float): The fraction of the total `time_limit`
-            dedicated to the initial LP relaxation and the first Kernel solve.
-            Ensures a strong foundation is established before processing buckets.
-            Defaults to 0.2 (20%).
+    # Adaptive Features (AKS)
+    t_easy: float = 10.0
+    epsilon: float = 0.1
+    time_limit_stage_1: float = 0.2
 
         # Infrastructure
         engine (str): Identifier for the optimization engine. Use "custom" to
@@ -83,7 +78,8 @@ class AdaptiveKernelSearchConfig:
     vrpp: bool = True
 
     # Adaptive Features (AKS)
-    bucket_growth_factor: float = 1.2
+    t_easy: float = 10.0
+    epsilon: float = 0.1
     time_limit_stage_1: float = 0.2
 
     # Infrastructure
