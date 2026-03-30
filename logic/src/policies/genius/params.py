@@ -34,7 +34,6 @@ class GENIUSParams:
         neighborhood_size: Size of p-neighborhood for GENI insertion (p parameter).
             Restricts insertion search to p closest vertices to the candidate node.
             Typical values: 3-7. Paper recommends p=5 for good balance.
-        us_cycles: Number of Unstringing-Stringing cycles to apply per iteration.
         unstring_type: Type of unstringing operator to use (1=Type I, 2=Type II,
             3=Type III, 4=Type IV). Each type differs in arc reconnection patterns.
         string_type: Type of stringing operator to use (1=Type I, 2=Type II,
@@ -47,7 +46,6 @@ class GENIUSParams:
     """
 
     neighborhood_size: int = 5
-    us_cycles: int = 10
     unstring_type: int = 1
     string_type: int = 1
     n_iterations: int = 1
@@ -64,7 +62,6 @@ class GENIUSParams:
 
         return cls(
             neighborhood_size=getattr(config, "neighborhood_size", 5),
-            us_cycles=getattr(config, "us_cycles", 10),
             unstring_type=getattr(config, "unstring_type", 1),
             string_type=getattr(config, "string_type", 1),
             n_iterations=getattr(config, "n_iterations", 1),

@@ -9,6 +9,8 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.unstringing_stringing.routes import _extract_working_route
+
 
 def apply_type_iii_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     """
@@ -27,10 +29,7 @@ def apply_type_iii_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     Returns:
         The modified tour.
     """
-    n = len(route)
-    is_closed = n > 1 and route[0] == route[-1]
-    work_route = route[:-1] if is_closed else route[:]
-    n_work = len(work_route)
+    n, is_closed, work_route, n_work = _extract_working_route(route)
 
     # Rotate so V_{i-1} is at index 0, V_i is at 1.
     pivot = (i - 1) % n_work
@@ -97,10 +96,7 @@ def apply_type_iii_us_profit(
     Returns:
         (new_route, delta_profit)
     """
-    n = len(route)
-    is_closed = n > 1 and route[0] == route[-1]
-    work_route = route[:-1] if is_closed else route[:]
-    n_work = len(work_route)
+    n, is_closed, work_route, n_work = _extract_working_route(route)
 
     # Identifiers
     v_im1 = work_route[(i - 1) % n_work]

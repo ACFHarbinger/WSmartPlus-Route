@@ -148,6 +148,8 @@ def unstringing_removal_wrapper(
     C: float = 1.0,
     rng: Optional[random.Random] = None,
     profit_mode: bool = False,
+    target_node: Optional[int] = None,
+    use_alns_fallback: bool = False,
 ) -> Tuple[List[List[int]], List[int]]:
     """
     Core unstringing removal logic.
@@ -172,6 +174,8 @@ def unstringing_removal_wrapper(
             if len(route) < 3:
                 continue
             for n_idx, node in enumerate(route):
+                if target_node is not None and node != target_node:
+                    continue
                 result = _try_unstring_removal(
                     routes, r_idx, n_idx, unstring_type, dist_matrix, wastes, R, C, rng, profit_mode
                 )
@@ -186,7 +190,13 @@ def unstringing_removal_wrapper(
             routes = best_routes
             removed_nodes.append(best_node)
             routes = [r for r in routes if r]
+            if target_node is not None and best_node == target_node:
+                break
         else:
+            if not use_alns_fallback:
+                # Gracefully ignore if GENI fails without ALNS fallback
+                break
+
             # Fallback for remaining nodes that couldn't be unstrung
             nodes_to_remove = min(1, sum(len(r) for r in routes))
             if nodes_to_remove == 0:
@@ -208,6 +218,8 @@ def unstringing_removal_wrapper(
                     dist_matrix,
                 )
             removed_nodes.extend(rem)
+            if target_node is not None and target_node in rem:
+                break
 
     return routes, removed_nodes
 
@@ -221,6 +233,8 @@ def unstringing_removal(
     unstring_type: int,
     dist_matrix: np.ndarray,
     rng: Optional[random.Random] = None,
+    target_node: Optional[int] = None,
+    use_alns_fallback: bool = False,
 ) -> Tuple[List[List[int]], List[int]]:
     """Standard CVRP Unstringing Removal."""
     return unstringing_removal_wrapper(
@@ -231,6 +245,8 @@ def unstringing_removal(
         wastes={},
         rng=rng,
         profit_mode=False,
+        target_node=target_node,
+        use_alns_fallback=use_alns_fallback,
     )
 
 
@@ -243,6 +259,8 @@ def unstringing_profit_removal(
     R: float = 1.0,
     C: float = 1.0,
     rng: Optional[random.Random] = None,
+    target_node: Optional[int] = None,
+    use_alns_fallback: bool = False,
 ) -> Tuple[List[List[int]], List[int]]:
     """VRPP Cost-Aware Unstringing Removal."""
     # Feedback implementation: Keep Variants I, II, and III purely structural
@@ -257,4 +275,6 @@ def unstringing_profit_removal(
         C=C,
         rng=rng,
         profit_mode=profit_mode,
+        target_node=target_node,
+        use_alns_fallback=use_alns_fallback,
     )

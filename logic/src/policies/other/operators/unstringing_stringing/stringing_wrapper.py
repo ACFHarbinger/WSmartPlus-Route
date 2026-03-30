@@ -51,25 +51,34 @@ def _apply_stringing_op(
     R: float,
     C: float,
     profit_mode: bool,
+    current_load: float,
 ) -> Tuple[List[int], float]:
     """Helper to apply stringing operation and get new route and immediate profit val."""
     if string_type in (2, 4):
         i, j, k, l = params
         if profit_mode:
             if string_type == 2:
-                return apply_type_ii_s_profit(route, node, i, j, k, l, dist_matrix, wastes, capacity, R, C)
-            return apply_type_iv_s_profit(route, node, i, j, k, l, dist_matrix, wastes, capacity, R, C)
+                return apply_type_ii_s_profit(
+                    route, node, i, j, k, l, dist_matrix, wastes, capacity, R, C, current_load
+                )
+            return apply_type_iv_s_profit(route, node, i, j, k, l, dist_matrix, wastes, capacity, R, C, current_load)
         new_route = (
-            apply_type_ii_s(route, node, i, j, k, l) if string_type == 2 else apply_type_iv_s(route, node, i, j, k, l)
+            apply_type_ii_s(route, node, i, j, k, l, current_load)
+            if string_type == 2
+            else apply_type_iv_s(route, node, i, j, k, l, current_load)
         )
         return new_route, 0.0
 
     i, j, k = params
     if profit_mode:
         if string_type == 1:
-            return apply_type_i_s_profit(route, node, i, j, k, dist_matrix, wastes, capacity, R, C)
-        return apply_type_iii_s_profit(route, node, i, j, k, dist_matrix, wastes, capacity, R, C)
-    new_route = apply_type_i_s(route, node, i, j, k) if string_type == 1 else apply_type_iii_s(route, node, i, j, k)
+            return apply_type_i_s_profit(route, node, i, j, k, dist_matrix, wastes, capacity, R, C, current_load)
+        return apply_type_iii_s_profit(route, node, i, j, k, dist_matrix, wastes, capacity, R, C, current_load)
+    new_route = (
+        apply_type_i_s(route, node, i, j, k, current_load)
+        if string_type == 1
+        else apply_type_iii_s(route, node, i, j, k, current_load)
+    )
     return new_route, 0.0
 
 
@@ -84,6 +93,7 @@ def _try_string_insertion(
     R: float,
     C: float,
     rng: random.Random,
+    current_load: float,
     profit_mode: bool = False,
 ) -> Optional[Tuple[List[List[int]], float]]:
     """Try inserting a node using the specified stringing operator, returning the best result."""
@@ -120,11 +130,13 @@ def _try_string_insertion(
                 params = (i, j, k)  # type: ignore[assignment]
 
             new_route, val = _apply_stringing_op(
-                route, node, string_type, params, dist_matrix, wastes, capacity, R, C, profit_mode
+                route, node, string_type, params, dist_matrix, wastes, capacity, R, C, profit_mode, current_load
             )
 
-            # Validate insertion
-            if node not in new_route or sum(wastes.get(n, 0) for n in new_route) > capacity:
+            # Validate insertion (capacity and existence)
+            # Optimization: since we do early pruning for capacity, we don't need the O(N) sum() here
+            # anymore, stringing_wrapper enforces the check before trying the topological strings.
+            if node not in new_route:
                 continue
 
             test_routes = [list(r) for r in routes]
@@ -143,7 +155,7 @@ def _try_string_insertion(
     return (best_routes, best_value) if best_routes is not None else None
 
 
-def stringing_insertion_wrapper(
+def stringing_insertion_wrapper(  # noqa: C901
     routes: List[List[int]],
     removed_nodes: List[int],
     string_type: int,
@@ -156,6 +168,7 @@ def stringing_insertion_wrapper(
     rng: Optional[random.Random] = None,
     profit_mode: bool = False,
     expand_pool: bool = False,
+    use_alns_fallback: bool = False,
 ) -> List[List[int]]:
     """
     Core stringing insertion logic handling expanding pools and iteration.
@@ -185,13 +198,55 @@ def stringing_insertion_wrapper(
         best_value = -float("inf")
         best_node = -1
 
+        # O(N) Pre-calculate Route Capacities
+        route_loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
+
         # Try inserting every available unassigned node into every route
         for node in unassigned:
             is_mandatory = node in mandatory_nodes_set
+            node_waste = wastes.get(node, 0)
+
+            # Evaluate opening a brand new route `[0, node, 0]`
+            if profit_mode:
+                cost_new = dist_matrix[0, node] + dist_matrix[node, 0]
+                val_new = (node_waste * R) - (cost_new * C)
+                effective_val_new = val_new + (1e9 if is_mandatory else 0)
+
+                # Reject negative pure-profit insertions unless mandatory
+                if (is_mandatory or val_new >= -1e-4) and effective_val_new > best_value:
+                    best_value = effective_val_new
+                    test_routes_new = [list(r) for r in routes]
+                    test_routes_new.append([0, node, 0])
+                    best_routes = test_routes_new
+                    best_node = node
+            else:
+                test_routes_new = [list(r) for r in routes]
+                test_routes_new.append([0, node, 0])
+                val_new = _evaluate_routes(test_routes_new, dist_matrix)
+                if val_new > best_value:
+                    best_value = val_new
+                    best_routes = test_routes_new
+                    best_node = node
 
             for r_idx in range(len(routes)):
+                # Early Pruning: Capacity Constraint Check BEFORE topological iterations
+                current_load = route_loads[r_idx]
+                if current_load + node_waste > capacity:
+                    continue
+
                 result = _try_string_insertion(
-                    routes, node, r_idx, string_type, dist_matrix, wastes, capacity, R, C, rng, profit_mode
+                    routes,
+                    node,
+                    r_idx,
+                    string_type,
+                    dist_matrix,
+                    wastes,
+                    capacity,
+                    R,
+                    C,
+                    rng,
+                    current_load,
+                    profit_mode,
                 )
                 if result:
                     test_routes, val = result
@@ -218,6 +273,10 @@ def stringing_insertion_wrapper(
             routes = best_routes
             unassigned.remove(best_node)
         else:
+            if not use_alns_fallback:
+                # If unable to string properly, and fallback is disabled, abandon unassigned nodes
+                break
+
             # Fallback for remaining nodes that couldn't be strung (too small routes, complex constraints)
             if profit_mode:
                 routes = greedy_profit_insertion(
@@ -259,6 +318,7 @@ def stringing_insertion(
     mandatory_nodes: Optional[List[int]] = None,
     rng: Optional[random.Random] = None,
     expand_pool: bool = False,
+    use_alns_fallback: bool = False,
 ) -> List[List[int]]:
     """Standard CVRP Stringing Repair."""
     return stringing_insertion_wrapper(
@@ -272,6 +332,7 @@ def stringing_insertion(
         rng=rng,
         profit_mode=False,
         expand_pool=expand_pool,
+        use_alns_fallback=use_alns_fallback,
     )
 
 
@@ -287,6 +348,7 @@ def stringing_profit_insertion(
     mandatory_nodes: Optional[List[int]] = None,
     rng: Optional[random.Random] = None,
     expand_pool: bool = False,
+    use_alns_fallback: bool = False,
 ) -> List[List[int]]:
     """VRPP Cost-Aware Stringing Repair."""
     # Feedback implementation: Keep Variants I, II, and III purely structural
@@ -304,4 +366,5 @@ def stringing_profit_insertion(
         rng=rng,
         profit_mode=profit_mode,
         expand_pool=expand_pool,
+        use_alns_fallback=use_alns_fallback,
     )
