@@ -1,9 +1,9 @@
 """
-Configuration parameters for the Differential Evolution (DE) solver.
+Configuration parameters for the Memetic Differential Evolution (MDE) solver.
 
-This module defines the structural constraints and hyper-parameters required to
-instantiate a Differential Evolution algorithm, following the rigorous formulation
-by Storn & Price (1997).
+This module defines the structural constraints and hyper-parameters for MDE,
+hybridizing the rigorous global search of Storn & Price (1997) with
+Lamarckian/Baldwinian local exploitation for efficient VRPP optimization.
 """
 
 from __future__ import annotations
@@ -15,17 +15,19 @@ from typing import Any, Optional
 @dataclass
 class DEParams:
     """
-    Configuration parameters for Differential Evolution (DE/rand/1/bin).
+    Configuration parameters for Memetic Differential Evolution (MDE/rand/1/exp).
 
-    Differential Evolution is a population-based evolutionary algorithm that uses
-    vector differences for mutation and binomial crossover for recombination.
-    Unlike ABC (which is DE with fitness-proportionate selection), DE uses
-    greedy one-to-one selection.
+    Memetic Differential Evolution (MDE) hybridizes the exploratory power of
+    the original DE/rand/1/exp (Storn & Price, 1997) with memetic local search.
+    The core differential operators handle global search in the continuous Random
+    Key space, while Lamarckian or Baldwinian strategies refine the discrete
+    phenotypic solutions, an architectural addition to the original formulation.
 
     Attributes:
-        pop_size (int): Population size (NP). Number of candidate solution vectors.
-            Standard recommendations: NP = 10×D where D is dimensionality.
-            For routing: NP typically 20-100.
+        pop_size (Optional[int]): Population size (NP). Number of candidate solution
+            vectors. If None, scales dynamically as 10×D (where D is problem
+            dimensionality) to satisfy the mutual exclusivity axiom.
+            Recommended range (Storn & Price, 1997): 5×D to 10×D.
 
         mutation_factor (float): Differential weight (F). Scaling factor for the
             mutation vector. Controls the amplification of the differential variation.
@@ -61,18 +63,22 @@ class DEParams:
         time_limit (float): Wall-clock time limit in seconds. Algorithm terminates
             early if process time exceeds this threshold.
 
-    Mathematical Foundation:
-        DE/rand/1/bin strategy:
+    Mathematical Foundation (Core Differential Evolution):
+        MDE/rand/1/exp strategy:
 
-        1. Mutation:
+        1. Mutation (Storn & Price, 1997):
            v_i = x_r1 + F × (x_r2 - x_r3)
            where r1, r2, r3 are distinct random indices ≠ i
 
-        2. Crossover (Binomial):
-           u_ij = v_ij  if rand() < CR or j = j_rand
-                  x_ij  otherwise
+        2. Crossover (Exponential):
+           Inherit a consecutive sequence of parameters from v_i with
+           probability CR until a random stop or full replacement.
 
-        3. Selection (Greedy):
+        3. Memetic Integration (Extension):
+           Local search (Lamarckian/Baldwinian) is applied after crossover
+           to refine the discrete phenotypic solution before selection.
+
+        4. Selection (Greedy):
            x_i(t+1) = u_i  if f(u_i) ≥ f(x_i)
                       x_i  otherwise
 
@@ -82,7 +88,7 @@ class DEParams:
         Journal of Global Optimization, 11(4), 341-359.
     """
 
-    pop_size: int = 50  # Population size (NP)
+    pop_size: Optional[int] = 0  # Population size (NP), scales as 10×D if None or <= 0
     mutation_factor: float = 0.8  # Differential weight (F)
     crossover_rate: float = 0.9  # Crossover probability (CR)
     n_removal: int = 3  # Mutation strength for discrete operators
@@ -98,7 +104,7 @@ class DEParams:
     def from_config(cls, config: Any) -> DEParams:
         """Build parameters from a configuration object."""
         return cls(
-            pop_size=getattr(config, "pop_size", 50),
+            pop_size=getattr(config, "pop_size", None),
             mutation_factor=getattr(config, "mutation_factor", 0.8),
             crossover_rate=getattr(config, "crossover_rate", 0.9),
             n_removal=getattr(config, "n_removal", 3),

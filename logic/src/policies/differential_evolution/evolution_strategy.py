@@ -1,36 +1,28 @@
 """
-Evolution strategies for incorporating local search improvements in Differential Evolution.
+Evolution strategies for Memetic Differential Evolution (MDE).
 
 This module implements the Strategy Pattern to support different approaches for
-handling local search optimization within the DE framework.
-
-Strategies:
-    - Baldwinian Evolution: Phenotypic learning - improved fitness is used for selection,
-      but genetic material (continuous vector) remains unchanged.
-    - Lamarckian Evolution: Genotypic learning - genetic material is updated to reflect
-      the improvements discovered by local search.
+handling local search optimization within the MDE framework.
 
 Theoretical Background:
-    Baldwin (1896) proposed that learning can guide evolution without directly modifying
-    genes. In computational optimization, Baldwinian evolution means:
-        - Local search improves solution quality (phenotype)
-        - Selection is based on improved fitness
-        - Genetic encoding (genotype) is unchanged
+    The original Differential Evolution (DE) algorithm (Storn & Price, 1997)
+    is a "parallel direct search method" that does not include local search.
+    By incorporating Lamarckian or Baldwinian learning, we extend DE into a
+    Memetic Algorithm (MA) specifically designed for the discrete routing domain.
 
-    Lamarck (1809) proposed that acquired characteristics can be inherited. In
-    computational optimization, Lamarckian evolution means:
-        - Local search improves solution quality
-        - Genetic encoding is reverse-engineered from improved solution
-        - Offspring inherit the learned improvements
+    Baldwinian Evolution (Baldwin, 1896):
+        Phenotypic learning - improved fitness is used for selection, but
+        genetic material (continuous vector) remains unchanged.
+
+    Lamarckian Evolution (Lamarck, 1809):
+        Genotypic learning - genetic material is reverse-engineered from the
+        improved solution, allowing offspring to inherit learned improvements.
 
 References:
+    Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and
+    Efficient Heuristic for Global Optimization over Continuous Spaces."
     Whitley, D., Gordon, V.S., & Mathias, K. (1994). "Lamarckian Evolution, the
-    Baldwin Effect and Function Optimization." In PPSN III: Proceedings of the
-    International Conference on Evolutionary Computation, 5-15.
-
-    Houck, C.R., Joines, J.A., & Kay, M.G. (1996). "Comparison of genetic algorithms,
-    random restart and two-opt switching for solving large location-allocation problems."
-    Computers & Operations Research, 23(6), 587-596.
+    Baldwin Effect and Function Optimization."
 """
 
 from abc import ABC, abstractmethod

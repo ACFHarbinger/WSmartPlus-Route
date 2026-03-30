@@ -75,7 +75,7 @@ de:
     # ---------------------------------------------------------------------
     # Population Parameters
     # ---------------------------------------------------------------------
-    - pop_size: 50
+    - pop_size: 0
       # Population size (NP)
       # Range: 20-100
       # Recommendation: NP = 10×D where D is dimensionality

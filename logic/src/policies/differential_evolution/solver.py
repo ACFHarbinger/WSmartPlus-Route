@@ -1,5 +1,5 @@
 """
-Differential Evolution (DE/rand/1/bin) algorithm for VRPP using Random Key encoding.
+Memetic Differential Evolution (MDE/rand/1/exp) algorithm for VRPP.
 
 This module implements the rigorous Differential Evolution algorithm as formulated
 by Storn & Price (1997), using continuous Random Key (RK) representation to properly
@@ -10,17 +10,17 @@ Random Key Encoding:
     - Decoding: nodes with positive keys are selected, sorted by key value
     - This enables true continuous DE operators while maintaining discrete feasibility
 
-Algorithm:
-    1. Initialize population with NP ≥ 4 random continuous vectors (minimum axiom)
+Algorithm (Core DE):
+    1. Initialize population with NP ≥ 4 continuous vectors (Gaussian-augmented)
     2. For each generation:
         a. Mutation: For each target vector x_i, create mutant v_i = x_r1 + F(x_r2 - x_r3)
            where r1, r2, r3 are mutually exclusive indices distinct from i
-        b. Crossover: Create trial vector u_i by binomial crossover between x_i and v_i
-        c. Decode: Convert continuous trial vector to discrete VRPP routes
+        b. Crossover: Create trial vector u_i by exponential crossover
+        c. Local Search (Memetic Addition): Refine discrete phenotypic solution
         d. Selection: Greedy replacement - keep u_i if f(u_i) ≥ f(x_i), else keep x_i
 
 Mutual Exclusivity Axiom:
-    The DE/rand/1/bin strategy REQUIRES that indices r1, r2, r3 used in mutation
+    The MDE/rand/1/exp strategy REQUIRES that indices r1, r2, r3 used in mutation
     satisfy: r1 ≠ r2 ≠ r3 ≠ i. This mandates a minimum population size of 4.
 
     Without this constraint, the algorithm degenerates to:
@@ -64,14 +64,14 @@ from .params import DEParams
 
 class DESolver:
     """
-    Differential Evolution (DE/rand/1/bin) solver for VRPP using Random Key encoding.
+    Memetic Differential Evolution (MDE) solver for VRPP.
 
-    Implements the classical continuous DE algorithm with:
-    - Random base vector selection (DE/rand)
-    - Single differential mutation vector (DE/rand/1)
-    - Binomial crossover (DE/rand/1/bin)
-    - Greedy selection
-    - Random Key decoding for discrete VRPP solutions
+    Hybridizes the exploratory power of DE/rand/1/exp (Storn & Price, 1997)
+    with memetic local search. Key features include:
+    - Random Key encoding for continuous mutation/crossover
+    - Local Search reinforcement (Lamarckian/Baldwinian memetic addition)
+    - Dynamic population scaling (NP depends on dimensionality D)
+    - Bounce-back boundary handling for genetic diversity
     """
 
     def __init__(
@@ -84,34 +84,22 @@ class DESolver:
         params: DEParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize the DE solver with strict mathematical verification.
+        self.n_nodes = len(dist_matrix) - 1
+        self.nodes = list(range(1, self.n_nodes + 1))
 
-        Args:
-            dist_matrix: Distance matrix of shape (n+1, n+1), index 0 is depot.
-            wastes: Mapping of node IDs to waste quantities.
-            capacity: Maximum vehicle capacity constraint.
-            R: Revenue per unit waste collected.
-            C: Cost per unit distance traveled.
-            params: DE configuration parameters.
-            mandatory_nodes: Nodes that must be included in any solution.
+        # Determine population size (NP) scaling
+        # Storn & Price (1997) explicitly recommend NP between 5D and 10D
+        if params.pop_size is None or params.pop_size <= 0:
+            self.pop_size = max(10 * self.n_nodes, 4)
+        else:
+            self.pop_size = params.pop_size
 
-        Raises:
-            ValueError: If population size < 4, violating the mutual exclusivity axiom.
-
-        Mathematical Requirement:
-            The DE/rand/1/bin mutation operator requires selecting three distinct
-            indices (r1, r2, r3) different from the target index i. This necessitates
-            a minimum population size of 4 to satisfy: r1 ≠ r2 ≠ r3 ≠ i.
-
-            Reference: Storn & Price (1997), Equation (4), page 344.
-        """
         # Verify mutual exclusivity axiom (minimum population size)
-        if params.pop_size < 4:
+        if self.pop_size < 4:
             raise ValueError(
-                f"Population size must be at least 4 to satisfy the DE/rand/1/bin "
+                f"Population size NP must be at least 4 to satisfy the MDE/rand/1/exp "
                 f"mutual exclusivity axiom (r1 ≠ r2 ≠ r3 ≠ i). "
-                f"Got pop_size={params.pop_size}. "
+                f"Got NP={self.pop_size}. "
                 f"This is a mathematical requirement, not a hyperparameter choice. "
                 f"See Storn & Price (1997), Journal of Global Optimization, 11(4), 341-359."
             )
@@ -123,8 +111,6 @@ class DESolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
-        self.n_nodes = len(dist_matrix) - 1
-        self.nodes = list(range(1, self.n_nodes + 1))
 
         # NumPy RNG for continuous operations (DE mutation/crossover)
         self.rng = np.random.RandomState(params.seed if params.seed is not None else 42)
@@ -133,6 +119,13 @@ class DESolver:
 
         # Evolution strategy for handling local search improvements
         self.evo_strategy = create_evolution_strategy(self.params.evolution_strategy)
+
+        # Theoretical Note on Objective Polarity (Storn & Price, 1997):
+        # The original DE formulation is defined strictly as a minimization task
+        # [min f(x)]. This implementation maximizes net profit (Revenue - Cost),
+        # which is mathematically equivalent to minimizing negative profit
+        # [min -P(x)]. Greedy selection and crossover comparisons are adapted
+        # accordingly to preserve correctness under this polarity shift.
 
         # Pre-instantiate local search for reuse
         aco_params = KSACOParams(
@@ -215,46 +208,29 @@ class DESolver:
             # population using NumPy matrix operations, achieving 50× speedup over
             # sequential scalar operations.
 
-            # --- Task 1: Vectorized Index Selection ---
-            # Generate mutually exclusive index arrays for entire population.
-            # CRITICAL: This enforces the mathematical axiom r1 ≠ r2 ≠ r3 ≠ i
-            # as mandated by Storn & Price (1997). Without this, the differential
-            # vector (x_r2 - x_r3) can collapse to zero, degrading DE to random search.
-            r1, r2, r3 = self._generate_mutation_indices(self.params.pop_size)
+            # --- Task 1: Vectorized Mutation Index Generation (Hardware Accelerated) ---
+            # Broad-scale selection of 3 mutually exclusive indices for all i simultaneously.
+            # Ensures r1[i] != r2[i] != r3[i] != i as mandated by Storn & Price (1997).
+            r1, r2, r3 = self._generate_mutation_indices(self.pop_size)
 
-            # --- Task 2: Vectorized Differential Mutation ---
-            # Classical DE mutation formula (Storn & Price 1997, Eq. 4):
-            #   v_i = x_r1 + F × (x_r2 - x_r3)
-            # Applied to entire population simultaneously via NumPy broadcasting.
+            # --- Task 2: Vectorized Differential Mutation (Storn & Price 1997, Eq. 4) ---
+            # mutant = x_r1 + F * (x_r2 - x_r3)
             mutant_pop = population[r1] + self.params.mutation_factor * (population[r2] - population[r3])
 
-            # Enforce Random Key domain bounds [-1.0, 1.0] to prevent vector explosion
-            mutant_pop = np.clip(mutant_pop, -1.0, 1.0)
+            # --- Task 3: Vectorized Boundary Handling (Bounce-back) ---
+            # Prevents boundary accumulation in Random Key domains.
+            mutant_pop = self._apply_boundary_handling(mutant_pop, population[r1])
 
-            # --- Task 3: Vectorized Binomial Crossover ---
-            # Classical DE crossover formula (Storn & Price 1997, Eq. 8):
-            #   u_ij = v_ij  if rand() < CR ∨ j = j_rand
-            #          x_ij  otherwise
-            # Generate boolean mask for entire population: shape (pop_size, n_nodes)
-            cross_mask = self.rng.random((self.params.pop_size, self.n_nodes)) < self.params.crossover_rate
-
-            # Enforce DE rule: at least one dimension must inherit from mutant
-            # This ensures every trial vector differs from its parent (prevents cloning)
-            j_rand = self.rng.randint(0, self.n_nodes, size=self.params.pop_size)
-            cross_mask[np.arange(self.params.pop_size), j_rand] = True
-
-            # Construct trial population via element-wise selection
-            trial_pop = np.where(cross_mask, mutant_pop, population)
-
-            # Final domain enforcement (defense-in-depth)
-            trial_pop = np.clip(trial_pop, -1.0, 1.0)
+            # --- Task 4: Vectorized Exponential Crossover (MDE/rand/1/exp) ---
+            # Simultaneously create trial vectors for the entire population.
+            trial_pop = self._vectorized_exponential_crossover(population, mutant_pop)
 
             # =====================================================================
             # SEQUENTIAL DISCRETE EVALUATION (Routing Logic Non-Vectorizable)
             # =====================================================================
 
-            # --- Task 4: Sequential Decoding and Evaluation ---
-            for i in range(self.params.pop_size):
+            # --- Task 5: Sequential Decoding and Evaluation ---
+            for i in range(self.pop_size):
                 # Extract continuous trial vector for this individual
                 trial_vector = trial_pop[i]
 
@@ -278,8 +254,8 @@ class DESolver:
                         encoder_func=self._encode_routes,
                     )
 
-                    # Enforce domain bounds on surviving vector as final safety check
-                    surviving_vector = np.clip(surviving_vector, -1.0, 1.0)
+                    # Update surviving vector with boundary handling
+                    surviving_vector = self._apply_boundary_handling(surviving_vector, population[i])
 
                     population[i] = surviving_vector
                     decoded_population[i] = trial_routes
@@ -295,7 +271,7 @@ class DESolver:
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,
-                pop_size=self.params.pop_size,
+                pop_size=self.pop_size,
             )
 
         return best_routes, best_profit, best_cost
@@ -306,57 +282,61 @@ class DESolver:
 
     def _generate_mutation_indices(self, pop_size: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Generate mutually exclusive mutation indices for vectorized DE operations.
+        Pure NumPy implementation of 3 mutually exclusive random indices for all i.
 
-        MATHEMATICAL REQUIREMENT (Storn & Price 1997, Eq. 4):
-            For each target vector x_i, the mutation operator requires selecting
-            three distinct base vectors x_r1, x_r2, x_r3 where:
-                r1 ≠ r2 ≠ r3 ≠ i
+        Ensures r1[i] != r2[i] != r3[i] != i for all i in [0, pop_size) using
+        offset-based modulo arithmetic, avoiding sequential Python loops.
 
-        This mutual exclusivity axiom is NOT optional—it is fundamental to DE:
-            - If r1 = r2 = r3: differential (x_r2 - x_r3) = 0 → random search
-            - If any r_j = i: no mutation from current solution → cloning
-            - If r1 = r2 or r2 = r3: reduced exploration, biased search
-
-        Implementation Strategy:
-            Uses fast list comprehension to generate candidate pool excluding i,
-            then samples 3 distinct indices without replacement. This is O(pop_size)
-            and negligible compared to O(pop_size × n) matrix operations.
-
-        Args:
-            pop_size: Size of the population (must be ≥ 4, verified in __init__)
-
-        Returns:
-            Tuple of three index arrays (r1, r2, r3), each of shape (pop_size,)
-            satisfying the mutual exclusivity constraint for all i.
-
-        Complexity:
-            Time: O(pop_size) - linear index generation
-            Space: O(pop_size) - three index arrays
-
-        Mathematical Guarantee:
-            ∀i ∈ [0, pop_size): r1[i] ≠ r2[i] ≠ r3[i] ≠ i
-
-        References:
-            Storn, R., & Price, K. (1997). Equation (4), page 344.
-            "The mutation operation creates a mutant vector v_i by adding the
-            weighted difference of two population vectors to a third one."
+        Complexity: O(NP^2) for offset generation, hardware-accelerated.
         """
-        r1 = np.zeros(pop_size, dtype=int)
-        r2 = np.zeros(pop_size, dtype=int)
-        r3 = np.zeros(pop_size, dtype=int)
+        # Generate 3 distinct offsets in [1, pop_size-1] for each individual i.
+        # By adding these offsets to i modulo pop_size, we guarantee r_j != i.
+        # By ensuring offsets are unique per i, we guarantee r1 != r2 != r3.
+        num_offsets = pop_size - 1
+        offset_perms = np.argsort(self.rng.rand(pop_size, num_offsets), axis=1) + 1
 
-        for i in range(pop_size):
-            # Generate candidate pool excluding target index i
-            # This ensures none of {r1, r2, r3} can equal i
-            candidates = [j for j in range(pop_size) if j != i]
+        # Select first 3 random offsets
+        offsets = offset_perms[:, :3]
 
-            # Select three distinct indices without replacement
-            # This ensures r1 ≠ r2 ≠ r3
-            indices = self.rng.choice(candidates, size=3, replace=False)
-            r1[i], r2[i], r3[i] = indices[0], indices[1], indices[2]
+        # Compute final indices using broadcasting and modulo
+        rows = np.arange(pop_size)[:, None]
+        r_indices = (rows + offsets) % pop_size
 
-        return r1, r2, r3
+        return r_indices[:, 0], r_indices[:, 1], r_indices[:, 2]
+
+    def _vectorized_exponential_crossover(self, target_pop: np.ndarray, mutant_pop: np.ndarray) -> np.ndarray:
+        """
+        Fully vectorized implementation of Exponential Crossover.
+
+        Replaces the sequential population loop with a single matrix operation
+        using 2D Boolean masks and probabilistic sequence length calculation.
+
+        Behavior:
+            - Start index 'n' is random for each participant.
+            - Continuous inheritance from mutant until geometric stop or full cycle.
+            - Mathematically equivalent to the do...while loop across NP individuals.
+        """
+        NP, D = target_pop.shape
+        CR = self.params.crossover_rate
+
+        # 1. Select starting indices n for each individual
+        n_starts = self.rng.randint(0, D, size=NP)
+
+        # 2. Simulate the do...while loop with a Geometric Stop
+        # P(L=k) = CR^(k-1) * (1-CR) for k in [1, D]
+        # In NP, this is equivalent to generating masks from random values.
+        # Stop probability is (1 - CR).
+        L = self.rng.geometric(1 - CR, size=NP)
+        L = np.clip(L, 1, D)
+
+        # 3. Create the crossover mask
+        # For each i, mutant contributes indices [n[i], n[i] + L[i]) modulo D.
+        idx_grid = np.arange(D)
+        # Calculate circular distance: (j - n_starts[i]) % D
+        dist = (idx_grid - n_starts[:, None]) % D
+        mask = dist < L[:, None]
+
+        return np.where(mask, mutant_pop, target_pop)
 
     # ------------------------------------------------------------------
     # Private helpers: Population initialization
@@ -367,31 +347,40 @@ class DESolver:
         Initialize population as continuous Random Key vectors.
 
         Strategy:
-            - First individual: Heuristic seeding from greedy solution
-            - Remaining individuals: Uniform random in [-1.0, 1.0]
+            - Heuristic seeding: Seed first 10% of NP with Gaussian-noisy versions
+              of the greedy solution (sigma=0.1) as per Storn & Price (1997).
+            - Remaining individuals: Uniform random in [-1.0, 1.0].
 
-        This prevents complete stagnation while maintaining diversity.
+        By adding normally distributed deviations to a preliminary solution, we
+        create a high-quality initial exploration manifold, accelerating
+        convergence while the remaining random individuals preserve diversity.
 
         Returns:
-            Population matrix of shape (pop_size, n_nodes) in [-1.0, 1.0]
+            Population matrix of shape (pop_size, n_nodes) in [-1.0, 1.0].
         """
-        population = np.zeros((self.params.pop_size, self.n_nodes))
+        population = np.zeros((self.pop_size, self.n_nodes))
 
-        # Optional: Seed first individual with greedy heuristic
-        if self.params.pop_size > 0:
-            greedy_routes = build_greedy_routes(
-                dist_matrix=self.dist_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                R=self.R,
-                C=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-                rng=self.py_rng,
-            )
-            population[0] = self._encode_routes(greedy_routes)
+        # Generate base greedy solution
+        greedy_routes = build_greedy_routes(
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            R=self.R,
+            C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
+            rng=self.py_rng,
+        )
+        greedy_vector = self._encode_routes(greedy_routes)
+
+        # Seed first 10% of population (minimum 1) with Gaussian deviations
+        n_seeded = max(1, self.pop_size // 10)
+        for i in range(n_seeded):
+            # Storn & Price (1997) suggest Gaussian noise for preliminary solutions
+            noise = self.rng.normal(0, 0.1, size=self.n_nodes)
+            population[i] = np.clip(greedy_vector + noise, -1.0, 1.0)
 
         # Initialize remaining population uniformly at random
-        for i in range(1, self.params.pop_size):
+        for i in range(n_seeded, self.pop_size):
             population[i] = self.rng.uniform(-1.0, 1.0, size=self.n_nodes)
 
         return population
@@ -513,6 +502,72 @@ class DESolver:
             routes.append(current_route)
 
         return routes
+
+    # ------------------------------------------------------------------
+    # Private helpers: Memory-preserving boundary handling
+    # ------------------------------------------------------------------
+
+    def _apply_boundary_handling(self, vector: np.ndarray, base_vector: np.ndarray) -> np.ndarray:
+        """
+        Apply bounce-back boundary handling to preserve genetic diversity.
+
+        While Storn & Price (1997) suggested incorporating parameter bounds via
+        penalty constraints, we employ a "bounce-back" method here. This is a
+        modern alternative that reassigns out-of-bounds values to a uniform
+        random position between the base vector and the violated boundary,
+        effectively preventing "boundary accumulation" in Random Key domains.
+
+        Args:
+            vector: The continuous vector to bound.
+            base_vector: The reference vector (mutant base or target parent).
+
+        Returns:
+            Bounded vector strictly within [-1.0, 1.0].
+        """
+        # Lower bound violation
+        low_mask = vector < -1.0
+        if np.any(low_mask):
+            # x_new = base + rand * (boundary - base)
+            vector[low_mask] = base_vector[low_mask] + self.rng.rand(np.sum(low_mask)) * (-1.0 - base_vector[low_mask])  # type: ignore[call-overload]
+
+        # Upper bound violation
+        high_mask = vector > 1.0
+        if np.any(high_mask):
+            vector[high_mask] = base_vector[high_mask] + self.rng.rand(np.sum(high_mask)) * (  # type: ignore[call-overload]
+                1.0 - base_vector[high_mask]
+            )
+
+        return vector
+
+    # ------------------------------------------------------------------
+    # Private helpers: Exponential crossover
+    # ------------------------------------------------------------------
+
+    def _exponential_crossover(self, target: np.ndarray, mutant: np.ndarray) -> np.ndarray:
+        """
+        Perform exponential crossover (DE/rand/1/exp).
+
+        Following Storn & Price (1997), a series of consecutive parameters
+        are inherited from the mutant starting from a random index j.
+
+        Mathematical Logic:
+            n = rand(D); L = 0;
+            do {
+                u[n] = v[n];
+                n = (n + 1) % D;
+                L = L + 1;
+            } while (rand() < CR && L < D);
+        """
+        trial = target.copy()
+        n = self.rng.randint(0, self.n_nodes)
+        L = 0
+        while True:
+            trial[n] = mutant[n]
+            n = (n + 1) % self.n_nodes
+            L += 1
+            if self.n_nodes <= L or self.rng.rand() >= self.params.crossover_rate:
+                break
+        return trial
 
     # ------------------------------------------------------------------
     # Private helpers: Continuous DE operators (Legacy - kept for reference)
