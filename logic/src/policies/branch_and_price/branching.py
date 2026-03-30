@@ -19,9 +19,15 @@ RyanFosterBranchingConstraint
 
 Both constraint classes expose a common ``is_route_feasible(route)`` method
 used by the master problem to filter its existing column pool whenever a new
-B&B node is created.  Newly generated columns are already guaranteed feasible
-by construction (the pricing DP enforces edge constraints during extension;
-the heuristic pricing enforces both constraint types during construction).
+B&B node is created.
+
+Note on VRPP Selection:
+----------------------
+Ryan-Foster branching is utilized for VRPP because it appropriately modifies
+the Resource-Constrained Shortest Path Problem (RCSPP) used for pricing by
+enforcing or forbidding node pairs. This differs from Barnhart et al. (1998),
+who primarily used divergence branching to maintain simple shortest paths
+for the Origin-Destination Integer Multicommodity Flow (ODIMCF) problem.
 """
 
 from __future__ import annotations
@@ -317,11 +323,13 @@ class EdgeBranching:
         return left, right
 
 
-class DivergenceNodeBranching:
+class MultiEdgePartitionBranching:
     """
-    Divergence node branching for multicommodity flow problems (Barnhart et al. 1998).
+    Multi-edge partition branching (single-commodity adaptation of divergence branching).
 
-    In Origin-Destination Integer Multicommodity Flow (ODIMCF) formulations,
+    For single-commodity VRP, this partitions the outgoing edges of a node
+    to break fractional solutions. In multicommodity contexts, this is
+    equivalent to Divergence Node Branching (Barnhart et al. 1998).
     branching on divergence nodes is more effective than Ryan-Foster branching.
 
     Concept:
@@ -438,12 +446,12 @@ class DivergenceNodeBranching:
         constraints_2 = [EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_2]
 
         left = BranchNode(
-            constraints=constraints_1,
+            constraints=constraints_1,  # type: ignore[arg-type]
             parent=parent,
             depth=parent.depth + 1,
         )
         right = BranchNode(
-            constraints=constraints_2,
+            constraints=constraints_2,  # type: ignore[arg-type]
             parent=parent,
             depth=parent.depth + 1,
         )
@@ -458,6 +466,11 @@ class RyanFosterBranching:
     Produces two child nodes:
         left  → r and s MUST be in the same route  (together = True)
         right → r and s MUST NOT be in the same route (together = False)
+
+    **WARNING:** Ryan-Foster branching loses its theoretical exactness
+    guarantee when applied to a Set Covering master problem (>= 1), as it
+    can erroneously prune optimal over-covering solutions. Use 'edge'
+    branching for rigorous proofs of optimality.
 
     Reference: Ryan & Foster (1981), Proposition 1.
     """
@@ -501,7 +514,8 @@ class RyanFosterBranching:
                     for idx, val in route_values.items()
                     if r in routes[idx].node_coverage and s in routes[idx].node_coverage
                 )
-                if tol < together_sum < 1.0 - tol:
+                frac = together_sum % 1.0
+                if tol < frac < 1.0 - tol:
                     return (r, s)
 
         return None
@@ -561,13 +575,15 @@ class BranchAndBoundTree:
     of nodes explored before proving optimality.
     """
 
-    def __init__(self, strategy: str = "edge") -> None:
+    def __init__(self, strategy: str = "edge", search_strategy: str = "best_first") -> None:
         """
         Initialise the B&B tree.
 
         Args:
             strategy: Branching strategy — ``"edge"`` (default),
                 ``"ryan_foster"``, or ``"divergence"``.
+            search_strategy: Node selection strategy — ``"best_first"`` (default)
+                or ``"depth_first"``.
 
         Raises:
             ValueError: If an unsupported strategy string is provided.
@@ -576,7 +592,11 @@ class BranchAndBoundTree:
             raise ValueError(
                 f"Unsupported branching strategy '{strategy}'. Choose 'edge', 'ryan_foster', or 'divergence'."
             )
+        if search_strategy not in ("best_first", "depth_first"):
+            raise ValueError(f"Unsupported search strategy '{search_strategy}'. Choose 'best_first' or 'depth_first'.")
+
         self.strategy: str = strategy
+        self.search_strategy: str = search_strategy
         self.root: BranchNode = BranchNode()
         self.open_nodes: List[BranchNode] = [self.root]
         self.best_integer_solution: Optional[float] = None
@@ -590,18 +610,26 @@ class BranchAndBoundTree:
 
     def get_next_node(self) -> Optional[BranchNode]:
         """
-        Pop and return the open node with the highest LP bound (best-first).
+        Pop and return the next open node based on the search strategy.
+
+        - "best_first": Picks node with highest LP bound.
+        - "depth_first": Picks latest added node (LIFO).
 
         Returns:
             Next node to process, or None if the frontier is empty.
         """
         if not self.open_nodes:
             return None
-        self.open_nodes.sort(
-            key=lambda n: n.lp_bound if n.lp_bound is not None else float("-inf"),
-            reverse=True,
-        )
-        return self.open_nodes.pop(0)
+
+        if self.search_strategy == "best_first":
+            self.open_nodes.sort(
+                key=lambda n: n.lp_bound if n.lp_bound is not None else float("-inf"),
+                reverse=True,
+            )
+            return self.open_nodes.pop(0)
+        else:
+            # depth_first (LIFO)
+            return self.open_nodes.pop()
 
     def add_node(self, node: BranchNode) -> None:
         """Enqueue a new open node."""
@@ -639,12 +667,12 @@ class BranchAndBoundTree:
                 return None
             u, v = arc
             return EdgeBranching.create_child_nodes(node, u, v)
-        elif self.strategy == "divergence":
-            result = DivergenceNodeBranching.find_divergence_node(routes, route_values)
-            if result is None:
-                return None
-            div_node, arc_set_1, arc_set_2 = result
-            return DivergenceNodeBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2)
+        elif self.strategy == "multi_edge_partition":
+            res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values)
+            if res is not None:
+                div_node, arc_set_1, arc_set_2 = res
+                return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2)
+            return None
         else:  # ryan_foster
             pair = RyanFosterBranching.find_branching_pair(routes, route_values)
             if pair is None:

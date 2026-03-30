@@ -22,9 +22,15 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
     """
     Adapter for the exact Branch-and-Bound routing solver.
 
-    This policy implements the deterministic Land and Doig search engine,
-    mapping high-level simulation states (fill levels, distance matrices)
-    into a structured mathematical programming model.
+    This policy implements a deterministic Best-Bound-First Branch-and-Bound
+    search engine based on LP relaxations, mapping high-level simulation
+    states (fill levels, distance matrices) into a structured mathematical
+    programming model.
+
+    The custom Python implementation of the B&B tree is purposefully designed
+    for **full observability of the search state**, enabling the internal
+    integration of machine learning components (e.g., neural branching
+    heuristics) that are otherwise opaque in closed-source commercial solvers.
 
     As an exact solver, it guarantees global optimality within the specified
     MIP gap, provided the search terminates within the time limit.

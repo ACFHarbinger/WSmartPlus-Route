@@ -119,9 +119,14 @@ class VRPPMasterProblem:
         self.R = revenue_per_kg
         self.C = cost_per_km
         self.vehicle_limit = vehicle_limit
-        self.depot = 0
 
-        # Column pool
+        # Task 5 & Part 5 Task 4: Dynamic Big-M for Numerical Stability
+        # Penalty must strictly exceed the max possible profit of ANY single route.
+        max_single_node_revenue = max(self.wastes.values(), default=0.0) * self.R
+        # A route visits at most n_nodes customers.
+        max_route_profit = max_single_node_revenue * self.n_nodes
+        self.BIG_M = max(1000.0, 2.0 * max_route_profit)
+
         self.routes: List[Route] = []
 
         # Gurobi model
@@ -133,14 +138,52 @@ class VRPPMasterProblem:
         # LP feasibility is preserved throughout the entire B&B tree.
         self.artificial_vars: Dict[int, gp.Var] = {}
 
-        # Big-M penalty applied to artificial variables in the objective.
-        # Must be strictly larger than the maximum achievable profit to ensure
-        # that artificial variables are zero in any non-infeasible solution.
-        self.BIG_M: float = 1e6
-
         # Dual values extracted after each LP solve (used by pricing subproblem)
         self.dual_node_coverage: Dict[int, float] = {}
         self.dual_vehicle_limit: float = 0.0
+
+    def remove_unpromising_columns(self, threshold: float) -> int:
+        """
+        Remove columns with highly negative reduced costs from the model.
+
+        Frees up memory and accelerates LP solves by keeping the model small.
+        Only non-basic variables (X=0) are candidates for deletion.
+
+        Args:
+            threshold: Reduced cost cutoff (e.g., -100.0).  Variables with
+                RC < threshold are deleted.
+
+        Returns:
+            Number of columns removed.
+        """
+        if self.model is None or not self.lambda_vars:
+            return 0
+
+        # Identify indices to remove. We check RC (reduced cost) and X (value).
+        # In a maximization LP, non-basic variables have RC <= 0.
+        to_remove: List[int] = []
+        for i, var in enumerate(self.lambda_vars):
+            try:
+                # var.RC is the reduced cost in Gurobi.
+                # var.X is the value (0.0 for non-basic columns in most cases).
+                if var.X < 1e-6 and threshold > var.RC:
+                    to_remove.append(i)
+            except gp.GurobiError:
+                # RC might not be available if the model wasn't solved optimally
+                continue
+
+        if not to_remove:
+            return 0
+
+        # Remove columns from Gurobi and local pool.
+        # We must delete in reverse index order to maintain valid indexing.
+        for i in sorted(to_remove, reverse=True):
+            self.model.remove(self.lambda_vars[i])
+            self.lambda_vars.pop(i)
+            self.routes.pop(i)
+
+        self.model.update()
+        return len(to_remove)
 
     # ------------------------------------------------------------------
     # Column management
@@ -216,6 +259,11 @@ class VRPPMasterProblem:
         """
         self.model = gp.Model("VRPP_Master")
         self.model.Params.OutputFlag = 0
+        # Use the Barrier (Interior Point) algorithm to solve the LP relaxation.
+        # This finds a central optimal dual solution, preventing the "bang-bang"
+        # extreme-point oscillation typical in degenerate set covering problems.
+        # Reference: Barnhart et al. (1998).
+        self.model.Params.Method = 2
         self.lambda_vars = []
         self.artificial_vars = {}
 
@@ -236,13 +284,12 @@ class VRPPMasterProblem:
         # in the maximisation objective, so the solver is strongly incentivised
         # to drive them to zero by selecting routes that cover node i.
         for node in self.mandatory_nodes:
-            alpha = self.model.addVar(
-                obj=-self.BIG_M,  # Penalise artificial variable (maximisation)
+            self.artificial_vars[node] = self.model.addVar(
+                obj=-self.BIG_M,
                 vtype=GRB.CONTINUOUS,
                 lb=0.0,
-                name=f"artificial_{node}",
+                name=f"alpha_{node}",
             )
-            self.artificial_vars[node] = alpha
 
         # ---- Mandatory-node coverage constraints (Set Covering: >= 1) ----
         # Using >= 1 instead of == 1:
@@ -334,8 +381,9 @@ class VRPPMasterProblem:
         self.dual_node_coverage = {}
         for node in range(1, self.n_nodes + 1):
             constr = self.model.getConstrByName(f"coverage_{node}")
-            if constr is not None:
-                self.dual_node_coverage[node] = abs(constr.Pi)
+            # Shadow prices (π) of >= constraints in a maximization problem are
+            # non-positive. We clamp to zero to filter numerical noise.
+            self.dual_node_coverage[node] = max(0.0, -constr.Pi)  # type: ignore[union-attr]
 
         # For the <= vehicle-limit constraint in a MAX LP, the dual is the
         # opportunity cost of using one more vehicle; clamp to non-negative.

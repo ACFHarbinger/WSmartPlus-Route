@@ -53,10 +53,10 @@ class BestFirstSearch(NodeSelectionStrategy):
     """
     Best-First Search strategy: selects node with highest LP objective bound.
 
-    This is the standard choice for VRP problems as it:
-    - Minimizes the number of nodes explored before proving optimality
-    - Provides tight bounds early in the search
-    - Works well when the LP relaxation is strong
+    While standard for various optimization problems, in the context of BPC
+    for VRPP, it can be less efficient than Depth-First Search because it
+    frequently jumps across different tree branches, preventing effective
+    LP basis reuse.
 
     Characteristics:
     - Time complexity: O(n log n) per selection (due to sorting)
@@ -65,9 +65,9 @@ class BestFirstSearch(NodeSelectionStrategy):
     - Basis reuse: Poor (jumps across different tree branches)
 
     Best used for:
-    - VRP and VRPP problems with tight LP relaxations
-    - Problems where proving optimality quickly is more important than
-      finding good feasible solutions early
+    - Small VRPP instances where tree depth is limited.
+    - Situations where proving optimality with the fewest nodes is
+      prioritized over computational speed per node.
     """
 
     def select_node(self, open_nodes: List[BranchNode]) -> Optional[BranchNode]:
@@ -100,10 +100,11 @@ class DepthFirstSearch(NodeSelectionStrategy):
     """
     Depth-First Search strategy: selects deepest node in the tree.
 
-    This strategy is recommended for multicommodity flow problems where:
-    - LP solves dominate the computational time
-    - Reusing the parent's LP basis significantly speeds up child LP solves
-    - The branching tree is relatively balanced
+    This is the preferred default strategy for the BPC solver as it:
+    - Maximizes LP basis reuse by staying within the same branch.
+    - Achieves significant speedups (often 3-5x) by resolving child LPs
+      from the parent's basis using dual simplex.
+    - Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998).
 
     Characteristics:
     - Time complexity: O(n) per selection (simple depth comparison)
@@ -112,9 +113,9 @@ class DepthFirstSearch(NodeSelectionStrategy):
     - Basis reuse: Excellent (stays within same branch until fathomed)
 
     Best used for:
-    - ODIMCF (Origin-Destination Integer Multicommodity Flow)
-    - Problems where LP solve time dominates pricing time
-    - Problems with weak LP relaxations where many nodes must be explored
+    - High-performance BPC on VRPP where LP solve time dominates.
+    - Large instances where memory management of Basis information
+      for Best-First search would be prohibitive.
 
     Implementation Note:
     ----------------------
