@@ -1,16 +1,24 @@
 """
 Internal Branch-and-Price-and-Cut (BPC) engine.
 
-Implements exact Branch-and-Price-and-Cut algorithm with:
-- Column Generation at every B&B node (LP relaxation)
-- Pricing Subproblem (RCSPP via dynamic programming)
-- Valid inequalities (Rounded Capacity Cuts for VRPP Set Packing)
-- Branch-and-Bound tree with Ryan-Foster branching
+This module provides an exact Branch-and-Price-and-Cut (BPC) solver adapted for the
+Vehicle Routing Problem with Profits (VRPP). While it borrows the high-level
+algorithmic sequencing from the BPC framework for multicommodity flow (Barnhart et al., 1998),
+it is specifically tailored for the VRPP context.
+
+Key Features:
+- Adapts BPC sequencing: Column generation to convergence, followed by cut separation,
+  followed by branching.
+- Pricing Subproblem: Solves the Resource-Constrained Shortest Path Problem (RCSPP)
+  via dynamic programming.
+- Branching: Employs Ryan-Foster branching, which is suited for VRPP as it
+  directly modifies the pricing problem's state space.
+- Valid Inequalities: Includes Rounded Capacity Cuts (RCC) for the VRPP context.
 
 References:
-    - Barnhart, C., Hane, C. A., & Vance, P. H. (1998).
-      "Using Branch-and-Price-and-Cut to Solve Origin-Destination Integer
-      Multicommodity Flow Problems." Operations Research, 48(2), 318-326.
+    - Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., & Vance, P. H. (1998).
+      "Branch-and-price: Column generation for solving huge integer programs."
+      Operations Research, 46(3), 316-329.
     - Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004).
       "A new branch-and-cut algorithm for the capacitated vehicle routing problem."
     - Ryan, D. M., & Foster, B. A. (1981).
@@ -80,8 +88,12 @@ def _apply_branching_to_master(
 
     References:
     -----------
-    Barnhart et al. (1998), Section 4: "Variable fixing is more efficient than
-    adding explicit branching constraints to the master problem LP."
+    Ryan-Foster branching (1981) is used here because it appropriately modifies the
+    Resource-Constrained Shortest Path Problem (RCSPP) used for VRPP pricing by
+    forbidding or enforcing pairs of nodes in the generated routes.
+    This diverges from Barnhart et al. (1998), who utilized divergence branching
+    to preserve simple shortest paths in the context of Origin-Destination
+    Integer Multicommodity Flow (ODIMCF).
     """
     if not branching_constraints or master.model is None:
         return
@@ -273,10 +285,10 @@ def run_custom_bpc(
 
     1. Initial Column Generation via greedy heuristics
     2. Branch-and-Bound tree with pluggable branching strategies
-    3. Column Generation at every B&B node (corrected sequencing)
+    3. Column Generation at every B&B node (following exact BPC sequencing)
     4. Exact Pricing via RCSPP
-    5. Modular Valid Inequalities (RCC, LCI)
-    6. Configurable search strategy (Best-First, Depth-First)
+    5. Modular Valid Inequalities (RCC)
+    6. Configurable search strategy (Depth-First search is preferred for basis reuse)
 
     Algorithm Overview:
     - Initialize B&B tree with root node and selected strategy
@@ -299,8 +311,8 @@ def run_custom_bpc(
             - max_cuts_per_iteration: Max cuts to add per iteration (default 5)
             - max_bb_nodes: Max B&B nodes to explore (default 1000)
             - time_limit: Time limit in seconds (optional)
-            - search_strategy: "best_first" or "depth_first" (default "best_first")
-            - cutting_planes: "rcc" or "lci" (default "rcc")
+            - search_strategy: "best_first" or "depth_first" (default "depth_first")
+            - cutting_planes: "rcc" (default "rcc")
             - branching_strategy: "ryan_foster", "edge", or "divergence" (default "ryan_foster")
         mandatory_nodes: List of mandatory node indices
         expand_pool: Whether to expand initial route pool
@@ -321,7 +333,7 @@ def run_custom_bpc(
     time_limit = values.get("time_limit")
 
     # Strategy Configuration
-    search_strategy_name = values.get("search_strategy", "best_first")
+    search_strategy_name = values.get("search_strategy", "depth_first")
     cutting_planes_name = values.get("cutting_planes", "rcc")
     branching_strategy_name = values.get("branching_strategy", "ryan_foster")
 

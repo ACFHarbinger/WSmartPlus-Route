@@ -14,8 +14,7 @@ References:
     Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the Resolution of
     Large-scale Symmetric Traveling Salesman Problems". SIAM Review, 33(1), 60-100.
 
-Notes:
-    - Subtour Elimination Constraints (SEC) follow Fischetti et al. (1997)
+    - Prize-Collecting Subtour Elimination Constraints (PC-SEC) follow Fischetti et al. (1997)
     - Capacity Constraints and fractional separation follow Lysgaard et al. (2004)
     - Comb inequalities are disabled in favor of Gurobi's internal polyhedral cuts
 """
@@ -40,9 +39,9 @@ class Inequality:
         return self.violation > other.violation
 
 
-class SubtourEliminationCut(Inequality):
+class PCSubtourEliminationCut(Inequality):
     r"""
-    Subtour Elimination Constraint (SEC).
+    Prize-Collecting Subtour Elimination Constraint (PC-SEC).
 
     For S ⊂ N \ {0} with 2 ≤ |S| ≤ n - 2:
     ∑_{i,j ∈ S} x[i,j] ≤ |S| - 1
@@ -51,10 +50,15 @@ class SubtourEliminationCut(Inequality):
     ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2  if S is visited (strengthened for VRPP)
     """
 
-    def __init__(self, node_set: Set[int], violation: float):
+    def __init__(
+        self, node_set: Set[int], violation: float, facet_form: str = "2.1", node_i: int = -1, node_j: int = -1
+    ):
         super().__init__("SEC", violation)
         self.node_set = node_set
-        self.rhs = 2.0  # For cut form
+        self.facet_form = facet_form
+        self.node_i = node_i
+        self.node_j = node_j
+        self.rhs = 2.0  # Default for Form 2.1
 
 
 class CapacityCut(Inequality):
@@ -142,6 +146,7 @@ class SeparationEngine:
         y_vals: Optional[np.ndarray] = None,
         max_cuts: int = 100,
         iteration: int = 0,
+        sec_only: bool = False,
     ) -> List[Inequality]:
         """
         Fast separation for integer solutions (MIPSOL callback).
@@ -164,10 +169,14 @@ class SeparationEngine:
         # Step 1: Fast subtour separation using connected components
         self._separate_disconnected_components(x_vals, y_vals)
 
-        # Step 2: Heuristic capacity separation
-        self._separate_capacity_cuts(x_vals, y_vals)
+        # Step 2: Heuristic SEC separation (Kruskal-based GSEC_H2)
+        if not sec_only:
+            self._separate_gsec_h2(x_vals, y_vals)
 
-        # Filter and return most violated cuts
+        # Step 3: Procedure PCSEC_BUILD: Strengthen sets and select strongest facets
+        self._strengthen_pool(self.pool, x_vals, y_vals)
+
+        # Step 4: Filter and return most violated cuts
         violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
         violated.sort()  # Sort by violation descending
         return violated[:max_cuts]
@@ -209,11 +218,12 @@ class SeparationEngine:
             # Root node: Full exact separation
             self._separate_subtours_heuristic(x_vals, y_vals)
             self._separate_capacity_cuts(x_vals, y_vals)
-            self._separate_subtours_exact(x_vals, y_vals)
+            self._separate_gsec_h2(x_vals, y_vals)
+            self._separate_pcsec_exact(x_vals, y_vals, root_node=True)
 
             # Exact fractional capacity separation (toggle-controlled)
             if self.enable_fractional_capacity_cuts:
-                self._separate_capacity_cuts_exact(x_vals, y_vals)
+                self._separate_capacity_cuts_exact(x_vals, y_vals, root_node=True)
         else:
             # Shallow nodes: Limited exact separation
             self._separate_subtours_heuristic(x_vals, y_vals)
@@ -221,14 +231,19 @@ class SeparationEngine:
 
             # Run exact separation less frequently
             if iteration % 3 == 0:
-                self._separate_subtours_exact(x_vals, y_vals)
+                self._separate_gsec_h2(x_vals, y_vals)
+                self._separate_pcsec_exact(x_vals, y_vals, root_node=False)
 
                 # Exact fractional capacity separation (toggle-controlled)
                 if self.enable_fractional_capacity_cuts:
-                    self._separate_capacity_cuts_exact(x_vals, y_vals)
+                    self._separate_capacity_cuts_exact(x_vals, y_vals, root_node=False)
 
         # Filter and return most violated cuts
         violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
+
+        # Procedure GSEC_BUILD: Strengthen sets and select strongest facets
+        self._strengthen_pool(violated, x_vals, y_vals)
+
         violated.sort()  # Sort by violation descending
         return violated[:max_cuts]
 
@@ -265,7 +280,7 @@ class SeparationEngine:
 
         # Step 3: Exact subtour separation (max-flow based) - expensive, run periodically
         if iteration % 5 == 0:
-            self._separate_subtours_exact(x_vals, y_vals)
+            self._separate_pcsec_exact(x_vals, y_vals)
             self._separate_capacity_cuts_exact(x_vals, y_vals)
 
         # Step 4: Comb inequalities (heuristic) - advanced cuts
@@ -323,7 +338,7 @@ class SeparationEngine:
             cut_value = self._get_cut_value(component, x_vals)
             violation = 2.0 - cut_value
             if violation > 0.01:
-                self.pool.append(SubtourEliminationCut(component, violation))
+                self.pool.append(PCSubtourEliminationCut(component, violation))
 
     def _separate_weak_subtours(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
         """Separate subtours by greedily expanding sets with high internal connectivity."""
@@ -361,7 +376,7 @@ class SeparationEngine:
                 cut_value = self._get_cut_value(node_set, x_vals)
                 violation = 2.0 - cut_value
                 if violation > 0.01:
-                    self.pool.append(SubtourEliminationCut(node_set, violation))
+                    self.pool.append(PCSubtourEliminationCut(node_set, violation))
 
     def _get_cut_value(self, node_set: Set[int], x_vals: np.ndarray) -> float:
         """Compute the sum of x values for edges in the cut delta(S)."""
@@ -436,40 +451,15 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(CapacityCut(node_set, total_demand, self.model.capacity, violation))
 
-    def _separate_capacity_cuts_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
+    def _separate_capacity_cuts_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
         """
         Exact separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.
 
         Uses max-flow between depot and all visited nodes to find promising cuts.
         For each cut, we check if the Rounded Capacity Inequality is violated.
 
-        **Computational Complexity & Scalability Note:**
-
-        The exact separation of the most violated Capacity Cut is strongly NP-hard
-        (Caprara & Fischetti, 1996). This implementation uses a max-flow heuristic
-        to identify candidate cuts, which has O(V⁴) complexity per sink node.
-
-        For instances with n > 75-100, this becomes a significant bottleneck. State-of-the-art
-        B&C implementations (e.g., Lysgaard et al. 2004) rely on specialized C++ libraries
-        like CVRPSEP that use:
-            - Shrinking heuristics to reduce the solution space
-            - Efficient min-cut enumeration algorithms
-            - Capacity-indexed caching structures
-
-        This exact separation can be disabled via the `enable_fractional_capacity_cuts`
-        parameter for large-scale benchmarking, falling back to heuristic capacity
-        separation only.
-
-        References:
-            Caprara, A., & Fischetti, M. (1996). "{0, 1/2}-Chvátal-Gomory cuts".
-            Mathematical Programming, 74(3), 221-235.
-
-            Lysgaard, J. (2003). "CVRPSEP: A package of separation routines for the
-            capacitated vehicle routing problem". Technical report, Aarhus University.
+        Throttling: Use root_node flag to determine search intensity.
         """
-        if self.model.n_nodes > 100:  # Cap for performance
-            return
-
         n = self.model.n_nodes
         # Build support graph adjacency
         adj = np.zeros((n, n))
@@ -485,10 +475,20 @@ class SeparationEngine:
         if y_vals is not None:
             visited_customers.sort(key=lambda c: y_vals[c - 1], reverse=True)
 
-        for sink in visited_customers[:20]:  # Check top 20 most visited nodes
+        # Throttling Strategy:
+        # At root node: check all nodes. Deep in tree: check top 20.
+        max_sinks = len(visited_customers) if root_node else 20
+
+        # Fixed source s as the depot (Node 0) for RCIs as per user instructions
+        # RCIs separate the depot from customers to ensure enough vehicles leave.
+        source_node = self.model.depot
+
+        for sink in visited_customers[:max_sinks]:
+            if sink == source_node:
+                continue
             try:
-                flow_result = maximum_flow(csr_matrix(adj), self.model.depot, sink)
-                cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), self.model.depot, sink)
+                flow_result = maximum_flow(csr_matrix(adj), source_node, sink)
+                cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, sink)
 
                 # Prune invalid cuts: single-node sets, depot in set, or empty sets
                 # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
@@ -520,15 +520,13 @@ class SeparationEngine:
             except Exception:
                 continue
 
-    def _separate_subtours_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
+    def _separate_pcsec_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
         """
-        Exact subtour separation using minimum cut (max-flow).
+        Exact prize-collecting subtour separation using minimum cut (max-flow).
 
-        For selected seed pairs, compute minimum cut to find most violated SEC.
+        For selected seed pairs, compute minimum cut to find most violated PC-SEC.
+        At the Root Node, the separation is truly exact (checks all nodes).
         """
-        if self.model.n_nodes > 100:
-            return
-
         n = self.model.n_nodes
         adj = np.zeros((n, n))
         for idx, (i, j) in enumerate(self.model.edges):
@@ -539,9 +537,17 @@ class SeparationEngine:
 
         visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.1]
 
-        for customer in visited_customers[:20]:
+        # Throttling: Check all promising nodes at root, cap at 20 otherwise.
+        max_sinks = len(visited_customers) if root_node else 20
+
+        # Fixed source s where y_s* = max{y_v*}
+        source_node = int(np.argmax(y_vals)) + 1 if y_vals is not None else self.model.depot
+
+        for customer in visited_customers[:max_sinks]:
+            if customer == source_node:
+                continue
             try:
-                flow_result = maximum_flow(csr_matrix(adj), self.model.depot, customer)
+                flow_result = maximum_flow(csr_matrix(adj), source_node, customer)
                 max_flow_value = flow_result.flow_value
 
                 target_value = 2.0
@@ -550,7 +556,7 @@ class SeparationEngine:
 
                 if max_flow_value < target_value - 0.01:
                     violation = target_value - max_flow_value
-                    cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), self.model.depot, customer)
+                    cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, customer)
 
                     # Prune invalid cuts: single-node sets, depot in set, empty sets, or duplicates
                     # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
@@ -561,10 +567,10 @@ class SeparationEngine:
                         and not any(
                             set(cut_set) == set(existing.node_set)
                             for existing in self.pool
-                            if isinstance(existing, SubtourEliminationCut)
+                            if isinstance(existing, PCSubtourEliminationCut)
                         )
                     ):
-                        self.pool.append(SubtourEliminationCut(set(cut_set), violation))
+                        self.pool.append(PCSubtourEliminationCut(set(cut_set), violation))
             except Exception:
                 continue
 
@@ -906,3 +912,181 @@ class SeparationEngine:
         violation = lhs - rhs
 
         return violation
+
+    def _separate_gsec_h2(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
+        """
+        Kruskal-based Heuristic (GSEC_H2) for GSEC separation.
+
+        Algorithm:
+        1. Sort edges e with x_e* > 0 in descending order.
+        2. Construct forest using Kruskal's merging logic.
+        3. For each merge (Va, Vb), evaluate GSEC violation for S = Va U Vb.
+        4. GSEC: sum_{e in delta(S)} x_e >= 2(y_i + y_j - 1)
+           where i in S and j not in S have highest y* values.
+        """
+        # Step 1: Edge Sorting
+        support_edges = []
+        for idx, (i, j) in enumerate(self.model.edges):
+            if x_vals[idx] > 1e-4:
+                support_edges.append((i, j, x_vals[idx]))
+
+        support_edges.sort(key=lambda x: x[2], reverse=True)
+
+        # Step 2: Forest Construction (DSU)
+        n = self.model.n_nodes
+        parent = list(range(n))
+        components: Dict[int, Set[int]] = {i: {i} for i in range(n)}
+
+        def find(i):
+            if parent[i] == i:
+                return i
+            parent[i] = find(parent[i])
+            return parent[i]
+
+        y_vals_full = np.ones(n)
+        if y_vals is not None:
+            y_vals_full[1:] = y_vals
+
+        for u, v, _ in support_edges:
+            root_u = find(u)
+            root_v = find(v)
+
+            if root_u != root_v:
+                # Potential Merge: Check violation for S = Va U Vb
+                # (But usually GSEC_H2 evaluates after merge or during merge logic)
+                # We'll evaluate for S = components[root_u] and S = components[root_v]
+                # as well as the new merged set.
+
+                # Merge
+                new_component = components[root_u] | components[root_v]
+                parent[root_u] = root_v
+                components[root_v] = new_component
+                del components[root_u]
+
+                # Step 3: Violation Check for S = new_component
+                if self.model.depot in new_component:
+                    continue  # S must not contain depot for SEC/GSEC cut
+
+                if len(new_component) < 2:
+                    continue
+
+                # Find i in S with max y*
+                max_y_in = max(y_vals_full[node] for node in new_component)
+                # Find j not in S with max y*
+                not_in_s = set(range(n)) - new_component
+                max_y_out = max(y_vals_full[node] for node in not_in_s)
+
+                rhs = 2.0 * (max_y_in + max_y_out - 1.0)
+                if rhs <= 0.01:
+                    continue
+
+                cut_val = self._get_cut_value(new_component, x_vals)
+                violation = rhs - cut_val
+
+                if violation > 0.01:
+                    self.pool.append(PCSubtourEliminationCut(set(new_component), violation))
+
+    def _strengthen_pool(self, ineq_list: List[Inequality], x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
+        """
+        Apply Procedure PCSEC_BUILD to all subtour sets.
+        Refines sets S and selects the strongest facet form (2.1, 2.2, 2.3).
+        """
+        for i in range(len(ineq_list)):
+            cut = ineq_list[i]
+            if not isinstance(cut, PCSubtourEliminationCut):
+                continue
+
+            # 1. Refine set S using PCSEC_BUILD logic
+            s_set = self._refine_pcsec_build(cut.node_set, x_vals, y_vals)
+            cut.node_set = s_set
+
+            # 2. Select strongest facet form
+            # Identify i in S and j not in S with max y*
+            max_yi = 1.0
+            best_i = next(iter(s_set))
+            if y_vals is not None:
+                y_in = [(node, y_vals[node - 1]) for node in s_set if node > 0]
+                if y_in:
+                    best_i, max_yi = max(y_in, key=lambda x: x[1])
+
+            max_yj = 1.0
+            best_j = self.model.depot
+            if y_vals is not None:
+                not_s = set(range(self.model.n_nodes)) - s_set
+                y_out = [(node, y_vals[node - 1] if node > 0 else 1.0) for node in not_s]
+                if y_out:
+                    best_j, max_yj = max(y_out, key=lambda x: x[1])
+
+            # Recalculate violation for each form (2.1, 2.2, 2.3)
+            cut_val = self._get_cut_value(s_set, x_vals)
+
+            # Form 2.3: sum x_e >= 2(yi + yj - 1)
+            vio_2_3 = (2.0 * (max_yi + max_yj - 1.0) - cut_val) if y_vals is not None else (2.0 - cut_val)
+
+            # Form 2.2: sum x_e >= 2yi
+            vio_2_2 = (2.0 * max_yi - cut_val) if y_vals is not None else (2.0 - cut_val)
+
+            # Form 2.1: sum x_e >= 2
+            vio_2_1 = 2.0 - cut_val
+
+            # Select strongest (max violation)
+            if vio_2_1 > vio_2_2 and vio_2_1 > vio_2_3:
+                cut.facet_form = "2.1"
+                cut.rhs = 2.0
+                cut.violation = vio_2_1
+            elif vio_2_2 > vio_2_3:
+                cut.facet_form = "2.2"
+                cut.node_i = best_i
+                cut.rhs = 2.0 * max_yi
+                cut.violation = vio_2_2
+            else:
+                cut.facet_form = "2.3"
+                cut.node_i = best_i
+                cut.node_j = best_j
+                cut.rhs = 2.0 * (max_yi + max_yj - 1.0) if y_vals is not None else 2.0
+                cut.violation = vio_2_3
+
+    def _refine_pcsec_build(self, s_set: Set[int], x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> Set[int]:
+        """
+        Procedure PCSEC_BUILD (Fischetti et al. 1997, Section 3.1).
+        Attempts to refine the set S by moving nodes to minimize cut value sum_{e in delta(S)} x_e.
+        """
+        refined_s = set(s_set)
+        improved = True
+
+        while improved:
+            improved = False
+            for u in list(refined_s):
+                # Delta cut value if u is moved from S to V\S
+                # delta_val = edges(u, V\S) - edges(u, S)
+                in_s_sum = sum(x_vals[self.model.edge_to_idx[(u, v)]] for v in refined_s if u != v)
+                all_u_sum = sum(x_vals[self.model.edge_to_idx[(u, v)]] for v in range(self.model.n_nodes) if v != u)
+                out_s_sum = all_u_sum - in_s_sum
+
+                # We want to minimize sum_{e in delta(S)} x_e.
+                # Moving u out changes it from out_s_sum to in_s_sum inside the cut.
+                # Actually, sum_{e in delta(S)} = sum_{i in S, j not in S} x_ij.
+                # Moving u from S to V\S removes sum_{j in V\S} x_uj and adds sum_{j in S} x_uj.
+                if in_s_sum - out_s_sum < -0.01 and len(refined_s) > 2:
+                    refined_s.remove(u)
+                    improved = True
+                    break
+
+            if improved:
+                continue
+
+            for u in range(self.model.n_nodes):
+                if u in refined_s or u == self.model.depot:
+                    continue
+
+                # Check moving u from V\S into S
+                in_s_sum = sum(x_vals[self.model.edge_to_idx[(u, v)]] for v in refined_s)
+                all_u_sum = sum(x_vals[self.model.edge_to_idx[(u, v)]] for v in range(self.model.n_nodes) if v != u)
+                out_s_sum = all_u_sum - in_s_sum
+
+                if out_s_sum - in_s_sum < -0.01:
+                    refined_s.add(u)
+                    improved = True
+                    break
+
+        return refined_s

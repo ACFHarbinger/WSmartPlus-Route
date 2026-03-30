@@ -46,18 +46,29 @@ def run_bb_optimizer(
     **Formulation Comparison**:
 
     **MTZ (Miller-Tucker-Zemlin)**:
-    - Compact formulation with O(n²) constraints
-    - Load variables track accumulated waste
-    - Subtours prevented implicitly in LP relaxation
-    - Custom B&B tree management
-    - Better for: Small to medium instances, custom branching strategies
+    - Compact formulation with O(n²) constraints.
+    - Load variables track accumulated waste.
+    - Subtours prevented implicitly in LP relaxation.
+    - **CRITICAL WARNING**: While compact, the MTZ LP relaxation is notoriously
+      weak. It often yields highly fractional lower bounds far from the integer
+      optimal, leading to exponentially larger B&B trees compared to stronger
+      formulations.
+    - Custom B&B tree management (Python-based) allows for full state observability.
+    - Better for: Small instances, research into neural branching heuristics.
 
     **DFJ (Dantzig-Fulkerson-Johnson)**:
-    - Exponential constraints added lazily
-    - Delegates B&B to Gurobi's internal engine
-    - Subtours eliminated dynamically via callbacks
-    - Leverages Gurobi's advanced heuristics
-    - Better for: Large instances, when Gurobi license available
+    - Exponential constraints added lazily as "cuts".
+    - Delegates B&B to Gurobi's internal high-performance C-engine.
+    - Subtours eliminated dynamically via callbacks.
+    - **ADVANTAGE**: Provides a significantly tighter LP relaxation because the
+      lazy subtour elimination constraints effectively cut off fractional cycles,
+      leading to faster convergence.
+    - Better for: Large production-scale instances.
+
+    **Research Disclaimer**:
+    Evaluating learned branching heuristics on a weak MTZ formulation does not
+    guarantee identical performance or ranking on stronger formulations (like DFJ).
+    This discrepancy should be explicitly addressed in academic disclosures.
 
     Args:
         dist_matrix: Symmetric distance matrix (n x n).

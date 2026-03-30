@@ -66,12 +66,11 @@ final path can be reconstructed accurately and exact ESPPRC can be restored
 by a single flag toggle (``use_ng_routes=False``).
 """
 
+from collections import deque
 from dataclasses import dataclass, field
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
-
-from .branching import EdgeBranchingConstraint
 
 
 @dataclass(order=True)
@@ -105,10 +104,10 @@ class Label:
     visited: Set[int] = field(default_factory=set, compare=False)
 
     # ng_memory: compact relaxed state for ng-route dominance / feasibility.
-    # Under ng-routes: M_v = (M_u ∪ {v}) ∩ N_v (Baldacci et al. 2011).
-    # Under exact ESPPRC: mirrors ``visited`` (computed identically, never
-    # consulted for dominance / feasibility in that mode).
     ng_memory: Set[int] = field(default_factory=set, compare=False)
+
+    # rf_unmatched: nodes from a 'together' pair visited without their partner.
+    rf_unmatched: FrozenSet[int] = field(default_factory=frozenset, compare=False)
 
     parent: Optional["Label"] = field(default=None, compare=False, repr=False)
 
@@ -121,11 +120,12 @@ class Label:
         """
         Check whether this label dominates *other* at the same node.
 
-        Dominance requires all three conditions to hold simultaneously:
+        Dominance requires all four conditions to hold simultaneously:
             1. self.reduced_cost >= other.reduced_cost
             2. self.load         <= other.load
-            3a. [ng mode]   self.ng_memory ⊆ other.ng_memory
-            3b. [exact mode] self.visited  ⊆ other.visited
+            3. self.rf_unmatched == other.rf_unmatched (Obligation Exactness)
+            4a. [ng mode]   self.ng_memory ⊆ other.ng_memory
+            4b. [exact mode] self.visited  ⊆ other.visited
 
         Condition 3a is the key difference from exact ESPPRC.  Because
         ``ng_memory`` is a *subset* of ``visited`` (only nearby nodes are
@@ -153,6 +153,8 @@ class Label:
         if self.reduced_cost < other.reduced_cost - epsilon:
             return False
         if self.load > other.load + epsilon:
+            return False
+        if self.rf_unmatched != other.rf_unmatched:
             return False
 
         if use_ng:
@@ -233,24 +235,24 @@ class RCSPPSolver:
         ng_neighborhood_size: int = 8,
     ) -> None:
         """
-        Initialise the RCSPP solver.
+                Initialise the RCSPP solver.
 
-        Args:
-            n_nodes: Number of customer nodes (excluding depot).
-            cost_matrix: Distance matrix (n_nodes+1 × n_nodes+1); index 0 is
-                the depot.
-            wastes: Mapping from node ID to waste volume.
-            capacity: Vehicle payload capacity.
-            revenue_per_kg: Revenue earned per unit of waste collected.
-            cost_per_km: Operating cost per unit of distance travelled.
-            mandatory_nodes: Set of customer node indices that must be visited;
-                optional (defaults to empty set).
-            use_ng_routes: Enable ng-route relaxation (Baldacci et al. 2011).
-                Set False to restore exact ESPPRC behaviour.  Default True.
-            ng_neighborhood_size: Size of each node's ng-neighborhood N_i
-                (including the node itself).  Larger values produce a tighter
-                relaxation (approaching exact ESPPRC) at the cost of slower
-                dominance checks.  Default 8.
+                Args:
+                    n_nodes: Number of customer nodes (excluding depot).
+                    cost_matrix: Distance matrix (n_nodes+1 × n_nodes+1); index 0 is
+                        the depot.
+                    wastes: Mapping from node ID to waste volume.
+                    capacity: Vehicle payload capacity.
+                    revenue_per_kg: Revenue earned per unit of waste collected.
+                    cost_per_km: Operating cost per unit of distance travelled.
+                    mandatory_nodes: Set of customer node This pricer implements a **Label-Correcting** algorithm (FIFO queue) to handle
+        potential negative edge costs introduced by dual variables. It supports both
+        exact ESPPRC and the ng-route relaxation (Baldacci et al. 2011).
+                        Set False to restore exact ESPPRC behaviour.  Default True.
+                    ng_neighborhood_size: Size of each node's ng-neighborhood N_i
+                        (including the node itself).  Larger values produce a tighter
+                        relaxation (approaching exact ESPPRC) at the cost of slower
+                        dominance checks.  Default 8.
         """
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -316,7 +318,7 @@ class RCSPPSolver:
         self,
         dual_values: Dict[int, float],
         max_routes: int = 10,
-        branching_constraints: Optional[List[EdgeBranchingConstraint]] = None,
+        branching_constraints: Optional[List[Any]] = None,
     ) -> List[Tuple[List[int], float]]:
         """
         Solve the RCSPP and return routes with positive reduced cost.
@@ -324,7 +326,8 @@ class RCSPPSolver:
         Only node-coverage dual values from the master problem are used in the
         reduced-cost formula.  Capacity constraints are enforced implicitly by
         the resource tracker in the label extension step.  Edge-branching
-        constraints are enforced eagerly inside the extension loop.
+        and Ryan-Foster constraints are enforced during extension and at
+        route completion.
 
         When ``use_ng_routes=True``, the ng-route relaxation (Baldacci et al.
         2011) is used in place of exact ESPPRC.  The relaxation may
@@ -350,10 +353,18 @@ class RCSPPSolver:
         self.dual_values = dual_values
         self._compute_node_reduced_costs()
 
-        constraints: List[EdgeBranchingConstraint] = branching_constraints or []
-        forbidden_arcs, required_successors, required_predecessors = self._preprocess_constraints(constraints)
+        constraints: List[Any] = branching_constraints or []
+        (
+            forbidden_arcs,
+            required_successors,
+            required_predecessors,
+            rf_separate,
+            rf_together,
+        ) = self._preprocess_constraints(constraints)
 
-        routes = self._label_setting_algorithm(max_routes, forbidden_arcs, required_successors, required_predecessors)
+        routes = self._label_correcting_algorithm(
+            max_routes, forbidden_arcs, required_successors, required_predecessors, rf_separate, rf_together
+        )
         routes.sort(key=lambda x: x[1], reverse=True)
         return routes[:max_routes]
 
@@ -363,55 +374,48 @@ class RCSPPSolver:
 
     def _preprocess_constraints(
         self,
-        constraints: List[EdgeBranchingConstraint],
-    ) -> Tuple[FrozenSet[Tuple[int, int]], Dict[int, int], Dict[int, int]]:
+        constraints: List[Any],
+    ) -> Tuple[FrozenSet[Tuple[int, int]], Dict[int, int], Dict[int, int], Set[Tuple[int, int]], Set[Tuple[int, int]]]:
         """
-        Convert a flat list of edge constraints into three fast look-up structures.
+        Convert branching constraints into fast lookup structures.
 
-        Structures built:
-
-        forbidden_arcs
-            Frozenset of (u, v) pairs that must NOT be traversed (must_use=False).
-
-        required_successors
-            Dict mapping u → w where w is the *only* customer that may
-            immediately follow u (must_use=True, source u).
-
-        required_predecessors
-            Dict mapping v → u where u is the *only* customer that may
-            immediately precede v (must_use=True, target v).
+        Uses duck-typing to handle both EdgeBranchingConstraint and
+        RyanFosterBranchingConstraint without hard import dependencies.
 
         Args:
-            constraints: Active edge branching constraints.
+            constraints: Active branching constraints.
 
         Returns:
-            Tuple (forbidden_arcs, required_successors, required_predecessors).
-
-        Raises:
-            ValueError: If contradictory required-arc constraints are detected.
+            Tuple (forbidden_arcs, req_successors, req_predecessors,
+                   rf_separate_pairs, rf_together_pairs).
         """
         forbidden: Set[Tuple[int, int]] = set()
         req_succ: Dict[int, int] = {}
         req_pred: Dict[int, int] = {}
+        rf_separate: Set[Tuple[int, int]] = set()
+        rf_together: Set[Tuple[int, int]] = set()
 
         for c in constraints:
-            if not c.must_use:
-                forbidden.add((c.u, c.v))
-            else:
-                if c.u in req_succ and req_succ[c.u] != c.v:
-                    raise ValueError(
-                        f"Contradictory required-successor constraints at node {c.u}: "
-                        f"requires both {req_succ[c.u]} and {c.v}."
-                    )
-                if c.v in req_pred and req_pred[c.v] != c.u:
-                    raise ValueError(
-                        f"Contradictory required-predecessor constraints at node {c.v}: "
-                        f"requires both {req_pred[c.v]} and {c.u}."
-                    )
-                req_succ[c.u] = c.v
-                req_pred[c.v] = c.u
+            if hasattr(c, "must_use"):
+                # EdgeBranchingConstraint
+                if not c.must_use:
+                    forbidden.add((c.u, c.v))
+                else:
+                    if c.u in req_succ and req_succ[c.u] != c.v:
+                        raise ValueError(f"Contradictory req-successor at {c.u}")
+                    if c.v in req_pred and req_pred[c.v] != c.u:
+                        raise ValueError(f"Contradictory req-predecessor at {c.v}")
+                    req_succ[c.u] = c.v
+                    req_pred[c.v] = c.u
+            elif hasattr(c, "together"):
+                # RyanFosterBranchingConstraint
+                pair = (min(c.node_r, c.node_s), max(c.node_r, c.node_s))
+                if not c.together:
+                    rf_separate.add(pair)
+                else:
+                    rf_together.add(pair)
 
-        return frozenset(forbidden), req_succ, req_pred
+        return frozenset(forbidden), req_succ, req_pred, rf_separate, rf_together
 
     # ------------------------------------------------------------------
     # Reduced-cost helper
@@ -430,18 +434,20 @@ class RCSPPSolver:
             self.node_reduced_costs[node] = revenue - dual
 
     # ------------------------------------------------------------------
-    # Label-setting DP
+    # Label-correcting DP
     # ------------------------------------------------------------------
 
-    def _label_setting_algorithm(
+    def _label_correcting_algorithm(  # noqa: C901
         self,
         max_routes: int,
         forbidden_arcs: FrozenSet[Tuple[int, int]],
         required_successors: Dict[int, int],
         required_predecessors: Dict[int, int],
+        rf_separate: Set[Tuple[int, int]],
+        rf_together: Set[Tuple[int, int]],
     ) -> List[Tuple[List[int], float]]:
         """
-        Forward label-setting algorithm for ESPPRC / ng-RCSPP.
+        Forward label-correcting algorithm for ESPPRC / ng-RCSPP.
 
         Extends labels from the depot through customer nodes back to the depot.
         At each extension step (u → v), edge-branching rules and the
@@ -481,16 +487,16 @@ class RCSPPSolver:
             path=[self.depot],
             visited=set(),
             ng_memory=set(),
+            rf_unmatched=frozenset(),
             parent=None,
         )
 
         labels_at_node: Dict[int, List[Label]] = {self.depot: [initial_label]}
-        unprocessed: List[Label] = [initial_label]
+        unprocessed: deque[Label] = deque([initial_label])
         completed_routes: List[Label] = []
 
         while unprocessed:
-            current = max(unprocessed, key=lambda lbl: lbl.reduced_cost)
-            unprocessed.remove(current)
+            current = unprocessed.popleft()
             u = current.node
 
             # Determine candidate next customers.
@@ -507,6 +513,17 @@ class RCSPPSolver:
                     if v in current.visited:
                         continue
 
+                # ---- Ryan-Foster Separation (Rule 4) -----------------------
+                # Reject v if it forms a separate-pair with any node in path.
+                violated_rf = False
+                for node_in_path in current.visited:
+                    pair = (min(v, node_in_path), max(v, node_in_path))
+                    if pair in rf_separate:
+                        violated_rf = True
+                        break
+                if violated_rf:
+                    continue
+
                 # ---- Edge-branching Rule 1: Forbidden arc (u → v) ----------
                 if (u, v) in forbidden_arcs:
                     self.labels_infeasible += 1
@@ -518,9 +535,13 @@ class RCSPPSolver:
                     continue
 
                 # ---- Attempt label extension --------------------------------
-                new_label = self._extend_label(current, v)
+                new_label = self._extend_label(current, v, rf_together)
                 if new_label is None:
                     self.labels_infeasible += 1
+                    continue
+
+                # Path length cap to prevent infinite loops in zero-waste cycles.
+                if len(new_label.path) > self.n_nodes + 2:
                     continue
 
                 self.labels_generated += 1
@@ -543,7 +564,9 @@ class RCSPPSolver:
                     pass  # u must visit req_next before closing.
                 else:
                     final_label = self._extend_to_depot(current)
-                    if final_label is not None and final_label.reduced_cost > 1e-6:
+                    # Ryan-Foster Together (Rule 5)
+                    # Discard if exactly one member of a together-pair is present.
+                    if final_label is not None and not final_label.rf_unmatched and final_label.reduced_cost > 1e-6:
                         completed_routes.append(final_label)
 
         # Collect routes with positive reduced cost.
@@ -560,9 +583,13 @@ class RCSPPSolver:
     # Label extension primitives
     # ------------------------------------------------------------------
 
-    def _extend_label(self, label: Label, next_node: int) -> Optional[Label]:
+    def _extend_label(self, label: Label, next_node: int, rf_together: Set[Tuple[int, int]]) -> Optional[Label]:
         """
         Extend *label* by visiting *next_node*.
+
+        Incremental Update for Ryan-Foster 'Together' obligations:
+            rf_unmatched_new = rf_unmatched_old ⊕ {next_node | partner in visited}
+            (We track nodes in together-pairs that don't yet have their partner).
 
         ng-memory update (Baldacci et al. 2011, Section 3):
             M_{next_node} = (M_u ∪ {next_node}) ∩ N_{next_node}
@@ -610,6 +637,20 @@ class RCSPPSolver:
         else:
             new_ng_memory = new_visited
 
+        # Update Ryan-Foster 'Together' unmatched obligations.
+        new_unmatched = set(label.rf_unmatched)
+        for r, s in rf_together:
+            if next_node == r:
+                if s in label.visited:
+                    new_unmatched.discard(s)
+                else:
+                    new_unmatched.add(r)
+            elif next_node == s:
+                if r in label.visited:
+                    new_unmatched.discard(r)
+                else:
+                    new_unmatched.add(s)
+
         return Label(
             reduced_cost=new_rc,
             node=next_node,
@@ -619,6 +660,7 @@ class RCSPPSolver:
             path=label.path + [next_node],
             visited=new_visited,
             ng_memory=new_ng_memory,
+            rf_unmatched=frozenset(new_unmatched),
             parent=label,
         )
 
@@ -648,6 +690,7 @@ class RCSPPSolver:
             path=label.path + [self.depot],
             visited=label.visited,
             ng_memory=label.ng_memory,
+            rf_unmatched=label.rf_unmatched,
             parent=label,
         )
 
