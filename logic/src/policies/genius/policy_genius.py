@@ -45,7 +45,6 @@ class GENIUSPolicy(BaseRoutingPolicy):
     ) -> Tuple[List[List[int]], float, float]:
         params = GENIUSParams(
             neighborhood_size=int(values.get("neighborhood_size", 5)),
-            us_cycles=int(values.get("us_cycles", 10)),
             unstring_type=int(values.get("unstring_type", 1)),
             string_type=int(values.get("string_type", 1)),
             n_iterations=int(values.get("n_iterations", 1)),

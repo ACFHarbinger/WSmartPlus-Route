@@ -8,6 +8,8 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.unstringing_stringing.routes import _extract_working_route
+
 
 def apply_type_i_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     """
@@ -29,10 +31,7 @@ def apply_type_i_us(route: List[int], i: int, j: int, k: int) -> List[int]:
         New route with V_i removed and segments reconnected.
     """
     # Defensive copy logic for route input
-    n = len(route)
-    is_closed = n > 1 and route[0] == route[-1]
-    work_route = route[:-1] if is_closed else route[:]
-    n_work = len(work_route)
+    n, is_closed, work_route, n_work = _extract_working_route(route)
 
     # 1. Rotate the route so V_{i-1} is at index 0.
     pivot = (i - 1) % n_work
@@ -109,10 +108,7 @@ def apply_type_i_us_profit(
     Returns:
         (new_route, delta_profit)
     """
-    n = len(route)
-    is_closed = n > 1 and route[0] == route[-1]
-    work_route = route[:-1] if is_closed else route[:]
-    n_work = len(work_route)
+    n, is_closed, work_route, n_work = _extract_working_route(route)
 
     # Identifiers
     v_i = work_route[i]
