@@ -9,8 +9,10 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.unstringing_stringing.routes import _extract_working_route
 
-def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int) -> List[int]:
+
+def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int, current_load: float) -> List[int]:
     """
     Apply Type IV Stringing move.
 
@@ -27,6 +29,7 @@ def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int) ->
         j: Index of node V_j (end of second reversal + 1).
         k: Index of node V_k (reconnection point).
         l: Index of node V_l (split point between reversals).
+        current_load: Pre-calculated current weight of the route.
 
     Returns:
         New route with V_x inserted and segments reversed.
@@ -34,10 +37,7 @@ def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int) ->
     Constraints:
         V_k != V_j, V_k != V_{j+1}, V_l != V_i, V_l != V_{i+1}
     """
-    n = len(route)
-    is_closed = n > 1 and route[0] == route[-1]
-    work_route = route[:-1] if is_closed else route[:]
-    n_work = len(work_route)
+    n, is_closed, work_route, n_work = _extract_working_route(route)
 
     # Validate constraints
     val_k = route[k]
@@ -115,6 +115,7 @@ def apply_type_iv_s_profit(
     l: int,
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
+    current_load: float,
     capacity: float,
     R: float,
     C: float,
@@ -128,16 +129,14 @@ def apply_type_iv_s_profit(
         i, j, k, l: Indices as defined in apply_type_iv_s.
         dist_matrix: Distance matrix.
         wastes: Waste levels.
+        current_load: Pre-calculated current weight of the route.
         capacity: Vehicle capacity.
         R, C: Revenue and cost multipliers.
 
     Returns:
         (new_route, delta_profit)
     """
-    n = len(route)
-    is_closed = n > 1 and route[0] == route[-1]
-    work_route = route[:-1] if is_closed else route[:]
-    n_work = len(work_route)
+    n, is_closed, work_route, n_work = _extract_working_route(route)
 
     # Identifiers
     v_i = work_route[i]
@@ -156,7 +155,6 @@ def apply_type_iv_s_profit(
 
     # Feasibility
     node_waste = wastes.get(x, 0.0)
-    current_load = sum(wastes.get(n, 0.0) for n in work_route)
     if current_load + node_waste > capacity:
         return route, -float("inf")
 
@@ -179,4 +177,4 @@ def apply_type_iv_s_profit(
 
     delta_profit = delta_rev - delta_cost * C
 
-    return apply_type_iv_s(route, x, i, j, k, l), float(delta_profit)
+    return apply_type_iv_s(route, x, i, j, k, l, current_load), float(delta_profit)

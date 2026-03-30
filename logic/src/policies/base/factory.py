@@ -50,6 +50,7 @@ class PolicyFactory:
         import logic.src.policies.fast_iterative_localized_optimization.policy_filo as policy_filo  # noqa
         import logic.src.policies.firefly_algorithm.policy_fa as policy_fa  # noqa
         import logic.src.policies.genetic_algorithm.policy_ga as policy_ga  # noqa
+        import logic.src.policies.genius.policy_genius as policy_genius  # noqa
         import logic.src.policies.guided_local_search.policy_gls as policy_gls  # noqa
         import logic.src.policies.harmony_search.policy_hs as policy_hs  # noqa
         import logic.src.policies.hybrid_genetic_search.policy_hgs as policy_hgs  # noqa

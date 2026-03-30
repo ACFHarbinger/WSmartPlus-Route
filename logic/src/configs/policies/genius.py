@@ -17,7 +17,6 @@ class GENIUSConfig:
 
     engine: str = "genius"
     neighborhood_size: int = 5
-    us_cycles: int = 10
     unstring_type: int = 1
     string_type: int = 1
     n_iterations: int = 1

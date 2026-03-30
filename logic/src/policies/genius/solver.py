@@ -11,7 +11,6 @@ Reference:
     Operations Research, 40(6), 1086-1094.
 """
 
-import copy
 import random
 import time
 from typing import Dict, List, Optional, Tuple
@@ -89,7 +88,7 @@ class GENIUSSolver:
         # Step 1: Initial solution using GENI insertion
         routes = self._build_initial_solution_geni()
         profit = self._evaluate(routes)
-        best_routes = copy.deepcopy(routes)
+        best_routes = [r[:] for r in routes]
         best_profit = profit
 
         # Step 2: Iterative improvement using US (Unstringing-Stringing)
@@ -97,81 +96,98 @@ class GENIUSSolver:
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Apply US cycles for post-optimization
-            for _cycle in range(self.params.us_cycles):
+            # Apply deterministic US sweep for post-optimization
+            while True:
                 if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                     break
 
-                # Unstringing phase: Remove nodes
-                routes_copy = copy.deepcopy(routes)
-                n_remove = min(3, sum(len(r) for r in routes_copy))
-                if n_remove == 0:
-                    break
+                improvement_found = False
+                current_nodes = [node for r in routes for node in r]
 
-                try:
-                    if self.params.profit_aware_operators:
-                        routes_us, removed = unstringing_profit_removal(
-                            routes=routes_copy,
-                            n_remove=n_remove,
-                            unstring_type=self.params.unstring_type,
-                            dist_matrix=self.dist_matrix,
-                            wastes=self.wastes,
-                            R=self.R,
-                            C=self.C,
-                            rng=self.random,
-                        )
-                    else:
-                        routes_us, removed = unstringing_removal(
-                            routes=routes_copy,
-                            n_remove=n_remove,
-                            unstring_type=self.params.unstring_type,
-                            dist_matrix=self.dist_matrix,
-                            rng=self.random,
-                        )
+                for node_to_remove in current_nodes:
+                    if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+                        break
 
-                    # Stringing phase: Reinsert removed nodes
-                    if removed:
+                    # Unstringing phase: Remove exactly exactly one node
+                    routes_copy = [r[:] for r in routes]
+
+                    try:
                         if self.params.profit_aware_operators:
-                            routes_us = stringing_profit_insertion(
-                                routes=routes_us,
-                                removed_nodes=removed,
-                                string_type=self.params.string_type,
+                            routes_us, removed = unstringing_profit_removal(
+                                routes=routes_copy,
+                                n_remove=1,
+                                unstring_type=self.params.unstring_type,
                                 dist_matrix=self.dist_matrix,
                                 wastes=self.wastes,
-                                capacity=self.capacity,
                                 R=self.R,
                                 C=self.C,
-                                mandatory_nodes=self.mandatory_nodes,
                                 rng=self.random,
-                                expand_pool=self.params.vrpp,
+                                target_node=node_to_remove,
+                                use_alns_fallback=False,
                             )
                         else:
-                            routes_us = stringing_insertion(
-                                routes=routes_us,
-                                removed_nodes=removed,
-                                string_type=self.params.string_type,
+                            routes_us, removed = unstringing_removal(
+                                routes=routes_copy,
+                                n_remove=1,
+                                unstring_type=self.params.unstring_type,
                                 dist_matrix=self.dist_matrix,
-                                wastes=self.wastes,
-                                capacity=self.capacity,
-                                mandatory_nodes=self.mandatory_nodes,
                                 rng=self.random,
-                                expand_pool=self.params.vrpp,
+                                target_node=node_to_remove,
+                                use_alns_fallback=False,
                             )
 
-                        new_profit = self._evaluate(routes_us)
+                        # Stringing phase: Reinsert removed node
+                        if removed and removed[0] == node_to_remove:
+                            if self.params.profit_aware_operators:
+                                routes_us = stringing_profit_insertion(
+                                    routes=routes_us,
+                                    removed_nodes=removed,
+                                    string_type=self.params.string_type,
+                                    dist_matrix=self.dist_matrix,
+                                    wastes=self.wastes,
+                                    capacity=self.capacity,
+                                    R=self.R,
+                                    C=self.C,
+                                    mandatory_nodes=self.mandatory_nodes,
+                                    rng=self.random,
+                                    expand_pool=False,
+                                    use_alns_fallback=False,
+                                )
+                            else:
+                                routes_us = stringing_insertion(
+                                    routes=routes_us,
+                                    removed_nodes=removed,
+                                    string_type=self.params.string_type,
+                                    dist_matrix=self.dist_matrix,
+                                    wastes=self.wastes,
+                                    capacity=self.capacity,
+                                    mandatory_nodes=self.mandatory_nodes,
+                                    rng=self.random,
+                                    expand_pool=False,
+                                    use_alns_fallback=False,
+                                )
 
-                        # Accept improvement
-                        if new_profit > profit:
-                            routes = routes_us
-                            profit = new_profit
+                            # Note: If stringing fails to reinsert the node due to capacity constraints, the node is implicitly dropped. If the resulting profit without the node is higher, the algorithm permanently prunes it from the fleet.
+                            new_profit = self._evaluate(routes_us)
 
-                            if profit > best_profit:
-                                best_routes = copy.deepcopy(routes)
-                                best_profit = profit
+                            # Accept improvement
+                            if new_profit > profit:
+                                routes = routes_us
+                                profit = new_profit
+                                improvement_found = True
 
-                except Exception:
-                    # If US fails, continue with current solution
-                    continue
+                                if profit > best_profit:
+                                    best_routes = [r[:] for r in routes]
+                                    best_profit = profit
+
+                                break  # Break the inner node loop to restart the sweep from beginning
+
+                    except Exception as e:
+                        print(f"Warning: US Operator failed on node {node_to_remove} | Error: {e}")
+                        continue
+
+                if not improvement_found:
+                    break  # Terminate the US sweep if no improvements found
 
             # Record progress (for visualization/logging hooks)
             getattr(self, "_viz_record", lambda **k: None)(
