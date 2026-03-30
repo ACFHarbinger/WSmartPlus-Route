@@ -55,7 +55,7 @@ from ..other.operators import (
     worst_profit_removal,
     worst_removal,
 )
-from ..other.operators.heuristics.nn_initialization import build_nn_routes
+from ..other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from .params import GPHHParams
 from .tree import GPNode, _mutate, _random_tree, _subtree_crossover
 

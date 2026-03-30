@@ -28,7 +28,7 @@ from typing import Dict, List, Optional
 import numpy as np
 
 # Import operators from their respective modules
-from logic.src.policies.other.operators.heuristics import solve_lkh
+from logic.src.policies.other.operators.heuristics import apply_ges, apply_lns, solve_lkh
 from logic.src.policies.other.operators.inter_route import (
     cross_exchange,
     cyclic_transfer,
@@ -518,6 +518,28 @@ class LocalSearchManager:
         return False
 
     # ===== Heuristic Operators =====
+
+    def lns(self) -> bool:
+        """
+        Large Neighbourhood Search (LNS).
+        """
+        old_routes = self.get_routes()
+        new_routes = apply_lns(old_routes, self.d, self.waste, self.Q, self.R, self.C, self.random_std)
+        if new_routes != old_routes:
+            self.set_routes(new_routes)
+            return True
+        return False
+
+    def ges(self) -> bool:
+        """
+        Guided Ejection Search (GES).
+        """
+        old_routes = self.get_routes()
+        new_routes = apply_ges(old_routes, self.d, self.waste, self.Q, self.random_std)
+        if new_routes != old_routes:
+            self.set_routes(new_routes)
+            return True
+        return False
 
     def lkh_refinement(self) -> bool:
         """

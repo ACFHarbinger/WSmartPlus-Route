@@ -65,37 +65,12 @@ class GIHHPolicy(BaseRoutingPolicy):
             seed=values.get("seed", 42),
             vrpp=values.get("vrpp", True),
             profit_aware_operators=values.get("profit_aware_operators", False),
-            move_operators=values.get(
-                "move_operators",
-                [
-                    "swap_intra",
-                    "relocate_intra",
-                    "two_opt_intra",
-                    "swap_inter",
-                    "relocate_inter",
-                    "two_opt_star",
-                    "exchange_10",
-                    "exchange_11",
-                    "exchange_21",
-                ],
-            ),
-            perturbation_operators=values.get(
-                "perturbation_operators", ["random_removal", "string_removal", "route_removal"]
-            ),
-            iri_weight=values.get("iri_weight", 0.6),
-            tbi_weight=values.get("tbi_weight", 0.4),
-            learning_rate=values.get("learning_rate", 0.1),
-            memory_size=values.get("memory_size", 50),
-            epsilon=values.get("epsilon", 0.2),
-            epsilon_decay=values.get("epsilon_decay", 0.995),
-            min_epsilon=values.get("min_epsilon", 0.01),
-            accept_equal=values.get("accept_equal", True),
-            accept_worse_prob=values.get("accept_worse_prob", 0.05),
-            acceptance_decay=values.get("acceptance_decay", 0.99),
-            iri_window=values.get("iri_window", 20),
-            tbi_window=values.get("tbi_window", 20),
-            restarts=values.get("restarts", 1),
-            restart_threshold=values.get("restart_threshold", 100),
+            seg=values.get("seg", 80),
+            alpha=values.get("alpha", 0.5),
+            beta=values.get("beta", 0.4),
+            gamma=values.get("gamma", 0.1),
+            min_prob=values.get("min_prob", 0.05),
+            nonimp_threshold=values.get("nonimp_threshold", 150),
         )
 
         solver = GIHHSolver(

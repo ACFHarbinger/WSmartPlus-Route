@@ -12,7 +12,7 @@ Reference:
 
 import inspect
 from random import Random
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,7 @@ from logic.src.policies.hybrid_genetic_search.hgs import HGSSolver
 from logic.src.policies.hybrid_genetic_search.params import HGSParams
 from logic.src.policies.hybrid_genetic_search.split import LinearSplit
 from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
-from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+from logic.src.policies.other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from logic.src.policies.travelling_salesman_problem.tsp import find_route, get_route_cost
 
 
@@ -132,7 +132,7 @@ def run_popmusic(  # noqa: C901
     # 2. POPMUSIC ITERATIONS
     iteration = 0
     # Initialize global unassigned pool for VRPP support
-    unassigned_nodes = set()
+    unassigned_nodes: Set[int] = set()
     # Initialize Active List (O-List) for POPMUSIC acceleration
     active_mask = [True] * len(routes)
 

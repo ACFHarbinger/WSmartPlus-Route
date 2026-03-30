@@ -4,8 +4,8 @@ Parameters for GIHH (Hyper-Heuristic with Two Guidance Indicators).
 This module defines the configuration parameters for the GIHH algorithm.
 """
 
-from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass
@@ -13,38 +13,15 @@ class GIHHParams:
     """
     Configuration parameters for GIHH algorithm.
 
-    Attributes:
-        time_limit (float): Maximum execution time in seconds.
-        max_iterations (int): Maximum number of iterations.
-        seed (Optional[int]): Random seed for reproducibility.
+        # Episodic Learning parameters (Chen et al. 2018)
+        seg (int): Segment size for episodic weight updates.
+        alpha (float): Weight momentum factor.
+        beta (float): Quality reward weight parameter.
+        gamma (float): Directional reward penalty multiplier.
+        min_prob (float): Minimum selection probability for any operator.
 
-        # Low-level heuristic operators
-        move_operators (List[str]): List of move operator names.
-        perturbation_operators (List[str]): List of perturbation operator names.
-
-        # Guidance Indicator weights
-        iri_weight (float): Weight for Improvement Rate Indicator (0.0-1.0).
-        tbi_weight (float): Weight for Time-based Indicator (0.0-1.0).
-
-        # Learning parameters
-        learning_rate (float): Rate of indicator updates (0.0-1.0).
-        memory_size (int): Number of recent iterations to track.
-        epsilon (float): Exploration rate for epsilon-greedy selection (0.0-1.0).
-        epsilon_decay (float): Decay rate for epsilon over iterations (0.0-1.0).
-        min_epsilon (float): Minimum epsilon value.
-
-        # Acceptance criteria
-        accept_equal (bool): Accept solutions with equal quality.
-        accept_worse_prob (float): Initial probability of accepting worse solutions.
-        acceptance_decay (float): Decay rate for acceptance probability.
-
-        # Normalization parameters
-        iri_window (int): Window size for IRI normalization.
-        tbi_window (int): Window size for TBI normalization.
-
-        # Multi-start
-        restarts (int): Number of random restarts.
-        restart_threshold (int): Iterations without improvement before restart.
+        # Stopping criteria
+        nonimp_threshold (int): Maximum iterations without improvement (NONIMP).
     """
 
     # Core parameters
@@ -52,51 +29,15 @@ class GIHHParams:
     max_iterations: int = 1000
     seed: Optional[int] = None
 
-    # Operators
-    move_operators: List[str] = field(
-        default_factory=lambda: [
-            "swap_intra",
-            "relocate_intra",
-            "two_opt_intra",
-            "swap_inter",
-            "relocate_inter",
-            "two_opt_star",
-            "exchange_10",
-            "exchange_11",
-            "exchange_21",
-        ]
-    )
-    perturbation_operators: List[str] = field(
-        default_factory=lambda: [
-            "random_removal",
-            "string_removal",
-            "route_removal",
-        ]
-    )
+    # Episodic Weight Updates
+    seg: int = 80
+    alpha: float = 0.5
+    beta: float = 0.4
+    gamma: float = 0.1
+    min_prob: float = 0.05
 
-    # Guidance Indicator weights
-    iri_weight: float = 0.6
-    tbi_weight: float = 0.4
-
-    # Learning parameters
-    learning_rate: float = 0.1
-    memory_size: int = 50
-    epsilon: float = 0.2
-    epsilon_decay: float = 0.995
-    min_epsilon: float = 0.01
-
-    # Acceptance criteria
-    accept_equal: bool = True
-    accept_worse_prob: float = 0.05
-    acceptance_decay: float = 0.99
-
-    # Normalization
-    iri_window: int = 20
-    tbi_window: int = 20
-
-    # Multi-start
-    restarts: int = 1
-    restart_threshold: int = 100
+    # Stopping criteria
+    nonimp_threshold: int = 150
 
     # Profit-awareness
     vrpp: bool = True
@@ -109,22 +50,12 @@ class GIHHParams:
             time_limit=getattr(config, "time_limit", 60.0),
             max_iterations=getattr(config, "max_iterations", 1000),
             seed=getattr(config, "seed", None),
-            move_operators=getattr(config, "move_operators", None),
-            perturbation_operators=getattr(config, "perturbation_operators", None),
-            iri_weight=getattr(config, "iri_weight", 0.6),
-            tbi_weight=getattr(config, "tbi_weight", 0.4),
-            learning_rate=getattr(config, "learning_rate", 0.1),
-            memory_size=getattr(config, "memory_size", 50),
-            epsilon=getattr(config, "epsilon", 0.2),
-            epsilon_decay=getattr(config, "epsilon_decay", 0.995),
-            min_epsilon=getattr(config, "min_epsilon", 0.01),
-            accept_equal=getattr(config, "accept_equal", True),
-            accept_worse_prob=getattr(config, "accept_worse_prob", 0.05),
-            acceptance_decay=getattr(config, "acceptance_decay", 0.99),
-            iri_window=getattr(config, "iri_window", 20),
-            tbi_window=getattr(config, "tbi_window", 20),
-            restarts=getattr(config, "restarts", 1),
-            restart_threshold=getattr(config, "restart_threshold", 100),
+            seg=getattr(config, "seg", 80),
+            alpha=getattr(config, "alpha", 0.5),
+            beta=getattr(config, "beta", 0.4),
+            gamma=getattr(config, "gamma", 0.1),
+            min_prob=getattr(config, "min_prob", 0.05),
+            nonimp_threshold=getattr(config, "nonimp_threshold", 150),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )

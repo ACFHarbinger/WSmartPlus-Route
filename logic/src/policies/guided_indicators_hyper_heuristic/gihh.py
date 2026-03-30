@@ -2,19 +2,15 @@
 Guided Indicators Hyper-Heuristic (GIHH) for VRPP.
 
 GIHH is an adaptive hyper-heuristic that selects Low-Level Heuristics (LLHs)
-based on their historical performance, guided by two specific indicators:
-1. Improvement Rate Indicator (IRI): Measures solution quality improvement
-2. Time-based Indicator (TBI): Measures computational efficiency
-
-The algorithm uses epsilon-greedy selection to balance exploration and exploitation,
-and employs a hill climbing acceptance criterion to escape local optima.
+based on their historical performance, guided by two specific indicators.
+Refactored to rigorously align with Chen et al. (2018):
+1. ScoreA (Quality Reward): Increment on acceptance to Pareto Archive.
+2. ScoreB (Directional Reward): Track objective optimization bias (Revenue vs Cost).
 
 References:
     - Chen, B., Qu, R., Bai, R., & Laesanklang, W. (2018). "A hyper-heuristic with
       two guidance indicators for bi-objective mixed-shift vehicle routing problem
       with time windows." European Journal of Operational Research, 269(2), 661-675.
-    - Akpinar, S. (2016). "Hybrid large neighbourhood search algorithm for capacitated
-      vehicle routing problem." Expert Systems with Applications, 61, 28-38.
 """
 
 import copy
@@ -24,28 +20,28 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..other.operators import random_removal
-from ..other.operators.destroy.shaw import shaw_profit_removal, shaw_removal
-from ..other.operators.destroy.string import string_removal
-from ..other.operators.heuristics.greedy_initialization import build_greedy_routes
-from ..other.operators.repair.greedy_blink import (
-    greedy_insertion_with_blinks,
-    greedy_profit_insertion_with_blinks,
-)
-from ..other.operators.repair.regret import regret_2_insertion, regret_2_profit_insertion
-from .indicators import ImprovementRateIndicator, TimeBasedIndicator
+from ..other.local_search.local_search_manager import LocalSearchManager
+from ..other.operators import apply_ges, apply_intra_route_cross_exchange, apply_lns, build_greedy_routes
+from .indicators import ScoreAIndicator, ScoreBIndicator
 from .params import GIHHParams
 from .solution import Solution
 
 
 class GIHHSolver:
     """
-    GIHH solver implementation for VRPP.
+    GIHH solver implementation using a Pareto Archive.
 
-    This hyper-heuristic uses two guidance indicators (IRI and TBI) to adaptively
-    select Low-Level Heuristics based on their historical performance. It employs
-    epsilon-greedy selection for exploration-exploitation balance and hill climbing
-    acceptance to escape local optima.
+    This hyper-heuristic uses Episodic Weight Updates with Roulette Wheel selection
+    and maintains a Multi-Objective Archive (ARCH).
+
+    OBJECTIVE ALIGNMENT (Chen et al. 2018 vs VRPP):
+      - MS-VRPTW Objective 1 (Minimize DP) -> VRPP Objective 1 (Maximize Revenue).
+      - MS-VRPTW Objective 2 (Minimize TD) -> VRPP Objective 2 (Minimize Cost).
+      - Note: A positive ScoreB and positive DEVIATION implies an algorithmic
+        inclination toward improving Revenue (the first objective).
+
+    For integration with WSmart-Route, it ultimately exports the archive solution
+    that maximizes the scalar `profit`.
     """
 
     def __init__(
@@ -67,42 +63,31 @@ class GIHHSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
-        # Initialize guidance indicators with per-operator tracking
-        self.iri = ImprovementRateIndicator(window_size=params.iri_window)
-        self.tbi = TimeBasedIndicator(window_size=params.tbi_window)
+        # Initialize new guidance indicators
+        self.score_a = ScoreAIndicator()
+        self.score_b = ScoreBIndicator()
 
-        # Define Low-Level Heuristics (LLH) pool as operator combinations
-        # Each operator is a tuple of (destroy_type, repair_type)
+        # The 5 LLHs from the reference paper
         self.operators = [
-            ("shaw", "blink"),
-            ("shaw", "regret2"),
-            ("string", "blink"),
-            ("string", "regret2"),
-            ("random", "blink"),
-            ("random", "regret2"),
+            "inter_route_2opt_star",
+            "inter_route_cross_exchange",
+            "intra_route_cross_exchange",
+            "lns",
+            "ges",
         ]
 
-        # Adaptive parameters
-        self.epsilon = params.epsilon
-        self.accept_worse_prob = params.accept_worse_prob
+        # Episodic Learning weights
+        self.weights = {op: 1.0 / len(self.operators) for op in self.operators}
+        self.applied_times = {op: 0 for op in self.operators}
+
+        # Track global Best Profit for WSmart-Route output contract
+        self.global_best_profit_sol = None
+        self.ARCH = []
+        self.segment_start_sc = None
+        self.segment_accepted_sols = []
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Runs the GIHH metaheuristic with guided operator selection.
-
-        Algorithm:
-            1. Generate initial solution
-            2. While stopping criteria not met:
-                a. Select operator using epsilon-greedy strategy
-                b. Apply selected operator and measure performance
-                c. Update guidance indicators (IRI and TBI)
-                d. Accept/reject solution using hill climbing criterion
-                e. Decay epsilon and acceptance probability
-            3. Return best solution found
-
-        Returns:
-            Tuple of (routes, profit, cost) for the best solution.
-        """
+        """Runs the GIHH metaheuristic using Pareto evaluation."""
         if len(self.dist_matrix) <= 1:
             return [], 0.0, 0.0
 
@@ -119,7 +104,7 @@ class GIHHSolver:
             rng=self.rng,
         )
 
-        current_sol = Solution(
+        initial_sol = Solution(
             initial_routes,
             self.dist_matrix,
             self.wastes,
@@ -127,270 +112,186 @@ class GIHHSolver:
             self.R,
             self.C,
         )
-        best_sol = copy.deepcopy(current_sol)
 
-        iteration = 0
+        # Multi-Objective Archive
+        self.ARCH = [initial_sol]
+        self.global_best_profit_sol = copy.deepcopy(initial_sol)
+
+        iteration = 1
+        iterations_since_last_improvement = 0
+
         while True:
             # Check stopping criteria
             elapsed = time.process_time() - start_time
             if self.params.time_limit > 0 and elapsed > self.params.time_limit:
                 break
-            if iteration >= self.params.max_iterations:
+            if iteration > self.params.max_iterations:
+                break
+            if iterations_since_last_improvement >= self.params.nonimp_threshold:
                 break
 
-            # 2. Select operator using epsilon-greedy strategy
+            # 2. Select Current Solution from ARCH
+            current_sol = self.rng.choice(self.ARCH)
+
+            if iteration % self.params.seg == 1 or self.segment_start_sc is None:
+                self.segment_start_sc = current_sol
+
+            # 3. Select operator
             selected_operator = self._select_operator()
 
-            # 3. Apply selected operator and measure performance
-            operator_start_time = time.process_time()
+            # 4. Apply selected operator
             candidate_sol = self._apply_selected_operator(current_sol, selected_operator)
-            operator_elapsed = time.process_time() - operator_start_time
 
-            # 4. Update guidance indicators with operator-specific metrics
-            improvement = candidate_sol.profit - current_sol.profit
-            operator_name = f"{selected_operator[0]}_{selected_operator[1]}"
-            self.iri.update(operator_name, improvement)
-            self.tbi.update(operator_name, operator_elapsed)
+            # WSmart-Route compatibility: track global scalar best
+            if candidate_sol.is_feasible() and candidate_sol.profit > self.global_best_profit_sol.profit:
+                self.global_best_profit_sol = copy.deepcopy(candidate_sol)
 
-            # 5. Acceptance using Hill Climbing criterion
-            accept = False
-            if candidate_sol.profit > current_sol.profit:
-                # Always accept improvements
-                accept = True
-            elif self.params.accept_equal and candidate_sol.profit == current_sol.profit:
-                # Accept equal solutions if configured
-                accept = True
-            elif self.rng.random() < self.accept_worse_prob:
-                # Accept worse solutions with probability (hill climbing)
-                accept = True
+            # 5. Evaluate Acceptance against Pareto Archive (ARCH)
+            self.applied_times[selected_operator] += 1
+            is_accepted = self._update_archive(candidate_sol)
 
-            if accept:
-                current_sol = candidate_sol
-                if current_sol.profit > best_sol.profit:
-                    best_sol = copy.deepcopy(current_sol)
+            if is_accepted:
+                self.segment_accepted_sols.append(candidate_sol)
+                iterations_since_last_improvement = 0
+            else:
+                iterations_since_last_improvement += 1
 
-            # 6. Decay adaptive parameters
-            self.epsilon = max(self.params.min_epsilon, self.epsilon * self.params.epsilon_decay)
-            self.accept_worse_prob *= self.params.acceptance_decay
+            # 6. Update Guidance Indicators
+            self.score_a.update(selected_operator, is_accepted)
+            if is_accepted:
+                rev_improved = candidate_sol.revenue_total > current_sol.revenue_total
+                cost_improved = candidate_sol.cost < current_sol.cost
+                self.score_b.update(selected_operator, rev_improved, cost_improved)
+
+            # 7. Episodic Weight Updates
+            if iteration % self.params.seg == 0:
+                self._update_episodic_weights()
+                self.segment_accepted_sols.clear()
 
             iteration += 1
 
-            # Optional visualization callback
-            getattr(self, "_viz_record", lambda **k: None)(
-                iteration=iteration,
-                best_profit=best_sol.profit,
-                current_profit=current_sol.profit,
-                elapsed=elapsed,
-            )
+        best_cost = self._cost(self.global_best_profit_sol.routes)
+        return self.global_best_profit_sol.routes, self.global_best_profit_sol.profit, best_cost
 
-        best_cost = self._cost(best_sol.routes)
-        return best_sol.routes, best_sol.profit, best_cost
+    def _select_operator(self) -> str:
+        """Proportional Roulette Wheel Selection with a minimum probability guarantee."""
+        min_p = self.params.min_prob
+        n_ops = len(self.operators)
 
-    def _select_operator(self) -> Tuple[str, str]:
-        """
-        Select operator using epsilon-greedy strategy based on guidance indicators.
+        # Calculate effective sum after setting aside minimums
+        remaining_prob = 1.0 - (n_ops * min_p)
+        total_weight = sum(self.weights.values())
 
-        Implements the selection mechanism from Chen et al. (2018):
-            Score_i = (w_IRI * IRI_i) + (w_TBI * TBI_i)
+        probs = []
+        for op in self.operators:
+            p = min_p + remaining_prob * (self.weights[op] / total_weight) if total_weight > 0 else 1.0 / n_ops
+            probs.append(p)
 
-        With probability epsilon, selects a random operator (exploration).
-        Otherwise, selects the operator with the highest weighted score (exploitation).
+        # Roulette wheel sample
+        return self.rng.choices(self.operators, weights=probs, k=1)[0]
 
-        Returns:
-            Tuple of (destroy_type, repair_type) representing the selected operator.
-        """
-        # Epsilon-greedy: Explore with probability epsilon
-        if self.rng.random() < self.epsilon:
-            return self.rng.choice(self.operators)
+    def _apply_selected_operator(self, current: Solution, operator: str) -> Solution:
+        """Apply the specific paper LLHs using WSmart-Route operator parity."""
+        candidate = current.copy()
 
-        # Collect raw IRI and TBI scores for all operators
-        iri_scores = []
-        tbi_scores = []
-        for operator in self.operators:
-            operator_name = f"{operator[0]}_{operator[1]}"
-            iri_scores.append(self.iri.get_score(operator_name))
-            tbi_scores.append(self.tbi.get_score(operator_name))
-
-        # Calculate minimum and maximum values
-        min_iri, max_iri = min(iri_scores), max(iri_scores)
-        min_tbi, max_tbi = min(tbi_scores), max(tbi_scores)
-
-        # Exploitation: Select operator with highest weighted score
-        best_operator = self.operators[0]
-        best_score = float("-inf")
-
-        for i, operator in enumerate(self.operators):
-            # Min-Max normalization
-            norm_iri = (iri_scores[i] - min_iri) / (max_iri - min_iri + 1e-9)
-            norm_tbi = (tbi_scores[i] - min_tbi) / (max_tbi - min_tbi + 1e-9)
-
-            # Calculate weighted score using normalized values
-            weighted_score = (self.params.iri_weight * norm_iri) + (self.params.tbi_weight * norm_tbi)
-
-            if weighted_score > best_score:
-                best_score = weighted_score
-                best_operator = operator
-
-        return best_operator
-
-    def _apply_selected_operator(self, current: Solution, operator: Tuple[str, str]) -> Solution:
-        """
-        Apply the selected destroy-repair operator combination to the current solution.
-
-        Args:
-            current: Current solution to modify.
-            operator: Tuple of (destroy_type, repair_type).
-
-        Returns:
-            Modified candidate solution.
-        """
-        destroy_type, repair_type = operator
-        candidate = copy.deepcopy(current)
-
-        all_nodes = [n for r in candidate.routes for n in r]
-        if not all_nodes:
-            return candidate
-
-        # Determine removal size
-        n_remove = max(1, min(len(all_nodes) // 4, 10))
-        expand_pool = self.params.vrpp
-
-        # 1. Apply Destroy Operator
-        if destroy_type == "shaw":
-            if self.params.profit_aware_operators:
-                candidate.routes, removed_nodes = shaw_profit_removal(
-                    candidate.routes, n_remove, self.dist_matrix, self.wastes, self.R, self.C, rng=self.rng
-                )
-            else:
-                candidate.routes, removed_nodes = shaw_removal(
-                    candidate.routes, n_remove, self.dist_matrix, rng=self.rng
-                )
-        elif destroy_type == "string":
-            candidate.routes, removed_nodes = string_removal(candidate.routes, n_remove, self.dist_matrix, rng=self.rng)
-        elif destroy_type == "random":
-            candidate.routes, removed_nodes = random_removal(candidate.routes, n_remove, self.rng)
-
-        # Localize reinsertion pool based on removed nodes
-        nodes_to_insert_set = set(removed_nodes)
-        current_nodes = set(n for r in candidate.routes for n in r)
-
-        for node in removed_nodes:
-            distances = self.dist_matrix[node]
-            nearest_indices = np.argsort(distances)
-
-            count = 0
-            for neighbor_idx in nearest_indices:
-                neighbor = int(neighbor_idx)
-                if neighbor == 0 or neighbor == node:
-                    continue
-
-                if neighbor not in current_nodes:
-                    nodes_to_insert_set.add(neighbor)
-
-                count += 1
-                if count >= 15:
-                    break
-
-        nodes_to_insert = list(nodes_to_insert_set)
-
-        # 2. Apply Repair Operator
-        if repair_type == "blink":
-            if self.params.profit_aware_operators:
-                candidate.routes = greedy_profit_insertion_with_blinks(
-                    candidate.routes,
-                    nodes_to_insert,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            else:
-                candidate.routes = greedy_insertion_with_blinks(
-                    candidate.routes,
-                    nodes_to_insert,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-        elif repair_type == "regret2":
-            if self.params.profit_aware_operators:
-                candidate.routes = regret_2_profit_insertion(
-                    candidate.routes,
-                    nodes_to_insert,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            else:
-                candidate.routes = regret_2_insertion(
-                    candidate.routes,
-                    nodes_to_insert,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-
-        # Evaluate candidate solution
-        candidate.profit = self._evaluate(candidate.routes)
-        return candidate
-
-    def _apply_perturbation_operator(self, current: Solution) -> Solution:
-        """Applies a stronger ruin-and-recreate for stagnation escape."""
-        candidate = copy.deepcopy(current)
-        all_nodes = [n for r in candidate.routes for n in r]
-        if not all_nodes:
-            return candidate
-
-        n_remove = max(1, min(len(all_nodes) // 2, 20))
-        expand_pool = self.params.vrpp
-
-        # Use random removal for diversity
-        candidate.routes, _ = random_removal(candidate.routes, n_remove, self.rng)
-
-        # Re-insert with profit-aware regret-2 if enabled
-        if self.params.profit_aware_operators:
-            candidate.routes = regret_2_profit_insertion(
-                candidate.routes,
-                list(set(range(1, len(self.dist_matrix))) - set(all_nodes)),
+        if operator in ["inter_route_2opt_star", "inter_route_cross_exchange"]:
+            ls = LocalSearchManager(
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
                 self.R,
                 self.C,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=expand_pool,
+                improvement_threshold=0.0,
+                seed=self.params.seed,
             )
-        else:
-            candidate.routes = regret_2_insertion(
-                candidate.routes,
-                list(set(range(1, len(self.dist_matrix))) - set(all_nodes)),
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=expand_pool,
+            ls.set_routes(candidate.routes)
+            if operator == "inter_route_2opt_star":
+                ls.two_opt_star()
+            elif operator == "inter_route_cross_exchange":
+                ls.cross_exchange_op()
+            candidate.routes = ls.get_routes()
+        elif operator == "intra_route_cross_exchange":
+            candidate.routes = apply_intra_route_cross_exchange(candidate.routes, self.rng)
+        elif operator == "lns":
+            candidate.routes = apply_lns(
+                candidate.routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C, self.rng
             )
+        elif operator == "ges":
+            candidate.routes = apply_ges(candidate.routes, self.dist_matrix, self.wastes, self.capacity, self.rng)
 
-        candidate.profit = self._evaluate(candidate.routes)
+        candidate.evaluate()
         return candidate
 
-    def _evaluate(self, routes: List[List[int]]) -> float:
-        """Calculates Net Profit ($)."""
-        if not routes:
-            return 0.0
-        rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
-        return rev - self._cost(routes) * self.C
+    def _update_archive(self, candidate: Solution) -> bool:
+        """
+        Updates the Pareto Archive.
+        Returns True if candidate is non-dominated by any solution in ARCH.
+        """
+        if not candidate.is_feasible():
+            return False
+
+        is_dominated = False
+        to_remove = []
+
+        for arch_sol in self.ARCH:
+            if arch_sol.dominates(candidate):
+                is_dominated = True
+                break
+            elif candidate.dominates(arch_sol):
+                to_remove.append(arch_sol)
+
+        if not is_dominated:
+            for sol in to_remove:
+                self.ARCH.remove(sol)
+            self.ARCH.append(candidate)
+            return True
+
+        return False
+
+    def _update_episodic_weights(self) -> None:
+        """
+        Episodic Weight Update Mechanism (Chen et al. 2018).
+
+        OBJECTIVE ALIGNMENT:
+        A positive DEVIATION implies the search in this segment heavily
+        favored Revenue improvements over Cost improvements.
+        """
+        # Phase 1: Quality Reward update
+        for op in self.operators:
+            a_score = self.score_a.get_score(op)
+            k = self.applied_times[op]
+            ratio = a_score / k if k > 0 else 0.0
+
+            # weight_i = alpha * weight_i + beta * (ScoreA_i / applied_times_i)
+            self.weights[op] = self.params.alpha * self.weights[op] + self.params.beta * ratio
+
+        # Phase 2: Directional Reward update based on Segment Bias
+        if self.segment_start_sc is not None and self.segment_accepted_sols:
+            rev_improvements = sum(
+                1 for s in self.segment_accepted_sols if s.revenue_total > self.segment_start_sc.revenue_total
+            )
+            cost_improvements = sum(1 for s in self.segment_accepted_sols if s.cost < self.segment_start_sc.cost)
+            # Equation 24: Corrected denominator (- 0.5 as per paper)
+            dev = (rev_improvements - cost_improvements) / (rev_improvements + cost_improvements - 0.5)
+        else:
+            dev = 0.0
+
+        for op in self.operators:
+            b_score = self.score_b.get_score(op)
+            k = self.applied_times[op]
+            b_ratio = b_score / k if k > 0 else 0.0
+
+            # Equation 25 conditionals
+            # While the paper describes this as "balancing", we strictly implement Eq. 25
+            if (dev > 0 and b_ratio > 0) or (dev < 0 and b_ratio < 0):
+                self.weights[op] += self.params.gamma * b_ratio
+                self.weights[op] = max(0.0, self.weights[op])  # Prevent negative weights
+
+        # Reset tallies
+        for op in self.operators:
+            self.score_a.reset(op)
+            self.score_b.reset(op)
+            self.applied_times[op] = 0
 
     def _cost(self, routes: List[List[int]]) -> float:
         """Calculates total distance (km)."""
