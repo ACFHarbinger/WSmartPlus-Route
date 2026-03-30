@@ -45,10 +45,6 @@ aks:
       # Hard cap on the number of sub-MIP iterations. Controls the trade-off
       # between exhaustive search and fast termination.
 
-    - bucket_growth_factor: 1.3
-      # Multiplier applied to the current bucket size upon finding an improved
-      # solution. Set to 1.0 for static bucket sizes (basic KS behavior).
-
     # ---------------------------------------------------------------------
     # Solver Control
     # ---------------------------------------------------------------------

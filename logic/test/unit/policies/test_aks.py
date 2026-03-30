@@ -46,8 +46,9 @@ def test_aks_basic():
             initial_kernel_size=10,
             bucket_size=5,
             max_buckets=3,
-            bucket_growth_factor=1.5,
-            time_limit=15.0
+            time_limit=15.0,
+            t_easy=5.0,
+            epsilon=0.1
         )
     except Exception as e:
         if "License" in str(e) or "license" in str(e):

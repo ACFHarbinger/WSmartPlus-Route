@@ -310,6 +310,61 @@ def _set_mip_start(
             y[node].Start = 1.0
 
 
+def _separate_fractional_subtours(model, x_vars, num_nodes):
+    """
+    Identify and inject fractional subtour elimination cuts (User Cuts).
+    Uses Max-Flow/Min-Cut to find violated directed cuts.
+    """
+    # 1. Build a capacity graph from the fractional solution
+    G = nx.DiGraph()
+    for (i, j), var in x_vars.items():
+        val = model.cbGetNodeRel(var)
+        if val > 1e-4:
+            G.add_edge(i, j, capacity=val)
+
+    # 2. Check cuts from depot (0) to each customer i
+    # Requirement: min-cut(0 -> i) >= y_i
+    for i in range(1, num_nodes):
+        if i not in G:
+            continue
+
+        y_val = model.cbGetNodeRel(model._y_vars[i])
+        if y_val < 1e-4:
+            continue
+
+        cut_value, (reachable, _non_reachable) = nx.minimum_cut(G, 0, i)
+
+        if cut_value < y_val - 1e-4:
+            # Violated cut: sum_{u in S, v not in S} x[u,v] >= y[i]
+            # S is the set containing the depot (0)
+            S = reachable
+            cut_edges = []
+            for u in S:
+                if u in G:
+                    for v in G.neighbors(u):
+                        if v not in S:
+                            cut_edges.append(x_vars[(u, v)])
+
+            if cut_edges:
+                model.cbCut(quicksum(cut_edges) >= model._y_vars[i])
+
+
+def _root_node_callback(model, where):
+    """
+    Gurobi callback to harvest the root node relaxation values.
+    ENHANCED: Adds fractional subtour elimination user cuts before harvesting.
+    """
+    if where == GRB.Callback.MIPNODE:
+        status = model.cbGet(GRB.Callback.MIPNODE_STATUS)
+        if status == GRB.OPTIMAL and model.cbGet(GRB.Callback.MIPNODE_NODCNT) == 0:
+            # 1. Separate fractional subtours at the root node
+            _separate_fractional_subtours(model, model._x_vars, model._num_nodes)
+
+            # 2. Harvest relaxation values (now reflecting the subtour cuts)
+            model._node_rel = model.cbGetNodeRel(model._all_vars_list)
+            model.terminate()
+
+
 def _get_partitioned_vars(
     model: gp.Model,
     x: Dict[Tuple[int, int], gp.Var],
@@ -324,33 +379,32 @@ def _get_partitioned_vars(
     mandatory_nodes: List[int],
 ) -> Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]:
     """
-    Solve the LP relaxation and partition all discrete variables into Kernel and Buckets.
+    Solve the root node relaxation and partition discrete variables into Kernel and Buckets.
+    Ranking is based on subtour-aware relaxation values.
 
-    Variables are ranked based on their fractional values (closer to 1.0 is better).
-    To guarantee mathematical feasibility, the edges and nodes from a greedy heuristic
-    solution are unconditionally injected into the kernel.
-
-    Args:
-        model (gp.Model): The model instance.
-        x (Dict): Flow variables.
-        y (Dict): Selection variables.
-        initial_kernel_size (int): Size of the primary search space (the Kernel).
-        bucket_size (int): Size of secondary increments (Buckets).
-        dist_matrix: Cost matrix.
-        wastes: Waste dict.
-        capacity: Vehicle capacity.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        mandatory_nodes: Nodes that must be visited.
-
-    Returns:
-        Tuple: (kernel_vars, remaining_vars, buckets)
+    Note: A unified list is used for all variables (x and y) because this VRPP
+    formulation is a pure 0-1 MIP. While Guastaroba et al. (2017) suggests
+    maintaining separate lists for binary and general integer variables, they
+    are merged here as all discrete variables in this model are binary.
     """
-    model.optimize()
-    if model.Status not in [GRB.OPTIMAL, GRB.TIME_LIMIT] or model.SolCount == 0:
-        return [], [], []
+    # Ensure Lazy Constraints are enabled for any solve with callbacks
+    model.Params.LazyConstraints = 1
 
-    # 1. Compute a totally feasible heuristic route
+    # Prepare for root node relaxation harvesting
+    all_vars_list = list(x.values()) + list(y.values())
+    model._all_vars_list = all_vars_list
+    model._node_rel = [0.0] * len(all_vars_list)
+    model._y_vars = y  # Needed for separation logic
+
+    # variables already binary from _setup_ks_model(use_binary_vars=True) logic in run call
+
+    # Optimize with the root node callback
+    model.optimize(_root_node_callback)
+
+    # 3. Extract relaxation values
+    var_values = {var: val for var, val in zip(all_vars_list, model._node_rel)}
+
+    # 4. Compute a totally feasible heuristic route for robustness
     rng = random.Random(42)
     heuristic_routes = build_greedy_routes(
         dist_matrix=dist_matrix, wastes=wastes, capacity=capacity, R=R, C=C, mandatory_nodes=mandatory_nodes, rng=rng
@@ -368,37 +422,30 @@ def _get_partitioned_vars(
         heuristic_edges.add((route[-1], 0))
         heuristic_nodes.add(route[-1])
 
-    # 2. Extract variables, their fractional values, and their reduced costs
+    # 5. Extract variables and their harvested relaxation values
     all_vars = []
     for (i, j), var in x.items():
-        # Ensure we capture var.RC (reduced cost)
-        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "x", (i, j)))
+        val = var_values.get(var, 0.0)
+        all_vars.append((var, val, "x", (i, j)))
     for i, var in y.items():
-        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "y", i))
+        val = var_values.get(var, 0.0)
+        all_vars.append((var, val, "y", i))  # type: ignore[arg-type]
 
-    # Sort logic:
-    # 1. Variables with X > 1e-4 are prioritized (sorted by X descending)
-    # 2. For variables at 0, prioritize Reduced Cost closest to 0 (descending for MAXIMIZE problem)
-    all_vars.sort(key=lambda item: (item[1] > 1e-4, item[1], item[2]), reverse=True)
+    # Sort logic: Root node relaxation value descending
+    all_vars.sort(key=lambda item: item[1], reverse=True)
 
-    # 3. Switch types to BINARY for the remainder of the search
-    for v_obj, _, _, _, _ in all_vars:
-        v_obj.vtype = GRB.BINARY
-
-    # 4. Partition into sets
-    # Ensure the kernel captures at least the entire LP support to avoid immediate infeasibility
-    lp_support_size = sum(1 for _, val, _, _, _ in all_vars if val > 1e-4)
+    # 6. Partition into sets
+    lp_support_size = sum(1 for _, val, _, _ in all_vars if val > 1e-4)
     actual_kernel_size = max(initial_kernel_size, lp_support_size)
 
     kernel_vars = []
     remaining_vars = []
 
-    # We must unconditionally include heuristic variables to guarantee ILP feasibility
-    for v_obj, _, _, _, _ in all_vars[:actual_kernel_size]:
+    # Include heuristic variables to guarantee ILP feasibility
+    for v_obj, _, _, _ in all_vars[:actual_kernel_size]:
         kernel_vars.append(v_obj)
 
-    for v_obj, _, _, vtype, idx in all_vars[actual_kernel_size:]:
-        # If it belongs to the heuristic solution, force it into the kernel
+    for v_obj, _, vtype, idx in all_vars[actual_kernel_size:]:
         if (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes):
             kernel_vars.append(v_obj)
         else:
@@ -420,34 +467,18 @@ def _solve_ks_iterations(
     """
     Perform the iterative improvement phase by solving sub-problems with DFJ cuts.
 
-    Each iteration adds one bucket of variables to the search space. If the objective
-    improves, all variables used in the new solution are promoted to the Kernel permanently.
-    Otherwise, unused variables in the bucket are re-fixed to 0.
-
-    **CRITICAL CHANGE**: All optimize() calls now use the DFJ callback to dynamically
-    add subtour elimination constraints.
-
-    Args:
-        model: Gurobi model.
-        kernel_vars: Seed variables.
-        buckets: List of variable subsets.
-        remaining_vars: All variables outside the initial kernel.
-        time_limit: Total runtime budget.
-        mip_limit_nodes: Branch-and-bound node limit per iteration.
-
-    Returns:
-        Set: All variables that took positive values in the best found solution.
+    Each iteration adds one bucket of variables and a budget constraint.
     """
     # Fix everything to zero initially
     for v in remaining_vars:
-        v.ub = 0
+        v.UB = 0
 
     best_obj = -float("inf")
     used_vars = set()
     start_time = model.Runtime
 
     # 1. Solve INITIAL KERNEL with DFJ callback
-    model.setParam("TimeLimit", max(1.0, (time_limit / (len(buckets) + 1))))
+    model.setParam("TimeLimit", max(2.0, (time_limit / (len(buckets) + 1))))
     model.setParam("NodeLimit", mip_limit_nodes)
     model.optimize(_dfj_subtour_elimination_callback)
 
@@ -463,7 +494,14 @@ def _solve_ks_iterations(
 
         # Dynamically unfix the current bucket
         for v in bucket:
-            v.ub = 1
+            v.UB = 1
+
+        # KS Bucket Constraint: sum_{j in B_i} x_j >= 1
+        bucket_constr = model.addConstr(quicksum(bucket) >= 1, name="KS_Bucket_Constraint")
+
+        # Step 2: Objective Cutoff (Guastaroba 2017, Step 3.1)
+        # Solutions worse than this will be discarded.
+        model.Params.Cutoff = best_obj + 1e-4
 
         model.optimize(_dfj_subtour_elimination_callback)
 
@@ -478,11 +516,14 @@ def _solve_ks_iterations(
             # Fix unused variables in the bucket back to zero to keep sub-MIP small
             for v in bucket:
                 if v.X < 0.5:
-                    v.ub = 0
+                    v.UB = 0
         else:
             # Revert unfixing if no better solution found
             for v in bucket:
-                v.ub = 0
+                v.UB = 0
+
+        # RIGOR: Explicitly remove the bucket constraint after the solve
+        model.remove(bucket_constr)
 
     return used_vars
 
@@ -512,7 +553,7 @@ def _reconstruct_tour(
         return [0, 0], 0.0
 
     # 2. Build adjacency map for path reconstruction
-    adj = {i: [] for i in range(num_nodes)}
+    adj: Dict[int, List[int]] = {i: [] for i in range(num_nodes)}
     for i, j in active_edges:
         adj[i].append(j)
 
@@ -591,8 +632,8 @@ def run_kernel_search_gurobi(
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
 
-    # Phase 1: Structural Setup (DFJ-based, no MTZ variables)
-    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+    # Phase 1: Structural Setup (ensure binary vars for root relaxation)
+    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes, use_binary_vars=True)
 
     # Phase 2: LP Relaxation & Variable Partitioning
     # This phase creates the ranking of variables for the Kernel and Buckets.
@@ -616,7 +657,7 @@ def run_kernel_search_gurobi(
 
     # Unfix all variables identified as useful for a final "polishing" solve
     for v in used_vars:
-        v.ub = 1
+        v.UB = 1
 
     # Warm-start with greedy heuristic to ensure feasibility
     _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
