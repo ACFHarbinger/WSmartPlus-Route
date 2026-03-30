@@ -17,8 +17,9 @@ Reference:
     ACO and VFJ algorithm with GA"
 """
 
+import random
 import time
-from typing import List, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -106,37 +107,18 @@ def _get_swap_sequence(source: List[int], target: List[int]) -> List[Tuple[int, 
     return swaps
 
 
-def _calculate_pso_velocity(
-    particle: List[int],
-    pbest_tour: List[int],
-    gbest_tour: List[int],
-    current_velocity: List[Tuple[int, int]],
-    w: float,
-    c1: float,
-    c2: float,
-) -> List[Tuple[int, int]]:
-    """Calculate new velocity for a PSO particle."""
-    swaps_to_pbest = _get_swap_sequence(particle, pbest_tour)
-    swaps_to_gbest = _get_swap_sequence(particle, gbest_tour)
-
-    new_velocity = []
-
-    # Inertia: keep some of previous velocity
-    if np.random.rand() < w and current_velocity:
-        num_keep = min(len(current_velocity), 2)
-        new_velocity.extend(current_velocity[:num_keep])
-
-    # Cognitive: move toward personal best
-    if np.random.rand() < c1 and swaps_to_pbest:
-        num_cognitive = max(1, int(len(swaps_to_pbest) * c1 / 3))
-        new_velocity.extend(swaps_to_pbest[:num_cognitive])
-
-    # Social: move toward global best
-    if np.random.rand() < c2 and swaps_to_gbest:
-        num_social = max(1, int(len(swaps_to_gbest) * c2 / 3))
-        new_velocity.extend(swaps_to_gbest[:num_social])
-
-    return new_velocity
+def _get_swap_operators(tour1: List[int], tour2: List[int]) -> List[Tuple[int, int]]:
+    """Compute sequence of swap operations to transform tour1 into tour2."""
+    swaps = []
+    t1 = list(tour1)
+    for i in range(len(t1)):
+        if t1[i] != tour2[i]:
+            for j in range(i + 1, len(t1)):
+                if t1[j] == tour2[i]:
+                    swaps.append((i, j))
+                    t1[i], t1[j] = t1[j], t1[i]
+                    break
+    return swaps
 
 
 def _apply_2opt_local_search(
@@ -168,138 +150,91 @@ def find_route_pso(
     cluster: List[int],
     time_limit: float = 60.0,
     seed: int = 42,
-    n_particles: int = 30,
-    w: float = 0.7,
+    n_particles: int = 50,
     c1: float = 1.5,
     c2: float = 1.5,
 ) -> List[int]:
     """
-    Solve TSP using Particle Swarm Optimization (PSO).
+    Solve TSP using Velocity Tentative PSO (VTPSO).
 
-    PSO is a population-based stochastic optimization technique inspired by social
-    behavior of bird flocking. For TSP, particles represent tour permutations and
-    "velocity" is represented by swap sequences.
-
-    Algorithm:
-    1. Initialize swarm of random tours
-    2. Evaluate fitness (tour distance)
-    3. Update personal best (pbest) and global best (gbest)
-    4. Update velocity: sequence of swaps toward pbest and gbest
-    5. Apply velocity to particles with inertia, cognitive, and social components
-    6. Repeat until time limit or convergence
+    Ref: Akhand et al. (2015); Sultana & Akhand (2017). VTPSO computes a
+    tentative velocity and uses partial search to explore intermediate
+    tours, selecting the best one. This methodology enables the mapping
+    of continuous velocity vectors to discrete TSP topologies.
 
     Args:
         distance_matrix: Pre-computed all-pairs distance matrix.
         cluster: List of node indices to visit (including depot at index 0).
-        time_limit: Maximum time in seconds for optimization.
-        seed: Random seed for reproducibility.
-        n_particles: Number of particles in swarm (default: 30).
-        w: Inertia weight (default: 0.7) - controls exploration vs exploitation.
-        c1: Cognitive coefficient (default: 1.5) - attraction to personal best.
-        c2: Social coefficient (default: 1.5) - attraction to global best.
+        time_limit: Maximum time in seconds.
+        seed: Random seed.
+        n_particles: Number of particles.
+        c1: Cognitive coefficient.
+        c2: Social coefficient.
 
     Returns:
         TSP tour as list of node indices [0, i1, i2, ..., in, 0].
-
-    Reference:
-        Sultana et al. (2017), Section 3.3: "PSO for TSP routing phase"
-
-    Implementation Notes:
-        - Uses discrete PSO with swap sequences as velocity
-        - Applies 2-opt local search to improve solutions
-        - Respects time limit using time.time()
     """
     np.random.seed(seed)
+    random.seed(seed)
     start_time = time.time()
 
-    # Handle edge cases
     if not cluster:
         return [0, 0]
+    if len(cluster) <= 3:
+        return list(cluster) + [0] if cluster[-1] != 0 else cluster
 
-    # Ensure depot is in cluster
-    if 0 not in cluster:
-        cluster = [0] + cluster
-
-    # Extract customer nodes (exclude depot)
     customers = [node for node in cluster if node != 0]
-    n_customers = len(customers)
 
-    # Handle trivial case
-    if n_customers == 0:
-        return [0, 0]
-    if n_customers == 1:
-        return [0, customers[0], 0]
-
-    # Initialize swarm: each particle is a tour [0, perm, 0]
+    # Initialize particles
     particles = []
-    velocities = []  # Velocities are swap sequences
-    pbest_tours = []  # Personal best tours
-    pbest_distances = []  # Personal best distances
-
     for _ in range(n_particles):
-        # Random permutation of customers
         perm = np.random.permutation(customers).tolist()
         tour = [0] + perm + [0]
-        particles.append(tour)
-        velocities.append([])  # Initial velocity is empty
+        particles.append(
+            {"pos": tour, "pbest": tour.copy(), "pbest_dist": _calculate_tour_distance(tour, distance_matrix)}
+        )
 
-        # Personal best initialized to current position
-        dist = _calculate_tour_distance(tour, distance_matrix)
-        pbest_tours.append(tour.copy())
-        pbest_distances.append(dist)
-
-    # Find initial global best
-    gbest_idx = np.argmin(pbest_distances)
-    gbest_tour = pbest_tours[gbest_idx].copy()
-    gbest_distance = pbest_distances[gbest_idx]
-
-    # PSO main loop
-    iteration = 0
-    no_improvement_count = 0
+    gbest_tour = min(particles, key=lambda p: p["pbest_dist"])["pbest"].copy()
+    gbest_dist = _calculate_tour_distance(gbest_tour, distance_matrix)
 
     while time.time() - start_time < time_limit:
-        iteration += 1
-        improved = False
-
-        for p_idx in range(n_particles):
-            # Check time limit
+        for p in particles:
             if time.time() - start_time >= time_limit:
                 break
 
-            # Update velocity with inertia, cognitive, and social components
-            new_velocity = _calculate_pso_velocity(
-                particles[p_idx], pbest_tours[p_idx], gbest_tour, velocities[p_idx], w, c1, c2
-            )
-            velocities[p_idx] = new_velocity
+            # 1. Calculate Tentative Velocity
+            v_pbest = _get_swap_operators(p["pos"], p["pbest"])
+            v_gbest = _get_swap_operators(p["pos"], gbest_tour)
 
-            # Apply velocity to particle
-            if new_velocity:
-                particles[p_idx] = _apply_swap_sequence(particles[p_idx], new_velocity, max_swaps=3)
+            # Stochastic selection of swaps
+            v_pbest = [s for s in v_pbest if random.random() < 0.5]  # Simplified for VTPSO
+            v_gbest = [s for s in v_gbest if random.random() < 0.5]
 
-            # Apply 2-opt local search with probability
-            if np.random.rand() < 0.3 and n_customers >= 4:
-                particles[p_idx] = _apply_2opt_local_search(particles[p_idx], distance_matrix, n_customers)
+            tentative_velocity = v_pbest + v_gbest
 
-            # Evaluate particle fitness
-            current_dist = _calculate_tour_distance(particles[p_idx], distance_matrix)
+            # 2. VTPSO Partial Search
+            current_tour = list(p["pos"])
+            best_inter_tour = list(current_tour)
+            best_inter_dist = _calculate_tour_distance(best_inter_tour, distance_matrix)
+
+            for idx1, idx2 in tentative_velocity:
+                current_tour[idx1], current_tour[idx2] = current_tour[idx2], current_tour[idx1]
+                d = _calculate_tour_distance(current_tour, distance_matrix)
+                if d < best_inter_dist:
+                    best_inter_dist = d
+                    best_inter_tour = list(current_tour)
+
+            p["pos"] = best_inter_tour
 
             # Update personal best
-            if current_dist < pbest_distances[p_idx]:
-                pbest_tours[p_idx] = particles[p_idx].copy()
-                pbest_distances[p_idx] = current_dist
+            if best_inter_dist < p["pbest_dist"]:
+                p["pbest"] = list(p["pos"])
+                p["pbest_dist"] = best_inter_dist
 
                 # Update global best
-                if current_dist < gbest_distance:
-                    gbest_tour = particles[p_idx].copy()
-                    gbest_distance = current_dist
-                    improved = True
-                    no_improvement_count = 0
-
-        # Early stopping if no improvement
-        if not improved:
-            no_improvement_count += 1
-            if no_improvement_count > 20:
-                break
+                if best_inter_dist < gbest_dist:
+                    gbest_tour = list(p["pbest"])
+                    gbest_dist = best_inter_dist
 
     return gbest_tour
 
@@ -309,60 +244,145 @@ def find_route_aco(
     cluster: List[int],
     time_limit: float = 60.0,
     seed: int = 42,
+    n_ants: Optional[int] = None,
+    alpha: float = 1.0,
+    beta: float = 3.0,
+    rho: float = 0.1,
+    q: float = 100.0,
 ) -> List[int]:
     """
     Solve TSP using Ant Colony Optimization (ACO).
 
-    ACO is a probabilistic technique inspired by the foraging behavior of ants.
-    Artificial ants construct solutions by probabilistically choosing edges based on
-    pheromone trails and heuristic information (inverse distance).
-
-    PLACEHOLDER IMPLEMENTATION:
-    This is currently a stub that falls back to nearest neighbor heuristic.
-    For production use, integrate an ACO library such as:
-    - ACOpy (https://github.com/Akavall/ACOpy)
-    - scikit-opt (https://github.com/guofei9987/scikit-opt)
-    - Python-TSP (https://github.com/fillipe-gsm/python-tsp)
-
     Args:
         distance_matrix: Pre-computed all-pairs distance matrix.
-        cluster: List of node indices to visit (including depot at index 0).
-        time_limit: Maximum time in seconds for optimization.
-        seed: Random seed for reproducibility.
+        cluster: List of node indices visit.
+        time_limit: Maximum time.
+        seed: Random seed.
+        n_ants: Number of ants (defaults to len(cluster) per paper).
+        alpha: Pheromone importance (Paper default: 1.0).
+        beta: Heuristic importance (Paper default: 3.0).
+        rho: Evaporation rate (Standard ACO: 0.1).
+        q: Pheromone deposit amount (Standard ACO: 100.0).
 
-    Returns:
-        TSP tour as list of node indices [0, i1, i2, ..., in, 0].
-
-    Reference:
-        Sultana et al. (2017), Section 3.3: ACO for TSP routing phase.
-
-    TODO: Replace with actual ACO implementation.
+    Note:
+        The paper Sultana & Akhand (2017) specifies alpha=1 and beta=3 but is
+        vague on evaporation and deposit scale. We adopt rho=0.1 and Q=100
+        as robust defaults for the pheromone update Delta_tau = Q / L, where
+        L is the tour distance.
     """
-    # Placeholder: Use nearest neighbor heuristic
-    # In production, replace with ACO algorithm
     np.random.seed(seed)
+    random.seed(seed)
+    start_time = time.time()
 
     if not cluster:
         return [0, 0]
+    if len(cluster) <= 3:
+        return list(cluster) + [0] if cluster[-1] != 0 else cluster
 
-    # Ensure depot is at start and end
-    if 0 not in cluster:
-        cluster = [0] + cluster
+    n_nodes = len(cluster)
+    if n_ants is None:
+        n_ants = n_nodes  # Paper: "number of ants in ACO was equal to the number of cities"
 
-    # Nearest neighbor heuristic (placeholder for ACO)
-    unvisited = set(cluster) - {0}
-    tour = [0]
-    current = 0
+    # Methodological Note on Pheromone Initialization:
+    # Standard OR practice often initializes tau_0 = 1 / (N * L_nn), where L_nn is
+    # the cost of a nearest-neighbor tour. We use a uniform initialization of 0.1
+    # here as a robust baseline for simplicity and comparability.
+    pheromones = np.ones((n_nodes, n_nodes)) * 0.1
+    # Heuristic: 1/distance. Small epsilon to avoid div by zero.
+    heuristics = 1.0 / (distance_matrix[cluster][:, cluster] + 1e-10)
 
-    while unvisited:
-        # Find nearest unvisited node
-        nearest = min(unvisited, key=lambda x: distance_matrix[current, x])
-        tour.append(nearest)
-        current = nearest
-        unvisited.remove(nearest)
+    best_tour = list(cluster)
+    if best_tour[-1] != 0:
+        best_tour.append(0)
+    best_dist = _calculate_tour_distance(best_tour, distance_matrix)
 
-    tour.append(0)  # Return to depot
-    return tour
+    while time.time() - start_time < time_limit:
+        all_tours = []
+        all_dists = []
+
+        for _ in range(n_ants):
+            if time.time() - start_time >= time_limit:
+                break
+
+            curr_idx = random.randint(0, n_nodes - 1)
+            tour_indices = [curr_idx]
+            unvisited = set(range(n_nodes))
+            unvisited.remove(curr_idx)
+
+            while unvisited:
+                unvisited_arr = np.array(list(unvisited))
+
+                # Vectorized probability calculation
+                # (pheromones ** alpha) * (heuristics ** beta)
+                p_values = (pheromones[curr_idx, unvisited_arr] ** alpha) * (
+                    heuristics[curr_idx, unvisited_arr] ** beta
+                )
+
+                total = np.sum(p_values)
+                if total == 0:
+                    next_idx = random.choice(list(unvisited))
+                else:
+                    probs = p_values / total
+                    next_idx = np.random.choice(unvisited_arr, p=probs)
+
+                tour_indices.append(next_idx)
+                unvisited.remove(next_idx)
+                curr_idx = next_idx
+
+            tour = [cluster[i] for i in tour_indices]
+            # Ensure it ends at depot if it starts at depot, or just make it circular
+            if 0 in tour:
+                z_idx = tour.index(0)
+                tour = tour[z_idx:] + tour[:z_idx]
+            tour.append(tour[0])
+
+            d = _calculate_tour_distance(tour, distance_matrix)
+            all_tours.append(tour_indices)
+            all_dists.append(d)
+
+            if d < best_dist:
+                best_dist = d
+                best_tour = list(tour)
+
+        pheromones *= 1.0 - rho
+        for tour_indices, d in zip(all_tours, all_dists):
+            deposit = q / (d + 1e-10)
+            for i in range(len(tour_indices)):
+                n1, n2 = tour_indices[i], tour_indices[(i + 1) % len(tour_indices)]
+                pheromones[n1, n2] += deposit
+                pheromones[n2, n1] += deposit
+
+    return best_tour
+
+
+def _eer_crossover(p1: List[int], p2: List[int], customers: List[int]) -> List[int]:
+    """Enhanced Edge Recombination (EER) crossover."""
+    n_cust = len(customers)
+    edge_table: Dict[int, Set[int]] = {node: set() for node in customers}
+    for parent in [p1, p2]:
+        for i in range(n_cust):
+            edge_table[parent[i]].add(parent[(i - 1) % n_cust])
+            edge_table[parent[i]].add(parent[(i + 1) % n_cust])
+
+    child: List[int] = []
+    curr = random.choice([p1[0], p2[0]])
+    while len(child) < n_cust:
+        child.append(curr)
+        for neighbors in edge_table.values():
+            neighbors.discard(curr)
+
+        if len(child) == n_cust:
+            break
+
+        neighbors = list(edge_table[curr])  # type: ignore[assignment]
+        if not neighbors:
+            remaining = [node for node in customers if node not in child]
+            curr = random.choice(remaining)
+        else:
+            min_neighbors = min(len(edge_table[n]) for n in neighbors)
+            candidates = [n for n in neighbors if len(edge_table[n]) == min_neighbors]
+            curr = random.choice(candidates)
+    return child
 
 
 def find_route_ga(
@@ -370,57 +390,74 @@ def find_route_ga(
     cluster: List[int],
     time_limit: float = 60.0,
     seed: int = 42,
+    pop_size: int = 50,
+    mutation_rate: float = 0.2,
 ) -> List[int]:
     """
     Solve TSP using Genetic Algorithm (GA).
 
-    GA is an evolutionary algorithm that evolves a population of candidate solutions
-    through selection, crossover, and mutation operators. For TSP, specialized
-    crossover operators like PMX or OX preserve tour validity.
-
-    PLACEHOLDER IMPLEMENTATION:
-    This is currently a stub that falls back to nearest neighbor heuristic.
-    For production use, integrate a GA library or implement custom GA with:
-    - Ordered crossover (OX) or partially mapped crossover (PMX)
-    - Swap/inversion mutation
-    - Tournament selection
-
     Args:
         distance_matrix: Pre-computed all-pairs distance matrix.
-        cluster: List of node indices to visit (including depot at index 0).
-        time_limit: Maximum time in seconds for optimization.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        TSP tour as list of node indices [0, i1, i2, ..., in, 0].
-
-    Reference:
-        Sultana et al. (2017), Section 3.3: GA for TSP routing phase.
-
-    TODO: Replace with actual GA implementation.
+        cluster: List of node indices.
+        time_limit: Maximum time.
+        seed: Random seed.
+        pop_size: Population size.
+        mutation_rate: Mutation probability.
     """
-    # Placeholder: Use nearest neighbor heuristic
-    # In production, replace with GA algorithm
     np.random.seed(seed)
+    random.seed(seed)
+    start_time = time.time()
 
     if not cluster:
         return [0, 0]
+    if len(cluster) <= 3:
+        return list(cluster) + [0] if cluster[-1] != 0 else cluster
 
-    # Ensure depot is at start and end
-    if 0 not in cluster:
-        cluster = [0] + cluster
+    customers = [node for node in cluster if node != 0]
+    n_cust = len(customers)
 
-    # Nearest neighbor heuristic (placeholder for GA)
-    unvisited = set(cluster) - {0}
-    tour = [0]
-    current = 0
+    def _get_tour(perm):
+        return [0] + perm + [0]
 
-    while unvisited:
-        # Find nearest unvisited node
-        nearest = min(unvisited, key=lambda x: distance_matrix[current, x])
-        tour.append(nearest)
-        current = nearest
-        unvisited.remove(nearest)
+    def _get_dist(perm):
+        return _calculate_tour_distance(_get_tour(perm), distance_matrix)
 
-    tour.append(0)  # Return to depot
-    return tour
+    # Initialize population
+    population = []
+    for _ in range(pop_size):
+        perm = np.random.permutation(customers).tolist()
+        population.append(perm)
+
+    best_perm = min(population, key=_get_dist)
+    best_dist = _get_dist(best_perm)
+
+    while time.time() - start_time < time_limit:
+        population.sort(key=_get_dist)
+        new_pop = population[:2]  # Elitism
+
+        while len(new_pop) < pop_size:
+            if time.time() - start_time >= time_limit:
+                break
+            # Selection (Tournament)
+            p1 = min(random.sample(population, min(5, len(population))), key=_get_dist)
+            p2 = min(random.sample(population, min(5, len(population))), key=_get_dist)
+
+            # Crossover (Enhanced Edge Recombination - EER)
+            # Ref: Sultana & Akhand (2017) specify EER for adjacency preservation
+            child = _eer_crossover(p1, p2, customers)
+
+            # Mutation (Swap)
+            if random.random() < mutation_rate and n_cust >= 2:
+                i1, i2 = random.sample(range(n_cust), 2)
+                child[i1], child[i2] = child[i2], child[i1]
+
+            new_pop.append(child)
+
+            d = _get_dist(child)
+            if d < best_dist:
+                best_dist = d
+                best_perm = list(child)
+
+        population = new_pop
+
+    return _get_tour(best_perm)

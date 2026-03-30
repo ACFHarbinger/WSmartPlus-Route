@@ -21,7 +21,7 @@ Reference:
 """
 
 import math
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -145,11 +145,11 @@ def run_cf_rs(
     if route_optimizer == "pso":
         tsp_solver = find_route_pso
     elif route_optimizer == "aco":
-        tsp_solver = find_route_aco
+        tsp_solver = find_route_aco  # type: ignore[assignment]
     elif route_optimizer == "ga":
-        tsp_solver = find_route_ga
+        tsp_solver = find_route_ga  # type: ignore[assignment]
     elif route_optimizer == "default":
-        tsp_solver = find_route
+        tsp_solver = find_route  # type: ignore[assignment]
     else:
         raise ValueError(
             f"Invalid route_optimizer: '{route_optimizer}'. "
@@ -187,7 +187,7 @@ def fisher_jaikumar_clustering(
     distance_matrix: np.ndarray,
     time_limit: float = 60.0,
     assignment_method: str = "greedy",
-    strict_fleet: bool = False,
+    strict_fleet: bool = True,
     seed_criterion: str = "distance",
     mip_objective: str = "minimize_cost",
 ) -> List[List[int]]:
@@ -251,7 +251,7 @@ def fisher_jaikumar_clustering(
     if assignment_method == "greedy":
         clusters = assign_greedy(seeds, must_go, wastes, capacity, distance_matrix, strict_fleet)
     else:  # assignment_method == "exact"
-        clusters = assign_exact_mip(seeds, must_go, wastes, capacity, R, C, distance_matrix, time_limit, mip_objective)
+        clusters = assign_exact_mip(seeds, must_go, wastes, capacity, R, C, distance_matrix, time_limit, mip_objective)  # type: ignore[assignment]
         # If MIP assignment fails or Gurobi unavailable, fall back to greedy
         if clusters is None:
             clusters = assign_greedy(seeds, must_go, wastes, capacity, distance_matrix, strict_fleet)
@@ -289,7 +289,7 @@ def _compute_node_features(
 
 
 def _select_initial_seeds(
-    df_nodes: pd.DataFrame, k: int, wastes: Dict[int, float] = None, seed_criterion: str = "distance"
+    df_nodes: pd.DataFrame, k: int, wastes: Optional[Dict[int, float]] = None, seed_criterion: str = "distance"
 ) -> List[int]:
     """
     Partition space into K sectors and pick seed node in each based on criterion.
@@ -342,7 +342,7 @@ def _select_initial_seeds(
             "Please provide a dictionary mapping node indices to waste quantities."
         )
 
-    seeds = []
+    seeds: List[int] = []
 
     # Sort by angular coordinate (counter-clockwise from depot)
     df_sorted = df_nodes.sort_values("angle").reset_index(drop=True)
@@ -374,7 +374,7 @@ def _select_initial_seeds(
                 # VFJ Method b: Select the node with maximum demand (waste)
                 # Add waste column to sector for selection
                 sector_with_waste = sector.copy()
-                sector_with_waste["waste"] = sector_with_waste["idx"].map(lambda x: wastes.get(x, 0.0))
+                sector_with_waste["waste"] = sector_with_waste["idx"].map(lambda x: wastes.get(x, 0.0))  # type: ignore[union-attr]
                 seed_idx = int(sector_with_waste.loc[sector_with_waste["waste"].idxmax(), "idx"])
 
             seeds.append(seed_idx)

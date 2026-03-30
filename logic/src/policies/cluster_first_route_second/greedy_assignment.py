@@ -12,7 +12,7 @@ Reference:
     and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem".
 """
 
-from typing import Dict, List
+from typing import Dict, List, Set
 
 import numpy as np
 
@@ -33,47 +33,11 @@ def assign_greedy(
     2. Sort all pairs in increasing order of insertion cost.
     3. Assign each node to the first feasible seed (respecting capacity constraints).
     4. Handle unassigned nodes (behavior depends on strict_fleet parameter).
-
-    Fleet Sizing Modes:
-    - strict_fleet=False (Default): Dynamically open new vehicles if needed.
-      This is suitable for simulation environments where fleet size is flexible.
-    - strict_fleet=True (Benchmark Mode): Respect fixed fleet size K.
-      Raises ValueError if greedy heuristic fails to assign all nodes to K vehicles.
-      This mode is required for standard CVRP benchmark comparisons (e.g., A-VRP dataset).
-
-    Args:
-        seeds: List of seed node indices (one per initial cluster).
-        must_go: List of all nodes that need to be assigned.
-        wastes: Dictionary mapping node indices to waste quantities.
-        capacity: Maximum vehicle capacity.
-        distance_matrix: Pre-computed all-pairs distance matrix.
-        strict_fleet: If True, raise error for unassigned nodes instead of opening new vehicles.
-
-    Returns:
-        List of clusters, where each cluster is a list of node indices.
-
-    Raises:
-        ValueError: If strict_fleet=True and greedy heuristic cannot assign all nodes to K vehicles.
-
-    Example:
-        >>> seeds = [5, 12, 20]
-        >>> must_go = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        >>> wastes = {i: 10.0 for i in must_go}
-        >>> capacity = 100.0
-        >>> distance_matrix = np.random.rand(21, 21)
-        >>> # Flexible mode (default)
-        >>> clusters = assign_greedy(seeds, must_go, wastes, capacity, distance_matrix)
-        >>> len(clusters) >= len(seeds)  # May open new vehicles if needed
-        True
-        >>> # Strict benchmark mode
-        >>> clusters = assign_greedy(seeds, must_go, wastes, capacity, distance_matrix, strict_fleet=True)
-        >>> len(clusters) == len(seeds)  # Exactly K vehicles
-        True
     """
     # Initialize clusters and track capacity usage
     clusters: List[List[int]] = [[] for _ in range(len(seeds))]
     loads = [0.0] * len(seeds)
-    assigned = set()
+    assigned: Set[int] = set()
 
     # Step 1: Pre-assign seeds to their own clusters
     for k_idx, k in enumerate(seeds):
@@ -86,68 +50,101 @@ def assign_greedy(
     insertion_costs = []
     for i in must_go:
         if i in assigned:
-            continue  # Skip already assigned seeds
+            continue
         for k_idx, k in enumerate(seeds):
             # Fisher & Jaikumar insertion cost: C_ik = d(0, i) + d(k, i) - d(k, 0)
             cost = distance_matrix[0, i] + distance_matrix[k, i] - distance_matrix[k, 0]
             insertion_costs.append((cost, i, k_idx))
 
     # Step 3: Sort by increasing insertion cost (greedy selection)
-    # Use node_i as secondary sort key for deterministic tie-breaking
     insertion_costs.sort(key=lambda x: (x[0], x[1]))
 
     # Step 4: Assign nodes greedily
     for _cost, node_i, seed_k_idx in insertion_costs:
-        if node_i in assigned:
-            continue  # Node already assigned
+        if node_i not in assigned:
+            waste_i = wastes.get(node_i, 0.0)
+            if loads[seed_k_idx] + waste_i <= capacity:
+                clusters[seed_k_idx].append(node_i)
+                loads[seed_k_idx] += waste_i
+                assigned.add(node_i)
 
-        waste_i = wastes.get(node_i, 0.0)
-
-        # Check capacity constraint
-        if loads[seed_k_idx] + waste_i <= capacity:
-            clusters[seed_k_idx].append(node_i)
-            loads[seed_k_idx] += waste_i
-            assigned.add(node_i)
-
-    # Step 5: Safety net - handle unassigned nodes
-    # Behavior depends on strict_fleet mode
+    # Step 5: Handle unassigned nodes
     unassigned = [node for node in must_go if node not in assigned]
+    if unassigned:
+        _handle_unassigned_nodes(unassigned, must_go, seeds, clusters, loads, assigned, capacity, wastes, strict_fleet)
 
-    if not unassigned:
-        # All nodes successfully assigned
-        return clusters
+    return clusters
 
-    # Try to fit unassigned nodes into existing clusters with spare capacity
+
+def _handle_unassigned_nodes(
+    unassigned: List[int],
+    must_go: List[int],
+    seeds: List[int],
+    clusters: List[List[int]],
+    loads: List[float],
+    assigned: Set[int],
+    capacity: float,
+    wastes: Dict[int, float],
+    strict_fleet: bool,
+) -> None:
+    """Helper to handle nodes that weren't assigned in the initial greedy pass."""
     for node in unassigned:
         waste = wastes.get(node, 0.0)
-
         fitted = False
+
+        # Try a simple First-Fit into existing clusters
         for k_idx in range(len(seeds)):
             if loads[k_idx] + waste <= capacity:
                 clusters[k_idx].append(node)
                 loads[k_idx] += waste
-                fitted = True
                 assigned.add(node)
+                fitted = True
                 break
 
         if not fitted:
-            # Node cannot fit into any existing cluster
             if strict_fleet:
-                # STRICT MODE: Raise error (benchmark compliance)
-                # This indicates the greedy heuristic failed for the given K
-                unassigned_final = [n for n in must_go if n not in assigned]
-                raise ValueError(
-                    f"Greedy assignment failed in strict fleet mode. "
-                    f"Cannot assign {len(unassigned_final)} nodes to {len(seeds)} vehicles. "
-                    f"Unassigned nodes: {unassigned_final}. "
-                    f"Consider: (1) increasing fleet size K, (2) increasing vehicle capacity, "
-                    f"or (3) using exact MIP assignment instead of greedy."
-                )
+                # FALLBACK: Try a swap-based local search
+                if not _greedy_swap_fallback(node, waste, seeds, clusters, loads, assigned, capacity, wastes):
+                    unassigned_final = [n for n in must_go if n not in assigned]
+                    raise ValueError(
+                        f"Greedy assignment failed in strict fleet mode. "
+                        f"Cannot assign {len(unassigned_final)} nodes to {len(seeds)} vehicles. "
+                        f"Unassigned nodes: {unassigned_final}. "
+                        f"Consider using exact MIP assignment or increasing fleet capacity."
+                    )
             else:
-                # FLEXIBLE MODE: Open new vehicle (simulation mode)
+                # FLEXIBLE MODE: Open new vehicle
                 seeds.append(node)
                 clusters.append([node])
                 loads.append(waste)
                 assigned.add(node)
 
-    return clusters
+
+def _greedy_swap_fallback(
+    node: int,
+    waste: float,
+    seeds: List[int],
+    clusters: List[List[int]],
+    loads: List[float],
+    assigned: Set[int],
+    capacity: float,
+    wastes: Dict[int, float],
+) -> bool:
+    """Attempt to swap an unassigned node with an assigned one to free up capacity."""
+    for k_donour in range(len(seeds)):
+        for i_idx, node_i in enumerate(clusters[k_donour]):
+            if node_i in seeds:
+                continue
+
+            waste_i = wastes.get(node_i, 0.0)
+            if loads[k_donour] - waste_i + waste <= capacity:
+                temp_loads_donour = loads[k_donour] - waste_i + waste
+                for k_receiver in range(len(seeds)):
+                    if k_receiver != k_donour and loads[k_receiver] + waste_i <= capacity:
+                        clusters[k_donour][i_idx] = node
+                        clusters[k_receiver].append(node_i)
+                        loads[k_donour] = temp_loads_donour
+                        loads[k_receiver] += waste_i
+                        assigned.add(node)
+                        return True
+    return False
