@@ -97,14 +97,14 @@ def cross_exchange(
     a_prev = route_a[seg_a_start - 1] if seg_a_start > 0 else 0
     a_next = route_a[seg_a_start + seg_a_len] if seg_a_start + seg_a_len < len(route_a) else 0
 
-    removal_a = ls.d[a_prev, seg_a[0]] + ls.d[seg_a[-1], a_next]
+    removal_a = ls.d[a_prev, seg_a[0]] + ls.d[seg_a[-1], a_next] if seg_a else ls.d[a_prev, a_next]
     insertion_a = ls.d[a_prev, seg_b[0]] + ls.d[seg_b[-1], a_next] if seg_b else ls.d[a_prev, a_next]
 
     # Route B: remove seg_b, insert seg_a
     b_prev = route_b[seg_b_start - 1] if seg_b_start > 0 else 0
     b_next = route_b[seg_b_start + seg_b_len] if seg_b_start + seg_b_len < len(route_b) else 0
 
-    removal_b = ls.d[b_prev, seg_b[0]] + ls.d[seg_b[-1], b_next]
+    removal_b = ls.d[b_prev, seg_b[0]] + ls.d[seg_b[-1], b_next] if seg_b else ls.d[b_prev, b_next]
     insertion_b = ls.d[b_prev, seg_a[0]] + ls.d[seg_a[-1], b_next] if seg_a else ls.d[b_prev, b_next]
 
     delta = (insertion_a - removal_a) + (insertion_b - removal_b)

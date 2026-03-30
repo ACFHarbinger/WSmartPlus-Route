@@ -28,7 +28,7 @@ from ..other.operators import (
     regret_2_profit_insertion,
     worst_removal,
 )
-from ..other.operators.heuristics.nn_initialization import build_nn_routes
+from ..other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from .params import GLSParams
 
 
@@ -213,7 +213,6 @@ class GLSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 expand_pool=self.params.vrpp,
             )
@@ -240,7 +239,6 @@ class GLSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 expand_pool=self.params.vrpp,
             )
@@ -267,7 +265,6 @@ class GLSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 expand_pool=self.params.vrpp,
             )
@@ -294,7 +291,6 @@ class GLSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 expand_pool=self.params.vrpp,
             )
@@ -321,7 +317,6 @@ class GLSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                R=self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 expand_pool=self.params.vrpp,
             )

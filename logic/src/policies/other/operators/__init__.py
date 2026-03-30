@@ -45,6 +45,8 @@ from .destroy import (
 
 # Heuristics
 from .heuristics import (
+    apply_ges,
+    apply_lns,
     build_greedy_routes,
     build_nn_routes,
 )
@@ -68,6 +70,7 @@ from .inter_route import (
 
 # Intra-route operators
 from .intra_route import (
+    apply_intra_route_cross_exchange,
     k_permutation,
     move_2opt_intra,
     move_3opt_intra,
@@ -234,6 +237,9 @@ __all__ = [
     "unstringing_removal",
     "unstringing_profit_removal",
     # Heuristics
+    "apply_ges",
+    "apply_intra_route_cross_exchange",
+    "apply_lns",
     "build_greedy_routes",
     "build_nn_routes",
 ]

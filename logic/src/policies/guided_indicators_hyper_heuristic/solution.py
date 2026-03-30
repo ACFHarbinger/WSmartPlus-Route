@@ -101,3 +101,16 @@ class Solution:
             if route_load > self.capacity:
                 return False
         return True
+
+    def dominates(self, other: "Solution") -> bool:
+        """
+        Check if this solution Pareto-dominates the other solution.
+        Objectives: Maximize revenue_total, Minimize cost.
+        """
+        revenue_better_or_equal = self.revenue_total >= other.revenue_total
+        cost_better_or_equal = self.cost <= other.cost
+
+        revenue_strictly_better = self.revenue_total > other.revenue_total
+        cost_strictly_better = self.cost < other.cost
+
+        return (revenue_better_or_equal and cost_better_or_equal) and (revenue_strictly_better or cost_strictly_better)

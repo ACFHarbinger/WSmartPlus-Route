@@ -53,7 +53,7 @@ from logic.src.policies.other.reinforcement_learning.reward.shaping import Adapt
 
 from ..other.operators.destroy.shaw import shaw_removal
 from ..other.operators.destroy.string import string_removal
-from ..other.operators.heuristics.nn_initialization import build_nn_routes
+from ..other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from ..other.reinforcement_learning.agents.bandits import (
     DiscountedUCBBandit as DiscountedUCBAgent,
 )
