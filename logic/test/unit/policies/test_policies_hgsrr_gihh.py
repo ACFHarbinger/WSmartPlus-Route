@@ -36,7 +36,7 @@ class TestHGSRRPolicy:
     def test_hgs_rr_basic_execution(self, simple_instance):
         """Test that HGS-RR executes without errors."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        params = HGSRRParams(time_limit=1.0, population_size=10, n_generations=20, mutation_rate=0.3, seed=42)
+        params = HGSRRParams(time_limit=1.0, population_size=10, n_iterations_no_improvement=20, mutation_rate=0.3, seed=42)
         solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, None)
         routes, profit, cost = solver.solve()
 
@@ -47,7 +47,7 @@ class TestHGSRRPolicy:
     def test_hgs_rr_respects_capacity(self, simple_instance):
         """Test that HGS-RR respects capacity constraints."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        params = HGSRRParams(time_limit=1.0, population_size=10, n_generations=20, mutation_rate=0.3, seed=42)
+        params = HGSRRParams(time_limit=1.0, population_size=10, n_iterations_no_improvement=20, mutation_rate=0.3, seed=42)
         solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, None)
         routes, profit, cost = solver.solve()
 
@@ -60,7 +60,7 @@ class TestHGSRRPolicy:
         """Test that HGS-RR visits mandatory nodes."""
         dist_matrix, wastes, capacity, R, C = simple_instance
         mandatory_nodes = [1, 3]  # Local indices
-        params = HGSRRParams(time_limit=1.0, population_size=10, n_generations=20, mutation_rate=0.3, seed=42)
+        params = HGSRRParams(time_limit=1.0, population_size=10, n_iterations_no_improvement=20, mutation_rate=0.3, seed=42)
         solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
         routes, profit, cost = solver.solve()
 
@@ -115,7 +115,7 @@ class TestHGSRRPolicy:
             "hgs_rr": {
                 "time_limit": 1.0,
                 "population_size": 10,
-                "n_generations": 20,
+                "n_iterations_no_improvement": 20,
                 "seed": 42,
             }
         }
@@ -221,7 +221,7 @@ class TestGIHHPolicy:
     def test_gihh_indicator_weights(self, simple_instance):
         """Test GIHH with custom indicator weights."""
         dist_matrix, wastes, capacity, R, C = simple_instance
-        params = GIHHParams(time_limit=1.0, max_iterations=5, iri_weight=0.7, tbi_weight=0.3, seed=42)
+        params = GIHHParams(time_limit=1.0, max_iterations=5, seg=80, alpha=0.5, beta=0.4, gamma=0.1, min_prob=0.05, seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
         routes, profit, cost = solver.solve()
 
@@ -270,7 +270,7 @@ class TestPolicyComparison:
         params_hgs_rr = HGSRRParams(
             time_limit=2.0,
             population_size=20,
-            n_generations=50,
+            n_iterations_no_improvement=50,
             min_removal_pct=0.05,  # Reduce removal to avoid edge cases
             max_removal_pct=0.2,
             seed=42,

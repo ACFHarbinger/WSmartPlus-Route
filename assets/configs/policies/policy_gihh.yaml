@@ -54,118 +54,38 @@ gihh:
       # false = visit all nodes (CVRP mode)
 
     # ---------------------------------------------------------------------
-    # Operator Configuration
+    # Stopping Criteria (Chen et al. 2018)
     # ---------------------------------------------------------------------
-    - move_operators:
-        - swap_intra
-        - relocate_intra
-        - two_opt_intra
-        - swap_inter
-        - relocate_inter
-        - two_opt_star
-        - exchange_10
-        - exchange_11
-        - exchange_21
-      # Local search operators for route improvement
-      # Applied during intensification phase
-      # Order affects selection frequency in early iterations
-
-    - perturbation_operators:
-        - random_removal
-        - string_removal
-        - route_removal
-      # Diversification operators to escape local optima
-      # Applied when no improvement after N iterations
-      # Removes nodes for subsequent greedy reinsertion
+    - nonimp_threshold: 150
+      # Maximum iterations without improvement (NONIMP) before stopping.
+      # Recommendation: 150 (as per paper)
 
     # ---------------------------------------------------------------------
-    # Guidance Indicator Weights
+    # Episodic Weight Updates (Chen et al. 2018)
     # ---------------------------------------------------------------------
-    - iri_weight: 0.6
-      # Weight for Improvement Rate Indicator (IRI)
-      # Range: 0.0-1.0 (higher = favor recently successful operators)
-      # Measures: improvement_magnitude / time_spent
-      # Recommendation: 0.6 for exploitation-focused search
+    - seg: 80
+      # Segment size for episodic updates
+      # Recommendation: 80 (as per paper)
 
-    - tbi_weight: 0.4
-      # Weight for Time-Based Indicator (TBI)
-      # Range: 0.0-1.0 (higher = favor unused operators)
-      # Measures: time_since_last_use (promotes exploration)
-      # Recommendation: 0.4 for balanced exploration
-      # Note: iri_weight + tbi_weight should = 1.0
+    - alpha: 0.5
+      # Weight momentum factor
+      # Range: 0.0-1.0
+      # Recommendation: 0.5
 
-    # ---------------------------------------------------------------------
-    # Learning & Adaptation Parameters
-    # ---------------------------------------------------------------------
-    - learning_rate: 0.1
-      # Rate of indicator updates after each operator application
-      # Range: 0.01-0.5 (higher = faster adaptation, higher variance)
-      # Recommendation: 0.1 for stable learning
+    - beta: 0.4
+      # Quality reward (ScoreA) emphasis
+      # Range: 0.0-1.0
+      # Recommendation: 0.4
 
-    - memory_size: 50
-      # Number of recent iterations tracked for normalization
-      # Range: 20-100 (higher = smoother scores, slower adaptation)
-      # Used for moving average calculations
+    - gamma: 0.1
+      # Directional reward (ScoreB) deviation penalty multiplier
+      # Range: 0.0-1.0
+      # Recommendation: 0.1
 
-    - epsilon: 0.2
-      # Initial exploration rate for epsilon-greedy selection
-      # Range: 0.0-1.0 (0.0 = pure exploitation, 1.0 = random)
-      # Recommendation: 0.2 for balanced exploration
-
-    - epsilon_decay: 0.995
-      # Decay rate for epsilon over iterations
-      # Range: 0.9-0.999 (lower = faster decay to exploitation)
-      # epsilon_t = epsilon_0 * (epsilon_decay)^t
-      # Recommendation: 0.995 for gradual annealing
-
-    - min_epsilon: 0.01
-      # Minimum epsilon value (prevents pure exploitation)
-      # Range: 0.0-0.1
-      # Maintains minimal exploration throughout search
-
-    # ---------------------------------------------------------------------
-    # Acceptance Criteria
-    # ---------------------------------------------------------------------
-    - accept_equal: true
-      # Accept solutions with equal quality (enables plateau traversal)
-      # true = standard in VRP literature
-      # false = strict improvement only
-
-    - accept_worse_prob: 0.05
-      # Initial probability of accepting worse solutions
-      # Range: 0.0-0.3 (simulated annealing-style acceptance)
-      # Recommendation: 0.05 for conservative diversification
-
-    - acceptance_decay: 0.99
-      # Decay rate for acceptance probability
-      # Range: 0.9-0.999
-      # prob_t = accept_worse_prob * (acceptance_decay)^t
-
-    # ---------------------------------------------------------------------
-    # Normalization Parameters
-    # ---------------------------------------------------------------------
-    - iri_window: 20
-      # Window size for IRI normalization (moving statistics)
-      # Range: 10-50
-      # Smaller = more reactive to recent changes
-
-    - tbi_window: 20
-      # Window size for TBI normalization
-      # Range: 10-50
-      # Should match iri_window for balanced indicators
-
-    # ---------------------------------------------------------------------
-    # Multi-Start Configuration
-    # ---------------------------------------------------------------------
-    - restarts: 1
-      # Number of random restarts from different initial solutions
-      # Range: 1-10 (1 = single run, 5+ = portfolio approach)
-      # Recommendation: 1 for time_limit=60s (avoid fragmentation)
-
-    - restart_threshold: 100
-      # Iterations without improvement before triggering restart
-      # Range: 50-500
-      # Only applies if restarts > 1
+    - min_prob: 0.05
+      # Minimum Roulette selection probability per heuristic
+      # Range: 0.01-0.10
+      # Recommendation: 0.05 (ensure exploration)
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings

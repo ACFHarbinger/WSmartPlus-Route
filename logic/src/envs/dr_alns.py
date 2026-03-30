@@ -25,7 +25,7 @@ from logic.src.policies.other.operators import (
     regret_2_insertion,
     worst_removal,
 )
-from logic.src.policies.other.operators.heuristics.nn_initialization import (
+from logic.src.policies.other.operators.heuristics.nearest_neighbor_initialization import (
     build_nn_routes,
 )
 

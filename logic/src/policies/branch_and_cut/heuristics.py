@@ -13,7 +13,7 @@ from typing import List, Tuple
 
 from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
 from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
-from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+from logic.src.policies.other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from logic.src.policies.other.operators.repair.farthest import (
     farthest_insertion as operator_farthest_insertion,
 )

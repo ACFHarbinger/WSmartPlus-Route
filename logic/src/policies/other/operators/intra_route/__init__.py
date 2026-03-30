@@ -5,6 +5,7 @@ This package contains operators that perform moves within a single route,
 or moves where the source and destination may be the same or different routes.
 """
 
+from .cross_exchange import apply_intra_route_cross_exchange
 from .k_opt import move_2opt_intra, move_3opt_intra, move_kopt_intra
 from .k_permutation import k_permutation, three_permutation
 from .relocate import move_or_opt, move_relocate, relocate_chain
@@ -20,4 +21,5 @@ __all__ = [
     "k_permutation",
     "three_permutation",
     "relocate_chain",
+    "apply_intra_route_cross_exchange",
 ]

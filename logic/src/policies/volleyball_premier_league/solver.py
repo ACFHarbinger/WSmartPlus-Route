@@ -33,7 +33,7 @@ from ..other.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-from ..other.operators.heuristics.nn_initialization import build_nn_routes
+from ..other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from .params import VPLParams
 
 

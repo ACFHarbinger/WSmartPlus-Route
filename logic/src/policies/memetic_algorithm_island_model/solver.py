@@ -34,7 +34,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
-from logic.src.policies.other.operators.heuristics.nn_initialization import build_nn_routes
+from logic.src.policies.other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from ..other.operators import (
