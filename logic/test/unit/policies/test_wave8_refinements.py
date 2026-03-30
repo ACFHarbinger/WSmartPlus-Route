@@ -30,8 +30,8 @@ def test_de_j_rand_enforcement(small_instance):
     solver = DESolver(dist_matrix, wastes, capacity, R=1.0, C=1.0, params=params)
 
     # Manually test the crossover logic
-    target = [[1]]
-    mutant = [[2, 3]]
+    target = np.array([0.1, 0.1, 0.1])
+    mutant = np.array([0.9, 0.9, 0.9])
     # Since CR=0.0, trial MUST be exactly {j_rand} if j_rand in mutant, or {} if j_rand not in mutant (but j_rand is picked from all_nodes {1, 2, 3})
     # Our refined logic ensures j_rand is prioritized.
 
