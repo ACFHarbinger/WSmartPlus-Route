@@ -12,7 +12,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import gurobipy as gp
 import numpy as np
-from gurobipy import GRB
 
 from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
@@ -34,35 +33,26 @@ def _get_partitioned_vars_aks(
     mandatory_nodes: List[int],
 ) -> Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]:
     """
-    Solve the LP relaxation of the VRPP model and partition variables into Kernel and Buckets.
+    Solve the MILP root node relaxation and partition variables into Kernel and Buckets.
+    Ranking is based on the harvested root node relaxation values.
 
-    This selection phase identifies the most promising decision variables (edges and nodes)
-    to form the initial optimization 'Kernel'. The ranking is based on the fractional
-    values of the variables in the optimal solution to the continuous relaxation.
-
-    Args:
-        model (gp.Model): The mathematical programming model.
-        x (Dict[Tuple[int, int], gp.Var]): Map of edge index pairs to Gurobi binary variables.
-        y (Dict[int, gp.Var]): Map of customer IDs to Gurobi binary selection variables.
-        initial_kernel_size (int): Targeted number of variables for the starting Kernel.
-        bucket_size (int): Targeted number of variables per initial partition bucket.
-        dist_matrix: Cost matrix.
-        wastes: Waste dict.
-        capacity: Vehicle capacity.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        mandatory_nodes: Nodes that must be visited.
-
-    Returns:
-        Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]:
-            - kernel_vars: The subset of variables selected for the initial math model.
-            - remaining_vars: Sorted list of all variables not in the kernel.
-            - buckets: Initial grouping of `remaining_vars` into disjoint sets.
+    Note: A unified list is used for all variables (x and y) because this VRPP
+    formulation is a pure 0-1 MIP. While Guastaroba et al. (2017) suggests
+    maintaining separate lists for binary and general integer variables, they
+    are merged here as all discrete variables in this model are binary.
     """
-    # 1. Solve the continuous (LP) relaxation
-    model.optimize()
-    if model.Status not in [GRB.OPTIMAL, GRB.TIME_LIMIT] or model.SolCount == 0:
-        return [], [], []
+    # Ensure Lazy Constraints are enabled for any solve with callbacks
+    model.Params.LazyConstraints = 1
+
+    # variables assumed binary from _setup_ks_model(use_binary_vars=True)
+
+    # 2. Optimize with the root node callback (imported from KS solver)
+    from ..kernel_search.solver import _root_node_callback
+
+    model.optimize(_root_node_callback)
+
+    # 3. Extract relaxation values
+    var_values = {var: val for var, val in zip(model._all_vars_list, model._node_rel)}
 
     # 1.5 Compute a totally feasible heuristic route
     rng = random.Random(42)
@@ -82,160 +72,201 @@ def _get_partitioned_vars_aks(
         heuristic_edges.add((route[-1], 0))
         heuristic_nodes.add(route[-1])
 
-    # 2. Extract variables, their fractional values, and their reduced costs
+    # 4. Extract variables and their harvested relaxation values
     all_vars = []
     for (i, j), var in x.items():
-        # Ensure we capture var.RC (reduced cost)
-        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "x", (i, j)))
+        val = var_values.get(var, 0.0)
+        all_vars.append((var, val, "x", (i, j)))
     for i, var in y.items():
-        all_vars.append((var, var.X, getattr(var, "RC", 0.0), "y", i))  # type: ignore[arg-type]
+        val = var_values.get(var, 0.0)
+        all_vars.append((var, val, "y", i))  # type: ignore[arg-type]
 
-    # Sort logic:
-    # 1. Variables with X > 1e-4 are prioritized (sorted by X descending)
-    # 2. For variables at 0, prioritize Reduced Cost closest to 0 (descending for MAXIMIZE problem)
-    all_vars.sort(key=lambda item: (item[1] > 1e-4, item[1], item[2]), reverse=True)
+    # Sort logic: Root node relaxation value descending
+    all_vars.sort(key=lambda item: item[1], reverse=True)
 
-    # 3. Restore variable types to BINARY for the subsequent MIP stages
-    for v_obj, _, _, _, _ in all_vars:
-        v_obj.VType = GRB.BINARY
-
-    # 4. Partition variables based on the sorted ranking
-    # Ensure the kernel captures at least the entire LP support to avoid immediate infeasibility
-    lp_support_size = sum(1 for _, val, _, _, _ in all_vars if val > 1e-4)
+    # 5. Partition variables based on the sorted ranking
+    lp_support_size = sum(1 for _, val, _, _ in all_vars if val > 1e-4)
     actual_kernel_size = max(initial_kernel_size, lp_support_size)
 
     kernel_vars = []
     remaining_vars = []
 
-    # We must unconditionally include heuristic variables to guarantee ILP feasibility
-    for v_obj, _, _, _, _ in all_vars[:actual_kernel_size]:
+    # Include heuristic variables to guarantee ILP feasibility
+    for v_obj, _, _, _ in all_vars[:actual_kernel_size]:
         kernel_vars.append(v_obj)
 
-    for v_obj, _, _, vtype, idx in all_vars[actual_kernel_size:]:
-        # If it belongs to the heuristic solution, force it into the kernel
+    for v_obj, _, vtype, idx in all_vars[actual_kernel_size:]:
         if (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes):
             kernel_vars.append(v_obj)
         else:
             remaining_vars.append(v_obj)
 
-    # Organize remaining variables into sequential buckets for the iterative improvement phase
+    # Organize remaining variables into sequential buckets
     buckets = [remaining_vars[i : i + bucket_size] for i in range(0, len(remaining_vars), bucket_size)]
 
     return kernel_vars, remaining_vars, buckets
+
+
+def _get_feasible(model, remaining_vars, active_kernel):
+    """
+    Step 3: GETFEASIBLE Routine.
+    Iteratively increases the size of kernel K until a feasible solution is found.
+    """
+    m_w = int(len(remaining_vars) * 0.30)
+    current_rem_idx = 0
+    while model.SolCount == 0 and current_rem_idx < len(remaining_vars):
+        # Add next chunk of variables to kernel
+        next_chunk = remaining_vars[current_rem_idx : current_rem_idx + m_w]
+        for v in next_chunk:
+            v.UB = 1
+            active_kernel.add(v)
+        current_rem_idx += m_w
+        model.optimize(_dfj_subtour_elimination_callback)
+    return current_rem_idx
+
+
+def _assess_difficulty(model, t_mip_k, t_easy, epsilon):
+    """
+    Step 2: Difficulty Assessment.
+    Classifies instance and applies HARD-mode constraints if needed.
+    """
+    t_hard = model.Params.TimeLimit
+    classification = "NORMAL"
+    if t_mip_k <= t_easy:
+        classification = "EASY"
+    elif t_mip_k >= t_hard:
+        classification = "HARD"
+
+    # Behavior for HARD: Fix binary variables with high root relaxation values
+    if classification == "HARD":
+        for v, rel_val in zip(model._all_vars_list, model._node_rel):
+            if rel_val > 1.0 - epsilon:
+                v.LB = 1.0  # Permanently fix to 1
+    return classification
+
+
+def _solve_easy_iterations(model, remaining_vars, current_rem_idx, active_kernel, chunk_size, t_easy, x_h, best_obj):
+    """
+    Step 4a: EASY iteration logic.
+    """
+    while current_rem_idx < len(remaining_vars):
+        end_idx = min(current_rem_idx + chunk_size, len(remaining_vars))
+        chunk = remaining_vars[current_rem_idx:end_idx]
+        for v in chunk:
+            v.UB = 1
+
+        model.setParam("TimeLimit", t_easy * 2)
+        model.Params.Cutoff = best_obj + 1e-4
+
+        solve_start = model.Runtime
+        model.optimize(_dfj_subtour_elimination_callback)
+        solve_duration = model.Runtime - solve_start
+
+        if model.SolCount > 0:
+            best_obj = model.ObjVal
+            x_h.update({v: v.X for v in active_kernel.union(chunk)})
+
+        if solve_duration > t_easy and model.SolCount > 0:
+            for v in chunk:
+                if v.X > 0.5:
+                    active_kernel.add(v)
+            break
+        current_rem_idx = end_idx
+    return current_rem_idx, best_obj
+
+
+def _solve_rigorous_iterations(
+    model, buckets, active_kernel, x_h, best_obj, max_buckets, time_limit, start_time, mip_limit_nodes
+):
+    """
+    Step 4b: NORMAL/HARD iteration logic with bucket constraints.
+    """
+    for i, bucket in enumerate(buckets[:max_buckets]):
+        elapsed = model.Runtime - start_time
+        if elapsed > time_limit:
+            break
+
+        for v in bucket:
+            v.UB = 1
+
+        # Step 1: AKS Bucket Constraint
+        k_zeros = [v for v in active_kernel if x_h.get(v, 0.0) < 0.5]
+        bucket_constr = model.addConstr(gp.quicksum(bucket + k_zeros) >= 1, name="AKS_Bucket_Constraint")
+
+        iter_time = max(5.0, (time_limit - elapsed) / max(1, max_buckets - i))
+        model.setParam("TimeLimit", iter_time)
+        model.setParam("NodeLimit", mip_limit_nodes)
+
+        # Step 2: Objective Cutoff
+        model.Params.Cutoff = best_obj + 1e-4
+
+        model.optimize(_dfj_subtour_elimination_callback)
+
+        if model.SolCount > 0 and model.ObjVal > best_obj + 1e-4:
+            best_obj = model.ObjVal
+            x_h.update({v: v.X for v in active_kernel.union(bucket)})
+            active_kernel.update({v for v in bucket if v.X > 0.5})
+
+        for v in bucket:
+            if v not in active_kernel:
+                v.UB = 0
+
+        model.remove(bucket_constr)
+    return best_obj
 
 
 def _solve_aks_iterations(
     model: gp.Model,
     kernel_vars: List[gp.Var],
     remaining_vars: List[gp.Var],
-    initial_bucket_size: int,
+    bucket_size: int,
     max_buckets: int,
-    bucket_growth_factor: float,
     time_limit: float,
     mip_limit_nodes: int,
-    max_scrolls: int = 3,
+    t_easy: float = 10.0,
+    epsilon: float = 0.1,
 ) -> Set[gp.Var]:
     """
     Execute the core Adaptive Kernel Search iterative improvement loop.
-
-    This function implements the AKS methodology from Guastaroba et al. (2017):
-    - Multi-scroll mechanism: Multiple passes through the variable space
-    - Computational effort-based adaptation: Bucket size adjusts based on solver status
-    - Kernel promotion: Variables in improving solutions are promoted to active kernel
-    - Efficient variable fixing: Only current bucket variables are re-fixed after each iteration
-
-    Args:
-        model: Gurobi optimization model.
-        kernel_vars: Initial kernel variables (from LP relaxation).
-        remaining_vars: Variables outside the initial kernel, sorted by priority.
-        initial_bucket_size: Starting size for variable buckets.
-        max_buckets: Maximum number of bucket iterations across all scrolls.
-        bucket_growth_factor: Factor for adaptive bucket resizing.
-        time_limit: Total time budget for the iterative phase.
-        mip_limit_nodes: Node limit for Gurobi MIP solves.
-        max_scrolls: Number of complete passes through remaining_vars.
-
-    Returns:
-        Set of variables used in improving solutions (active kernel).
-
-    Reference:
-        Guastaroba, G., Savelsbergh, M., & Speranza, M. G. (2017).
-        "Adaptive Kernel Search: A heuristic for solving Mixed Integer linear Programs".
-        European Journal of Operational Research, 263(3), 789-804.
+    Complies with Guastaroba et al. (2017) methodology.
     """
     active_kernel = set(kernel_vars)
-
-    # Initialize all remaining variables as fixed to 0
     for v in remaining_vars:
         v.UB = 0
 
     best_obj = -float("inf")
     start_time = model.Runtime
 
-    # PHASE 1: Initial Kernel Solve
-    model.setParam("TimeLimit", max(5.0, time_limit * 0.1))
+    # PHASE 1: Initial Kernel Solve and potential GETFEASIBLE
+    model.setParam("TimeLimit", max(10.0, time_limit * 0.2))
     model.optimize(_dfj_subtour_elimination_callback)
 
-    if model.SolCount > 0:
-        best_obj = model.ObjVal
-        # Initial promotion from kernel solve
-        active_kernel.update({v for v in kernel_vars if v.X > 0.5})
+    current_rem_idx = 0
+    if model.SolCount == 0:
+        # Step 3: GETFEASIBLE Routine - Only if initial solve fails
+        current_rem_idx = _get_feasible(model, remaining_vars, active_kernel)
 
-    # PHASE 2: Multi-Scroll Adaptive Bucket Solving
-    buckets_solved = 0
-    current_bucket_size = initial_bucket_size
+    if model.SolCount == 0:
+        return set()
 
-    for _scroll in range(max_scrolls):
-        # Reset to beginning of variable list for each scroll
-        current_idx = 0
+    t_mip_k = model.Runtime - start_time
+    best_obj = model.ObjVal
+    x_h = {v: v.X for v in active_kernel}
 
-        while current_idx < len(remaining_vars) and buckets_solved < max_buckets:
-            elapsed = model.Runtime - start_time
-            if elapsed > time_limit:
-                break
+    # PHASE 2: Difficulty Assessment
+    classification = _assess_difficulty(model, t_mip_k, t_easy, epsilon)
 
-            # Define current bucket
-            end_idx = min(current_idx + current_bucket_size, len(remaining_vars))
-            current_bucket = remaining_vars[current_idx:end_idx]
-
-            # Unfix active kernel and current bucket
-            for v in active_kernel:
-                v.UB = 1
-            for v in current_bucket:
-                v.UB = 1
-
-            # Iteration-specific time and node limits
-            iter_time = max(2.0, (time_limit - elapsed) / max(1, max_buckets - buckets_solved))
-            model.setParam("TimeLimit", iter_time)
-            model.setParam("NodeLimit", mip_limit_nodes)
-            model.optimize(_dfj_subtour_elimination_callback)
-
-            # Adaptive bucket sizing based on computational effort (Guastaroba 2017, Section 3.2)
-            if model.Status == GRB.NODE_LIMIT or model.Status == GRB.TIME_LIMIT:
-                # Subproblem was too hard - contract bucket size
-                current_bucket_size = max(initial_bucket_size, int(current_bucket_size / bucket_growth_factor))
-            elif model.Status == GRB.OPTIMAL:
-                # Subproblem solved easily - expand bucket size
-                current_bucket_size = int(current_bucket_size * bucket_growth_factor)
-
-            # Kernel promotion: Add variables from improving solutions
-            if model.SolCount > 0 and model.ObjVal > best_obj + 1e-4:
-                best_obj = model.ObjVal
-                # Promote variables with X > 0.5 to active kernel
-                active_vars = {v for v in current_bucket if v.X > 0.5}
-                active_kernel.update(active_vars)
-
-            # Re-fix only the current bucket variables (not promoted ones)
-            for v in current_bucket:
-                if v not in active_kernel:
-                    v.UB = 0
-
-            current_idx = end_idx
-            buckets_solved += 1
-
-        # Check global termination
-        if elapsed > time_limit or buckets_solved >= max_buckets:
-            break
+    # PHASE 3: Iterative Bucket Solving
+    if classification == "EASY":
+        current_rem_idx, best_obj = _solve_easy_iterations(
+            model, remaining_vars, current_rem_idx, active_kernel, bucket_size * 2, t_easy, x_h, best_obj
+        )
+    else:
+        remaining_to_bucket = remaining_vars[current_rem_idx:]
+        buckets = [remaining_to_bucket[i : i + bucket_size] for i in range(0, len(remaining_to_bucket), bucket_size)]
+        best_obj = _solve_rigorous_iterations(
+            model, buckets, active_kernel, x_h, best_obj, max_buckets, time_limit, start_time, mip_limit_nodes
+        )
 
     return active_kernel
 
@@ -250,55 +281,37 @@ def run_adaptive_kernel_search_gurobi(
     initial_kernel_size: int = 50,
     bucket_size: int = 20,
     max_buckets: int = 15,
-    bucket_growth_factor: float = 1.2,
     time_limit: float = 300.0,
     mip_limit_nodes: int = 10000,
     mip_gap: float = 0.01,
+    t_easy: float = 10.0,
+    epsilon: float = 0.1,
     seed: int = 42,
     env: Optional[gp.Env] = None,
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[int], float, float]:
     """
-    Solve the Vehicle Routing Problem with Profits (VRPP) using Adaptive Kernel Search (AKS).
-
-    This entry point orchestrates the mathematical modeling, variable partitioning,
-    adaptive iterative solving, and result reconstruction.
+    Solve VRPP using Adaptive Kernel Search (AKS) per Guastaroba et al. (2017).
 
     Args:
-        dist_matrix (np.ndarray): Symmetric or asymmetric cost matrix for nodes.
-        wastes (Dict[int, float]): Map of node index to current bin fill level.
-        capacity (float): Maximum vehicle capacity.
-        R (float): Revenue multiplier for the objective function.
-        C (float): Cost/Distance multiplier for the objective function.
-        mandatory_nodes (List[int]): Nodes that MUST be visited regardless of profit.
-        initial_kernel_size (int): size of the starting variable pool.
-        bucket_size (int): starting size for search buckets.
-        max_buckets (int): limit on improvement attempts.
-        bucket_growth_factor (float): rate of neighborhood expansion.
-        time_limit (float): total time budget for optimization.
-        mip_limit_nodes (int): node limit for internal Gurobi solves.
-        mip_gap (float): acceptable relative optimality gap.
-        seed (int): random seed for solver consistency.
-        env (Optional[gp.Env]): Shared Gurobi environment (useful for license management).
-        recorder (Optional[PolicyStateRecorder]): System-wide state tracking hook.
-
-    Returns:
-        Tuple[List[int], float, float]:
-            - tour: The optimized sequence of node IDs.
-            - obj_val: The final MILP objective value achieved.
-            - cost: The total travel distance/cost of the final tour.
+        initial_kernel_size (int): Size of the starting variable pool.
+        bucket_size (int): Size for search buckets.
+        max_buckets (int): Limit on improvement attempts.
+        time_limit (float): Total time budget for optimization.
+        mip_limit_nodes (int): Node limit for internal Gurobi solves.
+        mip_gap (float): Acceptable relative optimality gap.
+        t_easy (float): Threshold for 'EASY' instance classification (seconds).
+        epsilon (float): Tolerance for fixing variables in 'HARD' instances.
+        seed (int): Random seed.
     """
-    # 1. Initialize the Gurobi model and set global parameters
     model = gp.Model("AKS_VRPP", env=env) if env else gp.Model("AKS_VRPP")
     model.setParam("OutputFlag", 0)
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
 
-    # 2. Setup the core mathematical formulation (Variables and Constraints)
-    # This includes the VRPP profit model with DFJ lazy constraints (no MTZ).
-    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+    # Setup core formulation (ensure binary vars for root relaxation)
+    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes, use_binary_vars=True)
 
-    # 3. Perform Selection Phase via LP Relaxation
     kernel_vars, remaining_vars, _ = _get_partitioned_vars_aks(
         model, x, y, initial_kernel_size, bucket_size, dist_matrix, wastes, capacity, R, C, mandatory_nodes
     )
@@ -306,34 +319,23 @@ def run_adaptive_kernel_search_gurobi(
     if not kernel_vars:
         return [0, 0], 0.0, 0.0
 
-    # 4. Execute the Adaptive Improvement Loop
-    # Identifies the 'useful' subset of all variables found across iterations.
     used_vars = _solve_aks_iterations(
-        model, kernel_vars, remaining_vars, bucket_size, max_buckets, bucket_growth_factor, time_limit, mip_limit_nodes
+        model, kernel_vars, remaining_vars, bucket_size, max_buckets, time_limit, mip_limit_nodes, t_easy, epsilon
     )
 
     if not used_vars:
         return [0, 0], 0.0, 0.0
 
-    # 5. Final Intensification
-    # Solve one last MIP restricted to ONLY the variables that proved useful in
-    # previous steps. This ensures the best combination is found and feasible.
     for v in used_vars:
         v.UB = 1
 
-    # Warm-start with greedy heuristic to ensure feasibility
     _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
-
     model.optimize(_dfj_subtour_elimination_callback)
 
     if model.SolCount == 0:
         return [0, 0], 0.0, 0.0
 
-    # 6. Tour Reconstruction
-    # Extract the sequence of node visits from the binary edge variables (`x`).
     tour, cost = _reconstruct_tour(len(dist_matrix), x, dist_matrix)
-
-    # 7. Telemetry / Logging
     if recorder:
         recorder.record(engine="adaptive_kernel_search", obj_val=model.ObjVal, cost=cost, solved=1)
 
