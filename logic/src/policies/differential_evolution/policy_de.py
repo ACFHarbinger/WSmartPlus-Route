@@ -1,7 +1,7 @@
 """
-Policy adapter for Differential Evolution (DE/rand/1/bin).
+Policy adapter for Memetic Differential Evolution (MDE/rand/1/exp).
 
-Provides the interface between the DE solver and the policy factory system.
+Provides the interface between the MDE solver and the policy factory system.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -19,22 +19,16 @@ from .solver import DESolver
 @PolicyRegistry.register("de")
 class DEPolicyAdapter(BaseRoutingPolicy):
     """
-    Policy adapter for Differential Evolution with rigorous DE/rand/1/bin mechanics.
+    Policy adapter for Memetic Differential Evolution (MDE).
 
-    Replaces Artificial Bee Colony (ABC), which is mathematically equivalent to
-    Differential Evolution with fitness-proportionate selection instead of greedy
-    selection. This implementation uses proper DE mechanics:
+    MDE hybridizes the global exploratory power of DE/rand/1/exp (Storn & Price,
+    1997) with memetic local search for discrete optimization. The adapter
+    coordinates:
 
-    - Greedy one-to-one selection (not fitness-proportionate)
-    - Explicit crossover operator with CR parameter
-    - Differential mutation: v = x_r1 + F × (x_r2 - x_r3)
-    - No metaphor (employed/onlooker/scout bees)
-    - No trial counter or abandonment mechanism
-
-    Mathematical Foundation:
-        1. Mutation: v_i = x_r1 + F × (x_r2 - x_r3)
-        2. Crossover: u_ij = v_ij if rand() < CR else x_ij
-        3. Selection: x_i(t+1) = u_i if f(u_i) ≥ f(x_i) else x_i
+    - Global search via continuous Random Key mutation & Exponential crossover
+    - Local reinforcement via discrete TSP-based refinement (memetic addition)
+    - Dynamic population scaling to ensure mutual exclusivity axioms
+    - Mathematical rigor in nomenclature (MDE/rand/1/exp)
 
     Reference:
         Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and
