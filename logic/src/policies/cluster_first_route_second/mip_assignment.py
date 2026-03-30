@@ -7,13 +7,17 @@ clusters using Gurobi's MIP solver. The formulation maximizes total profit
 
 This is an extension of the original Fisher & Jaikumar algorithm that uses
 exact optimization instead of greedy heuristics for the assignment phase.
+Specifically, we introduce a Prize-Collecting adaptation of the GAP
+objective to handle profit-aware vehicle routing (VRPP).
 
 Reference:
     Fisher, M. L., & Jaikumar, R. (1981). "A generalized assignment heuristic
     for vehicle routing". Networks, 11(2), 109-124.
+    Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017). "A Variant Fisher
+    and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem".
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -62,31 +66,34 @@ def assign_exact_mip(
     distance_matrix: np.ndarray,
     time_limit: float = 60.0,
     objective: str = "minimize_cost",
-) -> List[List[int]]:
+) -> Optional[List[List[int]]]:
     """
     Assign nodes to seeds by solving the Generalized Assignment Problem (GAP)
     as an exact Mixed-Integer Program using Gurobi.
 
-    Supports two objective modes:
-    1. **minimize_cost** (default): Minimize total insertion cost for benchmark compliance
-    2. **maximize_profit**: Maximize profit (revenue - cost) for simulation mode
+    Ref: Fisher & Jaikumar (1981), Sultana & Akhand (2017).
 
-    Mathematical Formulation (minimize_cost):
+    IMPORTANT: The 'maximize_profit' objective is a novel metaheuristic
+    extension for Prize-Collecting VRPs (VRPP). It is mathematically
+    distinct from the original GAP formulation presented in Sultana &
+    Akhand (2017), which focuses solely on cost minimization.
+
+    Mathematical Formulation (GAP):
         Minimize: Σ_i Σ_k (c_ik * x_ik)
         Subject to:
-            Σ_k x_ik <= 1                    ∀i ∈ must_go  (assignment constraint)
-            Σ_i w_i * x_ik <= capacity       ∀k ∈ seeds    (capacity constraint)
-            x_kk = 1                         ∀k ∈ seeds    (seed pre-assignment)
-            x_ik ∈ {0, 1}                    ∀i, k         (binary variables)
-
-    Mathematical Formulation (maximize_profit):
-        Maximize: Σ_i Σ_k [(R * w_i) - (C * c_ik)] * x_ik
-        Subject to: (same constraints as above)
+            Σ_k x_ik <= 1                    ∀i ∈ must_go  (assignment)
+            Σ_i w_i * x_ik <= capacity       ∀k ∈ seeds    (capacity)
+            x_kk = 1                         ∀k ∈ seeds    (seed constraint)
+            x_ik ∈ {0, 1}                    ∀i, k
 
         Where:
-            x_ik = 1 if node i is assigned to seed k, 0 otherwise
-            w_i = waste quantity at node i
-            c_ik = insertion cost = d(0, i) + d(k, i) - d(k, 0)
+            c_ik = D_Si + D_i0 - D_S (S=seed, i=node, 0=depot)
+
+            Note: We explicitly enforce c_kk = 0. This is a mathematical necessity
+            to isolate the marginal cost of node i's insertion into cluster k.
+            Since node k is the seed of its own cluster, its "insertion cost"
+            relative to itself is zero by definition, ensuring it remains the
+            anchor of that cluster without solver-induced artifacts.
             R = revenue per unit of waste
             C = cost per unit of distance
 
@@ -146,11 +153,18 @@ def assign_exact_mip(
     try:
         clusters: List[List[int]] = [[] for _ in range(len(seeds))]
 
-        # 1. Precompute Fisher & Jaikumar insertion costs: c_ik = d(0, i) + d(i, k) - d(0, k)
+        # 1. Precompute insertion costs: c_ik = D_Si + D_i0 - D_S
         costs = {}
         for i in must_go:
             for k_idx, k in enumerate(seeds):
-                costs[i, k_idx] = distance_matrix[0, i] + distance_matrix[i, k] - distance_matrix[0, k]
+                if i == k:
+                    # Seed insertion cost into its own cluster is exactly zero.
+                    # This prevents the solver from trying to 'optimize' the seed's
+                    # position relative to itself and ensures x_kk = 1 is always
+                    # the cheapest assignment for the seed.
+                    costs[i, k_idx] = 0.0
+                else:
+                    costs[i, k_idx] = distance_matrix[k, i] + distance_matrix[i, 0] - distance_matrix[k, 0]
 
         # 2. Setup Gurobi Environment and Model
         env = gp.Env(empty=True)
