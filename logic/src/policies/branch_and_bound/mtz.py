@@ -1,9 +1,13 @@
 """
 Branch-and-Bound (BB) solver core engine.
 
-Implements the Land and Doig (1960) methodology for exact integer programming.
-The solver uses Gurobi for Linear Programming (LP) relaxations and manages a
-search tree to ensure global optimality for VRPP/CWC VRP problems.
+Standard Best-Bound-First Branch-and-Bound algorithm based on LP relaxations.
+While Land & Doig (1960) established the foundational concept of Branch-and-Bound
+and spatial branching, this modern implementation utilizes cold/warm-start LP
+resolves at each node (via Gurobi) rather than the original parametric systematic
+hyperplane shifts.
+
+The solver manages a search tree to ensure global optimality for VRPP/CWC VRP problems.
 
 **REFACTORED**: Uses the Miller-Tucker-Zemlin (MTZ) compact formulation to ensure
 subtour elimination strictly within the LP relaxations at each node.
@@ -43,6 +47,14 @@ class BBSolver:
     The solver maintains an 'incumbent' solution (the best integer solution
     found so far) and stops when the search tree is exhausted or the
     specified MIP gap is reached.
+
+    **ARCHITECTURAL JUSTIFICATION**:
+    This custom solver is engineered specifically for **full observability of the
+    search state**. Exposing the B&B tree entirely in Python is a necessary
+    architectural choice for integrating machine learning models (e.g., injecting
+    Graph Neural Networks for state evaluation or imitation learning for variable
+    selection heuristics), which is heavily restricted by standard commercial
+    solver callback systems.
 
     **REFACTORED DESIGN**:
     - Persistent Gurobi model stored in self.model (initialized once)
@@ -342,7 +354,7 @@ class BBSolver:
         """
         Perform the Branch-and-Bound search to find the optimal integer routes.
 
-        Implements the core manual B&B loop following Land and Doig (1960):
+        Implements the core manual B&B loop using LP-based relaxations (Best-Bound-First):
         1. Initialize priority queue with root node
         2. Loop while queue is not empty:
            - Pop node with best bound
@@ -450,7 +462,7 @@ class BBSolver:
         # Telemetry updates
         if self.recorder:
             self.recorder.record(
-                engine="bb_land_doig",
+                engine="bb_lp_relaxation",
                 nodes_explored=nodes_explored,
                 obj_val=self.incumbent_obj,
                 time=time.perf_counter() - self.start_time,

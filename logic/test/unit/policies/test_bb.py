@@ -62,7 +62,7 @@ class TestBBPolicy:
         # We mock gurobipy to avoid license issues in CI/Test env if needed,
         # but here we want to test if the logic holds.
         # However, for a unit test of the ADAPTER, we can mock run_bb.
-        with patch("logic.src.policies.branch_and_bound.policy_bb.run_bb") as mock_run:
+        with patch("logic.src.policies.branch_and_bound.policy_bb.run_bb_optimizer") as mock_run:
             mock_run.return_value = ([[1, 2]], 25.0)
             policy = cast(Callable, PolicyRegistry.get("bb"))()
             tour, cost, extra = policy.execute(**bb_test_data)

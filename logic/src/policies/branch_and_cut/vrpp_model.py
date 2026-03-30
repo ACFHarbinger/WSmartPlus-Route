@@ -14,6 +14,14 @@ class VRPPModel:
     """
     Mathematical model for the Vehicle Routing Problem with Profits (VRPP).
 
+    This solver adapts the Symmetric Generalized TSP (GTSP) infrastructure of
+    Fischetti et al. (1997) to the Single-Vehicle VRPP, which is formulated
+    as a Prize-Collecting TSP (PC-TSP) with a global knapsack constraint.
+
+    The model utilizes Generalized Subtour Elimination Constraints (GSECs).
+    In the absence of explicit clusters, it primarily utilizes the Equation (2.3)
+    form of GSECs: ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2(yi + yj - 1).
+
     Uses the Natural Edge Formulation for Branch-and-Cut optimization.
     MTZ variables are omitted to preserve a tight polyhedral relaxation,
     relying strictly on the SeparationEngine for SEC and Capacity cuts.
@@ -21,30 +29,26 @@ class VRPPModel:
     The VRPP seeks to maximize:
         Total Profit = (Waste Collected × R) - (Distance Traveled × C)
 
+    Variable Consistency:
+        The objective is implemented as a minimization of (Cost - Revenue)
+        which is mathematically equivalent to maximizing (Revenue - Cost).
+
     Decision Variables:
-        - x[i,j] ∈ {0,1}: Edge (i,j) is used in the tour
-        - y[i] ∈ {0,1}: Node i is visited
+        - x[i,j] ∈ {0,1,2}: Edge (i,j) usage. (ub=2 for edges incident to depot).
+        - y[i] ∈ {0,1}: Node i is visited.
 
     Base Model Constraints (before cutting planes):
         1. Degree constraints: ∑_{(i,j) ∈ δ(i)} x[i,j] = 2·y[i] for all customers i
-        2. Depot degree: ∑_{(0,j) ∈ δ(0)} x[0,j] = 2 (exactly one route)
-        3. Global capacity: ∑_{i ∈ V\\{0}} demand[i]·y[i] ≤ Q (knapsack constraint)
+        2. Depot degree: ∑_{(0,j) ∈ δ(0)} x[0,j] ≤ 2K (where K is fleet size)
+        3. Global capacity: ∑_{i ∈ V\\{0}} demand[i]·y[i] ≤ K·Q (aggregate capacity)
         4. Mandatory nodes: y[i] = 1 for i ∈ must_go
 
-    Dynamic Constraints (added via lazy callbacks):
-        5. Subtour Elimination Cuts (SEC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2 for S ⊂ V\\{0}
+    Dynamic Constraints (added via callbacks):
+        5. Prize-Collecting Subtour Elimination Cuts (PC-SEC):
+           - Form (2.1): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2
+           - Form (2.2): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2yi
+           - Form (2.3): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2(yi + yj - 1)
         6. Rounded Capacity Cuts (RCC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2·⌈demand(S)/Q⌉
-        7. Comb Inequalities: Advanced cuts for strengthening LP relaxation
-
-    References:
-        Fischetti, M., Lodi, A., & Toth, P. (1997). "A Branch-and-Cut Algorithm for the
-        Symmetric Generalized Traveling Salesman Problem". Operations Research, 45(2), 326-349.
-
-        Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004). "A new branch-and-cut algorithm
-        for the capacitated vehicle routing problem". Mathematical Programming, 100(2), 423-445.
-
-        Padberg, M., & Rinaldi, G. (1991). "A Branch-and-cut Algorithm for the Resolution of
-        Large-scale Symmetric Traveling Salesman Problems". SIAM Review, 33(1), 60-100.
     """
 
     def __init__(
@@ -53,6 +57,7 @@ class VRPPModel:
         cost_matrix: np.ndarray,
         wastes: Dict[int, float],
         capacity: float,
+        num_vehicles: int = 1,
         revenue_per_kg: float = 1.0,
         cost_per_km: float = 1.0,
         mandatory_nodes: Optional[Set[int]] = None,
@@ -64,7 +69,8 @@ class VRPPModel:
             n_nodes: Total number of nodes (including depot at index 0).
             cost_matrix: Symmetric n_nodes × n_nodes distance/cost matrix.
             wastes: Dictionary mapping node index -> waste/demand.
-            capacity: Vehicle capacity constraint.
+            capacity: Vehicle capacity constraint (Q).
+            num_vehicles: Fleet size (K).
             revenue_per_kg: Revenue coefficient (R).
             cost_per_km: Cost coefficient (C).
             mandatory_nodes: Set of node indices that must be visited (must_go).
@@ -73,6 +79,7 @@ class VRPPModel:
         self.cost_matrix = cost_matrix
         self.wastes = wastes
         self.capacity = capacity
+        self.num_vehicles = num_vehicles
         self.R = revenue_per_kg
         self.C = cost_per_km
         self.mandatory_nodes = mandatory_nodes or set()

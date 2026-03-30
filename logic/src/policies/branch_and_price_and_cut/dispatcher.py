@@ -2,16 +2,15 @@
 Branch-and-Price-and-Cut (BPC) solver dispatcher.
 
 Reference:
-    Barnhart, C., Hane, C. A., & Vance, P. H. (1998).
-    "Using Branch-and-Price-and-Cut to Solve Origin-Destination Integer
-    Multicommodity Flow Problems." Operations Research, 48(2), 318-326.
+    Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., & Vance, P. H. (1998).
+    "Branch-and-price: Column generation for solving huge integer programs."
+    Operations Research, 46(3), 316-329.
 
 Note:
-    This dispatcher coordinates multiple solver backends:
-    - 'bpc_native': True Branch-and-Price-and-Cut (Column Generation + B&B tree)
-    - 'gurobi': Standard Branch-and-Cut (NOT BPC - uses Gurobi's built-in B&C)
-    - 'ortools': Constraint Programming / Local Search (NOT BPC)
-    - 'vrpy': VRPy library wrapper (Column Generation without full BPC)
+    This dispatcher coordinates multiple solver backends for VRPP. The 'custom'
+    engine implements an exact BPC algorithm adapted for the VRPP context,
+    following high-level sequencing (converged CG, cut separation, branching)
+    found in the BPC framework of Barnhart et al. (1998).
 """
 
 from typing import Optional
@@ -41,7 +40,8 @@ def run_bpc(
     Main dispatcher for Branch-and-Price-and-Cut solvers.
 
     Selects and runs the appropriate BPC solver based on configuration.
-    Supports Waste-Collecting CVRP with optional must-go nodes.
+    The 'custom' engine provides an exact BPC implementation specifically
+    adapted for Waste-Collecting CVRP and VRPP from the Barnhart et al. framework.
 
     Args:
         dist_matrix (np.ndarray): Distance matrix (N x N) with depot at index 0
