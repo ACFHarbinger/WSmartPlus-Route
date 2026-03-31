@@ -32,6 +32,14 @@ popmusic:
     # Larger values → more intensive search, slower iterations.
     # Range: 2-10 (Recommendation: 3-5)
 
+    - k_prox: 10
+    # Proximity network size for O(log p) search.
+    # Set to 0 to disable KD-Tree acceleration and use brute-force scan.
+
+    - seed_strategy: "lifo"
+    # Strategy for selecting seeds from the active list.
+    # Options: "lifo" (Paper Rec), "fifo", "random"
+
     - max_iterations: 100
     # Maximum number of subproblem optimization attempts without improvement.
     # Prevents excessive runtime on very large instances.

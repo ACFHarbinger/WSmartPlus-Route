@@ -47,7 +47,7 @@ class POPMUSICPolicy(BaseRoutingPolicy):
             distance_matrix=sub_dist_matrix,
             n_vehicles=kwargs.get("n_vehicles", 1),
             subproblem_size=values.get("subproblem_size", 3),
-            max_iterations=values.get("max_iterations", 10),
+            max_iterations=values.get("max_iterations"),
             base_solver=values.get("base_solver", "fast_tsp"),
             base_solver_config=values.get("base_solver_config"),
             cluster_solver=values.get("cluster_solver", "fast_tsp"),
@@ -60,6 +60,8 @@ class POPMUSICPolicy(BaseRoutingPolicy):
             C=cost_unit,
             vrpp=values.get("vrpp", True),
             profit_aware_operators=values.get("profit_aware_operators", False),
+            k_prox=values.get("k_prox", 10),
+            seed_strategy=values.get("seed_strategy", "lifo"),
         )
 
         # return routes as List[List[int]]

@@ -136,7 +136,7 @@ def optimize_subpath(
         improved = False
         trials += 1
         for i in range(n - 2):
-            for j in range(i + 2, n):
+            for j in range(i + 2, n - 1):
                 # Reversing the entire open path (i=0, j=n-1) IS a valid
                 # 2-opt move --- it mirrors the path direction,  which can
                 # be improving when the sub-path is asymmetric.
