@@ -29,9 +29,6 @@ from logic.src.policies.other.local_search.local_search_aco import (
 )
 from logic.src.policies.other.operators import (
     build_greedy_routes,
-    greedy_insertion,
-    greedy_profit_insertion,
-    random_removal,
 )
 
 logger = logging.getLogger(__name__)
@@ -137,58 +134,44 @@ class ILSRVNDSPSolver:
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
         """
-        Ruin and Recreate perturbation for ILS.
+        Random perturbation for ILS as specified in Subramanian et al. (2013).
 
-        RVND is an extremely powerful local search that will immediately reverse weak
-        perturbations (e.g., single node swaps). To escape local optima, we implement
-        aggressive "Ruin and Recreate":
-
-        1. RUIN: Remove 10-20% of nodes (minimum 3 nodes) using random removal
-        2. RECREATE: Greedily reinsert using profit-aware or distance-aware insertion
-
-        This ensures the search is bumped into a genuinely different valley of the
-        solution landscape before RVND intensification takes over.
+        Performs 2-5 random moves. Each move is either:
+        - Swap(1,1): Swap one random node from r1 with one random node from r2.
+        - Shift(1,1): Relocate one random node from r1 to a random position in r2.
         """
-        if not any(routes):
-            return routes
+        new_routes = [r[:] for r in routes]
+        n_moves = self.random.randint(2, 5)
 
-        # Calculate total number of nodes in current solution
-        total_nodes = sum(len(r) for r in routes)
-        if total_nodes == 0:
-            return routes
+        for _ in range(n_moves):
+            # Only perturb if we have at least 2 non-empty routes for inter-route moves
+            active_routes = [i for i, r in enumerate(new_routes) if len(r) > 0]
+            if len(active_routes) < 2:
+                # Fallback: if only one route, just do a random intra-swap if possible
+                if len(active_routes) == 1:
+                    ridx = active_routes[0]
+                    if len(new_routes[ridx]) >= 2:
+                        i, j = self.random.sample(range(len(new_routes[ridx])), 2)
+                        new_routes[ridx][i], new_routes[ridx][j] = new_routes[ridx][j], new_routes[ridx][i]
+                continue
 
-        # Aggressive perturbation: remove 10-20% of nodes (minimum 3)
-        # This parameter can be tuned via perturbation_strength in params
-        default_removal_pct = getattr(self.params, "perturbation_strength", 0.15)  # 15% default
-        num_remove = max(3, int(total_nodes * default_removal_pct))
-        num_remove = min(num_remove, total_nodes)  # Don't remove more than available
+            if self.random.random() < 0.5:
+                # Swap(1,1)
+                r1_idx, r2_idx = self.random.sample(active_routes, 2)
+                p1 = self.random.randint(0, len(new_routes[r1_idx]) - 1)
+                p2 = self.random.randint(0, len(new_routes[r2_idx]) - 1)
+                new_routes[r1_idx][p1], new_routes[r2_idx][p2] = new_routes[r2_idx][p2], new_routes[r1_idx][p1]
+            else:
+                # Shift(1,1) (Relocate)
+                # Note: Shift(1,1) in paper terminology usually means a relocate move
+                r1_idx = self.random.choice(active_routes)
+                r2_idx = self.random.choice(range(len(new_routes)))  # Can shift to any route
+                p1 = self.random.randint(0, len(new_routes[r1_idx]) - 1)
+                node = new_routes[r1_idx].pop(p1)
+                p2 = self.random.randint(0, len(new_routes[r2_idx])) if new_routes[r2_idx] else 0
+                new_routes[r2_idx].insert(p2, node)
 
-        # RUIN phase: randomly destroy part of the solution
-        partial, removed = random_removal(routes, num_remove, self.random)
-
-        # RECREATE phase: greedily rebuild using insertion operators
-        if self.params.profit_aware_operators:
-            return greedy_profit_insertion(
-                routes=partial,
-                removed_nodes=removed,
-                dist_matrix=self.dist_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                R=self.R,
-                C=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=self.params.vrpp,
-            )
-        else:
-            return greedy_insertion(
-                routes=partial,
-                removed_nodes=removed,
-                dist_matrix=self.dist_matrix,
-                wastes=self.wastes,
-                capacity=self.capacity,
-                mandatory_nodes=self.mandatory_nodes,
-                expand_pool=self.params.vrpp,
-            )
+        return new_routes
 
     def build_initial_solution(self) -> List[List[int]]:
         """Construct initial solution using standard greedy heuristic."""
@@ -270,6 +253,11 @@ class ILSRVNDSPSolver:
             if node_to_routes[node]:
                 model.addConstr(gp.quicksum(x[i] for i in node_to_routes[node]) <= 1, name=f"Optional_{node}")
 
+        # Constraints: Vehicle fleet limit (Subramanian 2013)
+        max_v = getattr(self.params, "max_vehicles", 0)
+        if max_v > 0:
+            model.addConstr(gp.quicksum(x[i] for i in range(n_routes)) <= max_v, name="FleetLimit")
+
         model.optimize()
 
         if model.Status in {GRB.OPTIMAL, GRB.TIME_LIMIT} and model.SolCount > 0:
@@ -321,21 +309,11 @@ class ILSRVNDSPSolver:
                 if len(ls_routes) > 0 and (best_profit - ls_profit) / abs(best_profit + 1e-9) <= tolerance:
                     self._add_to_pool(ls_routes, target_pool)
 
-                # ILS Acceptance Criterion (formalized):
-                # Accept new local optimum S* if it improves upon current solution
-                # OR if it's within a small tolerance to prevent stalling in early local optima
-                acceptance_threshold = 0.02  # Accept if within 2% of current profit (VRPP-tuned)
-
-                # Primary acceptance: strict improvement
+                # ILS Acceptance Criterion (Subramanian 2013):
+                # Accept new local optimum if and only if it strictly improves upon current solution
                 if ls_profit > current_profit + 1e-6:
                     iter_routes = copy.deepcopy(ls_routes)
                     current_profit = ls_profit
-                # Secondary acceptance: within tolerance (exploration)
-                elif ls_profit >= current_profit * (1.0 - acceptance_threshold):
-                    # Accept with probability based on profit gap to maintain exploration
-                    if self.random.random() < 0.5:  # 50% chance for near-optimal solutions
-                        iter_routes = copy.deepcopy(ls_routes)
-                        current_profit = ls_profit
 
                 # Global best update: strict improvement only
                 if ls_profit > best_profit + 1e-6:
@@ -364,7 +342,12 @@ class ILSRVNDSPSolver:
         max_restarts = getattr(self.params, "max_restarts", 10)
         max_iter_a = getattr(self.params, "MaxIter_a", 50)
         iter_count = max_iter_a if max_iter_a > 0 else max_restarts
-        ils_count = int(self.n_nodes + 0.5 * (self.n_nodes / 10))
+
+        # MaxIterILS-a = n + 0.5 * v (Subramanian 2013)
+        init_routes_for_v = initial_solution if initial_solution else self.build_initial_solution()
+        v_approx = max(1, len(init_routes_for_v))
+        ils_count = int(self.n_nodes + 0.5 * v_approx)
+
         tolerance = getattr(self.params, "TDev_a", 0.05)
 
         for _ in range(iter_count):
@@ -463,43 +446,19 @@ class ILSRVNDSPSolver:
 
         # Define the atomic neighborhoods to explore
         # Each operator will run local search restricted to ONE specific move type
+        # Exact 10 neighborhoods specified in Subramanian et al. (2013)
         neighborhoods = [
-            "intra_relocate",  # Relocate node within same route
-            "intra_swap",  # Swap nodes within same route
-            "intra_2opt",  # 2-opt within same route
-            "intra_3opt",  # 3-opt within same route
-            "intra_or_opt",  # Or-opt chains within same route
-            "inter_relocate",  # Relocate node between different routes
-            "inter_swap",  # Swap nodes between different routes
-            "inter_2opt_star",  # 2-opt* between routes
-            "inter_swap_star",  # SWAP* between routes (Vidal 2022)
-            "unrouted_insert",  # Insert unrouted nodes (VRPP-specific)
+            "intra_swap",  # Exchange (intra)
+            "intra_2opt",  # 2-opt (intra)
+            "intra_or_opt",  # Or-opt2 + Or-opt3 (intra)
+            "inter_relocate",  # Shift(1,0) (inter)
+            "shift_2_0",  # Shift(2,0) (inter) [NEW]
+            "inter_swap",  # Swap(1,1) (inter)
+            "swap_2_1",  # Swap(2,1) (inter) [NEW]
+            "swap_2_2",  # Swap(2,2) (inter) [NEW]
+            "cross",  # Cross / Suffix exchange (inter) [NEW]
+            "unrouted_insert",  # VRPP specific insertion (extension)
         ]
-
-        # Add advanced neighborhoods if enabled in params
-        if getattr(self.params, "use_cross_exchange", False):
-            neighborhoods.append("cross_exchange")
-
-        if getattr(self.params, "use_improved_cross_exchange", False):
-            neighborhoods.append("improved_cross_exchange")
-
-        if getattr(self.params, "use_lambda_interchange", False):
-            neighborhoods.append("lambda_interchange")
-
-        if getattr(self.params, "use_relocate_chain", False):
-            neighborhoods.append("relocate_chain")
-
-        if getattr(self.params, "use_cyclic_transfer", False):
-            neighborhoods.append("cyclic_transfer")
-
-        if getattr(self.params, "use_exchange_chains", False):
-            neighborhoods.append("exchange_chains")
-
-        if getattr(self.params, "use_ejection_chains", False):
-            neighborhoods.append("ejection_chains")
-
-        if getattr(self.params, "use_three_permutation", False):
-            neighborhoods.append("three_permutation")
 
         # Create a wrapper for each neighborhood
         for neighborhood_type in neighborhoods:

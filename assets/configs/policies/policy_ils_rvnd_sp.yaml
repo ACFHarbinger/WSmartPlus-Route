@@ -13,7 +13,8 @@ ils_rvnd_sp:
   MaxIterILS_b: 2000
   TDev_a: 0.05
   TDev_b: 0.005
-  time_limit: 60.0
+  max_vehicles: 0
+  time_limit: 300.0
   local_search_iterations: 500
   vrpp: true
   profit_aware_operators: false

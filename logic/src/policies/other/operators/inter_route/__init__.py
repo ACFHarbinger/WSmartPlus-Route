@@ -22,6 +22,12 @@ from .k_opt_star import (
     move_3opt_star,
     move_kopt_star,
 )
+from .subramanian_neighborhoods import (
+    move_cross,
+    shift_2_0,
+    swap_2_1,
+    swap_2_2,
+)
 from .swap_star import move_swap_star
 
 __all__ = [
@@ -38,4 +44,8 @@ __all__ = [
     "exchange_2_1",
     "exchange_k_0",
     "exchange_k_h",
+    "shift_2_0",
+    "swap_2_1",
+    "swap_2_2",
+    "move_cross",
 ]
