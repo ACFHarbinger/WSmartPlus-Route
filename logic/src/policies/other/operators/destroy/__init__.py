@@ -21,6 +21,7 @@ Example:
 
 # Unstringing/Stringing imports removed to avoid circularity with ..unstringing_stringing
 from .cluster import cluster_profit_removal, cluster_removal
+from .guided import penalized_removal
 from .historical import historical_profit_removal, historical_removal
 from .neighbor import neighbor_profit_removal, neighbor_removal
 from .random import random_profit_removal, random_removal
@@ -40,6 +41,7 @@ __all__ = [
     "neighbor_removal",
     "historical_removal",
     "sector_removal",
+    "penalized_removal",
     # Profit-based variants for VRPP
     "historical_profit_removal",
     "worst_profit_removal",
