@@ -4,12 +4,23 @@
 # =============================================================================
 # REFERENCE:
 #   Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. (2010).
-#   "A Reinforcement Learning – Great-Deluge Hyper-heuristic for Examination Timetabling".
+#   "A Reinforcement Learning – Great-Deluge Hyper-heuristic for
+#   Examination Timetabling."
 #
 # ALGORITHMIC SUMMARY:
 #   A hyper-heuristic that uses Reinforcement Learning (RL) to select low-level
 #   heuristics dynamically from a pool, and a Great Deluge algorithm to determine
-#   move acceptance based on a time-dependent linear threshold (water level).
+#   move acceptance via a time-dependent DECLINING linear threshold (water level).
+#
+# GREAT DELUGE (Ozcan et al. 2010, Fig 2, Step 18):
+#   level(t) = quality_lb + (f0 - quality_lb) × (1 - t / T)
+#   Level starts at f0, declines linearly to quality_lb over totalTime.
+#   A solution is accepted iff its quality >= level (maximisation form).
+#
+# RL ADAPTATION (Section 3.2):
+#   Strict improvement  →  reward:  u ← min(UB, u + 1)
+#   Neutral or worsening → punish:  u ← max(0,  u − 1)  [RL1]
+#   (RL2: halve; RL3: root)  Paper (p.10) explicitly penalises neutral moves.
 # =============================================================================
 
 rl_gd_hh:
@@ -18,41 +29,34 @@ rl_gd_hh:
     # Total search steps allowed per problem instance.
     - max_iterations: 10000
 
-    # Computational time limit in seconds (T in linear level equation).
+    # Computational time limit in seconds (guard only; T for GD is max_iterations).
     - time_limit: 60.0
 
-    # --- Reinforcement Learning (RL1 Adaptation) ---
-    # Value added to heuristic utility when it improves the solution.
+    # --- Reinforcement Learning (RL1 Adaptation, Section 3.2) ---
+    # Additive reward when a LLH strictly improves the solution (Step 14).
     - reward_improvement: 1.0
 
-    # Value added to heuristic utility when it does not improve the solution.
-    - reward_neutral: 0.5
-
-    # Value subtracted from utility for worsening/rejected moves.
+    # Penalty magnitude for worsening OR neutral moves (Step 17).
+    # Paper (p. 10): neutral moves receive the same negative adaptation as worsening.
     - penalty_worsening: 1.0
 
-    # Maximum utility score (UB). High values increase memory of past successes.
+    # Punishment variant: "RL1" (subtract), "RL2" (halve), "RL3" (root).
+    - punishment_type: "RL1"
+
+    # Maximum utility score (maxUtilityValue = 40, Table 1 best).
     - utility_upper_bound: 40.0
 
-    # Minimum utility score to ensure heuristics remain selectable.
+    # Minimum utility score — ensures heuristics remain selectable.
     - min_utility: 0.0
 
-    # --- Great Deluge (Threshold Control) ---
-    # Expected profit improvement at the end of the search (Multiplier of f0).
-    # 1.25 implies targeting a 25% increase over the initial construction.
-    - target_fitness_multiplier: 1.25
+    # Initial utility = 0.75 × maxUtilityValue = 30 (paper p. 16).
+    - initial_utility: 30.0
 
-    # Rate at which the water level drops per iteration.
-    - rain_speed: 0.001
-
-    # Margin added to the water level to prevent premature flooding.
-    - flood_margin: 0.1
-
-    # Initial utility score before learning begins.
-    - initial_utility: 20.0
+    # --- Great Deluge ---
+    # qualityLB: floor of the declining boundary (= 0 for all paper instances).
+    - quality_lb: 0.0
 
     # --- Meta Configuration ---
-    # VRPP Settings
     - vrpp: true
 
     - engine: "custom"
