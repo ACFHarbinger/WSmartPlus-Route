@@ -84,7 +84,10 @@ def _apply_branching_to_master(
 
     Args:
         master: Master problem instance with Gurobi model
-        branching_constraints: List of active branching constraints from current node
+        branching_constraints: Complete list of branching constraints from root
+            to the current node (all ancestors + current node). Must NOT be
+            just the current node's constraint — ancestor constraints are needed
+            to correctly filter the global column pool.
 
     References:
     -----------
@@ -139,6 +142,7 @@ def _solve_pricing_step(
     master: VRPPMasterProblem,
     pricing_solver: RCSPPSolver,
     branching_constraints: Optional[List] = None,
+    max_routes: int = 5,
 ) -> int:
     """
     Solve the pricing subproblem and add positive reduced cost columns.
@@ -152,12 +156,11 @@ def _solve_pricing_step(
         Number of columns added
     """
     duals = master.get_reduced_cost_coefficients()
-    cut_duals = master.dual_capacity_cuts
     new_columns_data = pricing_solver.solve(
         duals,
-        capacity_cut_duals=cut_duals,
-        max_routes=5,
+        max_routes=max_routes,
         branching_constraints=branching_constraints,
+        capacity_cut_duals=master.dual_capacity_cuts,
     )
 
     if not new_columns_data:
@@ -204,6 +207,7 @@ def _column_generation_loop(
     max_cuts: int,
     time_limit: Optional[float],
     start_time: float,
+    max_routes_per_pricing: int = 5,
 ) -> Tuple[float, Dict[int, float]]:
     """
     Run Column Generation + Cutting Plane loop at a B&B node.
@@ -232,20 +236,29 @@ def _column_generation_loop(
     Returns:
         Tuple of (LP objective value, route values dictionary)
     """
+    needs_resolve = False
+    cuts_added = 0
+    obj_val: float = 0.0
+    route_vals: Dict[int, float] = {}
+
     for _iteration in range(max_cg_iterations):
         if time_limit and (time.process_time() - start_time) > time_limit:
+            needs_resolve = True  # May have added cuts without re-solving
             break
 
         # PHASE 1: Column Generation (price until convergence)
         while True:
             # Solve LP Relaxation
             try:
+                # Type annotations to satisfy Mypy
                 obj_val, route_vals = master.solve_lp_relaxation()
             except Exception as e:
                 raise RuntimeError("LP relaxation failed at B&B node") from e
 
             # Solve Pricing Subproblem
-            added = _solve_pricing_step(master, pricing_solver, branching_constraints)
+            added = _solve_pricing_step(
+                master, pricing_solver, branching_constraints, max_routes=max_routes_per_pricing
+            )
 
             if added == 0:
                 # No more columns with positive reduced cost - pricing converged
@@ -259,9 +272,22 @@ def _column_generation_loop(
             break
 
         # Cuts were added - LP solution has changed, return to pricing phase
+        needs_resolve = True
 
-    # Get final LP solution after full convergence
-    obj_val, route_vals = master.solve_lp_relaxation()
+    # Fix 4: Add convergence diagnostic when max_cg_iterations cap is hit
+    if _iteration == max_cg_iterations - 1 and cuts_added > 0:
+        import warnings
+
+        warnings.warn(
+            f"CG+Cut loop hit max_cg_iterations={max_cg_iterations} without full convergence. "
+            "LP bound at this B&B node may be weaker than optimal. Consider increasing "
+            "max_cg_iterations for tighter bounds.",
+            stacklevel=3,
+        )
+
+    if needs_resolve:
+        obj_val, route_vals = master.solve_lp_relaxation()
+
     return obj_val, route_vals
 
 
@@ -329,6 +355,7 @@ def run_custom_bpc(
     # Configuration
     max_cg_iter = values.get("max_cg_iterations", 50)
     max_cuts = values.get("max_cuts_per_iteration", 5)
+    max_routes_per_pricing = values.get("max_routes_per_pricing", 5)
     max_bb_nodes = values.get("max_bb_nodes", 1000)
     time_limit = values.get("time_limit")
 
@@ -382,7 +409,15 @@ def run_custom_bpc(
 
     # 3. Initialize pricing and separation
     pricing_solver = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
-    v_model = VRPPModel(n_nodes + 1, dist_matrix, wastes, capacity, R, C, m_set)
+    v_model = VRPPModel(
+        n_nodes=n_nodes + 1,
+        cost_matrix=dist_matrix,
+        wastes=wastes,
+        capacity=capacity,
+        revenue_per_kg=R,
+        cost_per_km=C,
+        mandatory_nodes=m_set,
+    )
     sep_engine = SeparationEngine(v_model)
 
     # 4. Initialize strategy modules
@@ -405,7 +440,10 @@ def run_custom_bpc(
 
         nodes_explored += 1
 
-        # Get branching constraints for this node
+        # Get ALL branching constraints along the path from root to this node
+        # (ancestors + this node). _apply_branching_to_master resets all UBs
+        # to 1.0 and re-filters against the full constraint set, so it requires
+        # the complete ancestor chain — not just this node's local constraint.
         branching_constraints = current_node.get_all_constraints()
 
         # Apply branching constraints to master problem (filter invalid columns)
@@ -422,6 +460,7 @@ def run_custom_bpc(
                 max_cuts=max_cuts,
                 time_limit=time_limit,
                 start_time=start_time,
+                max_routes_per_pricing=max_routes_per_pricing,
             )
         except RuntimeError:
             # LP infeasible at this node
@@ -432,35 +471,31 @@ def run_custom_bpc(
         current_node.lp_bound = lp_obj
         current_node.route_values = route_values
 
-        # Check if we can prune by bound
-        if bb_tree.best_integer_solution is not None and lp_obj <= bb_tree.best_integer_solution:
-            # Prune by bound
-            continue
-
-        # Check if solution is integer
+        # Check if solution is integer FIRST — before pruning
         if _is_solution_integer(route_values):
-            # Integer solution found
             current_node.is_integer = True
             current_node.ip_solution = lp_obj
 
-            # Update incumbent
+            # Update incumbent (records equal or better solutions)
             if bb_tree.update_incumbent(current_node, lp_obj):
-                # Prune dominated nodes
                 bb_tree.prune_by_bound()
 
-        else:
-            # Solution is fractional - need to branch using configured strategy
-            children = bb_tree.branch(current_node, master.routes, route_values)
+            # After recording, prune this node (no need to branch)
+            continue
 
-            if children is None:
-                # Couldn't find branching decision (shouldn't happen)
-                continue
+        # Check if we can prune by bound (strictly less than incumbent, since integer
+        # solutions equal to incumbent were already handled above)
+        if bb_tree.best_integer_solution is not None and lp_obj < bb_tree.best_integer_solution:
+            continue
 
-            left_child, right_child = children
+        # Solution is fractional - branch
+        children = bb_tree.branch(current_node, master.routes, route_values)
+        if children is None:
+            continue
 
-            # Add children to tree
-            bb_tree.add_node(left_child)
-            bb_tree.add_node(right_child)
+        left_child, right_child = children
+        bb_tree.add_node(left_child)
+        bb_tree.add_node(right_child)
 
     # 6. Extract best integer solution
     if bb_tree.best_integer_node is None:
