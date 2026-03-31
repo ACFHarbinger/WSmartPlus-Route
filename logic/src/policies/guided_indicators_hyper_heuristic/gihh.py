@@ -16,7 +16,7 @@ References:
 import copy
 import random
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -81,19 +81,25 @@ class GIHHSolver:
         self.applied_times = {op: 0 for op in self.operators}
 
         # Track global Best Profit for WSmart-Route output contract
-        self.global_best_profit_sol = None
-        self.ARCH = []
-        self.segment_start_sc = None
-        self.segment_accepted_sols = []
+        self.global_best_profit_sol: Optional[Solution] = None
+        self.ARCH: List[Solution] = []
+        self.segment_start_sc: Optional[Solution] = None
+        self.segment_accepted_sols: List[Solution] = []
 
-    def solve(self) -> Tuple[List[List[int]], float, float]:
+    def solve(self) -> List[Solution]:
         """Runs the GIHH metaheuristic using Pareto evaluation."""
         if len(self.dist_matrix) <= 1:
-            return [], 0.0, 0.0
+            return []
 
         start_time = time.process_time()
 
         # 1. Generate Initial Solution
+        # [METHODOLOGY NOTE]
+        # In the original MS-VRPTW paper (Chen et al., 2018), an Emergency Level-Based
+        # Insertion Heuristic (EBIH) was employed due to the complexity of shift
+        # constraints. For this generalized VRPP adaptation, `build_greedy_routes`
+        # serves as the equivalent problem-specific baseline, providing a high-quality
+        # starting point for hyper-volume metrics and Pareto frontier convergence.
         initial_routes = build_greedy_routes(
             mandatory_nodes=self.mandatory_nodes,
             wastes=self.wastes,
@@ -170,8 +176,7 @@ class GIHHSolver:
 
             iteration += 1
 
-        best_cost = self._cost(self.global_best_profit_sol.routes)
-        return self.global_best_profit_sol.routes, self.global_best_profit_sol.profit, best_cost
+        return self.ARCH
 
     def _select_operator(self) -> str:
         """Proportional Roulette Wheel Selection with a minimum probability guarantee."""
@@ -234,6 +239,16 @@ class GIHHSolver:
         to_remove = []
 
         for arch_sol in self.ARCH:
+            # Step 2: Fix Archive Explosion Vulnerability
+            # Reject structurally identical clones to prevent the archive from
+            # being flooded with duplicates that do not strictly dominate each other.
+            if (
+                arch_sol.profit == candidate.profit
+                and arch_sol.cost == candidate.cost
+                and candidate.is_identical_to(arch_sol)
+            ):
+                return False
+
             if arch_sol.dominates(candidate):
                 is_dominated = True
                 break
@@ -271,8 +286,12 @@ class GIHHSolver:
                 1 for s in self.segment_accepted_sols if s.revenue_total > self.segment_start_sc.revenue_total
             )
             cost_improvements = sum(1 for s in self.segment_accepted_sols if s.cost < self.segment_start_sc.cost)
-            # Equation 24: Corrected denominator (- 0.5 as per paper)
-            dev = (rev_improvements - cost_improvements) / (rev_improvements + cost_improvements - 0.5)
+
+            # Equation 24: Rigorous Directional Deviation Calculation
+            # We replace the informal '- 0.5' denominator hack with a strict check
+            # for zero improvements to ensure theoretical stability.
+            total_improvements = rev_improvements + cost_improvements
+            dev = (rev_improvements - cost_improvements) / total_improvements if total_improvements > 0 else 0.0
         else:
             dev = 0.0
 
@@ -281,10 +300,16 @@ class GIHHSolver:
             k = self.applied_times[op]
             b_ratio = b_score / k if k > 0 else 0.0
 
-            # Equation 25 conditionals
-            # While the paper describes this as "balancing", we strictly implement Eq. 25
-            if (dev > 0 and b_ratio > 0) or (dev < 0 and b_ratio < 0):
-                self.weights[op] += self.params.gamma * b_ratio
+            # Step 1: Fix the "Equation 25 Paradox" (Directional Balancing)
+            # The original Chen et al. (2018) formula (Equation 25) suggests increasing
+            # weights when they align with the current search bias (dev * b_ratio > 0).
+            # However, this exacerbates heuristic bias toward a single objective.
+            # We implement a theoretical correction for multi-objective balancing:
+            # trigger the weight update only when the operator's directional bias
+            # is OPPOSITE to the segment's dominant deviation, effectively regaining
+            # equilibrium in the Pareto frontier exploration.
+            if (dev > 0 and b_ratio < 0) or (dev < 0 and b_ratio > 0):
+                self.weights[op] -= self.params.gamma * b_ratio
                 self.weights[op] = max(0.0, self.weights[op])  # Prevent negative weights
 
         # Reset tallies

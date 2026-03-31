@@ -150,7 +150,13 @@ class TestGIHHPolicy:
         dist_matrix, wastes, capacity, R, C = simple_instance
         params = GIHHParams(time_limit=1.0, max_iterations=5, seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
-        routes, profit, cost = solver.solve()
+        arch = solver.solve()
+        assert isinstance(arch, list)
+        if arch:
+            best_sol = max(arch, key=lambda s: s.profit)
+            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+        else:
+            routes, profit, cost = [], 0.0, 0.0
 
         assert isinstance(routes, list)
         assert isinstance(profit, float)
@@ -161,7 +167,13 @@ class TestGIHHPolicy:
         dist_matrix, wastes, capacity, R, C = simple_instance
         params = GIHHParams(time_limit=1.0, max_iterations=5, seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
-        routes, profit, cost = solver.solve()
+        arch = solver.solve()
+        assert isinstance(arch, list)
+        if arch:
+            best_sol = max(arch, key=lambda s: s.profit)
+            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+        else:
+            routes, profit, cost = [], 0.0, 0.0
 
         # Check capacity for each route
         for route in routes:
@@ -174,7 +186,13 @@ class TestGIHHPolicy:
         mandatory_nodes = [1, 3]  # Local indices
         params = GIHHParams(time_limit=1.0, max_iterations=5, seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
-        routes, profit, cost = solver.solve()
+        arch = solver.solve()
+        assert isinstance(arch, list)
+        if arch:
+            best_sol = max(arch, key=lambda s: s.profit)
+            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+        else:
+            routes, profit, cost = [], 0.0, 0.0
 
         # Check that mandatory nodes are visited
         visited_nodes = set()
@@ -193,7 +211,13 @@ class TestGIHHPolicy:
         C = 1.0
         params = GIHHParams(seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
-        routes, profit, cost = solver.solve()
+        arch = solver.solve()
+        assert isinstance(arch, list)
+        if arch:
+            best_sol = max(arch, key=lambda s: s.profit)
+            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+        else:
+            routes, profit, cost = [], 0.0, 0.0
 
         assert routes == []
         assert profit == 0.0
@@ -211,7 +235,13 @@ class TestGIHHPolicy:
         C = 1.0
         params = GIHHParams(seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
-        routes, profit, cost = solver.solve()
+        arch = solver.solve()
+        assert isinstance(arch, list)
+        if arch:
+            best_sol = max(arch, key=lambda s: s.profit)
+            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+        else:
+            routes, profit, cost = [], 0.0, 0.0
 
         assert len(routes) == 1
         assert routes[0] == [1]
@@ -223,7 +253,13 @@ class TestGIHHPolicy:
         dist_matrix, wastes, capacity, R, C = simple_instance
         params = GIHHParams(time_limit=1.0, max_iterations=5, seg=80, alpha=0.5, beta=0.4, gamma=0.1, min_prob=0.05, seed=42)
         solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params, None)
-        routes, profit, cost = solver.solve()
+        arch = solver.solve()
+        assert isinstance(arch, list)
+        if arch:
+            best_sol = max(arch, key=lambda s: s.profit)
+            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+        else:
+            routes, profit, cost = [], 0.0, 0.0
 
         assert isinstance(routes, list)
         assert isinstance(profit, float)
@@ -286,7 +322,10 @@ class TestPolicyComparison:
         routes_hgs_rr, profit_hgs_rr, cost_hgs_rr = solver_hgs_rr.solve()
 
         solver_gihh = GIHHSolver(dist_matrix, wastes, capacity, R, C, params_gihh, None)
-        routes_gihh, profit_gihh, cost_gihh = solver_gihh.solve()
+        arch_gihh = solver_gihh.solve()
+        assert arch_gihh, "GIHH Solver returned empty archive"
+        best_sol_gihh = max(arch_gihh, key=lambda s: s.profit)
+        routes_gihh, profit_gihh, cost_gihh = best_sol_gihh.routes, best_sol_gihh.profit, solver_gihh._cost(best_sol_gihh.routes)
 
         # Both should produce valid solutions
         assert isinstance(routes_hgs_rr, list)
