@@ -15,6 +15,7 @@ Example:
 
 from __future__ import annotations
 
+import math
 import random
 import time
 from abc import ABC, abstractmethod
@@ -87,6 +88,7 @@ class LocalSearch(ABC):
             # Common initialization for neighbors (used by all LS)
             n_nodes = len(dist_matrix)
             self.neighbors = {}
+            nb_granular = getattr(params, "nb_granular", 20)
             for i in range(1, n_nodes):
                 row = self.d[i]
                 order = np.argsort(row)
@@ -94,7 +96,7 @@ class LocalSearch(ABC):
                 for c in order:
                     if c not in (i, 0):
                         cands.append(c)
-                        if len(cands) >= 10:
+                        if len(cands) >= nb_granular:
                             break
                 self.neighbors[i] = cands
 
@@ -106,6 +108,13 @@ class LocalSearch(ABC):
         # Maps: node_id -> route_idx -> [(cost_delta, position), ...]
         # Stores the 3 best insertion positions for each node into each route
         self.top_insertions: Dict[int, Dict[int, List[Tuple[float, int]]]] = {}
+
+        # Coordinate arrays for polar sector pruning (Fix 3)
+        self.x_coords: Optional[np.ndarray] = None
+        self.y_coords: Optional[np.ndarray] = None
+
+        # Route sector cache: route_idx -> (min_angle, max_angle)
+        self.route_sectors: Dict[int, Optional[Tuple[float, float]]] = {}
 
     @abstractmethod
     def optimize(self, solution: Any) -> Any:
@@ -130,8 +139,9 @@ class LocalSearch(ABC):
         """
         self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
 
-        # Initialize node map
+        # Initialize node map and sector cache
         self.node_map.clear()
+        self.route_sectors.clear()
         for ri, r in enumerate(self.routes):
             for pi, node in enumerate(r):
                 self.node_map[node] = (ri, pi)
@@ -139,7 +149,7 @@ class LocalSearch(ABC):
         # Initialize Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
         self._compute_top_insertions()
 
-        # Store target neighborhood for _process_node to filter operators
+        # Store target neighborhood for _process_pair to filter operators
         self._target_neighborhood = target_neighborhood if target_neighborhood else "all"
 
         # Store active nodes set for localization (FILO)
@@ -155,13 +165,17 @@ class LocalSearch(ABC):
             improved = False
             it += 1
 
-            # Include ALL nodes (visited + unvisited) for VRPP local search
-            # This allows re-insertion of nodes dropped by Split algorithm
-            nodes = list(self.neighbors.keys())
-            self.random.shuffle(nodes)
+            # Build the full candidate pair list
+            pairs = []
+            for u in self.neighbors:
+                for v in self.neighbors[u]:
+                    pairs.append((u, v))
+            self.random.shuffle(pairs)
 
-            for u in nodes:
-                if self._process_node(u):
+            for u, v in pairs:
+                if self._active_nodes is not None and u not in self._active_nodes and v not in self._active_nodes:
+                    continue
+                if self._process_pair(u, v):
                     improved = True
                     break
 
@@ -218,146 +232,103 @@ class LocalSearch(ABC):
         target = getattr(self, "_target_neighborhood", "all")
         return target == "all" or target == op_name
 
-    def _process_node(self, u: int) -> bool:  # noqa: C901
+    def _polar_sector(self, route_idx: int) -> Optional[Tuple[float, float]]:
         """
-        Process node u with all neighbors, handling both visited and unvisited nodes.
+        Return the (min_angle, max_angle) polar sector of a route in radians,
+        measured from depot (node 0). Returns None for empty routes.
+        Uses caching to avoid redundant calculations.
+        """
+        if route_idx in self.route_sectors:
+            return self.route_sectors[route_idx]
 
-        For VRPP, this method handles four scenarios:
-        - Both nodes unvisited: skip (no routing context)
-        - u unvisited, v visited: try inserting u into v's route
-        - u visited, v unvisited: try inserting v into u's route
-        - Both visited: standard inter/intra route operators
+        route = self.routes[route_idx]
+        if not route:
+            self.route_sectors[route_idx] = None
+            return None
 
-        Operators are filtered based on self._target_neighborhood if set.
-        Active node localization (FILO) is enforced via self._active_nodes if set.
+        x_coords = self.x_coords
+        y_coords = self.y_coords
+        if x_coords is None or y_coords is None:
+            res = (-math.pi, math.pi)
+            self.route_sectors[route_idx] = res
+            return res
+
+        angles = []
+        for node in route:
+            angle = math.atan2(y_coords[node] - y_coords[0], x_coords[node] - x_coords[0])
+            angles.append(angle)
+
+        res = (min(angles), max(angles))
+        self.route_sectors[route_idx] = res
+        return res
+
+    @staticmethod
+    def _sectors_overlap(s1: Optional[Tuple[float, float]], s2: Optional[Tuple[float, float]]) -> bool:
+        """Return True if two polar sectors overlap, handling the ±π wraparound."""
+        if s1 is None or s2 is None:
+            return True
+        # Standard interval overlap
+        if s1[0] <= s2[1] and s2[0] <= s1[1]:
+            return True
+        # Wraparound: shift one sector by 2π and re-test
+        shifted = (s1[0] + 2 * math.pi, s1[1] + 2 * math.pi)
+        if shifted[0] <= s2[1] and s2[0] <= shifted[1]:
+            return True
+        shifted = (s2[0] + 2 * math.pi, s2[1] + 2 * math.pi)
+        return bool(s1[0] <= shifted[1] and shifted[0] <= s1[1])
+
+    def _process_pair(self, u: int, v: int) -> bool:
+        """
+        Attempt all applicable move operators on the (u, v) pair.
+        Returns True if any improving move was applied.
         """
         u_loc = self.node_map.get(u)
+        v_loc = self.node_map.get(v)
 
-        for v in self.neighbors[u]:
-            # FILO LOCALIZATION GUARD: O(1) per iteration
-            # Skip moves that don't involve at least one active node
-            if self._active_nodes is not None and u not in self._active_nodes and v not in self._active_nodes:
-                continue
-            v_loc = self.node_map.get(v)
+        if not u_loc and not v_loc:
+            return False
 
-            # Scenario A: Both are unvisited -> skip, no routing context
-            if not u_loc and not v_loc:
-                continue
+        if not u_loc and v_loc:
+            r_v, p_v = v_loc
+            return self._should_try_operator("unrouted_insert") and self._move_unrouted_insert(u, r_v, p_v)
 
-            # Scenario B: u is unvisited, v is visited
-            # Action: Try inserting unrouted node u into v's route
-            if not u_loc and v_loc:
-                if self._should_try_operator("unrouted_insert"):
-                    r_v, p_v = v_loc
-                    if self._move_unrouted_insert(u, r_v, p_v):
-                        return True
-                continue
+        if u_loc and not v_loc:
+            r_u, p_u = u_loc
+            return self._should_try_operator("unrouted_insert") and self._move_unrouted_insert(v, r_u, p_u)
 
-            # Scenario C: u is visited, v is unvisited
-            # Action: Try inserting unrouted node v into u's route
-            if u_loc and not v_loc:
-                if self._should_try_operator("unrouted_insert"):
-                    r_u, p_u = u_loc
-                    if self._move_unrouted_insert(v, r_u, p_u):
-                        return True
-                continue
+        r_u, p_u = u_loc  # type: ignore[misc]
+        r_v, p_v = v_loc  # type: ignore[misc]
 
-            # Scenario D: Both are visited (Standard HGS inter/intra route operators)
-            r_u, p_u = u_loc  # type: ignore[misc]
-            r_v, p_v = v_loc  # type: ignore[misc]
+        if (
+            self._should_try_operator("relocate")
+            or self._should_try_operator("intra_relocate" if r_u == r_v else "inter_relocate")
+        ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
+            return True
 
-            # Relocate (both intra and inter-route)
-            if (
-                self._should_try_operator("relocate")
-                or self._should_try_operator("intra_relocate" if r_u == r_v else "inter_relocate")
-            ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
+        if (
+            self._should_try_operator("swap") or self._should_try_operator("intra_swap" if r_u == r_v else "inter_swap")
+        ) and self._move_swap(u, v, r_u, p_u, r_v, p_v):
+            return True
+
+        if r_u != r_v:
+            if self._should_try_operator("inter_2opt_star") and self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
                 return True
-
-            # Swap (both intra and inter-route)
-            if (
-                self._should_try_operator("swap")
-                or self._should_try_operator("intra_swap" if r_u == r_v else "inter_swap")
-            ) and self._move_swap(u, v, r_u, p_u, r_v, p_v):
+            if self._should_try_operator("inter_swap_star"):
+                s1 = self._polar_sector(r_u)
+                s2 = self._polar_sector(r_v)
+                if self._sectors_overlap(s1, s2) and self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
+                    return True
+        else:
+            if self._should_try_operator("intra_2opt") and self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
                 return True
-
-            # Relocate Chain
+            if self._should_try_operator("intra_or_opt") and self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
+                return True
             if (
-                self._should_try_operator("relocate_chain")
-                and getattr(self.params, "use_relocate_chain", False)
-                and self._move_relocate_chain(u, r_u, p_u, r_v, p_v)
+                self._should_try_operator("intra_3opt")
+                and getattr(self.params, "use_3opt", False)
+                and self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random)
             ):
                 return True
-
-            # Inter-route operators
-            if r_u != r_v:
-                if self._should_try_operator("inter_2opt_star") and self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
-                    return True
-
-                if self._should_try_operator("inter_swap_star") and self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
-                    return True
-
-                # Advanced inter-route operators
-                if (
-                    self._should_try_operator("cross_exchange")
-                    and getattr(self.params, "use_cross_exchange", False)
-                    and self._try_cross_exchange(r_u, p_u, r_v, p_v)
-                ):
-                    return True
-
-                if (
-                    self._should_try_operator("improved_cross_exchange")
-                    and getattr(self.params, "use_improved_cross_exchange", False)
-                    and self._try_improved_cross_exchange(r_u, p_u, r_v, p_v)
-                ):
-                    return True
-
-                if (
-                    self._should_try_operator("lambda_interchange")
-                    and getattr(self.params, "use_lambda_interchange", False)
-                    and self._try_lambda_interchange(r_u, r_v)
-                ):
-                    return True
-
-                if (
-                    self._should_try_operator("cyclic_transfer")
-                    and getattr(self.params, "use_cyclic_transfer", False)
-                    and self._try_cyclic_transfer(r_u, p_u, r_v, p_v)
-                ):
-                    return True
-
-                if (
-                    self._should_try_operator("exchange_chains")
-                    and getattr(self.params, "use_exchange_chains", False)
-                    and self._try_exchange_chains(r_u, p_u, r_v, p_v)
-                ):
-                    return True
-
-                if (
-                    self._should_try_operator("ejection_chains")
-                    and getattr(self.params, "use_ejection_chains", False)
-                    and self._try_ejection_chain(r_u)
-                ):
-                    return True
-            else:
-                if self._should_try_operator("intra_2opt") and self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
-                    return True
-
-                if self._should_try_operator("intra_3opt") and self._move_3opt_intra(
-                    u, v, r_u, p_u, r_v, p_v, self.random
-                ):
-                    return True
-
-                if self._should_try_operator("intra_or_opt") and self._move_or_opt(
-                    r_u, p_u, self.random.choice([1, 2, 3])
-                ):
-                    return True
-
-                if (
-                    self._should_try_operator("three_permutation")
-                    and getattr(self.params, "use_three_permutation", False)
-                    and self._move_three_permutation(u, r_u, p_u)
-                ):
-                    return True
 
         return False
 
@@ -373,7 +344,8 @@ class LocalSearch(ABC):
             for pi, node in enumerate(self.routes[ri]):
                 self.node_map[node] = (ri, pi)
             self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
-            # Update Top-3 cache for this modified route (O(1) SWAP* maintenance)
+            # Invalidate and update Top-3 cache for this modified route (O(1) SWAP* maintenance)
+            self.route_sectors.pop(ri, None)
             self._compute_top_insertions(route_idx=ri)
 
     def _get_load_cached(self, ri: int) -> float:

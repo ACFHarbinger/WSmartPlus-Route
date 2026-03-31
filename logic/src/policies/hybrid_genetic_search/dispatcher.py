@@ -9,7 +9,7 @@ from .params import HGSParams
 from .pyvrp_wrapper import solve_pyvrp
 
 
-def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args):
+def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, x_coords=None, y_coords=None, *args):
     """
     Main HGS entry point with dispatching logic.
 
@@ -70,7 +70,11 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *
         penalty_decrease=values.get("penalty_decrease", 0.85),
         vrpp=values.get("vrpp", True),
         profit_aware_operators=values.get("profit_aware_operators", False),
+        use_cross_exchange=values.get("use_cross_exchange", False),
+        use_lambda_interchange=values.get("use_lambda_interchange", False),
+        lambda_max=values.get("lambda_max", 0),
+        use_ejection_chains=values.get("use_ejection_chains", False),
         seed=values.get("seed", 42),
     )
-    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+    solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, x_coords, y_coords)
     return solver.solve()

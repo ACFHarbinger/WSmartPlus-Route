@@ -86,9 +86,11 @@ def update_biased_fitness(population: List[Individual], nb_elite: int, neighbor_
     if pop_size == 0:
         return
 
-    # Rank by Profit (or penalized cost for infeasible)
-    # For VRPP, higher profit is better
-    population.sort(key=lambda x: x.profit_score, reverse=True)
+    # Rank by penalized objective: profit minus the penalty term for capacity violations.
+    # For feasible individuals capacity_violation == 0 so this equals profit_score.
+    # For infeasible individuals this penalises solutions with greater violations,
+    # matching Vidal (2022) which ranks by solution quality including penalties.
+    population.sort(key=lambda x: x.profit_score - x.penalized_cost + x.cost, reverse=True)
     for i, ind in enumerate(population):
         ind.rank_profit = i + 1
 
@@ -111,7 +113,10 @@ def update_biased_fitness(population: List[Individual], nb_elite: int, neighbor_
         else:
             ind1.dist_to_parents = 0.0
 
-    # Rank by Diversity
+    # Rank by Diversity (rank 1 = most diverse = best diversity contribution).
+    # Since fitness is minimized in tournament selection, rank 1 gives the lowest
+    # diversity term and thus the most diverse individual is preferred. This matches
+    # Vidal (2022) Eq. (1): f(S) = rank_cost(S) + (1 - n_elite/|P|) * rank_div(S).
     population.sort(key=lambda x: x.dist_to_parents, reverse=True)
     for i, ind in enumerate(population):
         ind.rank_diversity = i + 1

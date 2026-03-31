@@ -30,6 +30,11 @@ class HGSConfig:
         min_diversity: Minimum diversity threshold.
         diversity_change_rate: Rate at which diversity changes.
         local_search_iterations: Number of local search iterations.
+        use_cross_exchange: Whether to use cross exchange moves.
+        use_lambda_interchange: Whether to use lambda interchange moves.
+        lambda_max: Maximum lambda for lambda interchange moves.
+        use_ejection_chains: Whether to use ejection chain moves.
+        use_3opt: Whether to use 3-opt moves.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
         initial_penalty_capacity: Initial penalty for capacity violations.
         penalty_increase: Multiplier for increasing penalty.
@@ -63,6 +68,11 @@ class HGSConfig:
     # Local search
     local_search_iterations: int = 500
     max_vehicles: int = 0
+    use_cross_exchange: bool = False
+    use_lambda_interchange: bool = False
+    lambda_max: int = 0
+    use_ejection_chains: bool = False
+    use_3opt: bool = False
 
     # Penalty management
     initial_penalty_capacity: float = 1.0

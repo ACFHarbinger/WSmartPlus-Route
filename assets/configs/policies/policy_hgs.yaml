@@ -143,6 +143,9 @@ hgs:
     - use_ejection_chains: false
       # Enable ejection chain moves (route minimization)
 
+    - use_3opt: false
+      # Enable 3-opt intra-route
+
     # Local Search Operators (applied to all offspring):
     #   - 2-opt intra-route & inter-route (2-opt*)
     #   - 3-opt intra-route
