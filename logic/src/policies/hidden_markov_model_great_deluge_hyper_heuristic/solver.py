@@ -46,33 +46,39 @@ from ..other.operators import (
 from ..other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from .params import HMMGDHHParams
 
-# HMM states
-_STATE_IMPROVING = 0
-_STATE_STAGNATING = 1
-_STATE_ESCAPING = 2
-_N_STATES = 3
+# Discrete Observation Alphabet (Onsem et al. 2014, Section 5.1)
+_OBS_IMPROVE = 0  # ΔProfit > 0
+_OBS_WORSE = 1  # ΔProfit < 0, ΔCost = 0
+_OBS_WORSE_COST = 2  # Fix #R-Final-1 (Semantic Renaming)
+_OBS_SAME = 3  # ΔProfit = 0, ΔCost = 0
+_OBS_SAME_COST = 4  # Fix #R-Final-1 (Semantic Renaming)
+_N_OBS = 5
 
 
 class HMMGDHHSolver:
-    """
-    Hidden Markov Model + Great Deluge Hyper-Heuristic solver for VRPP.
+    r"""
+    Hidden Markov Model + Great Deluge Hyper-Heuristic solver (HHaaHMM).
 
-    Improvements over the naive HMM-GD implementation:
+    Aligned with: Onsem, W. V., Demoen, B., & Causmaecker, P. D. "HHaaHMM:
+    A Hyper-Heuristic as a Hidden Markov Model", 2014.
 
-    1. **Forward Algorithm state belief** — instead of assigning a single
-       deterministic state, the solver maintains a probability distribution
-       ``belief[s]`` = P(state=s | observations_{1:t}).  The Forward Algorithm
-       updates this distribution at every iteration.
+    This implementation treats the hidden states as representing the **local topology
+    of the search space** evaluated by the heuristics. This topology is modeled as
+    an Input-Output Hidden Markov Model (IOHMM), where:
+    - **Inputs ($u_t$)**: Low-Level Heuristics (LLHs).
+    - **Outputs ($o_t$)**: Discrete categories of solution change ($\Delta$ Profit, $\Delta$ Cost).
+    - **Hidden States ($s_t$)**: Structural search phases (e.g., local optima regions).
 
-    2. **Relative improvement Δ_norm** — the observation likelihood is
-       parameterised by Δ_norm = (f(S_new) − f(S_old)) / |f(S_old)|, which
-       normalises for problem scale.  Each state defines a Gaussian emission
-       over Δ_norm so that improvements, stagnation and escaping moves are
-       weighted proportionally.
+    Bi-Objective Transformation (Fix #R-Final-1):
+    This implementation adapts the original IOHMM observation alphabet. Instead of
+    tracking computational time, we repurpose the 'time' dimension to track
+    'routing cost' (distance). This transforms the HMM into a bi-objective model
+    that learns the trade-off between financial profit and physical routing efficiency.
 
-    3. **No embedded local search** — ACOLocalSearch has been removed from
-       the main loop.  Each LLH application stands on its own merit, giving
-       the HMM a clean signal about which operator is actually effective.
+    Note on Great Deluge Integration:
+    The IOHMM learns and updates its belief based on *every* proposed move (exploration),
+    mapping the immediate neighborhood dynamics. The Great Deluge (GD) criterion
+    independently controls the *acceptance trajectory*.
     """
 
     def __init__(
@@ -94,190 +100,344 @@ class HMMGDHHSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.n_llh = params.n_llh
         self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
-        # LLH pool
-        self._llh_pool = [
-            self._llh0,
-            self._llh1,
-            self._llh2,
-            self._llh3,
-            self._llh4,
-            self._llh5,
-            self._llh6,
-        ]
+        # Dynamic LLH Pool (Fix #R-Final-2: Ablation Blocker)
+        # Sliced according to params.n_llh to enable proper research evaluation
+        full_pool = [self._llh0, self._llh1, self._llh2, self._llh3, self._llh4, self._llh5, self._llh6]
+        self._llh_pool = full_pool[: params.n_llh]
+        self.n_llh = len(self._llh_pool)
 
-        # --- HMM parameters ---
+        # Static parameters
+        self.alpha = 0.5  # Weight for entropy in action selection
+        self.gamma = 0.9  # Decay factor for online EM counts (optional smoothing)
 
-        # Emission matrix B[state][llh]: probability of selecting each LLH
-        # in a given state.  Initialised uniformly; updated via Δ_norm reward.
-        self._B: np.ndarray = np.ones((_N_STATES, self.n_llh)) / self.n_llh
+        # --- Dynamic HHaaHMM State ---
 
-        # State transition matrix T[s_from][s_to]: probability of moving
-        # between hidden states.  Initialised with sensible priors:
-        #   - Improving tends to stay improving (0.6) or stagnate (0.3)
-        #   - Stagnating tends to stay stagnating (0.5) or escape (0.3)
-        #   - Escaping tends to improve (0.4) or stagnate (0.4)
-        self._T: np.ndarray = np.array(
+        # Number of hidden states starts small (Fix #3)
+        self.n_states = 2
+        self.t = 0  # Observation counter
+
+        # Transition matrix A[s_t][s_{t+1}] | input u_t (HHaaHMM uses P(s' | s, u))
+        # Initialised with small random noise to break symmetry (Fix #R-Final-2)
+        self._A = np.ones((self.n_llh, self.n_states, self.n_states)) / self.n_states
+        self._A += np.array(
             [
-                [0.6, 0.3, 0.1],  # from improving
-                [0.2, 0.5, 0.3],  # from stagnating
-                [0.4, 0.4, 0.2],  # from escaping
-            ],
-            dtype=np.float64,
+                [[self.random.uniform(-0.01, 0.01) for _ in range(self.n_states)] for _ in range(self.n_states)]
+                for _ in range(self.n_llh)
+            ]
         )
+        self._A = np.clip(self._A, 1e-12, 1.0)
+        self._A /= self._A.sum(axis=2, keepdims=True)
 
-        # Observation emission parameters per state: Gaussian(mean, std) over Δ_norm
-        # Improving: positive Δ_norm; Stagnating: near-zero; Escaping: negative
-        self._obs_mean = np.array([0.05, 0.0, -0.03], dtype=np.float64)
-        self._obs_std = np.array([0.05, 0.02, 0.05], dtype=np.float64)
+        # Emission matrix B[s_t][o_t] | input u_t (HHaaHMM uses P(o | s, u))
+        # Initialised with small random noise to break symmetry (Fix #R-Final-2)
+        self._B = np.ones((self.n_llh, self.n_states, _N_OBS)) / _N_OBS
+        self._B += np.array(
+            [
+                [[self.random.uniform(-0.01, 0.01) for _ in range(_N_OBS)] for _ in range(self.n_states)]
+                for _ in range(self.n_llh)
+            ]
+        )
+        self._B = np.clip(self._B, 1e-12, 1.0)
+        self._B /= self._B.sum(axis=2, keepdims=True)
 
-        # State belief: P(state | observations)  —  initialised uniformly
-        self._belief: np.ndarray = np.ones(_N_STATES) / _N_STATES
+        # State belief: P(state | history)
+        self._belief = np.ones(self.n_states) / self.n_states
 
-        # Cumulative reward accumulators for Δ_norm-weighted B updates
-        self._llh_reward: np.ndarray = np.zeros((_N_STATES, self.n_llh))
-        self._llh_counts: np.ndarray = np.ones((_N_STATES, self.n_llh))  # avoid /0
+        # EM counters (for stochastic online EM estimation)
+        self._counts_A = np.zeros((self.n_llh, self.n_states, self.n_states))
+        self._counts_B = np.zeros((self.n_llh, self.n_states, _N_OBS))
+
+        # --- Refinement 1: State-Aware Expected Profit (Fix #1) ---
+        # Matrix shape: (n_states, n_llh)
+        self._expected_profit = np.zeros((self.n_states, self.n_llh))
+        self._profit_counts = np.zeros((self.n_states, self.n_llh))
 
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
 
-    def solve(self) -> Tuple[List[List[int]], float, float]:
+    def solve(self, initial_routes: List[List[int]]) -> Tuple[List[List[int]], float, float]:
         """
-        Run HMM-GD-HH and return the best solution found.
+        Main HH-GD loop for VRPP.
 
-        Returns:
-            Tuple of (routes, profit, cost).
+        Following the principle of "calculating a good heuristic at any point in time
+        given the old data" (Onsem et al. 2014, Section 6), the IOHMM learns the
+        local neighborhood topology from every proposed move. The Great Deluge
+        threshold then filters these proposals to manage the global search trajectory.
         """
-        if self.n_nodes == 0:
-            return [], 0.0, 0.0
-
-        start = time.process_time()
-
-        # Initial solution
-        routes = self._build_random_solution()
+        routes = copy.deepcopy(initial_routes)
         profit = self._evaluate(routes)
         best_routes = copy.deepcopy(routes)
         best_profit = profit
-        best_cost = self._cost(best_routes)
 
-        # Great Deluge for maximisation: water level starts *below* initial profit
-        # and slowly rises.  Accept any move whose profit ≥ water level.
+        start_time = time.process_time()
+
+        # Great Deluge: water level starts linearly rising
         water_level = (
             best_profit * (1.0 - self.params.flood_margin) if best_profit > 0 else -abs(self.params.flood_margin)
         )
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
-            # Belief-weighted LLH selection probabilities
-            llh_probs = self._belief @ self._B  # shape (n_llh,)
-            llh_probs_sum = llh_probs.sum()
-            if llh_probs_sum > 1e-12:
-                llh_probs /= llh_probs_sum
-            else:
-                llh_probs = np.ones(self.n_llh) / self.n_llh
+            # 1. Action Selection: Entropy-Maximizing (Fix #5, #R1, #R-Final-1 & #Final-3)
+            # score(u) = NormalizedProfit(u) + annealed_alpha * Entropy(P(s'|u))
+            u_idx = self._select_action(iteration, self.params.max_iterations)
+            llh = self._llh_pool[u_idx]
 
-            llh_idx = self._sample_llh(llh_probs)
-            llh = self._llh_pool[llh_idx]
+            # 2. Dynamic State Scaling (Fix #3)
+            self.t += 1
+            self._check_state_scaling()
 
-            # Apply LLH (no embedded local search — image fix #3)
+            # Store belief prior to action (for state-aware profit update)
+            previous_belief = self._belief.copy()
+
+            # 3. Apply LLH and observe outcomes
+            # The HMM learns from all moves (exploration), uncoupled from Great Deluge acceptance (Fix #R3)
+            old_cost = self._cost(routes)
             try:
                 new_routes = llh(routes, self.params.n_removal)
                 new_profit = self._evaluate(new_routes)
+                new_cost = self._cost(new_routes)
             except Exception:
                 new_routes = routes
                 new_profit = profit
+                new_cost = old_cost
 
-            delta = new_profit - profit
+            # 4. Map to discrete observation alphabet (Fix #R-Final-1)
+            o_idx = self._map_observation(new_profit - profit, new_cost - old_cost)
 
-            # --- Relative improvement Δ_norm (image fix #2) ---
-            delta_norm = delta / abs(profit) if abs(profit) > 1e-12 else 0.0
+            # 5. Online EM update (Fix #R-Final-3: Stochastic Online EM)
+            self._online_em_update(u_idx, o_idx)
 
-            # --- Great Deluge acceptance (maximisation) ---
-            accepted = new_profit >= water_level
+            # 6. Refinement 1: State-Aware Profit Update (Fix #R1 & #R-Final-2)
+            # update E[p | s, u] for all s weighted by P(s | history)
+            delta_profit = new_profit - profit
 
-            if accepted:
+            # --- Fix #R-Final-2: Wasted Effort Penalty ---
+            # If the move is idempotent (SAME or SAME_COST), apply a small penalty
+            # even if delta_profit is 0, to encourage search progression.
+            if o_idx in [_OBS_SAME, _OBS_SAME_COST]:
+                delta_profit -= 1e-3
+
+            for s_idx in range(self.n_states):
+                self._profit_counts[s_idx, u_idx] += previous_belief[s_idx]
+                # Incremental online average of profit weighted by state belief
+                step = previous_belief[s_idx] / (self._profit_counts[s_idx, u_idx] + 1e-12)
+                self._expected_profit[s_idx, u_idx] += step * (delta_profit - self._expected_profit[s_idx, u_idx])
+
+            # Great Deluge acceptance
+            if new_profit >= water_level:
                 routes = new_routes
                 profit = new_profit
-
                 if profit > best_profit:
                     best_routes = copy.deepcopy(routes)
                     best_profit = profit
                     best_cost = self._cost(best_routes)
 
-            # --- Forward Algorithm belief update (image fix #1) ---
-            # Compute observation likelihood P(Δ_norm | state) for each state
-            obs_likelihood = self._gaussian_pdf(delta_norm)
-
-            # Forward step: belief'[s'] = P(obs | s') * Σ_s belief[s] * T[s][s']
-            new_belief = np.zeros(_N_STATES)
-            for s_next in range(_N_STATES):
-                new_belief[s_next] = obs_likelihood[s_next] * np.dot(self._belief, self._T[:, s_next])
-
-            belief_sum = new_belief.sum()
-            if belief_sum > 1e-12:
-                new_belief /= belief_sum
-            else:
-                # Revert to priors if likelihood is zero everywhere
-                new_belief = self._belief @ self._T
-                new_belief /= new_belief.sum() + 1e-12
-
-            self._belief = new_belief
-
-            # --- Online emission matrix B update with Δ_norm reward ---
-            # Weight each state's contribution by the current belief
-            for s in range(_N_STATES):
-                self._llh_counts[s][llh_idx] += self._belief[s]
-                # Reward only if improvement occurs (Onsem et al. 2014 Section 4.2)
-                if delta_norm > 0:
-                    self._llh_reward[s][llh_idx] += self._belief[s] * delta_norm
-
-            # Recompute B[s] from accumulated rewards
-            lr = self.params.learning_rate
-            for s in range(_N_STATES):
-                # Update B[s][llh_idx] using a moving average of rewards
-                current_rate = self._llh_reward[s][llh_idx] / max(self._llh_counts[s][llh_idx], 1e-9)
-                self._B[s][llh_idx] = (1.0 - lr) * self._B[s][llh_idx] + lr * current_rate
-
-                # Re-normalise row so it sums to 1
-                row_sum = self._B[s].sum()
-                if row_sum > 1e-12:
-                    self._B[s] /= row_sum
-                else:
-                    self._B[s] = np.ones(self.n_llh) / self.n_llh
-
-            # Increase water level (flood rises)
+            # Increase water level
             water_level += self.params.rain_speed * abs(best_profit + 1e-9)
-
-            # Determine most likely state for viz
-            hmm_state = int(np.argmax(self._belief))
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 best_cost=best_cost,
                 water_level=water_level,
-                hmm_state=hmm_state,
-                llh_selected=llh_idx,
+                hmm_state=int(np.argmax(self._belief)),
+                llh_selected=u_idx,
             )
 
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------
-    # Forward Algorithm helpers
+    # HHaaHMM Logic
     # ------------------------------------------------------------------
 
-    def _gaussian_pdf(self, delta_norm: float) -> np.ndarray:
-        """Compute Gaussian observation likelihood P(Δ_norm | state) per state."""
-        diff = delta_norm - self._obs_mean
-        exponent = -0.5 * (diff / self._obs_std) ** 2
-        pdf = np.exp(exponent) / (self._obs_std * np.sqrt(2.0 * np.pi))
-        # Clamp to avoid numerical zeros
-        return np.maximum(pdf, 1e-12)
+    def _map_observation(self, delta_profit: float, delta_cost: float) -> int:
+        """Map profit/cost changes to discrete alphabet (Fix #R-Final-1)."""
+        if delta_profit > 1e-9:
+            return _OBS_IMPROVE
+        if delta_profit < -1e-9:
+            return _OBS_WORSE_COST if delta_cost > 1e-9 else _OBS_WORSE
+        # delta_profit is roughly 0
+        return _OBS_SAME_COST if delta_cost > 1e-9 else _OBS_SAME
+
+    def _check_state_scaling(self):
+        """Scale number of states with O(sqrt(log t)) (Fix #3)."""
+        target_n = int(np.ceil(np.sqrt(np.log(self.t + 1)))) + 1
+        if target_n > self.n_states:
+            self._split_state()
+
+    def _split_state(self):
+        """
+        Split the "least determined" state (Fix #1: Combined Entropy Split).
+
+        Following Onsem et al. (2014) Section 6, the state with the highest combined
+        uncertainty in both output character and next state is chosen for splitting.
+        """
+        uncertainties = []
+        for s in range(self.n_states):
+            # Emission entropy H(B|s) summed over LLHs
+            h_b = -np.sum(self._B[:, s, :] * np.log(self._B[:, s, :] + 1e-12))
+            # Transition entropy H(A|s) summed over LLHs
+            h_a = -np.sum(self._A[:, s, :] * np.log(self._A[:, s, :] + 1e-12))
+            uncertainties.append(h_b + h_a)
+
+        s_split = int(np.argmax(uncertainties))
+
+        # Increment n_states
+        old_n = self.n_states
+        new_n = old_n + 1
+        self.n_states = new_n
+
+        # Resize Matrices (A is [u, s, s'], B is [u, s, o])
+        new_A = np.ones((self.n_llh, new_n, new_n)) / new_n
+        new_B = np.ones((self.n_llh, new_n, _N_OBS)) / _N_OBS
+
+        # Copy old values
+        new_A[:, :old_n, :old_n] = self._A
+        new_B[:, :old_n, :] = self._B
+
+        # --- Refinement 2: Transition Matrix Inheritance (Fix #R2) ---
+        # The new state inherits outgoing transitions from s_split
+        new_A[:, new_n - 1, :old_n] = self._A[:, s_split, :]
+        # The new state inherits incoming transitions to s_split
+        new_A[:, :old_n, new_n - 1] = self._A[:, :, s_split]
+        # Self-transition for the new state inherits from parent
+        new_A[:, new_n - 1, new_n - 1] = self._A[:, s_split, s_split]
+
+        # Apply small random perturbations to break symmetry (Transitions)
+        perturb_a = np.array(
+            [
+                [[self.random.uniform(-0.01, 0.01) for _ in range(new_n)] for _ in range(new_n)]
+                for _ in range(self.n_llh)
+            ]
+        )
+        new_A[:, new_n - 1, :] += perturb_a[:, new_n - 1, :]
+        new_A = np.clip(new_A, 1e-12, 1.0)
+        new_A /= new_A.sum(axis=2, keepdims=True)
+
+        # Apply small random perturbations (Emissions)
+        perturb_b = np.array([[self.random.uniform(-0.01, 0.01) for _ in range(_N_OBS)] for _ in range(self.n_llh)])
+        new_B[:, new_n - 1, :] = self._B[:, s_split, :] + perturb_b
+        new_B = np.clip(new_B, 1e-12, 1.0)
+        new_B /= new_B.sum(axis=2, keepdims=True)
+
+        self._A = new_A
+        self._B = new_B
+        self._counts_A = np.zeros((self.n_llh, new_n, new_n))
+        self._counts_B = np.zeros((self.n_llh, new_n, _N_OBS))
+
+        # --- Resize State-Aware Profit Matrices (Fix #R1) ---
+        new_expected_profit = np.zeros((new_n, self.n_llh))
+        new_profit_counts = np.zeros((new_n, self.n_llh))
+        new_expected_profit[:old_n, :] = self._expected_profit
+        new_profit_counts[:old_n, :] = self._profit_counts
+        # New state inherits profit expectations from s_split
+        new_expected_profit[new_n - 1, :] = self._expected_profit[s_split, :]
+        # Split history counts
+        new_profit_counts[new_n - 1, :] = self._profit_counts[s_split, :] / 2.0
+        self._profit_counts[s_split, :] /= 2.0
+        self._expected_profit = new_expected_profit
+        self._profit_counts = new_profit_counts
+
+        # Resize belief
+        new_belief = np.zeros(new_n)
+        new_belief[:old_n] = self._belief * 0.5
+        new_belief[s_split] = self._belief[s_split] * 0.5
+        new_belief[new_n - 1] = self._belief[s_split]  # shared belief
+        self._belief = new_belief / new_belief.sum()
+
+    def _online_em_update(self, u_idx: int, o_idx: int):
+        """
+        Stochastic Online EM approximation for HHaaHMM (Fix #R-Final-3).
+
+        Due to the continuous streaming nature of the hyper-heuristic, this replaces
+        the batch offline Baum-Welch algorithm with a Stochastic Online EM
+        approximation. It estimates the joint transition probabilities using
+        strictly the Forward variables, applying a decay factor γ=0.9 to
+        construct an exponential moving average of the state-transition counts.
+        """
+        # Forward Step: alpha_t(j) = P(o_t | s_j, u_t) * sum_i alpha_{t-1}(i) * P(s_j | s_i, u_t)
+        new_belief = np.zeros(self.n_states)
+        for j in range(self.n_states):
+            transmission = np.dot(self._belief, self._A[u_idx, :, j])
+            new_belief[j] = self._B[u_idx, j, o_idx] * transmission
+
+        belief_sum = new_belief.sum()
+        if belief_sum > 1e-12:
+            new_belief /= belief_sum
+        else:
+            new_belief = np.ones(self.n_states) / self.n_states
+
+        # Update counts for online EM (simplified online updates)
+        # counts_A(i,j) += P(s_t=i, s_{t+1}=j | history)
+        # counts_B(i,o) += P(s_t=i | history and obs o)
+        for i in range(self.n_states):
+            for j in range(self.n_states):
+                # Approximation of joint probability for online use
+                joint = self._belief[i] * self._A[u_idx, i, j] * self._B[u_idx, j, o_idx]
+                self._counts_A[u_idx, i, j] = self.gamma * self._counts_A[u_idx, i, j] + joint
+
+            self._counts_B[u_idx, i, o_idx] = self.gamma * self._counts_B[u_idx, i, o_idx] + self._belief[i]
+
+        # Re-normalise A and B
+        for i in range(self.n_states):
+            # Normalise A[u, i, :]
+            row_sum_a = self._counts_A[u_idx, i, :].sum()
+            if row_sum_a > 1e-12:
+                self._A[u_idx, i, :] = self._counts_A[u_idx, i, :] / row_sum_a
+
+            # Normalise B[u, i, :]
+            row_sum_b = self._counts_B[u_idx, i, :].sum()
+            if row_sum_b > 1e-12:
+                self._B[u_idx, i, :] = self._counts_B[u_idx, i, :] / row_sum_b
+
+        self._belief = new_belief
+
+    def _select_action(self, iteration: int, max_iterations: int) -> int:
+        """
+        Entropy-Maximizing Action Selection with Dynamic Annealing (Fix #5, #R1, #R-Final-1 & #Final-3).
+
+        score(u) = NormalizedProfit(u) + current_alpha * Entropy(P(s_{t+1}|u))
+        """
+        # 1. Calculate raw expected profits and future entropies
+        raw_profits = np.zeros(self.n_llh)
+        entropies = np.zeros(self.n_llh)
+        for u in range(self.n_llh):
+            # Predicted next state distribution for action u: P(s' | u) = sum_i P(s_i|hist) * P(s'|s_i,u)
+            p_next = np.dot(self._belief, self._A[u, :, :])
+            # Entropy: force distribution towards uniform to explore
+            entropies[u] = -np.sum(p_next * np.log(p_next + 1e-12))
+
+            # --- Refinement 1: State-Aware Profit Expectation (Fix #R1) ---
+            # E[Profit | u] = sum_s P(s | history) * E[Profit | s, u]
+            raw_profits[u] = np.dot(self._belief, self._expected_profit[:, u])
+
+        # 2. Robust Min-Max Normalization (Fix #R-Final-1 & #3: Neutralize Ties)
+        # Binds profits to [0, 1] so they are comparable to entropy (bounded by ln(n)).
+        # If all profits are equal (delta < 1e-9), set to 0.5 to allow entropy to drive exploration.
+        p_min, p_max = raw_profits.min(), raw_profits.max()
+        if p_max - p_min > 1e-9:
+            normalized_profits = (raw_profits - p_min) / (p_max - p_min)
+        else:
+            normalized_profits = np.full(self.n_llh, 0.5)
+
+        # 3. Dynamic Exploration Annealing (Fix #R-Final-3)
+        # alpha decays linearly to zero to transition from exploration to deep exploitation
+        current_alpha = self.alpha * (1.0 - (iteration / max_iterations))
+
+        # 4. Combine normalized profit and annealed entropy exploration bonus
+        scores = normalized_profits + current_alpha * entropies
+
+        return int(np.argmax(scores))
+
+    # ------------------------------------------------------------------
+    # Forward Algorithm helpers (REMOVED: Old Gaussian PDF logic)
+    # ------------------------------------------------------------------
 
     # ------------------------------------------------------------------
     # LLH pool
@@ -429,16 +589,6 @@ class HMMGDHHSolver:
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
-
-    def _sample_llh(self, probs: np.ndarray) -> int:
-        """Sample an LLH index from the probability distribution."""
-        r = self.random.random()
-        cumulative = 0.0
-        for i, p in enumerate(probs):
-            cumulative += p
-            if r <= cumulative:
-                return i
-        return len(probs) - 1
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction (matches ALNS style).
