@@ -217,3 +217,79 @@ class TestSingleVehiclePolicies:
         test_tour = [0, 1, 2, 0]
         res_cost = tsp.get_route_cost(test_C, test_tour)
         assert abs(float(res_cost) - 35.0) < 1e-6
+
+
+class TestPOPMUSIC:
+    """Unit tests for POPMUSIC matheuristic and paper alignment."""
+
+    @pytest.fixture
+    def mock_popmusic_data(self):
+        coords = pd.DataFrame({
+            "Lat": [0, 1, 10, 11],
+            "Lng": [0, 10, 1, 11]
+        })
+        dist_matrix = np.zeros((4, 4))
+        for i in range(4):
+            for j in range(4):
+                dist_matrix[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values)
+
+        return {
+            "coords": coords,
+            "must_go": [1, 2, 3],
+            "distance_matrix": dist_matrix,
+            "n_vehicles": 4,
+            "wastes": {1: 10, 2: 10, 3: 10},
+            "capacity": 100,
+            "R": 1.0,
+            "C": 0.1
+        }
+
+    @pytest.mark.unit
+    def test_popmusic_lifo_order(self, mock_popmusic_data):
+        """Verify that POPMUSIC uses LIFO stack for seed selection."""
+        from logic.src.policies.popmusic.solver import run_popmusic
+
+        # Patch _optimize_subproblem to record the order of seeds (neighborhood_indices[0])
+        # and always return an improvement for the first few calls to trigger re-pushing.
+        call_order = []
+        def mock_optimize(*args, **kwargs):
+            seed_idx = kwargs["neighborhood_indices"][0]
+            call_order.append(seed_idx)
+            # Improve only on the first call to seed 3 to see if it re-pushes
+            if seed_idx == 3 and len(call_order) == 1:
+                return [[0, 1, 0]], 100.0  # Big improvement
+            return [[0, seed_idx, 0]], 0.0 # No improvement
+
+        with patch("logic.src.policies.popmusic.solver._optimize_subproblem", side_effect=mock_optimize):
+            run_popmusic(**mock_popmusic_data, subproblem_size=2, seed_strategy="lifo")
+
+        # Initial stack for 4 routes is [0, 1, 2, 3].
+        # 1. Pop 3. R=[3, 2]. Improve! Re-push 3, 2. Stack: [0, 1, 3, 2]
+        # 2. Pop 2. R=[2, 3]. No improvement. Stack: [0, 1, 3]
+        # 3. Pop 3. R=[3, 2]. No improvement. Stack: [0, 1]
+        # ...
+        assert call_order[0] == 3
+        assert call_order[1] == 2
+        assert call_order[2] == 3
+
+    @pytest.mark.unit
+    def test_find_route_neighbors_kdtree(self):
+        """Verify KD-Tree neighbor search returns correct indices."""
+        from logic.src.policies.popmusic.solver import find_route_neighbors
+        from scipy.spatial import KDTree
+
+        centroids = [
+            np.array([0, 0]),
+            np.array([1, 1]),
+            np.array([10, 10]),
+            np.array([11, 11])
+        ]
+        kdtree = KDTree(np.array(centroids))
+
+        # k=2 neighbors of seed 0 should be [0, 1]
+        neighbors = find_route_neighbors(0, centroids, k=2, kdtree=kdtree, k_prox=4)
+        assert set(neighbors) == {0, 1}
+
+        # k=2 neighbors of seed 2 should be [2, 3]
+        neighbors = find_route_neighbors(2, centroids, k=2, kdtree=kdtree, k_prox=4)
+        assert set(neighbors) == {2, 3}

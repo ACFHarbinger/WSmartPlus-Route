@@ -48,7 +48,9 @@ class POPMUSICConfig:
 
     # Core POPMUSIC parameters
     subproblem_size: int = 3
-    max_iterations: int = 100
+    k_prox: int = 10  # proximity network radius (paper §2.1)
+    seed_strategy: str = "lifo"  # "lifo" | "fifo" | "random"
+    max_iterations: Optional[int] = None  # None = run until U=empty
 
     # Solver orchestration
     base_solver: str = "alns"

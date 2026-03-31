@@ -11,11 +11,14 @@ Reference:
 """
 
 import inspect
+import warnings
+from collections import deque
 from random import Random
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
+from scipy.spatial import KDTree
 
 from logic.src.configs.policies.alns import ALNSConfig
 from logic.src.configs.policies.hgs import HGSConfig
@@ -35,7 +38,7 @@ def run_popmusic(  # noqa: C901
     distance_matrix: np.ndarray,
     n_vehicles: int,
     subproblem_size: int = 3,
-    max_iterations: int = 100,
+    max_iterations: Optional[int] = 100,
     base_solver: str = "fast_tsp",
     base_solver_config: Optional[Any] = None,
     cluster_solver: str = "fast_tsp",
@@ -48,6 +51,8 @@ def run_popmusic(  # noqa: C901
     C: float = 0.0,
     vrpp: bool = True,
     profit_aware_operators: bool = False,
+    k_prox: int = 10,
+    seed_strategy: str = "lifo",
 ) -> Tuple[List[List[int]], float, float, Dict[str, Any]]:
     """
     Solve VRPP using POPMUSIC matheuristic.
@@ -133,140 +138,196 @@ def run_popmusic(  # noqa: C901
     iteration = 0
     # Initialize global unassigned pool for VRPP support
     unassigned_nodes: Set[int] = set()
-    # Initialize Active List (O-List) for POPMUSIC acceleration
-    active_mask = [True] * len(routes)
 
-    while any(active_mask) and iteration < max_iterations:
-        # Calculate centroids of routes for proximity
-        centroids = []
-        for route in routes:
-            # Exclude depot (0) for centroid calculation
-            nodes = [n for n in route if n != 0]
+    # Part ID management for identity tracking (Paper Algorithm 1 logic)
+    # Each route is a "part" with a unique ID.
+    next_part_id = len(routes)
+    route_ids = list(range(len(routes)))
+
+    # Centroid cache to avoid O(p) recomputation
+    centroid_cache: Dict[int, np.ndarray] = {}
+
+    def get_centroid(route_idx: int) -> np.ndarray:
+        if route_idx not in centroid_cache:
+            nodes = [n for n in routes[route_idx] if n != 0]
             if nodes:
-                # Use .loc to guarantee alignment with exact Node IDs
-                center = coords.loc[nodes][["Lat", "Lng"]].mean().values
-                centroids.append(center)
+                centroid_cache[route_idx] = coords.loc[nodes][["Lat", "Lng"]].mean().values
             else:
-                # Use .loc for the depot as well
-                centroids.append(coords.loc[0][["Lat", "Lng"]].values)
+                centroid_cache[route_idx] = coords.loc[0][["Lat", "Lng"]].values
+        return centroid_cache[route_idx]
 
-        # Try all possible seeds (routes)
-        for i in range(len(routes)):
-            # Skip inactive seeds (Active List optimization)
-            if not active_mask[i]:
-                continue
+    # Initialize Active List (U) as a stack (LIFO), queue (FIFO), or random
+    if seed_strategy == "random":
+        indices = list(range(len(routes)))
+        Random(seed).shuffle(indices)
+        active_stack = deque(indices)
+    else:
+        active_stack = deque(range(len(routes)))
 
-            # Skip ghost routes (routes without customer nodes)
-            # This prevents wasting computation on depot-only routes before cleanup
-            if not [n for n in routes[i] if n != 0]:
-                continue
+    # Tracker for routes that have been evaluated in the current pass
+    # to avoid redundant work if they were already popped.
+    active_set = set(active_stack)
 
-            # Find R-1 nearest neighbors to route i
-            neighborhood_indices = find_route_neighbors(i, centroids, subproblem_size)
-
-            # Form subproblem
-            subproblem_nodes = []
-            for idx in neighborhood_indices:
-                subproblem_nodes.extend([n for n in routes[idx] if n != 0])
-
-            if not subproblem_nodes:
-                continue
-
-            # Inject nearby unassigned nodes into the subproblem (VRPP support)
-            if vrpp and unassigned_nodes and subproblem_nodes:
-                nearby_unassigned = []
-
-                # Calculate average edge length in the subproblem to use as a threshold
-                sub_dists = [
-                    distance_matrix[subproblem_nodes[i], subproblem_nodes[j]]
-                    for i in range(len(subproblem_nodes))
-                    for j in range(i + 1, len(subproblem_nodes))
-                ]
-                threshold = (np.mean(sub_dists) * 1.5) if sub_dists else distance_matrix.mean()
-
-                for u_node in list(unassigned_nodes):
-                    # Find minimum distance to any node in the active subproblem
-                    min_dist_to_subproblem = min(distance_matrix[u_node, s_node] for s_node in subproblem_nodes)
-                    if min_dist_to_subproblem <= threshold:
-                        nearby_unassigned.append(u_node)
-
-                # Remove from unassigned pool and add to subproblem
-                for node in nearby_unassigned:
-                    unassigned_nodes.remove(node)
-                    subproblem_nodes.append(node)
-
-            # Optimize subproblem
-            old_cost = sum(get_route_cost(distance_matrix, routes[idx]) for idx in neighborhood_indices)
-            old_rev = sum(wastes_dict.get(n, 0) * R for idx in neighborhood_indices for n in routes[idx] if n != 0)
-            old_profit = old_rev - old_cost * C
-
-            # Optimize subproblem using selected base_solver
-            new_routes, new_profit = _optimize_subproblem(
-                base_solver=base_solver,
-                base_solver_config=base_solver_config,
-                subproblem_nodes=subproblem_nodes,
-                distance_matrix=distance_matrix,
-                wastes_dict=wastes_dict,
-                capacity=capacity,
-                R=R,
-                C=C,
-                neighborhood_indices=neighborhood_indices,
-                must_go=must_go,
-                seed=seed,
-                vrpp=vrpp,
-                profit_aware_operators=profit_aware_operators,
+    while active_stack:
+        if max_iterations is not None and iteration >= max_iterations:
+            warnings.warn(
+                f"POPMUSIC terminated early due to max_iterations={max_iterations}", RuntimeWarning, stacklevel=2
             )
-            if new_profit > old_profit + 1e-6:
-                # Update solution
-                # Update existing routes in the neighborhood
-                for local_idx, global_idx in enumerate(neighborhood_indices):
-                    if local_idx < len(new_routes):
-                        routes[global_idx] = new_routes[local_idx]
-                        # Reactivate modified routes (Active List mechanism)
-                        active_mask[global_idx] = True
+            break
+
+        # Select seed (s_g)
+        i = active_stack.pop() if seed_strategy == "lifo" else active_stack.popleft()
+
+        active_set.remove(i)
+
+        # Skip ghost routes
+        if not [n for n in routes[i] if n != 0]:
+            continue
+
+        # Recompute proximity network (KDTree) lazily if k_prox is used
+        kdtree = None
+        if k_prox > 0 and len(routes) > subproblem_size:
+            all_centroids = np.array([get_centroid(idx) for idx in range(len(routes))])
+            kdtree = KDTree(all_centroids)
+
+        # Find R-1 nearest neighbors to route i
+        neighborhood_indices = find_route_neighbors(
+            i, [get_centroid(idx) for idx in range(len(routes))], subproblem_size, kdtree, k_prox
+        )
+
+        # Form subproblem
+        subproblem_nodes = []
+        for idx in neighborhood_indices:
+            subproblem_nodes.extend([n for n in routes[idx] if n != 0])
+
+        if not subproblem_nodes:
+            continue
+
+        # Inject nearby unassigned nodes into the subproblem (VRPP support)
+        if vrpp and unassigned_nodes and subproblem_nodes:
+            nearby_unassigned = []
+
+            # Calculate average edge length in the subproblem to use as a threshold
+            sub_dists = [
+                distance_matrix[subproblem_nodes[x], subproblem_nodes[y]]
+                for x in range(len(subproblem_nodes))
+                for y in range(x + 1, len(subproblem_nodes))
+            ]
+            threshold = (np.mean(sub_dists) * 1.5) if sub_dists else distance_matrix.mean()
+
+            for u_node in list(unassigned_nodes):
+                min_dist_to_subproblem = min(distance_matrix[u_node, s_node] for s_node in subproblem_nodes)
+                if min_dist_to_subproblem <= threshold:
+                    nearby_unassigned.append(u_node)
+
+            for node in nearby_unassigned:
+                unassigned_nodes.remove(node)
+                subproblem_nodes.append(node)
+
+        # Optimize subproblem
+        old_cost = sum(get_route_cost(distance_matrix, routes[idx]) for idx in neighborhood_indices)
+        old_rev = sum(wastes_dict.get(n, 0) * R for idx in neighborhood_indices for n in routes[idx] if n != 0)
+        old_profit = old_rev - old_cost * C
+
+        new_routes, new_profit = _optimize_subproblem(
+            base_solver=base_solver,
+            base_solver_config=base_solver_config,
+            subproblem_nodes=subproblem_nodes,
+            distance_matrix=distance_matrix,
+            wastes_dict=wastes_dict,
+            capacity=capacity,
+            R=R,
+            C=C,
+            neighborhood_indices=neighborhood_indices,
+            must_go=must_go,
+            seed=seed,
+            vrpp=vrpp,
+            profit_aware_operators=profit_aware_operators,
+        )
+
+        if new_profit > old_profit + 1e-6:
+            # Update solution and manage part IDs (Paper Algorithm 1)
+            modified_indices = []
+
+            # Update existing routes
+            for local_idx, global_idx in enumerate(neighborhood_indices):
+                if local_idx < len(new_routes):
+                    routes[global_idx] = new_routes[local_idx]
+                    route_ids[global_idx] = next_part_id
+                    next_part_id += 1
+                    centroid_cache.pop(global_idx, None)
+                    modified_indices.append(global_idx)
+                else:
+                    routes[global_idx] = [0, 0]
+                    route_ids[global_idx] = -1  # Mark for removal
+                    centroid_cache.pop(global_idx, None)
+                    modified_indices.append(global_idx)
+
+            # Handle extra routes
+            if len(new_routes) > len(neighborhood_indices):
+                for extra_route in new_routes[len(neighborhood_indices) :]:
+                    routes.append(extra_route)
+                    route_ids.append(next_part_id)
+                    next_part_id += 1
+                    modified_indices.append(len(routes) - 1)
+
+            # Track unassigned nodes for VRPP support
+            if vrpp:
+                nodes_in_new_routes = {n for r in new_routes for n in r if n != 0}
+                newly_unassigned = set(subproblem_nodes) - nodes_in_new_routes
+                unassigned_nodes.update(newly_unassigned)
+
+            # Reactivate all modified routes AND their neighbors (propagation)
+            for mod_idx in modified_indices:
+                # Reactivate the modified route index itself
+                if mod_idx >= 0 and mod_idx not in active_set and route_ids[mod_idx] != -1:
+                    if seed_strategy == "lifo":
+                        active_stack.append(mod_idx)
                     else:
-                        routes[global_idx] = [0, 0]  # Empty route
-                        active_mask[global_idx] = True
+                        active_stack.append(mod_idx)
+                    active_set.add(mod_idx)
 
-                # CRITICAL: Append any extra routes created by the sub-solver
-                # This prevents data loss when sub-solver creates more routes than the neighborhood size
-                if len(new_routes) > len(neighborhood_indices):
-                    extra_routes = new_routes[len(neighborhood_indices) :]
-                    routes.extend(extra_routes)
-                    # Extend active_mask for new routes (all marked as active)
-                    active_mask.extend([True] * len(extra_routes))
-
-                # Track unassigned nodes for VRPP support
-                if vrpp:
-                    # Find nodes from subproblem_nodes that are missing from new_routes
-                    nodes_in_new_routes = set()
-                    for route in new_routes:
-                        nodes_in_new_routes.update([n for n in route if n != 0])
-
-                    # Any nodes that were in the subproblem but not in new routes are unassigned
-                    newly_unassigned = set(subproblem_nodes) - nodes_in_new_routes
-                    unassigned_nodes.update(newly_unassigned)
-
-                # Continue evaluating all seed routes in this iteration instead of breaking early
-            else:
-                # No improvement: deactivate the seed route (Active List mechanism)
-                active_mask[i] = False
-
-        # Clean up ghost routes while maintaining active_mask alignment
-        valid_indices = []
-        cleaned_routes = []
-
-        for idx, r in enumerate(routes):
-            # Keep route if it contains at least one non-depot customer node
-            if [n for n in r if n != 0]:
-                cleaned_routes.append(r)
-                valid_indices.append(idx)
-
-        # Sync routes and active_mask
-        routes = cleaned_routes
-        active_mask = [active_mask[idx] for idx in valid_indices]
+                # Reactivate neighbors within k_prox to ensure propagation (Paper §2.1)
+                if k_prox > 0:
+                    mod_centroid = get_centroid(mod_idx)
+                    # Re-using the KDTree built at the start of this seed iteration is slightly stale
+                    # but usually acceptable for re-activation scope.
+                    if kdtree is not None:
+                        _, neighbors = kdtree.query(mod_centroid, k=min(k_prox, len(routes)))
+                        if isinstance(neighbors, (int, np.integer)):
+                            neighbors = [neighbors]
+                        for n_idx in neighbors:
+                            if n_idx != mod_idx and n_idx not in active_set:
+                                if seed_strategy == "lifo":
+                                    active_stack.append(int(n_idx))
+                                else:
+                                    active_stack.append(int(n_idx))
+                                active_set.add(int(n_idx))
+        else:
+            # No improvement: seed remains inactive (already popped)
+            pass
 
         iteration += 1
+
+        # Periodically cleanup ghost routes to prevent index-bloat
+        if iteration % 50 == 0:
+            valid_indices = [
+                idx for idx, rid in enumerate(route_ids) if rid != -1 and [n for n in routes[idx] if n != 0]
+            ]
+            if len(valid_indices) < len(routes):
+                routes = [routes[idx] for idx in valid_indices]
+                route_ids = [route_ids[idx] for idx in valid_indices]
+                # Must rebuild stack and set as indices shifted
+                # This is expensive but necessary for consistency
+                old_active_ids = {route_ids[idx] for idx in active_set if idx < len(route_ids)}
+                centroid_cache = {
+                    new_idx: centroid_cache[old_idx]
+                    for new_idx, old_idx in enumerate(valid_indices)
+                    if old_idx in centroid_cache
+                }
+
+                active_stack = deque([idx for idx, rid in enumerate(route_ids) if rid in old_active_ids])
+                active_set = set(active_stack)
 
     # Calculate final summary metrics across all routes
     total_cost = sum(get_route_cost(distance_matrix, r) for r in routes) * C
@@ -531,12 +592,25 @@ def _optimize_with_alns(
     return routes, profit
 
 
-def find_route_neighbors(seed_idx: int, centroids: List[np.ndarray], k: int) -> List[int]:
+def find_route_neighbors(
+    seed_idx: int, centroids: List[np.ndarray], k: int, kdtree: Optional[KDTree] = None, k_prox: int = 0
+) -> List[int]:
     """Find k nearest route indices to the seed route based on centroids."""
     if len(centroids) <= k:
         return list(range(len(centroids)))
 
     seed_pos = centroids[seed_idx]
+
+    if kdtree is not None and k_prox > 0:
+        # Use KD-Tree for proximity network acceleration (Paper §2.1)
+        # Search for k_prox nearest, then take the k best from those (or just top k)
+        # To match the paper's "r closest parts", we query for exactly k.
+        _, indices = kdtree.query(seed_pos, k=min(k, len(centroids)))
+        if isinstance(indices, (int, np.integer)):
+            return [int(indices)]
+        return [int(idx) for idx in indices]
+
+    # brute-force O(p) fallback
     distances = []
     for i, pos in enumerate(centroids):
         dist = np.linalg.norm(seed_pos - pos)
