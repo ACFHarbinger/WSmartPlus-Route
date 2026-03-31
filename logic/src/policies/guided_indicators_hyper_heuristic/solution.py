@@ -102,6 +102,13 @@ class Solution:
                 return False
         return True
 
+    def is_identical_to(self, other: "Solution") -> bool:
+        """
+        Check if this solution is structurally identical to another.
+        Two solutions are identical if they have the exact same routes.
+        """
+        return self.routes == other.routes
+
     def dominates(self, other: "Solution") -> bool:
         """
         Check if this solution Pareto-dominates the other solution.
