@@ -20,6 +20,7 @@ class GENIUSConfig:
     unstring_type: int = 1
     string_type: int = 1
     n_iterations: int = 1
+    random_us_sampling: bool = False
     time_limit: float = 60.0
     seed: Optional[int] = None
     vrpp: bool = True
