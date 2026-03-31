@@ -12,11 +12,14 @@ Algorithm (Figure 2 in the paper):
     4. While t < totalTime:
         a. Select LLH i with highest utility (random tie-break).
         b. Apply LLH i → S_temp, f_temp.
-        c. Reward / punish u_i:
-             Reward  iff f_temp strictly improves f_current.
-             Punish  otherwise (including f_temp == f_current).
-        d. Accept (update S_current) iff f_temp >= level  [maximisation].
-        e. Update level: level(t) = qualityLB + (f0 - qualityLB)×(1 - t/T).
+        c. Reward / punish u_i & Accept / Reject S_temp:
+             If f_temp > f_current:
+                 Reward u_i.
+                 Accept (S_current = S_temp).
+             Else:
+                 Punish u_i.
+                 Accept (S_current = S_temp) iff f_temp >= level.
+        d. Update level: level(t) = qualityLB + (f0 - qualityLB)×(1 - t/T).
     5. Return best solution seen.
 
 RL Punishment Variants (Section 3.2):
@@ -78,7 +81,7 @@ class RLGDHHSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed)  # None → truly random seed per Python stdlib
 
         # Initialise LLH utilities: u_i = 0.75 × maxUtilityValue (paper p. 16)
         self.utilities = [self.params.initial_utility] * 4
@@ -112,8 +115,14 @@ class RLGDHHSolver:
         #   level(t) = qualityLB + (f0 − qualityLB) × (1 − t / T)
         f0 = current_profit
         quality_lb = self.params.quality_lb
+
         # Pre-compute constant per-iteration decline (maps iteration ↔ time step)
-        decline_rate = (f0 - quality_lb) / self.params.max_iterations
+        # Guard: if f0 <= quality_lb, the water level never moves.
+        if f0 > quality_lb:
+            decline_rate = (f0 - quality_lb) / self.params.max_iterations
+        else:
+            decline_rate = 0.0
+
         water_level = f0  # t = 0  →  level = f0
 
         # --- Main Loop ---
@@ -125,30 +134,36 @@ class RLGDHHSolver:
             llh_idx = self._select_llh()
             llh = self._llh_pool[llh_idx]
 
-            # (b) Application
-            new_routes = llh(copy.deepcopy(current_routes))
+            # (b) Application — no internal deepcopy (moved to LLH methods)
+            new_routes = llh(current_routes)
             new_profit = self._evaluate(new_routes)
 
-            # (c) Adaptation — reward strict improvement; punish everything else
-            #     Paper (p. 10): "if a LLH results in a state with a quality
-            #     greater than or equal to the current state, a negative
-            #     adaptation rate is applied."  (Minimisation context; we invert
-            #     the inequality for maximisation.)
+            # (c) Adaptation + (d) Acceptance — strictly following Figure 2 structure
             if new_profit > current_profit:
+                # Improving move: reward and always accept (no GD gate)
                 self.utilities[llh_idx] = self._apply_reward(self.utilities[llh_idx])
-            else:
-                # Neutral (==) and worsening (<) are both penalised
-                self.utilities[llh_idx] = self._apply_punishment(self.utilities[llh_idx])
-
-            # (d) Move Acceptance — Great Deluge (maximisation)
-            #     Accept iff candidate meets or exceeds the current water level
-            if new_profit >= water_level:
                 current_routes = new_routes
                 current_profit = new_profit
-
+                # Track global best
                 if current_profit > best_profit:
                     best_routes = copy.deepcopy(current_routes)
                     best_profit = current_profit
+            else:
+                # Neutral or worsening move: punish, then apply GD acceptance gate
+                # (c) RL Adaptation — Figure 2, Steps 14–17 (Ozcan et al. 2010)
+                # Reward on strict improvement; punish on neutral (==) or worsening (<=).
+                # Note: the paper is written for minimisation (ftemp < fcurrent → reward).
+                # For maximisation we invert: ftemp > current_profit → reward.
+                # Neutral moves (ftemp == current_profit) are punished in both contexts.
+                self.utilities[llh_idx] = self._apply_punishment(self.utilities[llh_idx])
+                if new_profit >= water_level:
+                    current_routes = new_routes
+                    current_profit = new_profit
+                    # Track global best: only triggers if GD accepts a worsening move
+                    # and current_profit was previously below best_profit.
+                    if current_profit > best_profit:
+                        best_routes = copy.deepcopy(current_routes)
+                        best_profit = current_profit
 
             # (e) Update water level — linear decline toward quality_lb
             water_level = max(quality_lb, water_level - decline_rate)
@@ -202,7 +217,7 @@ class RLGDHHSolver:
     def _llh_relocate(self, routes: List[List[int]]) -> List[List[int]]:
         """H1: Single-node relocation (1-0 exchange) — ruin-and-recreate variant."""
         if not routes:
-            return routes
+            return copy.deepcopy(routes)
         new_routes = copy.deepcopy(routes)
         ridx = self.random.randint(0, len(new_routes) - 1)
         if not new_routes[ridx]:
@@ -240,6 +255,7 @@ class RLGDHHSolver:
 
     def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
         """H2: Shaw removal + regret-2 insertion."""
+        routes = copy.deepcopy(routes)
         n = max(1, min(len(self.nodes) // 4, 10))
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
@@ -271,6 +287,7 @@ class RLGDHHSolver:
 
     def _llh_string(self, routes: List[List[int]]) -> List[List[int]]:
         """H3: String removal + greedy insertion."""
+        routes = copy.deepcopy(routes)
         n = max(1, min(len(self.nodes) // 4, 10))
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
@@ -302,6 +319,7 @@ class RLGDHHSolver:
 
     def _llh_regret2(self, routes: List[List[int]]) -> List[List[int]]:
         """H4: Random removal + regret-2 insertion."""
+        routes = copy.deepcopy(routes)
         n = max(1, min(len(self.nodes) // 5, 5))
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
@@ -340,16 +358,26 @@ class RLGDHHSolver:
         self.random.shuffle(nodes)
 
         try:
-            return greedy_profit_insertion(
-                [],
-                nodes,
-                self.dist_matrix,
-                self.wastes,
-                self.capacity,
-                R=self.R,
-                C=self.C,
-                mandatory_nodes=self.mandatory_nodes,
-            )
+            if self.params.profit_aware_operators:
+                return greedy_profit_insertion(
+                    [],
+                    nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    R=self.R,
+                    C=self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                )
+            else:
+                return greedy_insertion(
+                    [],
+                    nodes,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    mandatory_nodes=self.mandatory_nodes,
+                )
         except Exception:
             return [[n] for n in nodes]
 
