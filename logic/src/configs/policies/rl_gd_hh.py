@@ -2,8 +2,14 @@
 RL-GD-HH (Reinforcement Learning Great Deluge Hyper-Heuristic) configuration for Hydra.
 
 This module defines the schema and default values for the RL-GD-HH policy,
-ensuring type-safety and providing documentation for each configurable
-hyper-parameter.
+aligned directly with the Ozcan et al. (2010) paper specification.
+
+Paper mappings (Section 3, Table 1):
+    - maxUtilityValue = utility_upper_bound = 40
+    - Initial utility  = 0.75 × 40 = 30
+    - qualityLB        = quality_lb = 0
+    - Reward           = +1 (additive, RL1)
+    - Penalty          = −1 (RL1), ÷2 (RL2), √ (RL3)
 """
 
 from dataclasses import dataclass, field
@@ -15,42 +21,41 @@ class RLGDHHConfig:
     """
     Configuration for the RL-GD-HH policy.
 
-    The values defined here represent the system defaults aligned with
-    the Ozcan et al. (2010) framework.
+    The values defined here reproduce the best-performing configuration
+    from Ozcan et al. (2010) unless otherwise noted.
     """
 
     # Primary engine identifier used by the policy registry
     engine: str = "rl_gd_hh"
 
-    # Search Control
+    # --- Search Control ---
     max_iterations: int = 5000
     time_limit: float = 60.0
-
-    # RL1 Adaptation Settings (Ozcan p. 16)
-    reward_improvement: float = 1.0
-    reward_neutral: float = 0.5
-    penalty_worsening: float = 1.0
-
-    # Utility Constraints
-    utility_upper_bound: float = 40.0
-    min_utility: float = 0.0
-
-    # Great Deluge Level Update Settings
-    target_fitness_multiplier: float = 1.20
-
-    # Great Deluge specific parameters
-    rain_speed: float = 0.001
-    flood_margin: float = 0.1
-
-    # RL1 Adaptation
-    initial_utility: float = 20.0
-
-    # Deterministic Seed
     seed: Optional[int] = None
 
-    # Problem Flags
+    # --- RL Adaptation Settings (Section 3.2) ---
+    # Additive reward when a LLH strictly improves the solution (Step 14).
+    reward_improvement: float = 1.0
+    # Penalty magnitude applied for worsening AND neutral moves (Step 17).
+    # The paper treats neutral moves identically to worsening ones.
+    penalty_worsening: float = 1.0
+    # Punishment variant: "RL1" (subtract), "RL2" (halve), "RL3" (root).
+    punishment_type: str = "RL1"
+
+    # --- Utility Constraints (Table 1: best maxUtilityValue = 40) ---
+    utility_upper_bound: float = 40.0
+    min_utility: float = 0.0
+    # Initial utility = 0.75 × maxUtilityValue = 30 (per paper p. 16).
+    initial_utility: float = 30.0
+
+    # --- Great Deluge: Declining Boundary (Fig 2, Step 18) ---
+    # level(t) = quality_lb + (f0 - quality_lb) × (1 − t / T)
+    # qualityLB = 0 for all benchmark instances in the paper.
+    quality_lb: float = 0.0
+
+    # --- Problem Flags ---
     vrpp: bool = True
 
-    # Infrastructure Hooks
+    # --- Infrastructure Hooks ---
     must_go: Optional[List[Any]] = field(default_factory=list)
     post_processing: Optional[List[Any]] = field(default_factory=list)

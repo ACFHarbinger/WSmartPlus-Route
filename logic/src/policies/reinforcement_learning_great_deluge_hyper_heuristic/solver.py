@@ -3,21 +3,35 @@ Reinforcement Learning + Great Deluge Hyper-Heuristic (RL-GD-HH) for VRPP.
 
 This solver implements the adaptive selection of Low-Level Heuristics (LLHs)
 using a Reinforcement Learning (RL) mechanism paired with a Great Deluge (GD)
-acceptance criterion.
+acceptance criterion, as specified in Ozcan et al. (2010).
 
-Key components:
-1.  **RL-Based Selection**: Maintains a utility/score for each LLH, updated
-    based on its performance (reward) in terms of solution improvement.
-2.  **Great Deluge Acceptance**: Accept any candidate solution whose quality
-    (profit) is above a linearly increasing water level.
-3.  **LLH Pool**: A diverse set of ruin-and-recreate operators.
+Algorithm (Figure 2 in the paper):
+    1. Generate an initial solution S_current; compute f0 = quality(S_current).
+    2. Initialise utilities: u_i = 0.75 × maxUtilityValue for all i.
+    3. Set level = f0;  qualityLB = 0.
+    4. While t < totalTime:
+        a. Select LLH i with highest utility (random tie-break).
+        b. Apply LLH i → S_temp, f_temp.
+        c. Reward / punish u_i:
+             Reward  iff f_temp strictly improves f_current.
+             Punish  otherwise (including f_temp == f_current).
+        d. Accept (update S_current) iff f_temp >= level  [maximisation].
+        e. Update level: level(t) = qualityLB + (f0 - qualityLB)×(1 - t/T).
+    5. Return best solution seen.
+
+RL Punishment Variants (Section 3.2):
+    RL1 (default): u ← max(lb, u − penalty)          [subtractive]
+    RL2:           u ← floor(u / 2)                   [divisional]
+    RL3:           u ← floor(sqrt(u))                 [root]
 
 References:
-    - Ozcan, E., et al. (2010). "Reinforcement learning-great deluge
-      hyper-heuristic for solving examination timetabling problems."
+    Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. (2010).
+    "A Reinforcement Learning – Great-Deluge Hyper-heuristic for
+    Examination Timetabling." Informs Journal on Computing.
 """
 
 import copy
+import math
 import random
 import time
 from typing import Dict, List, Optional, Tuple
@@ -40,6 +54,9 @@ from .params import RLGDHHParams
 class RLGDHHSolver:
     """
     RL-GD-HH solver implementation for VRPP.
+
+    Implements the algorithm of Ozcan et al. (2010) adapted for the
+    Vehicle Routing Problem with Profits (VRPP).
     """
 
     def __init__(
@@ -63,7 +80,7 @@ class RLGDHHSolver:
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
 
-        # Initialise LLH utilities (scores)
+        # Initialise LLH utilities: u_i = 0.75 × maxUtilityValue (paper p. 16)
         self.utilities = [self.params.initial_utility] * 4
         self._llh_pool = [
             self._llh_relocate,
@@ -72,71 +89,60 @@ class RLGDHHSolver:
             self._llh_regret2,
         ]
 
+    # ------------------------------------------------------------------
+    # Public Interface
+    # ------------------------------------------------------------------
+
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """Runs the RL-GD-HH metaheuristic."""
+        """Runs the RL-GD-HH metaheuristic (Figure 2, Ozcan et al. 2010)."""
         if not self.nodes:
             return [], 0.0, 0.0
 
         start_time = time.process_time()
 
-        # Initial solution
+        # --- Initialisation ---
         current_routes = self._initialize_solution()
         current_profit = self._evaluate(current_routes)
 
         best_routes = copy.deepcopy(current_routes)
         best_profit = current_profit
 
-        # Initialize Great Deluge water level (Ozcan et al. 2010)
-        # Start below current profit by flood_margin percentage
-        water_level = current_profit * (1.0 - self.params.flood_margin) if current_profit > 0 else -100.0
+        # Great Deluge: level starts at f0 and declines linearly to quality_lb
+        # (Ozcan et al. 2010, Figure 2, Step 18):
+        #   level(t) = qualityLB + (f0 − qualityLB) × (1 − t / T)
+        f0 = current_profit
+        quality_lb = self.params.quality_lb
+        # Pre-compute constant per-iteration decline (maps iteration ↔ time step)
+        decline_rate = (f0 - quality_lb) / self.params.max_iterations
+        water_level = f0  # t = 0  →  level = f0
 
-        # Calculate target fitness based on Ozcan et al. (2010)
-        # Target is higher than current by the multiplier factor
-        target_profit = current_profit * self.params.target_fitness_multiplier if current_profit > 0 else 100.0
-
-        # Calculate linear rise rate per iteration (Great Deluge linear boundary update)
-        # The water level must reach target_profit by the end of max_iterations
-        rise_rate = (target_profit - water_level) / self.params.max_iterations
-        if rise_rate <= 0:
-            # Fallback safety: use rain_speed if calculation fails
-            rise_rate = self.params.rain_speed
-
+        # --- Main Loop ---
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
                 break
 
-            # Selection Phase: Select LLH based on max utility (Ozcan et al. 2010)
-            # or epsilon-greedy/tournament
+            # (a) Heuristic Selection — max utility, random tie-break
             llh_idx = self._select_llh()
             llh = self._llh_pool[llh_idx]
 
-            # Application Phase
+            # (b) Application
             new_routes = llh(copy.deepcopy(current_routes))
             new_profit = self._evaluate(new_routes)
 
-            # Acceptance Phase: Great Deluge (Maximisation)
-            accepted = new_profit >= water_level
-
-            # Adaptation Phase: Update RL utilities based on performance (Ozcan et al. 2010)
-            reward = 0.0
+            # (c) Adaptation — reward strict improvement; punish everything else
+            #     Paper (p. 10): "if a LLH results in a state with a quality
+            #     greater than or equal to the current state, a negative
+            #     adaptation rate is applied."  (Minimisation context; we invert
+            #     the inequality for maximisation.)
             if new_profit > current_profit:
-                # Reward improvement
-                reward = self.params.reward_improvement
-            elif new_profit == current_profit:
-                # Small reward for neutral moves (maintain diversity)
-                reward = self.params.reward_neutral
+                self.utilities[llh_idx] = self._apply_reward(self.utilities[llh_idx])
             else:
-                # PENALTY for worsening moves (must be NEGATIVE)
-                # Note: penalty_worsening should be negative in params, but we ensure subtraction here
-                reward = -abs(self.params.penalty_worsening)
+                # Neutral (==) and worsening (<) are both penalised
+                self.utilities[llh_idx] = self._apply_punishment(self.utilities[llh_idx])
 
-            # Update utility with proper bounds (min_utility <= utility <= utility_upper_bound)
-            # Fix: min() clamps to upper bound, max() clamps to lower bound
-            self.utilities[llh_idx] = min(
-                self.params.utility_upper_bound, max(self.params.min_utility, self.utilities[llh_idx] + reward)
-            )
-
-            if accepted:
+            # (d) Move Acceptance — Great Deluge (maximisation)
+            #     Accept iff candidate meets or exceeds the current water level
+            if new_profit >= water_level:
                 current_routes = new_routes
                 current_profit = new_profit
 
@@ -144,9 +150,8 @@ class RLGDHHSolver:
                     best_routes = copy.deepcopy(current_routes)
                     best_profit = current_profit
 
-            # Update water level with pre-computed linear rise rate (Ozcan et al. 2010)
-            # This ensures the boundary increases linearly toward the target fitness
-            water_level += rise_rate
+            # (e) Update water level — linear decline toward quality_lb
+            water_level = max(quality_lb, water_level - decline_rate)
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
@@ -159,14 +164,43 @@ class RLGDHHSolver:
         best_cost = self._cost(best_routes)
         return best_routes, best_profit, best_cost
 
+    # ------------------------------------------------------------------
+    # RL Adaptation Helpers
+    # ------------------------------------------------------------------
+
     def _select_llh(self) -> int:
         """Selects LLH index using max-utility with ties broken randomly."""
         max_util = max(self.utilities)
         candidates = [i for i, u in enumerate(self.utilities) if u == max_util]
         return self.random.choice(candidates)
 
+    def _apply_reward(self, u: float) -> float:
+        """Additive reward: u ← min(UB, u + reward). (All RL variants share this.)"""
+        return min(self.params.utility_upper_bound, u + self.params.reward_improvement)
+
+    def _apply_punishment(self, u: float) -> float:
+        """
+        Applies punishment according to the selected RL variant.
+
+        RL1 (Section 3.2): u ← max(lb, u − penalty)   [subtractive]
+        RL2 (Section 3.2): u ← floor(u / 2)            [divisional]
+        RL3 (Section 3.2): u ← floor(sqrt(u))           [root]
+        """
+        variant = self.params.punishment_type
+        lb = self.params.min_utility
+        if variant == "RL2":
+            return max(lb, math.floor(u / 2))
+        if variant == "RL3":
+            return max(lb, math.floor(math.sqrt(max(0.0, u))))
+        # Default: RL1
+        return max(lb, u - self.params.penalty_worsening)
+
+    # ------------------------------------------------------------------
+    # Low-Level Heuristics (LLH Pool)
+    # ------------------------------------------------------------------
+
     def _llh_relocate(self, routes: List[List[int]]) -> List[List[int]]:
-        """Simple node relocation (1-0 exchange)."""
+        """H1: Single-node relocation (1-0 exchange) — ruin-and-recreate variant."""
         if not routes:
             return routes
         new_routes = copy.deepcopy(routes)
@@ -205,7 +239,7 @@ class RLGDHHSolver:
         return new_routes
 
     def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
-        """Shaw removal + regret-2 insertion."""
+        """H2: Shaw removal + regret-2 insertion."""
         n = max(1, min(len(self.nodes) // 4, 10))
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
@@ -236,7 +270,7 @@ class RLGDHHSolver:
             )
 
     def _llh_string(self, routes: List[List[int]]) -> List[List[int]]:
-        """String removal + greedy insertion."""
+        """H3: String removal + greedy insertion."""
         n = max(1, min(len(self.nodes) // 4, 10))
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
@@ -267,7 +301,7 @@ class RLGDHHSolver:
             )
 
     def _llh_regret2(self, routes: List[List[int]]) -> List[List[int]]:
-        """Random removal + regret-2 insertion."""
+        """H4: Random removal + regret-2 insertion."""
         n = max(1, min(len(self.nodes) // 5, 5))
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
@@ -303,7 +337,6 @@ class RLGDHHSolver:
     def _initialize_solution(self) -> List[List[int]]:
         """Randomized greedy construction of a starting feasible routing."""
         nodes = copy.copy(self.nodes)
-        self.random.shuffle(nodes)
         self.random.shuffle(nodes)
 
         try:
