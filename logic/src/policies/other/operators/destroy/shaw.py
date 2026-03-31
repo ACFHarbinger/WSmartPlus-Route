@@ -37,6 +37,7 @@ def shaw_removal(  # noqa: C901
     """
     Shaw Removal: Remove related customers based on multi-criteria similarity.
 
+    Efficiency: O(n) selection using np.partition instead of O(n log n) sorting.
     Implements Ropke & Pisinger (2005) relatedness measure:
         R(i,j) = φ * d(i,j) + χ * |T_i - T_j| + ψ * |q_i - q_j| + ω * vehicle_compatibility
 
@@ -130,14 +131,20 @@ def shaw_removal(  # noqa: C901
         if not relatedness_scores:
             break
 
-        # Sort by relatedness (lower = more related), then node ID for deterministic tie-breaking
-        relatedness_scores.sort(key=lambda x: (x[1], x[0]))
+        # Structured array for O(n) partitioning with deterministic tie-breaking (score, then node ID)
+        dtype = [("node", "i4"), ("score", "f4")]
+        arr = np.array(relatedness_scores, dtype=dtype)
 
         # Randomized selection using power law
         # y^p where y is uniform [0,1], p is randomization_factor
         y = rng.random()
         idx = int((y**randomization_factor) * len(relatedness_scores))
-        selected_node = relatedness_scores[min(idx, len(relatedness_scores) - 1)][0]
+        k = min(idx, len(relatedness_scores) - 1)
+
+        # O(n) selection of the k-th smallest element
+        # np.partition ensures elements at k are in their sorted position
+        partitioned = np.partition(arr, k, order=["score", "node"])
+        selected_node = int(partitioned[k]["node"])
         removed.append(selected_node)
 
     # Execution removals
@@ -169,6 +176,7 @@ def shaw_profit_removal(  # noqa: C901
     """
     Profit-based Shaw Removal (VRPP).
 
+    Efficiency: O(n) selection using np.partition instead of O(n log n) sorting.
     Implements profit-aware relatedness for VRPP problems:
         R(i,j) = φ * d(i,j)/d_max + ψ * |profit_i - profit_j|/profit_max
 
@@ -259,10 +267,17 @@ def shaw_profit_removal(  # noqa: C901
         if not relatedness_scores:
             break
 
-        relatedness_scores.sort(key=lambda x: (x[1], x[0]))
+        # Structured array for O(n) partitioning with deterministic tie-breaking (score, then node ID)
+        dtype = [("node", "i4"), ("score", "f4")]
+        arr = np.array(relatedness_scores, dtype=dtype)
+
         y = rng.random()
         idx = int((y**randomization_factor) * len(relatedness_scores))
-        selected_node = relatedness_scores[min(idx, len(relatedness_scores) - 1)][0]
+        k = min(idx, len(relatedness_scores) - 1)
+
+        # O(n) selection of the k-th smallest element
+        partitioned = np.partition(arr, k, order=["score", "node"])
+        selected_node = int(partitioned[k]["node"])
         removed.append(selected_node)
 
     # 4. Final removal

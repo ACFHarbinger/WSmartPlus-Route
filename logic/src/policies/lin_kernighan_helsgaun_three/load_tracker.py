@@ -50,6 +50,9 @@ import numpy as np
 from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
     is_any_depot,
 )
+from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
+    calculate_penalty,
+)
 
 
 class LoadState:
@@ -369,10 +372,6 @@ def calculate_penalty_delta_exact(
 
     Complexity: O(N) - use only for validation/testing.
     """
-    from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
-        calculate_penalty,
-    )
-
     p_old = calculate_penalty(old_tour, waste, capacity, n_original)
     p_new = calculate_penalty(new_tour, waste, capacity, n_original)
 
