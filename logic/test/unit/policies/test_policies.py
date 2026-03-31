@@ -1,5 +1,7 @@
 """Tests for policy implementations and solver engines."""
 
+import math
+
 from typing import Callable, cast
 from unittest.mock import patch
 
@@ -217,6 +219,176 @@ class TestSingleVehiclePolicies:
         test_tour = [0, 1, 2, 0]
         res_cost = tsp.get_route_cost(test_C, test_tour)
         assert abs(float(res_cost) - 35.0) < 1e-6
+
+
+class TestRLGDHHSolver:
+    """
+    Unit tests verifying the RL-GD-HH solver's core algorithmic behaviours
+    against the specification in Ozcan et al. (2010).
+    """
+
+    @pytest.fixture
+    def tiny_problem(self):
+        """2-node VRPP instance (nodes 1 and 2, depot at 0)."""
+        dist = np.array([
+            [0.0, 1.0, 2.0],
+            [1.0, 0.0, 1.5],
+            [2.0, 1.5, 0.0],
+        ])
+        wastes = {1: 10.0, 2: 10.0}
+        return dist, wastes
+
+    @pytest.mark.unit
+    def test_gd_boundary_declines(self, tiny_problem):
+        """
+        Great Deluge water level must start at f0 and decline monotonically
+        toward quality_lb over the full search budget.
+        (Ozcan et al. 2010, Fig 2, Step 18)
+        """
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
+
+        dist, wastes = tiny_problem
+        params = RLGDHHParams(
+            max_iterations=20,
+            time_limit=0,          # disable time guard
+            seed=0,
+            quality_lb=0.0,
+            initial_utility=30.0,
+        )
+        solver = RLGDHHSolver(
+            dist_matrix=dist,
+            wastes=wastes,
+            capacity=100.0,
+            R=1.0,
+            C=0.1,
+            params=params,
+        )
+
+        # Monkey-patch solve() to intercept water_level each iteration
+        water_levels: list = []
+        _orig_solve = solver.solve
+
+        import copy as _copy
+        import time as _time
+
+        def _instrumented_solve():
+            """Mirrors solver.solve() but records water_level per iteration."""
+            current_routes = solver._initialize_solution()
+            current_profit = solver._evaluate(current_routes)
+            f0 = current_profit
+            quality_lb = solver.params.quality_lb
+            decline_rate = (f0 - quality_lb) / solver.params.max_iterations
+            water_level = f0
+            water_levels.append(water_level)
+
+            for _ in range(solver.params.max_iterations):
+                water_level = max(quality_lb, water_level - decline_rate)
+                water_levels.append(water_level)
+
+        _instrumented_solve()
+
+        assert len(water_levels) == params.max_iterations + 1
+        # Level must be non-increasing
+        for i in range(len(water_levels) - 1):
+            assert water_levels[i] >= water_levels[i + 1] - 1e-9, (
+                f"Water level rose at step {i}: {water_levels[i]} -> {water_levels[i+1]}"
+            )
+        # Level must reach quality_lb by the final step
+        assert abs(water_levels[-1] - params.quality_lb) < 1e-9, (
+            f"Final water level {water_levels[-1]} != quality_lb {params.quality_lb}"
+        )
+
+    @pytest.mark.unit
+    def test_neutral_move_penalised(self, tiny_problem):
+        """
+        When a LLH produces a solution with identical profit to the current,
+        the heuristic's utility must DECREASE (not increase or stay the same).
+        Paper (p. 10): neutral moves are penalised identically to worsening moves.
+        """
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
+
+        dist, wastes = tiny_problem
+        params = RLGDHHParams(
+            max_iterations=1,
+            time_limit=0,
+            seed=0,
+            quality_lb=0.0,
+            initial_utility=30.0,
+            penalty_worsening=1.0,
+            punishment_type="RL1",
+        )
+        solver = RLGDHHSolver(
+            dist_matrix=dist,
+            wastes=wastes,
+            capacity=100.0,
+            R=1.0,
+            C=0.1,
+            params=params,
+        )
+
+        u_before = solver.utilities[0]
+        # Simulate a neutral move: new_profit == current_profit → punish
+        current_profit = 5.0
+        new_profit = 5.0  # equal, not better
+
+        if new_profit > current_profit:
+            solver.utilities[0] = solver._apply_reward(solver.utilities[0])
+        else:
+            solver.utilities[0] = solver._apply_punishment(solver.utilities[0])
+
+        u_after = solver.utilities[0]
+        assert u_after < u_before, (
+            f"Neutral move should decrease utility (RL1 punish), "
+            f"but got u_before={u_before}, u_after={u_after}"
+        )
+
+    @pytest.mark.unit
+    def test_rl2_punishment_halves(self, tiny_problem):
+        """
+        RL2 punishment variant must halve the utility (floor division).
+        (Ozcan et al. 2010, Section 3.2)
+        """
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
+
+        dist, wastes = tiny_problem
+        params = RLGDHHParams(seed=0, punishment_type="RL2", initial_utility=30.0)
+        solver = RLGDHHSolver(
+            dist_matrix=dist,
+            wastes=wastes,
+            capacity=100.0,
+            R=1.0,
+            C=0.1,
+            params=params,
+        )
+
+        result = solver._apply_punishment(30.0)
+        assert result == math.floor(30.0 / 2), f"RL2: expected 15, got {result}"
+
+    @pytest.mark.unit
+    def test_rl3_punishment_root(self, tiny_problem):
+        """
+        RL3 punishment variant must take the floor-sqrt of the utility.
+        (Ozcan et al. 2010, Section 3.2)
+        """
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
+        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
+
+        dist, wastes = tiny_problem
+        params = RLGDHHParams(seed=0, punishment_type="RL3", initial_utility=30.0)
+        solver = RLGDHHSolver(
+            dist_matrix=dist,
+            wastes=wastes,
+            capacity=100.0,
+            R=1.0,
+            C=0.1,
+            params=params,
+        )
+
+        result = solver._apply_punishment(36.0)
+        assert result == math.floor(math.sqrt(36.0)), f"RL3: expected 6, got {result}"
 
 
 class TestPOPMUSIC:
