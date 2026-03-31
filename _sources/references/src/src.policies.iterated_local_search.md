@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.iterated_local_search.policy_ils
-src.policies.iterated_local_search.params
 src.policies.iterated_local_search.solver
+src.policies.iterated_local_search.params
 ```
 
 ## Package Contents

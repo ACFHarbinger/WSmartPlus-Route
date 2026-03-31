@@ -84,6 +84,17 @@
 
 ````
 
+````{py:attribute} enable_fractional_capacity_cuts
+:canonical: src.configs.policies.bc.BCConfig.enable_fractional_capacity_cuts
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bc.BCConfig.enable_fractional_capacity_cuts
+```
+
+````
+
 ````{py:attribute} profit_aware_operators
 :canonical: src.configs.policies.bc.BCConfig.profit_aware_operators
 :type: bool

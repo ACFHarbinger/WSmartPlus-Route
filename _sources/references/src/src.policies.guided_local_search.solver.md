@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} _augmented_evaluate(routes: typing.List[typing.List[int]], weight: float) -> float
+````{py:method} _augmented_evaluate(routes: typing.List[typing.List[int]]) -> float
 :canonical: src.policies.guided_local_search.solver.GLSSolver._augmented_evaluate
 
 ```{autodoc2-docstring} src.policies.guided_local_search.solver.GLSSolver._augmented_evaluate
@@ -103,6 +103,14 @@
 :canonical: src.policies.guided_local_search.solver.GLSSolver._llh4
 
 ```{autodoc2-docstring} src.policies.guided_local_search.solver.GLSSolver._llh4
+```
+
+````
+
+````{py:method} _llh5(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
+:canonical: src.policies.guided_local_search.solver.GLSSolver._llh5
+
+```{autodoc2-docstring} src.policies.guided_local_search.solver.GLSSolver._llh5
 ```
 
 ````

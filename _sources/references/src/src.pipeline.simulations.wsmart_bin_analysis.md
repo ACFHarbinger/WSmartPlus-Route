@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline.simulations.wsmart_bin_analysis.Deliverables
 src.pipeline.simulations.wsmart_bin_analysis.test
+src.pipeline.simulations.wsmart_bin_analysis.Deliverables
 ```
 
 ## Submodules

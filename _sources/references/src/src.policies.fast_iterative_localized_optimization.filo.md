@@ -43,15 +43,7 @@
 
 ````
 
-````{py:method} _get_omega(current_routes: typing.List[typing.List[int]]) -> typing.List[int]
-:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._get_omega
-
-```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._get_omega
-```
-
-````
-
-````{py:method} _update_gamma(is_new_best: bool, accepted: bool, ruined: typing.List[int]) -> None
+````{py:method} _update_gamma(is_new_best: bool, improved: bool, ruined_and_recreated: typing.List[int]) -> None
 :canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma
@@ -59,10 +51,42 @@
 
 ````
 
-````{py:method} _update_omega(is_new_best: bool, accepted: bool, ruined: typing.List[int]) -> None
+````{py:method} _update_omega(current_cost: float, routes: typing.List[typing.List[int]], delta_profit: float, ruined_and_recreated: typing.List[int]) -> None
 :canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_omega
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_omega
+```
+
+````
+
+````{py:method} _update_svc(nodes: typing.List[int]) -> None
+:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_svc
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._update_svc
+```
+
+````
+
+````{py:method} _clarke_wright_initialization() -> typing.List[typing.List[int]]
+:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._clarke_wright_initialization
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._clarke_wright_initialization
+```
+
+````
+
+````{py:method} _find_best_insertion(working_routes: typing.List[typing.List[int]], customer: int) -> typing.Tuple[int, int]
+:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._find_best_insertion
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._find_best_insertion
+```
+
+````
+
+````{py:method} _route_minimization(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.fast_iterative_localized_optimization.filo.FILOSolver._route_minimization
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.filo.FILOSolver._route_minimization
 ```
 
 ````

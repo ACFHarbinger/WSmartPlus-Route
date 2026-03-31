@@ -31,9 +31,9 @@
 
 ````{py:attribute} pop_size
 :canonical: src.policies.differential_evolution.params.DEParams.pop_size
-:type: int
+:type: typing.Optional[int]
 :value: >
-   50
+   0
 
 ```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.pop_size
 ```
@@ -91,6 +91,17 @@
    100
 
 ```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.local_search_iterations
+```
+
+````
+
+````{py:attribute} evolution_strategy
+:canonical: src.policies.differential_evolution.params.DEParams.evolution_strategy
+:type: str
+:value: >
+   'lamarckian'
+
+```{autodoc2-docstring} src.policies.differential_evolution.params.DEParams.evolution_strategy
 ```
 
 ````

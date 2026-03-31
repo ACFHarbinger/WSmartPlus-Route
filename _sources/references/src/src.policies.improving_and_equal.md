@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.improving_and_equal.solver
 src.policies.improving_and_equal.params
 src.policies.improving_and_equal.policy_ie
-src.policies.improving_and_equal.solver
 ```
 
 ## Package Contents

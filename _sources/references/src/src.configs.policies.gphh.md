@@ -62,28 +62,6 @@
 
 ````
 
-````{py:attribute} eval_steps
-:canonical: src.configs.policies.gphh.GPHHConfig.eval_steps
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.eval_steps
-```
-
-````
-
-````{py:attribute} apply_steps
-:canonical: src.configs.policies.gphh.GPHHConfig.apply_steps
-:type: int
-:value: >
-   200
-
-```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.apply_steps
-```
-
-````
-
 ````{py:attribute} tree_depth
 :canonical: src.configs.policies.gphh.GPHHConfig.tree_depth
 :type: int
@@ -106,28 +84,6 @@
 
 ````
 
-````{py:attribute} n_llh
-:canonical: src.configs.policies.gphh.GPHHConfig.n_llh
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.n_llh
-```
-
-````
-
-````{py:attribute} n_removal
-:canonical: src.configs.policies.gphh.GPHHConfig.n_removal
-:type: int
-:value: >
-   2
-
-```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.n_removal
-```
-
-````
-
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.gphh.GPHHConfig.time_limit
 :type: float
@@ -135,6 +91,39 @@
    60.0
 
 ```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.time_limit
+```
+
+````
+
+````{py:attribute} parsimony_coefficient
+:canonical: src.configs.policies.gphh.GPHHConfig.parsimony_coefficient
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.parsimony_coefficient
+```
+
+````
+
+````{py:attribute} n_training_instances
+:canonical: src.configs.policies.gphh.GPHHConfig.n_training_instances
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.n_training_instances
+```
+
+````
+
+````{py:attribute} training_sample_ratio
+:canonical: src.configs.policies.gphh.GPHHConfig.training_sample_ratio
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.training_sample_ratio
 ```
 
 ````
@@ -157,17 +146,6 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.vrpp
-```
-
-````
-
-````{py:attribute} profit_aware_operators
-:canonical: src.configs.policies.gphh.GPHHConfig.profit_aware_operators
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.profit_aware_operators
 ```
 
 ````

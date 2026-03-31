@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.branch_and_cut.policy_bc
+src.policies.branch_and_cut.bc
 src.policies.branch_and_cut.heuristics
 src.policies.branch_and_cut.vrpp_model
-src.policies.branch_and_cut.policy_bc
 src.policies.branch_and_cut.separation
-src.policies.branch_and_cut.bc
 ```
 
 ## Package Contents
@@ -39,7 +39,7 @@ src.policies.branch_and_cut.bc
 ````{py:data} __all__
 :canonical: src.policies.branch_and_cut.__all__
 :value: >
-   ['VRPPModel', 'BranchAndCutSolver', 'PolicyBC']
+   ['VRPPModel', 'BranchAndCutSolver', 'BranchAndCutPolicy']
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.__all__
 ```

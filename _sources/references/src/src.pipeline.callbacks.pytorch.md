@@ -14,7 +14,7 @@
 :maxdepth: 1
 
 src.pipeline.callbacks.pytorch.training_display
-src.pipeline.callbacks.pytorch.model_summary
 src.pipeline.callbacks.pytorch.speed_monitor
+src.pipeline.callbacks.pytorch.model_summary
 src.pipeline.callbacks.pytorch.reptile
 ```

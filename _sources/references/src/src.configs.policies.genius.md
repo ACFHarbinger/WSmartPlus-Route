@@ -51,17 +51,6 @@
 
 ````
 
-````{py:attribute} us_cycles
-:canonical: src.configs.policies.genius.GENIUSConfig.us_cycles
-:type: int
-:value: >
-   10
-
-```{autodoc2-docstring} src.configs.policies.genius.GENIUSConfig.us_cycles
-```
-
-````
-
 ````{py:attribute} unstring_type
 :canonical: src.configs.policies.genius.GENIUSConfig.unstring_type
 :type: int
@@ -91,6 +80,17 @@
    1
 
 ```{autodoc2-docstring} src.configs.policies.genius.GENIUSConfig.n_iterations
+```
+
+````
+
+````{py:attribute} random_us_sampling
+:canonical: src.configs.policies.genius.GENIUSConfig.random_us_sampling
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.genius.GENIUSConfig.random_us_sampling
 ```
 
 ````

@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_check_route_capacity <src.policies.kernel_search.solver._check_route_capacity>`
+  - ```{autodoc2-docstring} src.policies.kernel_search.solver._check_route_capacity
+    :summary:
+    ```
 * - {py:obj}`_dfj_subtour_elimination_callback <src.policies.kernel_search.solver._dfj_subtour_elimination_callback>`
   - ```{autodoc2-docstring} src.policies.kernel_search.solver._dfj_subtour_elimination_callback
     :summary:
@@ -25,6 +29,14 @@
     ```
 * - {py:obj}`_set_mip_start <src.policies.kernel_search.solver._set_mip_start>`
   - ```{autodoc2-docstring} src.policies.kernel_search.solver._set_mip_start
+    :summary:
+    ```
+* - {py:obj}`_separate_fractional_subtours <src.policies.kernel_search.solver._separate_fractional_subtours>`
+  - ```{autodoc2-docstring} src.policies.kernel_search.solver._separate_fractional_subtours
+    :summary:
+    ```
+* - {py:obj}`_root_node_callback <src.policies.kernel_search.solver._root_node_callback>`
+  - ```{autodoc2-docstring} src.policies.kernel_search.solver._root_node_callback
     :summary:
     ```
 * - {py:obj}`_get_partitioned_vars <src.policies.kernel_search.solver._get_partitioned_vars>`
@@ -47,6 +59,13 @@
 
 ### API
 
+````{py:function} _check_route_capacity(model, G, x_vars, component)
+:canonical: src.policies.kernel_search.solver._check_route_capacity
+
+```{autodoc2-docstring} src.policies.kernel_search.solver._check_route_capacity
+```
+````
+
 ````{py:function} _dfj_subtour_elimination_callback(model, where)
 :canonical: src.policies.kernel_search.solver._dfj_subtour_elimination_callback
 
@@ -65,6 +84,20 @@
 :canonical: src.policies.kernel_search.solver._set_mip_start
 
 ```{autodoc2-docstring} src.policies.kernel_search.solver._set_mip_start
+```
+````
+
+````{py:function} _separate_fractional_subtours(model, x_vars, num_nodes)
+:canonical: src.policies.kernel_search.solver._separate_fractional_subtours
+
+```{autodoc2-docstring} src.policies.kernel_search.solver._separate_fractional_subtours
+```
+````
+
+````{py:function} _root_node_callback(model, where)
+:canonical: src.policies.kernel_search.solver._root_node_callback
+
+```{autodoc2-docstring} src.policies.kernel_search.solver._root_node_callback
 ```
 ````
 

@@ -73,6 +73,17 @@
 
 ````
 
+````{py:attribute} omega_alpha
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_alpha
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_alpha
+```
+
+````
+
 ````{py:attribute} shaking_lb_factor
 :canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.shaking_lb_factor
 :type: float
@@ -95,11 +106,44 @@
 
 ````
 
+````{py:attribute} shaking_lb_intensity
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.shaking_lb_intensity
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.shaking_lb_intensity
+```
+
+````
+
+````{py:attribute} shaking_ub_intensity
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.shaking_ub_intensity
+:type: float
+:value: >
+   1.5
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.shaking_ub_intensity
+```
+
+````
+
+````{py:attribute} omega_base_multiplier
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_base_multiplier
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_base_multiplier
+```
+
+````
+
 ````{py:attribute} delta_gamma
 :canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.delta_gamma
 :type: float
 :value: >
-   0.1
+   0.25
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.delta_gamma
 ```
@@ -117,13 +161,46 @@
 
 ````
 
-````{py:attribute} omega_base_multiplier
-:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_base_multiplier
+````{py:attribute} gamma_lambda
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.gamma_lambda
+:type: float
+:value: >
+   2.0
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.gamma_lambda
+```
+
+````
+
+````{py:attribute} svc_size
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.svc_size
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.svc_size
+```
+
+````
+
+````{py:attribute} n_cw
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.n_cw
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.n_cw
+```
+
+````
+
+````{py:attribute} route_min_sa_temp
+:canonical: src.policies.fast_iterative_localized_optimization.params.FILOParams.route_min_sa_temp
 :type: float
 :value: >
    1.0
 
-```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.omega_base_multiplier
+```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.params.FILOParams.route_min_sa_temp
 ```
 
 ````

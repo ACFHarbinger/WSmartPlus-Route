@@ -22,17 +22,17 @@ src.ui.pages.simulation
 :titlesonly:
 :maxdepth: 1
 
-src.ui.pages.training
-src.ui.pages.hpo_tracker
-src.ui.pages.experiment_tracker_zenml
-src.ui.pages.data_explorer_charts
-src.ui.pages.experiment_tracker_mlflow
 src.ui.pages.training_charts
+src.ui.pages.training
+src.ui.pages.benchmark
+src.ui.pages.hpo_tracker
 src.ui.pages.simulation_summary
-src.ui.pages.simulation_summary_sections
 src.ui.pages.data_explorer
 src.ui.pages.experiment_tracker
-src.ui.pages.benchmark
+src.ui.pages.data_explorer_charts
+src.ui.pages.experiment_tracker_mlflow
+src.ui.pages.simulation_summary_sections
+src.ui.pages.experiment_tracker_zenml
 ```
 
 ## Package Contents

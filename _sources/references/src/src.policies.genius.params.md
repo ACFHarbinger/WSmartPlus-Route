@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} us_cycles
-:canonical: src.policies.genius.params.GENIUSParams.us_cycles
-:type: int
-:value: >
-   10
-
-```{autodoc2-docstring} src.policies.genius.params.GENIUSParams.us_cycles
-```
-
-````
-
 ````{py:attribute} unstring_type
 :canonical: src.policies.genius.params.GENIUSParams.unstring_type
 :type: int
@@ -113,6 +102,17 @@
    60.0
 
 ```{autodoc2-docstring} src.policies.genius.params.GENIUSParams.time_limit
+```
+
+````
+
+````{py:attribute} random_us_sampling
+:canonical: src.policies.genius.params.GENIUSParams.random_us_sampling
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.genius.params.GENIUSParams.random_us_sampling
 ```
 
 ````

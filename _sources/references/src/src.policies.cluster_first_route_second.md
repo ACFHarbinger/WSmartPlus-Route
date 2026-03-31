@@ -13,8 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.cluster_first_route_second.policy_cf_rs
+src.policies.cluster_first_route_second.mip_assignment
 src.policies.cluster_first_route_second.solver
+src.policies.cluster_first_route_second.tsp_metaheuristics
+src.policies.cluster_first_route_second.policy_cf_rs
+src.policies.cluster_first_route_second.greedy_assignment
 ```
 
 ## Package Contents
@@ -36,7 +39,7 @@ src.policies.cluster_first_route_second.solver
 ````{py:data} __all__
 :canonical: src.policies.cluster_first_route_second.__all__
 :value: >
-   ['ClusterFirstRouteSecondPolicy', 'run_cf_rs']
+   ['ClusterFirstRouteSecondPolicy', 'run_cf_rs', 'assign_greedy', 'assign_exact_mip', 'find_route_pso'...
 
 ```{autodoc2-docstring} src.policies.cluster_first_route_second.__all__
 ```

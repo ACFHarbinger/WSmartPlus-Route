@@ -243,7 +243,7 @@
 
 ````
 
-````{py:method} _calculate_diversity(routes: typing.List[typing.List[int]]) -> typing.Union[typing.SupportsDunderLT[typing.Any], typing.SupportsDunderGT[typing.Any]]
+````{py:method} _calculate_diversity(routes: typing.List[typing.List[int]]) -> typing.Any
 :canonical: src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity

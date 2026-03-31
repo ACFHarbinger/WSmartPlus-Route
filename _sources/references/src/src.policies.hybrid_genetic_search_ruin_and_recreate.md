@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr
 src.policies.hybrid_genetic_search_ruin_and_recreate.params
+src.policies.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr
 src.policies.hybrid_genetic_search_ruin_and_recreate.ruin_recreate
 src.policies.hybrid_genetic_search_ruin_and_recreate.hgs_rr
 ```

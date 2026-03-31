@@ -59,4 +59,20 @@
 
 ````
 
+````{py:method} is_identical_to(other: src.policies.guided_indicators_hyper_heuristic.solution.Solution) -> bool
+:canonical: src.policies.guided_indicators_hyper_heuristic.solution.Solution.is_identical_to
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.solution.Solution.is_identical_to
+```
+
+````
+
+````{py:method} dominates(other: src.policies.guided_indicators_hyper_heuristic.solution.Solution) -> bool
+:canonical: src.policies.guided_indicators_hyper_heuristic.solution.Solution.dominates
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.solution.Solution.dominates
+```
+
+````
+
 `````

@@ -55,7 +55,7 @@
 :canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.start_temp
 :type: float
 :value: >
-   100.0
+   0.0
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.start_temp
 ```
@@ -88,7 +88,7 @@
 :canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.min_removal
 :type: int
 :value: >
-   1
+   4
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.min_removal
 ```
@@ -102,6 +102,105 @@
    0.3
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct
+```
+
+````
+
+````{py:attribute} segment_size
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.segment_size
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.segment_size
+```
+
+````
+
+````{py:attribute} noise_factor
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.noise_factor
+:type: float
+:value: >
+   0.025
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.noise_factor
+```
+
+````
+
+````{py:attribute} worst_removal_randomness
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.worst_removal_randomness
+:type: float
+:value: >
+   3.0
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.worst_removal_randomness
+```
+
+````
+
+````{py:attribute} shaw_randomization
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.shaw_randomization
+:type: float
+:value: >
+   6.0
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.shaw_randomization
+```
+
+````
+
+````{py:attribute} max_removal_cap
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_cap
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_cap
+```
+
+````
+
+````{py:attribute} regret_pool
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.regret_pool
+:type: str
+:value: >
+   'regret234'
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.regret_pool
+```
+
+````
+
+````{py:attribute} sigma_1
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.sigma_1
+:type: float
+:value: >
+   33.0
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.sigma_1
+```
+
+````
+
+````{py:attribute} sigma_2
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.sigma_2
+:type: float
+:value: >
+   9.0
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.sigma_2
+```
+
+````
+
+````{py:attribute} sigma_3
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.sigma_3
+:type: float
+:value: >
+   13.0
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.sigma_3
 ```
 
 ````

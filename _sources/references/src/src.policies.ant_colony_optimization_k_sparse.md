@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.ant_colony_optimization_k_sparse.solver
 src.policies.ant_colony_optimization_k_sparse.params
+src.policies.ant_colony_optimization_k_sparse.pheromones
 src.policies.ant_colony_optimization_k_sparse.construction
 src.policies.ant_colony_optimization_k_sparse.policy_ks_aco
-src.policies.ant_colony_optimization_k_sparse.pheromones
-src.policies.ant_colony_optimization_k_sparse.solver
 ```
 
 ## Package Contents

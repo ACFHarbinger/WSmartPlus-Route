@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.firefly_algorithm.params
 src.policies.firefly_algorithm.policy_fa
 src.policies.firefly_algorithm.solver
+src.policies.firefly_algorithm.params
 ```

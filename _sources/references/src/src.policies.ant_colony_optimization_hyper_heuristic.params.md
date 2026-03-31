@@ -128,17 +128,6 @@
 
 ````
 
-````{py:attribute} sequence_length
-:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.sequence_length
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.sequence_length
-```
-
-````
-
 ````{py:attribute} q0
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.q0
 :type: float
@@ -150,13 +139,13 @@
 
 ````
 
-````{py:attribute} Q
-:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q
+````{py:attribute} lambda_factor
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.lambda_factor
 :type: float
 :value: >
-   100.0
+   1.0001
 
-```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.lambda_factor
 ```
 
 ````

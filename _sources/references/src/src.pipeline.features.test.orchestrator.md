@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.features.test.orchestrator.parallel_runner
 src.pipeline.features.test.orchestrator.monitor
+src.pipeline.features.test.orchestrator.parallel_runner
 src.pipeline.features.test.orchestrator.results_handler
 ```
 

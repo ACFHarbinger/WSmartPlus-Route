@@ -35,6 +35,22 @@
   - ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_k_profit_insertion
     :summary:
     ```
+* - {py:obj}`regret_3_insertion <src.policies.other.operators.repair.regret.regret_3_insertion>`
+  - ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_3_insertion
+    :summary:
+    ```
+* - {py:obj}`regret_4_insertion <src.policies.other.operators.repair.regret.regret_4_insertion>`
+  - ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_4_insertion
+    :summary:
+    ```
+* - {py:obj}`regret_3_profit_insertion <src.policies.other.operators.repair.regret.regret_3_profit_insertion>`
+  - ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_3_profit_insertion
+    :summary:
+    ```
+* - {py:obj}`regret_4_profit_insertion <src.policies.other.operators.repair.regret.regret_4_profit_insertion>`
+  - ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_4_profit_insertion
+    :summary:
+    ```
 ````
 
 ### API
@@ -71,5 +87,33 @@
 :canonical: src.policies.other.operators.repair.regret.regret_k_profit_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_k_profit_insertion
+```
+````
+
+````{py:function} regret_3_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = True, noise: float = 0.0) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.repair.regret.regret_3_insertion
+
+```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_3_insertion
+```
+````
+
+````{py:function} regret_4_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = True, noise: float = 0.0) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.repair.regret.regret_4_insertion
+
+```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_4_insertion
+```
+````
+
+````{py:function} regret_3_profit_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = False, noise: float = 0.0) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.repair.regret.regret_3_profit_insertion
+
+```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_3_profit_insertion
+```
+````
+
+````{py:function} regret_4_profit_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, expand_pool: bool = False, noise: float = 0.0) -> typing.List[typing.List[int]]
+:canonical: src.policies.other.operators.repair.regret.regret_4_profit_insertion
+
+```{autodoc2-docstring} src.policies.other.operators.repair.regret.regret_4_profit_insertion
 ```
 ````

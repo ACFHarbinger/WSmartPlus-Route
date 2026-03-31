@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VRPPModel(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float = 1.0, cost_per_km: float = 1.0, mandatory_nodes: typing.Optional[typing.Set[int]] = None)
+`````{py:class} VRPPModel(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, num_vehicles: int = 1, revenue_per_kg: float = 1.0, cost_per_km: float = 1.0, mandatory_nodes: typing.Optional[typing.Set[int]] = None)
 :canonical: src.policies.branch_and_cut.vrpp_model.VRPPModel
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.vrpp_model.VRPPModel

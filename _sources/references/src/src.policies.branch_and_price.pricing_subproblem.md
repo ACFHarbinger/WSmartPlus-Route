@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem.__init__
 ```
 
-````{py:method} solve(dual_values: typing.Dict[int, float], max_routes: int = 10) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} solve(dual_values: typing.Dict[int, float], max_routes: int = 10, active_constraints: typing.Optional[typing.List[typing.Any]] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
 :canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem.solve
@@ -43,10 +43,35 @@
 
 ````
 
-````{py:method} _greedy_route_construction(start_node: int, dual_values: typing.Dict[int, float]) -> typing.Tuple[typing.List[int], float]
+````{py:method} _preprocess_constraints(constraints: typing.List[typing.Any]) -> typing.Tuple[typing.Set[typing.Tuple[int, int]], typing.Dict[int, int], typing.Dict[int, int], typing.Set[typing.Tuple[int, int]], typing.Set[typing.Tuple[int, int]]]
+:canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._preprocess_constraints
+
+```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._preprocess_constraints
+```
+
+````
+
+````{py:method} _evaluate_candidate_insertion(v: int, v_waste: float, route: typing.List[int], tail: int, dual_values: typing.Dict[int, float], forbidden_arcs: typing.Set[typing.Tuple[int, int]], req_predecessors: typing.Dict[int, int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]], visited: typing.Set[int]) -> typing.Tuple[typing.Optional[int], float]
+:canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._evaluate_candidate_insertion
+
+```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._evaluate_candidate_insertion
+```
+
+````
+
+````{py:method} _greedy_route_construction(start_node: int, dual_values: typing.Dict[int, float], forbidden_arcs: typing.Set[typing.Tuple[int, int]], req_successors: typing.Dict[int, int], req_predecessors: typing.Dict[int, int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]], rf_together_pairs: typing.Set[typing.Tuple[int, int]]) -> typing.Tuple[typing.List[int], float]
 :canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._greedy_route_construction
 
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._greedy_route_construction
+```
+
+````
+
+````{py:method} _violates_rf_separation(candidate: int, visited: typing.Set[int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]]) -> bool
+:canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._violates_rf_separation
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._violates_rf_separation
 ```
 
 ````

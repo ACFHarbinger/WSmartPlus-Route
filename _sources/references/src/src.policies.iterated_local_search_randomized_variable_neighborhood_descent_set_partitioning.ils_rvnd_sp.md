@@ -129,6 +129,14 @@
 
 ````
 
+````{py:method} _create_rvnd_operators() -> typing.List[typing.Callable]
+:canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._create_rvnd_operators
+
+```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._create_rvnd_operators
+```
+
+````
+
 ````{py:method} solve(initial_solution: typing.Optional[typing.List[typing.List[int]]] = None) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.solve
 

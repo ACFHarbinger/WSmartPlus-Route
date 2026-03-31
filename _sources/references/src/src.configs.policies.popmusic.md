@@ -85,11 +85,33 @@
 
 ````
 
-````{py:attribute} max_iterations
-:canonical: src.configs.policies.popmusic.POPMUSICConfig.max_iterations
+````{py:attribute} k_prox
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.k_prox
 :type: int
 :value: >
-   100
+   10
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.k_prox
+```
+
+````
+
+````{py:attribute} seed_strategy
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.seed_strategy
+:type: str
+:value: >
+   'lifo'
+
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.seed_strategy
+```
+
+````
+
+````{py:attribute} max_iterations
+:canonical: src.configs.policies.popmusic.POPMUSICConfig.max_iterations
+:type: typing.Optional[int]
+:value: >
+   None
 
 ```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.max_iterations
 ```

@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.policies.ant_colony_optimization_hyper_heuristic.params
-src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators
 src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco
 src.policies.ant_colony_optimization_hyper_heuristic.policy_hh_aco
+src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators
 ```
 
 ## Package Contents

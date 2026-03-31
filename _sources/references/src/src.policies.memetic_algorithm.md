@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.memetic_algorithm.solver
 src.policies.memetic_algorithm.params
 src.policies.memetic_algorithm.policy_ma
-src.policies.memetic_algorithm.solver
 ```
 
 ## Package Contents

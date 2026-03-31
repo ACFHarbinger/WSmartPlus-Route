@@ -14,8 +14,9 @@
 :maxdepth: 1
 
 src.policies.differential_evolution.policy_de
-src.policies.differential_evolution.params
 src.policies.differential_evolution.solver
+src.policies.differential_evolution.params
+src.policies.differential_evolution.evolution_strategy
 ```
 
 ## Package Contents

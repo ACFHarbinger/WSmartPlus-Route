@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.branch_and_price.pricing_subproblem
-src.policies.branch_and_price.ryan_foster_branching
-src.policies.branch_and_price.rcspp_dp
 src.policies.branch_and_price.master_problem
-src.policies.branch_and_price.policy_bp
+src.policies.branch_and_price.rcspp_dp
+src.policies.branch_and_price.branching
+src.policies.branch_and_price.pricing_subproblem
 src.policies.branch_and_price.bp
+src.policies.branch_and_price.policy_bp
 ```
 
 ## Package Contents
@@ -40,7 +40,7 @@ src.policies.branch_and_price.bp
 ````{py:data} __all__
 :canonical: src.policies.branch_and_price.__all__
 :value: >
-   ['VRPPMasterProblem', 'PricingSubproblem', 'RCSPPSolver', 'BranchAndPriceSolver', 'PolicyBP', 'run_b...
+   ['VRPPMasterProblem', 'PricingSubproblem', 'RCSPPSolver', 'BranchAndPriceSolver', 'BranchAndPricePol...
 
 ```{autodoc2-docstring} src.policies.branch_and_price.__all__
 ```

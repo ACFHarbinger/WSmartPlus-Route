@@ -84,13 +84,13 @@
 
 ````
 
-````{py:attribute} q0
-:canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0
+````{py:attribute} scale
+:canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.scale
 :type: float
 :value: >
-   0.9
+   5.0
 
-```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0
+```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.scale
 ```
 
 ````

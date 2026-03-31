@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None)
+`````{py:class} LocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None, penalty_capacity: float = 1.0)
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch
 
 Bases: {py:obj}`abc.ABC`
@@ -46,7 +46,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _optimize_internal()
+````{py:method} _optimize_internal(target_neighborhood: typing.Optional[str] = None, active_nodes: typing.Optional[typing.Set[int]] = None)
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._optimize_internal
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._optimize_internal
@@ -62,10 +62,59 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _process_node(u: int) -> bool
-:canonical: src.policies.other.local_search.local_search_base.LocalSearch._process_node
+````{py:method} _compute_top_insertions(route_idx: typing.Optional[int] = None)
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._compute_top_insertions
 
-```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._process_node
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._compute_top_insertions
+```
+
+````
+
+````{py:method} _should_try_operator(op_name: str) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._should_try_operator
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._should_try_operator
+```
+
+````
+
+````{py:method} _polar_sector(route_idx: int) -> typing.Optional[typing.Tuple[float, float]]
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._polar_sector
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._polar_sector
+```
+
+````
+
+````{py:method} _sectors_overlap(s1: typing.Optional[typing.Tuple[float, float]], s2: typing.Optional[typing.Tuple[float, float]]) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._sectors_overlap
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._sectors_overlap
+```
+
+````
+
+````{py:method} _process_pair(u: int, v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._process_pair
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._process_pair
+```
+
+````
+
+````{py:method} _process_inter_route(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._process_inter_route
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._process_inter_route
+```
+
+````
+
+````{py:method} _process_intra_route(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._process_intra_route
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._process_intra_route
 ```
 
 ````
@@ -142,6 +191,38 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
+````{py:method} _move_cross(u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_cross
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_cross
+```
+
+````
+
+````{py:method} _move_shift_2_0(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_shift_2_0
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_shift_2_0
+```
+
+````
+
+````{py:method} _move_swap_2_1(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_swap_2_1
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_swap_2_1
+```
+
+````
+
+````{py:method} _move_swap_2_2(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_swap_2_2
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_swap_2_2
+```
+
+````
+
 ````{py:method} _try_cross_exchange(r_u: int, p_u: int, r_v: int, p_v: int) -> bool
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._try_cross_exchange
 
@@ -202,6 +283,14 @@ Bases: {py:obj}`abc.ABC`
 :canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_three_permutation
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_three_permutation
+```
+
+````
+
+````{py:method} _move_unrouted_insert(node: int, route_idx: int, _hint_pos: int) -> bool
+:canonical: src.policies.other.local_search.local_search_base.LocalSearch._move_unrouted_insert
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_base.LocalSearch._move_unrouted_insert
 ```
 
 ````

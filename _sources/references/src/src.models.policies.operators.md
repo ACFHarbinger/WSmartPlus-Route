@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.policies.operators.move
-src.models.policies.operators.repair
-src.models.policies.operators.route
-src.models.policies.operators.destroy
-src.models.policies.operators.exchange
 src.models.policies.operators.unstringing
+src.models.policies.operators.destroy
+src.models.policies.operators.route
+src.models.policies.operators.exchange
+src.models.policies.operators.repair
+src.models.policies.operators.move
 ```
 
 ## Package Contents

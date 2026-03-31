@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.threshold_accepting.params
 src.policies.threshold_accepting.policy_ta
 src.policies.threshold_accepting.solver
+src.policies.threshold_accepting.params
 ```
 
 ## Package Contents

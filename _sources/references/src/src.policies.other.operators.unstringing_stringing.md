@@ -13,14 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.operators.unstringing_stringing.unstringing_wrapper
-src.policies.other.operators.unstringing_stringing.stringing_iii
-src.policies.other.operators.unstringing_stringing.stringing_ii
 src.policies.other.operators.unstringing_stringing.unstringing_iii
-src.policies.other.operators.unstringing_stringing.unstringing_i
-src.policies.other.operators.unstringing_stringing.unstringing_iv
+src.policies.other.operators.unstringing_stringing.stringing_ii
+src.policies.other.operators.unstringing_stringing.stringing_iii
 src.policies.other.operators.unstringing_stringing.unstringing_ii
+src.policies.other.operators.unstringing_stringing.unstringing_i
+src.policies.other.operators.unstringing_stringing.routes
+src.policies.other.operators.unstringing_stringing.unstringing_iv
 src.policies.other.operators.unstringing_stringing.stringing_iv
+src.policies.other.operators.unstringing_stringing.unstringing_wrapper
 src.policies.other.operators.unstringing_stringing.stringing_i
 src.policies.other.operators.unstringing_stringing.stringing_wrapper
 ```

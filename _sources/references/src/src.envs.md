@@ -14,8 +14,8 @@
 :maxdepth: 3
 
 src.envs.generators
-src.envs.tasks
 src.envs.base
+src.envs.tasks
 ```
 
 ## Submodules
@@ -24,15 +24,15 @@ src.envs.base
 :titlesonly:
 :maxdepth: 1
 
-src.envs.tsp
-src.envs.cwcvrp
+src.envs.wcvrp
+src.envs.cvrpp
+src.envs.tsp_kopt
 src.envs.dr_alns
+src.envs.tsp
 src.envs.problems
 src.envs.swcvrp
-src.envs.tsp_kopt
-src.envs.wcvrp
 src.envs.vrpp
-src.envs.cvrpp
+src.envs.cwcvrp
 ```
 
 ## Package Contents

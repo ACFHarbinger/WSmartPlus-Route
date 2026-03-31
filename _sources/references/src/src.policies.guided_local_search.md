@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.guided_local_search.policy_gls
-src.policies.guided_local_search.params
 src.policies.guided_local_search.solver
+src.policies.guided_local_search.params
+src.policies.guided_local_search.policy_gls
 ```
 
 ## Package Contents

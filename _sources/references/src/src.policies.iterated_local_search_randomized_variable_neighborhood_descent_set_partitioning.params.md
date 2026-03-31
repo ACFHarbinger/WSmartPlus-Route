@@ -33,7 +33,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_restarts
 :type: int
 :value: >
-   None
+   10
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_restarts
 ```
@@ -44,7 +44,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_iter_ils
 :type: int
 :value: >
-   None
+   100
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_iter_ils
 ```
@@ -55,7 +55,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.perturbation_strength
 :type: int
 :value: >
-   None
+   2
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.perturbation_strength
 ```
@@ -66,7 +66,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.use_set_partitioning
 :type: bool
 :value: >
-   None
+   True
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.use_set_partitioning
 ```
@@ -77,7 +77,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.mip_time_limit
 :type: float
 :value: >
-   None
+   60.0
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.mip_time_limit
 ```
@@ -88,7 +88,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.sp_mip_gap
 :type: float
 :value: >
-   None
+   0.01
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.sp_mip_gap
 ```
@@ -99,7 +99,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.N
 :type: int
 :value: >
-   None
+   150
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.N
 ```
@@ -110,7 +110,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.A
 :type: float
 :value: >
-   None
+   11.0
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.A
 ```
@@ -121,7 +121,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.MaxIter_a
 :type: int
 :value: >
-   None
+   50
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.MaxIter_a
 ```
@@ -132,7 +132,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.MaxIter_b
 :type: int
 :value: >
-   None
+   100
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.MaxIter_b
 ```
@@ -143,7 +143,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.MaxIterILS_b
 :type: int
 :value: >
-   None
+   2000
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.MaxIterILS_b
 ```
@@ -154,7 +154,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.TDev_a
 :type: float
 :value: >
-   None
+   0.05
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.TDev_a
 ```
@@ -165,9 +165,20 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.TDev_b
 :type: float
 :value: >
-   None
+   0.005
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.TDev_b
+```
+
+````
+
+````{py:attribute} max_vehicles
+:canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_vehicles
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_vehicles
 ```
 
 ````
@@ -176,7 +187,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.time_limit
 :type: float
 :value: >
-   None
+   300.0
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.time_limit
 ```
@@ -187,7 +198,7 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.seed
 :type: typing.Optional[int]
 :value: >
-   None
+   42
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.seed
 ```

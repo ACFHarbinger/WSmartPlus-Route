@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.memetic_algorithm_dual_population.policy_ma_dp
-src.policies.memetic_algorithm_dual_population.params
 src.policies.memetic_algorithm_dual_population.solver
+src.policies.memetic_algorithm_dual_population.params
 ```
 
 ## Package Contents

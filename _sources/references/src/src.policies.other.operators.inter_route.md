@@ -13,11 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.other.operators.inter_route.exchange_chain
 src.policies.other.operators.inter_route.k_opt_star
+src.policies.other.operators.inter_route.cross_exchange
 src.policies.other.operators.inter_route.ejection_chain
 src.policies.other.operators.inter_route.cyclic_transfer
-src.policies.other.operators.inter_route.exchange_chain
-src.policies.other.operators.inter_route.cross_exchange
+src.policies.other.operators.inter_route.subramanian_neighborhoods
 src.policies.other.operators.inter_route.swap_star
 ```
 

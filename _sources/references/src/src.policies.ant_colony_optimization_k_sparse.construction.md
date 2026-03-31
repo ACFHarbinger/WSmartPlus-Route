@@ -75,12 +75,4 @@
 
 ````
 
-````{py:method} _local_pheromone_update(i: int, j: int) -> None
-:canonical: src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor._local_pheromone_update
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.construction.SolutionConstructor._local_pheromone_update
-```
-
-````
-
 `````

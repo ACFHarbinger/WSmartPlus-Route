@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.other.operators.perturbation.perturb
 src.policies.other.operators.perturbation.evolutionary
 src.policies.other.operators.perturbation.double_bridge
 src.policies.other.operators.perturbation.kick
-src.policies.other.operators.perturbation.perturb
 src.policies.other.operators.perturbation.genetic_transformation
 ```
 

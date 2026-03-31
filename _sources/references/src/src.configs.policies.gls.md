@@ -62,13 +62,13 @@
 
 ````
 
-````{py:attribute} max_restarts
-:canonical: src.configs.policies.gls.GLSConfig.max_restarts
+````{py:attribute} penalty_cycles
+:canonical: src.configs.policies.gls.GLSConfig.penalty_cycles
 :type: int
 :value: >
-   50
+   1000
 
-```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.max_restarts
+```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.penalty_cycles
 ```
 
 ````
@@ -88,7 +88,7 @@
 :canonical: src.configs.policies.gls.GLSConfig.n_llh
 :type: int
 :value: >
-   5
+   6
 
 ```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.n_llh
 ```
@@ -99,9 +99,20 @@
 :canonical: src.configs.policies.gls.GLSConfig.inner_iterations
 :type: int
 :value: >
-   20
+   100
 
 ```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.inner_iterations
+```
+
+````
+
+````{py:attribute} fls_coupling_prob
+:canonical: src.configs.policies.gls.GLSConfig.fls_coupling_prob
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.fls_coupling_prob
 ```
 
 ````

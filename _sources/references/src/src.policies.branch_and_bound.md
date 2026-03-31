@@ -13,10 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.branch_and_bound.bb
-src.policies.branch_and_bound.node
-src.policies.branch_and_bound.bb_simple
 src.policies.branch_and_bound.policy_bb
+src.policies.branch_and_bound.dfj
+src.policies.branch_and_bound.node
+src.policies.branch_and_bound.mtz
+src.policies.branch_and_bound.dispatcher
 ```
 
 ## Package Contents
@@ -38,7 +39,7 @@ src.policies.branch_and_bound.policy_bb
 ````{py:data} __all__
 :canonical: src.policies.branch_and_bound.__all__
 :value: >
-   ['BranchAndBoundPolicy', 'run_bb']
+   ['BranchAndBoundPolicy', 'run_bb_optimizer', 'run_bb_mtz', 'run_bb_dfj']
 
 ```{autodoc2-docstring} src.policies.branch_and_bound.__all__
 ```

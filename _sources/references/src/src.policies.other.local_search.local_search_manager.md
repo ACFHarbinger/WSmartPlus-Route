@@ -227,6 +227,22 @@
 
 ````
 
+````{py:method} lns() -> bool
+:canonical: src.policies.other.local_search.local_search_manager.LocalSearchManager.lns
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_manager.LocalSearchManager.lns
+```
+
+````
+
+````{py:method} ges() -> bool
+:canonical: src.policies.other.local_search.local_search_manager.LocalSearchManager.ges
+
+```{autodoc2-docstring} src.policies.other.local_search.local_search_manager.LocalSearchManager.ges
+```
+
+````
+
 ````{py:method} lkh_refinement() -> bool
 :canonical: src.policies.other.local_search.local_search_manager.LocalSearchManager.lkh_refinement
 

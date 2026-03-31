@@ -117,13 +117,24 @@
 
 ````
 
-````{py:attribute} bucket_growth_factor
-:canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.bucket_growth_factor
+````{py:attribute} t_easy
+:canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.t_easy
 :type: float
 :value: >
-   1.2
+   10.0
 
-```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.bucket_growth_factor
+```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.t_easy
+```
+
+````
+
+````{py:attribute} epsilon
+:canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.epsilon
+:type: float
+:value: >
+   0.1
+
+```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.epsilon
 ```
 
 ````

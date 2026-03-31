@@ -73,13 +73,13 @@
 
 ````
 
-````{py:attribute} n_generations
-:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_generations
+````{py:attribute} n_iterations_no_improvement
+:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_iterations_no_improvement
 :type: int
 :value: >
-   100
+   20000
 
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_generations
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_iterations_no_improvement
 ```
 
 ````

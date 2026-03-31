@@ -35,6 +35,22 @@
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.__init__
 ```
 
+````{py:method} get_visited_nodes() -> set
+:canonical: src.policies.hybrid_genetic_search.individual.Individual.get_visited_nodes
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.get_visited_nodes
+```
+
+````
+
+````{py:method} get_unvisited_nodes() -> typing.List[int]
+:canonical: src.policies.hybrid_genetic_search.individual.Individual.get_unvisited_nodes
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.get_unvisited_nodes
+```
+
+````
+
 ````{py:method} __lt__(other: src.policies.hybrid_genetic_search.individual.Individual) -> bool
 :canonical: src.policies.hybrid_genetic_search.individual.Individual.__lt__
 

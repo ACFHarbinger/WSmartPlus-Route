@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.particle_swarm_optimization_distance_based_algorithm.solver
 src.policies.particle_swarm_optimization_distance_based_algorithm.params
 src.policies.particle_swarm_optimization_distance_based_algorithm.policy_psoda
-src.policies.particle_swarm_optimization_distance_based_algorithm.solver
 ```
 
 ## Package Contents

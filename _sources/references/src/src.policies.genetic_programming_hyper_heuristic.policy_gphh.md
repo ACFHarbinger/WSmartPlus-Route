@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_make_synthetic_training_envs <src.policies.genetic_programming_hyper_heuristic.policy_gphh._make_synthetic_training_envs>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.policy_gphh._make_synthetic_training_envs
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} _make_synthetic_training_envs(n_nodes: int, n_envs: int, capacity: float, R: float, C: float, rng: numpy.random.Generator) -> typing.List[typing.Tuple[numpy.ndarray, typing.Dict[int, float], typing.List[int]]]
+:canonical: src.policies.genetic_programming_hyper_heuristic.policy_gphh._make_synthetic_training_envs
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.policy_gphh._make_synthetic_training_envs
+```
+````
 
 `````{py:class} GPHHPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.gphh.GPHHConfig, typing.Dict[str, typing.Any]]] = None)
 :canonical: src.policies.genetic_programming_hyper_heuristic.policy_gphh.GPHHPolicy

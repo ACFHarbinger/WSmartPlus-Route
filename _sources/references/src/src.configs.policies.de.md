@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} evolution_strategy
+:canonical: src.configs.policies.de.DEConfig.evolution_strategy
+:type: str
+:value: >
+   'lamarckian'
+
+```{autodoc2-docstring} src.configs.policies.de.DEConfig.evolution_strategy
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.de.DEConfig.time_limit
 :type: float

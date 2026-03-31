@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} RVND(ls_manager: logic.src.policies.other.local_search.local_search_aco.ACOLocalSearch, rng: numpy.random.Generator)
+`````{py:class} RVND(operators: typing.List[typing.Callable], rng: random.Random)
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND
@@ -39,6 +39,14 @@
 :canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND.apply
 
 ```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND.apply
+```
+
+````
+
+````{py:method} apply_with_stats(routes: typing.List[typing.List[int]]) -> tuple[typing.List[typing.List[int]], dict]
+:canonical: src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND.apply_with_stats
+
+```{autodoc2-docstring} src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND.apply_with_stats
 ```
 
 ````

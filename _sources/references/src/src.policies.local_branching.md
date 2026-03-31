@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.local_branching.lb
 src.policies.local_branching.policy_lb
+src.policies.local_branching.lb
 ```
 
 ## Package Contents

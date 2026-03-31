@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, *args)
+````{py:function} run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, x_coords=None, y_coords=None, *args)
 :canonical: src.policies.hybrid_genetic_search.dispatcher.run_hgs
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.dispatcher.run_hgs

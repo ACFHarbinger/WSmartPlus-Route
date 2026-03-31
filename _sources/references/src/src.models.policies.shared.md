@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.shared.limited
-src.models.policies.shared.reconstruction
 src.models.policies.shared.linear
+src.models.policies.shared.reconstruction
+src.models.policies.shared.limited
 ```
 
 ## Package Contents

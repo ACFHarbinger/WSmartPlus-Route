@@ -97,11 +97,55 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} shaking_lb_intensity
+:canonical: src.configs.policies.filo.FILOConfig.shaking_lb_intensity
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.shaking_lb_intensity
+```
+
+````
+
+````{py:attribute} shaking_ub_intensity
+:canonical: src.configs.policies.filo.FILOConfig.shaking_ub_intensity
+:type: float
+:value: >
+   1.5
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.shaking_ub_intensity
+```
+
+````
+
+````{py:attribute} omega_alpha
+:canonical: src.configs.policies.filo.FILOConfig.omega_alpha
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.omega_alpha
+```
+
+````
+
+````{py:attribute} omega_base_multiplier
+:canonical: src.configs.policies.filo.FILOConfig.omega_base_multiplier
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.omega_base_multiplier
+```
+
+````
+
 ````{py:attribute} delta_gamma
 :canonical: src.configs.policies.filo.FILOConfig.delta_gamma
 :type: float
 :value: >
-   0.1
+   0.25
 
 ```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.delta_gamma
 ```
@@ -119,24 +163,35 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
-````{py:attribute} omega_base_multiplier
-:canonical: src.configs.policies.filo.FILOConfig.omega_base_multiplier
+````{py:attribute} gamma_lambda
+:canonical: src.configs.policies.filo.FILOConfig.gamma_lambda
 :type: float
 :value: >
-   1.0
+   2.0
 
-```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.omega_base_multiplier
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.gamma_lambda
 ```
 
 ````
 
-````{py:attribute} seed
-:canonical: src.configs.policies.filo.FILOConfig.seed
+````{py:attribute} svc_size
+:canonical: src.configs.policies.filo.FILOConfig.svc_size
 :type: int
 :value: >
-   42
+   50
 
-```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.seed
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.svc_size
+```
+
+````
+
+````{py:attribute} n_cw
+:canonical: src.configs.policies.filo.FILOConfig.n_cw
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.n_cw
 ```
 
 ````
@@ -152,6 +207,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.filo.FILOConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.seed
+```
+
+````
+
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.filo.FILOConfig.vrpp
 :type: bool
@@ -159,6 +225,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
    True
 
 ```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.vrpp
+```
+
+````
+
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.filo.FILOConfig.profit_aware_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.filo.FILOConfig.profit_aware_operators
 ```
 
 ````

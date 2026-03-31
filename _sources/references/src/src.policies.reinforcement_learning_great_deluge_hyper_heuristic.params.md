@@ -73,17 +73,6 @@
 
 ````
 
-````{py:attribute} reward_neutral
-:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_neutral
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_neutral
-```
-
-````
-
 ````{py:attribute} penalty_worsening
 :canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.penalty_worsening
 :type: float
@@ -91,6 +80,17 @@
    1.0
 
 ```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.penalty_worsening
+```
+
+````
+
+````{py:attribute} punishment_type
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.punishment_type
+:type: str
+:value: >
+   'RL1'
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.punishment_type
 ```
 
 ````
@@ -117,13 +117,24 @@
 
 ````
 
-````{py:attribute} target_fitness_multiplier
-:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.target_fitness_multiplier
+````{py:attribute} initial_utility
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.initial_utility
 :type: float
 :value: >
-   1.2
+   30.0
 
-```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.target_fitness_multiplier
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.initial_utility
+```
+
+````
+
+````{py:attribute} quality_lb
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.quality_lb
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.quality_lb
 ```
 
 ````

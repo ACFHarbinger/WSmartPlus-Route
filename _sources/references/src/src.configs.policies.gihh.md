@@ -84,178 +84,68 @@
 
 ````
 
-````{py:attribute} move_operators
-:canonical: src.configs.policies.gihh.GIHHConfig.move_operators
-:type: typing.List[str]
+````{py:attribute} seg
+:canonical: src.configs.policies.gihh.GIHHConfig.seg
+:type: int
 :value: >
-   'field(...)'
+   80
 
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.move_operators
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.seg
 ```
 
 ````
 
-````{py:attribute} perturbation_operators
-:canonical: src.configs.policies.gihh.GIHHConfig.perturbation_operators
-:type: typing.List[str]
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.perturbation_operators
-```
-
-````
-
-````{py:attribute} iri_weight
-:canonical: src.configs.policies.gihh.GIHHConfig.iri_weight
+````{py:attribute} alpha
+:canonical: src.configs.policies.gihh.GIHHConfig.alpha
 :type: float
 :value: >
-   0.6
+   0.5
 
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.iri_weight
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.alpha
 ```
 
 ````
 
-````{py:attribute} tbi_weight
-:canonical: src.configs.policies.gihh.GIHHConfig.tbi_weight
+````{py:attribute} beta
+:canonical: src.configs.policies.gihh.GIHHConfig.beta
 :type: float
 :value: >
    0.4
 
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.tbi_weight
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.beta
 ```
 
 ````
 
-````{py:attribute} learning_rate
-:canonical: src.configs.policies.gihh.GIHHConfig.learning_rate
+````{py:attribute} gamma
+:canonical: src.configs.policies.gihh.GIHHConfig.gamma
 :type: float
 :value: >
    0.1
 
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.learning_rate
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.gamma
 ```
 
 ````
 
-````{py:attribute} memory_size
-:canonical: src.configs.policies.gihh.GIHHConfig.memory_size
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.memory_size
-```
-
-````
-
-````{py:attribute} epsilon
-:canonical: src.configs.policies.gihh.GIHHConfig.epsilon
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.epsilon
-```
-
-````
-
-````{py:attribute} epsilon_decay
-:canonical: src.configs.policies.gihh.GIHHConfig.epsilon_decay
-:type: float
-:value: >
-   0.995
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.epsilon_decay
-```
-
-````
-
-````{py:attribute} min_epsilon
-:canonical: src.configs.policies.gihh.GIHHConfig.min_epsilon
-:type: float
-:value: >
-   0.01
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.min_epsilon
-```
-
-````
-
-````{py:attribute} accept_equal
-:canonical: src.configs.policies.gihh.GIHHConfig.accept_equal
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.accept_equal
-```
-
-````
-
-````{py:attribute} accept_worse_prob
-:canonical: src.configs.policies.gihh.GIHHConfig.accept_worse_prob
+````{py:attribute} min_prob
+:canonical: src.configs.policies.gihh.GIHHConfig.min_prob
 :type: float
 :value: >
    0.05
 
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.accept_worse_prob
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.min_prob
 ```
 
 ````
 
-````{py:attribute} acceptance_decay
-:canonical: src.configs.policies.gihh.GIHHConfig.acceptance_decay
-:type: float
-:value: >
-   0.99
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.acceptance_decay
-```
-
-````
-
-````{py:attribute} iri_window
-:canonical: src.configs.policies.gihh.GIHHConfig.iri_window
+````{py:attribute} nonimp_threshold
+:canonical: src.configs.policies.gihh.GIHHConfig.nonimp_threshold
 :type: int
 :value: >
-   20
+   150
 
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.iri_window
-```
-
-````
-
-````{py:attribute} tbi_window
-:canonical: src.configs.policies.gihh.GIHHConfig.tbi_window
-:type: int
-:value: >
-   20
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.tbi_window
-```
-
-````
-
-````{py:attribute} restarts
-:canonical: src.configs.policies.gihh.GIHHConfig.restarts
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.restarts
-```
-
-````
-
-````{py:attribute} restart_threshold
-:canonical: src.configs.policies.gihh.GIHHConfig.restart_threshold
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.restart_threshold
+```{autodoc2-docstring} src.configs.policies.gihh.GIHHConfig.nonimp_threshold
 ```
 
 ````

@@ -15,72 +15,88 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`ImprovementRateIndicator <src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator>`
-  - ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator
+* - {py:obj}`ScoreAIndicator <src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator>`
+  - ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator
     :summary:
     ```
-* - {py:obj}`TimeBasedIndicator <src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator>`
-  - ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator
+* - {py:obj}`ScoreBIndicator <src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator>`
+  - ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} ImprovementRateIndicator(window_size: int = 20)
-:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator
+`````{py:class} ScoreAIndicator()
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator.__init__
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.__init__
 ```
 
-````{py:method} update(operator: str, improvement: float) -> None
-:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator.update
+````{py:method} update(operator: str, accepted: bool) -> None
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.update
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator.update
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.update
 ```
 
 ````
 
-````{py:method} get_score(operator: str, operator_improvements: typing.Deque[float]) -> float
-:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator.get_score
+````{py:method} get_score(operator: str) -> float
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.get_score
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ImprovementRateIndicator.get_score
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.get_score
+```
+
+````
+
+````{py:method} reset(operator: str) -> None
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.reset
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.reset
 ```
 
 ````
 
 `````
 
-`````{py:class} TimeBasedIndicator(window_size: int = 20)
-:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator
+`````{py:class} ScoreBIndicator()
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator.__init__
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.__init__
 ```
 
-````{py:method} update(operator: str, elapsed_time: float) -> None
-:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator.update
+````{py:method} update(operator: str, revenue_improved: bool, cost_improved: bool) -> None
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.update
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator.update
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.update
 ```
 
 ````
 
-````{py:method} get_score(operator: str, operator_times: typing.Deque[float]) -> float
-:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator.get_score
+````{py:method} get_score(operator: str) -> float
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.get_score
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.TimeBasedIndicator.get_score
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.get_score
+```
+
+````
+
+````{py:method} reset(operator: str) -> None
+:canonical: src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.reset
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.reset
 ```
 
 ````

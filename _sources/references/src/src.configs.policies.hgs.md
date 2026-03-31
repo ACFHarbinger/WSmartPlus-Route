@@ -161,17 +161,6 @@
 
 ````
 
-````{py:attribute} alpha_diversity
-:canonical: src.configs.policies.hgs.HGSConfig.alpha_diversity
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.alpha_diversity
-```
-
-````
-
 ````{py:attribute} min_diversity
 :canonical: src.configs.policies.hgs.HGSConfig.min_diversity
 :type: float
@@ -212,6 +201,61 @@
    0
 
 ```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.max_vehicles
+```
+
+````
+
+````{py:attribute} use_cross_exchange
+:canonical: src.configs.policies.hgs.HGSConfig.use_cross_exchange
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.use_cross_exchange
+```
+
+````
+
+````{py:attribute} use_lambda_interchange
+:canonical: src.configs.policies.hgs.HGSConfig.use_lambda_interchange
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.use_lambda_interchange
+```
+
+````
+
+````{py:attribute} lambda_max
+:canonical: src.configs.policies.hgs.HGSConfig.lambda_max
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.lambda_max
+```
+
+````
+
+````{py:attribute} use_ejection_chains
+:canonical: src.configs.policies.hgs.HGSConfig.use_ejection_chains
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.use_ejection_chains
+```
+
+````
+
+````{py:attribute} use_3opt
+:canonical: src.configs.policies.hgs.HGSConfig.use_3opt
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.use_3opt
 ```
 
 ````

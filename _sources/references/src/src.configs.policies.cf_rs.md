@@ -73,6 +73,61 @@
 
 ````
 
+````{py:attribute} assignment_method
+:canonical: src.configs.policies.cf_rs.CFRSConfig.assignment_method
+:type: str
+:value: >
+   'greedy'
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.assignment_method
+```
+
+````
+
+````{py:attribute} route_optimizer
+:canonical: src.configs.policies.cf_rs.CFRSConfig.route_optimizer
+:type: str
+:value: >
+   'default'
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.route_optimizer
+```
+
+````
+
+````{py:attribute} strict_fleet
+:canonical: src.configs.policies.cf_rs.CFRSConfig.strict_fleet
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.strict_fleet
+```
+
+````
+
+````{py:attribute} seed_criterion
+:canonical: src.configs.policies.cf_rs.CFRSConfig.seed_criterion
+:type: str
+:value: >
+   'distance'
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.seed_criterion
+```
+
+````
+
+````{py:attribute} mip_objective
+:canonical: src.configs.policies.cf_rs.CFRSConfig.mip_objective
+:type: str
+:value: >
+   'minimize_cost'
+
+```{autodoc2-docstring} src.configs.policies.cf_rs.CFRSConfig.mip_objective
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.cf_rs.CFRSConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

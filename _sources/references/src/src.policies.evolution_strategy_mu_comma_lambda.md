@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.evolution_strategy_mu_comma_lambda.solver
 src.policies.evolution_strategy_mu_comma_lambda.params
 src.policies.evolution_strategy_mu_comma_lambda.policy_es_mcl
-src.policies.evolution_strategy_mu_comma_lambda.solver
 ```
 
 ## Package Contents

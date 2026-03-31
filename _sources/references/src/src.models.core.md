@@ -13,20 +13,20 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.core.temporal_attention_model
-src.models.core.nargnn
+src.models.core.deepaco
+src.models.core.n2s
+src.models.core.gfacs
 src.models.core.dact
 src.models.core.glop
+src.models.core.pointer_network
+src.models.core.matnet
+src.models.core.moe
+src.models.core.nargnn
+src.models.core.neuopt
+src.models.core.mdam
+src.models.core.temporal_attention_model
 src.models.core.polynet
-src.models.core.gfacs
-src.models.core.n2s
 src.models.core.attention_model
 src.models.core.hybrid_attention_model
-src.models.core.deepaco
-src.models.core.moe
-src.models.core.mdam
-src.models.core.matnet
-src.models.core.neuopt
 src.models.core.dr_alns
-src.models.core.pointer_network
 ```

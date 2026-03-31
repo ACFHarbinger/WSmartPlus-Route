@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.other.reinforcement_learning
 src.policies.other.local_search
+src.policies.other.reinforcement_learning
+src.policies.other.must_go
 src.policies.other.post_processing
 src.policies.other.operators
-src.policies.other.must_go
 ```
 
 ## Package Contents

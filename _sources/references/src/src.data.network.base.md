@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.data.network.base.iterative_distance_strategy
 src.data.network.base.distance_strategy
+src.data.network.base.iterative_distance_strategy
 ```

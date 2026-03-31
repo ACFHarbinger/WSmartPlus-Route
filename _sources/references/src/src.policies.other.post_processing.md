@@ -23,10 +23,10 @@ src.policies.other.post_processing.base
 :maxdepth: 1
 
 src.policies.other.post_processing.random_local_search
-src.policies.other.post_processing.lkh
-src.policies.other.post_processing.local_search
 src.policies.other.post_processing.path
+src.policies.other.post_processing.local_search
 src.policies.other.post_processing.fast_tsp
+src.policies.other.post_processing.lkh
 ```
 
 ## Package Contents

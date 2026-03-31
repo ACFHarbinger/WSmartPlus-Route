@@ -135,6 +135,14 @@
 
 ````
 
+````{py:method} _compute_top_insertions(route_idx: typing.Optional[int] = None)
+:canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._compute_top_insertions
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._compute_top_insertions
+```
+
+````
+
 `````
 
 ````{py:function} apply_2opt_intra(ctx: src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext, max_attempts: int = 50) -> bool

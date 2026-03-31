@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.configs.policies.bb.BBConfig
 ```
 
+````{py:attribute} formulation
+:canonical: src.configs.policies.bb.BBConfig.formulation
+:type: str
+:value: >
+   'dfj'
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.formulation
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.bb.BBConfig.time_limit
 :type: float
@@ -55,9 +66,20 @@
 :canonical: src.configs.policies.bb.BBConfig.branching_strategy
 :type: str
 :value: >
-   'most_fractional'
+   'strong'
 
 ```{autodoc2-docstring} src.configs.policies.bb.BBConfig.branching_strategy
+```
+
+````
+
+````{py:attribute} strong_branching_limit
+:canonical: src.configs.policies.bb.BBConfig.strong_branching_limit
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.strong_branching_limit
 ```
 
 ````

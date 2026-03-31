@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.old_bachelor_acceptance.policy_oba
-src.policies.old_bachelor_acceptance.params
 src.policies.old_bachelor_acceptance.solver
+src.policies.old_bachelor_acceptance.params
 ```
 
 ## Package Contents

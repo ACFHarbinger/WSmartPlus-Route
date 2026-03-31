@@ -21,9 +21,31 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`TrainingEnv <src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv
+    :summary:
+    ```
+````
+
 ### API
 
-`````{py:class} GPHHSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.genetic_programming_hyper_heuristic.params.GPHHParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+````{py:data} TrainingEnv
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv
+```
+
+````
+
+`````{py:class} GPHHSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.genetic_programming_hyper_heuristic.params.GPHHParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, training_environments: typing.Optional[typing.List[src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv]] = None)
 :canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver
@@ -35,6 +57,15 @@
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver.__init__
 ```
 
+````{py:method} _build_knn(dm: numpy.ndarray, nodes: typing.List[int], k: int) -> typing.Dict[int, typing.List[int]]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_knn
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_knn
+```
+
+````
+
 ````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver.solve
 
@@ -43,26 +74,51 @@
 
 ````
 
-````{py:method} _evaluate_tree(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, init_routes: typing.List[typing.List[int]], n_steps: int) -> float
+````{py:method} _construct_solution(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, nodes: typing.List[int], wastes: typing.Dict[int, float], mandatory: typing.Set[int], dm: numpy.ndarray, knn: typing.Dict[int, typing.List[int]]) -> typing.List[typing.List[int]]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._construct_solution
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._construct_solution
+```
+
+````
+
+````{py:method} _build_insertion_context(node_revenue: float, route: typing.List[int], node: int, insertion_cost: float, dm: numpy.ndarray, remaining_capacity: float) -> typing.Dict[str, float]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_insertion_context
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_insertion_context
+```
+
+````
+
+````{py:method} _cheapest_insertion(route: typing.List[int], node: int, dm: numpy.ndarray) -> typing.Tuple[int, float]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._cheapest_insertion
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._cheapest_insertion
+```
+
+````
+
+````{py:method} _min_distance_to_route(node: int, route: typing.List[int], dm: numpy.ndarray) -> float
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._min_distance_to_route
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._min_distance_to_route
+```
+
+````
+
+````{py:method} _resolve_training() -> typing.List[src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv]
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._resolve_training
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._resolve_training
+```
+
+````
+
+````{py:method} _evaluate_tree(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, training: typing.List[src.policies.genetic_programming_hyper_heuristic.solver.TrainingEnv]) -> float
 :canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_tree
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_tree
-```
-
-````
-
-````{py:method} _apply_tree(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, init_routes: typing.List[typing.List[int]], n_steps: int) -> typing.Tuple[typing.List[typing.List[int]], float]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._apply_tree
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._apply_tree
-```
-
-````
-
-````{py:method} _build_context(routes: typing.List[typing.List[int]], step: int, total: int) -> typing.Dict[str, float]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_context
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_context
 ```
 
 ````
@@ -75,79 +131,15 @@
 
 ````
 
-````{py:method} _llh0(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh0
+````{py:method} _evaluate_routes(routes: typing.List[typing.List[int]], wastes: typing.Dict[int, float], dm: numpy.ndarray) -> float
+:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_routes
 
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh0
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_routes
 ```
 
 ````
 
-````{py:method} _llh1(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh1
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh1
-```
-
-````
-
-````{py:method} _llh2(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh2
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh2
-```
-
-````
-
-````{py:method} _llh3(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh3
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh3
-```
-
-````
-
-````{py:method} _llh4(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh4
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh4
-```
-
-````
-
-````{py:method} _llh5(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh5
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh5
-```
-
-````
-
-````{py:method} _llh6(routes: typing.List[typing.List[int]], n: int) -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh6
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._llh6
-```
-
-````
-
-````{py:method} _build_random_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_random_solution
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_random_solution
-```
-
-````
-
-````{py:method} _evaluate(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate
-
-```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate
-```
-
-````
-
-````{py:method} _cost(routes: typing.List[typing.List[int]]) -> float
+````{py:method} _cost(routes: typing.List[typing.List[int]], dm: numpy.ndarray) -> float
 :canonical: src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._cost
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.solver.GPHHSolver._cost

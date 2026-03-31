@@ -27,6 +27,10 @@
   - ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion
     :summary:
     ```
+* - {py:obj}`_try_string_insertion_deterministic <src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion_deterministic>`
+  - ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion_deterministic
+    :summary:
+    ```
 * - {py:obj}`stringing_insertion_wrapper <src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_insertion_wrapper>`
   - ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_insertion_wrapper
     :summary:
@@ -50,35 +54,42 @@
 ```
 ````
 
-````{py:function} _apply_stringing_op(route: typing.List[int], node: int, string_type: int, params: typing.Tuple, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, profit_mode: bool) -> typing.Tuple[typing.List[int], float]
+````{py:function} _apply_stringing_op(route: typing.List[int], node: int, string_type: int, params: typing.Tuple, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, profit_mode: bool, current_load: float) -> typing.Tuple[typing.List[int], float]
 :canonical: src.policies.other.operators.unstringing_stringing.stringing_wrapper._apply_stringing_op
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper._apply_stringing_op
 ```
 ````
 
-````{py:function} _try_string_insertion(routes: typing.List[typing.List[int]], node: int, r_idx: int, string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, rng: random.Random, profit_mode: bool = False) -> typing.Optional[typing.Tuple[typing.List[typing.List[int]], float]]
+````{py:function} _try_string_insertion(routes: typing.List[typing.List[int]], node: int, r_idx: int, string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, rng: random.Random, current_load: float, profit_mode: bool = False) -> typing.Optional[typing.Tuple[typing.List[typing.List[int]], float]]
 :canonical: src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion
 ```
 ````
 
-````{py:function} stringing_insertion_wrapper(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float = 0.0, C: float = 1.0, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, profit_mode: bool = False, expand_pool: bool = False) -> typing.List[typing.List[int]]
+````{py:function} _try_string_insertion_deterministic(routes: typing.List[typing.List[int]], node: int, r_idx: int, string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, current_load: float, neighborhood_size: int, profit_mode: bool = False) -> typing.Optional[typing.Tuple[typing.List[typing.List[int]], float]]
+:canonical: src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion_deterministic
+
+```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper._try_string_insertion_deterministic
+```
+````
+
+````{py:function} stringing_insertion_wrapper(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float = 0.0, C: float = 1.0, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, profit_mode: bool = False, expand_pool: bool = False, use_alns_fallback: bool = False, random_us_sampling: bool = True, neighborhood_size: int = 5) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_insertion_wrapper
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_insertion_wrapper
 ```
 ````
 
-````{py:function} stringing_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, expand_pool: bool = False) -> typing.List[typing.List[int]]
+````{py:function} stringing_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, expand_pool: bool = False, use_alns_fallback: bool = False, random_us_sampling: bool = True, neighborhood_size: int = 5) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_insertion
 ```
 ````
 
-````{py:function} stringing_profit_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, expand_pool: bool = False) -> typing.List[typing.List[int]]
+````{py:function} stringing_profit_insertion(routes: typing.List[typing.List[int]], removed_nodes: typing.List[int], string_type: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, rng: typing.Optional[random.Random] = None, expand_pool: bool = False, use_alns_fallback: bool = False, random_us_sampling: bool = True, neighborhood_size: int = 5) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_profit_insertion
 
 ```{autodoc2-docstring} src.policies.other.operators.unstringing_stringing.stringing_wrapper.stringing_profit_insertion

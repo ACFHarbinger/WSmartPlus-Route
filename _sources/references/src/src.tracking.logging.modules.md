@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.logging.modules.metrics
 src.tracking.logging.modules.analysis
 src.tracking.logging.modules.storage
+src.tracking.logging.modules.metrics
 src.tracking.logging.modules.gui
 ```
 

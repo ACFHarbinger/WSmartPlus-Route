@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.operators.repair.greedy_insertion
 src.models.policies.operators.repair.regret_k_insertion
+src.models.policies.operators.repair.greedy_insertion
 ```

@@ -46,7 +46,7 @@
 
 `````
 
-`````{py:class} VRPPMasterProblem(n_nodes: int, mandatory_nodes: typing.Set[int], cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float)
+`````{py:class} VRPPMasterProblem(n_nodes: int, mandatory_nodes: typing.Set[int], cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, vehicle_limit: typing.Optional[int] = None)
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem
 
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem
@@ -57,6 +57,14 @@
 
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.__init__
 ```
+
+````{py:method} remove_unpromising_columns(threshold: float) -> int
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns
+```
+
+````
 
 ````{py:method} add_route(route: src.policies.branch_and_price.master_problem.Route) -> None
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route
@@ -82,22 +90,6 @@
 
 ````
 
-````{py:method} add_capacity_cut(cut_nodes: typing.List[int], rhs: float) -> bool
-:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut
-
-```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_capacity_cut
-```
-
-````
-
-````{py:method} get_edge_usage() -> typing.Dict[typing.Tuple[int, int], float]
-:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage
-
-```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage
-```
-
-````
-
 ````{py:method} solve_lp_relaxation() -> typing.Tuple[float, typing.Dict[int, float]]
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_lp_relaxation
 
@@ -114,10 +106,26 @@
 
 ````
 
-````{py:method} get_reduced_cost_coefficients() -> typing.Dict[int, float]
+````{py:method} get_reduced_cost_coefficients() -> typing.Dict[typing.Union[int, str], float]
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients
 
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients
+```
+
+````
+
+````{py:method} get_node_visitation() -> typing.Dict[int, float]
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_node_visitation
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_node_visitation
+```
+
+````
+
+````{py:method} has_artificial_variables_active(tol: float = 1e-06) -> bool
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active
 ```
 
 ````

@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.operators.repair.deep
-src.policies.other.operators.repair.farthest
-src.policies.other.operators.repair._prune_routes
+src.policies.other.operators.repair.geni
+src.policies.other.operators.repair.greedy
 src.policies.other.operators.repair.nearest
 src.policies.other.operators.repair.savings
 src.policies.other.operators.repair.regret
+src.policies.other.operators.repair._prune_routes
+src.policies.other.operators.repair.farthest
 src.policies.other.operators.repair.greedy_blink
-src.policies.other.operators.repair.geni
-src.policies.other.operators.repair.greedy
+src.policies.other.operators.repair.deep
 ```
 
 ## Package Contents

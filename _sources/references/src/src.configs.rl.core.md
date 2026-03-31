@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.rl.core.adaptive_imitation
-src.configs.rl.core.ppo
-src.configs.rl.core.dr_alns
-src.configs.rl.core.sapo
-src.configs.rl.core.grpo
-src.configs.rl.core.pomo
 src.configs.rl.core.imitation
 src.configs.rl.core.symnco
+src.configs.rl.core.adaptive_imitation
+src.configs.rl.core.sapo
+src.configs.rl.core.dr_alns
+src.configs.rl.core.grpo
+src.configs.rl.core.pomo
 src.configs.rl.core.gdpo
+src.configs.rl.core.ppo
 ```
 
 ## Package Contents

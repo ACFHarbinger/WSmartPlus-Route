@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} run_popmusic(coords: pandas.DataFrame, must_go: typing.List[int], distance_matrix: numpy.ndarray, n_vehicles: int, subproblem_size: int = 3, max_iterations: int = 100, base_solver: str = 'fast_tsp', base_solver_config: typing.Optional[typing.Any] = None, cluster_solver: str = 'fast_tsp', cluster_solver_config: typing.Optional[typing.Any] = None, initial_solver: str = 'nearest_neighbor', seed: int = 42, wastes: typing.Optional[typing.Dict[int, float]] = None, capacity: float = 1000000000.0, R: float = 1.0, C: float = 0.0, vrpp: bool = True, profit_aware_operators: bool = False) -> typing.Tuple[typing.List[typing.List[int]], float, float, typing.Dict[str, typing.Any]]
+````{py:function} run_popmusic(coords: pandas.DataFrame, must_go: typing.List[int], distance_matrix: numpy.ndarray, n_vehicles: int, subproblem_size: int = 3, max_iterations: typing.Optional[int] = 100, base_solver: str = 'fast_tsp', base_solver_config: typing.Optional[typing.Any] = None, cluster_solver: str = 'fast_tsp', cluster_solver_config: typing.Optional[typing.Any] = None, initial_solver: str = 'nearest_neighbor', seed: int = 42, wastes: typing.Optional[typing.Dict[int, float]] = None, capacity: float = 1000000000.0, R: float = 1.0, C: float = 0.0, vrpp: bool = True, profit_aware_operators: bool = False, k_prox: int = 10, seed_strategy: str = 'lifo') -> typing.Tuple[typing.List[typing.List[int]], float, float, typing.Dict[str, typing.Any]]
 :canonical: src.policies.popmusic.solver.run_popmusic
 
 ```{autodoc2-docstring} src.policies.popmusic.solver.run_popmusic
@@ -68,21 +68,21 @@
 ```
 ````
 
-````{py:function} _optimize_with_hgs(distance_matrix: numpy.ndarray, wastes_dict: typing.Dict[int, float], capacity: float, R: float, C: float, neighborhood_indices: typing.List[int], must_go: typing.List[int], config: typing.Optional[typing.Any], time_limit: float, seed: int, vrpp: bool = True, profit_aware_operators: bool = False) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:function} _optimize_with_hgs(distance_matrix: numpy.ndarray, wastes_dict: typing.Dict[int, float], capacity: float, R: float, C: float, neighborhood_indices: typing.List[int], must_go: typing.List[int], config: typing.Optional[typing.Any], time_limit: float, seed: int, vrpp: bool = True, profit_aware_operators: bool = False, subproblem_nodes: typing.Optional[typing.List[int]] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.popmusic.solver._optimize_with_hgs
 
 ```{autodoc2-docstring} src.policies.popmusic.solver._optimize_with_hgs
 ```
 ````
 
-````{py:function} _optimize_with_alns(distance_matrix: numpy.ndarray, wastes_dict: typing.Dict[int, float], capacity: float, R: float, C: float, must_go: typing.List[int], config: typing.Optional[typing.Any], time_limit: float, seed: int, vrpp: bool = True, profit_aware_operators: bool = False) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:function} _optimize_with_alns(distance_matrix: numpy.ndarray, wastes_dict: typing.Dict[int, float], capacity: float, R: float, C: float, must_go: typing.List[int], config: typing.Optional[typing.Any], time_limit: float, seed: int, vrpp: bool = True, profit_aware_operators: bool = False, subproblem_nodes: typing.Optional[typing.List[int]] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.popmusic.solver._optimize_with_alns
 
 ```{autodoc2-docstring} src.policies.popmusic.solver._optimize_with_alns
 ```
 ````
 
-````{py:function} find_route_neighbors(seed_idx: int, centroids: typing.List[numpy.ndarray], k: int) -> typing.List[int]
+````{py:function} find_route_neighbors(seed_idx: int, centroids: typing.List[numpy.ndarray], k: int, kdtree: typing.Optional[scipy.spatial.KDTree] = None, k_prox: int = 0) -> typing.List[int]
 :canonical: src.policies.popmusic.solver.find_route_neighbors
 
 ```{autodoc2-docstring} src.policies.popmusic.solver.find_route_neighbors

@@ -25,12 +25,12 @@ src.models.subnets.embeddings.positional
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.embeddings.matnet
-src.models.subnets.embeddings.static
-src.models.subnets.embeddings.dynamic
 src.models.subnets.embeddings.wcvrp
-src.models.subnets.embeddings.vrpp
 src.models.subnets.embeddings.cvrpp
+src.models.subnets.embeddings.static
+src.models.subnets.embeddings.matnet
+src.models.subnets.embeddings.vrpp
+src.models.subnets.embeddings.dynamic
 ```
 
 ## Package Contents

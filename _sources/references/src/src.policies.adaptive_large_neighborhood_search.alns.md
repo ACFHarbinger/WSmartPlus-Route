@@ -35,6 +35,22 @@
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.__init__
 ```
 
+````{py:method} _get_noise() -> float
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._get_noise
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._get_noise
+```
+
+````
+
+````{py:method} _hash_solution(routes: typing.List[typing.List[int]]) -> typing.Tuple[typing.Tuple[int, ...], ...]
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._hash_solution
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._hash_solution
+```
+
+````
+
 ````{py:method} _initialize_solve(initial_solution: typing.Optional[typing.List[typing.List[int]]])
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve
 
@@ -71,6 +87,14 @@
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment
+```
+
+````
+
+````{py:method} _calculate_dynamic_start_temp(initial_profit: float, w_percent: float = 0.05) -> float
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._calculate_dynamic_start_temp
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._calculate_dynamic_start_temp
 ```
 
 ````

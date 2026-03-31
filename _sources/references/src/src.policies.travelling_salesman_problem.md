@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.travelling_salesman_problem.tsp
 src.policies.travelling_salesman_problem.policy_tsp
 src.policies.travelling_salesman_problem.two_opt
+src.policies.travelling_salesman_problem.tsp
 ```

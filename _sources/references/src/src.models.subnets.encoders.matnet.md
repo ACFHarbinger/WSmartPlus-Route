@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.matnet.matnet_encoder_layer
 src.models.subnets.encoders.matnet.encoder
+src.models.subnets.encoders.matnet.matnet_encoder_layer
 ```
 
 ## Package Contents

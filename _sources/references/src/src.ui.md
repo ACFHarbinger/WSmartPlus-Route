@@ -14,8 +14,8 @@
 :maxdepth: 3
 
 src.ui.components
-src.ui.services
 src.ui.pages
+src.ui.services
 src.ui.styles
 ```
 

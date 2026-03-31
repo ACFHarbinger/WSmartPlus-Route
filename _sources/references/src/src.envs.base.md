@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.envs.base.batch
-src.envs.base.base
 src.envs.base.improvement
+src.envs.base.base
 src.envs.base.ops
 ```
 

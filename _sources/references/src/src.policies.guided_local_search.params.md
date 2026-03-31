@@ -33,7 +33,7 @@
 :canonical: src.policies.guided_local_search.params.GLSParams.lambda_param
 :type: float
 :value: >
-   0.3
+   1.0
 
 ```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.lambda_param
 ```
@@ -44,20 +44,20 @@
 :canonical: src.policies.guided_local_search.params.GLSParams.alpha_param
 :type: float
 :value: >
-   0.5
+   0.3
 
 ```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.alpha_param
 ```
 
 ````
 
-````{py:attribute} max_restarts
-:canonical: src.policies.guided_local_search.params.GLSParams.max_restarts
+````{py:attribute} penalty_cycles
+:canonical: src.policies.guided_local_search.params.GLSParams.penalty_cycles
 :type: int
 :value: >
-   50
+   1000
 
-```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.max_restarts
+```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.penalty_cycles
 ```
 
 ````
@@ -77,7 +77,7 @@
 :canonical: src.policies.guided_local_search.params.GLSParams.n_llh
 :type: int
 :value: >
-   5
+   6
 
 ```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.n_llh
 ```
@@ -88,9 +88,20 @@
 :canonical: src.policies.guided_local_search.params.GLSParams.inner_iterations
 :type: int
 :value: >
-   20
+   100
 
 ```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.inner_iterations
+```
+
+````
+
+````{py:attribute} fls_coupling_prob
+:canonical: src.policies.guided_local_search.params.GLSParams.fls_coupling_prob
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.policies.guided_local_search.params.GLSParams.fls_coupling_prob
 ```
 
 ````

@@ -22,8 +22,8 @@ src.pipeline.simulations.states.base
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.simulations.states.running
 src.pipeline.simulations.states.finishing
+src.pipeline.simulations.states.running
 src.pipeline.simulations.states.initializing
 ```
 

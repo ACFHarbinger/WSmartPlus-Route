@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.particle_swarm_optimization_memetic_algorithm.params
 src.policies.particle_swarm_optimization_memetic_algorithm.particle
-src.policies.particle_swarm_optimization_memetic_algorithm.policy_psoma
 src.policies.particle_swarm_optimization_memetic_algorithm.solver
+src.policies.particle_swarm_optimization_memetic_algorithm.params
+src.policies.particle_swarm_optimization_memetic_algorithm.policy_psoma
 ```

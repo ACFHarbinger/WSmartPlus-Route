@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HGSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.params.HGSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} HGSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.hybrid_genetic_search.params.HGSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, x_coords: typing.Optional[numpy.ndarray] = None, y_coords: typing.Optional[numpy.ndarray] = None)
 :canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver
@@ -47,6 +47,22 @@
 :canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_populations
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_populations
+```
+
+````
+
+````{py:method} _trim_one(pop: typing.List[src.policies.hybrid_genetic_search.individual.Individual]) -> None
+:canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_one
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_one
+```
+
+````
+
+````{py:method} _find_clone(pop: typing.List[src.policies.hybrid_genetic_search.individual.Individual]) -> typing.Optional[int]
+:canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._find_clone
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._find_clone
 ```
 
 ````
@@ -83,10 +99,10 @@
 
 ````
 
-````{py:method} _adjust_penalty_coefficients(pop_feasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], current_penalty: float) -> float
-:canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._adjust_penalty_coefficients
+````{py:method} _adjust_penalties(pop_feasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], current_penalty: float) -> float
+:canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._adjust_penalties
 
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._adjust_penalty_coefficients
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._adjust_penalties
 ```
 
 ````

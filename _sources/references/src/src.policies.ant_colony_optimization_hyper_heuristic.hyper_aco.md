@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} build_solution() -> typing.Tuple[typing.List[typing.List[int]], typing.List[str]]
+````{py:method} build_solution(base_solution: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], typing.List[str], numpy.ndarray]
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution
@@ -71,14 +71,6 @@
 :canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones
-```
-
-````
-
-````{py:method} _update_heuristics()
-:canonical: src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._update_heuristics
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._update_heuristics
 ```
 
 ````

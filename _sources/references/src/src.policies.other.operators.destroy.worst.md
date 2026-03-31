@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} worst_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+````{py:function} worst_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, p: float = 1.0, rng: typing.Optional[numpy.random.Generator] = None) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
 :canonical: src.policies.other.operators.destroy.worst.worst_removal
 
 ```{autodoc2-docstring} src.policies.other.operators.destroy.worst.worst_removal
 ```
 ````
 
-````{py:function} worst_profit_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float = 1.0, C: float = 1.0) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
+````{py:function} worst_profit_removal(routes: typing.List[typing.List[int]], n_remove: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float = 1.0, C: float = 1.0, p: float = 1.0, rng: typing.Optional[numpy.random.Generator] = None) -> typing.Tuple[typing.List[typing.List[int]], typing.List[int]]
 :canonical: src.policies.other.operators.destroy.worst.worst_profit_removal
 
 ```{autodoc2-docstring} src.policies.other.operators.destroy.worst.worst_profit_removal

@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`ConstantNode <src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode
+    :summary:
+    ```
 * - {py:obj}`TerminalNode <src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode>`
   - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode
     :summary:
@@ -31,6 +35,22 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`protected_div <src.policies.genetic_programming_hyper_heuristic.tree.protected_div>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.protected_div
+    :summary:
+    ```
+* - {py:obj}`_collect_mutable_points <src.policies.genetic_programming_hyper_heuristic.tree._collect_mutable_points>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._collect_mutable_points
+    :summary:
+    ```
+* - {py:obj}`_get_subtree <src.policies.genetic_programming_hyper_heuristic.tree._get_subtree>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._get_subtree
+    :summary:
+    ```
+* - {py:obj}`_set_subtree <src.policies.genetic_programming_hyper_heuristic.tree._set_subtree>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._set_subtree
+    :summary:
+    ```
 * - {py:obj}`_random_tree <src.policies.genetic_programming_hyper_heuristic.tree._random_tree>`
   - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._random_tree
     :summary:
@@ -41,6 +61,14 @@
     ```
 * - {py:obj}`_mutate <src.policies.genetic_programming_hyper_heuristic.tree._mutate>`
   - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._mutate
+    :summary:
+    ```
+* - {py:obj}`compile_tree <src.policies.genetic_programming_hyper_heuristic.tree.compile_tree>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.compile_tree
+    :summary:
+    ```
+* - {py:obj}`to_callable <src.policies.genetic_programming_hyper_heuristic.tree.to_callable>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.to_callable
     :summary:
     ```
 ````
@@ -63,9 +91,84 @@
   - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._FUNCTIONS
     :summary:
     ```
+* - {py:obj}`MutablePoint <src.policies.genetic_programming_hyper_heuristic.tree.MutablePoint>`
+  - ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.MutablePoint
+    :summary:
+    ```
 ````
 
 ### API
+
+````{py:function} protected_div(a: float, b: float) -> float
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.protected_div
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.protected_div
+```
+````
+
+`````{py:class} ConstantNode(val: float)
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.__init__
+```
+
+````{py:attribute} __slots__
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.__slots__
+:value: >
+   ('val',)
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.__slots__
+```
+
+````
+
+````{py:method} evaluate(ctx: typing.Dict[str, float]) -> float
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.evaluate
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.evaluate
+```
+
+````
+
+````{py:method} copy() -> src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.copy
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.copy
+```
+
+````
+
+````{py:method} size() -> int
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.size
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.size
+```
+
+````
+
+````{py:method} depth() -> int
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.depth
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.depth
+```
+
+````
+
+````{py:method} compile() -> str
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.compile
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.ConstantNode.compile
+```
+
+````
+
+`````
 
 `````{py:class} TerminalNode(feature: str)
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode
@@ -78,6 +181,16 @@
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.__init__
 ```
+
+````{py:attribute} __slots__
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.__slots__
+:value: >
+   ('feature',)
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.__slots__
+```
+
+````
 
 ````{py:method} evaluate(ctx: typing.Dict[str, float]) -> float
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.evaluate
@@ -95,9 +208,33 @@
 
 ````
 
+````{py:method} size() -> int
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.size
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.size
+```
+
+````
+
+````{py:method} depth() -> int
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.depth
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.depth
+```
+
+````
+
+````{py:method} compile() -> str
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.compile
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.TerminalNode.compile
+```
+
+````
+
 `````
 
-`````{py:class} FunctionNode(fn: str, left: typing.Any, right: typing.Any, llh_true: int, llh_false: int)
+`````{py:class} FunctionNode(fn: str, left: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, right: src.policies.genetic_programming_hyper_heuristic.tree.GPNode)
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode
@@ -108,6 +245,16 @@
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.__init__
 ```
+
+````{py:attribute} __slots__
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.__slots__
+:value: >
+   ('fn', 'left', 'right')
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.__slots__
+```
+
+````
 
 ````{py:method} evaluate(ctx: typing.Dict[str, float]) -> float
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.evaluate
@@ -121,6 +268,30 @@
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.copy
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.copy
+```
+
+````
+
+````{py:method} size() -> int
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.size
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.size
+```
+
+````
+
+````{py:method} depth() -> int
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.depth
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.depth
+```
+
+````
+
+````{py:method} compile() -> str
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.compile
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode.compile
 ```
 
 ````
@@ -140,7 +311,7 @@
 ````{py:data} _TERMINALS
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree._TERMINALS
 :value: >
-   ['avg_node_profit', 'load_factor', 'route_count', 'iter_progress']
+   ['node_profit', 'distance_to_route', 'insertion_cost', 'remaining_capacity']
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._TERMINALS
 ```
@@ -150,30 +321,75 @@
 ````{py:data} _FUNCTIONS
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree._FUNCTIONS
 :value: >
-   ['IF_GT', 'MAX_LLH']
+   ['ADD', 'SUB', 'MUL', 'DIV', 'MAX', 'MIN']
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._FUNCTIONS
 ```
 
 ````
 
-````{py:function} _random_tree(depth: int, n_llh: int, rng: random.Random) -> src.policies.genetic_programming_hyper_heuristic.tree.GPNode
+````{py:data} MutablePoint
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.MutablePoint
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.MutablePoint
+```
+
+````
+
+````{py:function} _collect_mutable_points(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode) -> typing.List[src.policies.genetic_programming_hyper_heuristic.tree.MutablePoint]
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree._collect_mutable_points
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._collect_mutable_points
+```
+````
+
+````{py:function} _get_subtree(parent: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode, side: str) -> src.policies.genetic_programming_hyper_heuristic.tree.GPNode
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree._get_subtree
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._get_subtree
+```
+````
+
+````{py:function} _set_subtree(parent: src.policies.genetic_programming_hyper_heuristic.tree.FunctionNode, side: str, subtree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode) -> None
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree._set_subtree
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._set_subtree
+```
+````
+
+````{py:function} _random_tree(depth: int, rng: random.Random) -> src.policies.genetic_programming_hyper_heuristic.tree.GPNode
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree._random_tree
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._random_tree
 ```
 ````
 
-````{py:function} _subtree_crossover(t1: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, t2: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, rng: random.Random) -> typing.Tuple[src.policies.genetic_programming_hyper_heuristic.tree.GPNode, src.policies.genetic_programming_hyper_heuristic.tree.GPNode]
+````{py:function} _subtree_crossover(t1: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, t2: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, rng: random.Random, max_depth: int) -> typing.Tuple[src.policies.genetic_programming_hyper_heuristic.tree.GPNode, src.policies.genetic_programming_hyper_heuristic.tree.GPNode]
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree._subtree_crossover
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._subtree_crossover
 ```
 ````
 
-````{py:function} _mutate(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, depth: int, n_llh: int, rng: random.Random) -> src.policies.genetic_programming_hyper_heuristic.tree.GPNode
+````{py:function} _mutate(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode, depth: int, rng: random.Random, max_depth: int, replacement_depth: typing.Optional[int] = None) -> src.policies.genetic_programming_hyper_heuristic.tree.GPNode
 :canonical: src.policies.genetic_programming_hyper_heuristic.tree._mutate
 
 ```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree._mutate
+```
+````
+
+````{py:function} compile_tree(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode) -> str
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.compile_tree
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.compile_tree
+```
+````
+
+````{py:function} to_callable(tree: src.policies.genetic_programming_hyper_heuristic.tree.GPNode) -> typing.Callable
+:canonical: src.policies.genetic_programming_hyper_heuristic.tree.to_callable
+
+```{autodoc2-docstring} src.policies.genetic_programming_hyper_heuristic.tree.to_callable
 ```
 ````

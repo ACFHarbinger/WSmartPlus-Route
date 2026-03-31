@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.policies.other.reinforcement_learning
 src.configs.policies.other.must_go
+src.configs.policies.other.reinforcement_learning
 src.configs.policies.other.post_processing
 ```
 

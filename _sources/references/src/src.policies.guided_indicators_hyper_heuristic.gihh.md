@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.__init__
 ```
 
-````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} solve() -> typing.List[src.policies.guided_indicators_hyper_heuristic.solution.Solution]
 :canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve
 
 ```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve
@@ -43,26 +43,34 @@
 
 ````
 
-````{py:method} _apply_operator(current: src.policies.guided_indicators_hyper_heuristic.solution.Solution, iteration: int) -> src.policies.guided_indicators_hyper_heuristic.solution.Solution
-:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator
+````{py:method} _select_operator() -> str
+:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_operator
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator
 ```
 
 ````
 
-````{py:method} _apply_perturbation_operator(current: src.policies.guided_indicators_hyper_heuristic.solution.Solution) -> src.policies.guided_indicators_hyper_heuristic.solution.Solution
-:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator
+````{py:method} _apply_selected_operator(current: src.policies.guided_indicators_hyper_heuristic.solution.Solution, operator: str) -> src.policies.guided_indicators_hyper_heuristic.solution.Solution
+:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_selected_operator
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_perturbation_operator
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_selected_operator
 ```
 
 ````
 
-````{py:method} _evaluate(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._evaluate
+````{py:method} _update_archive(candidate: src.policies.guided_indicators_hyper_heuristic.solution.Solution) -> bool
+:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_archive
 
-```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._evaluate
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_archive
+```
+
+````
+
+````{py:method} _update_episodic_weights() -> None
+:canonical: src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_episodic_weights
+
+```{autodoc2-docstring} src.policies.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_episodic_weights
 ```
 
 ````

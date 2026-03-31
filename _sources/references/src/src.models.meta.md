@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.models.meta.weight_adjustment_rnn
 src.models.meta.hrl_manager
 src.models.meta.hypernet
-src.models.meta.weight_adjustment_rnn
 ```

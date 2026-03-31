@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.memetic_algorithm_island_model.solver
 src.policies.memetic_algorithm_island_model.params
 src.policies.memetic_algorithm_island_model.policy_ma_im
-src.policies.memetic_algorithm_island_model.solver
 ```
 
 ## Package Contents

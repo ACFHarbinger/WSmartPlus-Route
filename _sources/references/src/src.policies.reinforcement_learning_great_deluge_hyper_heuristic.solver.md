@@ -51,6 +51,22 @@
 
 ````
 
+````{py:method} _apply_reward(u: float) -> float
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._apply_reward
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._apply_reward
+```
+
+````
+
+````{py:method} _apply_punishment(u: float) -> float
+:canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._apply_punishment
+
+```{autodoc2-docstring} src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._apply_punishment
+```
+
+````
+
 ````{py:method} _llh_relocate(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
 :canonical: src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_relocate
 

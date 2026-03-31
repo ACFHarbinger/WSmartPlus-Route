@@ -62,6 +62,17 @@
 
 ````
 
+````{py:attribute} seed
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.seed
+```
+
+````
+
 ````{py:attribute} reward_improvement
 :canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.reward_improvement
 :type: float
@@ -73,17 +84,6 @@
 
 ````
 
-````{py:attribute} reward_neutral
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.reward_neutral
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.reward_neutral
-```
-
-````
-
 ````{py:attribute} penalty_worsening
 :canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.penalty_worsening
 :type: float
@@ -91,6 +91,17 @@
    1.0
 
 ```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.penalty_worsening
+```
+
+````
+
+````{py:attribute} punishment_type
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.punishment_type
+:type: str
+:value: >
+   'RL1'
+
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.punishment_type
 ```
 
 ````
@@ -117,24 +128,24 @@
 
 ````
 
-````{py:attribute} target_fitness_multiplier
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.target_fitness_multiplier
+````{py:attribute} initial_utility
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.initial_utility
 :type: float
 :value: >
-   1.2
+   30.0
 
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.target_fitness_multiplier
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.initial_utility
 ```
 
 ````
 
-````{py:attribute} seed
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.seed
-:type: typing.Optional[int]
+````{py:attribute} quality_lb
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.quality_lb
+:type: float
 :value: >
-   None
+   0.0
 
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.seed
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.quality_lb
 ```
 
 ````

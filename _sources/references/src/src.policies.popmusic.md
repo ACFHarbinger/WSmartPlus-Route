@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.popmusic.policy_popmusic
 src.policies.popmusic.solver
+src.policies.popmusic.policy_popmusic
 ```
 
 ## Package Contents

@@ -27,62 +27,90 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`_STATE_IMPROVING <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_IMPROVING>`
-  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_IMPROVING
+* - {py:obj}`_OBS_IMPROVE <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_IMPROVE>`
+  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_IMPROVE
     :summary:
     ```
-* - {py:obj}`_STATE_STAGNATING <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_STAGNATING>`
-  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_STAGNATING
+* - {py:obj}`_OBS_WORSE <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE>`
+  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE
     :summary:
     ```
-* - {py:obj}`_STATE_ESCAPING <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_ESCAPING>`
-  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_ESCAPING
+* - {py:obj}`_OBS_WORSE_COST <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE_COST>`
+  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE_COST
     :summary:
     ```
-* - {py:obj}`_N_STATES <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_STATES>`
-  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_STATES
+* - {py:obj}`_OBS_SAME <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME>`
+  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME
+    :summary:
+    ```
+* - {py:obj}`_OBS_SAME_COST <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME_COST>`
+  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME_COST
+    :summary:
+    ```
+* - {py:obj}`_N_OBS <src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_OBS>`
+  - ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_OBS
     :summary:
     ```
 ````
 
 ### API
 
-````{py:data} _STATE_IMPROVING
-:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_IMPROVING
+````{py:data} _OBS_IMPROVE
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_IMPROVE
 :value: >
    0
 
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_IMPROVING
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_IMPROVE
 ```
 
 ````
 
-````{py:data} _STATE_STAGNATING
-:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_STAGNATING
+````{py:data} _OBS_WORSE
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE
 :value: >
    1
 
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_STAGNATING
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE
 ```
 
 ````
 
-````{py:data} _STATE_ESCAPING
-:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_ESCAPING
+````{py:data} _OBS_WORSE_COST
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE_COST
 :value: >
    2
 
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._STATE_ESCAPING
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_WORSE_COST
 ```
 
 ````
 
-````{py:data} _N_STATES
-:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_STATES
+````{py:data} _OBS_SAME
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME
 :value: >
    3
 
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_STATES
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME
+```
+
+````
+
+````{py:data} _OBS_SAME_COST
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME_COST
+:value: >
+   4
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._OBS_SAME_COST
+```
+
+````
+
+````{py:data} _N_OBS
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_OBS
+:value: >
+   5
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver._N_OBS
 ```
 
 ````
@@ -99,7 +127,7 @@
 ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver.__init__
 ```
 
-````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} solve(initial_routes: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver.solve
 
 ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver.solve
@@ -107,10 +135,42 @@
 
 ````
 
-````{py:method} _gaussian_pdf(delta_norm: float) -> numpy.ndarray
-:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._gaussian_pdf
+````{py:method} _map_observation(delta_profit: float, delta_cost: float) -> int
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._map_observation
 
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._gaussian_pdf
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._map_observation
+```
+
+````
+
+````{py:method} _check_state_scaling()
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._check_state_scaling
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._check_state_scaling
+```
+
+````
+
+````{py:method} _split_state()
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._split_state
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._split_state
+```
+
+````
+
+````{py:method} _online_em_update(u_idx: int, o_idx: int)
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._online_em_update
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._online_em_update
+```
+
+````
+
+````{py:method} _select_action(iteration: int, max_iterations: int) -> int
+:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._select_action
+
+```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._select_action
 ```
 
 ````
@@ -167,14 +227,6 @@
 :canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh6
 
 ```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._llh6
-```
-
-````
-
-````{py:method} _sample_llh(probs: numpy.ndarray) -> int
-:canonical: src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._sample_llh
-
-```{autodoc2-docstring} src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._sample_llh
 ```
 
 ````

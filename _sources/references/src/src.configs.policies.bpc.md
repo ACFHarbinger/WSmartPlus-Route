@@ -106,4 +106,37 @@
 
 ````
 
+````{py:attribute} search_strategy
+:canonical: src.configs.policies.bpc.BPCConfig.search_strategy
+:type: str
+:value: >
+   'best_first'
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.search_strategy
+```
+
+````
+
+````{py:attribute} cutting_planes
+:canonical: src.configs.policies.bpc.BPCConfig.cutting_planes
+:type: str
+:value: >
+   'rcc'
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.cutting_planes
+```
+
+````
+
+````{py:attribute} branching_strategy
+:canonical: src.configs.policies.bpc.BPCConfig.branching_strategy
+:type: str
+:value: >
+   'ryan_foster'
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.branching_strategy
+```
+
+````
+
 `````

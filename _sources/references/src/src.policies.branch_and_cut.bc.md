@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, time_limit: float = 300.0, mip_gap: float = 0.01, max_cuts_per_round: int = 50, use_heuristics: bool = True, verbose: bool = False, profit_aware_operators: bool = False, vrpp: bool = False)
+`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, time_limit: float = 300.0, mip_gap: float = 0.01, max_cuts_per_round: int = 50, use_heuristics: bool = True, verbose: bool = False, profit_aware_operators: bool = False, vrpp: bool = False, enable_fractional_capacity_cuts: bool = True)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver
@@ -59,26 +59,58 @@
 
 ````
 
-````{py:method} _add_lazy_cuts(model)
-:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_lazy_cuts
+````{py:method} _handle_custom_branching(model)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching
 
-```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_lazy_cuts
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching
 ```
 
 ````
 
-````{py:method} _add_subtour_cut(model, cut: logic.src.policies.branch_and_cut.separation.SubtourEliminationCut)
-:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_subtour_cut
+````{py:method} _add_integer_cuts(model)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_integer_cuts
 
-```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_subtour_cut
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_integer_cuts
 ```
 
 ````
 
-````{py:method} _add_capacity_cut(model, cut: logic.src.policies.branch_and_cut.separation.CapacityCut)
-:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut
+````{py:method} _add_fractional_cuts(model)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_fractional_cuts
 
-```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_fractional_cuts
+```
+
+````
+
+````{py:method} _add_pcsec_lazy(model, cut: logic.src.policies.branch_and_cut.separation.PCSubtourEliminationCut)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_lazy
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_lazy
+```
+
+````
+
+````{py:method} _add_capacity_cut_lazy(model, cut: logic.src.policies.branch_and_cut.separation.CapacityCut)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_lazy
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_lazy
+```
+
+````
+
+````{py:method} _add_pcsec_user(model, cut: logic.src.policies.branch_and_cut.separation.PCSubtourEliminationCut)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_user
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_user
+```
+
+````
+
+````{py:method} _add_capacity_cut_user(model, cut: logic.src.policies.branch_and_cut.separation.CapacityCut)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_user
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_user
 ```
 
 ````
@@ -91,10 +123,34 @@
 
 ````
 
-````{py:method} _extract_solution() -> typing.Tuple[typing.List[int], float]
+````{py:method} _extract_solution() -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._extract_solution
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._extract_solution
+```
+
+````
+
+````{py:method} _pre_optimize_lagrangian() -> typing.List[typing.Set[int]]
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._pre_optimize_lagrangian
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._pre_optimize_lagrangian
+```
+
+````
+
+````{py:method} _find_k_tree_cycle(edges: typing.List[typing.Tuple[int, int]]) -> typing.Optional[typing.Set[int]]
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._find_k_tree_cycle
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._find_k_tree_cycle
+```
+
+````
+
+````{py:method} _solve_k_tree(costs: typing.Dict[typing.Tuple[int, int], float]) -> typing.Tuple[typing.List[typing.Tuple[int, int]], float, typing.List[typing.Set[int]]]
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._solve_k_tree
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._solve_k_tree
 ```
 
 ````

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.particle_swarm_optimization.params
 src.policies.particle_swarm_optimization.solver
+src.policies.particle_swarm_optimization.params
 src.policies.particle_swarm_optimization.policy_pso
 ```
 

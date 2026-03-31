@@ -14,7 +14,7 @@
 :maxdepth: 1
 
 src.policies.fast_iterative_localized_optimization.params
+src.policies.fast_iterative_localized_optimization.filo
 src.policies.fast_iterative_localized_optimization.policy_filo
 src.policies.fast_iterative_localized_optimization.ruin_recreate
-src.policies.fast_iterative_localized_optimization.filo
 ```

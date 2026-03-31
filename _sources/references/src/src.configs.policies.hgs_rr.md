@@ -95,13 +95,13 @@
 
 ````
 
-````{py:attribute} n_generations
-:canonical: src.configs.policies.hgs_rr.HGSRRConfig.n_generations
+````{py:attribute} n_iterations_no_improvement
+:canonical: src.configs.policies.hgs_rr.HGSRRConfig.n_iterations_no_improvement
 :type: int
 :value: >
-   100
+   20000
 
-```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.n_generations
+```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.n_iterations_no_improvement
 ```
 
 ````

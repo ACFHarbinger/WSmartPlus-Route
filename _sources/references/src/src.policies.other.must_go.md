@@ -22,18 +22,18 @@ src.policies.other.must_go.base
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.must_go.selection_combined
-src.policies.other.must_go.selection_deadline
-src.policies.other.must_go.selection_service_level
-src.policies.other.must_go.selection_last_minute
-src.policies.other.must_go.selection_spatial_synergy
-src.policies.other.must_go.selection_stochastic_regret
-src.policies.other.must_go.selection_multi_day_prob
-src.policies.other.must_go.selection_pareto
 src.policies.other.must_go.selection_lookahead
+src.policies.other.must_go.selection_service_level
 src.policies.other.must_go.selection_profit_per_km
-src.policies.other.must_go.selection_revenue
+src.policies.other.must_go.selection_combined
 src.policies.other.must_go.selection_regular
+src.policies.other.must_go.selection_multi_day_prob
+src.policies.other.must_go.selection_revenue
+src.policies.other.must_go.selection_stochastic_regret
+src.policies.other.must_go.selection_last_minute
+src.policies.other.must_go.selection_pareto
+src.policies.other.must_go.selection_deadline
+src.policies.other.must_go.selection_spatial_synergy
 ```
 
 ## Package Contents

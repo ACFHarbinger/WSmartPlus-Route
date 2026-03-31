@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.__init__
 ```
 
-````{py:method} apply(routes: typing.List[typing.List[int]], omega: typing.List[int], all_customers: typing.List[int], mandatory_nodes: typing.List[int]) -> typing.Tuple[typing.List[typing.List[int]], int, typing.List[int]]
+````{py:method} apply(routes: typing.List[typing.List[int]], seed: int, all_customers: typing.List[int], mandatory_nodes: typing.List[int], omega_intensity: float = 1.0) -> typing.Tuple[typing.List[typing.List[int]], int, typing.List[int]]
 :canonical: src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.apply
 
 ```{autodoc2-docstring} src.policies.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.apply

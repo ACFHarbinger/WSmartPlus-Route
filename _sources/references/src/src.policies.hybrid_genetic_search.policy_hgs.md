@@ -51,7 +51,7 @@ Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
 ````
 
-````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], x_coords: typing.Optional[numpy.ndarray] = None, y_coords: typing.Optional[numpy.ndarray] = None, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.hybrid_genetic_search.policy_hgs.HGSPolicy._run_solver
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.policy_hgs.HGSPolicy._run_solver

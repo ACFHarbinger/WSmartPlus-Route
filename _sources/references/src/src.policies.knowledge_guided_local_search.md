@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.knowledge_guided_local_search.policy_kgls
 src.policies.knowledge_guided_local_search.kgls
-src.policies.knowledge_guided_local_search.cost_evaluator
 src.policies.knowledge_guided_local_search.params
+src.policies.knowledge_guided_local_search.cost_evaluator
+src.policies.knowledge_guided_local_search.policy_kgls
 ```

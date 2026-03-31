@@ -150,17 +150,6 @@
 
 ````
 
-````{py:attribute} alpha_diversity
-:canonical: src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.alpha_diversity
-```
-
-````
-
 ````{py:attribute} min_diversity
 :canonical: src.policies.hybrid_genetic_search.params.HGSParams.min_diversity
 :type: float
@@ -234,6 +223,61 @@
    0.85
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.penalty_decrease
+```
+
+````
+
+````{py:attribute} use_3opt
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.use_3opt
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.use_3opt
+```
+
+````
+
+````{py:attribute} use_cross_exchange
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.use_cross_exchange
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.use_cross_exchange
+```
+
+````
+
+````{py:attribute} use_lambda_interchange
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.use_lambda_interchange
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.use_lambda_interchange
+```
+
+````
+
+````{py:attribute} lambda_max
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.lambda_max
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.lambda_max
+```
+
+````
+
+````{py:attribute} use_ejection_chains
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.use_ejection_chains
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.use_ejection_chains
 ```
 
 ````

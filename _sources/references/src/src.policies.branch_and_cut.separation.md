@@ -19,8 +19,8 @@
   - ```{autodoc2-docstring} src.policies.branch_and_cut.separation.Inequality
     :summary:
     ```
-* - {py:obj}`SubtourEliminationCut <src.policies.branch_and_cut.separation.SubtourEliminationCut>`
-  - ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SubtourEliminationCut
+* - {py:obj}`PCSubtourEliminationCut <src.policies.branch_and_cut.separation.PCSubtourEliminationCut>`
+  - ```{autodoc2-docstring} src.policies.branch_and_cut.separation.PCSubtourEliminationCut
     :summary:
     ```
 * - {py:obj}`CapacityCut <src.policies.branch_and_cut.separation.CapacityCut>`
@@ -61,18 +61,18 @@
 
 `````
 
-````{py:class} SubtourEliminationCut(node_set: typing.Set[int], violation: float)
-:canonical: src.policies.branch_and_cut.separation.SubtourEliminationCut
+````{py:class} PCSubtourEliminationCut(node_set: typing.Set[int], violation: float, facet_form: str = '2.1', node_i: int = -1, node_j: int = -1)
+:canonical: src.policies.branch_and_cut.separation.PCSubtourEliminationCut
 
 Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
-```{autodoc2-docstring} src.policies.branch_and_cut.separation.SubtourEliminationCut
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.PCSubtourEliminationCut
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.branch_and_cut.separation.SubtourEliminationCut.__init__
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.PCSubtourEliminationCut.__init__
 ```
 
 ````
@@ -109,7 +109,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-`````{py:class} SeparationEngine(model)
+`````{py:class} SeparationEngine(model, enable_fractional_capacity_cuts: bool = True)
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine
@@ -120,6 +120,32 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine.__init__
 ```
+
+````{py:attribute} USE_COMB_CUTS
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS
+```
+
+````
+
+````{py:method} separate_integer(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray] = None, max_cuts: int = 100, iteration: int = 0, sec_only: bool = False) -> typing.List[src.policies.branch_and_cut.separation.Inequality]
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine.separate_integer
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine.separate_integer
+```
+
+````
+
+````{py:method} separate_fractional(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray] = None, max_cuts: int = 50, iteration: int = 0, node_count: int = 0) -> typing.List[src.policies.branch_and_cut.separation.Inequality]
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine.separate_fractional
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine.separate_fractional
+```
+
+````
 
 ````{py:method} separate(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray] = None, max_cuts: int = 100, iteration: int = 0) -> typing.List[src.policies.branch_and_cut.separation.Inequality]
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine.separate
@@ -169,7 +195,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_capacity_cuts_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_capacity_cuts_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False)
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts_exact
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts_exact
@@ -177,10 +203,10 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_subtours_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
-:canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_subtours_exact
+````{py:method} _separate_pcsec_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False)
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_pcsec_exact
 
-```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_subtours_exact
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_pcsec_exact
 ```
 
 ````
@@ -229,6 +255,30 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine._compute_comb_violation
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._compute_comb_violation
+```
+
+````
+
+````{py:method} _separate_gsec_h2(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine._separate_gsec_h2
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._separate_gsec_h2
+```
+
+````
+
+````{py:method} _strengthen_pool(ineq_list: typing.List[src.policies.branch_and_cut.separation.Inequality], x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine._strengthen_pool
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._strengthen_pool
+```
+
+````
+
+````{py:method} _refine_pcsec_build(s_set: typing.Set[int], x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> typing.Set[int]
+:canonical: src.policies.branch_and_cut.separation.SeparationEngine._refine_pcsec_build
+
+```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine._refine_pcsec_build
 ```
 
 ````

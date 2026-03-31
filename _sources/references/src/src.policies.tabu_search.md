@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.tabu_search.params
-src.policies.tabu_search.policy_ts
 src.policies.tabu_search.solver
+src.policies.tabu_search.policy_ts
+src.policies.tabu_search.params
 ```
 
 ## Package Contents

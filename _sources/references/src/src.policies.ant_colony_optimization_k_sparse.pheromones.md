@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SparsePheromoneTau(n_nodes: int, k: int, tau_0: float, tau_min: float, tau_max: float)
+`````{py:class} SparsePheromoneTau(n_nodes: int, tau_0: float, scale: float, tau_min: float, tau_max: float)
 :canonical: src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau
@@ -55,14 +55,6 @@
 :canonical: src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge
-```
-
-````
-
-````{py:method} update_edge(i: int, j: int, delta: float, evaporate: bool = True) -> None
-:canonical: src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.update_edge
-
-```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.update_edge
 ```
 
 ````

@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.harmony_search.params
 src.policies.harmony_search.policy_hs
 src.policies.harmony_search.solver
+src.policies.harmony_search.params
 ```

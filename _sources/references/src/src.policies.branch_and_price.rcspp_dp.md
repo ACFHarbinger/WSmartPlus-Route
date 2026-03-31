@@ -110,6 +110,28 @@
 
 ````
 
+````{py:attribute} ng_memory
+:canonical: src.policies.branch_and_price.rcspp_dp.Label.ng_memory
+:type: typing.Set[int]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.Label.ng_memory
+```
+
+````
+
+````{py:attribute} rf_unmatched
+:canonical: src.policies.branch_and_price.rcspp_dp.Label.rf_unmatched
+:type: typing.FrozenSet[int]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.Label.rf_unmatched
+```
+
+````
+
 ````{py:attribute} parent
 :canonical: src.policies.branch_and_price.rcspp_dp.Label.parent
 :type: typing.Optional[src.policies.branch_and_price.rcspp_dp.Label]
@@ -121,7 +143,7 @@
 
 ````
 
-````{py:method} dominates(other: src.policies.branch_and_price.rcspp_dp.Label, epsilon: float = 1e-06) -> bool
+````{py:method} dominates(other: src.policies.branch_and_price.rcspp_dp.Label, use_ng: bool = False, epsilon: float = 1e-06) -> bool
 :canonical: src.policies.branch_and_price.rcspp_dp.Label.dominates
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.Label.dominates
@@ -147,7 +169,7 @@
 
 `````
 
-`````{py:class} RCSPPSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None)
+`````{py:class} RCSPPSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8)
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver
@@ -159,7 +181,15 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.__init__
 ```
 
-````{py:method} solve(dual_values: typing.Dict[int, float], capacity_cut_duals: typing.Optional[typing.List[typing.Tuple[typing.Set[int], float, float]]] = None, max_routes: int = 10, branching_constraints: typing.Optional[typing.List] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} _compute_ng_neighborhoods() -> typing.Dict[int, typing.Set[int]]
+:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_ng_neighborhoods
+
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_ng_neighborhoods
+```
+
+````
+
+````{py:method} solve(dual_values: typing.Dict[int, float], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[typing.Any]] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve
@@ -167,23 +197,31 @@
 
 ````
 
-````{py:method} _compute_reduced_costs() -> None
-:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_reduced_costs
+````{py:method} _preprocess_constraints(constraints: typing.List[typing.Any]) -> typing.Tuple[typing.FrozenSet[typing.Tuple[int, int]], typing.Dict[int, int], typing.Dict[int, int], typing.Set[typing.Tuple[int, int]], typing.Set[typing.Tuple[int, int]]]
+:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints
 
-```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_reduced_costs
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints
 ```
 
 ````
 
-````{py:method} _label_setting_algorithm(max_routes: int, branching_constraints: typing.Optional[typing.List] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
-:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_setting_algorithm
+````{py:method} _compute_node_reduced_costs() -> None
+:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs
 
-```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_setting_algorithm
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs
 ```
 
 ````
 
-````{py:method} _extend_label(label: src.policies.branch_and_price.rcspp_dp.Label, next_node: int) -> typing.Optional[src.policies.branch_and_price.rcspp_dp.Label]
+````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]]) -> typing.List[typing.Tuple[typing.List[int], float]]
+:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm
+
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm
+```
+
+````
+
+````{py:method} _extend_label(label: src.policies.branch_and_price.rcspp_dp.Label, next_node: int, rf_together: typing.Set[typing.Tuple[int, int]]) -> typing.Optional[src.policies.branch_and_price.rcspp_dp.Label]
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label
@@ -199,18 +237,10 @@
 
 ````
 
-````{py:method} _is_dominated(label: src.policies.branch_and_price.rcspp_dp.Label, existing_labels: typing.List[src.policies.branch_and_price.rcspp_dp.Label]) -> bool
+````{py:method} _is_dominated(label: src.policies.branch_and_price.rcspp_dp.Label, existing_labels: typing.List[src.policies.branch_and_price.rcspp_dp.Label], use_ng: bool) -> bool
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated
-```
-
-````
-
-````{py:method} _satisfies_constraints(label: src.policies.branch_and_price.rcspp_dp.Label, constraints: typing.List) -> bool
-:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._satisfies_constraints
-
-```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._satisfies_constraints
 ```
 
 ````

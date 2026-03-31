@@ -37,7 +37,7 @@ Bases: {py:obj}`src.policies.other.local_search.local_search_base.LocalSearch`
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_aco.ACOLocalSearch.__init__
 ```
 
-````{py:method} optimize(solution: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
+````{py:method} optimize(solution: typing.List[typing.List[int]], target_neighborhood: typing.Optional[str] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.other.local_search.local_search_aco.ACOLocalSearch.optimize
 
 ```{autodoc2-docstring} src.policies.other.local_search.local_search_aco.ACOLocalSearch.optimize

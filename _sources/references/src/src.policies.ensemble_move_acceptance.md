@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.ensemble_move_acceptance.policy_ema
-src.policies.ensemble_move_acceptance.params
 src.policies.ensemble_move_acceptance.solver
+src.policies.ensemble_move_acceptance.params
+src.policies.ensemble_move_acceptance.policy_ema
 ```
 
 ## Package Contents

@@ -14,7 +14,7 @@
 :maxdepth: 1
 
 src.policies.base.factory
-src.policies.base.base_routing_policy
-src.policies.base.registry
 src.policies.base.base_acceptance_criteria
+src.policies.base.registry
+src.policies.base.base_routing_policy
 ```
