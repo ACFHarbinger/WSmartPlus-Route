@@ -16,7 +16,13 @@ import numpy as np
 from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
-from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
+from ..kernel_search.solver import (
+    _dfj_subtour_elimination_callback,
+    _reconstruct_tour,
+    _root_node_callback,
+    _set_mip_start,
+    _setup_ks_model,
+)
 
 
 def _get_partitioned_vars_aks(
@@ -47,8 +53,6 @@ def _get_partitioned_vars_aks(
     # variables assumed binary from _setup_ks_model(use_binary_vars=True)
 
     # 2. Optimize with the root node callback (imported from KS solver)
-    from ..kernel_search.solver import _root_node_callback
-
     model.optimize(_root_node_callback)
 
     # 3. Extract relaxation values

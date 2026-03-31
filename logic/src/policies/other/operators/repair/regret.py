@@ -77,9 +77,9 @@ def regret_k_insertion(  # noqa: C901
     """
     Insert removed nodes using the regret-k heuristic.
 
-    Computes the 'regret' for each unassigned node, defined as the difference
-    between the cost of the best insertion and the k-th best insertion. Node
-    with the maximum regret is inserted first into its best position.
+    Efficiency: O(U * N * L_avg) incremental evaluation using a RoutingCache.
+    Only re-evaluates the modified route after each insertion instead of recalculating
+    all possible options (O(U^2 * N * L_avg)).
 
     Args:
         routes: Partial routes.
@@ -105,98 +105,122 @@ def regret_k_insertion(  # noqa: C901
     if expand_pool:
         # All unvisited nodes (including those previously removed) are candidates
         n_nodes = len(dist_matrix) - 1
-        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+        unassigned_set = set(range(1, n_nodes + 1)) - visited
     else:
-        unassigned = sorted(list(removed_nodes))
+        unassigned_set = set(removed_nodes)
+        if mandatory_nodes:
+            unassigned_set.update(set(mandatory_nodes) - visited)
 
+    unassigned = sorted(list(unassigned_set))
+    if not unassigned:
+        return routes
+
+    # --- Routing Cache Initialization ---
+    # node_route_cache[node][r_idx] = (cost, pos)
+    node_route_cache: Dict[int, List[Tuple[float, int]]] = {}
+
+    def get_best_for_route(node_id: int, r_idx: int) -> Tuple[float, int]:
+        route = routes[r_idx]
+        node_waste = wastes.get(node_id, 0)
+        if loads[r_idx] + node_waste > capacity:
+            return float("inf"), -1
+
+        best_r_cost = float("inf")
+        best_r_pos = -1
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+            cost = dist_matrix[prev, node_id] + dist_matrix[node_id, nxt] - dist_matrix[prev, nxt]
+            if noise != 0:
+                cost = max(0.0, cost + noise)
+            if cost < best_r_cost:
+                best_r_cost = cost
+                best_r_pos = pos
+        return best_r_cost, best_r_pos
+
+    # Initial population
+    for node in unassigned:
+        node_route_cache[node] = []
+        for i in range(len(routes)):
+            cost, pos = get_best_for_route(node, i)
+            node_route_cache[node].append((cost, pos))
+
+    # --- Main Loop ---
     while unassigned:
         all_candidates = []
         unprofitable_nodes = []
 
         for node in unassigned:
-            node_waste = wastes.get(node, 0)
-            is_mandatory = node in mandatory_nodes_set
+            # Filter and sort options from cache
+            options = sorted([c for c in node_route_cache[node] if c[0] != float("inf")], key=lambda x: x[0])
 
-            node_options = []
-            # Check all existing routes
-            for i, route in enumerate(routes):
-                if loads[i] + node_waste > capacity:
-                    continue
-
-                for pos in range(len(route) + 1):
-                    prev = route[pos - 1] if pos > 0 else 0
-                    nxt = route[pos] if pos < len(route) else 0
-
-                    # Calculate base insertion cost
-                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
-
-                    # Apply noise additively (Ropke & Pisinger 2005, Section 3.4.3)
-                    # C' = max{0, C + noise} where noise is a perturbation
-                    if noise != 0:
-                        cost = max(0.0, cost + noise)
-
-                    node_options.append((cost, i, pos))
-
-            # Also consider starting a new route if distance allows (not always applicable, but good for completeness)
-            # In ALNS, we usually only work with existing routes provided or let constructive do it.
-
-            if not node_options:
+            if not options:
+                is_mandatory = node in mandatory_nodes_set
                 if not is_mandatory:
                     unprofitable_nodes.append(node)
                 continue
 
-            # Sort candidate positions for this node by cost
-            node_options.sort(key=lambda x: x[0])
-
-            # Calculate regret
-            if len(node_options) >= k:
-                regret = node_options[k - 1][0] - node_options[0][0]
-            elif len(node_options) > 1:
-                # If fewer than k options, regret is diff between last and first
-                regret = node_options[-1][0] - node_options[0][0]
+            # Regret: paper §3.2.2 sum formula (sum of differences from best)
+            # regret(i) = sum_{j=1}^k (cost(i, x_j) - cost(i, x_1))
+            if len(options) > 1:
+                # Limit to k best options per paper
+                # If k is larger than available routes, use all available
+                target_k = min(k, len(options))
+                regret = sum(options[j][0] - options[0][0] for j in range(1, target_k))
+                if len(options) < k:
+                    # Ropke & Pisinger: if node can't be inserted into k routes,
+                    # treat remaining 'missing' routes as having inf cost.
+                    # This makes nodes with few insertion options highly prioritized.
+                    regret += (k - len(options)) * (max(o[0] for o in options) + 1000.0)
             else:
-                # Only one option (or none), max priority
-                regret = float("inf")
+                regret = 1e9  # Max priority if only 1 (or 0) route possible
 
-            best_option = node_options[0] if node_options else (float("inf"), -1, -1)
-            all_candidates.append((regret, node, best_option))
+            # Find best existing route index for this node
+            best_opt = options[0]
+            r_idx = -1
+            for i, (c, _) in enumerate(node_route_cache[node]):
+                if c == best_opt[0]:  # handle ties or just find first match
+                    r_idx = i
+                    break
 
-        # Remove unprofitable nodes from unassigned
+            all_candidates.append((regret, node, (best_opt[0], r_idx, best_opt[1])))
+
         for node in unprofitable_nodes:
             unassigned.remove(node)
+            if node in node_route_cache:
+                del node_route_cache[node]
 
         if not all_candidates:
-            # No feasible/profitable insertions left
-            # For remaining mandatory nodes, we'll hit this break and need to handle them
             mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
             if mandatory_remaining:
                 node = mandatory_remaining[0]
                 routes.append([node])
                 loads.append(wastes.get(node, 0))
                 unassigned.remove(node)
+                # Expand cache for ALL remaining nodes
+                new_r_idx = len(routes) - 1
+                for u_node in unassigned:
+                    cost, pos = get_best_for_route(u_node, new_r_idx)
+                    node_route_cache[u_node].append((cost, pos))
                 continue
             else:
                 break
 
-        # Pick node with max regret, tie-break by node ID
-        all_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        _, best_node, (cost, r_idx, pos) = all_candidates[0]
-
-        if r_idx == -1:
-            # Cannot insert node anywhere
-            unassigned.remove(best_node)
-            continue
+        # Pick node with max regret
+        # Sort by: regret descending, then best insertion cost ascending (paper §3.2.2)
+        all_candidates.sort(key=lambda x: (x[0], -x[2][0]), reverse=True)
+        _, best_node, (best_cost, r_idx, pos) = all_candidates[0]
 
         # Apply insertion
-        waste = wastes.get(best_node, 0)
-        if r_idx == len(routes):
-            routes.append([best_node])
-            loads.append(waste)
-        else:
-            routes[r_idx].insert(pos, best_node)
-            loads[r_idx] += waste
-
+        routes[r_idx].insert(pos, best_node)
+        loads[r_idx] += wastes.get(best_node, 0)
         unassigned.remove(best_node)
+        del node_route_cache[best_node]
+
+        # Incremental Update
+        for u_node in unassigned:
+            new_p_cost, new_p_pos = get_best_for_route(u_node, r_idx)
+            node_route_cache[u_node][r_idx] = (new_p_cost, new_p_pos)
 
     return routes
 
@@ -230,7 +254,7 @@ def _get_insertion_options_with_profit(
             cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
 
             if noise != 0:
-                cost += noise * max_dist
+                cost = max(0.0, cost + noise)
 
             profit = revenue - cost * C
 
@@ -241,6 +265,8 @@ def _get_insertion_options_with_profit(
     # Evaluate new route (Speculative Seeding Heuristic)
     # See greedy_profit_insertion for theoretical justification
     new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
+    if noise != 0:
+        new_cost = max(0.0, new_cost + noise)
     new_profit = revenue - (new_cost * C)
     seed_hurdle = -0.5 * (new_cost * C)  # Speculative hurdle: 50% of detour cost
 
@@ -283,7 +309,7 @@ def regret_2_profit_insertion(
     )
 
 
-def regret_k_profit_insertion(
+def regret_k_profit_insertion(  # noqa: C901
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
@@ -299,6 +325,7 @@ def regret_k_profit_insertion(
     """
     Regret-k insertion maximizing profit (revenue - cost).
 
+    Efficiency: O(U * N * L_avg) incremental evaluation using a RoutingCache.
     VRPP logic: Instead of minimizing cost, we calculate profit for each position.
     A node is only considered if its best insertion is profitable or if it's mandatory.
     Regret is calculated as the difference between the best and k-th best profits.
@@ -328,53 +355,104 @@ def regret_k_profit_insertion(
     if expand_pool:
         # All unvisited nodes (including those previously removed) are candidates
         n_nodes = len(dist_matrix) - 1
-        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+        unassigned_set = set(range(1, n_nodes + 1)) - visited
     else:
-        unassigned = sorted(list(removed_nodes))
+        unassigned_set = set(removed_nodes)
+        if mandatory_nodes:
+            unassigned_set.update(set(mandatory_nodes) - visited)
 
-    max_dist = dist_matrix.max()
+    unassigned = sorted(list(unassigned_set))
+    if not unassigned:
+        return routes
 
+    # --- Routing Cache Initialization ---
+    node_route_cache: Dict[int, List[Tuple[float, int]]] = {}
+
+    def get_best_for_route_profit(node_id: int, r_idx: int) -> Tuple[float, int]:
+        route = routes[r_idx]
+        node_waste = wastes.get(node_id, 0)
+        if loads[r_idx] + node_waste > capacity:
+            return -float("inf"), -1
+
+        revenue = node_waste * R
+        is_mandatory = node_id in mandatory_nodes_set
+        best_r_profit = -float("inf")
+        best_r_pos = -1
+
+        for pos in range(len(route) + 1):
+            prev = route[pos - 1] if pos > 0 else 0
+            nxt = route[pos] if pos < len(route) else 0
+            cost = dist_matrix[prev, node_id] + dist_matrix[node_id, nxt] - dist_matrix[prev, nxt]
+            if noise != 0:
+                cost = max(0.0, cost + noise)
+            profit = revenue - cost * C
+
+            # Skip unprofitable positions for non-mandatory nodes before comparison
+            if not is_mandatory and profit < -1e-4:
+                continue
+
+            if profit > best_r_profit:
+                best_r_profit = profit
+                best_r_pos = pos
+        return best_r_profit, best_r_pos
+
+    def get_seed_profit_regret(node_id: int) -> float:
+        node_waste = wastes.get(node_id, 0)
+        revenue = node_waste * R
+        new_cost = dist_matrix[0, node_id] + dist_matrix[node_id, 0]
+        new_profit = revenue - (new_cost * C)
+        seed_hurdle = -0.5 * (new_cost * C)
+        is_mandatory = node_id in mandatory_nodes_set
+        if is_mandatory or new_profit >= seed_hurdle:
+            return new_profit
+        return -float("inf")
+
+    # Initial population
+    for node in unassigned:
+        node_route_cache[node] = []
+        for i in range(len(routes)):
+            p, pos = get_best_for_route_profit(node, i)
+            node_route_cache[node].append((p, pos))
+
+    # --- Main Loop ---
     while unassigned:
         all_candidates = []
         skipped_nodes = []
 
         for node in unassigned:
             is_mandatory = node in mandatory_nodes_set
-            node_options = _get_insertion_options_with_profit(
-                node,
-                routes,
-                loads,
-                dist_matrix,
-                wastes,
-                capacity,
-                R,
-                C,
-                is_mandatory,
-                noise,
-                max_dist,
-            )
+            # Options: existing routes + seed
+            seed_p = get_seed_profit_regret(node)
+            options = [(p, i, pos) for i, (p, pos) in enumerate(node_route_cache[node]) if p != -float("inf")]
+            if seed_p != -float("inf"):
+                options.append((seed_p, len(routes), 0))
 
-            if not node_options:
+            if not options:
                 if not is_mandatory:
                     skipped_nodes.append(node)
                 continue
 
-            # Sort by profit (highest first)
-            node_options.sort(key=lambda x: x[0], reverse=True)
+            options.sort(key=lambda x: x[0], reverse=True)
 
-            # Regret for profit: best_profit - k_th_best_profit
-            if len(node_options) >= k:
-                regret = node_options[0][0] - node_options[k - 1][0]
-            elif len(node_options) > 1:
-                regret = node_options[0][0] - node_options[-1][0]
+            # Regret: paper §3.2.2 sum formula (sum of differences from best)
+            # Note for profit (maximization): regret is (best_profit - jth_profit)
+            if len(options) > 1:
+                target_k = min(k, len(options))
+                regret = sum(options[0][0] - options[j][0] for j in range(1, target_k))
+                if len(options) < k:
+                    # Priority for nodes with few options
+                    regret += (k - len(options)) * 1000.0
             else:
-                regret = float("inf")
+                regret = 1e9
 
-            best_option = node_options[0]
+            best_option = options[0]
+            # all_candidates record: (regret, node, (profit, r_idx, pos))
             all_candidates.append((regret, node, best_option))
 
         for out_node in skipped_nodes:
             unassigned.remove(out_node)
+            if out_node in node_route_cache:
+                del node_route_cache[out_node]
 
         if not all_candidates:
             mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
@@ -383,26 +461,146 @@ def regret_k_profit_insertion(
                 routes.append([node])
                 loads.append(wastes.get(node, 0))
                 unassigned.remove(node)
+                # Expand cache
+                new_r_idx = len(routes) - 1
+                for u_node in unassigned:
+                    p, pos = get_best_for_route_profit(u_node, new_r_idx)
+                    node_route_cache[u_node].append((p, pos))
                 continue
             else:
                 break
+
         # Maximize regret
-        all_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        # For profit maximisation: ties broken by highest best profit (equivalent to
+        # lowest cost in the minimisation formulation)
+        all_candidates.sort(key=lambda x: (x[0], x[2][0]), reverse=True)
         _, best_node, (profit, r_idx, pos) = all_candidates[0]
 
-        if r_idx == -1:
-            unassigned.remove(best_node)
-            continue
-
-        waste = wastes.get(best_node, 0)
         if r_idx == len(routes):
+            # Seed new route
             routes.append([best_node])
-            loads.append(waste)
+            loads.append(wastes.get(best_node, 0))
+            unassigned.remove(best_node)
+            del node_route_cache[best_node]
+            # Update all nodes with the new route
+            new_r_idx = len(routes) - 1
+            for u_node in unassigned:
+                p, ppos = get_best_for_route_profit(u_node, new_r_idx)
+                node_route_cache[u_node].append((p, ppos))
         else:
+            # Insert into existing
             routes[r_idx].insert(pos, best_node)
-            loads[r_idx] += waste
-
-        unassigned.remove(best_node)
+            loads[r_idx] += wastes.get(best_node, 0)
+            unassigned.remove(best_node)
+            del node_route_cache[best_node]
+            # Update modified route for all
+            for u_node in unassigned:
+                p, ppos = get_best_for_route_profit(u_node, r_idx)
+                node_route_cache[u_node][r_idx] = (p, ppos)
 
     # Clean up any routes that failed to become profitable after speculative seeding
     return prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_nodes_set)
+
+
+def regret_3_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = True,
+    noise: float = 0.0,
+) -> List[List[int]]:
+    """Convenience wrapper for regret-3 insertion."""
+    return regret_k_insertion(
+        routes,
+        removed_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        k=3,
+        mandatory_nodes=mandatory_nodes,
+        expand_pool=expand_pool,
+        noise=noise,
+    )
+
+
+def regret_4_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = True,
+    noise: float = 0.0,
+) -> List[List[int]]:
+    """Convenience wrapper for regret-4 insertion."""
+    return regret_k_insertion(
+        routes,
+        removed_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        k=4,
+        mandatory_nodes=mandatory_nodes,
+        expand_pool=expand_pool,
+        noise=noise,
+    )
+
+
+def regret_3_profit_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
+    noise: float = 0.0,
+) -> List[List[int]]:
+    """Convenience wrapper for regret-3 profit-aware insertion."""
+    return regret_k_profit_insertion(
+        routes,
+        removed_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        R,
+        C,
+        k=3,
+        mandatory_nodes=mandatory_nodes,
+        expand_pool=expand_pool,
+        noise=noise,
+    )
+
+
+def regret_4_profit_insertion(
+    routes: List[List[int]],
+    removed_nodes: List[int],
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    mandatory_nodes: Optional[List[int]] = None,
+    expand_pool: bool = False,
+    noise: float = 0.0,
+) -> List[List[int]]:
+    """Convenience wrapper for regret-4 profit-aware insertion."""
+    return regret_k_profit_insertion(
+        routes,
+        removed_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        R,
+        C,
+        k=4,
+        mandatory_nodes=mandatory_nodes,
+        expand_pool=expand_pool,
+        noise=noise,
+    )
