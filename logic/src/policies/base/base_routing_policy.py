@@ -430,6 +430,50 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
             use_all_bins=bool(values.get("vrpp", True)),
         )
 
+        # Build coordinate arrays aligned to the sub-problem node indices.
+        coords = kwargs.get("coords")
+        sub_node_ids = subset_indices[1:]
+        x_coords: Optional[np.ndarray] = None
+        y_coords: Optional[np.ndarray] = None
+
+        if coords is not None and len(coords) > 0:
+            try:
+                # Depot at index 0: use the mean of all bin coordinates as a
+                # reasonable depot proxy if the depot has no explicit entry,
+                # or index into coords directly if the depot row is present.
+                n = len(sub_node_ids)
+                x_arr = np.zeros(n + 1)
+                y_arr = np.zeros(n + 1)
+
+                # Depot (index 0): use centroid or explicit depot coords
+                depot_row = coords[coords["ID"] == 0]
+                if len(depot_row) > 0:
+                    x_arr[0] = float(depot_row["Lng"].iloc[0])
+                    y_arr[0] = float(depot_row["Lat"].iloc[0])
+                else:
+                    x_arr[0] = float(coords["Lng"].mean())
+                    y_arr[0] = float(coords["Lat"].mean())
+
+                coord_index = coords.set_index("ID")
+                for local_idx, original_id in enumerate(sub_node_ids, start=1):
+                    if original_id in coord_index.index:
+                        x_arr[local_idx] = float(coord_index.loc[original_id, "Lng"])
+                        y_arr[local_idx] = float(coord_index.loc[original_id, "Lat"])
+                    else:
+                        # Missing coordinate: disable pruning for safety
+                        x_arr = None  # type: ignore[assignment]
+                        y_arr = None  # type: ignore[assignment]
+                        break
+
+                if x_arr is not None:
+                    x_coords = x_arr
+                    y_coords = y_arr
+            except Exception:
+                # Coordinate extraction is best-effort; pruning degrades gracefully to
+                # no-op if anything goes wrong
+                x_coords = None
+                y_coords = None
+
         # 5. Run solver (subclass-specific)
         routes, profit, _ = self._run_solver(
             sub_dist_matrix,
@@ -440,6 +484,8 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
             values,
             mandatory_nodes,
             subset_indices=subset_indices,
+            x_coords=x_coords,
+            y_coords=y_coords,
             **kwargs,
         )
 

@@ -32,6 +32,11 @@ class HGSParams:
         min_diversity: Minimum diversity threshold.
         diversity_change_rate: Rate at which diversity changes.
         local_search_iterations: Number of iterations for local search.
+        use_cross_exchange: Whether to use cross exchange moves.
+        use_lambda_interchange: Whether to use lambda interchange moves.
+        lambda_max: Maximum lambda for lambda interchange moves.
+        use_ejection_chains: Whether to use ejection chain moves.
+        use_3opt: Whether to use 3-opt moves.
         max_vehicles: Maximum number of vehicles allowed (0 = unlimited).
         initial_penalty_capacity: Initial penalty coefficient for capacity violations.
         penalty_increase: Multiplier for increasing penalty (when too many feasible).
@@ -65,6 +70,11 @@ class HGSParams:
     initial_penalty_capacity: float = 1.0
     penalty_increase: float = 1.2
     penalty_decrease: float = 0.85
+    use_3opt: bool = False
+    use_cross_exchange: bool = False
+    use_lambda_interchange: bool = False
+    lambda_max: int = 0
+    use_ejection_chains: bool = False
 
     # Infrastructure
     seed: Optional[int] = None
@@ -101,6 +111,11 @@ class HGSParams:
             initial_penalty_capacity=getattr(config, "initial_penalty_capacity", 1.0),
             penalty_increase=getattr(config, "penalty_increase", 1.2),
             penalty_decrease=getattr(config, "penalty_decrease", 0.85),
+            use_3opt=getattr(config, "use_3opt", False),
+            use_cross_exchange=getattr(config, "use_cross_exchange", False),
+            use_lambda_interchange=getattr(config, "use_lambda_interchange", False),
+            lambda_max=getattr(config, "lambda_max", 0),
+            use_ejection_chains=getattr(config, "use_ejection_chains", False),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             seed=getattr(config, "seed", 42),
