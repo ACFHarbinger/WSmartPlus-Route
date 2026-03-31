@@ -17,7 +17,7 @@ References:
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from ..branch_and_price.branching import BranchNode
 
@@ -86,11 +86,14 @@ class BestFirstSearch(NodeSelectionStrategy):
         if not open_nodes:
             return None
 
-        # Sort by LP bound descending (highest bound first)
-        # Nodes without bounds are deprioritized
-        open_nodes.sort(key=lambda n: n.lp_bound if n.lp_bound is not None else float("-inf"), reverse=True)
+        # Fix 8: Use O(n) scan instead of O(n log n) sort
+        def get_best_first_key(i: int) -> float:
+            bound = open_nodes[i].lp_bound
+            return bound if bound is not None else float("-inf")
 
-        return open_nodes.pop(0)
+        best_idx = max(range(len(open_nodes)), key=get_best_first_key)
+
+        return open_nodes.pop(best_idx)
 
     def get_name(self) -> str:
         return "best_first"
@@ -107,7 +110,7 @@ class DepthFirstSearch(NodeSelectionStrategy):
     - Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998).
 
     Characteristics:
-    - Time complexity: O(n) per selection (simple depth comparison)
+    - Time complexity: O(n) per selection (linear scan)
     - Space complexity: O(n) where n is number of open nodes
     - Optimality guarantee: Yes (explores entire tree if needed)
     - Basis reuse: Excellent (stays within same branch until fathomed)
@@ -147,11 +150,15 @@ class DepthFirstSearch(NodeSelectionStrategy):
         if not open_nodes:
             return None
 
-        # Sort by depth descending (deepest first)
-        # Break ties by LP bound (highest bound first)
-        open_nodes.sort(key=lambda n: (n.depth, n.lp_bound if n.lp_bound is not None else float("-inf")), reverse=True)
+        # Fix 8: Use O(n) scan instead of O(n log n) sort
+        def get_dfs_key(i: int) -> Tuple[int, float]:
+            node = open_nodes[i]
+            bound = node.lp_bound
+            return (node.depth, bound if bound is not None else float("-inf"))
 
-        return open_nodes.pop(0)
+        best_idx = max(range(len(open_nodes)), key=get_dfs_key)
+
+        return open_nodes.pop(best_idx)
 
     def get_name(self) -> str:
         return "depth_first"
