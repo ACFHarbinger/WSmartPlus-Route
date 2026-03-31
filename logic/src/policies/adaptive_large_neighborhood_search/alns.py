@@ -60,23 +60,29 @@ References:
     Transportation Science, 40(4), 455-472.
 """
 
-import copy
+import math
 import random
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
+from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
     build_greedy_routes,
-    cluster_removal,
     greedy_insertion,
     greedy_profit_insertion,
     random_removal,
     regret_2_insertion,
     regret_2_profit_insertion,
+    regret_3_insertion,
+    regret_3_profit_insertion,
+    regret_4_insertion,
+    regret_4_profit_insertion,
+    shaw_profit_removal,
+    shaw_removal,
     worst_profit_removal,
     worst_removal,
 )
@@ -113,6 +119,7 @@ class ALNSSolver:
         self.vrpp = getattr(params, "vrpp", True)
         self.profit_aware_operators = getattr(params, "profit_aware_operators", False)
         self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.np_random = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
 
         if recorder is not None:
             self._viz_record = recorder.record
@@ -132,24 +139,44 @@ class ALNSSolver:
                     self.R,
                     self.C,
                     p=params.worst_removal_randomness,
+                    rng=self.random,  # type: ignore[arg-type]
+                ),
+                lambda r, n: shaw_profit_removal(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    wastes=self.wastes,
+                    R=self.R,
+                    C=self.C,
+                    randomization_factor=params.shaw_randomization,
                     rng=self.random,
                 ),
-                lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
             ]
         else:
             self.destroy_ops = [
                 lambda r, n: random_removal(r, n, rng=self.random),
-                lambda r, n: worst_removal(r, n, self.dist_matrix, p=params.worst_removal_randomness, rng=self.random),
-                lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
+                lambda r, n: worst_removal(
+                    r, n, self.dist_matrix, p=params.worst_removal_randomness, rng=self.np_random
+                ),
+                lambda r, n: shaw_removal(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    wastes=self.wastes,
+                    randomization_factor=params.shaw_randomization,
+                    rng=self.random,
+                ),
             ]
 
-        # Repair operators (Ropke & Pisinger 2005, Section 3.4.3)
-        # Separate clean (deterministic) and noisy variants for adaptive selection
-        # The weight mechanism learns which variant is most effective for current search state
+        # In Conf. 15 (paper), clean and noisy variants are separate operator slots
+        # The adaptive weight mechanism learns which variant is better.
+        self.repair_ops: List[Callable] = []
+        self.repair_names: List[str] = []
+
         if self.profit_aware_operators:
-            # Profit-aware operators don't use noise (greedy profit calculation is deterministic)
+            # 4 total slots (greedy, regret-2, regret-3, regret-4), each accepts noise injected at call time.
             self.repair_ops = [
-                lambda r, n: greedy_profit_insertion(
+                lambda r, n, _noise=0.0: greedy_profit_insertion(
                     r,
                     n,
                     self.dist_matrix,
@@ -159,8 +186,9 @@ class ALNSSolver:
                     self.C,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.vrpp,
+                    noise=_noise,
                 ),
-                lambda r, n: regret_2_profit_insertion(
+                lambda r, n, _noise=0.0: regret_2_profit_insertion(
                     r,
                     n,
                     self.dist_matrix,
@@ -170,13 +198,38 @@ class ALNSSolver:
                     self.C,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.vrpp,
+                    noise=_noise,
+                ),
+                lambda r, n, _noise=0.0: regret_3_profit_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.vrpp,
+                    noise=_noise,
+                ),
+                lambda r, n, _noise=0.0: regret_4_profit_insertion(
+                    r,
+                    n,
+                    self.dist_matrix,
+                    self.wastes,
+                    self.capacity,
+                    self.R,
+                    self.C,
+                    mandatory_nodes=self.mandatory_nodes,
+                    expand_pool=self.vrpp,
+                    noise=_noise,
                 ),
             ]
+            self.repair_names = ["GreedyProfit", "Regret2Profit", "Regret3Profit", "Regret4Profit"]
         else:
-            # Standard operators: clean and noisy variants for each insertion type
+            # Standard branch - 4 slots
             self.repair_ops = [
-                # Greedy insertion - clean
-                lambda r, n: greedy_insertion(
+                lambda r, n, _noise=0.0: greedy_insertion(
                     r,
                     n,
                     self.dist_matrix,
@@ -184,10 +237,9 @@ class ALNSSolver:
                     self.capacity,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.vrpp,
-                    noise=0.0,
+                    noise=_noise,
                 ),
-                # Greedy insertion - noisy
-                lambda r, n: greedy_insertion(
+                lambda r, n, _noise=0.0: regret_2_insertion(
                     r,
                     n,
                     self.dist_matrix,
@@ -195,10 +247,9 @@ class ALNSSolver:
                     self.capacity,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.vrpp,
-                    noise=self._get_noise(),
+                    noise=_noise,
                 ),
-                # Regret-2 insertion - clean
-                lambda r, n: regret_2_insertion(
+                lambda r, n, _noise=0.0: regret_3_insertion(
                     r,
                     n,
                     self.dist_matrix,
@@ -206,10 +257,9 @@ class ALNSSolver:
                     self.capacity,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.vrpp,
-                    noise=0.0,
+                    noise=_noise,
                 ),
-                # Regret-2 insertion - noisy
-                lambda r, n: regret_2_insertion(
+                lambda r, n, _noise=0.0: regret_4_insertion(
                     r,
                     n,
                     self.dist_matrix,
@@ -217,9 +267,10 @@ class ALNSSolver:
                     self.capacity,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.vrpp,
-                    noise=self._get_noise(),
+                    noise=_noise,
                 ),
             ]
+            self.repair_names = ["Greedy", "Regret2", "Regret3", "Regret4"]
 
         # Segment-based weight update logic (Ropke & Pisinger 2005, Section 3.4.4)
         self.segment_size = params.segment_size
@@ -231,13 +282,12 @@ class ALNSSolver:
         self.repair_counts = [0] * len(self.repair_ops)
 
         # Weight decay factor: (1 - r) where r is the reaction factor
-        # Formula: w_{i,j+1} = w_{i,j}(1-r) + r * (π_i / θ_i)
         self.weight_decay = 1.0 - params.reaction_factor
         self.weight_learning_rate = params.reaction_factor
 
         # Visited solutions tracking (Ropke & Pisinger 2005, Section 3.3)
         # Hash table to track visited solutions for adjusted scoring
-        self.visited_solutions = set()
+        self.visited_solutions: Set[Tuple[int, ...]] = set()
 
     def _get_noise(self) -> float:
         """
@@ -272,7 +322,7 @@ class ALNSSolver:
 
     def _initialize_solve(self, initial_solution: Optional[List[List[int]]]):
         current_routes = initial_solution or self.build_initial_solution()
-        best_routes = copy.deepcopy(current_routes)
+        best_routes = [r[:] for r in current_routes]
         best_cost = self.calculate_cost(best_routes)
         best_rev = sum(self.wastes.get(node_idx, 0) * self.R for route in best_routes for node_idx in route)
         best_profit = best_rev - best_cost
@@ -288,14 +338,19 @@ class ALNSSolver:
         if current_n_nodes == 0:
             n_remove = 0
         else:
-            lower_bound = min(current_n_nodes, 2)
+            lower_bound = min(current_n_nodes, self.params.min_removal)
             max_pct_remove = int(current_n_nodes * self.params.max_removal_pct)
-            upper_bound = min(current_n_nodes, max(lower_bound + 1, max_pct_remove))
+            # Upper bound: min(100, xi * n) per paper §4.3.1
+            upper_bound = min(current_n_nodes, self.params.max_removal_cap, max(lower_bound, max_pct_remove))
+            upper_bound = max(upper_bound, lower_bound)
             n_remove = self.random.randint(lower_bound, upper_bound)
 
-        # Fast shallow copy: replace deepcopy with list comprehension
+        # 50% coin-flip per paper §3.6 for noise insertion variant
+        use_noise = self.random.random() < 0.5
+        noise_val = self._get_noise() if use_noise else 0.0
+
         new_routes, removed = destroy_op([route[:] for route in current_routes], n_remove)
-        new_routes = repair_op(new_routes, removed)
+        new_routes = repair_op(new_routes, removed, noise_val)
         return new_routes, d_idx, r_idx
 
     def _accept_solution(self, current_profit, new_profit, T):
@@ -320,7 +375,6 @@ class ALNSSolver:
         delta = current_profit - new_profit
         if delta < -1e-6:  # new_profit > current_profit (improvement)
             return True
-        from logic.src.utils.functions import safe_exp
 
         # Acceptance probability: P(accept) = exp(-Δ/T) where Δ >= 0
         prob = safe_exp(-delta / T) if T > 0 else 0
@@ -382,8 +436,6 @@ class ALNSSolver:
         Returns:
             float: Initial temperature
         """
-        import math
-
         delta = abs(initial_profit * w_percent)
         if delta < 1e-9:
             return 100.0  # Fallback if initial solution has near-zero profit
@@ -397,7 +449,7 @@ class ALNSSolver:
 
         # Clear visited solutions set
         self.visited_solutions.clear()
-        self.visited_solutions.add(self._hash_solution(best_routes))
+        self.visited_solutions.add(self._hash_solution(best_routes))  # type: ignore[arg-type]
 
         # Dynamic temperature initialization (Ropke & Pisinger 2005, Section 3.3)
         if self.params.start_temp > 0:
@@ -421,31 +473,33 @@ class ALNSSolver:
             accept = self._accept_solution(current_profit, new_profit, T)
 
             # Scoring based on Ropke & Pisinger (2005, Section 3.3):
-            # σ1: New global best found
-            # σ2: Better than current (only if not visited before)
-            # σ3: Accepted worse solution (only if not visited before)
-            score = 0
-            if accept:
-                if new_profit > best_profit + 1e-6:
-                    best_routes = copy.deepcopy(new_routes)
-                    best_profit = new_profit
-                    best_cost = new_cost
-                    score = self.params.sigma_1  # σ1: New global best
-                elif new_profit > current_profit + 1e-6:
-                    # Only reward if solution hasn't been visited
-                    if is_new_solution:
-                        score = self.params.sigma_2  # σ2: Better solution (not visited)
-                else:
-                    # Accepted worse solution - only reward if not visited
-                    if is_new_solution:
-                        score = self.params.sigma_3  # σ3: Accepted worse (not visited)
+            score = 0.0
+            if new_profit > best_profit + 1e-6:
+                # σ₁: new global best — evaluated before accept, awarded regardless of
+                # whether new_profit > current_profit
+                best_routes = [r[:] for r in new_routes]
+                best_profit = new_profit
+                best_cost = new_cost
+                score = self.params.sigma_1
 
-                # Mark solution as visited
-                self.visited_solutions.add(new_hash)
+            if accept:
+                if score == 0:
+                    # σ₁ was not already awarded
+                    if new_profit > current_profit + 1e-6:
+                        # σ₂: better solution not visited before
+                        if is_new_solution:
+                            score = self.params.sigma_2
+                    else:
+                        # σ₃: accepted worse solution not visited before
+                        if is_new_solution:
+                            score = self.params.sigma_3
+
+                self.visited_solutions.add(new_hash)  # type: ignore[arg-type]
                 current_routes = new_routes
                 current_profit = new_profit
             else:
-                score = 0
+                # score is already 0.0 unless σ₁ was found but not accepted (impossible in profit maximization)
+                pass
 
             self._update_weights(d_idx, r_idx, score)
             if (_it + 1) % self.segment_size == 0:

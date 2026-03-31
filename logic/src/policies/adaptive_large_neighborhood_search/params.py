@@ -43,11 +43,14 @@ class ALNSParams:
     start_temp: float = 0.0  # 0 = dynamic calculation; > 0 = fixed start temperature
     cooling_rate: float = 0.995
     reaction_factor: float = 0.1  # r in w_{i,j+1} = w_{i,j}(1-r) + r * (π_i / θ_i)
-    min_removal: int = 1
+    min_removal: int = 4  # Paper: 4 ≤ q ≤ min(100, ξn), Section 4.3.1
     max_removal_pct: float = 0.3
     segment_size: int = 100  # Iterations per segment (Ropke & Pisinger 2005)
     noise_factor: float = 0.025  # eta: noise level relative to max distance
     worst_removal_randomness: float = 3.0  # p >= 1: randomness in worst removal
+    shaw_randomization: float = 6.0  # p_shaw in Ropke & Pisinger (2005)
+    max_removal_cap: int = 100  # Hard upper cap on q: q <= min(100, xi * n)
+    regret_pool: str = "regret234"  # "regret2", "regret234", or "regretAll"
     sigma_1: float = 33.0  # Score for new global best
     sigma_2: float = 9.0  # Score for improving solution (not visited)
     sigma_3: float = 13.0  # Score for accepted worse solution (not visited)
@@ -74,8 +77,18 @@ class ALNSParams:
             start_temp=config.start_temp,
             cooling_rate=config.cooling_rate,
             reaction_factor=config.reaction_factor,
-            min_removal=config.min_removal,
-            max_removal_pct=config.max_removal_pct,
+            min_removal=getattr(config, "min_removal", 4),
+            max_removal_pct=getattr(config, "max_removal_pct", 0.3),
+            segment_size=getattr(config, "segment_size", 100),
+            noise_factor=getattr(config, "noise_factor", 0.025),
+            worst_removal_randomness=getattr(config, "worst_removal_randomness", 3.0),
+            shaw_randomization=getattr(config, "shaw_randomization", 6.0),
+            max_removal_cap=getattr(config, "max_removal_cap", 100),
+            regret_pool=getattr(config, "regret_pool", "regret234"),
+            sigma_1=getattr(config, "sigma_1", 33.0),
+            sigma_2=getattr(config, "sigma_2", 9.0),
+            sigma_3=getattr(config, "sigma_3", 13.0),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            seed=getattr(config, "seed", None),
         )

@@ -42,7 +42,7 @@ from typing import Dict, List, Optional, Set, Tuple
 import numpy as np
 
 from .params import GPHHParams
-from .tree import GPNode, _mutate, _random_tree, _subtree_crossover
+from .tree import GPNode, _mutate, _random_tree, _subtree_crossover, to_callable
 
 # Type alias for a training environment triple
 TrainingEnv = Tuple[np.ndarray, Dict[int, float], List[int]]
@@ -281,10 +281,7 @@ class GPHHSolver:
         node_set: Set[int] = set(nodes)
 
         # Compile the GP tree once at the start of construction for speed
-        from .tree import to_callable
-
         func = to_callable(tree)
-
         while True:
             best_score = -float("inf")
             best_action: Optional[Tuple[int, int, int]] = None  # (node, route_idx, pos)

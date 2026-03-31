@@ -32,6 +32,7 @@ for the Origin-Destination Integer Multicommodity Flow (ODIMCF) problem.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Forward reference resolved at runtime — avoids a circular import with
@@ -381,8 +382,6 @@ class MultiEdgePartitionBranching:
             Tuple of (divergence_node, arc_set_1, arc_set_2) or None.
             Each arc_set is a list of (from_node, to_node) tuples.
         """
-        from collections import defaultdict
-
         # Build outgoing arc flow for each node
         node_outflow: Dict[int, Dict[Tuple[int, int], float]] = defaultdict(lambda: defaultdict(float))
 
