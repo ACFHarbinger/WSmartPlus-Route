@@ -38,7 +38,7 @@ def run_popmusic(  # noqa: C901
     distance_matrix: np.ndarray,
     n_vehicles: int,
     subproblem_size: int = 3,
-    max_iterations: Optional[int] = 100,
+    max_iterations: Optional[int] = None,
     base_solver: str = "fast_tsp",
     base_solver_config: Optional[Any] = None,
     cluster_solver: str = "fast_tsp",
@@ -62,8 +62,10 @@ def run_popmusic(  # noqa: C901
         must_go: List of bin indices to collect.
         distance_matrix: Distances between nodes.
         n_vehicles: Number of vehicles available.
-        subproblem_size: Number of neighboring routes to optimize (R).
-        max_iterations: Max subproblem attempts.
+        subproblem_size: Total number of routes per subproblem, including the seed
+        (seed + r-1 neighbours). Corresponds to r in Algorithm 1 of Taillard &
+        Voß (2018). Default 3 means seed + 2 nearest neighbours.
+        max_iterations: Optional[int] = None,  # None = run until U is empty (paper default)
         base_solver: Solver for subproblems.
         base_solver_config: Configuration for base_solver.
         cluster_solver: Solver for cluster initialization.
@@ -110,29 +112,33 @@ def run_popmusic(  # noqa: C901
     else:
         raise ValueError(f"Unknown initial solver: {initial_solver}")
 
-    # Convert clusters to initial routes using _optimize_subproblem
+    # Build initial routes directly from clusters without running the full base solver.
+    # POPMUSIC will optimise each subproblem during its iterations. Using the base
+    # solver here doubles solve time for no structural benefit (paper §"Initial Solution").
+    WARMSTART_INITIAL = False  # Set True only if warm-starting is intentional
     routes = []
     for cluster in initial_clusters:
         if cluster:
-            # Add depot prefix/suffix and optimize the local cluster tour
-            # using _optimize_subproblem for consistency
-            sub_routes, _ = _optimize_subproblem(
-                base_solver=cluster_solver,
-                base_solver_config=cluster_solver_config,
-                subproblem_nodes=cluster,
-                distance_matrix=distance_matrix,
-                wastes_dict=wastes_dict,
-                capacity=capacity,
-                R=R,
-                C=C,
-                neighborhood_indices=[0],  # Dummy for initial
-                must_go=must_go,
-                seed=seed,
-                vrpp=vrpp,
-                profit_aware_operators=profit_aware_operators,
-            )
-            # _optimize_subproblem returns List[List[int]], we expect one or more routes
-            routes.extend(sub_routes)
+            if WARMSTART_INITIAL and cluster_solver is not None:
+                sub_routes, _ = _optimize_subproblem(
+                    base_solver=cluster_solver,
+                    base_solver_config=cluster_solver_config,
+                    subproblem_nodes=cluster,
+                    distance_matrix=distance_matrix,
+                    wastes_dict=wastes_dict,
+                    capacity=capacity,
+                    R=R,
+                    C=C,
+                    neighborhood_indices=[0],  # Dummy for initial
+                    must_go=must_go,
+                    seed=seed,
+                    vrpp=vrpp,
+                    profit_aware_operators=profit_aware_operators,
+                )
+                routes.extend(sub_routes)
+            else:
+                # Retain the heuristic node ordering from the initial construction directly.
+                routes.append(cluster)
 
     # 2. POPMUSIC ITERATIONS
     iteration = 0
@@ -225,9 +231,11 @@ def run_popmusic(  # noqa: C901
                 subproblem_nodes.append(node)
 
         # Optimize subproblem
-        old_cost = sum(get_route_cost(distance_matrix, routes[idx]) for idx in neighborhood_indices)
+        # get_route_cost returns raw round-trip distance (depot→nodes→depot).
+        # Multiply by C to convert to cost units, matching _optimize_subproblem's profit definition.
+        old_route_distance = sum(get_route_cost(distance_matrix, routes[idx]) for idx in neighborhood_indices)
         old_rev = sum(wastes_dict.get(n, 0) * R for idx in neighborhood_indices for n in routes[idx] if n != 0)
-        old_profit = old_rev - old_cost * C
+        old_profit = old_rev - old_route_distance * C
 
         new_routes, new_profit = _optimize_subproblem(
             base_solver=base_solver,
@@ -271,38 +279,26 @@ def run_popmusic(  # noqa: C901
                     next_part_id += 1
                     modified_indices.append(len(routes) - 1)
 
+            # Assert that no mutated index retains a stale centroid cache entry.
+            # Development-only guard.
+            for mod_idx in modified_indices:
+                assert mod_idx not in centroid_cache, f"Centroid cache not cleared for modified route {mod_idx}"
+
             # Track unassigned nodes for VRPP support
             if vrpp:
                 nodes_in_new_routes = {n for r in new_routes for n in r if n != 0}
                 newly_unassigned = set(subproblem_nodes) - nodes_in_new_routes
                 unassigned_nodes.update(newly_unassigned)
 
-            # Reactivate all modified routes AND their neighbors (propagation)
+            # Re-insert only the parts of the optimised subproblem R into U (Paper Algorithm 1).
+            # Do NOT propagate to neighbours — the paper only re-inserts direct participants.
             for mod_idx in modified_indices:
-                # Reactivate the modified route index itself
                 if mod_idx >= 0 and mod_idx not in active_set and route_ids[mod_idx] != -1:
                     if seed_strategy == "lifo":
                         active_stack.append(mod_idx)
                     else:
-                        active_stack.append(mod_idx)
+                        active_stack.appendleft(mod_idx)
                     active_set.add(mod_idx)
-
-                # Reactivate neighbors within k_prox to ensure propagation (Paper §2.1)
-                if k_prox > 0:
-                    mod_centroid = get_centroid(mod_idx)
-                    # Re-using the KDTree built at the start of this seed iteration is slightly stale
-                    # but usually acceptable for re-activation scope.
-                    if kdtree is not None:
-                        _, neighbors = kdtree.query(mod_centroid, k=min(k_prox, len(routes)))
-                        if isinstance(neighbors, (int, np.integer)):
-                            neighbors = [neighbors]
-                        for n_idx in neighbors:
-                            if n_idx != mod_idx and n_idx not in active_set:
-                                if seed_strategy == "lifo":
-                                    active_stack.append(int(n_idx))
-                                else:
-                                    active_stack.append(int(n_idx))
-                                active_set.add(int(n_idx))
         else:
             # No improvement: seed remains inactive (already popped)
             pass
@@ -315,26 +311,27 @@ def run_popmusic(  # noqa: C901
                 idx for idx, rid in enumerate(route_ids) if rid != -1 and [n for n in routes[idx] if n != 0]
             ]
             if len(valid_indices) < len(routes):
+                # Snapshot active IDs BEFORE overwriting route_ids (fix: was computed after)
+                old_active_ids = {route_ids[idx] for idx in active_set if idx < len(route_ids)}
+
                 routes = [routes[idx] for idx in valid_indices]
                 route_ids = [route_ids[idx] for idx in valid_indices]
-                # Must rebuild stack and set as indices shifted
-                # This is expensive but necessary for consistency
-                old_active_ids = {route_ids[idx] for idx in active_set if idx < len(route_ids)}
                 centroid_cache = {
                     new_idx: centroid_cache[old_idx]
                     for new_idx, old_idx in enumerate(valid_indices)
                     if old_idx in centroid_cache
                 }
 
+                # Rebuild stack from the correctly snapshotted pre-compaction IDs
                 active_stack = deque([idx for idx, rid in enumerate(route_ids) if rid in old_active_ids])
                 active_set = set(active_stack)
 
     # Calculate final summary metrics across all routes
-    total_cost = sum(get_route_cost(distance_matrix, r) for r in routes) * C
+    total_routing_cost = sum(get_route_cost(distance_matrix, r) for r in routes) * C
     total_rev = sum(wastes_dict.get(n, 0.0) * R for r in routes for n in r if n != 0)
-    total_profit = total_rev - total_cost
+    total_profit = total_rev - total_routing_cost
 
-    return routes, total_cost, total_profit, {"iterations": iteration, "num_routes": len(routes)}
+    return routes, total_routing_cost, total_profit, {"iterations": iteration, "num_routes": len(routes)}
 
 
 def _optimize_subproblem(

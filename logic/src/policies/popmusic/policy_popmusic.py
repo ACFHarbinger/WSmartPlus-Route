@@ -41,7 +41,10 @@ class POPMUSICPolicy(BaseRoutingPolicy):
         """
         Run POPMUSIC solver.
         """
-        routes, total_cost, profit, info = run_popmusic(
+        # run_popmusic returns: (routes, total_routing_cost, profit, info)
+        # total_routing_cost is already multiplied by C (cost-per-distance unit).
+        # Verify base class _run_solver expects cost in these units, not raw distance.
+        routes, total_routing_cost, profit, info = run_popmusic(
             coords=kwargs["coords"],
             must_go=mandatory_nodes,
             distance_matrix=sub_dist_matrix,
@@ -65,4 +68,4 @@ class POPMUSICPolicy(BaseRoutingPolicy):
         )
 
         # return routes as List[List[int]]
-        return routes, profit, total_cost
+        return routes, profit, total_routing_cost
