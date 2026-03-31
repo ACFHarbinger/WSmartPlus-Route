@@ -39,6 +39,8 @@ class HGSSolver:
         C: float,
         params: HGSParams,
         mandatory_nodes: Optional[List[int]] = None,
+        x_coords: Optional[np.ndarray] = None,
+        y_coords: Optional[np.ndarray] = None,
     ):
         """
         Initialize the HGS solver.
@@ -51,6 +53,10 @@ class HGSSolver:
             C: Cost multiplier.
             params: Detailed HGS parameters.
             mandatory_nodes: List of local node indices that MUST be visited.
+            x_coords: Optional array of x-coordinates indexed by node id (index 0 = depot).
+                      When provided together with y_coords, enables SWAP* polar sector pruning.
+            y_coords: Optional array of y-coordinates indexed by node id (index 0 = depot).
+                      When provided together with x_coords, enables SWAP* polar sector pruning.
         """
         self.d = dist_matrix
         self.wastes = wastes
@@ -68,6 +74,9 @@ class HGSSolver:
             dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes, vrpp=params.vrpp
         )
         self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params)
+        if x_coords is not None and y_coords is not None:
+            self.ls.x_coords = x_coords
+            self.ls.y_coords = y_coords
 
     def _initialize_population(self, penalty_capacity: float) -> Tuple[List[Individual], List[Individual]]:
         """
@@ -106,24 +115,37 @@ class HGSSolver:
         return pop_feasible, pop_infeasible
 
     def _trim_populations(self, pop_feasible: List[Individual], pop_infeasible: List[Individual]) -> None:
-        """
-        Trim populations to minimum size when they exceed maximum size.
+        self._trim_one(pop_feasible)
+        self._trim_one(pop_infeasible)
 
-        Args:
-            pop_feasible: Feasible subpopulation (modified in place).
-            pop_infeasible: Infeasible subpopulation (modified in place).
-        """
+    def _trim_one(self, pop: List[Individual]) -> None:
+        """Trim one sub-population to mu, removing clones first then worst by fitness."""
         max_pop_size = self.params.mu + self.params.lambda_param
+        if len(pop) <= max_pop_size:
+            return
 
-        if len(pop_feasible) > max_pop_size:
-            update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.nb_close)
-            pop_feasible.sort(key=lambda x: x.fitness)
-            del pop_feasible[self.params.mu :]
+        update_biased_fitness(pop, self.params.nb_elite, self.params.nb_close)
 
-        if len(pop_infeasible) > max_pop_size:
-            update_biased_fitness(pop_infeasible, self.params.nb_elite, self.params.nb_close)
-            pop_infeasible.sort(key=lambda x: x.fitness)
-            del pop_infeasible[self.params.mu :]
+        while len(pop) > self.params.mu:
+            # Step 1: remove a clone (broken-pairs distance == 0) if one exists
+            clone_idx = self._find_clone(pop)
+            if clone_idx is not None:
+                pop.pop(clone_idx)
+                continue
+            # Step 2: no clone — remove the individual with the worst (highest) fitness
+            worst_idx = max(range(len(pop)), key=lambda i: pop[i].fitness)
+            pop.pop(worst_idx)
+
+    def _find_clone(self, pop: List[Individual]) -> Optional[int]:
+        """Return the index of any individual whose routes are identical to another's, or None."""
+        seen: set = set()
+        for i, ind in enumerate(pop):
+            # Use a frozenset of tuples as a hashable route signature
+            key = frozenset(tuple(r) for r in ind.routes)
+            if key in seen:
+                return i
+            seen.add(key)
+        return None
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -202,7 +224,7 @@ class HGSSolver:
             # Repair with 50% probability
             if self.random.random() < self.params.repair_probability:
                 repaired = Individual(child.giant_tour[:])
-                evaluate(repaired, self.split_manager, penalty_capacity * 2.0)
+                evaluate(repaired, self.split_manager, penalty_capacity * 10.0)
                 repaired = self.ls.optimize(repaired)
                 evaluate(repaired, self.split_manager, penalty_capacity)
                 if repaired.is_feasible:
