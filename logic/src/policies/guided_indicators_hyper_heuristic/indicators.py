@@ -67,6 +67,13 @@ class ScoreBIndicator:
         """
         Update ScoreB based on objective improvements.
 
+        [THEORETICAL CORRECTION]
+        Modified from Chen et al. (2018) to avoid zero-sum neutrality.
+        If a heuristic improves BOTH Revenue and Cost simultaneously (a strictly
+        dominating move), it is rewarded positively (+1.0) because it represents
+        ideal convergence toward the Pareto front. Standard +1/-1 logic applies
+        only if exactly one objective was improved.
+
         Args:
             operator: Name of the operator.
             revenue_improved: True if revenue > parent's revenue.
@@ -75,9 +82,12 @@ class ScoreBIndicator:
         if operator not in self.scores:
             self.scores[operator] = 0.0
 
-        if revenue_improved:
+        if revenue_improved and cost_improved:
+            # Dual-improvement: Highly favorable move
             self.scores[operator] += 1.0
-        if cost_improved:
+        elif revenue_improved:
+            self.scores[operator] += 1.0
+        elif cost_improved:
             self.scores[operator] -= 1.0
 
     def get_score(self, operator: str) -> float:

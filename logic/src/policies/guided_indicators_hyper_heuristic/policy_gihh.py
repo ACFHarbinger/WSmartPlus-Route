@@ -82,4 +82,17 @@ class GIHHPolicy(BaseRoutingPolicy):
             params,
             mandatory_nodes,
         )
-        return solver.solve()
+
+        # Step 1: Fix Scalarization Disconnect
+        # GIHH returns the full Pareto archive (ARCH). We perform an a posteriori
+        # selection here for compatibility with the environment interface.
+        arch = solver.solve()
+        if not arch:
+            return [], 0.0, 0.0
+
+        # Select solution with highest scalar profit from the archive
+        best_sol = max(arch, key=lambda s: s.profit)
+
+        # Calculate final cost correctly using the solver's internal logic
+        final_cost = solver._cost(best_sol.routes)
+        return best_sol.routes, best_sol.profit, final_cost

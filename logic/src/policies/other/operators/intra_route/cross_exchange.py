@@ -25,14 +25,12 @@ def apply_intra_route_cross_exchange(routes: List[List[int]], rng: random.Random
 
     while not valid_indices and attempts < 100:
         indices = sorted(rng.sample(range(n + 1), 4))
-        i1, j1, i2, j2 = indices
-        if 1 <= j1 - i1 <= 3 and 1 <= j2 - i2 <= 3:
-            valid_indices = True
+        # Step 5: Unbound Segment Lengths
+        # We allow segments of any length, including 0. Allowing 0-length segments
+        # enables the operator to degenerate into Relocate or Or-opt moves,
+        # fully exploring the neighborhood space.
+        valid_indices = True
         attempts += 1
-
-    if not valid_indices:
-        # Fallback if we somehow fail to find lengths 1-3
-        indices = sorted(rng.sample(range(n + 1), 4))
 
     i1, j1, i2, j2 = indices
 

@@ -38,7 +38,7 @@ from ..other.operators import (
     random_removal,
 )
 from ..other.operators.destroy.shaw import shaw_profit_removal
-from ..other.operators.heuristics.nn_initialization import build_nn_routes
+from ..other.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
 from .params import SLCParams
 
 

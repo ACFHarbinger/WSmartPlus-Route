@@ -49,7 +49,6 @@ def greedy_insertion(
     Returns:
         List[List[int]]: New routes after insertion.
     """
-    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
     # Calculate current loads and track visited nodes
     loads = []
     visited = set()
@@ -58,11 +57,16 @@ def greedy_insertion(
         visited.update(route)
 
     if expand_pool:
-        # All unvisited nodes (including those previously removed) are candidates
+        # All unvisited nodes are candidates
         n_nodes = len(dist_matrix) - 1
-        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+        unassigned_set = set(range(1, n_nodes + 1)) - visited
     else:
-        unassigned = sorted(list(removed_nodes))  # Sort for deterministic ties
+        # Include removed nodes AND any unvisited mandatory nodes
+        unassigned_set = set(removed_nodes)
+        if mandatory_nodes:
+            unassigned_set.update(set(mandatory_nodes) - visited)
+
+    unassigned = sorted(list(unassigned_set))
 
     while unassigned:
         best_cost = float("inf")
@@ -101,22 +105,19 @@ def greedy_insertion(
             loads[best_route_idx] += wastes.get(best_node, 0)
             unassigned.remove(best_node)
         else:
-            # Check for remaining mandatory nodes
-            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
-            if mandatory_remaining:
-                node = mandatory_remaining[0]
-                routes.append([node])
-                loads.append(wastes.get(node, 0))
-                unassigned.remove(node)
-            else:
-                # No more mandatory nodes can be inserted.
-                # To prevent infinite loops, we must clear unassigned if no more feasible insertions exist.
-                break
+            # Step 4: Fix Silent Node Dropping
+            # If a node (mandatory or optional) cannot be feasibly inserted into any
+            # existing route, we force the creation of a new route containing that node.
+            # This ensures the conservation principle of LNS is maintained.
+            node = unassigned[0]
+            routes.append([node])
+            loads.append(wastes.get(node, 0))
+            unassigned.remove(node)
 
     return routes
 
 
-def greedy_profit_insertion(
+def greedy_profit_insertion(  # noqa: C901
     routes: List[List[int]],
     removed_nodes: List[int],
     dist_matrix: np.ndarray,
@@ -156,9 +157,13 @@ def greedy_profit_insertion(
 
     if expand_pool:
         n_nodes = len(dist_matrix) - 1
-        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+        unassigned_set = set(range(1, n_nodes + 1)) - visited
     else:
-        unassigned = sorted(list(removed_nodes))
+        unassigned_set = set(removed_nodes)
+        if mandatory_nodes:
+            unassigned_set.update(set(mandatory_nodes) - visited)
+
+    unassigned = sorted(list(unassigned_set))
 
     while unassigned:
         best_profit = -float("inf")
