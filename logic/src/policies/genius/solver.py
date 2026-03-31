@@ -72,7 +72,13 @@ class GENIUSSolver:
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run the GENIUS algorithm.
+        Run the GENIUS algorithm with corrected US acceptance criterion.
+
+        The US procedure follows Algorithm US from Gendreau et al. (1992):
+        1. Track both current_routes (working solution) and best_routes (global optimum)
+        2. Accept EVERY US move on a node (update current_routes), even if it worsens profit
+        3. Only update best_routes when current_profit > best_profit
+        4. Terminate when a full sweep through all nodes produces no new global best
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -88,30 +94,40 @@ class GENIUSSolver:
         # Step 1: Initial solution using GENI insertion
         routes = self._build_initial_solution_geni()
         profit = self._evaluate(routes)
+
+        # Initialize best solution (global optimum)
         best_routes = [r[:] for r in routes]
         best_profit = profit
+
+        # Initialize current solution (working solution for US)
+        current_routes = [r[:] for r in routes]
+        current_profit = profit
 
         # Step 2: Iterative improvement using US (Unstringing-Stringing)
         for iteration in range(self.params.n_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Apply deterministic US sweep for post-optimization
+            # Apply US sweep: Continue until a full sweep produces no global improvement
             while True:
                 if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                     break
 
-                improvement_found = False
-                current_nodes = [node for r in routes for node in r]
+                global_improvement_found = False
+                current_nodes = [node for r in current_routes for node in r]
 
+                # Attempt US on every node in the current working solution
                 for node_to_remove in current_nodes:
                     if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                         break
 
-                    # Unstringing phase: Remove exactly exactly one node
-                    routes_copy = [r[:] for r in routes]
+                    # Unstringing phase: Remove exactly one node
+                    routes_copy = [r[:] for r in current_routes]
 
                     try:
+                        # Phase 1: Patch Node Loss Bug - Record count BEFORE US
+                        original_node_count = sum(len(r) for r in current_routes)
+
                         if self.params.profit_aware_operators:
                             routes_us, removed = unstringing_profit_removal(
                                 routes=routes_copy,
@@ -124,6 +140,8 @@ class GENIUSSolver:
                                 rng=self.random,
                                 target_node=node_to_remove,
                                 use_alns_fallback=False,
+                                random_us_sampling=self.params.random_us_sampling,
+                                neighborhood_size=self.params.neighborhood_size,
                             )
                         else:
                             routes_us, removed = unstringing_removal(
@@ -134,6 +152,8 @@ class GENIUSSolver:
                                 rng=self.random,
                                 target_node=node_to_remove,
                                 use_alns_fallback=False,
+                                random_us_sampling=self.params.random_us_sampling,
+                                neighborhood_size=self.params.neighborhood_size,
                             )
 
                         # Stringing phase: Reinsert removed node
@@ -152,6 +172,8 @@ class GENIUSSolver:
                                     rng=self.random,
                                     expand_pool=False,
                                     use_alns_fallback=False,
+                                    random_us_sampling=self.params.random_us_sampling,
+                                    neighborhood_size=self.params.neighborhood_size,
                                 )
                             else:
                                 routes_us = stringing_insertion(
@@ -165,29 +187,38 @@ class GENIUSSolver:
                                     rng=self.random,
                                     expand_pool=False,
                                     use_alns_fallback=False,
+                                    random_us_sampling=self.params.random_us_sampling,
+                                    neighborhood_size=self.params.neighborhood_size,
                                 )
 
-                            # Note: If stringing fails to reinsert the node due to capacity constraints, the node is implicitly dropped. If the resulting profit without the node is higher, the algorithm permanently prunes it from the fleet.
+                            # Evaluate the US move
                             new_profit = self._evaluate(routes_us)
 
-                            # Accept improvement
-                            if new_profit > profit:
-                                routes = routes_us
-                                profit = new_profit
-                                improvement_found = True
+                            # Phase 1: Patch Node Loss Bug - Rejection Logic
+                            new_node_count = sum(len(r) for r in routes_us)
+                            if new_node_count < original_node_count:
+                                continue
 
-                                if profit > best_profit:
-                                    best_routes = [r[:] for r in routes]
-                                    best_profit = profit
+                            # CORRECTED ACCEPTANCE CRITERION:
+                            # Always accept the US move (update current_routes)
+                            # even if it worsens the profit. This allows escaping local optima.
+                            current_routes = routes_us
+                            current_profit = new_profit
 
-                                break  # Break the inner node loop to restart the sweep from beginning
+                            # Only update global best if we found a better solution
+                            if current_profit > best_profit:
+                                best_routes = [r[:] for r in current_routes]
+                                best_profit = current_profit
+                                global_improvement_found = True
 
                     except Exception as e:
+                        # If US fails on this node, continue to the next node
                         print(f"Warning: US Operator failed on node {node_to_remove} | Error: {e}")
                         continue
 
-                if not improvement_found:
-                    break  # Terminate the US sweep if no improvements found
+                # Termination: If we completed a full sweep without finding a new global best, stop
+                if not global_improvement_found:
+                    break
 
             # Record progress (for visualization/logging hooks)
             getattr(self, "_viz_record", lambda **k: None)(
@@ -208,6 +239,7 @@ class GENIUSSolver:
         Build initial solution using GENI (Generalized Insertion).
 
         GENI considers Type I and Type II insertions with p-neighborhood restriction.
+        Uses deterministic p-neighborhood search when random_us_sampling is False.
 
         Returns:
             List of routes constructed using GENI.
@@ -217,6 +249,9 @@ class GENIUSSolver:
 
         # All nodes start as unassigned
         all_nodes = set(self.nodes)
+
+        # Determine if we use deterministic p-neighborhood (invert random_us_sampling)
+        use_deterministic = not self.params.random_us_sampling
 
         # Use GENI insertion to build the solution
         if self.params.profit_aware_operators:
@@ -229,8 +264,10 @@ class GENIUSSolver:
                 R=self.R,
                 C=self.C,
                 neighborhood_size=self.params.neighborhood_size,
+                mandatory_nodes=self.mandatory_nodes,
                 rng=self.random,
                 expand_pool=self.params.vrpp,
+                use_deterministic_p_neighborhood=use_deterministic,
             )
         else:
             routes = geni_insertion(
@@ -240,8 +277,10 @@ class GENIUSSolver:
                 wastes=self.wastes,
                 capacity=self.capacity,
                 neighborhood_size=self.params.neighborhood_size,
+                mandatory_nodes=self.mandatory_nodes,
                 rng=self.random,
                 expand_pool=self.params.vrpp,
+                use_deterministic_p_neighborhood=use_deterministic,
             )
 
         # Clean up empty routes

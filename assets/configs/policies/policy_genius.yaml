@@ -18,6 +18,7 @@ genius:
     - unstring_type: 1 # Unstringing operator type (1-4)
     - string_type: 1 # Stringing operator type (1-4)
     - n_iterations: 1 # Number of complete GENIUS iterations
+    - random_us_sampling: false # Whether to use random sampling (True) or deterministic
     - time_limit: 60.0 # Wall-clock time limit in seconds
     # VRPP Settings
     - vrpp: true

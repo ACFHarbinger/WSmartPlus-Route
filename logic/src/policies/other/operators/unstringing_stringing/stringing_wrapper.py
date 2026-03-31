@@ -4,6 +4,10 @@ Global wrapper for Stringing operators as a general repair heuristic.
 Provides `stringing_insertion` and `stringing_profit_insertion` wrappers
 that mirror `greedy_insertion`, capable of iterating over unassigned nodes
 (with `expand_pool` support) and inserting them using GENIUS Stringing moves.
+
+Supports both:
+1. Deterministic p-neighborhood search (strict adherence to Gendreau et al. 1992)
+2. Randomized sampling mode (for faster approximate search)
 """
 
 import random
@@ -11,6 +15,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.operators.neighborhood import get_p_neighborhood
 from logic.src.policies.other.operators.unstringing_stringing.stringing_i import apply_type_i_s, apply_type_i_s_profit
 from logic.src.policies.other.operators.unstringing_stringing.stringing_ii import (
     apply_type_ii_s,
@@ -155,6 +160,114 @@ def _try_string_insertion(
     return (best_routes, best_value) if best_routes is not None else None
 
 
+def _try_string_insertion_deterministic(  # noqa: C901
+    routes: List[List[int]],
+    node: int,
+    r_idx: int,
+    string_type: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    current_load: float,
+    neighborhood_size: int,
+    profit_mode: bool = False,
+) -> Optional[Tuple[List[List[int]], float]]:
+    """Try inserting a node using deterministic p-neighborhood search (bidirectional)."""
+    route = routes[r_idx]
+    if len(route) < 3:
+        return None
+
+    best_routes = None
+    best_value = float("-inf")
+
+    # Evaluate both orientations
+    for target_route in [route, route[::-1]]:
+        # Get p-neighborhood of the target node (u)
+        p_neighbors_u = get_p_neighborhood(node, target_route, dist_matrix, neighborhood_size)
+
+        for v_i in p_neighbors_u:
+            i = target_route.index(v_i)
+            v_ip1 = target_route[(i + 1) % len(target_route)]
+            p_neighbors_ip1 = get_p_neighborhood(v_ip1, target_route, dist_matrix, neighborhood_size)
+
+            for v_j in p_neighbors_u:
+                j = target_route.index(v_j)
+                if j == i:
+                    continue
+                v_jp1 = target_route[(j + 1) % len(target_route)]
+                p_neighbors_jp1 = get_p_neighborhood(v_jp1, target_route, dist_matrix, neighborhood_size)
+
+                try:
+                    if string_type in (2, 4):
+                        # Phase 3: Decouple neighborhoods
+                        # v_k from N_p(v_{i+1})
+                        for v_k in p_neighbors_ip1:
+                            k = target_route.index(v_k)
+                            if k in (i, j):
+                                continue
+                            # v_l from N_p(v_{j+1})
+                            for v_l in p_neighbors_jp1:
+                                l = target_route.index(v_l)
+                                if l in (i, j, k):
+                                    continue
+
+                                params: Tuple[int, ...] = (i, j, k, l)
+                                new_route, val = _apply_stringing_op(
+                                    target_route,
+                                    node,
+                                    string_type,
+                                    params,
+                                    dist_matrix,
+                                    wastes,
+                                    capacity,
+                                    R,
+                                    C,
+                                    profit_mode,
+                                    current_load,
+                                )
+                                if node in new_route:
+                                    test_routes = [list(r) for r in routes]
+                                    test_routes[r_idx] = new_route
+                                    if not profit_mode:
+                                        val = _evaluate_routes(test_routes, dist_matrix)
+                                    if val > best_value:
+                                        best_value, best_routes = val, test_routes
+                    else:
+                        # Types I and III: v_k \in N_p(v_{i+1})
+                        for v_k in p_neighbors_ip1:
+                            k = target_route.index(v_k)
+                            if k in (i, j):
+                                continue
+
+                            params = (i, j, k)  # type: ignore[assignment]
+                            new_route, val = _apply_stringing_op(
+                                target_route,
+                                node,
+                                string_type,
+                                params,
+                                dist_matrix,
+                                wastes,
+                                capacity,
+                                R,
+                                C,
+                                profit_mode,
+                                current_load,
+                            )
+                            if node in new_route:
+                                test_routes = [list(r) for r in routes]
+                                test_routes[r_idx] = new_route
+                                if not profit_mode:
+                                    val = _evaluate_routes(test_routes, dist_matrix)
+                                if val > best_value:
+                                    best_value, best_routes = val, test_routes
+                except Exception:
+                    continue
+
+    return (best_routes, best_value) if best_routes is not None else None
+
+
 def stringing_insertion_wrapper(  # noqa: C901
     routes: List[List[int]],
     removed_nodes: List[int],
@@ -169,9 +282,16 @@ def stringing_insertion_wrapper(  # noqa: C901
     profit_mode: bool = False,
     expand_pool: bool = False,
     use_alns_fallback: bool = False,
+    random_us_sampling: bool = True,
+    neighborhood_size: int = 5,
 ) -> List[List[int]]:
     """
-    Core stringing insertion logic handling expanding pools and iteration.
+    Core stringing insertion logic with conditional search mode.
+
+    Args:
+        random_us_sampling: If True, use random sampling; if False, use deterministic p-neighborhoods.
+        neighborhood_size: Size of p-neighborhood (for deterministic mode).
+
     Fallback to greedy insertion if stringing fails (e.g., node cannot fit, route too short).
     """
     if rng is None:
@@ -216,12 +336,12 @@ def stringing_insertion_wrapper(  # noqa: C901
                 if (is_mandatory or val_new >= -1e-4) and effective_val_new > best_value:
                     best_value = effective_val_new
                     test_routes_new = [list(r) for r in routes]
-                    test_routes_new.append([0, node, 0])
+                    test_routes_new.append([node])
                     best_routes = test_routes_new
                     best_node = node
             else:
                 test_routes_new = [list(r) for r in routes]
-                test_routes_new.append([0, node, 0])
+                test_routes_new.append([node])
                 val_new = _evaluate_routes(test_routes_new, dist_matrix)
                 if val_new > best_value:
                     best_value = val_new
@@ -234,20 +354,38 @@ def stringing_insertion_wrapper(  # noqa: C901
                 if current_load + node_waste > capacity:
                     continue
 
-                result = _try_string_insertion(
-                    routes,
-                    node,
-                    r_idx,
-                    string_type,
-                    dist_matrix,
-                    wastes,
-                    capacity,
-                    R,
-                    C,
-                    rng,
-                    current_load,
-                    profit_mode,
-                )
+                # Choose search strategy based on random_us_sampling flag
+                if random_us_sampling:
+                    result = _try_string_insertion(
+                        routes,
+                        node,
+                        r_idx,
+                        string_type,
+                        dist_matrix,
+                        wastes,
+                        capacity,
+                        R,
+                        C,
+                        rng,
+                        current_load,
+                        profit_mode,
+                    )
+                else:
+                    result = _try_string_insertion_deterministic(
+                        routes,
+                        node,
+                        r_idx,
+                        string_type,
+                        dist_matrix,
+                        wastes,
+                        capacity,
+                        R,
+                        C,
+                        current_load,
+                        neighborhood_size,
+                        profit_mode,
+                    )
+
                 if result:
                     test_routes, val = result
 
@@ -319,6 +457,8 @@ def stringing_insertion(
     rng: Optional[random.Random] = None,
     expand_pool: bool = False,
     use_alns_fallback: bool = False,
+    random_us_sampling: bool = True,
+    neighborhood_size: int = 5,
 ) -> List[List[int]]:
     """Standard CVRP Stringing Repair."""
     return stringing_insertion_wrapper(
@@ -333,6 +473,8 @@ def stringing_insertion(
         profit_mode=False,
         expand_pool=expand_pool,
         use_alns_fallback=use_alns_fallback,
+        random_us_sampling=random_us_sampling,
+        neighborhood_size=neighborhood_size,
     )
 
 
@@ -349,6 +491,8 @@ def stringing_profit_insertion(
     rng: Optional[random.Random] = None,
     expand_pool: bool = False,
     use_alns_fallback: bool = False,
+    random_us_sampling: bool = True,
+    neighborhood_size: int = 5,
 ) -> List[List[int]]:
     """VRPP Cost-Aware Stringing Repair."""
     # Feedback implementation: Keep Variants I, II, and III purely structural
@@ -367,4 +511,6 @@ def stringing_profit_insertion(
         profit_mode=profit_mode,
         expand_pool=expand_pool,
         use_alns_fallback=use_alns_fallback,
+        random_us_sampling=random_us_sampling,
+        neighborhood_size=neighborhood_size,
     )
