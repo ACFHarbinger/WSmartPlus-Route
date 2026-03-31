@@ -26,7 +26,7 @@ from typing import Optional
 
 import numpy as np
 
-from ..branch_and_cut.separation import SeparationEngine
+from ..branch_and_cut.separation import CapacityCut, SeparationEngine
 from ..branch_and_cut.vrpp_model import VRPPModel
 from ..branch_and_price.master_problem import VRPPMasterProblem
 
@@ -142,17 +142,14 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
         added_cuts = 0
 
         for ineq in violated_ineqs:
-            if ineq.type == "CAPACITY":
+            # Fix: Use isinstance and explicit type check for Mypy
+            if isinstance(ineq, CapacityCut):
                 node_set = list(ineq.node_set)
 
                 # For Set Packing, add cut with boundary relaxation
                 # The master problem handles the y_i visitation tracking
                 if master.add_set_packing_capacity_cut(node_set, ineq.rhs):
                     added_cuts += 1
-
-        # Re-solve LP if cuts were added
-        if added_cuts > 0:
-            master.solve_lp_relaxation()
 
         return added_cuts
 

@@ -7,7 +7,7 @@ The master problem selects routes to cover all mandatory nodes while maximising 
 Based on Section 3.2 of Barnhart et al. (1998).
 """
 
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import gurobipy as gp
 import numpy as np
@@ -138,9 +138,14 @@ class VRPPMasterProblem:
         # LP feasibility is preserved throughout the entire B&B tree.
         self.artificial_vars: Dict[int, gp.Var] = {}
 
-        # Dual values extracted after each LP solve (used by pricing subproblem)
         self.dual_node_coverage: Dict[int, float] = {}
         self.dual_vehicle_limit: float = 0.0
+
+        # ---- Capacity Cut Tracking (Task-requested Lint Fixes) ------------
+        # Map from FrozenSet[int] (node set S) to Gurobi constraint.
+        self.active_capacity_cuts: Dict[FrozenSet[int], gp.Constr] = {}
+        # Dual values π_S used by pricing subproblem reduced-cost calc.
+        self.dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
 
     def remove_unpromising_columns(self, threshold: float) -> int:
         """
@@ -233,6 +238,13 @@ class VRPPMasterProblem:
                 self.model.chgCoeff(constr, var, 1.0)
 
         self.lambda_vars.append(var)
+
+        # Wire into active capacity cuts if any exist
+        for node_set, constr in self.active_capacity_cuts.items():
+            crossings = self._count_crossings(route, node_set)
+            if crossings > 0:
+                self.model.chgCoeff(constr, var, float(crossings))
+
         self.model.update()
 
     # ------------------------------------------------------------------
@@ -393,6 +405,12 @@ class VRPPMasterProblem:
             if constr is not None:
                 self.dual_vehicle_limit = max(0.0, constr.Pi)
 
+        # ---- Extract duals for capacity cuts -----------------------------
+        self.dual_capacity_cuts = {}
+        for node_set, constr in self.active_capacity_cuts.items():
+            # Dual π_S for a >= constraint in MAX LP is non-positive.
+            self.dual_capacity_cuts[node_set] = max(0.0, -constr.Pi)
+
         return obj_value, route_values
 
     def solve_ip(self) -> Tuple[float, List[Route]]:
@@ -477,6 +495,83 @@ class VRPPMasterProblem:
             return node_visits
         except Exception:
             return {}
+
+    def get_edge_usage(self) -> Dict[Tuple[int, int], float]:
+        """
+        Aggregate fractional edge visitation values from current LP solution.
+
+        For an edge (i, j), returns Σ_{k: (i,j) ∈ route_k} λ_k.
+        Edges are returned as canonical sorted tuples (min, max).
+
+        Returns:
+            Mapping from (u, v) -> fractional visitation sum.
+        """
+        if self.model is None or not self.lambda_vars:
+            return {}
+
+        edge_usage: Dict[Tuple[int, int], float] = {}
+        try:
+            for idx, var in enumerate(self.lambda_vars):
+                val = var.X
+                if val > 1e-6:
+                    route = self.routes[idx]
+                    # Route starts and ends at depot (0)
+                    nodes = [0] + route.nodes + [0]
+                    for i in range(len(nodes) - 1):
+                        u, v = nodes[i], nodes[i + 1]
+                        edge = (min(u, v), max(u, v))
+                        edge_usage[edge] = edge_usage.get(edge, 0.0) + val
+            return edge_usage
+        except Exception:
+            return {}
+
+    def add_set_packing_capacity_cut(self, node_list: List[int], rhs: float) -> bool:
+        """
+        Add a Rounded Capacity Cut (RCC) to the master problem.
+
+        The cut enforces that the number of edges crossing the boundary δ(S)
+        of the node set S must be at least twice the minimum number of
+        vehicles required to serve S.
+
+        Constraint:  Σ_{k: route_k crosses δ(S)} crossings_k(S) * λ_k  >=  rhs
+
+        Args:
+            node_list: Nodes in set S.
+            rhs: Right-hand side (2 * ⌈demand(S) / Q⌉).
+
+        Returns:
+            True if the cut was newly added, False if it already exists/failed.
+        """
+        if self.model is None:
+            return False
+
+        node_set = frozenset(node_list)
+        if node_set in self.active_capacity_cuts:
+            # Already have this cut
+            return False
+
+        # Build column-based representation of the cut
+        lhs = gp.LinExpr()
+        for idx, route in enumerate(self.routes):
+            crossings = self._count_crossings(route, node_set)
+            if crossings > 0:
+                lhs += float(crossings) * self.lambda_vars[idx]
+
+        name = f"rcc_{abs(hash(node_set))}"
+        constr = self.model.addConstr(lhs >= rhs, name=name)
+        self.active_capacity_cuts[node_set] = constr
+        self.model.update()
+        return True
+
+    def _count_crossings(self, route: Route, node_set: FrozenSet[int]) -> int:
+        """Count how many times a route crosses the boundary δ(S)."""
+        crossings = 0
+        path_nodes = [0] + route.nodes + [0]
+        for i in range(len(path_nodes) - 1):
+            u, v = path_nodes[i], path_nodes[i + 1]
+            if (u in node_set) != (v in node_set):
+                crossings += 1
+        return crossings
 
     def has_artificial_variables_active(self, tol: float = 1e-6) -> bool:
         """

@@ -63,6 +63,16 @@ def run_bpc(
             - cost: Total travel cost (distance * C)
     """
     engine = values.get("bpc_engine", "ortools")
+    # Fix 7: Warn if ignored parameters are passed to non-custom engines
+    if engine in ("vrpy", "gurobi", "ortools") and (expand_pool or profit_aware_operators):
+        import warnings
+
+        warnings.warn(
+            f"BPC engine '{engine}' does not support expand_pool or "
+            f"profit_aware_operators. These parameters are ignored. "
+            "Use engine='custom' to enable them.",
+            stacklevel=2,
+        )
 
     if engine == "vrpy":
         return run_bpc_vrpy(dist_matrix, wastes, capacity, R, C, values, recorder=recorder)

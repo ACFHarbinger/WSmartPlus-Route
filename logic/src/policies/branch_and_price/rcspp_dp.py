@@ -68,7 +68,7 @@ by a single flag toggle (``use_ng_routes=False``).
 
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
@@ -316,9 +316,10 @@ class RCSPPSolver:
 
     def solve(
         self,
-        dual_values: Dict[int, float],
+        dual_values: Dict[Union[int, str], float],
         max_routes: int = 10,
         branching_constraints: Optional[List[Any]] = None,
+        capacity_cut_duals: Optional[Dict[FrozenSet[int], float]] = None,
     ) -> List[Tuple[List[int], float]]:
         """
         Solve the RCSPP and return routes with positive reduced cost.
@@ -351,6 +352,7 @@ class RCSPPSolver:
         self.labels_infeasible = 0
 
         self.dual_values = dual_values
+        self.capacity_cut_duals = capacity_cut_duals or {}
         self._compute_node_reduced_costs()
 
         constraints: List[Any] = branching_constraints or []
@@ -622,7 +624,16 @@ class RCSPPSolver:
         new_revenue = label.revenue + node_revenue
 
         node_dual = self.dual_values.get(next_node, 0.0)
-        new_rc = label.reduced_cost + (node_revenue - edge_cost - node_dual)
+
+        # Subtract duals from capacity cuts crossed by edge (label.node -> next_node)
+        # An edge crosses cut boundary delta(S) if (u in S) != (v in S).
+        crossing_penalty = 0.0
+        u, v = label.node, next_node
+        for node_set, dual in self.capacity_cut_duals.items():
+            if (u in node_set) != (v in node_set):
+                crossing_penalty += dual
+
+        new_rc = label.reduced_cost + (node_revenue - edge_cost - node_dual - crossing_penalty)
 
         # Always maintain the full visited set for path reconstruction.
         new_visited = label.visited | {next_node}
@@ -679,7 +690,15 @@ class RCSPPSolver:
         new_cost = label.cost + edge_cost
 
         vehicle_dual = self.dual_values.get("vehicle_limit", 0.0)  # type: ignore[call-overload]
-        new_rc = label.reduced_cost - edge_cost - vehicle_dual
+
+        # Subtract duals from capacity cuts crossed by return edge (label.node -> depot)
+        crossing_penalty = 0.0
+        u, v = label.node, self.depot
+        for node_set, dual in self.capacity_cut_duals.items():
+            if (u in node_set) != (v in node_set):
+                crossing_penalty += dual
+
+        new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty
 
         return Label(
             reduced_cost=new_rc,

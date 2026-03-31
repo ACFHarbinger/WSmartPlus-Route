@@ -57,6 +57,10 @@ class BCPPolicy(BaseRoutingPolicy):
 
         Returns:
             Tuple of (routes, profit, solver_cost)
+            - routes: List of routes (list of node indices).
+            - profit: Objective value (collected revenue - distance cost) in $.
+            - solver_cost: Raw travel distance (km), NOT multiplied by cost_unit.
+              Callers needing monetary cost should compute solver_cost * cost_unit.
         """
         # Convert local mandatory indices to a set of must-go nodes for the solver
         must_go_indices: Set[int] = set(mandatory_nodes)
@@ -84,4 +88,5 @@ class BCPPolicy(BaseRoutingPolicy):
                 dist_cost += sub_dist_matrix[path[i]][path[i + 1]]
         profit = collected_revenue - dist_cost * cost_unit
 
+        # Note: solver_cost is raw distance (km); profit already accounts for cost_unit
         return routes, profit, solver_cost
