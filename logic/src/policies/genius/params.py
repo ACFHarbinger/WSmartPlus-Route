@@ -43,6 +43,9 @@ class GENIUSParams:
         profit_aware_operators: Whether to use profit-aware operators (True) or
             cost-aware operators (False).
         time_limit: Wall-clock time limit in seconds. Set to 0 for no limit.
+        random_us_sampling: Whether to use random sampling (True) or deterministic
+            p-neighborhood search (False) for US operators. Default: False for
+            strict adherence to Gendreau et al. (1992).
     """
 
     neighborhood_size: int = 5
@@ -52,6 +55,7 @@ class GENIUSParams:
     vrpp: bool = False
     profit_aware_operators: bool = False
     time_limit: float = 60.0
+    random_us_sampling: bool = False
     seed: Optional[int] = None
 
     @classmethod
@@ -68,5 +72,6 @@ class GENIUSParams:
             vrpp=getattr(config, "vrpp", False),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             time_limit=getattr(config, "time_limit", 60.0),
+            random_us_sampling=getattr(config, "random_us_sampling", False),
             seed=getattr(config, "seed", None),
         )
