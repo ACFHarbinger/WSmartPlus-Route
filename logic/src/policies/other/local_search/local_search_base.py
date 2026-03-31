@@ -25,7 +25,11 @@ import numpy as np
 
 from ..operators.inter_route import (
     move_2opt_star,
+    move_cross,
     move_swap_star,
+    shift_2_0,
+    swap_2_1,
+    swap_2_2,
 )
 from ..operators.inter_route.cross_exchange import cross_exchange, improved_cross_exchange, lambda_interchange
 from ..operators.inter_route.cyclic_transfer import cyclic_transfer
@@ -299,38 +303,61 @@ class LocalSearch(ABC):
         r_u, p_u = u_loc  # type: ignore[misc]
         r_v, p_v = v_loc  # type: ignore[misc]
 
+        if r_u != r_v:
+            return self._process_inter_route(u, v, r_u, p_u, r_v, p_v)
+        else:
+            return self._process_intra_route(u, v, r_u, p_u, r_v, p_v)
+
+    def _process_inter_route(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Process moves between different routes."""
         if (
-            self._should_try_operator("relocate")
-            or self._should_try_operator("intra_relocate" if r_u == r_v else "inter_relocate")
+            self._should_try_operator("relocate") or self._should_try_operator("inter_relocate")
         ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
             return True
 
-        if (
-            self._should_try_operator("swap") or self._should_try_operator("intra_swap" if r_u == r_v else "inter_swap")
-        ) and self._move_swap(u, v, r_u, p_u, r_v, p_v):
+        if (self._should_try_operator("swap") or self._should_try_operator("inter_swap")) and self._move_swap(
+            u, v, r_u, p_u, r_v, p_v
+        ):
             return True
 
-        if r_u != r_v:
-            if self._should_try_operator("inter_2opt_star") and self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
-                return True
-            if self._should_try_operator("inter_swap_star"):
-                s1 = self._polar_sector(r_u)
-                s2 = self._polar_sector(r_v)
-                if self._sectors_overlap(s1, s2) and self._move_swap_star(u, v, r_u, p_u, r_v, p_v):
-                    return True
-        else:
-            if self._should_try_operator("intra_2opt") and self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
-                return True
-            if self._should_try_operator("intra_or_opt") and self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
-                return True
-            if (
-                self._should_try_operator("intra_3opt")
-                and getattr(self.params, "use_3opt", False)
-                and self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random)
-            ):
-                return True
+        if self._should_try_operator("inter_2opt_star") and self._move_2opt_star(u, v, r_u, p_u, r_v, p_v):
+            return True
+        if self._should_try_operator("cross") and self._move_cross(u, v, r_u, p_u, r_v, p_v):
+            return True
+        if self._should_try_operator("shift_2_0") and self._move_shift_2_0(r_u, p_u, r_v, p_v):
+            return True
+        if self._should_try_operator("swap_2_1") and self._move_swap_2_1(r_u, p_u, r_v, p_v):
+            return True
+        if self._should_try_operator("swap_2_2") and self._move_swap_2_2(r_u, p_u, r_v, p_v):
+            return True
 
-        return False
+        return (
+            self._target_neighborhood == "inter_swap_star"
+            and self._sectors_overlap(self._polar_sector(r_u), self._polar_sector(r_v))
+            and self._move_swap_star(u, v, r_u, p_u, r_v, p_v)
+        )
+
+    def _process_intra_route(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Process moves within the same route."""
+        if (
+            self._should_try_operator("relocate") or self._should_try_operator("intra_relocate")
+        ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
+            return True
+
+        if (self._should_try_operator("swap") or self._should_try_operator("intra_swap")) and self._move_swap(
+            u, v, r_u, p_u, r_v, p_v
+        ):
+            return True
+
+        if self._should_try_operator("intra_2opt") and self._move_2opt_intra(u, v, r_u, p_u, r_v, p_v):
+            return True
+        if self._should_try_operator("intra_or_opt") and self._move_or_opt(r_u, p_u, self.random.choice([1, 2, 3])):
+            return True
+        return (
+            self._should_try_operator("intra_3opt")
+            and getattr(self.params, "use_3opt", False)
+            and self._move_3opt_intra(u, v, r_u, p_u, r_v, p_v, self.random)
+        )
 
     def _update_map(self, affected_indices: Set[int]):
         """
@@ -371,6 +398,18 @@ class LocalSearch(ABC):
 
     def _move_or_opt(self, r_idx: int, pos: int, chain_len: int) -> bool:
         return move_or_opt(self, r_idx, pos, chain_len)
+
+    def _move_cross(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        return move_cross(self, u, v, r_u, p_u, r_v, p_v)
+
+    def _move_shift_2_0(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        return shift_2_0(self, r_u, p_u, r_v, p_v)
+
+    def _move_swap_2_1(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        return swap_2_1(self, r_u, p_u, r_v, p_v)
+
+    def _move_swap_2_2(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        return swap_2_2(self, r_u, p_u, r_v, p_v)
 
     def _try_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
         return cross_exchange(self, r_u, p_u, 1, r_v, p_v, 1)
