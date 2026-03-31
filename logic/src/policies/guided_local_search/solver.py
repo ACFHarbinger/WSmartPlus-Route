@@ -1,11 +1,13 @@
 """
-Guided Local Search (GLS) for VRPP.
+Guided Large Neighborhood Search (G-LNS) for VRPP.
 
-GLS augments the objective function with adaptive penalty terms on routing
-edge features that appear in local optima.  When the inner local search
-stagnates, the feature with the highest utility is penalised, artificially
-inflating the cost of the current optimum and guiding the search toward
-unexplored basins.
+G-LNS bridges the Augmented Cost Function of Guided Local Search (GLS) with
+the Ruin-and-Recreate operators of Large Neighborhood Search (LNS). It
+augments the objective function with adaptive penalty terms on routing
+edge features that appear in local optima. When the inner search stagnates,
+the features maximizing a utility function are penalized, and the search
+is explicitly biased toward breaking these features using a targeted
+'penalized removal' operator (the LNS equivalent of Fast Local Search).
 
 Reference:
     Voudouris, C., & Tsang, E. "Guided Local Search and Its
@@ -23,6 +25,7 @@ from ..other.operators import (
     cluster_removal,
     greedy_insertion,
     greedy_profit_insertion,
+    penalized_removal,
     random_removal,
     regret_2_insertion,
     regret_2_profit_insertion,
@@ -34,7 +37,7 @@ from .params import GLSParams
 
 class GLSSolver:
     """
-    Guided Local Search solver for VRPP.
+    Guided Large Neighborhood Search (G-LNS) solver for VRPP.
     """
 
     def __init__(
@@ -68,7 +71,9 @@ class GLSSolver:
             self._llh2,
             self._llh3,
             self._llh4,
+            self._llh5,
         ]
+        self.base_lambda = 0.0
 
     # ------------------------------------------------------------------
     # Public interface
@@ -76,7 +81,7 @@ class GLSSolver:
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run GLS optimisation.
+        Run G-LNS optimisation.
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -91,40 +96,79 @@ class GLSSolver:
         best_routes = copy.deepcopy(routes)
         best_profit = profit
 
-        for restart in range(self.params.max_restarts):
+        # 1. Static Lambda Calculation (Voudouris & Tsang, 1999)
+        # Lambda is calculated once based on the initial solution's spatial traversal cost.
+        # Scaling by traversal cost rather than net profit decouples the GLS spatial
+        # memory mechanism from economic fluctuations and prevents the "zero-lambda" trap.
+        initial_cost = self._cost(routes)
+        self.base_lambda = self.params.alpha_param * (initial_cost / max(1, self.n_nodes))
+
+        # Flag for Markovian Operator Coupling: bias selection after penalty updates
+        penalty_just_updated = False
+
+        for cycle in range(self.params.penalty_cycles):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # Inner local search loop using augmented objective
-            for _ in range(self.params.inner_iterations):
+            # 2. Local Minimum Condition via Stagnation
+            # The search continues using the augmented objective until it stabilizes (local minimum).
+            stagnation_counter = 0
+            while stagnation_counter < self.params.inner_iterations:
                 if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                     break
 
-                llh_idx = self.random.randint(0, self.params.n_llh - 1)
+                # Markovian Operator Coupling:
+                # If we just updated penalties, strongly bias selection toward penalized_removal (_llh5)
+                # to mimic Fast Local Search (FLS) behavior.
+                if penalty_just_updated and self.random.random() < self.params.fls_coupling_prob:
+                    llh_idx = 5  # Index of _llh5 (penalized_removal)
+                else:
+                    llh_idx = self.random.randint(0, len(self._llh_pool) - 1)
+
                 llh = self._llh_pool[llh_idx]
 
                 try:
                     new_routes = llh(copy.deepcopy(routes), self.params.n_removal)
                 except Exception:
+                    stagnation_counter += 1
                     continue
 
-                # Accept if augmented objective improves
-                aug_new = self._augmented_evaluate(new_routes, self.params.lambda_param)
-                aug_cur = self._augmented_evaluate(routes, self.params.lambda_param)
+                # Accept if augmented objective improves or stays the same (plateau)
+                aug_new = self._augmented_evaluate(new_routes)
+                aug_cur = self._augmented_evaluate(routes)
 
-                if aug_new >= aug_cur:
+                if aug_new > aug_cur or abs(aug_new - aug_cur) < 1e-9:
                     routes = new_routes
                     real_profit = self._evaluate(routes)
 
+                    # Always check for a global best on any accepted move.
+                    # Because Aug = Profit - Lambda * Penalty, a plateau move in
+                    # augmented space may represent a strict improvement in real profit.
                     if real_profit > best_profit:
                         best_routes = copy.deepcopy(routes)
                         best_profit = real_profit
 
-            # At local optimum: penalise the edge with highest utility
+                    # Manage stagnation mechanics
+                    if aug_new > aug_cur:
+                        # To adapt the continuous descent requirement of GLS to the discrete
+                        # ruin-and-recreate mechanics of LNS, a "local optimum" is strictly
+                        # defined as a state where $k$ consecutive LNS transformations fail to
+                        # yield an improvement. Resetting the counter ensures the search
+                        # strictly exhausts the current augmented cost basin before triggering
+                        # a penalty update.
+                        stagnation_counter = 0
+                        penalty_just_updated = False
+                    else:
+                        stagnation_counter += 1
+                else:
+                    stagnation_counter += 1
+
+            # At local optimum: penalise all features with maximum utility
             self._update_penalties(routes)
+            penalty_just_updated = True
 
             getattr(self, "_viz_record", lambda **k: None)(
-                iteration=restart,
+                iteration=cycle,
                 best_profit=best_profit,
                 best_cost=self._cost(best_routes),
             )
@@ -149,32 +193,45 @@ class GLSSolver:
         return edges
 
     def _update_penalties(self, routes: List[List[int]]) -> None:
-        """Penalise the edge feature with highest utility."""
+        """Penalise all feature(s) with the maximum utility."""
         edges = self._get_edges(routes)
         if not edges:
             return
 
-        best_utility = -1.0
-        best_edge = None
+        # Normalize to unique undirected features to prevent double-penalizing
+        # 1-node routes (e.g., [A] -> (0,A) and (A,0) are the same spatial feature).
+        undirected_edges = {tuple(sorted(edge)) for edge in edges}
 
-        for i, j in edges:
+        # 3. Handle Ties in Penalty Updates
+        # Identify the maximum utility value among all edges in the current local optimum.
+        max_utility = -1.0
+        utilities = []
+
+        for i, j in undirected_edges:
+            # The feature cost must represent pure objective degradation (spatial
+            # traversal cost) to guarantee geometric regularization. It ensures the
+            # algorithm does not become trapped traversing globally inefficient edges
+            # simply because they connect locally profitable nodes.
             cost_ij = self.dist_matrix[i][j]
+
             utility = cost_ij / (1.0 + self.penalties[i][j])
-            if utility > best_utility:
-                best_utility = utility
-                best_edge = (i, j)
+            utilities.append(((i, j), utility))
+            if utility > max_utility:
+                max_utility = utility
 
-        if best_edge is not None:
-            self.penalties[best_edge[0]][best_edge[1]] += 1.0
+        # Penalize ALL edges that share the maximum utility (within epsilon)
+        if max_utility > -1.0:
+            for edge, utility in utilities:
+                if utility >= max_utility - 1e-6:
+                    # Treat edges as undirected features to prevent trivial escape
+                    # via route inversion.
+                    self.penalties[edge[0]][edge[1]] += 1.0
+                    self.penalties[edge[1]][edge[0]] += 1.0
 
-    def _augmented_evaluate(self, routes: List[List[int]], weight: float) -> float:
-        """Evaluate with penalty-augmented objective."""
+    def _augmented_evaluate(self, routes: List[List[int]]) -> float:
+        """Evaluate with penalty-augmented objective using static lambda."""
         real = self._evaluate(routes)
         penalty = 0.0
-        # If real profit is negative, we shift it to ensure dynamic_lambda is meaningful
-        # GLS typically works on cost minimization, here we maximize profit
-        abs_val = abs(real)
-        dynamic_lambda = self.params.alpha_param * (abs_val / max(1, self.n_nodes))
 
         for route in routes:
             if not route:
@@ -184,8 +241,9 @@ class GLSSolver:
                 penalty += self.penalties[route[k]][route[k + 1]]
             penalty += self.penalties[route[-1]][0]
 
-        # For maximization: Profit' = Profit - Weight * dynamic_lambda * penalty
-        return real - weight * dynamic_lambda * penalty
+        # Profit' = Profit - (Weight * Base_Lambda * PenaltySum)
+        # Note: self.params.lambda_param acts as the global scaling weight
+        return real - self.params.lambda_param * self.base_lambda * penalty
 
     # ------------------------------------------------------------------
     # LLH pool
@@ -312,6 +370,32 @@ class GLSSolver:
         else:
             partial, removed = random_removal(routes, n, self.random)
             return regret_2_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                mandatory_nodes=self.mandatory_nodes,
+                expand_pool=self.params.vrpp,
+            )
+
+    def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Penalized Removal (Targeted Destruction): The G-LNS equivalent of FLS."""
+        partial, removed = penalized_removal(routes, n, self.penalties, rng=self.random)  # type: ignore[arg-type]
+        if self.params.profit_aware_operators:
+            return greedy_profit_insertion(
+                partial,
+                removed,
+                self.dist_matrix,
+                self.wastes,
+                self.capacity,
+                self.R,
+                self.C,
+                self.mandatory_nodes,
+                self.params.vrpp,
+            )
+        else:
+            return greedy_insertion(
                 partial,
                 removed,
                 self.dist_matrix,

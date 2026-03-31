@@ -15,7 +15,7 @@ from logic.src.policies.guided_local_search.solver import GLSSolver
 
 @PolicyRegistry.register("gls")
 class GLSPolicy(BaseRoutingPolicy):
-    """Guided Local Search policy class."""
+    """Guided Large Neighborhood Search (G-LNS) policy class."""
 
     def __init__(self, config: Optional[Union[GLSConfig, Dict[str, Any]]] = None):
         super().__init__(config)
@@ -41,10 +41,11 @@ class GLSPolicy(BaseRoutingPolicy):
         params = GLSParams(
             lambda_param=float(values.get("lambda_param", 1.0)),
             alpha_param=float(values.get("alpha_param", 0.3)),
-            max_restarts=int(values.get("max_restarts", 50)),
+            penalty_cycles=int(values.get("penalty_cycles", values.get("max_restarts", 1000))),
             n_removal=int(values.get("n_removal", 2)),
-            n_llh=int(values.get("n_llh", 5)),
-            inner_iterations=int(values.get("inner_iterations", 20)),
+            n_llh=int(values.get("n_llh", 6)),
+            inner_iterations=int(values.get("inner_iterations", 100)),
+            fls_coupling_prob=float(values.get("fls_coupling_prob", 0.8)),
             time_limit=float(values.get("time_limit", 60.0)),
             seed=values.get("seed", 42),
             vrpp=values.get("vrpp", True),

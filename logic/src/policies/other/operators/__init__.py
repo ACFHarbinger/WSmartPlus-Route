@@ -32,6 +32,7 @@ from .destroy import (
     historical_profit_removal,
     historical_removal,
     neighbor_removal,
+    penalized_removal,
     random_removal,
     route_profit_removal,
     route_removal,
@@ -164,6 +165,7 @@ __all__ = [
     "neighbor_profit_removal",
     "historical_profit_removal",
     "sector_profit_removal",
+    "penalized_removal",
     # Repair
     "greedy_insertion",
     "greedy_profit_insertion",
