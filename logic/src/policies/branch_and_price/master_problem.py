@@ -77,11 +77,18 @@ class VRPPMasterProblem:
             mandatory nodes.  In the optimal solution M drives α_i to zero; if any
             α_i > 0 in the final solution, the node is declared infeasible and pruned.
 
-        No dynamic cuts:
-            Capacity and routing feasibility are delegated entirely to the ESPPRC
-            pricing subproblem (rcspp_dp.py).  Adding cutting planes to the master
-            would introduce extra dual variables that the pricing DP cannot account
-            for, creating a dual desync and invalidating the reduced-cost criterion.
+        Dynamic cuts (Rounded Capacity Cuts):
+            RCC cuts can be added to the master via add_set_packing_capacity_cut().
+            Their dual variables (π_S) are extracted after each LP solve and stored in
+            dual_capacity_cuts. The pricing subproblem (RCSPPSolver) integrates these
+            duals into its reduced-cost calculation, ensuring that newly generated
+            columns account for the cut constraints. This follows the approach of
+            Barnhart et al. (1998, Section 5): reoptimise the LP after adding cuts and
+            re-run the pricing problem with modified arc costs reflecting the new duals.
+
+            Comb inequalities and Lifted Cover Inequalities are NOT added to this master
+            because their dual integration into the RCSPP state-space is non-trivial and
+            currently unsupported (see cutting_planes.py for details).
     """
 
     def __init__(
@@ -147,16 +154,16 @@ class VRPPMasterProblem:
         # Dual values π_S used by pricing subproblem reduced-cost calc.
         self.dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
 
-    def remove_unpromising_columns(self, threshold: float) -> int:
+    def remove_unpromising_columns(self, rc_floor: float) -> int:
         """
-        Remove columns with highly negative reduced costs from the model.
+        Remove columns with reduced cost below rc_floor from the model.
 
         Frees up memory and accelerates LP solves by keeping the model small.
         Only non-basic variables (X=0) are candidates for deletion.
 
         Args:
-            threshold: Reduced cost cutoff (e.g., -100.0).  Variables with
-                RC < threshold are deleted.
+            rc_floor: Reduced cost lower bound (e.g., -100.0). Variables with
+                RC < rc_floor are candidates for removal.
 
         Returns:
             Number of columns removed.
@@ -171,7 +178,7 @@ class VRPPMasterProblem:
             try:
                 # var.RC is the reduced cost in Gurobi.
                 # var.X is the value (0.0 for non-basic columns in most cases).
-                if var.X < 1e-6 and threshold > var.RC:
+                if var.X < 1e-6 and rc_floor > var.RC:
                     to_remove.append(i)
             except gp.GurobiError:
                 # RC might not be available if the model wasn't solved optimally

@@ -118,10 +118,7 @@ class RLGDHHSolver:
 
         # Pre-compute constant per-iteration decline (maps iteration ↔ time step)
         # Guard: if f0 <= quality_lb, the water level never moves.
-        if f0 > quality_lb:
-            decline_rate = (f0 - quality_lb) / self.params.max_iterations
-        else:
-            decline_rate = 0.0
+        decline_rate = (f0 - quality_lb) / self.params.max_iterations if f0 > quality_lb else 0.0
 
         water_level = f0  # t = 0  →  level = f0
 
