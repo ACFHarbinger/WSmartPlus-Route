@@ -25,6 +25,7 @@ References:
       "An Integer Programming Approach to Scheduling".
 """
 
+import logging
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -40,6 +41,8 @@ from ..branch_and_price.rcspp_dp import RCSPPSolver
 from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
 from .search_strategy import create_search_strategy
+
+logger = logging.getLogger(__name__)
 
 
 def _apply_branching_to_master(
@@ -208,6 +211,9 @@ def _column_generation_loop(
     time_limit: Optional[float],
     start_time: float,
     max_routes_per_pricing: int = 5,
+    vehicle_limit: Optional[int] = None,
+    optimality_gap: float = 1e-4,
+    early_termination_gap: float = 1e-3,
 ) -> Tuple[float, Dict[int, float]]:
     """
     Run Column Generation + Cutting Plane loop at a B&B node.
@@ -219,63 +225,64 @@ def _column_generation_loop(
     3. If cuts are found, add them and return to Step 1
     4. Terminate when no columns price out AND no cuts are violated
 
-    This ensures that cutting planes are separated on a "stable" LP solution
-    where column generation has converged, avoiding premature cut generation
-    on incomplete solutions.
-
-    Args:
-        master: Master problem
-        pricing_solver: RCSPP pricing solver
-        cut_engine: Cutting plane separation engine
-        branching_constraints: Active branching constraints
-        max_cg_iterations: Maximum CG iterations
-        max_cuts: Maximum cuts per iteration
-        time_limit: Optional time limit in seconds
-        start_time: Process start time
-
-    Returns:
-        Tuple of (LP objective value, route values dictionary)
+    COLUMN GENERATION EARLY TERMINATION:
+    -------------------------------------
+    We terminate Phase 1 CG early if the maximum reduced cost of any newly
+    generated column, scaled by the vehicle limit, is below the gap tolerance:
+        max_rc * K < early_termination_gap
+    This is a practical convergence heuristic — not a strict Lagrangian bound —
+    that avoids unnecessary LP solves when the remaining improvement is negligible.
+    Note: A true Lagrangian upper bound requires the most positive reduced cost
+    across the ENTIRE unprice column space, which is not cheaply available.
     """
     needs_resolve = False
-    cuts_added = 0
     obj_val: float = 0.0
     route_vals: Dict[int, float] = {}
+    converged = False
+    _iteration = 0
+
+    if max_cg_iterations <= 0:
+        raise ValueError(f"max_cg_iterations must be >= 1, got {max_cg_iterations}")
 
     for _iteration in range(max_cg_iterations):
         if time_limit and (time.process_time() - start_time) > time_limit:
-            needs_resolve = True  # May have added cuts without re-solving
+            needs_resolve = True
             break
 
         # PHASE 1: Column Generation (price until convergence)
         while True:
-            # Solve LP Relaxation
             try:
-                # Type annotations to satisfy Mypy
                 obj_val, route_vals = master.solve_lp_relaxation()
             except Exception as e:
                 raise RuntimeError("LP relaxation failed at B&B node") from e
 
-            # Solve Pricing Subproblem
             added = _solve_pricing_step(
                 master, pricing_solver, branching_constraints, max_routes=max_routes_per_pricing
             )
 
             if added == 0:
-                # No more columns with positive reduced cost - pricing converged
                 break
+
+            if hasattr(pricing_solver, "last_max_rc"):
+                max_rc = pricing_solver.last_max_rc
+                limit = vehicle_limit if vehicle_limit is not None else master.n_nodes
+                if max_rc * limit < early_termination_gap:
+                    logger.info(
+                        f"CG early termination: max_rc * limit = {max_rc * limit:.6f} < {early_termination_gap}"
+                    )
+                    break
 
         # PHASE 2: Cutting Planes (separate on converged LP solution)
         cuts_added = _separate_cuts(master, cut_engine, max_cuts)
 
         if cuts_added == 0:
-            # No violated cuts found - both pricing and cutting have converged
+            converged = True
             break
 
-        # Cuts were added - LP solution has changed, return to pricing phase
         needs_resolve = True
 
-    # Fix 4: Add convergence diagnostic when max_cg_iterations cap is hit
-    if _iteration == max_cg_iterations - 1 and cuts_added > 0:
+    # Warn only when the iteration cap truncated an unconverged loop
+    if not converged and _iteration == max_cg_iterations - 1:
         import warnings
 
         warnings.warn(
@@ -291,7 +298,7 @@ def _column_generation_loop(
     return obj_val, route_vals
 
 
-def run_custom_bpc(
+def run_custom_bpc(  # noqa: C901
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
@@ -339,7 +346,7 @@ def run_custom_bpc(
             - time_limit: Time limit in seconds (optional)
             - search_strategy: "best_first" or "depth_first" (default "depth_first")
             - cutting_planes: "rcc" (default "rcc")
-            - branching_strategy: "ryan_foster", "edge", or "divergence" (default "ryan_foster")
+            - branching_strategy: "ryan_foster", "edge", or "divergence" (default "divergence")
         mandatory_nodes: List of mandatory node indices
         expand_pool: Whether to expand initial route pool
         profit_aware_operators: Whether to use profit-aware greedy
@@ -362,7 +369,7 @@ def run_custom_bpc(
     # Strategy Configuration
     search_strategy_name = values.get("search_strategy", "depth_first")
     cutting_planes_name = values.get("cutting_planes", "rcc")
-    branching_strategy_name = values.get("branching_strategy", "ryan_foster")
+    branching_strategy_name = values.get("branching_strategy", "divergence")
 
     # 1. Initialize Master Problem
     master = VRPPMasterProblem(
@@ -426,6 +433,8 @@ def run_custom_bpc(
 
     # 5. Initialize Branch-and-Bound Tree with configured branching strategy
     bb_tree = BranchAndBoundTree(strategy=branching_strategy_name)
+    # Node selection is handled exclusively by the external search_strategy object.
+    # bb_tree.get_next_node() is NOT used; always call search_strategy.select_node().
     nodes_explored = 0
 
     # 6. Branch-and-Bound Loop
@@ -461,6 +470,9 @@ def run_custom_bpc(
                 time_limit=time_limit,
                 start_time=start_time,
                 max_routes_per_pricing=max_routes_per_pricing,
+                vehicle_limit=master.vehicle_limit,
+                optimality_gap=values.get("optimality_gap", 1e-4),
+                early_termination_gap=values.get("early_termination_gap", 1e-3),
             )
         except RuntimeError:
             # LP infeasible at this node
@@ -491,7 +503,23 @@ def run_custom_bpc(
         # Solution is fractional - branch
         children = bb_tree.branch(current_node, master.routes, route_values)
         if children is None:
-            continue
+            # Primary branching strategy found no candidate (e.g., divergence branching
+            # requires >=2 outgoing arcs at a divergence node but none exist).
+            # Fall back to edge branching to avoid silently abandoning this fractional node.
+            logger.warning(
+                f"Primary branching strategy '{branching_strategy_name}' returned no "
+                "branching candidate at a fractional node. Falling back to edge branching."
+            )
+            from ..branch_and_price.branching import EdgeBranching
+
+            arc = EdgeBranching.find_branching_arc(master.routes, route_values)
+            if arc is None:
+                # Truly no branching candidate — node is degenerate, skip it.
+                logger.warning("Edge branching fallback also found no candidate. Skipping node.")
+                continue
+            u, v = arc
+            left_child, right_child = EdgeBranching.create_child_nodes(current_node, u, v)
+            children = (left_child, right_child)
 
         left_child, right_child = children
         bb_tree.add_node(left_child)
