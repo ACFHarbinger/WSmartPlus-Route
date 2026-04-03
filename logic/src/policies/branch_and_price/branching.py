@@ -471,6 +471,20 @@ class RyanFosterBranching:
     can erroneously prune optimal over-covering solutions. Use 'edge'
     branching for rigorous proofs of optimality.
 
+    Specifically, the `together=True` branch disables any route that visits
+    only one of the pair (r, s). In a Set Partitioning (== 1) master, this
+    is always safe because each node is covered by exactly one route. In a
+    Set Covering (>= 1) master — as used in VRPPMasterProblem — a route
+    visiting only r is a valid column (s may be covered by another route),
+    so disabling it can remove optimal columns and cause the solver to miss
+    the true optimum.
+
+    To use Ryan-Foster branching with full exactness guarantees, either:
+      1. Switch VRPPMasterProblem to Set Partitioning (== 1) coverage
+         constraints for mandatory nodes, OR
+      2. Use EdgeBranching ('edge' strategy) instead, which does not have
+         this limitation.
+
     Reference: Ryan & Foster (1981), Proposition 1.
     """
 
@@ -570,65 +584,34 @@ class BranchAndBoundTree:
         :class:`RyanFosterBranching`.  Compatible with set-partitioning
         master problems.
 
-    The tree uses best-first search (highest LP bound) to minimise the number
-    of nodes explored before proving optimality.
+    Node selection strategy is injected externally via `NodeSelectionStrategy` objects
+    (see `search_strategy.py`). `BranchAndBoundTree` does not perform node selection
+    itself — call `strategy.select_node(bb_tree.open_nodes)` from the solver loop.
     """
 
-    def __init__(self, strategy: str = "edge", search_strategy: str = "best_first") -> None:
+    def __init__(self, strategy: str = "edge") -> None:
         """
         Initialise the B&B tree.
 
         Args:
             strategy: Branching strategy — ``"edge"`` (default),
                 ``"ryan_foster"``, or ``"divergence"``.
-            search_strategy: Node selection strategy — ``"best_first"`` (default)
-                or ``"depth_first"``.
 
         Raises:
             ValueError: If an unsupported strategy string is provided.
         """
-        if strategy not in ("edge", "ryan_foster", "divergence"):
+        if strategy not in ("edge", "ryan_foster", "divergence", "multi_edge_partition"):
             raise ValueError(
                 f"Unsupported branching strategy '{strategy}'. Choose 'edge', 'ryan_foster', or 'divergence'."
             )
-        if search_strategy not in ("best_first", "depth_first"):
-            raise ValueError(f"Unsupported search strategy '{search_strategy}'. Choose 'best_first' or 'depth_first'.")
 
         self.strategy: str = strategy
-        self.search_strategy: str = search_strategy
         self.root: BranchNode = BranchNode()
         self.open_nodes: List[BranchNode] = [self.root]
         self.best_integer_solution: Optional[float] = None
         self.best_integer_node: Optional[BranchNode] = None
         self.nodes_explored: int = 0
         self.nodes_pruned: int = 0
-
-    # ------------------------------------------------------------------
-    # Node selection
-    # ------------------------------------------------------------------
-
-    def get_next_node(self) -> Optional[BranchNode]:
-        """
-        Pop and return the next open node based on the search strategy.
-
-        - "best_first": Picks node with highest LP bound.
-        - "depth_first": Picks latest added node (LIFO).
-
-        Returns:
-            Next node to process, or None if the frontier is empty.
-        """
-        if not self.open_nodes:
-            return None
-
-        if self.search_strategy == "best_first":
-            self.open_nodes.sort(
-                key=lambda n: n.lp_bound if n.lp_bound is not None else float("-inf"),
-                reverse=True,
-            )
-            return self.open_nodes.pop(0)
-        else:
-            # depth_first (LIFO)
-            return self.open_nodes.pop()
 
     def add_node(self, node: BranchNode) -> None:
         """Enqueue a new open node."""
@@ -666,7 +649,9 @@ class BranchAndBoundTree:
                 return None
             u, v = arc
             return EdgeBranching.create_child_nodes(node, u, v)
-        elif self.strategy == "multi_edge_partition":
+        elif self.strategy in ("divergence", "multi_edge_partition"):
+            # "divergence" is the documented public name; "multi_edge_partition" is the
+            # internal implementation name. Both route to MultiEdgePartitionBranching.
             res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values)
             if res is not None:
                 div_node, arc_set_1, arc_set_2 = res
@@ -693,7 +678,12 @@ class BranchAndBoundTree:
         if self.best_integer_solution is None:
             return 0
         before = len(self.open_nodes)
-        self.open_nodes = [n for n in self.open_nodes if n.lp_bound is None or n.lp_bound > self.best_integer_solution]
+        self.open_nodes = [
+            n
+            for n in self.open_nodes
+            if not n.is_infeasible  # exclude known infeasible
+            and (n.lp_bound is None or n.lp_bound > self.best_integer_solution)
+        ]
         pruned = before - len(self.open_nodes)
         self.nodes_pruned += pruned
         return pruned

@@ -21,9 +21,11 @@ References:
       (Lifting procedures for cover inequalities)
 """
 
+import time
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 
+import gurobipy as gp
 import numpy as np
 
 from ..branch_and_cut.separation import CapacityCut, SeparationEngine
@@ -138,11 +140,12 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
                 x_vals[idx] = val
 
         # Separate cuts using the existing separation engine
-        violated_ineqs = self.sep_engine.separate(x_vals, max_cuts=max_cuts)
+        # BPC separation always operates on fractional LP solutions.
+        # Use separate_fractional() for exact max-flow based RCC separation.
+        violated_ineqs = self.sep_engine.separate_fractional(x_vals, max_cuts=max_cuts)
         added_cuts = 0
 
         for ineq in violated_ineqs:
-            # Fix: Use isinstance and explicit type check for Mypy
             if isinstance(ineq, CapacityCut):
                 node_set = list(ineq.node_set)
 
@@ -157,11 +160,91 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
         return "rcc"
 
 
-# class LiftedCoverInequalityEngine(CuttingPlaneEngine):
-#     """
-#     Lifted Cover Inequality (LCI) separation engine for knapsack constraints.
-#     ... (commented out for mathematical rigor)
-#     """
+class KnapsackCoverEngine(CuttingPlaneEngine):
+    """
+    Separates Cover Inequalities for knapsack constraints in the Master Problem.
+
+    In the VRPP context, this primarily targets the fleet size (vehicle limit)
+    constraint: Σ λ_k ≤ K. While simpler than a general knapsack with varied
+    weights, separating covers for the fleet limit helps strengthen the
+    integrality of the master problem in tightly constrained instances.
+
+    Reference: Barnhart et al. (2000), Section 5.
+
+    Interaction with the fleet constraint:
+        When VRPPMasterProblem has an active vehicle_limit constraint
+        (Σ λ_k ≤ K), the fleet constraint already prevents the LP from
+        selecting more than K routes. In that case, this engine's cover cut
+        (Σ_{k ∈ top_K+1} λ_k ≤ K) is redundant and will never fire.
+
+        This engine is primarily useful when NO explicit vehicle_limit is set
+        in the master problem — e.g., in uncapacitated-fleet VRPP variants —
+        where the cover cut provides a surrogate fleet-size tightening.
+
+        If vehicle_limit is always set, consider disabling this engine to
+        avoid unnecessary separation overhead.
+    """
+
+    def __init__(self, v_model: VRPPModel, sep_engine: SeparationEngine):
+        self.v_model = v_model
+        self.sep_engine = sep_engine
+
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        """
+        Identify and add violated cover inequalities for the vehicle limit.
+        """
+        if master.vehicle_limit is None or master.model is None:
+            return 0
+
+        # Σ λ_k ≤ K.
+        # A cover C is any subset of routes such that |C| > K.
+        # The inequality is Σ_{k ∈ C} λ_k ≤ |C| - 1.
+        # Violation occurs if Σ_{k ∈ C} λ_k > |C| - 1.
+
+        # Strategy: find routes with largest fractional values.
+        # If the sum of the top K+1 λ_k values exceeds K, we have a violation.
+        route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
+        if len(route_values) <= master.vehicle_limit:
+            return 0
+
+        sorted_indices = sorted(route_values.keys(), key=lambda i: route_values[i], reverse=True)
+        top_k_plus_1 = sorted_indices[: master.vehicle_limit + 1]
+        sum_top = sum(route_values[i] for i in top_k_plus_1)
+
+        if sum_top > master.vehicle_limit + 1e-4:
+            # Violated cover found
+            lhs = gp.LinExpr()
+            for i in top_k_plus_1:
+                lhs += master.lambda_vars[i]
+
+            master.model.addConstr(lhs <= master.vehicle_limit, name=f"fleet_cover_{time.time()}")
+            master.model.update()
+            return 1
+
+        return 0
+
+    def get_name(self) -> str:
+        return "cover"
+
+
+class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
+    """
+    Combines multiple separation engines to run in sequence.
+    """
+
+    def __init__(self, engines: List[CuttingPlaneEngine]) -> None:
+        self.engines = engines
+
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        total_added = 0
+        for engine in self.engines:
+            if total_added >= max_cuts:
+                break
+            total_added += engine.separate_and_add_cuts(master, max_cuts - total_added)
+        return total_added
+
+    def get_name(self) -> str:
+        return "composite"
 
 
 def create_cutting_plane_engine(
@@ -171,9 +254,9 @@ def create_cutting_plane_engine(
     Factory function to create cutting plane engines.
 
     Args:
-        engine_name: Name of the engine ("rcc" or "lci")
+        engine_name: Name of the engine ("rcc", "src", "cover", or "all")
         v_model: VRPP model for problem data
-        sep_engine: Separation engine (required for RCC)
+        sep_engine: Separation engine (required for RCC/SRC)
 
     Returns:
         Instance of the requested cutting plane engine
@@ -190,6 +273,19 @@ def create_cutting_plane_engine(
         if sep_engine is None:
             raise ValueError("RCC engine requires sep_engine parameter")
         return RoundedCapacityCutEngine(v_model, sep_engine)
+    elif engine_name == "cover":
+        if sep_engine is None:
+            raise ValueError("Cover engine requires sep_engine parameter")
+        return KnapsackCoverEngine(v_model, sep_engine)
+    elif engine_name == "all":
+        if sep_engine is None:
+            raise ValueError("Composite engine requires sep_engine parameter")
+        return CompositeCuttingPlaneEngine(
+            [
+                RoundedCapacityCutEngine(v_model, sep_engine),
+                KnapsackCoverEngine(v_model, sep_engine),
+            ]
+        )
     elif engine_name == "lci":
         raise ValueError(
             "LCI engine is currently disabled. Lifted Cover Inequalities "
@@ -197,4 +293,4 @@ def create_cutting_plane_engine(
             "to ensure valid LP bounds."
         )
     else:
-        raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: ['rcc']")
+        raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: ['rcc', 'cover', 'all']")
