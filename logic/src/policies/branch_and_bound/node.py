@@ -17,8 +17,9 @@ class Node:
     value, implementing a best-bound-first search strategy to minimize tree size.
 
     Attributes:
-        bound (float): The objective value of the Linear Programming relaxation
-            at this node. Serves as a deterministic lower bound for the subproblem.
+        bound (float): The LP relaxation objective value at this node.
+            Serves as an upper bound on any integer solution reachable from
+            this node (for maximization problems).
         fixed_x (Dict[Tuple[int, int], int]): A dictionary mapping edge tuples (i, j)
             to their fixed binary values (0 or 1).
         fixed_y (Dict[int, int]): A dictionary mapping customer IDs to their
@@ -26,11 +27,7 @@ class Node:
         depth (int): The distance of the node from the root of the search tree.
     """
 
-    bound: float = field(compare=True)  # LP relaxation value (lower bound for minimization)
+    bound: float = field(compare=True)  # LP relaxation value (upper bound for maximization)
     fixed_x: Dict[Tuple[int, int], int] = field(compare=False, default_factory=dict)
     fixed_y: Dict[int, int] = field(compare=False, default_factory=dict)
     depth: int = field(compare=False, default=0)
-
-    def __post_init__(self):
-        """Standardization of floating point precision for the bound if necessary."""
-        pass
