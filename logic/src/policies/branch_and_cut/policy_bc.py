@@ -107,22 +107,18 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
         )
 
         # Solve
-        tour, profit, stats = solver.solve()
+        routes, profit, stats = solver.solve()
 
-        # Convert tour to routes format (single route for single vehicle)
-        # Remove depot (0) from tour for route representation
-        if tour and len(tour) > 2:  # More than just depot visits
-            route = [node for node in tour if node != 0]
-            routes = [route] if route else []
-        else:
-            routes = []
+        # Compute travel cost from the solver's objective value.
+        # Objective = travel_cost - waste_collected (Gurobi minimizes)
+        # profit = -ObjVal = waste_collected - travel_cost
+        # => travel_cost = waste_collected - profit
 
-        # Calculate actual distance cost
-        dist_cost = 0.0
-        if tour:
-            for i in range(len(tour) - 1):
-                dist_cost += sub_dist_matrix[tour[i]][tour[i + 1]]
-            dist_cost *= cost_unit
+        # 1. Total waste collected (revenue side)
+        total_revenue = sum(model.get_node_profit(i) for route in routes for i in route)
 
-        # Return routes, profit, and distance cost
+        # 2. Derive distance cost: dist_cost = travel_cost
+        # travel_cost = waste_collected - profit (already in monetary units)
+        dist_cost = max(0.0, total_revenue - profit)
+
         return routes, profit, dist_cost
