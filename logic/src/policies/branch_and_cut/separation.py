@@ -488,7 +488,11 @@ class SeparationEngine:
                 continue
             try:
                 flow_result = maximum_flow(csr_matrix(adj), source_node, sink)
-                cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, sink)
+                source_side = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, sink)
+                # Capacity cuts require the customer-side (depot-free side) of the cut.
+                # _extract_min_cut returns the source-side which contains the depot,
+                # so invert to get the customer-side.
+                cut_set = set(range(self.model.n_nodes)) - source_side
 
                 # Prune invalid cuts: single-node sets, depot in set, or empty sets
                 # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
@@ -523,9 +527,10 @@ class SeparationEngine:
     def _separate_pcsec_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
         """
         Exact prize-collecting subtour separation using minimum cut (max-flow).
+        Fischetti et al. (1997), Section 3.1: GSEC_SEP.
 
-        For selected seed pairs, compute minimum cut to find most violated PC-SEC.
-        At the Root Node, the separation is truly exact (checks all nodes).
+        Finds violated PC-SECs by solving max-flow problems between a reference
+        source node s and the depot.
         """
         n = self.model.n_nodes
         adj = np.zeros((n, n))
@@ -535,75 +540,96 @@ class SeparationEngine:
                 adj[i, j] = val
                 adj[j, i] = val
 
-        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.1]
+        # 1. Source-node selection (s)
+        # We select node_i such that y*_i is maximum among nodes i for which y*_i >= eps.
+        eps = 0.01
+        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] >= eps]
+        if not visited_customers:
+            return
 
-        # Throttling: Check all promising nodes at root, cap at 20 otherwise.
-        max_sinks = len(visited_customers) if root_node else 20
+        source_node = (
+            max(visited_customers, key=lambda c: y_vals[c - 1]) if y_vals is not None else visited_customers[0]
+        )
 
-        # Fixed source s where y_s* = max{y_v*}
-        source_node = int(np.argmax(y_vals)) + 1 if y_vals is not None else self.model.depot
+        # Root node: check all visited customers. Others: check up to 10.
+        max_sinks = len(visited_customers) if root_node else 10
 
-        for customer in visited_customers[:max_sinks]:
-            if customer == source_node:
+        for sink_node in visited_customers[:max_sinks]:
+            if sink_node == source_node or sink_node == self.model.depot:
                 continue
+
             try:
-                flow_result = maximum_flow(csr_matrix(adj), source_node, customer)
+                # Solve max-flow from source_node to sink_node (isolation of S from depot)
+                flow_result = maximum_flow(csr_matrix(adj), source_node, sink_node)
                 max_flow_value = flow_result.flow_value
+                flow_matrix = flow_result.flow.toarray()
 
-                target_value = 2.0
-                if y_vals is not None:
-                    target_value = 2.0 * y_vals[customer - 1]
+                # Extract cut set S reachable from source in residual graph
+                s_set = self._extract_min_cut(adj, flow_matrix, source_node, sink_node)
 
-                if max_flow_value < target_value - 0.01:
-                    violation = target_value - max_flow_value
-                    cut_set = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, customer)
-
-                    # Prune invalid cuts: single-node sets, depot in set, empty sets, or duplicates
-                    # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
-                    if (
-                        cut_set
-                        and len(cut_set) >= 2
-                        and self.model.depot not in cut_set
-                        and not any(
-                            set(cut_set) == set(existing.node_set)
-                            for existing in self.pool
-                            if isinstance(existing, PCSubtourEliminationCut)
+                if (
+                    s_set
+                    and self.model.depot not in s_set
+                    and len(s_set) >= 2
+                    and not any(
+                        set(s_set) == set(existing.node_set)
+                        for existing in self.pool
+                        if isinstance(existing, PCSubtourEliminationCut)
+                    )
+                ):
+                    # Re-select j from N\S to satisfy Form 2.3 requirement j ∉ S.
+                    not_in_s = set(range(self.model.n_nodes)) - s_set - {self.model.depot}
+                    if not not_in_s:
+                        continue
+                    if y_vals is not None:
+                        actual_j, actual_yj = max(
+                            [(v, y_vals[v - 1] if v > 0 else 1.0) for v in not_in_s],
+                            key=lambda x: x[1],
                         )
-                    ):
-                        self.pool.append(PCSubtourEliminationCut(set(cut_set), violation))
+                    else:
+                        actual_j, actual_yj = next(iter(not_in_s)), 1.0
+
+                    yi = y_vals[source_node - 1] if y_vals is not None else 1.0
+                    actual_rhs = 2.0 * (yi + actual_yj - 1.0)
+
+                    # Only add if this recomputed rhs still gives a violated cut.
+                    if actual_rhs - max_flow_value > 0.01:
+                        self.pool.append(
+                            PCSubtourEliminationCut(
+                                set(s_set),
+                                actual_rhs - max_flow_value,
+                                facet_form="2.3",
+                                node_i=source_node,
+                                node_j=actual_j,
+                            )
+                        )
             except Exception:
                 continue
 
     def _extract_min_cut(self, capacity: np.ndarray, flow: np.ndarray, source: int, sink: int) -> Set[int]:
         """
-        Extract sink-side of minimum cut using BFS on residual graph.
+        Extract source-side of minimum cut using BFS on residual graph.
+        Paper Section 3.1: the cut set is the set of nodes reachable from
+        the source in the residual graph.
 
         Args:
             capacity: Capacity matrix (support graph edges).
             flow: Flow matrix from max-flow result.
-            source: Source node index (depot).
+            source: Source node index (depot or reference node).
             sink: Sink node index (customer).
 
         Returns:
-            Set of nodes reachable from sink in the residual graph (sink-side of cut).
+            Set of nodes reachable from source in the residual graph.
         """
-        # Residual capacity: capacity - flow
         residual = capacity - flow
-
-        # We find nodes reachable FROM the sink in the residual graph
-        # This gives us the S-T cut set containing the sink
-        visited = set()
-        queue = [sink]
-        visited.add(sink)
+        visited: Set[int] = set()
+        queue = [source]
+        visited.add(source)
 
         while queue:
             u = queue.pop(0)
             for v in range(len(residual)):
-                # If there's capacity in the reverse edge (v -> u) in residual graph
-                # OR if you prefer the standard source-side BFS:
-                # Standard source-side: visited = nodes reachable from source in residual
-                # Here we do sink-side for simplicity since we want the cut set NOT containing depot
-                if residual[v, u] > 1e-6 and v not in visited:
+                if residual[u, v] > 1e-6 and v not in visited:
                     visited.add(v)
                     queue.append(v)
 
@@ -976,12 +1002,12 @@ class SeparationEngine:
                 not_in_s = set(range(n)) - new_component
                 max_y_out = max(y_vals_full[node] for node in not_in_s)
 
-                rhs = 2.0 * (max_y_in + max_y_out - 1.0)
-                if rhs <= 0.01:
+                gsec_rhs = 2.0 * (max_y_in + max_y_out - 1.0)
+                if gsec_rhs <= 0.0:
                     continue
 
                 cut_val = self._get_cut_value(new_component, x_vals)
-                violation = rhs - cut_val
+                violation = gsec_rhs - cut_val
 
                 if violation > 0.01:
                     self.pool.append(PCSubtourEliminationCut(set(new_component), violation))

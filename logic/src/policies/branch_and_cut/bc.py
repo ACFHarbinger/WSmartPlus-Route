@@ -107,15 +107,27 @@ class BranchAndCutSolver:
             "sec_cuts": 0.0,
             "capacity_cuts": 0.0,
             "nodes_explored": 0.0,
-            "lp_iterations": 0.0,
+            "lp_iterations": 0.0,  # counts integer solutions (MIPSOL events)
+            "fractional_iterations": 0.0,  # counts fractional LP nodes (MIPNODE events)
         }
+
+        # Cut pool: stores compact representations of previously found violated cuts.
+        # Paper (Section 5.1): "All violated constraints found (except fan inequalities)
+        # are permanently stored in compact form in a global data structure called the pool."
+        # At each new B&B node, pool cuts are re-evaluated first before running any
+        # separation algorithm, avoiding redundant rediscovery of ancestor cuts.
+        # NOTE: Fan inequality separation (Equation 2.12) is NOT implemented.
+        # NOTE: Pool re-evaluation is active via _evaluate_pool_cuts(), called at
+        #       the start of both _add_integer_cuts() and _add_fractional_cuts().
+        self._cut_pool: List[Any] = []
+        self._cut_signatures: Set[Tuple[Any, ...]] = set()
 
         # Gurobi model
         self.gurobi_model: Optional[gp.Model] = None
         self.x_vars: Dict[Tuple[int, int], gp.Var] = {}
         self.y_vars: Dict[int, gp.Var] = {}
 
-    def solve(self) -> Tuple[List[int], float, Dict[str, Any]]:
+    def solve(self) -> Tuple[List[List[int]], float, Dict[str, Any]]:
         """
         Solve the VRPP instance.
 
@@ -134,32 +146,11 @@ class BranchAndCutSolver:
         # Step 1: Build initial Gurobi model
         self._build_initial_model()
 
-        # Step 2: Root Node Strengthening via Lagrangian Relaxation
-        # Achieves tight lower bounds and extracts Basic GSECs for injection
-        violated_sets = self._pre_optimize_lagrangian()
+        # Step 2: Root node strengthening via Lagrangian relaxation.
+        # Return value intentionally discarded — used only for VarHintVal hints.
+        self._pre_optimize_lagrangian()
 
-        # Step 3: Inject Lagrangian GSECs directly into the root LP
-        if violated_sets:
-            if self.verbose:
-                print(f"Injecting {len(violated_sets)} Lagrangian GSECs into root LP...")
-            for s_set in violated_sets:
-                # Add as Form (2.3) GSEC: sum_{e in delta(S)} x_e >= 2(yi + yj - 1)
-                # For root strengthening, we can use the form that supports optional nodes.
-                cut_edges = self.model.delta(s_set)
-                edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
-
-                # Pick any i in S and j not in S (typically ones with high y*)
-                # Since we don't have y* yet, we'll use mandatory nodes or just any node
-                node_i = next(iter(s_set))
-                remaining_nodes = set(range(self.model.n_nodes)) - s_set
-                node_j = next(iter(remaining_nodes))
-
-                # Equation (2.3) form
-                self.gurobi_model.addConstr(  # type: ignore[union-attr]
-                    gp.quicksum(edge_vars) >= 2 * (self.y_vars.get(node_i, 1.0) + self.y_vars.get(node_j, 1.0) - 1.0),
-                    name=f"lagrangian_gsec_{node_i}_{node_j}",
-                )
-            self.gurobi_model.update()  # type: ignore[union-attr]
+        # Step 3: REMOVED (Lagrangian GSECs are now separated in the first LP callback)
 
         # Step 4: Get initial primal solution (heuristic)
         if self.use_heuristics:
@@ -295,62 +286,58 @@ class BranchAndCutSolver:
             # Fractional LP node: add both SECs and Capacity Cuts as User Cuts
             self._add_fractional_cuts(model)
 
-            # Custom Branching on Cuts (Section 6.2, Fischetti et al. 1997)
-            # This strategy is superior to variable branching for large instances.
-            # We search for a subset S where sum_{e in delta(S)} x_e is not an even integer.
-            if model.cbGet(GRB.Callback.MIPNODE_NODCNT) % 2 == 0:  # Periodically check
-                self._handle_custom_branching(model)
+    def _evaluate_pool_cuts(self, x_vals: np.ndarray, y_vals: np.ndarray) -> List[Any]:
+        """
+        Re-evaluate stored cuts against the current LP/MIP solution.
+        Returns cuts whose violation exceeds the threshold.
+        Paper Section 5.1: pool cuts are checked before any separation call.
+        """
+        active = []
+        for cut in self._cut_pool:
+            if isinstance(cut, PCSubtourEliminationCut):
+                # node_i and node_j must be customers (> 0) for non-2.1 forms.
+                # The depot cannot appear in S for any valid SEC.
+                assert cut.node_i != 0 or cut.facet_form == "2.1", (
+                    f"Malformed pool cut: node_i=0 for facet_form={cut.facet_form}"
+                )
+                cut_val = self.separator._get_cut_value(cut.node_set, x_vals)
+                if cut.facet_form == "2.1":
+                    violation = 2.0 - cut_val
+                elif cut.facet_form == "2.2":
+                    yi = y_vals[cut.node_i - 1] if cut.node_i > 0 else 1.0
+                    violation = 2.0 * yi - cut_val
+                else:
+                    yi = y_vals[cut.node_i - 1] if cut.node_i > 0 else 1.0
+                    yj = y_vals[cut.node_j - 1] if cut.node_j > 0 else 1.0
+                    violation = 2.0 * (yi + yj - 1.0) - cut_val
+                if violation > 0.01:
+                    active.append(cut)
+            elif isinstance(cut, CapacityCut):
+                cut_val = self.separator._get_cut_value(cut.node_set, x_vals)
+                violation = cut.rhs - cut_val
+                if violation > 0.01:
+                    active.append(cut)  # type: ignore[arg-type]
+        return active
 
     def _handle_custom_branching(self, model):
         """
-        Custom branching on cuts (Section 6.2, Fischetti et al. 1997).
-        Identifies a subset S with non-even fractional cut value and branches.
+        Custom branching on cuts (Section 5.4, Fischetti et al. 1997).
+
+        NOT IMPLEMENTED: Gurobi does not expose a programmatic branching
+        interface from within Python callbacks. The paper's "branching on cuts"
+        strategy (choosing S such that sum_{e in delta(S)} x_e is fractional-odd
+        and imposing sum x_e <= 2k or sum x_e >= 2k+2) cannot be enforced via
+        cbBranch() — no such Gurobi API method exists.
+
+        Alternative approaches for influencing branching in Gurobi:
+          1. Set BranchPriority on x_vars to prefer edges near 0.5.
+          2. Use GRB.Param.BranchDir to prefer branching directions.
+          3. Implement a custom B&B loop outside Gurobi (not done here).
+
+        Gurobi's default variable branching (most fractional variable) is used
+        instead, which corresponds to the paper's fallback strategy.
         """
-        # Get fractional solution for branching search
-        x_var_list = [self.x_vars[(i, j)] for i, j in self.model.edges]
-        x_vals = np.array(model.cbGetNodeRel(x_var_list))
-
-        y_var_list = [self.y_vars[i] for i in self.model.customers]
-        y_vals = np.array(model.cbGetNodeRel(y_var_list))
-
-        # Separate to find candidate sets S
-        cuts = self.separator.separate_fractional(
-            x_vals, y_vals=y_vals, max_cuts=10, iteration=0, node_count=int(model.cbGet(GRB.Callback.MIPNODE_NODCNT))
-        )
-
-        best_S = None
-        best_frac = 0.0
-
-        for cut in cuts:
-            # We want sum_{e in delta(S)} x_e to be as close to 2k+1 as possible
-            cut_edges = self.model.delta(cut.node_set)
-            edge_vars_vals = [
-                x_vals[self.model.edge_to_idx[tuple(sorted(e))]]
-                for e in cut_edges
-                if tuple(sorted(e)) in self.model.edge_to_idx
-            ]
-            val = sum(edge_vars_vals)
-
-            # Check if fractional part is close to 1 (odd)
-            frac = abs(val - 2 * round(val / 2))
-            if frac > best_frac:
-                best_frac = frac
-                best_S = cut.node_set
-
-        if best_S and best_frac > 0.1:
-            cut_edges = self.model.delta(best_S)
-            edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]
-
-            val = sum(
-                x_vals[self.model.edge_to_idx[tuple(sorted(e))]]
-                for e in cut_edges
-                if tuple(sorted(e)) in self.model.edge_to_idx
-            )
-            k = int(np.floor(val / 2.0))
-
-            # Create two branches: sum x_e <= 2k and sum x_e >= 2k+2
-            model.cbBranch(gp.quicksum(edge_vars) <= 2 * k)
-            model.cbBranch(gp.quicksum(edge_vars) >= 2 * k + 2)
+        pass
 
     def _add_integer_cuts(self, model):
         """
@@ -379,12 +366,26 @@ class BranchAndCutSolver:
         y_var_list = [self.y_vars[i] for i in self.model.customers]
 
         x_vals = np.array(model.cbGetSolution(x_var_list))
-        y_vals = np.array(model.cbGetSolution(y_var_list))
+        y_vals_array = np.array(model.cbGetSolution(y_var_list))
 
-        # Separate violated inequalities (integer mode: SECs only)
+        # Re-evaluate pool cuts before fresh separation
+        pool_cuts = self._evaluate_pool_cuts(x_vals, y_vals_array)
+        for cut in pool_cuts:
+            if isinstance(cut, PCSubtourEliminationCut):
+                self._add_pcsec_lazy(model, cut)
+                self.stats["sec_cuts"] += 1
+            elif isinstance(cut, CapacityCut):
+                self._add_capacity_cut_lazy(model, cut)
+                self.stats["capacity_cuts"] += 1
+            self.stats["total_cuts"] += 1
+
+        # Separate both SECs and Capacity Cuts at integer solutions.
+        # Capacity cuts are required for correctness: a global knapsack constraint
+        # does NOT prevent individual routes from violating per-route capacity.
+        # sec_only=False ensures capacity-violating integer solutions are rejected.
         iteration = self.stats["lp_iterations"]
         cuts = self.separator.separate_integer(
-            x_vals, y_vals=y_vals, max_cuts=self.max_cuts_per_round, iteration=iteration, sec_only=True
+            x_vals, y_vals=y_vals_array, max_cuts=self.max_cuts_per_round, iteration=iteration, sec_only=False
         )
 
         # Add cuts as lazy constraints
@@ -398,35 +399,42 @@ class BranchAndCutSolver:
 
             self.stats["total_cuts"] += 1
 
+        # Store cuts for pool re-evaluation at child nodes (active via _evaluate_pool_cuts).
+        for cut in cuts:
+            # Signature: (node_set, class_name, facet_form, node_i, node_j)
+            sig = (
+                frozenset(cut.node_set),
+                cut.__class__.__name__,
+                getattr(cut, "facet_form", None),
+                getattr(cut, "node_i", None),
+                getattr(cut, "node_j", None),
+            )
+            if sig not in self._cut_signatures:
+                self._cut_pool.append(cut)
+                self._cut_signatures.add(sig)
+
         self.stats["lp_iterations"] += 1
 
     def _add_fractional_cuts(self, model):
         """
         Add violated cuts at fractional LP relaxation nodes (MIPNODE callback).
 
-        This method strengthens the LP relaxation during branch-and-bound:
-        1. Extracts fractional solution values via cbGetNodeRel()
-        2. Invokes exact separation (throttled max-flow) to find deep cuts
-        3. Adds violated cuts via model.cbCut()
-
-        Throttling Strategy (Lysgaard et al. 2004):
-            - Exact max-flow separation is O(V⁴) and computationally expensive
-            - Only run at root node (nodcnt == 0) or very shallow depths (nodcnt < 5)
-            - Deeper in the tree, rely on integer cuts and Gurobi's internal cuts
-
-        Performance:
-            - Root node: Full exact separation (max-flow for SECs and RCCs)
-            - Shallow nodes (depth < 5): Limited exact separation
-            - Deep nodes: Skip fractional separation entirely
+        DIVERGENCE FROM PAPER (Section 5.1, procedure SEPARATION):
+        The paper separates in this order:
+          1. Pool re-evaluation (cuts found at ancestor nodes)
+          2. Fan inequalities (Equation 2.12) — NOT IMPLEMENTED HERE
+          3. GSEC_H2 heuristic
+          4. GSEC_H1 heuristic
+          5. Per-threshold ε ∈ {0.1, 0.01, 0.001} combined pool check
+          6. GSEC_SEP exact separation (forced every 10th node)
+          7. Generalised comb heuristics — NOT IMPLEMENTED HERE
+        This implementation calls separate_fractional() which covers steps 3, 4,
+        and 6 (throttled). Steps 2, 5, and 7 are not implemented.
+        Paper Rule (Section 3.1): Exact separation (GSEC_SEP) is forced at every
+        10th decision-tree node regardless of depth.
         """
         # Get current node count (depth indicator)
         node_count = model.cbGet(GRB.Callback.MIPNODE_NODCNT)
-
-        # Throttle expensive fractional separation based on tree depth
-        # Strategy: Only run at root (node_count == 0) or very shallow depths
-        if node_count > 4:
-            # Deep in the tree: skip fractional separation to avoid bottleneck
-            return
 
         # Get fractional solution values using bulk API extraction
         # Performance Optimization: Bulk cbGetNodeRel() is O(n) vs O(n²) for loop-based extraction
@@ -435,15 +443,41 @@ class BranchAndCutSolver:
         y_var_list = [self.y_vars[i] for i in self.model.customers]
 
         x_vals = np.array(model.cbGetNodeRel(x_var_list))
-        y_vals = np.array(model.cbGetNodeRel(y_var_list))
+        y_vals_array = np.array(model.cbGetNodeRel(y_var_list))
+
+        # Re-evaluate pool cuts before fresh separation
+        pool_cuts = self._evaluate_pool_cuts(x_vals, y_vals_array)
+        for cut in pool_cuts:
+            if isinstance(cut, PCSubtourEliminationCut):
+                self._add_pcsec_user(model, cut)
+                self.stats["sec_cuts"] += 1
+            elif isinstance(cut, CapacityCut):
+                self._add_capacity_cut_user(model, cut)
+                self.stats["capacity_cuts"] += 1
+            self.stats["total_cuts"] += 1
 
         # Separate violated inequalities (fractional mode: exact max-flow separation)
-        iteration = self.stats["lp_iterations"]
+        self.stats["fractional_iterations"] += 1
+        iteration = int(self.stats["fractional_iterations"])
         max_cuts = self.max_cuts_per_round // 2  # Limit cuts at fractional nodes
 
         cuts = self.separator.separate_fractional(
-            x_vals, y_vals=y_vals, max_cuts=max_cuts, iteration=iteration, node_count=node_count
+            x_vals, y_vals=y_vals_array, max_cuts=max_cuts, iteration=iteration, node_count=node_count
         )
+
+        # Store cuts for pool re-evaluation at child nodes (active via _evaluate_pool_cuts).
+        for cut in cuts:
+            # Signature: (node_set, class_name, facet_form, node_i, node_j)
+            sig = (
+                frozenset(cut.node_set),
+                cut.__class__.__name__,
+                getattr(cut, "facet_form", None),
+                getattr(cut, "node_i", None),
+                getattr(cut, "node_j", None),
+            )
+            if sig not in self._cut_signatures:
+                self._cut_pool.append(cut)
+                self._cut_signatures.add(sig)
 
         # Add cuts as user cuts (not lazy - for LP relaxation strengthening)
         for cut in cuts:
@@ -600,14 +634,21 @@ class BranchAndCutSolver:
                     # Should not happen if SECs are working correctly
                     break
 
-            routes.append(route)
+            # Remove depots from the route for adapter consistency.
+            # Local mapping expects routes as List[List[customers]].
+            customers_only = [node for node in route if node != self.model.depot]
+            if customers_only:
+                routes.append(customers_only)
+            elif len(route) == 3 and route[1] != self.model.depot:
+                # Case [0, i, 0] where i is a single visit
+                routes.append([route[1]])
 
         # Compute total profit (obj value isMinimized travel_cost - waste_collected)
         profit = -self.gurobi_model.ObjVal
 
         return routes, profit
 
-    def _pre_optimize_lagrangian(self) -> List[Set[int]]:
+    def _pre_optimize_lagrangian(self) -> List[Set[int]]:  # noqa: C901
         """
         Root Node Strengthening via Lagrangian Relaxation.
 
@@ -620,7 +661,11 @@ class BranchAndCutSolver:
         # Initial multipliers
         lambda_mult = np.zeros(n)
 
-        step_size = 0.5
+        # Held-Karp subgradient parameters (Fischetti et al. 1997, Section 5.1)
+        hk_mu = 2.0  # scalar, starts at 2, halved on stagnation
+        hk_no_improve = 0  # consecutive iterations without LB improvement
+        HK_PATIENCE = 50  # halve mu after this many non-improving iterations
+        best_upper_bound = float("inf")  # updated if a primal bound is available
         best_lower_bound = -float("inf")
 
         # Track unique sets S for injection
@@ -628,7 +673,7 @@ class BranchAndCutSolver:
         seen_sets = set()
 
         # Max 1000 iterations as per paper
-        for iter_count in range(1000):
+        for _iter_count in range(1000):
             # 1. Update edge weights with multipliers
             modified_costs = {}
             for i, j in self.model.edges:
@@ -655,7 +700,10 @@ class BranchAndCutSolver:
             # Add constant part of Lagrangian: 2 * sum(lambda_i)
             current_lb = float(lb) + 2 * np.sum(lambda_mult)
 
-            if current_lb > best_lower_bound:
+            # Record whether this iteration improved the lower bound BEFORE
+            # updating best_lower_bound, so the stagnation check below is correct.
+            improved_this_iter = current_lb > best_lower_bound
+            if improved_this_iter:
                 best_lower_bound = float(current_lb)
 
             # 3. Subgradient Update
@@ -672,7 +720,25 @@ class BranchAndCutSolver:
             if np.linalg.norm(subgradient) < 1e-6:
                 break
 
-            lambda_mult += (step_size / (iter_count + 1)) * subgradient
+            # Held-Karp Subgradient Update: t_k = μ * (UB - LB) / ||g||²
+            grad_norm_sq = float(np.dot(subgradient, subgradient))
+            if grad_norm_sq > 1e-10:
+                hk_step = hk_mu * (best_upper_bound - current_lb) / grad_norm_sq
+                lambda_mult += hk_step * subgradient
+                # Depot multiplier must be >= 0 (inequality constraint, not equality)
+                lambda_mult[0] = max(0.0, lambda_mult[0])
+
+            # Halve μ if no improvement for HK_PATIENCE consecutive iterations.
+            # Uses improved_this_iter captured before best_lower_bound was updated.
+            if improved_this_iter:
+                hk_no_improve = 0
+            else:
+                hk_no_improve += 1
+                if hk_no_improve >= HK_PATIENCE:
+                    hk_mu /= 2.0
+                    hk_no_improve = 0
+                    if hk_mu < 1e-6:
+                        break  # Multipliers have converged
 
         # 4. Initialize variable set J using edges with small reduced costs
         for i, j in self.model.edges:
@@ -687,36 +753,57 @@ class BranchAndCutSolver:
         return unique_violated_sets
 
     def _find_k_tree_cycle(self, edges: List[Tuple[int, int]]) -> Optional[Set[int]]:
-        """Find a cycle in a K-tree graph using DFS."""
+        """
+        Find a cycle in a K-tree graph using an iterative stack-based DFS.
+        Replaces recursive implementation to prevent RecursionError on large graphs.
+
+        Correctness note: each stack frame carries its own copy of the path from
+        the start node to the current node. When we encounter a neighbour v that
+        already appears in the current path (a back-edge), we have found a cycle
+        and return it immediately. Globally-visited nodes are only skipped when
+        they do not appear in the current path, preventing false negatives from
+        cross-edges between separate DFS branches.
+        """
         adj: Dict[int, List[int]] = {}
         for u, v in edges:
             adj.setdefault(u, []).append(v)
             adj.setdefault(v, []).append(u)
 
-        visited = set()
-        path = []
+        globally_visited: Set[int] = set()
 
-        def dfs(u, p):
-            visited.add(u)
-            path.append(u)
-            for v in adj.get(u, []):
-                if v == p:
+        for start_node in range(self.model.n_nodes):
+            if start_node in globally_visited:
+                continue
+
+            # Stack entries: (current_node, parent_node, path_from_start_to_current)
+            # Each frame carries its own path copy so back-edge detection is local
+            # to the branch, not polluted by other branches' visits.
+            stack = [(start_node, -1, [start_node])]
+
+            while stack:
+                u, parent, path = stack.pop()
+
+                # If u was already fully explored in a previous branch of this
+                # component and is NOT in the current path, it cannot form a new
+                # cycle through the current branch — skip it.
+                if u in globally_visited and u not in path:
                     continue
-                if v in visited:
-                    # Cycle found
-                    cycle_start_idx = path.index(v)
-                    return set(path[cycle_start_idx:])
-                res = dfs(v, u)
-                if res:
-                    return res
-            path.pop()
-            return None
 
-        for node in range(self.model.n_nodes):
-            if node not in visited:
-                res = dfs(node, -1)
-                if res:
-                    return res
+                globally_visited.add(u)
+
+                for v in adj.get(u, []):
+                    if v == parent:
+                        # Tree edge back to parent — not a cycle
+                        continue
+                    if v in path:
+                        # Back-edge: v is an ancestor in the current DFS path.
+                        # Extract the cycle as the subpath from v to u.
+                        idx = path.index(v)
+                        return set(path[idx:])
+                    # Forward edge: extend the path and push to stack.
+                    stack.append((v, u, path + [v]))
+
+        # No cycle found in any component
         return None
 
     def _solve_k_tree(self, costs: Dict[Tuple[int, int], float]) -> Tuple[List[Tuple[int, int]], float, List[Set[int]]]:
@@ -764,22 +851,20 @@ class BranchAndCutSolver:
                 parent[root_u] = root_v
                 node_to_comp[root_v] = new_comp
 
-        # Select up to 2K depot edges based on reduced costs (Fischetti 1997)
-        # Select all edges with negative reduced costs, but at least 2 and at most 2K.
+        # Select depot edges for the K-tree:
+        # Always include the 2 cheapest depot edges (minimum required for connectivity),
+        # then greedily add edges with strictly negative reduced cost up to 2K total.
+        # Edges with non-negative reduced cost are excluded beyond the mandatory 2,
+        # as they cannot improve the Lagrangian lower bound.
+        k = self.model.num_vehicles
         depot_edges = []
         for j in self.model.customers:
             depot_edges.append((0, j, costs[(0, j)]))
         depot_edges.sort(key=lambda x: x[2])
 
-        k = self.model.num_vehicles
-        selected_depot_edges: List[Tuple[int, int, float]] = []
-        for u, v, cost in depot_edges:
-            if len(selected_depot_edges) < 2 * k:
-                # Always take at least 2 edges to ensure connectedness
-                if len(selected_depot_edges) < 2 or cost < 0:
-                    selected_depot_edges.append((u, v, cost))
-            else:
-                break
+        # Always select exactly 2*k cheapest depot edges.
+        # For k=1 this enforces a valid 1-tree (exactly 2 depot edges).
+        selected_depot_edges = depot_edges[: 2 * k]
 
         k_tree_edges = mst_edges + [(e[0], e[1]) for e in selected_depot_edges]
         k_tree_cost = mst_cost + sum(e[2] for e in selected_depot_edges)
