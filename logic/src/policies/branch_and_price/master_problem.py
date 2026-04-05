@@ -80,11 +80,11 @@ class VRPPMasterProblem:
         Dynamic cuts (Rounded Capacity Cuts):
             RCC cuts can be added to the master via add_set_packing_capacity_cut().
             Their dual variables (π_S) are extracted after each LP solve and stored in
-            dual_capacity_cuts. The pricing subproblem (RCSPPSolver) integrates these
-            duals into its reduced-cost calculation, ensuring that newly generated
-            columns account for the cut constraints. This follows the approach of
-            Barnhart et al. (1998, Section 5): reoptimise the LP after adding cuts and
-            re-run the pricing problem with modified arc costs reflecting the new duals.
+            dual_capacity_cuts. This follows the combined column-and-row generation
+            approach of Barnhart et al. (1998, Section 7) and the capacity cut
+            formulation of Desrochers, Desrosiers, and Solomon (1992). After adding
+            a cut, the LP is reoptimised and the pricing problem is re-run with
+            modified arc costs that account for the new dual variable.
 
             Comb inequalities and Lifted Cover Inequalities are NOT added to this master
             because their dual integration into the RCSPP state-space is non-trivial and
@@ -180,8 +180,8 @@ class VRPPMasterProblem:
                 # var.X is the value (0.0 for non-basic columns in most cases).
                 if var.X < 1e-6 and rc_floor > var.RC:
                     to_remove.append(i)
-            except gp.GurobiError:
-                # RC might not be available if the model wasn't solved optimally
+            except (gp.GurobiError, AttributeError):
+                # RC or X might not be available if the model wasn't solved optimally
                 continue
 
         if not to_remove:
@@ -200,6 +200,21 @@ class VRPPMasterProblem:
     # ------------------------------------------------------------------
     # Column management
     # ------------------------------------------------------------------
+
+    def add_route_as_column(self, route: Route) -> None:
+        """
+        Add a route as a column to the live Gurobi model.
+
+        Alias for add_route — exists so that column-generation callers can
+        distinguish between buffered pre-build additions (add_route before
+        build_model) and live column insertions during CG (add_route_as_column
+        after build_model).  Both delegate to _add_column_to_model when the
+        model is already built.
+
+        Args:
+            route: Route to insert as a new λ variable.
+        """
+        self.add_route(route)
 
     def add_route(self, route: Route) -> None:
         """
@@ -385,13 +400,18 @@ class VRPPMasterProblem:
             var.VType = GRB.CONTINUOUS
 
         self.model.update()
+        if self.model.NumVars == 0:
+            return 0.0, {}
         self.model.optimize()
 
         if self.model.Status != GRB.OPTIMAL:
-            raise RuntimeError(f"LP relaxation failed with status {self.model.Status}")
+            return 0.0, {}
 
         obj_value = self.model.ObjVal
-        route_values = {idx: var.X for idx, var in enumerate(self.lambda_vars)}
+        try:
+            route_values = {idx: var.X for idx, var in enumerate(self.lambda_vars)}
+        except (gp.GurobiError, AttributeError):
+            return 0.0, {}
 
         # ---- Extract dual values -----------------------------------------
         # For a >= constraint in a MAX LP, Gurobi reports a non-positive π.
@@ -399,18 +419,40 @@ class VRPPMasterProblem:
         # "value" of covering a node), so we store |π|.
         self.dual_node_coverage = {}
         for node in range(1, self.n_nodes + 1):
+            self.dual_node_coverage[node] = 0.0
+            if self.model is None or self.model.NumVars == 0 or self.model.Status != GRB.OPTIMAL:
+                continue
+
             constr = self.model.getConstrByName(f"coverage_{node}")
-            # Shadow prices (π) of >= constraints in a maximization problem are
-            # non-positive. We clamp to zero to filter numerical noise.
-            self.dual_node_coverage[node] = max(0.0, -constr.Pi)  # type: ignore[union-attr]
+            if constr is None:
+                continue
+
+            try:
+                if node in self.mandatory_nodes:
+                    # >= 1 constraint in MAX LP: Pi <= 0, dual value = -Pi >= 0.
+                    self.dual_node_coverage[node] = max(0.0, -constr.Pi)
+                else:
+                    # <= 1 constraint in MAX LP: Pi >= 0, dual value = Pi >= 0.
+                    self.dual_node_coverage[node] = max(0.0, constr.Pi)
+            except gp.GurobiError:
+                continue
 
         # For the <= vehicle-limit constraint in a MAX LP, the dual is the
         # opportunity cost of using one more vehicle; clamp to non-negative.
         self.dual_vehicle_limit = 0.0
-        if self.vehicle_limit is not None:
+        if (
+            self.vehicle_limit is not None
+            and self.model is not None
+            and self.model.NumVars > 0
+            and self.model.Status == GRB.OPTIMAL
+        ):
             constr = self.model.getConstrByName("vehicle_limit")
             if constr is not None:
-                self.dual_vehicle_limit = max(0.0, constr.Pi)
+                try:
+                    # <= 1 constraint in MAX LP: Pi <= 0, dual value = -Pi >= 0.
+                    self.dual_vehicle_limit = max(0.0, -constr.Pi)
+                except gp.GurobiError:
+                    pass
 
         # ---- Extract duals for capacity cuts -----------------------------
         self.dual_capacity_cuts = {}
@@ -441,18 +483,29 @@ class VRPPMasterProblem:
         if self.model is None:
             raise ValueError("Model not built. Call build_model() first.")
 
+        if self.model.NumVars == 0:
+            return 0.0, []
+
         for var in self.lambda_vars:
             var.VType = GRB.BINARY
 
         self.model.update()
-        self.model.optimize()
 
-        if self.model.Status not in [GRB.OPTIMAL, GRB.SUBOPTIMAL]:
-            raise RuntimeError(f"IP solving failed with status {self.model.Status}")
+        try:
+            self.model.optimize()
 
-        obj_value = self.model.ObjVal
-        selected_routes = [self.routes[idx] for idx, var in enumerate(self.lambda_vars) if var.X > 0.5]
-        return obj_value, selected_routes
+            if self.model.Status not in [GRB.OPTIMAL, GRB.SUBOPTIMAL]:
+                raise RuntimeError(f"IP solving failed with status {self.model.Status}")
+
+            obj_value = self.model.ObjVal
+            selected_routes = [self.routes[idx] for idx, var in enumerate(self.lambda_vars) if var.X > 0.5]
+            return obj_value, selected_routes
+        finally:
+            # Always restore LP-relaxation variable types so subsequent calls to
+            # solve_lp_relaxation work correctly even after an IP solve failure.
+            for var in self.lambda_vars:
+                var.VType = GRB.CONTINUOUS
+            self.model.update()
 
     # ------------------------------------------------------------------
     # Dual / pricing helpers
@@ -570,6 +623,83 @@ class VRPPMasterProblem:
         self.model.update()
         return True
 
+    def find_and_add_violated_rcc(
+        self,
+        route_values: Dict[int, float],
+        routes: List[Route],
+        max_cuts: int = 5,
+    ) -> int:
+        """
+        Separate and add Rounded Capacity Cuts (RCC) based on the current LP solution.
+
+        This follows Section 7 of Barnhart et al. (1998) and Desrochers et al. (1992)
+        using a connectivity heuristic:
+        1. Build the fractional flow support graph (arcs with x_uv > 0).
+        2. Identify connected components (S) of customer nodes.
+        3. For each component S, check if the routing bound is violated:
+           Σ_{k} x^k(δ(S)) λ_k  <  2 * ⌈ (Σ_{i∈S} waste_i) / Q ⌉
+        """
+        if not route_values or not routes:
+            return 0
+
+        # Aggregate arc flows from active routes
+        arc_flow: Dict[Tuple[int, int], float] = {}
+        for idx, val in route_values.items():
+            if val < 1e-6 or idx >= len(routes):
+                continue
+            path = [0] + routes[idx].nodes + [0]
+            for i in range(len(path) - 1):
+                u, v = path[i], path[i + 1]
+                arc = (u, v)
+                arc_flow[arc] = arc_flow.get(arc, 0.0) + val
+
+        # Find connected components of customer nodes in the support graph (ignoring depot)
+        components = self._find_customer_components(arc_flow)
+
+        # Evaluate each component S as a cut candidate
+        cuts_added = 0
+        for S in components:
+            if not S:
+                continue
+            total_waste = sum(self.wastes.get(i, 0.0) for i in S)
+            rhs = 2.0 * np.ceil(total_waste / self.capacity) if self.capacity > 0 else 2.0
+
+            # Calculate current LHS value (sum of flow crossing the boundary delta(S))
+            lhs_val = sum(flow for (u, v), flow in arc_flow.items() if (u in S) != (v in S))
+
+            # Add if violated by more than 1e-4
+            if lhs_val < rhs - 1e-4 and self.add_set_packing_capacity_cut(list(S), rhs):
+                cuts_added += 1
+                if cuts_added >= max_cuts:
+                    break
+        return cuts_added
+
+    def _find_customer_components(self, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]:
+        """Identify connected components of customer nodes in the support graph."""
+        adj: Dict[int, Set[int]] = {}
+        customer_nodes = set()
+        for u, v in arc_flow.keys():
+            if u != 0 and v != 0:
+                adj.setdefault(u, set()).add(v)
+                adj.setdefault(v, set()).add(u)
+                customer_nodes.add(u)
+                customer_nodes.add(v)
+
+        visited = set()
+        components: List[Set[int]] = []
+        for node in customer_nodes:
+            if node not in visited:
+                comp = set()
+                stack = [node]
+                while stack:
+                    curr = stack.pop()
+                    if curr not in visited:
+                        visited.add(curr)
+                        comp.add(curr)
+                        stack.extend(adj.get(curr, set()) - visited)
+                components.append(comp)
+        return components
+
     def _count_crossings(self, route: Route, node_set: FrozenSet[int]) -> int:
         """Count how many times a route crosses the boundary δ(S)."""
         crossings = 0
@@ -600,3 +730,28 @@ class VRPPMasterProblem:
             return any(tol < alpha.X for alpha in self.artificial_vars.values())
         except Exception:
             return False
+
+    def save_basis(self) -> Optional[Tuple[List[int], List[int]]]:
+        """Save the basis status (VBasis, CBasis) for all variables and constraints."""
+        if self.model is None or self.model.Status != GRB.OPTIMAL:
+            return None
+        try:
+            vbasis = [v.VBasis for v in self.model.getVars()]
+            cbasis = [c.CBasis for c in self.model.getConstrs()]
+            return (vbasis, cbasis)
+        except Exception:
+            return None
+
+    def restore_basis(self, basis: Optional[Tuple[List[int], List[int]]]) -> None:
+        """Restore basis status to accelerate the next LP solve."""
+        if basis is None or self.model is None:
+            return
+        vbasis, cbasis = basis
+        vars = self.model.getVars()
+        constrs = self.model.getConstrs()
+        if len(vbasis) == len(vars) and len(cbasis) == len(constrs):
+            for v, b in zip(vars, vbasis):
+                v.VBasis = b
+            for c, b in zip(constrs, cbasis):
+                c.CBasis = b
+            self.model.update()

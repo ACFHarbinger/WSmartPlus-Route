@@ -216,22 +216,14 @@ class PricingSubproblem:
         v: int,
         v_waste: float,
         route: List[int],
-        tail: int,
         dual_values: Dict[int, float],
         forbidden_arcs: Set[Tuple[int, int]],
+        req_successors: Dict[int, int],
         req_predecessors: Dict[int, int],
         rf_separate_pairs: Set[Tuple[int, int]],
         visited: Set[int],
     ) -> Tuple[Optional[int], float]:
         """Evaluate candidate v and find best insertion position and profit."""
-        # Rule 1: Forbidden arc (tail → v).
-        if (tail, v) in forbidden_arcs:
-            return None, -float("inf")
-
-        # Rule 3: Required predecessor of v.
-        if v in req_predecessors and req_predecessors[v] != tail:
-            return None, -float("inf")
-
         # Rule 4: Ryan-Foster separation.
         if self._violates_rf_separation(v, visited, rf_separate_pairs):
             return None, -float("inf")
@@ -244,11 +236,20 @@ class PricingSubproblem:
             prev = self.depot if pos == 0 else route[pos - 1]
             nxt = self.depot if pos == len(route) else route[pos]
 
-            # Rule 1 also applies to the arc (prev → v) at pos > 0.
-            if pos > 0 and (prev, v) in forbidden_arcs:
+            # Rule 1: Forbidden arcs.
+            if (prev, v) in forbidden_arcs or (v, nxt) in forbidden_arcs:
                 continue
-            # Rule 3 for v when inserted not at the tail position.
+
+            # Rule 2: Required successors.
+            if prev in req_successors and req_successors[prev] != v:
+                continue
+            if v in req_successors and req_successors[v] != nxt:
+                continue
+
+            # Rule 3: Required predecessors.
             if v in req_predecessors and req_predecessors[v] != prev:
+                continue
+            if nxt in req_predecessors and nxt != self.depot and req_predecessors[nxt] != v:
                 continue
 
             detour = self.cost_matrix[prev, v] + self.cost_matrix[v, nxt] - self.cost_matrix[prev, nxt]
@@ -354,7 +355,15 @@ class PricingSubproblem:
                     continue
 
                 pos, marginal = self._evaluate_candidate_insertion(
-                    v, v_waste, route, tail, dual_values, forbidden_arcs, req_predecessors, rf_separate_pairs, visited
+                    v,
+                    v_waste,
+                    route,
+                    dual_values,
+                    forbidden_arcs,
+                    req_successors,
+                    req_predecessors,
+                    rf_separate_pairs,
+                    visited,
                 )
 
                 if pos is not None and marginal > best_profit:

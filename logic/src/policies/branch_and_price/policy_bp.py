@@ -148,16 +148,13 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         mandatory_set = set(mandatory_nodes)
 
         # ------------------------------------------------------------------
-        # Resolve branching strategy
+        # Resolve branching strategy using central logic
         # ------------------------------------------------------------------
-        if "branching_strategy" in values:
-            branching_strategy: str = values["branching_strategy"]
-        elif hasattr(self, "_config") and self._config is not None and hasattr(self._config, "branching_strategy"):
-            branching_strategy = self._config.branching_strategy
-        elif values.get("use_ryan_foster_branching", False):
-            branching_strategy = "ryan_foster"
-        else:
-            branching_strategy = "edge"
+        branching_strategy = BranchAndPriceSolver._resolve_branching_strategy(
+            branching_strategy=values.get("branching_strategy", "edge"),
+            use_ryan_foster=values.get("use_ryan_foster", False),
+            values=values,
+        )
 
         # ------------------------------------------------------------------
         # Resolve ng-route parameters
