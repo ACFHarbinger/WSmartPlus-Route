@@ -21,14 +21,16 @@ References:
       (Lifting procedures for cover inequalities)
 """
 
-import time
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-import gurobipy as gp
 import numpy as np
 
-from ..branch_and_cut.separation import CapacityCut, SeparationEngine
+from ..branch_and_cut.separation import (
+    CapacityCut,
+    PCSubtourEliminationCut,
+    SeparationEngine,
+)
 from ..branch_and_cut.vrpp_model import VRPPModel
 from ..branch_and_price.master_problem import VRPPMasterProblem
 
@@ -139,10 +141,20 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
                 idx = self.v_model.edge_to_idx[edge_tuple]
                 x_vals[idx] = val
 
+        # Build y_vals: fractional node visitation probabilities from the LP solution.
+        # y_vals[i-1] = Σ_{k: i ∈ route_k} λ_k for each customer node i.
+        # Index 0 corresponds to customer node 1 (depot node 0 is excluded).
+        node_visits = master.get_node_visitation()
+        n_customers = self.v_model.n_nodes - 1  # exclude depot
+        y_vals = np.zeros(n_customers)
+        for node, val in node_visits.items():
+            if 1 <= node <= n_customers:
+                y_vals[node - 1] = min(val, 1.0)  # clamp to [0,1] for LP fractional values
+
         # Separate cuts using the existing separation engine
         # BPC separation always operates on fractional LP solutions.
         # Use separate_fractional() for exact max-flow based RCC separation.
-        violated_ineqs = self.sep_engine.separate_fractional(x_vals, max_cuts=max_cuts)
+        violated_ineqs = self.sep_engine.separate_fractional(x_vals, y_vals=y_vals, max_cuts=max_cuts)
         added_cuts = 0
 
         for ineq in violated_ineqs:
@@ -152,6 +164,10 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
                 # For Set Packing, add cut with boundary relaxation
                 # The master problem handles the y_i visitation tracking
                 if master.add_set_packing_capacity_cut(node_set, ineq.rhs):
+                    added_cuts += 1
+            elif isinstance(ineq, PCSubtourEliminationCut):
+                node_set = list(ineq.node_set)
+                if master.add_sec_cut(node_set, ineq.rhs, cut_name=ineq.facet_form):
                     added_cuts += 1
 
         return added_cuts
@@ -212,14 +228,18 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
         sum_top = sum(route_values[i] for i in top_k_plus_1)
 
         if sum_top > master.vehicle_limit + 1e-4:
-            # Violated cover found
-            lhs = gp.LinExpr()
+            # Violated cover found.
+            # The cover is the set of nodes visited by the top K+1 routes.
+            # Use their union as the node set S for the capacity cut registry.
+            cover_node_set: set = set()
             for i in top_k_plus_1:
-                lhs += master.lambda_vars[i]
+                cover_node_set.update(master.routes[i].node_coverage)
+            cover_node_set.discard(0)  # exclude depot
 
-            master.model.addConstr(lhs <= master.vehicle_limit, name=f"fleet_cover_{time.time()}")
-            master.model.update()
-            return 1
+            if cover_node_set and master.add_set_packing_capacity_cut(
+                list(cover_node_set), float(master.vehicle_limit)
+            ):
+                return 1
 
         return 0
 

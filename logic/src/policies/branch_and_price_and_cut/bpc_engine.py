@@ -27,7 +27,7 @@ References:
 
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 import numpy as np
 
@@ -146,6 +146,7 @@ def _solve_pricing_step(
     pricing_solver: RCSPPSolver,
     branching_constraints: Optional[List] = None,
     max_routes: int = 5,
+    optimality_gap: float = 1e-4,
 ) -> int:
     """
     Solve the pricing subproblem and add positive reduced cost columns.
@@ -159,11 +160,21 @@ def _solve_pricing_step(
         Number of columns added
     """
     duals = master.get_reduced_cost_coefficients()
+
+    # Merge capacity cut duals and SEC duals into a single cut-dual mapping.
+    # Both cut families impose crossing penalties on routes that violate them.
+    # If the same node set exists in both, their duals are summed.
+    all_cut_duals: Dict[FrozenSet[int], float] = {}
+    for node_set, dual in master.dual_capacity_cuts.items():
+        all_cut_duals[node_set] = all_cut_duals.get(node_set, 0.0) + dual
+    for node_set, dual in master.dual_sec_cuts.items():
+        all_cut_duals[node_set] = all_cut_duals.get(node_set, 0.0) + dual
+
     new_columns_data = pricing_solver.solve(
         duals,
         max_routes=max_routes,
         branching_constraints=branching_constraints,
-        capacity_cut_duals=master.dual_capacity_cuts,
+        capacity_cut_duals=all_cut_duals,
     )
 
     if not new_columns_data:
@@ -172,7 +183,7 @@ def _solve_pricing_step(
     # Add new columns to master
     added = 0
     for r_nodes, red_cost in new_columns_data:
-        if red_cost > 1e-4:
+        if red_cost > optimality_gap:
             cost, revenue, load, coverage = pricing_solver.compute_route_details(r_nodes)
             route = Route(r_nodes, cost, revenue, load, coverage)
 
@@ -257,7 +268,11 @@ def _column_generation_loop(
                 raise RuntimeError("LP relaxation failed at B&B node") from e
 
             added = _solve_pricing_step(
-                master, pricing_solver, branching_constraints, max_routes=max_routes_per_pricing
+                master,
+                pricing_solver,
+                branching_constraints,
+                max_routes=max_routes_per_pricing,
+                optimality_gap=optimality_gap,
             )
 
             if added == 0:
@@ -416,8 +431,9 @@ def run_custom_bpc(  # noqa: C901
 
     # 3. Initialize pricing and separation
     pricing_solver = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
+    n_total_nodes = n_nodes + 1  # VRPPModel counts total nodes including depot (index 0)
     v_model = VRPPModel(
-        n_nodes=n_nodes + 1,
+        n_nodes=n_total_nodes,
         cost_matrix=dist_matrix,
         wastes=wastes,
         capacity=capacity,
@@ -528,11 +544,11 @@ def run_custom_bpc(  # noqa: C901
     # 6. Extract best integer solution
     if bb_tree.best_integer_node is None:
         # No integer solution found - use initial greedy
-        fallback_cost = sum(
-            dist_matrix[0][r[0]] + sum(dist_matrix[r[i]][r[i + 1]] for i in range(len(r) - 1)) + dist_matrix[r[-1]][0]
-            for r in initial_routes_nodes
-        )
-        return initial_routes_nodes, fallback_cost
+        fallback_routes_profit = 0.0
+        for r_nodes in initial_routes_nodes:
+            cost, revenue, load, coverage = pricing_helper.compute_route_details(r_nodes)
+            fallback_routes_profit += revenue - cost
+        return initial_routes_nodes, fallback_routes_profit
 
     # Reconstruct solution from best node
     best_node = bb_tree.best_integer_node
@@ -542,7 +558,7 @@ def run_custom_bpc(  # noqa: C901
             best_routes_objects.append(master.routes[idx])
 
     final_routes = [r.nodes for r in best_routes_objects]
-    final_cost = sum(r.cost for r in best_routes_objects)
+    final_cost = sum(r.profit for r in best_routes_objects)
 
     if recorder:
         recorder.record(
