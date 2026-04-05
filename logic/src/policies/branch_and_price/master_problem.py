@@ -148,11 +148,14 @@ class VRPPMasterProblem:
         self.dual_node_coverage: Dict[int, float] = {}
         self.dual_vehicle_limit: float = 0.0
 
-        # ---- Capacity Cut Tracking (Task-requested Lint Fixes) ------------
         # Map from FrozenSet[int] (node set S) to Gurobi constraint.
         self.active_capacity_cuts: Dict[FrozenSet[int], gp.Constr] = {}
         # Dual values π_S used by pricing subproblem reduced-cost calc.
         self.dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
+
+        # ---- SEC Cut Tracking (PC-SEC) ------------------------------------
+        self.active_sec_cuts: Dict[FrozenSet[int], gp.Constr] = {}
+        self.dual_sec_cuts: Dict[FrozenSet[int], float] = {}
 
     def remove_unpromising_columns(self, rc_floor: float) -> int:
         """
@@ -263,6 +266,12 @@ class VRPPMasterProblem:
 
         # Wire into active capacity cuts if any exist
         for node_set, constr in self.active_capacity_cuts.items():
+            crossings = self._count_crossings(route, node_set)
+            if crossings > 0:
+                self.model.chgCoeff(constr, var, float(crossings))
+
+        # Wire into active SEC cuts if any exist
+        for node_set, constr in self.active_sec_cuts.items():
             crossings = self._count_crossings(route, node_set)
             if crossings > 0:
                 self.model.chgCoeff(constr, var, float(crossings))
@@ -456,9 +465,22 @@ class VRPPMasterProblem:
 
         # ---- Extract duals for capacity cuts -----------------------------
         self.dual_capacity_cuts = {}
-        for node_set, constr in self.active_capacity_cuts.items():
-            # Dual π_S for a >= constraint in MAX LP is non-positive.
-            self.dual_capacity_cuts[node_set] = max(0.0, -constr.Pi)
+        if self.model is not None and self.model.Status == GRB.OPTIMAL:
+            for node_set, constr in self.active_capacity_cuts.items():
+                try:
+                    # Dual π_S for a >= constraint in MAX LP is non-positive.
+                    self.dual_capacity_cuts[node_set] = max(0.0, -constr.Pi)
+                except (gp.GurobiError, AttributeError):
+                    self.dual_capacity_cuts[node_set] = 0.0
+
+        # ---- Extract duals for SEC cuts -----------------------------
+        self.dual_sec_cuts = {}
+        if self.model is not None and self.model.Status == GRB.OPTIMAL:
+            for node_set, constr in self.active_sec_cuts.items():
+                try:
+                    self.dual_sec_cuts[node_set] = max(0.0, -constr.Pi)
+                except (gp.GurobiError, AttributeError):
+                    self.dual_sec_cuts[node_set] = 0.0
 
         return obj_value, route_values
 
@@ -620,6 +642,50 @@ class VRPPMasterProblem:
         name = f"rcc_{abs(hash(node_set))}"
         constr = self.model.addConstr(lhs >= rhs, name=name)
         self.active_capacity_cuts[node_set] = constr
+        self.model.update()
+        return True
+
+    def add_sec_cut(self, node_list: List[int], rhs: float, cut_name: str = "") -> bool:
+        """
+        Add a Subtour Elimination Constraint (SEC / PC-SEC) to the master problem.
+
+        Constraint: Σ_{k: route_k crosses δ(S)} crossings_k(S) * λ_k >= rhs
+
+        Algorithmic Alignment:
+            *   This method iterates over self.routes to wire EXISTING columns into the
+                new constraint.
+            *   Columns added after this call (e.g. in the next Phase 1 of the CG loop)
+                are wired via _add_column_to_model.
+            *   Phase 1 (Column Generation) and Phase 2 (Cut Separation) are non-interleaving
+                within a single outer iteration, ensuring consistency.
+
+        The dual of this constraint is tracked in dual_sec_cuts so that it can be
+        passed to the pricing subproblem's reduced-cost calculation.
+
+        Args:
+            node_list: Customer nodes in the cut set S.
+            rhs: Right-hand side value (2.0 for Form 2.1, 2*y_i for Form 2.2, etc.).
+            cut_name: Optional name suffix for Gurobi constraint naming.
+
+        Returns:
+            True if the cut was newly added, False if it already exists.
+        """
+        if self.model is None:
+            return False
+
+        node_set = frozenset(node_list)
+        if node_set in self.active_sec_cuts:
+            return False
+
+        lhs = gp.LinExpr()
+        for idx, route in enumerate(self.routes):
+            crossings = self._count_crossings(route, node_set)
+            if crossings > 0:
+                lhs += float(crossings) * self.lambda_vars[idx]
+
+        name = f"sec_{cut_name}_{abs(hash(node_set))}"
+        constr = self.model.addConstr(lhs >= rhs, name=name)
+        self.active_sec_cuts[node_set] = constr
         self.model.update()
         return True
 
