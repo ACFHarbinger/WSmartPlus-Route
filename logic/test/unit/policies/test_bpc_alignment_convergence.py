@@ -39,11 +39,17 @@ def test_knapsack_cover_separation():
     v2 = MagicMock(); v2.X = 0.6
     master.lambda_vars = [v1, v2]
 
+    # Mock routes with node coverage
+    r1 = MagicMock(); r1.node_coverage = {1, 2}
+    r2 = MagicMock(); r2.node_coverage = {3, 4}
+    master.routes = [r1, r2]
+    master.add_set_packing_capacity_cut.return_value = True
+
     engine = KnapsackCoverEngine(None, None)
     added = engine.separate_and_add_cuts(master, max_cuts=1)
 
     assert added == 1
-    master.model.addConstr.assert_called()
+    master.add_set_packing_capacity_cut.assert_called()
 
 def test_create_engine_factory():
     v_model = MagicMock()
