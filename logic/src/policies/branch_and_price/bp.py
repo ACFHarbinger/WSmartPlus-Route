@@ -16,7 +16,7 @@ Reference:
 
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
@@ -158,9 +158,29 @@ class BranchAndPriceSolver:
         # Tracking exactness
         self.proven_optimal: bool = True
 
-        # Resolve branching strategy.
-        if branching_strategy == "edge" and use_ryan_foster:
-            branching_strategy = "ryan_foster"
+        # Precompute ng-neighborhoods once for reuse across all B&B nodes.
+        self._ng_neighborhoods: Optional[Dict[int, Set[int]]] = None
+        if self.use_exact_pricing:
+            from .rcspp_dp import RCSPPSolver as _R
+
+            _tmp = _R(
+                n_nodes=self.n_nodes,
+                cost_matrix=self.cost_matrix,
+                wastes=self.wastes,
+                capacity=self.capacity,
+                revenue_per_kg=self.R,
+                cost_per_km=self.C,
+                use_ng_routes=self.use_ng_routes,
+                ng_neighborhood_size=self.ng_neighborhood_size,
+            )
+            self._ng_neighborhoods = _tmp.ng_neighborhoods
+
+        # Resolve branching strategy using central logic.
+        branching_strategy = self._resolve_branching_strategy(
+            branching_strategy=branching_strategy,
+            use_ryan_foster=use_ryan_foster,
+            values={},  # Values handled at policy level, but solver respects init args
+        )
 
         if branching_strategy == "divergence" and not self.multiple_waste_types:
             logging.info(
@@ -201,13 +221,10 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[int], float, Dict[str, Any]]:
-        """
-        Solve the VRPP using Branch-and-Price.
-
-        Returns:
-            Tuple of ``(tour, profit, statistics)``.
-        """
-        if self.use_ryan_foster:
+        # Use the full B&P tree for all branching strategies.
+        # _solve_without_branching is kept as a fast path only when
+        # branching_strategy is explicitly set to "none" or similar sentinel.
+        if self.branching_strategy in ("edge", "ryan_foster", "divergence", "multi_edge_partition"):
             return self._solve_with_branching()  # type: ignore[return-value]
         return self._solve_without_branching()
 
@@ -243,10 +260,10 @@ class BranchAndPriceSolver:
         self.tree = BranchAndBoundTree(strategy=self.branching_strategy, search_strategy=self.tree_search_strategy)
 
         root_lp, root_values, root_routes = self._solve_node(self.tree.root)
-        self.tree.root.lp_bound = root_lp
         self.tree.root.route_values = root_values
+        self.tree.root.routes = root_routes
         self.tree.root.is_integer = self._is_integer_solution(root_values)
-        self.lp_bound = root_lp  # type: ignore[assignment]
+        self.lp_bound = self.tree.root.lp_bound  # type: ignore[assignment]
 
         if self.tree.root.is_integer:
             selected = [root_routes[i] for i, v in root_values.items() if v > 0.5]
@@ -254,6 +271,11 @@ class BranchAndPriceSolver:
 
         self.tree.nodes_explored += 1
 
+        # Remove root from open list — it has already been evaluated above.
+        if self.tree.root in self.tree.open_nodes:
+            self.tree.open_nodes.remove(self.tree.root)
+
+        routes: List[Route] = root_routes
         while not self.tree.is_empty() and self.tree.nodes_explored < self.max_branch_nodes:
             node = self.tree.get_next_node()
             if node is None:
@@ -267,9 +289,9 @@ class BranchAndPriceSolver:
                 self.tree.nodes_pruned += 1
                 continue
 
-            lp_obj, route_values, routes = self._solve_node(node)
-            node.lp_bound = lp_obj
+            lp_obj, route_values, routes = self._solve_node(node, parent_routes=routes)
             node.route_values = route_values
+            node.routes = routes
 
             if lp_obj is None:
                 node.is_infeasible = True
@@ -296,6 +318,8 @@ class BranchAndPriceSolver:
                 if ip_obj is not None:
                     node.is_integer = True
                     node.ip_solution = ip_obj
+                    node.routes = routes
+                    node.route_values = {i: 1.0 if r in selected else 0.0 for i, r in enumerate(routes)}
                     if self.tree.update_incumbent(node, ip_obj):
                         self.ip_solution = ip_obj
                         self.tree.prune_by_bound()
@@ -305,12 +329,13 @@ class BranchAndPriceSolver:
                 self.tree.add_node(right_child)
 
         if self.tree.best_integer_node is not None:
-            _, rv, routes = self._solve_node(self.tree.best_integer_node)
-            if rv:
-                selected = [routes[i] for i, v in rv.items() if v > 0.5]
+            rv = self.tree.best_integer_node.route_values
+            node_routes = self.tree.best_integer_node.routes
+            if rv and node_routes:
+                selected = [node_routes[i] for i, v in rv.items() if v > 0.5 and i < len(node_routes)]
                 return (
                     self._routes_to_tour(selected),
-                    self.tree.best_integer_solution,
+                    self.tree.best_integer_solution,  # type: ignore[return-value]
                     self._get_statistics(),
                 )
 
@@ -326,23 +351,43 @@ class BranchAndPriceSolver:
     # Node solving
     # ------------------------------------------------------------------
 
-    def _solve_node(self, node: BranchNode) -> Tuple[Optional[float], Dict[int, float], List[Route]]:
+    def _solve_node(
+        self,
+        node: BranchNode,
+        parent_routes: Optional[List[Route]] = None,
+    ) -> Tuple[Optional[float], Dict[int, float], List[Route]]:
         """Solve the LP relaxation at a single B&B node via column generation."""
         master = self._make_master()
         constraints = node.get_all_constraints()
         heuristic_pricing, exact_pricing = self._make_pricing()
 
-        initial_routes = self._generate_initial_routes(heuristic_pricing)
-        feasible = [r for r in initial_routes if node.is_route_feasible(r)]
+        # Use parent column pool (filtered to node constraints) when available.
+        # Fall back to greedy initial routes only if no feasible parent columns exist.
+        feasible = [r for r in parent_routes if node.is_route_feasible(r)] if parent_routes else []
+
         if not feasible:
-            return None, {}, []
+            initial_routes = self._generate_initial_routes(heuristic_pricing)
+            feasible = [r for r in initial_routes if node.is_route_feasible(r)]
 
         master.build_model(feasible)
 
         try:
-            lp_obj, route_values = self._column_generation_with_constraints(
+            lp_obj, route_values, best_bound = self._column_generation_with_constraints(
                 master, (heuristic_pricing, exact_pricing), node, constraints
             )
+            node.lp_bound = min(lp_obj, best_bound)
+
+            # Part 5 Fix 5: Rounded Capacity Cut (RCC) separation at root node
+            # We only separate at depth 0 to avoid cut management complexity in the B&B tree.
+            if node.depth == 0:
+                logging.info("Starting Root RCC separation...")
+                cuts_added = master.find_and_add_violated_rcc(route_values, master.routes)
+                if cuts_added > 0:
+                    logging.info(f"Added {cuts_added} capacity cuts at root. Re-solving...")
+                    lp_obj, route_values, best_bound = self._column_generation_with_constraints(
+                        master, (heuristic_pricing, exact_pricing), node, constraints
+                    )
+                    node.lp_bound = min(lp_obj, best_bound)
         except RuntimeError:
             return None, {}, []
 
@@ -359,10 +404,17 @@ class BranchAndPriceSolver:
     ) -> Tuple[float, Dict[int, float]]:
         """Perform unconstrained column generation with heuristic fallback."""
         heuristic_pricer, exact_pricer = pricing
+        last_basis: Optional[Tuple[List[int], List[int]]] = None
 
         for i in range(self.max_iterations):
             self.num_iterations += 1
+
+            if last_basis is not None:
+                master.restore_basis(last_basis)
+
             lp_obj, route_values = master.solve_lp_relaxation()
+            last_basis = master.save_basis()
+
             dual_values = master.get_reduced_cost_coefficients()
 
             # 1. Try heuristic pricer first (Two-Phase Pricing)
@@ -375,26 +427,25 @@ class BranchAndPriceSolver:
             if not new_routes:
                 break
 
-            # Task 4 & Part 5 Task 3: LP Termination via Lagrangian Bound
             max_rc = max(rc for _, rc in new_routes)
             if max_rc < self.optimality_gap:
                 break
 
             # Estimate fleet limit for unconstrained instances to calculate Lagrangian bound
             limit = self.vehicle_limit if self.vehicle_limit is not None else self.n_nodes
-            # Note: self.n_nodes is a true math upper bound (one vehicle per customer).
-            # Tighter heuristic approximation could be max(self.n_nodes/2, 5).
-
             lagrangian_bound = lp_obj + max_rc * limit
             if abs(lp_obj - lagrangian_bound) < self.early_termination_gap:
                 break
 
             self._add_routes_to_master(master, heuristic_pricer, new_routes)
+            last_basis = None  # basis is stale after column additions; force fresh solve
 
             # Task 3: Column Pool Management
             if (i + 1) % self.cleanup_frequency == 0:
                 master.remove_unpromising_columns(self.cleanup_threshold)
 
+        if last_basis is not None:
+            master.restore_basis(last_basis)
         return master.solve_lp_relaxation()
 
     def _column_generation_with_constraints(
@@ -403,13 +454,19 @@ class BranchAndPriceSolver:
         pricing: Tuple[PricingSubproblem, Optional[RCSPPSolver]],
         node: BranchNode,
         constraints: List[AnyBranchingConstraint],
-    ) -> Tuple[float, Dict[int, float]]:
+    ) -> Tuple[float, Dict[int, float], float]:
         """Perform constrained column generation with heuristic fallback."""
         heuristic_pricer, exact_pricer = pricing
+        best_lagrangian = float("inf")
+        last_basis: Optional[Tuple[List[int], List[int]]] = None
 
         for i in range(self.max_iterations):
             self.num_iterations += 1
+            if last_basis is not None:
+                master.restore_basis(last_basis)
+
             lp_obj, route_values = master.solve_lp_relaxation()
+            last_basis = master.save_basis()
             dual_values = master.get_reduced_cost_coefficients()
 
             # 1. Try heuristic pricer first (Two-Phase Pricing)
@@ -441,18 +498,28 @@ class BranchAndPriceSolver:
 
             limit = self.vehicle_limit if self.vehicle_limit is not None else self.n_nodes
             lagrangian_bound = lp_obj + max_rc * limit
+            best_lagrangian = min(best_lagrangian, lagrangian_bound)
+
+            # Task 4: Basis Restoration
+            # Basis is reset to None if the variable count changes significantly,
+            # but Gurobi handles basis extension efficiently after add_route_as_column.
+            # We explicitly save AFTER solving and Restore BEFORE solving.
             if abs(lp_obj - lagrangian_bound) < self.early_termination_gap:
                 break
 
             for route, _ in feasible:
-                master.add_route(route)
-                self.num_columns_generated += 1
+                master.add_route_as_column(route)
+            self.num_columns_generated += len(feasible)
 
             # Task 3: Column Pool Management
             if (i + 1) % self.cleanup_frequency == 0:
                 master.remove_unpromising_columns(self.cleanup_threshold)
 
-        return master.solve_lp_relaxation()
+        # Final solve for clean duals/solution
+        if last_basis is not None:
+            master.restore_basis(last_basis)
+        lp_obj, route_values = master.solve_lp_relaxation()
+        return lp_obj, route_values, best_lagrangian
 
     # ------------------------------------------------------------------
     # Pricing dispatch
@@ -460,8 +527,8 @@ class BranchAndPriceSolver:
 
     def _call_pricing(
         self,
-        pricing: Any,
-        dual_values: Dict[int, float],
+        pricing: Union[PricingSubproblem, RCSPPSolver],
+        dual_values: Dict[Union[int, str], float],
         constraints: Optional[List[AnyBranchingConstraint]],
     ) -> List[Tuple[List[int], float]]:
         """
@@ -470,7 +537,9 @@ class BranchAndPriceSolver:
         RCSPPSolver uses ``branching_constraints``; PricingSubproblem uses
         ``active_constraints``.
         """
-        if self.use_exact_pricing:
+        from .rcspp_dp import RCSPPSolver
+
+        if isinstance(pricing, RCSPPSolver):
             return pricing.solve(
                 dual_values=dual_values,
                 max_routes=self.max_routes_per_iteration,
@@ -633,6 +702,7 @@ class BranchAndPriceSolver:
                 **kwargs,
                 use_ng_routes=self.use_ng_routes,
                 ng_neighborhood_size=self.ng_neighborhood_size,
+                ng_neighborhoods=self._ng_neighborhoods,
             )
 
         return heuristic_pricer, exact_pricer
@@ -644,18 +714,46 @@ class BranchAndPriceSolver:
         master.build_model(feasible)
         return master
 
-    def _is_integer_solution(self, route_values: Dict[int, float], tol: float = 1e-4) -> bool:
+    def _is_integer_solution(self, route_values: Dict[int, float], tol: float = 1e-5) -> bool:
         """Return True if every LP route value is within *tol* of 0 or 1."""
         return all(abs(v - round(v)) <= tol for v in route_values.values())
 
+    @staticmethod
+    def _resolve_branching_strategy(
+        branching_strategy: str,
+        use_ryan_foster: bool,
+        values: Dict[str, Any],
+    ) -> str:
+        """Single source of truth for branching strategy resolution.
+
+        Priority (highest to lowest):
+            1. values["branching_strategy"]  — runtime override
+            2. branching_strategy constructor arg
+            3. values["use_ryan_foster_branching"] legacy bool
+            4. use_ryan_foster constructor bool (deprecated)
+        """
+        if "branching_strategy" in values:
+            return str(values["branching_strategy"])
+        if branching_strategy != "edge":  # non-default means explicitly set
+            return branching_strategy
+        if values.get("use_ryan_foster_branching", False):
+            return "ryan_foster"
+        if use_ryan_foster:
+            return "ryan_foster"
+        return "edge"
+
     def _get_statistics(self) -> Dict[str, Any]:
         """Collect and return solver statistics."""
+        lp_b = self.lp_bound if self.lp_bound is not None else 0.0
+        ip_s = self.ip_solution if self.ip_solution is not None else 0.0
+        gap = abs(lp_b - ip_s) / max(abs(lp_b), 1e-10)
+
         stats: Dict[str, Any] = {
             "num_iterations": self.num_iterations,
             "num_columns_generated": self.num_columns_generated,
             "lp_bound": self.lp_bound,
             "ip_solution": self.ip_solution,
-            "gap": abs(self.lp_bound - self.ip_solution) / max(abs(self.lp_bound), 1e-10),
+            "gap": gap,
             "branching_strategy": self.branching_strategy,
             "use_ng_routes": self.use_ng_routes,
             "ng_neighborhood_size": self.ng_neighborhood_size,

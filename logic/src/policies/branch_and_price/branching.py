@@ -183,6 +183,7 @@ class BranchNode:
         constraints: Optional[List[AnyBranchingConstraint]] = None,
         parent: Optional["BranchNode"] = None,
         depth: int = 0,
+        lp_bound_hint: Optional[float] = None,
     ) -> None:
         """
         Initialise a branch node.
@@ -191,16 +192,17 @@ class BranchNode:
             constraints: Constraints added *at this node only* (not inherited).
             parent: Parent node (None for root).
             depth: Tree depth (root = 0).
+            lp_bound_hint: Optional initial LP bound (inherited from parent).
         """
         self.constraints: List[AnyBranchingConstraint] = constraints or []
         self.parent: Optional["BranchNode"] = parent
         self.depth: int = depth
-
-        self.lp_bound: Optional[float] = None
+        self.lp_bound: Optional[float] = lp_bound_hint
         self.ip_solution: Optional[float] = None
         self.is_integer: bool = False
         self.is_infeasible: bool = False
         self.route_values: Optional[Dict[int, float]] = None
+        self.routes: Optional[List[Route]] = None
 
     def get_all_constraints(self) -> List[AnyBranchingConstraint]:
         """
@@ -214,7 +216,7 @@ class BranchNode:
         while node is not None:
             constraints.extend(node.constraints)
             node = node.parent
-        return constraints
+        return constraints[::-1]
 
     def is_route_feasible(self, route: Route) -> bool:
         """
@@ -269,7 +271,7 @@ class EdgeBranching:
     def find_branching_arc(
         routes: List[Route],
         route_values: Dict[int, float],
-        tol: float = 1e-6,
+        tol: float = 1e-5,
     ) -> Optional[Tuple[int, int]]:
         """
         Select the arc with fractional flow closest to 0.5.
@@ -311,15 +313,18 @@ class EdgeBranching:
         Returns:
             (left_child, right_child)
         """
+        hint = parent.lp_bound
         left = BranchNode(
             constraints=[EdgeBranchingConstraint(u, v, must_use=True)],
             parent=parent,
             depth=parent.depth + 1,
+            lp_bound_hint=hint,
         )
         right = BranchNode(
             constraints=[EdgeBranchingConstraint(u, v, must_use=False)],
             parent=parent,
             depth=parent.depth + 1,
+            lp_bound_hint=hint,
         )
         return left, right
 
@@ -365,7 +370,7 @@ class MultiEdgePartitionBranching:
     def find_divergence_node(
         routes: List[Route],
         route_values: Dict[int, float],
-        tol: float = 1e-6,
+        tol: float = 1e-5,
     ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]]]]:
         """
         Find a divergence node and partition its outgoing arcs.
@@ -444,15 +449,18 @@ class MultiEdgePartitionBranching:
         # Child 2: Forbid arcs in arc_set_2
         constraints_2 = [EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_2]
 
+        hint = parent.lp_bound
         left = BranchNode(
             constraints=constraints_1,  # type: ignore[arg-type]
             parent=parent,
             depth=parent.depth + 1,
+            lp_bound_hint=hint,
         )
         right = BranchNode(
             constraints=constraints_2,  # type: ignore[arg-type]
             parent=parent,
             depth=parent.depth + 1,
+            lp_bound_hint=hint,
         )
 
         return left, right
@@ -492,7 +500,7 @@ class RyanFosterBranching:
     def find_branching_pair(
         routes: List[Route],
         route_values: Dict[int, float],
-        tol: float = 1e-6,
+        tol: float = 1e-5,
     ) -> Optional[Tuple[int, int]]:
         """
         Find a node pair (r, s) whose fractional co-occurrence lies in (0, 1).
@@ -550,15 +558,18 @@ class RyanFosterBranching:
         Returns:
             (left_child, right_child)
         """
+        hint = parent.lp_bound
         left = BranchNode(
             constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=True)],
             parent=parent,
             depth=parent.depth + 1,
+            lp_bound_hint=hint,
         )
         right = BranchNode(
             constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=False)],
             parent=parent,
             depth=parent.depth + 1,
+            lp_bound_hint=hint,
         )
         return left, right
 
@@ -589,13 +600,15 @@ class BranchAndBoundTree:
     itself — call `strategy.select_node(bb_tree.open_nodes)` from the solver loop.
     """
 
-    def __init__(self, strategy: str = "edge") -> None:
+    def __init__(self, strategy: str = "edge", search_strategy: str = "best_first") -> None:
         """
         Initialise the B&B tree.
 
         Args:
             strategy: Branching strategy — ``"edge"`` (default),
                 ``"ryan_foster"``, or ``"divergence"``.
+            search_strategy: Node selection strategy — ``"best_first"`` (default)
+                or ``"depth_first"``.
 
         Raises:
             ValueError: If an unsupported strategy string is provided.
@@ -606,6 +619,7 @@ class BranchAndBoundTree:
             )
 
         self.strategy: str = strategy
+        self.search_strategy: str = search_strategy
         self.root: BranchNode = BranchNode()
         self.open_nodes: List[BranchNode] = [self.root]
         self.best_integer_solution: Optional[float] = None
@@ -616,6 +630,32 @@ class BranchAndBoundTree:
     def add_node(self, node: BranchNode) -> None:
         """Enqueue a new open node."""
         self.open_nodes.append(node)
+
+    def get_next_node(self) -> Optional[BranchNode]:
+        """
+        Select and remove the next node to process from the open list.
+
+        Uses the configured search strategy:
+        - "best_first": pop the node with the highest LP bound (best-bound-first).
+        - "depth_first": pop the most recently added node (LIFO).
+
+        Returns:
+            The selected BranchNode, or None if the open list is empty.
+        """
+        if not self.open_nodes:
+            return None
+
+        if self.search_strategy == "depth_first":
+            return self.open_nodes.pop()
+
+        # Default: best-first — select the node with the highest LP bound.
+        # Nodes with lp_bound=None (only the root) are treated as +inf
+        # so they are explored first.
+        best_idx = max(
+            range(len(self.open_nodes)),
+            key=lambda i: self.open_nodes[i].lp_bound if self.open_nodes[i].lp_bound is not None else float("inf"),
+        )
+        return self.open_nodes.pop(best_idx)
 
     # ------------------------------------------------------------------
     # Branching
