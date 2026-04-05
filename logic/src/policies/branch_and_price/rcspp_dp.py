@@ -1,7 +1,7 @@
 """
 Resource-Constrained Shortest Path Problem (RCSPP) solver using Dynamic Programming.
 
-Implements label-setting algorithm for Elementary Shortest Path Problem with Resource
+Implements label-correcting algorithm for Elementary Shortest Path Problem with Resource
 Constraints (ESPPRC) as described in:
 - Irnich & Desaulniers (2005): "Shortest Path Problems with Resource Constraints"
 - Feillet et al. (2004): "An exact algorithm for the ESPPRC"
@@ -182,7 +182,7 @@ class RCSPPSolver:
     """
     Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.
 
-    Uses forward label-setting dynamic programming with dominance pruning to
+    Uses forward label-correcting dynamic programming with dominance pruning to
     find elementary (or ng-feasible) paths of maximum reduced cost, subject to
     vehicle capacity.
 
@@ -233,6 +233,7 @@ class RCSPPSolver:
         mandatory_nodes: Optional[Set[int]] = None,
         use_ng_routes: bool = True,
         ng_neighborhood_size: int = 8,
+        ng_neighborhoods: Optional[Dict[int, Set[int]]] = None,
     ) -> None:
         """
                 Initialise the RCSPP solver.
@@ -271,10 +272,13 @@ class RCSPPSolver:
         self.labels_infeasible: int = 0
 
         # Precompute ng-neighborhoods once at construction time.
-        # This is O(n^2 log n) but performed only once per solver instance.
-        # When use_ng_routes=False the neighborhoods are never consulted, but
-        # computing them keeps the initialisation path uniform.
-        self.ng_neighborhoods: Dict[int, Set[int]] = self._compute_ng_neighborhoods()
+        if ng_neighborhoods is not None:
+            self.ng_neighborhoods = ng_neighborhoods
+        else:
+            self.ng_neighborhoods = self._compute_ng_neighborhoods()
+
+        # Debug assertion to verify coverage of all nodes including depot.
+        assert all(i in self.ng_neighborhoods for i in range(self.n_nodes + 1))
 
     # ------------------------------------------------------------------
     # Neighborhood precomputation
