@@ -49,11 +49,16 @@ def construct_initial_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[i
         rng=rng,
     )
 
-    # Convert routes to a single tour
-    tour = _routes_to_tour(routes, model.depot)
-
-    # Improve with 2-opt
-    tour = _apply_2opt_to_tour(model, tour)
+    # Improve each route with 2-opt independently, ensuring depot bookends
+    improved_routes = []
+    for route in routes:
+        if len(route) >= 2:
+            wrapped = [model.depot] + route + [model.depot]
+            improved = _apply_2opt_to_tour(model, wrapped)
+            improved_routes.append([n for n in improved if n != model.depot])
+        else:
+            improved_routes.append(route)
+    tour = _routes_to_tour(improved_routes, model.depot)
 
     # Calculate profit
     profit = model.compute_tour_profit(tour)
@@ -91,11 +96,16 @@ def construct_nn_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[int], 
         rng=rng,
     )
 
-    # Convert to single tour
-    tour = _routes_to_tour(routes, model.depot)
-
-    # Improve with 2-opt
-    tour = _apply_2opt_to_tour(model, tour)
+    # Improve each route with 2-opt independently, ensuring depot bookends
+    improved_routes = []
+    for route in routes:
+        if len(route) >= 2:
+            wrapped = [model.depot] + route + [model.depot]
+            improved = _apply_2opt_to_tour(model, wrapped)
+            improved_routes.append([n for n in improved if n != model.depot])
+        else:
+            improved_routes.append(route)
+    tour = _routes_to_tour(improved_routes, model.depot)
 
     # Calculate profit
     profit = model.compute_tour_profit(tour)
@@ -157,11 +167,16 @@ def farthest_insertion(
             expand_pool=expand_pool,
         )
 
-    # Convert to single tour
-    tour = _routes_to_tour(routes, model.depot)
-
-    # Improve with 2-opt
-    tour = _apply_2opt_to_tour(model, tour)
+    # Improve each route with 2-opt independently, ensuring depot bookends
+    improved_routes = []
+    for route in routes:
+        if len(route) >= 2:
+            wrapped = [model.depot] + route + [model.depot]
+            improved = _apply_2opt_to_tour(model, wrapped)
+            improved_routes.append([n for n in improved if n != model.depot])
+        else:
+            improved_routes.append(route)
+    tour = _routes_to_tour(improved_routes, model.depot)
 
     profit = model.compute_tour_profit(tour)
     return tour, profit
@@ -176,7 +191,9 @@ def _routes_to_tour(routes: List[List[int]], depot: int) -> List[int]:
         depot: Depot node index (typically 0).
 
     Returns:
-        Single tour: [depot, route1_nodes..., depot, route2_nodes..., depot]
+        Single aggregated tour: [depot, route1_nodes..., depot, route2_nodes..., depot].
+        Note: The 2-opt operator is designed for single trips and will skip tours
+        containing internal depot visits (multi-vehicle routes).
     """
     if not routes or all(len(r) == 0 for r in routes):
         return [depot, depot]
@@ -210,6 +227,14 @@ def _apply_2opt_to_tour(model: VRPPModel, tour: List[int], max_iterations: int =
         Improved tour.
     """
     if len(tour) <= 3:
+        return tour
+
+    # [Fix 10] CORRUPT TOUR PREVENTION
+    # Simple 2-opt swaps assume a single Hamiltonian cycle. If the tour contains
+    # internal depot visits (e.g. [0, 1, 0, 2, 0]), a naive swap can merge
+    # or disconnect routes, violating vehicle constraints. We skip such tours.
+    internal_depots = [i for i, node in enumerate(tour[1:-1], 1) if node == 0]
+    if internal_depots:
         return tour
 
     improved = True
