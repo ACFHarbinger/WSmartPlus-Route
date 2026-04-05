@@ -124,4 +124,5 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
                 dist_cost += sub_dist_matrix[path[i]][path[i + 1]]
         profit = collected_revenue - dist_cost * cost_unit
 
-        return routes, profit, solver_cost
+        monetary_travel_cost = dist_cost * cost_unit
+        return routes, profit, monetary_travel_cost

@@ -41,12 +41,16 @@ def _dfj_callback(model, where):
 
         # Add cuts for subtours
         for component in components:
-            # NetworkX connected_components yields sets, which is optimal for lookups
             if 0 not in component and len(component) >= 2:
-                # List comprehensions execute at C-speed, bypassing Python's loop overhead
-                subtour_edges = [x_vars[i, j] for i in component for j in component if i != j and (i, j) in x_vars]
-                if subtour_edges:
-                    model.cbLazy(quicksum(subtour_edges) <= len(component) - 1)
+                # For directed formulation, cut outgoing flow from component to rest.
+                # Each visited node in the component must have at least one edge
+                # leaving the component: sum_{i in S, j not in S} x[i,j] >= y[i] for i in S.
+                # Simpler valid cut: sum of outgoing edges from S >= 1
+                # (at least one edge must leave S to connect back to depot).
+                rest = set(range(num_nodes)) - component
+                outgoing_edges = [x_vars[i, j] for i in component for j in rest if (i, j) in x_vars]
+                if outgoing_edges:
+                    model.cbLazy(quicksum(outgoing_edges) >= 1)
 
 
 def _setup_bb_model(

@@ -229,6 +229,11 @@ class BBSolver:
             var.LB = lb
             var.UB = 1.0
 
+        # Reset u (MTZ load) variable bounds to initialization values
+        for i, var in self.u.items():
+            var.LB = self.wastes.get(i, 0.0)
+            var.UB = self.capacity
+
         # Step 2: Apply fixed variable values from the node
         for (i, j), val in node.fixed_x.items():
             self.x[i, j].LB = float(val)
@@ -242,7 +247,7 @@ class BBSolver:
         self.model.optimize()  # type: ignore[union-attr]
 
         # Step 4: Return the objective value
-        if self.model.status == GRB.OPTIMAL:  # type: ignore[union-attr]
+        if self.model.Status == GRB.OPTIMAL:  # type: ignore[union-attr]
             return self.model.ObjVal  # type: ignore[union-attr]
         else:
             return -float("inf")
@@ -269,9 +274,10 @@ class BBSolver:
             if not self._is_integer(var.X):
                 fractional_vars.append(("x", i_j, var.X))
 
-        for i, var in self.y.items():
-            if not self._is_integer(var.X):
-                fractional_vars.append(("y", i, var.X))  # type: ignore[arg-type]
+        # Note: We only collect fractional x variables. Branching on y is redundant
+        # because the flow constraints sum_j x[i,j] = y[i] and sum_j x[j,i] = y[i]
+        # ensure that if y[i] is fractional, at least one incident x variable
+        # must also be fractional. Branching on x directly is more efficient.
 
         if not fractional_vars:
             return None
@@ -323,13 +329,13 @@ class BBSolver:
             var.LB = 0.0
             var.UB = 0.0
             self.model.optimize()  # type: ignore[union-attr]
-            z_down = self.model.ObjVal if self.model.status == GRB.OPTIMAL else -float("inf")  # type: ignore[union-attr]
+            z_down = self.model.ObjVal if self.model.Status == GRB.OPTIMAL else -float("inf")  # type: ignore[union-attr]
 
             # Test 2: Fix variable to 1
             var.LB = 1.0
             var.UB = 1.0
             self.model.optimize()  # type: ignore[union-attr]
-            z_up = self.model.ObjVal if self.model.status == GRB.OPTIMAL else -float("inf")  # type: ignore[union-attr]
+            z_up = self.model.ObjVal if self.model.Status == GRB.OPTIMAL else -float("inf")  # type: ignore[union-attr]
 
             # Restore original bounds
             var.LB = orig_lb
@@ -345,7 +351,11 @@ class BBSolver:
                 best_score = score
                 best_var = (var_type, var_idx)
 
-        # Restore the model to the original state
+        # Restore the node's LP state by re-solving after final bound restoration.
+        # This re-solve is correct because all candidates had their bounds
+        # restored to orig_lb/orig_ub (the node's bounds) within the loop or
+        # immediately after their probes, so the model state now correctly
+        # reflects the original node subproblem.
         self.model.optimize()  # type: ignore[union-attr]
 
         return best_var
@@ -379,8 +389,8 @@ class BBSolver:
 
         # Step 1: Initialize priority queue with root node
         # Root node has no fixed variables
-        root_node = Node(bound=-float("inf"))  # For max-heap: start with worst bound
-        queue = [(-float("inf"), next(counter), root_node)]  # Use tuple (priority, count, node) for heap
+        root_node = Node(bound=float("inf"))  # Upper bound unknown until LP is solved
+        queue = [(-float("inf"), next(counter), root_node)]  # Priority uses -inf until first LP
 
         nodes_explored = 0
 
@@ -396,7 +406,8 @@ class BBSolver:
 
             # Pruning by Bound (before LP solve)
             # For maximization: if node.bound <= incumbent_obj * (1 + mip_gap), prune
-            if current_node.bound <= self.incumbent_obj * (1 + self.mip_gap):
+            gap_threshold = self.incumbent_obj + abs(self.incumbent_obj) * self.mip_gap
+            if self.incumbent_obj > -float("inf") and current_node.bound <= gap_threshold:
                 continue
 
             # Evaluate LP relaxation
@@ -408,7 +419,8 @@ class BBSolver:
 
             # Pruning by Bound (after LP solve)
             # For maximization: if current_obj <= incumbent_obj * (1 + mip_gap), prune
-            if current_obj <= self.incumbent_obj * (1 + self.mip_gap):
+            gap_threshold = self.incumbent_obj + abs(self.incumbent_obj) * self.mip_gap
+            if self.incumbent_obj > -float("inf") and current_obj <= gap_threshold:
                 continue
 
             # Integrality Check
