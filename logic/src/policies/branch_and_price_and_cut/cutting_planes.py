@@ -29,13 +29,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ..branch_and_cut.separation import (
+from .master_problem import VRPPMasterProblem
+from .separation import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
 )
-from ..branch_and_cut.vrpp_model import VRPPModel
-from ..branch_and_price.master_problem import VRPPMasterProblem
+from .vrpp_model import VRPPModel
 
 
 class CuttingPlaneEngine(ABC):
@@ -166,7 +166,7 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
 
                 # For Set Packing, add cut with boundary relaxation
                 # The master problem handles the y_i visitation tracking
-                if master.add_set_packing_capacity_cut(node_set, ineq.rhs):
+                if master.add_capacity_cut(node_set, ineq.rhs):
                     added_cuts += 1
             elif isinstance(ineq, PCSubtourEliminationCut):
                 node_set = list(ineq.node_set)
@@ -349,9 +349,7 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
                 cover_node_set.update(master.routes[i].node_coverage)
             cover_node_set.discard(0)  # exclude depot
 
-            if cover_node_set and master.add_set_packing_capacity_cut(
-                list(cover_node_set), float(master.vehicle_limit)
-            ):
+            if cover_node_set and master.add_capacity_cut(list(cover_node_set), float(master.vehicle_limit)):
                 return 1
 
         return 0
