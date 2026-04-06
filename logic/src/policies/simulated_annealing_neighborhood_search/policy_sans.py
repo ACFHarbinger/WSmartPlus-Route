@@ -7,7 +7,7 @@ Supports two engines:
   - 'og': Original look-ahead algorithm for collection (LAC)
 """
 
-from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -18,6 +18,8 @@ from logic.src.policies.simulated_annealing_neighborhood_search.dispatcher impor
     execute_new,
     execute_og,
 )
+
+from .params import SANSParams
 
 
 @PolicyRegistry.register("sans")
@@ -68,17 +70,10 @@ class SANSPolicy(BaseRoutingPolicy):
 
         Uses specialized data preparation for simulated annealing.
         """
-        # Determine engine from typed config, raw config, or kwargs
-        cfg = self._config
-        if cfg is not None:
-            engine: Literal["new", "og"] = cfg.engine
-        else:
-            config = kwargs.get("config", {})
-            sans_config = config.get("sans", config.get("lac", {}))
-            raw_engine = kwargs.get("engine", sans_config.get("engine", "new"))
-            engine = "og" if raw_engine == "og" else "new"
+        # Determine engine and parameters from typed config, raw config, or kwargs
+        params = SANSParams.from_config(self._config or kwargs.get("config", {}).get("sans", {}))
 
-        if engine == "og":
-            return execute_og(self, **kwargs)
+        if params.engine == "og":
+            return execute_og(self, params=params, **kwargs)
         else:
-            return execute_new(self, **kwargs)
+            return execute_new(self, params=params, **kwargs)

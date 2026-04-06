@@ -23,7 +23,6 @@ class RLAHVPLParams:
     # General parameters
     n_teams: int = 10
     time_limit: float = 60.0
-    max_iterations: int = 1000
     elite_coaching_max_iterations: int = 500
     not_coached_max_iterations: int = 100
     coaching_acceptance_threshold: float = 1e-6

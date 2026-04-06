@@ -27,8 +27,6 @@ class HGSConfig:
         mutation_rate: Probability of applying local search to offspring.
         repair_probability: Probability of repairing infeasible offspring.
         crossover_rate: Probability of applying crossover.
-        min_diversity: Minimum diversity threshold.
-        diversity_change_rate: Rate at which diversity changes.
         local_search_iterations: Number of local search iterations.
         use_cross_exchange: Whether to use cross exchange moves.
         use_lambda_interchange: Whether to use lambda interchange moves.
@@ -60,10 +58,6 @@ class HGSConfig:
     mutation_rate: float = 1.0
     repair_probability: float = 0.5
     crossover_rate: float = 1.0
-
-    # Diversity management (Vidal 2022: parameterless diversity weighting)
-    min_diversity: float = 0.2
-    diversity_change_rate: float = 0.05
 
     # Local search
     local_search_iterations: int = 500

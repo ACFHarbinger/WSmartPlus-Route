@@ -44,6 +44,7 @@ if TYPE_CHECKING:
 # Forward reference resolved at runtime — avoids a circular import with
 # master_problem.py while still enabling full type annotations.
 from .master_problem import Route
+from .params import BPCParams
 
 # ---------------------------------------------------------------------------
 # Constraint classes
@@ -660,6 +661,7 @@ class BranchAndBoundTree:
         max_nodes: int = 1000,
         strategy: str = "edge",
         search_strategy: str = "best_first",
+        params: Optional[BPCParams] = None,
     ):
         """
         Initialize the Branch-and-Bound tree for BPC.
@@ -669,7 +671,12 @@ class BranchAndBoundTree:
             max_nodes: Maximum number of nodes to explore.
             strategy: Branching strategy ('divergence_spatial', 'edge', 'ryan_foster').
             search_strategy: Search strategy ('best_first', 'depth_first').
+            params: Standardized BPC parameters.
         """
+        if params is not None:
+            max_nodes = params.max_bb_nodes if hasattr(params, "max_bb_nodes") else max_nodes
+            strategy = params.branching_strategy if hasattr(params, "branching_strategy") else strategy
+            search_strategy = params.search_strategy if hasattr(params, "search_strategy") else search_strategy
         self.v_model = v_model
 
         # Extract coordinates from the injected model

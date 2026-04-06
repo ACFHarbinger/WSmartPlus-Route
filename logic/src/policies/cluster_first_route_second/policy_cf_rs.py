@@ -9,63 +9,48 @@ mapping, data extraction, and result formatting.
 
 from typing import Any, Dict, List, Optional, Tuple, Type
 
-import numpy as np
+import pandas as pd
 
 from logic.src.configs.policies.cf_rs import CFRSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
-from logic.src.policies.cluster_first_route_second.solver import run_cf_rs
+
+from .params import CFRSParams
+from .policy_cf_rs_vfj import run_cf_rs
 
 
 @PolicyRegistry.register("cf_rs")
 class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
     """
-    Simulator adapter for the Cluster-First Route-Second (CF-RS) routing algorithm.
+    Simulator adapter for the Cluster-First Route-Second (CFRS) policy.
 
-    This class encapsulates the execution of an angular partitioning strategy for
-    waste collection routing. It manages:
-    1. Parsing policy-specific configurations (CFRSConfig).
-    2. Extracting geographic coordinates and bin indices from the simulation context.
-    3. Delegating the core optimization to the `run_cf_rs` solver.
-    4. Mapping the resulting multi-cluster tour back to the simulator's expectations.
+    The CFRS approach of Vidal, Freitas, and Junior (VFJ) decomposes the
+    Vehicle Routing Problem with Profits (VRPP) into:
+    1.  **Clustering Phase**: Partitioning nodes into clusters that are
+        likely to be feasible within a single route.
+    2.  **Routing Phase**: Solving a Traveling Salesman Problem (TSP)
+        or VRP for each cluster to find the optimal sequence.
 
-    Architecture:
-        - Inherits from `BaseRoutingPolicy` for standardized parameter loading.
-        - Registered under the key 'cf_rs' for dynamic instantiation.
+    This policy uses a variable-size clustering based on node proximity and
+    profit-to-distance ratios, followed by local search to refine the clusters.
+
+    Attributes:
+        config (Optional[Dict[str, Any]]): The raw Hydra configuration dictionary.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """
-        Initialize the CF-RS policy adapter.
-
-        Args:
-            config: A configuration dictionary typically sourced from Hydra YAML files.
-                If None, default parameters for `CFRSConfig` will be used.
-        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """
-        Reference the configuration dataclass associated with this policy.
-
-        Returns:
-            The `CFRSConfig` class for validation and structured loading.
-        """
         return CFRSConfig
 
     def _get_config_key(self) -> str:
-        """
-        Identify the configuration key in the root YAML structure.
-
-        Returns:
-            The string key 'cf_rs'.
-        """
         return "cf_rs"
 
     def _run_solver(
         self,
-        sub_dist_matrix: np.ndarray,
+        sub_dist_matrix: Any,
         sub_wastes: Dict[int, float],
         capacity: float,
         revenue: float,
@@ -74,60 +59,61 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """Not used - CFRS requires specialized execute()."""
+        return [], 0.0, 0.0
+
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
         """
-        Run the Cluster-First Route-Second solver.
-
-        Returns:
-            Tuple of (routes, profit, solver_cost)
+        Execute the CFRS policy.
         """
-        # 1. Parse policy-specific config
-        cfg = self._parse_config(values, CFRSConfig)
+        # 1. Initialize type-safe Params
+        params = CFRSParams.from_config(self._config or kwargs.get("config", {}).get("cf_rs", {}))
 
-        # 2. Extract coordinates and fleet size
-        coords = kwargs.get("coords")
-        if coords is None:
-            # Fallback to 'all_coords' if 'coords' is missing (simulators vary)
-            coords = kwargs.get("all_coords")
+        # 2. Extract state parameters
+        distance_matrix = kwargs["distance_matrix"]
+        wastes = kwargs.get("wastes", {})
+        capacity = kwargs.get("capacity", 1.0e9)
+        mandatory_nodes = kwargs.get("must_go", [])
+        revenue = kwargs.get("R", 1.0)
+        cost_unit = kwargs.get("C", 1.0)
+        n_vehicles = kwargs.get("number_vehicles", 1)
+        sub_coords = kwargs.get("coords", [])
+        seed = params.seed if params.seed is not None else kwargs.get("seed", 42)
 
-        subset_indices = kwargs.get("subset_indices", list(range(sub_dist_matrix.shape[0])))
-        n_vehicles = kwargs.get("n_vehicles") or 1
+        # 3. Handle bins/wastes
+        bins = kwargs.get("bins")
+        amounts = bins.c if bins is not None and hasattr(bins, "c") else [wastes[k] for k in sorted(wastes.keys())]
+        if amounts:
+            amounts_df = pd.Series(amounts).to_frame("amounts")
+            amounts_df["idx"] = list(range(1, len(amounts) + 1))
+            amounts_df = amounts_df.set_index("idx")
+        else:
+            amounts_df = pd.DataFrame()
 
-        if not mandatory_nodes:
-            # Return an empty list of routes, 0 profit, 0 cost
-            return [], 0.0, 0.0
+        num_clusters = int(params.num_clusters or 1)
 
-        # 3. Subset coordinates matching the search space (Depot + Bins)
-        # Handle both DataFrame (iloc) and Array-like
-        sub_coords = coords.iloc[subset_indices].values if hasattr(coords, "iloc") else np.array(coords)[subset_indices]
-
-        if sub_coords is None:
-            return [], 0.0, 0.0
-
-        # 4. Priority-aware seeding
-        seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
-
-        # 5. Run core algorithm (VFJ Algorithm)
+        # 4. Run CFRS
         routes, solver_cost, extra_data = run_cf_rs(
-            coords=sub_coords,
-            must_go=mandatory_nodes,
-            distance_matrix=sub_dist_matrix,
-            wastes=sub_wastes,
+            dist_matrix=distance_matrix,
+            amounts=amounts_df,
             capacity=capacity,
-            R=revenue,
+            num_clusters=num_clusters,
             C=cost_unit,
             n_vehicles=n_vehicles,
             seed=seed,
-            num_clusters=cfg.num_clusters,
-            time_limit=cfg.time_limit,
-            assignment_method=cfg.assignment_method,
-            route_optimizer=cfg.route_optimizer,
-            strict_fleet=cfg.strict_fleet,
-            seed_criterion=cfg.seed_criterion,
-            mip_objective=cfg.mip_objective,
+            coords=sub_coords,
+            must_go=mandatory_nodes,
+            wastes=wastes,
+            R=revenue,
+            time_limit=params.time_limit,
+            assignment_method=params.assignment_method,
+            route_optimizer=params.route_optimizer,
+            strict_fleet=params.strict_fleet,
+            seed_criterion=params.seed_criterion,
+            mip_objective=params.mip_objective,
         )
 
-        # 7. Final Profit Calculation (Revenue - Distance Cost)
-        total_fill = sum(sub_wastes.get(n, 0.0) for r in routes for n in r)
-        total_profit = (total_fill * revenue) - solver_cost
+        # Flatten routes for consistent output if necessary
+        tour = [node for route in routes for node in route]
 
-        return routes, total_profit, solver_cost
+        return tour, float(solver_cost), extra_data

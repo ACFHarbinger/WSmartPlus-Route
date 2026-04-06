@@ -21,7 +21,6 @@ class HGSALNSConfig:
     engine: str = "hgs_alns"
 
     # HGS-ALNS specific parameters
-    hgs_max_iter: int = 100
     vrpp: bool = True
     profit_aware_operators: bool = False
 

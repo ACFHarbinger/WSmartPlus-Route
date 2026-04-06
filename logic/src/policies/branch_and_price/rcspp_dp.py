@@ -211,6 +211,7 @@ class RCSPPSolver:
         self.is_farkas = is_farkas
 
         # Distinguish between old-style flat duals and new-style composite duals
+        node_duals: Dict[Any, float]
         if isinstance(dual_values, dict) and "node_duals" in dual_values:
             node_duals = dual_values["node_duals"]
             rcc_duals: Dict[FrozenSet[int], float] = dual_values.get("rcc_duals", {})  # type: ignore[assignment]

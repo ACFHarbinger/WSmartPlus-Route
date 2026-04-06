@@ -21,6 +21,7 @@ from logic.src.configs.policies.rens import RENSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
+from .params import RENSParams
 from .solver import run_rens_gurobi
 
 
@@ -94,19 +95,23 @@ class RENSPolicy(BaseRoutingPolicy):
         Returns:
             A tuple of (tour, total_travel_cost, extra_data_dict).
         """
-        cfg = self._parse_config(self.config, RENSConfig)
+        # 1. Initialize parameters
+        params = RENSParams.from_config(self.config)
 
+        # 2. Extract environment parameters
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
         mandatory_nodes = kwargs.get("must_go", [])
 
-        # Multipliers
+        # 3. Handle objective multipliers
         R = kwargs.get("R", 1.0)
         C = kwargs.get("C", 1.0)
 
-        seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
+        # 4. Enforce deterministic behavior (override seed if provided in kwargs)
+        seed = kwargs.get("seed", params.seed)
 
+        # 5. Call the core matheuristic solver with granular parameter extraction
         tour, obj_val, cost = run_rens_gurobi(
             dist_matrix=distance_matrix,
             wastes=wastes,
@@ -114,9 +119,9 @@ class RENSPolicy(BaseRoutingPolicy):
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            time_limit=cfg.time_limit,
-            lp_time_limit=cfg.lp_time_limit,
-            mip_gap=cfg.mip_gap,
+            time_limit=params.time_limit,
+            lp_time_limit=params.lp_time_limit,
+            mip_gap=params.mip_gap,
             seed=seed,
         )
 

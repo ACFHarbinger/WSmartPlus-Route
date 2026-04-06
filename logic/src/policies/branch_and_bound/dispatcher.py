@@ -18,6 +18,7 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from .dfj import run_bb_dfj
 from .mtz import run_bb_mtz
+from .params import BBParams
 
 
 def run_bb_optimizer(
@@ -26,12 +27,11 @@ def run_bb_optimizer(
     capacity: float,
     R: float,
     C: float,
-    values: Dict[str, Any],
+    params: Optional[BBParams] = None,
     must_go_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
-    seed: Optional[int] = None,
     recorder: Optional[PolicyStateRecorder] = None,
-    formulation: str = "dfj",
+    **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
     """
     Solve VRPP using the specified Branch-and-Bound formulation.
@@ -76,12 +76,10 @@ def run_bb_optimizer(
         capacity: Vehicle payload capacity.
         R: Revenue coefficient per unit collected.
         C: Cost coefficient per unit distance.
-        values: Configuration dictionary (time_limit, mip_gap, etc.).
+        params: Standardized BB parameters.
         must_go_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
-        seed: Optional random seed for reproducibility.
         recorder: Optional telemetry recorder for state tracking.
-        formulation: B&B formulation to use ("mtz" or "dfj"). Defaults to "dfj".
 
     Returns:
         Tuple of (routes, objective_value).
@@ -92,16 +90,14 @@ def run_bb_optimizer(
     Examples:
         >>> # Use DFJ for large instances
         >>> routes, obj = run_bb_optimizer(
-        ...     dist_matrix, wastes, capacity, R, C, values,
-        ...     formulation="dfj"
-        ... )
-
-        >>> # Use MTZ for custom branching
-        >>> routes, obj = run_bb_optimizer(
-        ...     dist_matrix, wastes, capacity, R, C, values,
-        ...     formulation="mtz"
+        ...     dist_matrix, wastes, capacity, R, C, params=params
         ... )
     """
+    if params is None:
+        params = BBParams()
+
+    formulation = params.formulation
+
     if formulation == "mtz":
         return run_bb_mtz(
             dist_matrix=dist_matrix,
@@ -109,10 +105,9 @@ def run_bb_optimizer(
             capacity=capacity,
             R=R,
             C=C,
-            values=values,
+            params=params,
             must_go_indices=must_go_indices,
             env=env,
-            seed=seed,
             recorder=recorder,
         )
     elif formulation == "dfj":
@@ -122,10 +117,9 @@ def run_bb_optimizer(
             capacity=capacity,
             R=R,
             C=C,
-            values=values,
+            params=params,
             must_go_indices=must_go_indices,
             env=env,
-            seed=seed,
             recorder=recorder,
         )
     else:

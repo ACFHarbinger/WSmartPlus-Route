@@ -30,6 +30,8 @@ from logic.src.policies.branch_and_cut.separation import (
 )
 from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
 
+from .params import BCParams
+
 try:
     import gurobipy as gp
     from gurobipy import GRB
@@ -56,50 +58,48 @@ class BranchAndCutSolver:
     def __init__(
         self,
         model: VRPPModel,
-        time_limit: float = 300.0,
-        mip_gap: float = 0.01,
-        max_cuts_per_round: int = 50,
-        use_heuristics: bool = True,
-        verbose: bool = False,
-        profit_aware_operators: bool = False,
-        vrpp: bool = False,
-        enable_fractional_capacity_cuts: bool = True,
+        params: Optional[BCParams] = None,
+        **kwargs: Any,
     ):
         """
         Initialize Branch-and-Cut solver.
 
         Args:
             model: VRPPModel instance defining the problem.
-            time_limit: Maximum solving time in seconds.
-            mip_gap: Relative MIP gap tolerance.
-            max_cuts_per_round: Maximum cuts to add per separation round.
-            use_heuristics: Whether to use primal heuristics.
-            verbose: Print detailed logging.
-            profit_aware_operators: Whether to use profit-aware heuristics.
-            vrpp: Whether to use VRPP pool expansion in heuristics.
-            enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
-                Recommended to set False for instances with n > 75 (see SeparationEngine docs).
+            params: Standardized BC configuration.
+            **kwargs: Legacy configuration parameters (for backward compatibility).
         """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi is required for Branch-and-Cut solver")
 
+        if params is None:
+            # Create a defaults-aware params object from explicit arguments or framework defaults
+            params = BCParams(
+                time_limit=kwargs.get("time_limit", 300.0),
+                mip_gap=kwargs.get("mip_gap", 0.01),
+                max_cuts_per_round=kwargs.get("max_cuts_per_round", 50),
+                use_heuristics=kwargs.get("use_heuristics", True),
+                verbose=kwargs.get("verbose", False),
+                profit_aware_operators=kwargs.get("profit_aware_operators", False),
+                vrpp=kwargs.get("vrpp", False),
+                enable_fractional_capacity_cuts=kwargs.get("enable_fractional_capacity_cuts", True),
+            )
+
         self.model = model
-        self.time_limit = time_limit
-        self.mip_gap = mip_gap
-        self.max_cuts_per_round = max_cuts_per_round
-        self.use_heuristics = use_heuristics
-        self.verbose = verbose
-        self.profit_aware_operators = profit_aware_operators
-        self.vrpp = vrpp
+        self.params = params
 
         # Separation engine with adaptive capacity cut toggling
         # Auto-disable for large instances (n > 75) to prevent O(V⁴) bottleneck
-        if model.n_nodes > 75 and enable_fractional_capacity_cuts:
-            if verbose:
+        if model.n_nodes > 75 and self.params.enable_fractional_capacity_cuts:
+            if self.params.verbose:
                 print(f"⚠ Large instance detected (n={model.n_nodes}). Disabling exact fractional capacity cuts.")
-            enable_fractional_capacity_cuts = False
+            self.params.enable_fractional_capacity_cuts = False
 
-        self.separator = SeparationEngine(model, enable_fractional_capacity_cuts=enable_fractional_capacity_cuts)
+        self.separator = SeparationEngine(
+            model,
+            enable_fractional_capacity_cuts=self.params.enable_fractional_capacity_cuts,
+            enable_comb_cuts=getattr(self.params, "enable_comb_cuts", False),
+        )
 
         # Statistics
         self.stats = {
@@ -134,7 +134,7 @@ class BranchAndCutSolver:
         Returns:
             Tuple of (tour, profit, statistics).
         """
-        if self.verbose:
+        if self.params.verbose:
             print("=" * 60)
             print("Branch-and-Cut Solver for VRPP")
             print("=" * 60)
@@ -153,7 +153,7 @@ class BranchAndCutSolver:
         # Step 3: REMOVED (Lagrangian GSECs are now separated in the first LP callback)
 
         # Step 4: Get initial primal solution (heuristic)
-        if self.use_heuristics:
+        if self.params.use_heuristics:
             best_tour = []
             best_profit = -float("inf")
 
@@ -170,14 +170,14 @@ class BranchAndCutSolver:
             # 3. Farthest Insertion (Good for exploring the convex hull, as per Fischetti 1997)
             tour_farthest, profit_farthest = farthest_insertion(
                 self.model,
-                profit_aware_operators=self.profit_aware_operators,
-                expand_pool=self.vrpp,
+                profit_aware_operators=self.params.profit_aware_operators,
+                expand_pool=self.params.vrpp,
             )
             if profit_farthest > best_profit:
                 best_profit, best_tour = profit_farthest, tour_farthest
 
             if best_tour:
-                if self.verbose:
+                if self.params.verbose:
                     print(f"Warm start heuristic selected with profit: {best_profit:.2f}")
                 self._set_start_solution(best_tour)
 
@@ -205,9 +205,9 @@ class BranchAndCutSolver:
     def _build_initial_model(self):
         """Build the initial Gurobi model with basic constraints."""
         self.gurobi_model = gp.Model("VRPP_BranchAndCut")
-        self.gurobi_model.Params.TimeLimit = self.time_limit
-        self.gurobi_model.Params.MIPGap = self.mip_gap
-        self.gurobi_model.Params.OutputFlag = 1 if self.verbose else 0
+        self.gurobi_model.Params.TimeLimit = self.params.time_limit
+        self.gurobi_model.Params.MIPGap = self.params.mip_gap
+        self.gurobi_model.Params.OutputFlag = 1 if self.params.verbose else 0
 
         # Decision variables
         # x[i,j]: Edge (i,j) is in the tour
@@ -385,7 +385,7 @@ class BranchAndCutSolver:
         # sec_only=False ensures capacity-violating integer solutions are rejected.
         iteration = self.stats["lp_iterations"]
         cuts = self.separator.separate_integer(
-            x_vals, y_vals=y_vals_array, max_cuts=self.max_cuts_per_round, iteration=iteration, sec_only=False
+            x_vals, y_vals=y_vals_array, max_cuts=self.params.max_cuts_per_round, iteration=iteration, sec_only=False
         )
 
         # Add cuts as lazy constraints
@@ -459,7 +459,7 @@ class BranchAndCutSolver:
         # Separate violated inequalities (fractional mode: exact max-flow separation)
         self.stats["fractional_iterations"] += 1
         iteration = int(self.stats["fractional_iterations"])
-        max_cuts = self.max_cuts_per_round // 2  # Limit cuts at fractional nodes
+        max_cuts = self.params.max_cuts_per_round // 2  # Limit cuts at fractional nodes
 
         cuts = self.separator.separate_fractional(
             x_vals, y_vals=y_vals_array, max_cuts=max_cuts, iteration=iteration, node_count=node_count
@@ -654,7 +654,7 @@ class BranchAndCutSolver:
 
         Refactored to extract violated Basic GSECs (1-tree cycles) for direct injection.
         """
-        if self.verbose:
+        if self.params.verbose:
             print("Strengthening Root Node via Lagrangian Relaxation...")
 
         n = self.model.n_nodes
@@ -747,7 +747,7 @@ class BranchAndCutSolver:
             if red_cost < 1e-4:
                 self.x_vars[(i, j)].VarHintVal = 1.0
 
-        if self.verbose:
+        if self.params.verbose:
             print(f"Lagrangian phase complete. Root LB: {best_lower_bound:.2f}")
 
         return unique_violated_sets
