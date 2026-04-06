@@ -32,8 +32,14 @@ for the Origin-Destination Integer Multicommodity Flow (ODIMCF) problem.
 
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple, Union
+import math
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+
+if TYPE_CHECKING:
+    from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
+    from logic.src.policies.branch_and_price.master_problem import Route
 
 # Forward reference resolved at runtime — avoids a circular import with
 # master_problem.py while still enabling full type annotations.
@@ -203,6 +209,7 @@ class BranchNode:
         self.is_infeasible: bool = False
         self.route_values: Optional[Dict[int, float]] = None
         self.routes: Optional[List[Route]] = None
+        self.lp_basis: Optional[Any] = None
 
     def get_all_constraints(self) -> List[AnyBranchingConstraint]:
         """
@@ -331,46 +338,33 @@ class EdgeBranching:
 
 class MultiEdgePartitionBranching:
     """
-    Multi-edge partition branching (single-commodity adaptation of divergence branching).
+    Advanced Divergence Branching with Spatial (Polar-Angle) Partitioning.
 
-    For single-commodity VRP, this partitions the outgoing edges of a node
-    to break fractional solutions. In multicommodity contexts, this is
-    equivalent to Divergence Node Branching (Barnhart et al. 1998).
-    branching on divergence nodes is more effective than Ryan-Foster branching.
+    This strategy extends the standard Divergence Branching (Barnhart et al. 1998)
+    by using node coordinates to create spatially cohesive arc sets.
 
-    Concept:
-    --------
-    A divergence node d for commodity k is a node where the fractional flow
-    splits among multiple outgoing arcs. Instead of branching on arc usage,
-    we partition the outgoing arcs into two sets A(d, a1) and A(d, a2) and
-    create two children:
-        - Child 1: Forbid commodity k from using arcs in A(d, a1)
-        - Child 2: Forbid commodity k from using arcs in A(d, a2)
+    Mechanism:
+        1. Identify a 'divergence node' (d) where the fractional flow splits
+           into multiple outgoing arcs.
+        2. Sort ALL outgoing arcs from (d) by the polar angle of their
+           destination nodes relative to (d).
+        3. Partition the sorted arcs into two sets (A1, A2) using a median split.
+        4. Create two child nodes:
+           - Left: Must use an arc in A1 (if leaving d).
+           - Right: Must use an arc in A2 (if leaving d).
 
-    Enforcement:
-    ------------
-    This is enforced in the pricing problem by setting infinite costs for
-    forbidden arcs rather than explicitly fixing variables. The shortest
-    path pricing problem will naturally avoid these arcs.
-
-    For VRP (single commodity), we adapt this by:
-    1. Identifying a node where multiple fractional routes "diverge"
-    2. Partitioning the outgoing edges into two sets
-    3. Creating child nodes that forbid routes from using specific edge sets
-
-    References:
-    -----------
-    Barnhart, C., Hane, C. A., & Vance, P. H. (1998).
-    "Using Branch-and-Price-and-Cut to Solve Origin-Destination Integer
-    Multicommodity Flow Problems." Operations Research, 48(2), 318-326.
-    Section 4: "Branching Strategy"
+    Theoretical Advantage:
+        Spatial partitioning is highly effective for VRP variants because it
+        tends to separate the problem into geographic sectors, leading to
+        more balanced and deeper search trees compared to arbitrary splitting.
     """
 
     @staticmethod
-    def find_divergence_node(
+    def find_divergence_node(  # noqa: C901
         routes: List[Route],
         route_values: Dict[int, float],
         tol: float = 1e-5,
+        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
     ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]]]]:
         """
         Find a divergence node and partition its outgoing arcs.
@@ -387,42 +381,100 @@ class MultiEdgePartitionBranching:
             Tuple of (divergence_node, arc_set_1, arc_set_2) or None.
             Each arc_set is a list of (from_node, to_node) tuples.
         """
-        # Build outgoing arc flow for each node
-        node_outflow: Dict[int, Dict[Tuple[int, int], float]] = defaultdict(lambda: defaultdict(float))
+        # 1. Collect fractional routes
+        fractional_routes = [(idx, val) for idx, val in route_values.items() if tol < abs(val - round(val))]
+        if len(fractional_routes) < 2:
+            return None
 
+        # 2. Sort fractional routes by lambda value descending and take the top two
+        fractional_routes.sort(key=lambda x: x[1], reverse=True)
+        idx_a, val_a = fractional_routes[0]
+        idx_b, val_b = fractional_routes[1]
+
+        # 3. Construct the full arc sequences for both routes (including depot 0)
+        path_a = [0] + routes[idx_a].nodes + [0]
+        path_b = [0] + routes[idx_b].nodes + [0]
+
+        # 4. Walk both paths to find first divergence node d
+        d = 0
+        a1_v = path_a[1]
+        a2_v = path_b[1]
+
+        min_len = min(len(path_a), len(path_b))
+        for i in range(min_len - 1):
+            if path_a[i] == path_b[i]:
+                if path_a[i + 1] != path_b[i + 1]:
+                    d = path_a[i]
+                    a1_v = path_a[i + 1]
+                    a2_v = path_b[i + 1]
+                    break
+            else:
+                # Paths differ at the very first step or earlier
+                break
+
+        a1 = (d, a1_v)
+        a2 = (d, a2_v)
+
+        # 5. Build arc sets by partitioning all outgoing arcs of d across all routes
+        all_outgoing = set()
         for idx, lam in route_values.items():
-            if abs(lam - round(lam)) <= tol:
-                continue  # Skip integer routes
+            if lam > tol:
+                nodes = [0] + routes[idx].nodes + [0]
+                for i in range(len(nodes) - 1):
+                    if nodes[i] == d:
+                        all_outgoing.add((d, nodes[i + 1]))
 
-            route = routes[idx]
-            full_path = [0] + route.nodes + [0]
+        arc_set_1 = {a1}
+        arc_set_2 = {a2}
 
-            for i in range(len(full_path) - 1):
-                u, v = full_path[i], full_path[i + 1]
-                node_outflow[u][(u, v)] += lam
+        # 5. Partition remaining outgoing arcs based on polar angle relative to d
+        remaining_arcs = sorted(list(all_outgoing - {a1, a2}))
+        if node_coords is not None:
+            # Type-agnostic check for coordinate presence
+            has_d = (isinstance(node_coords, dict) and d in node_coords) or (
+                isinstance(node_coords, np.ndarray) and d < len(node_coords)
+            )
 
-        # Find a node with fractional divergence
-        for node, outgoing_arcs in node_outflow.items():
-            if len(outgoing_arcs) < 2:
-                continue  # No divergence
+            if has_d:
+                d_coord = node_coords[d]
 
-            # Check if flow is fractional
-            total_flow = sum(outgoing_arcs.values())
-            if abs(total_flow - round(total_flow)) <= tol:
-                continue  # Integer flow at this node
+                def get_polar_angle(v: int) -> float:
+                    has_v = (isinstance(node_coords, dict) and v in node_coords) or (
+                        isinstance(node_coords, np.ndarray) and v < len(node_coords)
+                    )
+                    if not has_v:
+                        return 0.0
+                    v_coord = node_coords[v]
+                    return math.atan2(v_coord[1] - d_coord[1], v_coord[0] - d_coord[0])
 
-            # Partition arcs into two sets
-            # Strategy: sort by flow and split in half
-            sorted_arcs = sorted(outgoing_arcs.items(), key=lambda x: x[1], reverse=True)
-            mid = len(sorted_arcs) // 2
+                # Sort by polar angle
+                remaining_arcs.sort(key=lambda a: get_polar_angle(a[1]))
 
-            arc_set_1 = [arc for arc, _ in sorted_arcs[:mid]]
-            arc_set_2 = [arc for arc, _ in sorted_arcs[mid:]]
+                # Split at the median to form two sets
+                mid = len(remaining_arcs) // 2
+                arc_set_1.update(remaining_arcs[:mid])
+                arc_set_2.update(remaining_arcs[mid:])
+            else:
+                # Fallback to naive alternating split if coordinates for d are missing
+                for i, arc in enumerate(remaining_arcs):
+                    if i % 2 == 0:
+                        arc_set_1.add(arc)
+                    else:
+                        arc_set_2.add(arc)
+        else:
+            # Fallback to naive alternating split if coordinates are missing entirely
+            for i, arc in enumerate(remaining_arcs):
+                if i % 2 == 0:
+                    arc_set_1.add(arc)
+                else:
+                    arc_set_2.add(arc)
 
-            if arc_set_1 and arc_set_2:
-                return (node, arc_set_1, arc_set_2)
+        # 6. Safety check
+        if not arc_set_1 or not arc_set_2:
+            return None
 
-        return None
+        # 7. Return Tuple of (node, arc_set_1, arc_set_2)
+        return (d, list(arc_set_1), list(arc_set_2))
 
     @staticmethod
     def create_child_nodes(
@@ -511,7 +563,7 @@ class RyanFosterBranching:
             tol: Integrality tolerance.
 
         Returns:
-            (node_r, node_s) to branch on, or None if the solution is integer.
+            (node_r, node_s) to branch on, or None if the solution is already integer.
         """
         # Find any fractional route variable.
         frac_idx: Optional[int] = None
@@ -600,32 +652,47 @@ class BranchAndBoundTree:
     itself — call `strategy.select_node(bb_tree.open_nodes)` from the solver loop.
     """
 
-    def __init__(self, strategy: str = "edge", search_strategy: str = "best_first") -> None:
+    node_coords: Optional[np.ndarray]
+
+    def __init__(
+        self,
+        v_model: Optional[VRPPModel] = None,
+        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
+        max_nodes: int = 1000,
+        strategy: str = "edge",
+        search_strategy: str = "best_first",
+    ):
         """
-        Initialise the B&B tree.
+        Initialize the Branch-and-Bound tree for BPC.
 
         Args:
-            strategy: Branching strategy — ``"edge"`` (default),
-                ``"ryan_foster"``, or ``"divergence"``.
-            search_strategy: Node selection strategy — ``"best_first"`` (default)
-                or ``"depth_first"``.
-
-        Raises:
-            ValueError: If an unsupported strategy string is provided.
+            v_model: The underlying VRPP problem model.
+            node_coords: Optional array of customer coordinates (N, 2).
+            max_nodes: Maximum number of nodes to explore.
+            strategy: Branching strategy ('divergence_spatial', 'edge', 'ryan_foster').
         """
-        if strategy not in ("edge", "ryan_foster", "divergence", "multi_edge_partition"):
-            raise ValueError(
-                f"Unsupported branching strategy '{strategy}'. Choose 'edge', 'ryan_foster', or 'divergence'."
-            )
+        self.v_model = v_model
 
-        self.strategy: str = strategy
-        self.search_strategy: str = search_strategy
-        self.root: BranchNode = BranchNode()
+        # Convert Dict coords to Array if provided in that format
+        if isinstance(node_coords, dict):
+            coords_arr = np.zeros((len(node_coords) + 1, 2))
+            for i, (x, y) in node_coords.items():
+                coords_arr[i] = [x, y]
+            self.node_coords = coords_arr  # type: ignore[assignment]
+        else:
+            self.node_coords = node_coords
+
+        self.max_nodes = max_nodes
+        self.strategy = strategy
+        self.search_strategy = search_strategy
+
+        # Root node
+        self.root = BranchNode()
         self.open_nodes: List[BranchNode] = [self.root]
         self.best_integer_solution: Optional[float] = None
         self.best_integer_node: Optional[BranchNode] = None
-        self.nodes_explored: int = 0
-        self.nodes_pruned: int = 0
+        self.nodes_explored = 0
+        self.nodes_pruned = 0
 
     def add_node(self, node: BranchNode) -> None:
         """Enqueue a new open node."""
@@ -653,7 +720,7 @@ class BranchAndBoundTree:
         # so they are explored first.
         best_idx = max(
             range(len(self.open_nodes)),
-            key=lambda i: self.open_nodes[i].lp_bound if self.open_nodes[i].lp_bound is not None else float("inf"),
+            key=lambda i: self.open_nodes[i].lp_bound if self.open_nodes[i].lp_bound is not None else float("inf"),  # type: ignore[arg-type,return-value]
         )
         return self.open_nodes.pop(best_idx)
 
@@ -692,7 +759,7 @@ class BranchAndBoundTree:
         elif self.strategy in ("divergence", "multi_edge_partition"):
             # "divergence" is the documented public name; "multi_edge_partition" is the
             # internal implementation name. Both route to MultiEdgePartitionBranching.
-            res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values)
+            res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values, node_coords=self.node_coords)
             if res is not None:
                 div_node, arc_set_1, arc_set_2 = res
                 return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2)
@@ -755,7 +822,12 @@ class BranchAndBoundTree:
             "nodes_explored": self.nodes_explored,
             "nodes_pruned": self.nodes_pruned,
             "nodes_remaining": len(self.open_nodes),
-            "best_bound": self.open_nodes[0].lp_bound if self.open_nodes else None,
+            "best_bound": (
+                max(
+                    (n.lp_bound for n in self.open_nodes if n.lp_bound is not None),
+                    default=None,
+                )
+            ),
             "best_integer": self.best_integer_solution,
             "branching_strategy": self.strategy,
         }
