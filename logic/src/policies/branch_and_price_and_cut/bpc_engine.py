@@ -27,22 +27,31 @@ References:
 
 import logging
 import time
-from typing import Any, Dict, FrozenSet, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.branch_and_price.branching import (
+    AnyBranchingConstraint,
+    BranchAndBoundTree,
+)
+from logic.src.policies.branch_and_price.master_problem import Route, VRPPMasterProblem
+from logic.src.policies.branch_and_price.rcspp_dp import RCSPPSolver
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from ..branch_and_cut.separation import SeparationEngine
 from ..branch_and_cut.vrpp_model import VRPPModel
-from ..branch_and_price.branching import BranchAndBoundTree
-from ..branch_and_price.master_problem import Route, VRPPMasterProblem
-from ..branch_and_price.rcspp_dp import RCSPPSolver
 from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
 from .search_strategy import create_search_strategy
 
 logger = logging.getLogger(__name__)
+
+
+class BPCPruningException(Exception):
+    """Exception raised when a node is pruned by a bound (e.g., Lagrangian)."""
+
+    pass
 
 
 def _apply_branching_to_master(
@@ -119,6 +128,32 @@ def _apply_branching_to_master(
     master.model.update()
 
 
+def _solve_farkas_pricing_step(
+    master: VRPPMasterProblem,
+    pricing_solver: RCSPPSolver,
+    branching_constraints: List[AnyBranchingConstraint],
+    farkas_duals: Any,
+    max_routes: int = 5,
+) -> int:
+    """
+    Phase I Pricing: Solve subproblem with Farkas dual ray to restore feasibility.
+    """
+    routes = pricing_solver.solve(
+        dual_values=farkas_duals,
+        branching_constraints=branching_constraints,
+        max_routes=max_routes,
+        is_farkas=True,
+    )
+
+    added = 0
+    for r in routes:
+        # Any route with positive "Farkas profit" helps break the infeasibility ray.
+        if r.profit > 1e-6:
+            master.add_route_as_column(r)
+            added += 1
+    return added
+
+
 def _separate_cuts(
     master: VRPPMasterProblem,
     cut_engine: CuttingPlaneEngine,
@@ -144,7 +179,7 @@ def _separate_cuts(
 def _solve_pricing_step(
     master: VRPPMasterProblem,
     pricing_solver: RCSPPSolver,
-    branching_constraints: Optional[List] = None,
+    branching_constraints: Optional[List[AnyBranchingConstraint]] = None,
     max_routes: int = 5,
     optimality_gap: float = 1e-4,
 ) -> int:
@@ -159,40 +194,24 @@ def _solve_pricing_step(
     Returns:
         Number of columns added
     """
-    duals = master.get_reduced_cost_coefficients()
+    dual_values = master.get_reduced_cost_coefficients()
 
-    # Merge capacity cut duals and SEC duals into a single cut-dual mapping.
-    # Both cut families impose crossing penalties on routes that violate them.
-    # If the same node set exists in both, their duals are summed.
-    all_cut_duals: Dict[FrozenSet[int], float] = {}
-    for node_set, dual in master.dual_capacity_cuts.items():
-        all_cut_duals[node_set] = all_cut_duals.get(node_set, 0.0) + dual
-    for node_set, dual in master.dual_sec_cuts.items():
-        all_cut_duals[node_set] = all_cut_duals.get(node_set, 0.0) + dual
-
-    new_columns_data = pricing_solver.solve(
-        duals,
+    # RCSPPSolver.solve() now handles composite dual dictionaries containing
+    # node, rcc, sri, and lci duals.
+    routes = pricing_solver.solve(
+        dual_values=dual_values,
         max_routes=max_routes,
         branching_constraints=branching_constraints,
-        capacity_cut_duals=all_cut_duals,
     )
 
-    if not new_columns_data:
+    if not routes:
         return 0  # No more positive reduced cost columns
 
     # Add new columns to master
     added = 0
-    for r_nodes, red_cost in new_columns_data:
-        if red_cost > optimality_gap:
-            cost, revenue, load, coverage = pricing_solver.compute_route_details(r_nodes)
-            route = Route(r_nodes, cost, revenue, load, coverage)
-
-            # Check if route satisfies branching constraints
-            if branching_constraints:
-                feasible = all(bc.is_route_feasible(route) for bc in branching_constraints)
-                if not feasible:
-                    continue
-
+    # routes is now a List[Route] from RCSPPSolver.solve
+    for route in routes:
+        if route.profit > optimality_gap:
             master.add_route(route)
             added += 1
     return added
@@ -212,11 +231,11 @@ def _is_solution_integer(route_values: Dict[int, float], tol: float = 1e-6) -> b
     return all(abs(val - round(val)) <= tol for val in route_values.values())
 
 
-def _column_generation_loop(
+def _column_generation_loop(  # noqa: C901
     master: VRPPMasterProblem,
     pricing_solver: RCSPPSolver,
     cut_engine: CuttingPlaneEngine,
-    branching_constraints: Optional[List],
+    branching_constraints: Optional[List[AnyBranchingConstraint]],
     max_cg_iterations: int,
     max_cuts: int,
     time_limit: Optional[float],
@@ -225,7 +244,9 @@ def _column_generation_loop(
     vehicle_limit: Optional[int] = None,
     optimality_gap: float = 1e-4,
     early_termination_gap: float = 1e-3,
-) -> Tuple[float, Dict[int, float]]:
+    parent_basis: Optional[Any] = None,
+    incumbent_value: float = -float("inf"),
+) -> Tuple[float, Dict[int, float], Optional[Any]]:
     """
     Run Column Generation + Cutting Plane loop at a B&B node.
 
@@ -247,9 +268,10 @@ def _column_generation_loop(
     across the ENTIRE unprice column space, which is not cheaply available.
     """
     needs_resolve = False
-    obj_val: float = 0.0
-    route_vals: Dict[int, float] = {}
     converged = False
+    obj_val = -float("inf")
+    route_vals: Dict[int, float] = {}
+    initial_basis = None
     _iteration = 0
 
     if max_cg_iterations <= 0:
@@ -261,10 +283,37 @@ def _column_generation_loop(
             break
 
         # PHASE 1: Column Generation (price until convergence)
+        _inner_iter = 0
         while True:
+            # Restore parent basis on the very first LP solve of the node
+            if _iteration == 0 and _inner_iter == 0 and parent_basis is not None:
+                master.restore_basis(parent_basis)
+
             try:
                 obj_val, route_vals = master.solve_lp_relaxation()
+
+                # Check for infeasibility - Phase I (Farkas Pricing)
+                if obj_val == -float("inf"):
+                    logger.info("RMP node is infeasible. Starting Phase I Farkas Pricing.")
+                    added = _solve_farkas_pricing_step(
+                        master,
+                        pricing_solver,
+                        branching_constraints,  # type: ignore[arg-type]
+                        master.farkas_duals,
+                    )
+                    if added == 0:
+                        # Cannot resolve infeasibility
+                        raise RuntimeError("LP infeasible at B&B node - Farkas pricing failed to find columns")
+                    _inner_iter += 1
+                    continue
+
+                # Fix 10: Capture basis after the very first LP solve of the node.
+                # This is the "pre-CG" basis that child nodes should use as a starting seed.
+                if _iteration == 0 and _inner_iter == 0:
+                    initial_basis = master.save_basis()
             except Exception as e:
+                if "Farkas pricing failed" in str(e):
+                    raise
                 raise RuntimeError("LP relaxation failed at B&B node") from e
 
             added = _solve_pricing_step(
@@ -278,13 +327,35 @@ def _column_generation_loop(
             if added == 0:
                 break
 
+            _inner_iter += 1
+
             if hasattr(pricing_solver, "last_max_rc"):
-                max_rc = pricing_solver.last_max_rc
-                limit = vehicle_limit if vehicle_limit is not None else master.n_nodes
-                if max_rc * limit < early_termination_gap:
+                max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
+
+                # Lagrangian Upper Bound Pruning (Strict Exactness)
+                # This bound is only valid when pricing is exact (no ng-relaxation).
+                # Reference: Barnhart et al. (1998)
+                if not pricing_solver.use_ng_routes:
+                    # z_UB = z_RMP + K * max_rc
+                    limit = vehicle_limit if vehicle_limit is not None else master.n_nodes
+                    lagrangian_ub = obj_val + (limit * max_rc)
+
                     logger.info(
-                        f"CG early termination: max_rc * limit = {max_rc * limit:.6f} < {early_termination_gap}"
+                        f"CG Iter {_iteration}.{_inner_iter}: "
+                        f"RMP={obj_val:.4f}, max_rc={max_rc:.6f}, "
+                        f"z_UB={lagrangian_ub:.4f}"
                     )
+
+                    # Immediate Pruning: If Lagrangian upper bound is already worse than
+                    # our best integer solution, this node cannot be optimal.
+                    if lagrangian_ub < incumbent_value - 1e-6:
+                        logger.info(f"Exact Pruning: z_UB {lagrangian_ub:.4f} < Incumbent {incumbent_value:.4f}")
+                        raise BPCPruningException(f"Node pruned by exact Lagrangian bound: {lagrangian_ub}")
+
+                # Column generation convergence check (terminates internal loop)
+                # If max_rc is zero or negligible, we have reached LP optimality.
+                if max_rc < optimality_gap:
+                    logger.info(f"CG inner loop converged: max_rc {max_rc:.6f} < {optimality_gap}")
                     break
 
         # PHASE 2: Cutting Planes (separate on converged LP solution)
@@ -309,8 +380,18 @@ def _column_generation_loop(
 
     if needs_resolve:
         obj_val, route_vals = master.solve_lp_relaxation()
+        # Fix 3: Final pricing pass to verify LP optimality under latest cuts/duals
+        added = _solve_pricing_step(
+            master,
+            pricing_solver,
+            branching_constraints,
+            max_routes=max_routes_per_pricing,
+            optimality_gap=optimality_gap,
+        )
+        if added > 0:
+            obj_val, route_vals = master.solve_lp_relaxation()
 
-    return obj_val, route_vals
+    return obj_val, route_vals, initial_basis
 
 
 def run_custom_bpc(  # noqa: C901
@@ -321,6 +402,7 @@ def run_custom_bpc(  # noqa: C901
     C: float,
     values: Dict[str, Any],
     mandatory_nodes: Optional[List[int]] = None,
+    node_coords: Optional[Dict[int, Tuple[float, float]]] = None,
     expand_pool: bool = False,
     profit_aware_operators: bool = False,
     recorder: Optional[PolicyStateRecorder] = None,
@@ -429,6 +511,9 @@ def run_custom_bpc(  # noqa: C901
 
     master.build_model(initial_columns)
 
+    # Fix 8: Disable column deletion during B&B search to maintain correctness across sibling nodes.
+    master.column_deletion_enabled = False
+
     # 3. Initialize pricing and separation
     pricing_solver = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
     n_total_nodes = n_nodes + 1  # VRPPModel counts total nodes including depot (index 0)
@@ -448,8 +533,13 @@ def run_custom_bpc(  # noqa: C901
     cut_engine = create_cutting_plane_engine(cutting_planes_name, v_model, sep_engine)
 
     # 5. Initialize Branch-and-Bound Tree with configured branching strategy
-    bb_tree = BranchAndBoundTree(strategy=branching_strategy_name)
-    # Node selection is handled exclusively by the external search_strategy object.
+    bb_tree = BranchAndBoundTree(
+        v_model=v_model,
+        node_coords=node_coords,
+        max_nodes=max_bb_nodes,
+        strategy=branching_strategy_name,
+        search_strategy=search_strategy_name,
+    )
     # bb_tree.get_next_node() is NOT used; always call search_strategy.select_node().
     nodes_explored = 0
 
@@ -465,6 +555,9 @@ def run_custom_bpc(  # noqa: C901
 
         nodes_explored += 1
 
+        # Fix 7: Remove node-local cuts from the previous node before solving this one.
+        master.remove_local_cuts()
+
         # Get ALL branching constraints along the path from root to this node
         # (ancestors + this node). _apply_branching_to_master resets all UBs
         # to 1.0 and re-filters against the full constraint set, so it requires
@@ -476,7 +569,7 @@ def run_custom_bpc(  # noqa: C901
 
         # Run Column Generation at this node with corrected sequencing
         try:
-            lp_obj, route_values = _column_generation_loop(
+            lp_obj, route_values, node_initial_basis = _column_generation_loop(
                 master=master,
                 pricing_solver=pricing_solver,
                 cut_engine=cut_engine,
@@ -489,7 +582,10 @@ def run_custom_bpc(  # noqa: C901
                 vehicle_limit=master.vehicle_limit,
                 optimality_gap=values.get("optimality_gap", 1e-4),
                 early_termination_gap=values.get("early_termination_gap", 1e-3),
+                parent_basis=current_node.parent.lp_basis if current_node.parent else None,
             )
+            # Fix 10 (refined): Store the pre-CG basis captured inside the loop for use by child nodes.
+            current_node.lp_basis = node_initial_basis
         except RuntimeError:
             # LP infeasible at this node
             current_node.is_infeasible = True

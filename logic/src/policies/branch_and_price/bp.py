@@ -257,7 +257,11 @@ class BranchAndPriceSolver:
 
     def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict[str, Any]]:
         """Solve using the configured branching strategy in a B&B tree."""
-        self.tree = BranchAndBoundTree(strategy=self.branching_strategy, search_strategy=self.tree_search_strategy)
+        self.tree = BranchAndBoundTree(
+            strategy=self.branching_strategy,
+            search_strategy=self.tree_search_strategy,
+            v_model=None,
+        )
 
         root_lp, root_values, root_routes = self._solve_node(self.tree.root)
         self.tree.root.route_values = root_values
@@ -528,7 +532,7 @@ class BranchAndPriceSolver:
     def _call_pricing(
         self,
         pricing: Union[PricingSubproblem, RCSPPSolver],
-        dual_values: Dict[Union[int, str], float],
+        dual_values: Dict[Union[int, frozenset[int], str, Tuple[int, int]], float],
         constraints: Optional[List[AnyBranchingConstraint]],
     ) -> List[Tuple[List[int], float]]:
         """
@@ -540,14 +544,16 @@ class BranchAndPriceSolver:
         from .rcspp_dp import RCSPPSolver
 
         if isinstance(pricing, RCSPPSolver):
-            return pricing.solve(
+            routes = pricing.solve(
                 dual_values=dual_values,
                 max_routes=self.max_routes_per_iteration,
                 branching_constraints=constraints,
             )
+            # RCSPPSolver now returns Route objects; convert to (path, reduced_cost) for BP backward compatibility
+            return [(r.nodes, r.reduced_cost if r.reduced_cost is not None else 0.0) for r in routes]
         else:
             return pricing.solve(
-                dual_values=dual_values,
+                dual_values=dual_values,  # type: ignore[arg-type]
                 max_routes=self.max_routes_per_iteration,
                 active_constraints=constraints,
             )

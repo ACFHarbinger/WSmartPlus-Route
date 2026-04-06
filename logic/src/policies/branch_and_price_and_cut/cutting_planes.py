@@ -2,27 +2,30 @@
 Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.
 
 Provides modular separation algorithms for different cut families:
-- RCC (Rounded Capacity Cuts): For capacitated vehicle routing
-- LCI: (DEPRECATED) Lifted Cover Inequalities require complex RCSPP state-space
-  modifications for dual integration and are currently disabled.
+- RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing requirements.
+- SEC (Subtour Elimination Cuts): Enforces connectivity for prize-collecting variants.
+- SRI (Subset-Row Inequalities): Tightens set partitioning for subsets (typically size 3).
+- LCI (Lifted Cover Inequalities): Heuristic edge-based capacity strengthening.
+
+Methodology:
+    Each engine implements a `separate_and_add_cuts` method that inspects the
+    fractional LP solution of the Master Problem, identifies violated
+    inequalities from its specific family, and registers them into the MP's
+    Gurobi model.
 
 References:
     - Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004).
       "A new branch-and-cut algorithm for the capacitated vehicle routing problem."
       Mathematical Programming, 100(2), 423-445.
-      (Rounded Capacity Cuts)
-
+    - Jepsen, M., Petersen, B., Spoorendonk, S., & Pisinger, D. (2008).
+      "Subset-row inequalities applied to the vehicle-routing problem with time windows."
+      Operations Research, 56(2), 497-511.
     - Balas, E. (1975). "Facets of the knapsack polytope."
-      Mathematical Programming, 8(1), 146-164.
-      (Cover inequalities)
-
-    - Zemel, E. (1989). "Easily computable facets of the knapsack polytope."
-      Mathematics of Operations Research, 14(4), 760-764.
-      (Lifting procedures for cover inequalities)
+      Mathematical Programming, 8(1), 146-164 (Cover inequalities).
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -167,13 +170,123 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
                     added_cuts += 1
             elif isinstance(ineq, PCSubtourEliminationCut):
                 node_set = list(ineq.node_set)
-                if master.add_sec_cut(node_set, ineq.rhs, cut_name=ineq.facet_form):
+                is_global = ineq.facet_form == "2.1"
+                if master.add_sec_cut(node_set, ineq.rhs, cut_name=ineq.facet_form, global_cut=is_global):
                     added_cuts += 1
 
         return added_cuts
 
     def get_name(self) -> str:
         return "rcc"
+
+
+class SubsetRowCutEngine(CuttingPlaneEngine):
+    """
+    Subset-Row Inequality (SRI) separation engine.
+
+    Specifically implements 3-SRI (k=3, p=2):
+    Σ_{k} ⌊ 1/2 * |S ∩ route_k| ⌋ * λ_k  <= 1
+
+    Heuristic Separation:
+    1. Identify customer nodes with high fractional visitation.
+    2. Check subsets of 3 nodes that are spatially close.
+    3. Evaluate violation and add to master.
+    """
+
+    def __init__(self, v_model: VRPPModel):
+        self.v_model = v_model
+
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        if master.model is None or len(master.routes) < 2:
+            return 0
+
+        # Heuristic: only look at nodes with 0.1 < visitation < 0.9
+        visitation = master.get_node_visitation()
+        candidates = [n for n, v in visitation.items() if 0.1 < v < 0.9 and n != 0]
+
+        if len(candidates) < 3:
+            return 0
+
+        # Sort candidates by visitation decr
+        candidates.sort(key=lambda n: visitation[n], reverse=True)
+        top_candidates = candidates[:15]  # Limit search space
+
+        added = 0
+        import itertools
+
+        for subset in itertools.combinations(top_candidates, 3):
+            if added >= max_cuts:
+                break
+
+            val = 0.0
+            node_set = set(subset)
+            for idx, route in enumerate(master.routes):
+                lam = master.lambda_vars[idx].X
+                if lam < 1e-6:
+                    continue
+                count = len(node_set.intersection(route.node_coverage))
+                coeff = count // 2
+                if coeff > 0:
+                    val += float(coeff) * lam
+
+            if val > 1.0 + 1e-4 and master.add_subset_row_cut(list(subset)):
+                added += 1
+
+        return added
+
+    def get_name(self) -> str:
+        return "sri"
+
+
+class LiftedCoverCutEngine(CuttingPlaneEngine):
+    """
+    Lifted Cover Inequalities (LCI) for VRPP.
+
+    Implemented specifically as tightened edge-capacity clique cuts:
+        Σ_{k: {u,v} ⊆ Route_k} λ_k <= 1
+
+    Heuristic Separation:
+        Inspects the current fractional flow x_{uv} = Σ_{k} δ_{uv,k} * λ_k.
+        If x_{uv} > 1.0 + epsilon, the edge capacity is violated.
+        Because each physical edge can accommodate at most one vehicle,
+        the sum of fractional routes traversing edge (u,v) must be <= 1.0.
+    """
+
+    def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        self.v_model = v_model
+        self.epsilon = epsilon
+
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        """
+        Identify edges where fractional flow exceeds 1.0.
+        """
+        # Calculate edge flow: x_e = Σ_{k: e ∈ k} λ_k
+        route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
+        edge_flow: Dict[Tuple[int, int], float] = {}
+        for idx, val in route_values.items():
+            route = master.routes[idx]
+            nodes = [0] + route.nodes + [0]
+            for i in range(len(nodes) - 1):
+                u, v = nodes[i], nodes[i + 1]
+                # Exclude edges involving the depot (node 0)
+                if u == 0 or v == 0:
+                    continue
+
+                e = tuple(sorted((u, v)))
+                edge_flow[e] = edge_flow.get(e, 0.0) + val  # type: ignore[index,arg-type]
+
+        count = 0
+        for edge_tuple, flow in edge_flow.items():
+            if count >= max_cuts:
+                break
+            if flow > 1.0 + self.epsilon:
+                u, v = edge_tuple
+                if master.add_edge_lci_cut(u, v):
+                    count += 1
+        return count
+
+    def get_name(self) -> str:
+        return "lci"
 
 
 class KnapsackCoverEngine(CuttingPlaneEngine):
@@ -293,24 +406,23 @@ def create_cutting_plane_engine(
         if sep_engine is None:
             raise ValueError("RCC engine requires sep_engine parameter")
         return RoundedCapacityCutEngine(v_model, sep_engine)
+    elif engine_name == "sri":
+        return SubsetRowCutEngine(v_model)
+    elif engine_name == "lci":
+        return LiftedCoverCutEngine(v_model)
     elif engine_name == "cover":
         if sep_engine is None:
             raise ValueError("Cover engine requires sep_engine parameter")
         return KnapsackCoverEngine(v_model, sep_engine)
-    elif engine_name == "all":
-        if sep_engine is None:
-            raise ValueError("Composite engine requires sep_engine parameter")
-        return CompositeCuttingPlaneEngine(
-            [
-                RoundedCapacityCutEngine(v_model, sep_engine),
-                KnapsackCoverEngine(v_model, sep_engine),
-            ]
-        )
-    elif engine_name == "lci":
-        raise ValueError(
-            "LCI engine is currently disabled. Lifted Cover Inequalities "
-            "require complex RCSPP state-space modifications for dual integration "
-            "to ensure valid LP bounds."
-        )
+    elif engine_name in ("all", "composite"):
+        engines = []
+        if sep_engine is not None:
+            engines.append(RoundedCapacityCutEngine(v_model, sep_engine))
+        engines.append(SubsetRowCutEngine(v_model))  # type: ignore[arg-type]
+        engines.append(LiftedCoverCutEngine(v_model))  # type: ignore[arg-type]
+        if sep_engine is not None:
+            engines.append(KnapsackCoverEngine(v_model, sep_engine))  # type: ignore[arg-type]
+        return CompositeCuttingPlaneEngine(engines)  # type: ignore[arg-type]
     else:
-        raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: ['rcc', 'cover', 'all']")
+        valid = ["rcc", "sri", "lci", "cover", "all"]
+        raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: {valid}")

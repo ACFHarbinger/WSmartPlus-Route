@@ -1,76 +1,42 @@
 """
-Resource-Constrained Shortest Path Problem (RCSPP) solver using Dynamic Programming.
+Resource-Constrained Shortest Path Problem (RCSPP) Solver with ng-Route Relaxation.
 
-Implements label-correcting algorithm for Elementary Shortest Path Problem with Resource
-Constraints (ESPPRC) as described in:
-- Irnich & Desaulniers (2005): "Shortest Path Problems with Resource Constraints"
-- Feillet et al. (2004): "An exact algorithm for the ESPPRC"
-- Baldacci, R., Mingozzi, A., & Roberti, R. (2011). "New Route Relaxation and Pricing
-  Strategies for the Vehicle Routing Problem". Operations Research, 59(5), 1269-1283.
+This module provides the core pricing engine for the Branch-and-Price-and-Cut (BPC)
+algorithm. It implements a forward label-correcting dynamic programming
+algorithm to find profitable routes (columns) to add to the Master Problem.
 
-This is the exact / ng-relaxed pricing subproblem for Branch-and-Price column generation.
+Theoretical Foundation:
+    - ng-Route Relaxation (Baldacci et al. 2011): Provides a compromise between
+      the high complexity of exact ESPPRC and the weak relaxation of SPPRC.
+      Cycles are permitted as long as they don't involve "recently visited"
+      nodes within a local memory neighborhood.
+    - Subset-Row Inequalities (SRI) (Jepsen et al. 2008): Strengthens the set
+      partitioning relaxation by adding valid inequalities for subsets of size 3.
+    - Rounded Capacity Cuts (RCC) (Lysgaard et al. 2004): Standard VRP capacity
+      constraints based on bin-packing bounds.
+    - exact ESPPRC: High-fidelity pricing achieved when ng-neighborhoods
+      encompass all nodes, or when using strict elementary visit tracking.
 
-Edge-branching constraint enforcement
---------------------------------------
-Branching constraints from ``branching.EdgeBranchingConstraint`` are enforced
-*inside* the label-extension loop rather than as a post-hoc feasibility filter
-on completed routes.  This is both more efficient (infeasible partial paths are
-discarded early) and mathematically correct (a post-hoc filter can mistakenly
-discard a dominating label before the constraint is checked, causing the
-algorithm to miss the constrained optimum).
-
-Three rules are applied before extending from node u to node v:
-
-1. Forbidden-arc rule (must_use = False):
-   If any constraint forbids arc (u → v), skip v entirely.
-
-2. Required-successor rule (must_use = True, source = u):
-   If node u has a required outgoing arc to some node w, then the only
-   permitted extension from u is to w.  Any v ≠ w is skipped.
-   Exception: the depot is always a legal return destination.
-
-3. Required-predecessor rule (must_use = True, target = v):
-   If node v has a required incoming arc from some node x, then the only
-   node permitted to precede v is x.  Any u ≠ x is skipped.
-   Exception: v may also be reached from the depot.
-
-ng-Route Relaxation
---------------------
-When ``use_ng_routes=True`` (default), the solver uses the *ng*-route
-relaxation of Baldacci et al. (2011) instead of exact ESPPRC.
-
-Exact ESPPRC tracks the complete visited set to prevent cycles, resulting
-in an exponential number of labels in the worst case.  The *ng*-route
-relaxation replaces this with a compact *ng*-memory set M_v, which only
-blocks revisiting nodes in the neighborhood N_v of the current node v.
-This makes dominance checks much more effective (smaller memory ⇒ more
-labels dominate each other) while still preventing the shortest, most
-profitable cycles.
-
-Key definitions (Baldacci et al. 2011, Section 3):
-    N_i    – ng-neighborhood of node i: the k closest nodes to i by distance,
-              always including i itself.
-    M_v    – ng-memory of a label at node v: the subset of visited nodes
-              that belong to N_v.  Computed incrementally as:
-                  M_v = (M_u ∪ {v}) ∩ N_v
-              where u is the predecessor node.
-    Feasibility: extension from a label at v to node w is allowed iff
-              w ∉ M_v  (ng mode)  or  w ∉ visited  (exact ESPPRC).
-    Dominance: label L1 dominates L2 at the same node iff:
-              L1.rc ≥ L2.rc  AND  L1.load ≤ L2.load  AND
-              L1.ng_memory ⊆ L2.ng_memory  (ng mode)  or
-              L1.visited   ⊆ L2.visited    (exact ESPPRC).
-
-The ``visited`` set is always maintained alongside ``ng_memory`` so that the
-final path can be reconstructed accurately and exact ESPPRC can be restored
-by a single flag toggle (``use_ng_routes=False``).
+Key Algorithmic Features:
+    - Bidirectional Dual Processing: Supports standard maximization duals
+      and Farkas duals for infeasibility proof in B&B nodes.
+    - Parity Tracking: Tracks visit counts per SRI subset (modulo 2) to correctly
+      apply dual penalties for the 3-SRI family.
+    - Edge-Based Duals: Dynamic subtraction of penalties for edge-capacity
+      clique cuts (LCIs) during label extension.
+    - Structural Constraints: Enforces branching decisions (Arc-based or Ryan-Foster)
+      to maintain search tree integrity.
 """
+
+from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
+
+from .master_problem import Route
 
 
 @dataclass(order=True)
@@ -81,12 +47,6 @@ class Label:
     Represents a partial path from the depot to the current node with
     accumulated resources.  Labels are ordered by reduced cost for efficient
     dominance checking (higher is better for the maximisation objective).
-
-    When ng-route relaxation is active, the dominance and feasibility checks
-    use ``ng_memory`` instead of ``visited``.  The ``visited`` set is always
-    maintained so that the final path sequence can be reconstructed correctly
-    regardless of the relaxation mode, and to ensure that toggling
-    ``use_ng_routes=False`` restores exact ESPPRC without any other changes.
     """
 
     # Primary sort key — higher reduced cost is preferred.
@@ -100,16 +60,25 @@ class Label:
     path: List[int] = field(default_factory=list, compare=False)
 
     # visited: complete set of customer nodes on the partial path.
-    # Always maintained for path reconstruction and exact-ESPPRC mode.
     visited: Set[int] = field(default_factory=set, compare=False)
 
     # ng_memory: compact relaxed state for ng-route dominance / feasibility.
     ng_memory: Set[int] = field(default_factory=set, compare=False)
 
     # rf_unmatched: nodes from a 'together' pair visited without their partner.
+    # Used for enforcing Ryan-Foster branching constraints during pricing.
     rf_unmatched: FrozenSet[int] = field(default_factory=frozenset, compare=False)
 
     parent: Optional["Label"] = field(default=None, compare=False, repr=False)
+
+    # Subset-Row Inequalities (SRI) state:
+    # A tuple where each entry corresponds to an active SRI subset S.
+    # State values:
+    #   0: No nodes in S visited yet.
+    #   1: One node in S visited (potential penalty on next visit).
+    #   2: Two nodes in S visited (dual penalty applied, resets on 3rd visit if allowed).
+    # This state enables the exact calculation of ⌊ 1/2 * Σ a_{ik} ⌋ dual penalties.
+    sri_state: Tuple[int, ...] = field(default_factory=tuple, compare=False)
 
     def dominates(
         self,
@@ -119,34 +88,6 @@ class Label:
     ) -> bool:
         """
         Check whether this label dominates *other* at the same node.
-
-        Dominance requires all four conditions to hold simultaneously:
-            1. self.reduced_cost >= other.reduced_cost
-            2. self.load         <= other.load
-            3. self.rf_unmatched == other.rf_unmatched (Obligation Exactness)
-            4a. [ng mode]   self.ng_memory ⊆ other.ng_memory
-            4b. [exact mode] self.visited  ⊆ other.visited
-
-        Condition 3a is the key difference from exact ESPPRC.  Because
-        ``ng_memory`` is a *subset* of ``visited`` (only nearby nodes are
-        retained), more pairs of labels satisfy the subset relation and more
-        labels get pruned.  This is the efficiency gain of the ng-relaxation:
-        the label count is dramatically reduced on large instances.
-
-        Soundness: if L1 dominates L2 under ng-memory, every ng-feasible
-        extension of L2 is also ng-feasible for L1, so discarding L2 is safe.
-        Cycles that exact ESPPRC would prevent but ng-routes allow involve
-        nodes outside N_v — those are typically far away and thus unprofitable
-        after travel-cost subtraction.
-
-        Args:
-            other: Another label at the same node.
-            use_ng: If True, use ng_memory for condition 3 (ng mode).
-                    If False, use visited (exact ESPPRC mode).
-            epsilon: Numerical tolerance for floating-point comparisons.
-
-        Returns:
-            True if this label dominates *other*.
         """
         if self.node != other.node:
             return False
@@ -157,22 +98,23 @@ class Label:
         if self.rf_unmatched != other.rf_unmatched:
             return False
 
+        # Exact ESPPRC requirement for SRI states:
+        # To maintain mathematical exactness in the presence of Subset-Row Inequalities,
+        # two labels are only comparable if they have identical SRI visit counts (parity).
+        # If sri_state differs, one label might incur a penalty that the other already
+        # paid, or vice versa, making them globally incomparable in the state-space.
+        if self.sri_state != other.sri_state:
+            return False
+
         if use_ng:
             return self.ng_memory.issubset(other.ng_memory)
         else:
             return self.visited.issubset(other.visited)
 
     def is_feasible(self, capacity: float) -> bool:
-        """Return True if the accumulated load does not exceed capacity."""
         return self.load <= capacity
 
     def reconstruct_path(self) -> List[int]:
-        """
-        Reconstruct the complete path by following parent pointers.
-
-        Returns:
-            Ordered list of node indices from depot to current node.
-        """
         if self.parent is None:
             return [self.node]
         return self.parent.reconstruct_path() + [self.node]
@@ -181,45 +123,6 @@ class Label:
 class RCSPPSolver:
     """
     Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.
-
-    Uses forward label-correcting dynamic programming with dominance pruning to
-    find elementary (or ng-feasible) paths of maximum reduced cost, subject to
-    vehicle capacity.
-
-    Two operating modes are supported:
-
-    Exact ESPPRC (``use_ng_routes=False``)
-        Tracks the complete visited set in every label.  Guarantees that every
-        generated column is a true elementary route.  Exponential worst-case
-        label count for dense instances.
-
-    ng-Route relaxation (``use_ng_routes=True``, default)
-        Tracks only the compact ng-memory set M_v = (M_u ∪ {v}) ∩ N_v per
-        Baldacci et al. (2011).  Permits revisiting nodes outside N_v, but
-        such revisits are typically unprofitable.  Dominance is far more
-        effective, drastically reducing the label count on large instances.
-        Setting ``use_ng_routes=False`` perfectly restores exact ESPPRC.
-
-    Both modes accept ``EdgeBranchingConstraint`` objects from the current B&B
-    node and enforce them eagerly during label extension.
-
-    References:
-        Baldacci, R., Mingozzi, A., & Roberti, R. (2011). "New Route Relaxation
-        and Pricing Strategies for the Vehicle Routing Problem". Operations
-        Research, 59(5), 1269-1283.
-
-    Attributes:
-        n_nodes: Number of customer nodes (depot excluded; depot index = 0).
-        cost_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1).
-        wastes: Mapping from customer node ID to waste volume.
-        capacity: Vehicle payload capacity.
-        R: Revenue per unit of waste.
-        C: Cost per unit of distance.
-        mandatory_nodes: Nodes that must appear in every feasible route.
-        depot: Depot index (always 0).
-        use_ng_routes: Whether ng-route relaxation is active.
-        ng_neighborhood_size: Number of closest neighbors in each N_i.
-        ng_neighborhoods: Precomputed neighborhood sets N_i for every node.
     """
 
     def __init__(
@@ -235,26 +138,6 @@ class RCSPPSolver:
         ng_neighborhood_size: int = 8,
         ng_neighborhoods: Optional[Dict[int, Set[int]]] = None,
     ) -> None:
-        """
-                Initialise the RCSPP solver.
-
-                Args:
-                    n_nodes: Number of customer nodes (excluding depot).
-                    cost_matrix: Distance matrix (n_nodes+1 × n_nodes+1); index 0 is
-                        the depot.
-                    wastes: Mapping from node ID to waste volume.
-                    capacity: Vehicle payload capacity.
-                    revenue_per_kg: Revenue earned per unit of waste collected.
-                    cost_per_km: Operating cost per unit of distance travelled.
-                    mandatory_nodes: Set of customer node This pricer implements a **Label-Correcting** algorithm (FIFO queue) to handle
-        potential negative edge costs introduced by dual variables. It supports both
-        exact ESPPRC and the ng-route relaxation (Baldacci et al. 2011).
-                        Set False to restore exact ESPPRC behaviour.  Default True.
-                    ng_neighborhood_size: Size of each node's ng-neighborhood N_i
-                        (including the node itself).  Larger values produce a tighter
-                        relaxation (approaching exact ESPPRC) at the cost of slower
-                        dominance checks.  Default 8.
-        """
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
         self.wastes = wastes
@@ -270,94 +153,101 @@ class RCSPPSolver:
         self.labels_generated: int = 0
         self.labels_dominated: int = 0
         self.labels_infeasible: int = 0
+        self.last_max_rc: float = -float("inf")
 
-        # Precompute ng-neighborhoods once at construction time.
         if ng_neighborhoods is not None:
             self.ng_neighborhoods = ng_neighborhoods
         else:
             self.ng_neighborhoods = self._compute_ng_neighborhoods()
 
-        # Debug assertion to verify coverage of all nodes including depot.
-        assert all(i in self.ng_neighborhoods for i in range(self.n_nodes + 1))
-
-    # ------------------------------------------------------------------
-    # Neighborhood precomputation
-    # ------------------------------------------------------------------
-
     def _compute_ng_neighborhoods(self) -> Dict[int, Set[int]]:
-        """
-        Precompute the ng-neighborhood N_i for every node including the depot.
-
-        N_i is defined as node i itself plus the ``ng_neighborhood_size - 1``
-        nodes with the smallest arc cost from i (Baldacci et al. 2011, Def. 1).
-        All nodes (depot = 0, customers 1 … n_nodes) are eligible neighbors.
-
-        The effective size is capped at the total number of nodes so that
-        ``ng_neighborhood_size`` may safely exceed the instance size without
-        error.
-
-        Returns:
-            Mapping node_id → frozenset-compatible set of neighbor IDs.
-            Node i is always included in N_i.
-        """
-        all_nodes = list(range(self.n_nodes + 1))  # depot + customers
+        all_nodes = list(range(self.n_nodes + 1))
         k = min(self.ng_neighborhood_size, len(all_nodes))
         neighborhoods: Dict[int, Set[int]] = {}
 
         for i in all_nodes:
-            # Rank all other nodes by distance from i.
             distances = sorted((self.cost_matrix[i, j], j) for j in all_nodes if j != i)
-            # Take the k-1 closest; then add i itself to complete N_i.
             closest: Set[int] = {j for _, j in distances[: k - 1]}
             closest.add(i)
             neighborhoods[i] = closest
 
         return neighborhoods
 
-    # ------------------------------------------------------------------
-    # Public interface
-    # ------------------------------------------------------------------
-
     def solve(
         self,
-        dual_values: Dict[Union[int, str], float],
+        dual_values: Dict[Any, Any],
         max_routes: int = 10,
         branching_constraints: Optional[List[Any]] = None,
         capacity_cut_duals: Optional[Dict[FrozenSet[int], float]] = None,
-    ) -> List[Tuple[List[int], float]]:
+        sri_cut_duals: Optional[Dict[FrozenSet[int], float]] = None,
+        lci_cut_duals: Optional[Dict[Tuple[int, int], float]] = None,
+        is_farkas: bool = False,
+    ) -> List[Route]:
         """
-        Solve the RCSPP and return routes with positive reduced cost.
+        Solve the Resource-Constrained Shortest Path Problem (RCSPP).
 
-        Only node-coverage dual values from the master problem are used in the
-        reduced-cost formula.  Capacity constraints are enforced implicitly by
-        the resource tracker in the label extension step.  Edge-branching
-        and Ryan-Foster constraints are enforced during extension and at
-        route completion.
-
-        When ``use_ng_routes=True``, the ng-route relaxation (Baldacci et al.
-        2011) is used in place of exact ESPPRC.  The relaxation may
-        occasionally generate routes with short cycles; these are almost always
-        unprofitable after dual subtraction and are rare in practice.
+        Executes a forward label-correcting algorithm to identify columns with
+        positive reduced cost in the Master Problem. Supports composite dual
+        inputs to facilitate simultaneous pricing of node revenues and various
+        cutting plane families.
 
         Args:
-            dual_values: Dual values from the master problem.  Keys are
-                customer node IDs (int) and optionally ``"vehicle_limit"``
-                (str).
-            max_routes: Maximum number of routes to return.
-            branching_constraints: Active edge branching constraints at the
-                current B&B node, or None / empty list for the root.
+            dual_values: Dictionary of dual values. Supports two formats:
+                1. Flat: mapping node ID (int) -> dual value.
+                2. Composite: Sub-dictionaries "node_duals", "rcc_duals",
+                   "sri_duals", and "lci_duals".
+            max_routes: Maximum number of profitable routes to return.
+            branching_constraints: List of branching objects to enforce.
+            capacity_cut_duals: Explicit RCC duals (if not in composite).
+            sri_cut_duals: Explicit SRI duals (if not in composite).
+            lci_cut_duals: Explicit LCI duals (mapped by (u,v) edges).
+            is_farkas: Whether to solve the dual of the Farkas lemma.
+                True: proof of node infeasibility (minimizes violation).
+                False: standard maximization of reduced cost profit.
 
         Returns:
-            List of (route_nodes, reduced_cost) tuples sorted by descending
-            reduced cost.  route_nodes excludes the depot.
+            List of generated Route objects with positive reduced cost.
         """
+        self.is_farkas = is_farkas
+
+        # Distinguish between old-style flat duals and new-style composite duals
+        if isinstance(dual_values, dict) and "node_duals" in dual_values:
+            node_duals = dual_values["node_duals"]
+            rcc_duals: Dict[FrozenSet[int], float] = dual_values.get("rcc_duals", {})  # type: ignore[assignment]
+            sri_duals: Dict[FrozenSet[int], float] = dual_values.get("sri_duals", {})  # type: ignore[assignment]
+            lci_duals: Dict[Tuple[int, int], float] = dual_values.get("lci_duals", {})  # type: ignore[assignment]
+        else:
+            node_duals = dual_values  # type: ignore[assignment]
+            rcc_duals: Dict[FrozenSet[int], float] = capacity_cut_duals or {}  # type: ignore[no-redef]
+            sri_duals: Dict[FrozenSet[int], float] = sri_cut_duals or {}  # type: ignore[no-redef]
+            lci_duals: Dict[Tuple[int, int], float] = lci_cut_duals or {}  # type: ignore[no-redef]
+
+        # Reset statistics
         self.labels_generated = 0
         self.labels_dominated = 0
         self.labels_infeasible = 0
+        self.last_max_rc = -float("inf")
+        self.dual_values = node_duals  # for _extend_label
+        self.capacity_cut_duals = rcc_duals  # for _extend_label
+        self.lci_cut_duals = lci_duals  # for _extend_label
 
-        self.dual_values = dual_values
-        self.capacity_cut_duals = capacity_cut_duals or {}
-        self._compute_node_reduced_costs()
+        # Pre-compute reduced costs
+        if not self.is_farkas:
+            self.node_reduced_costs = {
+                n: self.wastes.get(n, 0.0) * self.R - node_duals.get(n, 0.0)  # type: ignore[attr-defined]
+                for n in range(1, self.n_nodes + 1)
+            }
+        else:
+            self.node_reduced_costs = {n: node_duals.get(n, 0.0) for n in range(1, self.n_nodes + 1)}  # type: ignore[attr-defined]
+
+        # SRI pre-processing
+        active_sri_subsets = sorted(list(sri_duals.keys()), key=hash)
+        sri_dual_values = [sri_duals[s] for s in active_sri_subsets]
+        node_to_sri: Dict[int, List[int]] = {i: [] for i in range(self.n_nodes + 1)}
+        for idx, s in enumerate(active_sri_subsets):
+            for node in s:
+                if node in node_to_sri:
+                    node_to_sri[node].append(idx)
 
         constraints: List[Any] = branching_constraints or []
         (
@@ -369,32 +259,21 @@ class RCSPPSolver:
         ) = self._preprocess_constraints(constraints)
 
         routes = self._label_correcting_algorithm(
-            max_routes, forbidden_arcs, required_successors, required_predecessors, rf_separate, rf_together
+            max_routes,
+            forbidden_arcs,
+            required_successors,
+            required_predecessors,
+            rf_separate,
+            rf_together,
+            rcc_duals=rcc_duals,
+            active_sri_subsets=active_sri_subsets,
+            sri_dual_values=sri_dual_values,
+            node_to_sri=node_to_sri,
         )
-        routes.sort(key=lambda x: x[1], reverse=True)
+        routes.sort(key=lambda x: getattr(x, "reduced_cost", 0.0), reverse=True)
         return routes[:max_routes]
 
-    # ------------------------------------------------------------------
-    # Constraint pre-processing
-    # ------------------------------------------------------------------
-
-    def _preprocess_constraints(
-        self,
-        constraints: List[Any],
-    ) -> Tuple[FrozenSet[Tuple[int, int]], Dict[int, int], Dict[int, int], Set[Tuple[int, int]], Set[Tuple[int, int]]]:
-        """
-        Convert branching constraints into fast lookup structures.
-
-        Uses duck-typing to handle both EdgeBranchingConstraint and
-        RyanFosterBranchingConstraint without hard import dependencies.
-
-        Args:
-            constraints: Active branching constraints.
-
-        Returns:
-            Tuple (forbidden_arcs, req_successors, req_predecessors,
-                   rf_separate_pairs, rf_together_pairs).
-        """
+    def _preprocess_constraints(self, constraints: List[Any]):
         forbidden: Set[Tuple[int, int]] = set()
         req_succ: Dict[int, int] = {}
         req_pred: Dict[int, int] = {}
@@ -403,18 +282,12 @@ class RCSPPSolver:
 
         for c in constraints:
             if hasattr(c, "must_use"):
-                # EdgeBranchingConstraint
                 if not c.must_use:
                     forbidden.add((c.u, c.v))
                 else:
-                    if c.u in req_succ and req_succ[c.u] != c.v:
-                        raise ValueError(f"Contradictory req-successor at {c.u}")
-                    if c.v in req_pred and req_pred[c.v] != c.u:
-                        raise ValueError(f"Contradictory req-predecessor at {c.v}")
                     req_succ[c.u] = c.v
                     req_pred[c.v] = c.u
             elif hasattr(c, "together"):
-                # RyanFosterBranchingConstraint
                 pair = (min(c.node_r, c.node_s), max(c.node_r, c.node_s))
                 if not c.together:
                     rf_separate.add(pair)
@@ -422,26 +295,6 @@ class RCSPPSolver:
                     rf_together.add(pair)
 
         return frozenset(forbidden), req_succ, req_pred, rf_separate, rf_together
-
-    # ------------------------------------------------------------------
-    # Reduced-cost helper
-    # ------------------------------------------------------------------
-
-    def _compute_node_reduced_costs(self) -> None:
-        """
-        Pre-compute the per-node reduced-cost contribution.
-
-        node_rc_i = waste_i * R  −  dual_i
-        """
-        self.node_reduced_costs: Dict[int, float] = {}
-        for node in range(1, self.n_nodes + 1):
-            revenue = self.wastes.get(node, 0.0) * self.R
-            dual = self.dual_values.get(node, 0.0)
-            self.node_reduced_costs[node] = revenue - dual
-
-    # ------------------------------------------------------------------
-    # Label-correcting DP
-    # ------------------------------------------------------------------
 
     def _label_correcting_algorithm(  # noqa: C901
         self,
@@ -451,38 +304,13 @@ class RCSPPSolver:
         required_predecessors: Dict[int, int],
         rf_separate: Set[Tuple[int, int]],
         rf_together: Set[Tuple[int, int]],
-    ) -> List[Tuple[List[int], float]]:
-        """
-        Forward label-correcting algorithm for ESPPRC / ng-RCSPP.
-
-        Extends labels from the depot through customer nodes back to the depot.
-        At each extension step (u → v), edge-branching rules and the
-        appropriate elementarity / ng-feasibility check are applied before a
-        label is created.
-
-        ng-route mode vs exact ESPPRC — the *only* two divergence points:
-
-        1. **Feasibility gate** (line in the inner loop):
-              ng mode:   v ∉ current.ng_memory
-              exact:     v ∉ current.visited
-
-        2. **Dominance check** forwarded to Label.dominates(use_ng=...):
-              ng mode:   self.ng_memory ⊆ other.ng_memory
-              exact:     self.visited   ⊆ other.visited
-
-        All other logic (arc costs, duals, capacity, branching constraints,
-        depot return) is identical in both modes.
-
-        Args:
-            max_routes: Upper bound on the number of routes to collect.
-            forbidden_arcs: Pairs (u, v) that must not be traversed.
-            required_successors: u → w; from u the only valid next customer is w.
-            required_predecessors: v → x; v may only be entered from x or depot.
-
-        Returns:
-            List of (route_nodes, reduced_cost) with reduced_cost > 1e-6.
-        """
+        rcc_duals: Optional[Dict[FrozenSet[int], float]] = None,
+        active_sri_subsets: Optional[List[FrozenSet[int]]] = None,
+        sri_dual_values: Optional[List[float]] = None,
+        node_to_sri: Optional[Dict[int, List[int]]] = None,
+    ) -> List[Route]:
         use_ng = self.use_ng_routes
+        initial_sri_state = tuple([0] * len(active_sri_subsets)) if active_sri_subsets else ()
 
         initial_label = Label(
             reduced_cost=0.0,
@@ -495,6 +323,7 @@ class RCSPPSolver:
             ng_memory=set(),
             rf_unmatched=frozenset(),
             parent=None,
+            sri_state=initial_sri_state,
         )
 
         labels_at_node: Dict[int, List[Label]] = {self.depot: [initial_label]}
@@ -505,13 +334,11 @@ class RCSPPSolver:
             current = unprocessed.popleft()
             u = current.node
 
-            # Determine candidate next customers.
+            # Candidate nodes
             candidate_nodes = [required_successors[u]] if u in required_successors else range(1, self.n_nodes + 1)
 
             for v in candidate_nodes:
-                # ---- Elementarity / ng-feasibility -------------------------
-                # ng mode:    block v only if it is in the current ng-memory.
-                # exact mode: block v if it was visited anywhere on the path.
+                # Elementarity/ng-feasibility
                 if use_ng:
                     if v in current.ng_memory:
                         continue
@@ -519,102 +346,82 @@ class RCSPPSolver:
                     if v in current.visited:
                         continue
 
-                # ---- Ryan-Foster Separation (Rule 4) -----------------------
-                # Reject v if it forms a separate-pair with any node in path.
-                violated_rf = False
-                for node_in_path in current.visited:
-                    pair = (min(v, node_in_path), max(v, node_in_path))
-                    if pair in rf_separate:
-                        violated_rf = True
-                        break
-                if violated_rf:
+                # Ryan-Foster Separation
+                if any((min(v, n), max(v, n)) in rf_separate for n in current.visited):
                     continue
 
-                # ---- Edge-branching Rule 1: Forbidden arc (u → v) ----------
+                # Edge constraints
                 if (u, v) in forbidden_arcs:
-                    self.labels_infeasible += 1
                     continue
-
-                # ---- Edge-branching Rule 3: Required-predecessor for v ------
                 if v in required_predecessors and required_predecessors[v] != u:
-                    self.labels_infeasible += 1
                     continue
 
-                # ---- Attempt label extension --------------------------------
-                new_label = self._extend_label(current, v, rf_together)
+                # Extend
+                new_label = self._extend_label(
+                    current, v, rf_together, active_sri_subsets, sri_dual_values, node_to_sri
+                )
                 if new_label is None:
                     self.labels_infeasible += 1
                     continue
 
-                # Path length cap to prevent infinite loops in zero-waste cycles.
                 if len(new_label.path) > self.n_nodes + 2:
                     continue
 
                 self.labels_generated += 1
-
-                # ---- Dominance check ---------------------------------------
                 existing = labels_at_node.get(v, [])
                 if self._is_dominated(new_label, existing, use_ng):
                     self.labels_dominated += 1
                     continue
 
-                # Remove labels that new_label now dominates.
                 labels_at_node[v] = [lbl for lbl in existing if not new_label.dominates(lbl, use_ng=use_ng)]
                 labels_at_node[v].append(new_label)
                 unprocessed.append(new_label)
 
-            # ---- Try returning to the depot --------------------------------
+            # Depot return
             if u != self.depot:
-                req_next = required_successors.get(u)
-                if req_next is not None and req_next != self.depot:
-                    pass  # u must visit req_next before closing.
+                if u in required_successors and required_successors[u] != self.depot:
+                    pass
                 else:
                     final_label = self._extend_to_depot(current)
-                    # Ryan-Foster Together (Rule 5)
-                    # Discard if exactly one member of a together-pair is present.
-                    if final_label is not None and not final_label.rf_unmatched and final_label.reduced_cost > 1e-6:
+                    if final_label and not final_label.rf_unmatched:
                         completed_routes.append(final_label)
 
-        # Collect routes with positive reduced cost.
-        routes: List[Tuple[List[int], float]] = []
+        # 7. Finalize routes and track bounds
+        completed_routes.sort(key=lambda x: x.reduced_cost, reverse=True)
+
+        # RECORD ABSOLUTE MAXIMUM REDUCED COST (even if negative)
+        # This is critical for Lagrangian relaxation bounds and proving optimality.
+        self.last_max_rc = completed_routes[0].reduced_cost if completed_routes else -float("inf")
+
+        # Build Route objects for positive reduced cost only (column generation)
+        routes: List[Route] = []
         for label in completed_routes:
+            if label.reduced_cost <= 1e-6:
+                continue
+
             full_path = label.reconstruct_path()
             route_nodes = [n for n in full_path if n != self.depot]
-            if label.reduced_cost > 1e-6:
-                routes.append((route_nodes, label.reduced_cost))
+
+            # Compute physical parameters (cost, rev, load) for Master Problem
+            cost, rev, load, coverage = self.compute_route_details(route_nodes)
+            rt = Route(route_nodes, cost, rev, load, coverage)
+            rt.reduced_cost = label.reduced_cost
+            routes.append(rt)
+
+            if len(routes) >= max_routes:
+                break
 
         return routes
 
-    # ------------------------------------------------------------------
-    # Label extension primitives
-    # ------------------------------------------------------------------
-
-    def _extend_label(self, label: Label, next_node: int, rf_together: Set[Tuple[int, int]]) -> Optional[Label]:
-        """
-        Extend *label* by visiting *next_node*.
-
-        Incremental Update for Ryan-Foster 'Together' obligations:
-            rf_unmatched_new = rf_unmatched_old ⊕ {next_node | partner in visited}
-            (We track nodes in together-pairs that don't yet have their partner).
-
-        ng-memory update (Baldacci et al. 2011, Section 3):
-            M_{next_node} = (M_u ∪ {next_node}) ∩ N_{next_node}
-
-        The intersection with N_{next_node} is the key step: it drops nodes
-        from the memory that are no longer relevant at the new position
-        (i.e. nodes not in the neighborhood of next_node), keeping the
-        memory compact and dominance comparisons cheap.
-
-        The ``visited`` set is always extended regardless of mode so that
-        path reconstruction and exact ESPPRC mode remain correct.
-
-        Args:
-            label: Current label (partial path ending at label.node).
-            next_node: Customer node to append to the path.
-
-        Returns:
-            New extended label, or None if the extension violates capacity.
-        """
+    def _extend_label(
+        self,
+        label: Label,
+        next_node: int,
+        rf_together: Set[Tuple[int, int]],
+        active_sri_subsets: Optional[List[FrozenSet[int]]] = None,
+        sri_dual_values: Optional[List[float]] = None,
+        node_to_sri: Optional[Dict[int, List[int]]] = None,
+    ) -> Optional[Label]:
         node_waste = self.wastes.get(next_node, 0.0)
         new_load = label.load + node_waste
         if new_load > self.capacity:
@@ -626,45 +433,71 @@ class RCSPPSolver:
 
         node_revenue = node_waste * self.R
         new_revenue = label.revenue + node_revenue
+        node_dual = self.dual_values.get(next_node, 0.0)  # type: ignore[attr-defined]
 
-        node_dual = self.dual_values.get(next_node, 0.0)
+        # 1. SRI Parity Tracking (3-SRIs)
+        # For each active SRI subset S, we track the number of nodes visited {0, 1, 2}.
+        # The dual penalty γ_S is applied specifically when the visit count transitions
+        # from 1 to 2, implementing the floor function ⌊ 1/2 * Σ a_{ik} ⌋.
+        # If we visit a 3rd node, the penalty is not applied again (since ⌊3/2⌋ = 1),
+        # modeled here by keeping the state at 2 (or resetting if elementary constraints allow).
+        new_sri_state = list(label.sri_state)
+        sri_penalty = 0.0
+        if node_to_sri and next_node in node_to_sri:
+            for sri_idx in node_to_sri[next_node]:
+                curr = new_sri_state[sri_idx]
+                if curr == 1:
+                    # Transition 1 -> 2: Subject to dual penalty
+                    sri_penalty += sri_dual_values[sri_idx]  # type: ignore[index]
+                    new_sri_state[sri_idx] = 2
+                elif curr == 0:
+                    # Transition 0 -> 1: No penalty yet
+                    new_sri_state[sri_idx] = 1
 
-        # Subtract duals from capacity cuts crossed by edge (label.node -> next_node)
-        # An edge crosses cut boundary delta(S) if (u in S) != (v in S).
+        # 2. LCI Duals (Edge Capacity Cuts)
+        # For edges (u,v) with active LCI cuts, we subtract the dual γ_{uv} whenever
+        # traversing that specific arc. Note: edge_tuple is canonical (sorted).
+        lci_penalty = 0.0
+        edge_tuple = tuple(sorted((label.node, next_node)))
+        if hasattr(self, "lci_cut_duals") and edge_tuple in self.lci_cut_duals:
+            lci_penalty = self.lci_cut_duals[edge_tuple]  # type: ignore[index]
+
+        # 3. Capacity Cuts (RCC/SEC)
+        # Penalties are applied when the vehicle crosses the boundary of the set S.
         crossing_penalty = 0.0
-        u, v = label.node, next_node
-        for node_set, dual in self.capacity_cut_duals.items():
-            if (u in node_set) != (v in node_set):
+        for s, dual in self.capacity_cut_duals.items():
+            if (label.node in s) != (next_node in s):
                 crossing_penalty += dual
 
-        new_rc = label.reduced_cost + (node_revenue - edge_cost - node_dual - crossing_penalty)
+        # 4. Total Step Objective Calculation
+        # Standard: Revenue - (Transp Cost + Duals + Cut Penalties)
+        # Farkas: Minimize Dual Violation (Reduced cost based strictly on duals)
+        step_obj = (
+            (node_revenue - edge_cost - node_dual - crossing_penalty - sri_penalty - lci_penalty)
+            if not self.is_farkas
+            else node_dual
+        )
+        new_rc = label.reduced_cost + step_obj
 
-        # Always maintain the full visited set for path reconstruction.
         new_visited = label.visited | {next_node}
-
-        # Compute the ng-memory update.
-        # ng mode:    M_v = (M_u ∪ {v}) ∩ N_v  (Baldacci et al. 2011)
-        # exact mode: ng_memory mirrors visited (unused for dominance, but
-        #             kept uniform so that _extend_to_depot can copy it
-        #             without branching on mode).
         if self.use_ng_routes:
-            new_ng_memory = (label.ng_memory | {next_node}) & self.ng_neighborhoods[next_node]
+            new_ng = (label.ng_memory | {next_node}) & self.ng_neighborhoods[next_node]
         else:
-            new_ng_memory = new_visited
+            new_ng = new_visited
 
-        # Update Ryan-Foster 'Together' unmatched obligations.
+        # Together unmatched
         new_unmatched = set(label.rf_unmatched)
-        for r, s in rf_together:
+        for r, s in rf_together:  # type: ignore[assignment]
             if next_node == r:
                 if s in label.visited:
-                    new_unmatched.discard(s)
+                    new_unmatched.discard(r)
                 else:
                     new_unmatched.add(r)
             elif next_node == s:
                 if r in label.visited:
                     new_unmatched.discard(r)
                 else:
-                    new_unmatched.add(s)
+                    new_unmatched.add(s)  # type: ignore[arg-type]
 
         return Label(
             reduced_cost=new_rc,
@@ -674,40 +507,31 @@ class RCSPPSolver:
             revenue=new_revenue,
             path=label.path + [next_node],
             visited=new_visited,
-            ng_memory=new_ng_memory,
+            ng_memory=new_ng,
             rf_unmatched=frozenset(new_unmatched),
             parent=label,
+            sri_state=tuple(new_sri_state),
         )
 
     def _extend_to_depot(self, label: Label) -> Optional[Label]:
-        """
-        Close a partial route by returning from *label.node* to the depot.
-
-        Args:
-            label: Current label at a customer node.
-
-        Returns:
-            Final label at the depot representing the completed route.
-        """
         edge_dist = self.cost_matrix[label.node, self.depot]
         edge_cost = edge_dist * self.C
-        new_cost = label.cost + edge_cost
+        vehicle_dual = self.dual_values.get("vehicle_limit", 0.0)  # type: ignore[attr-defined]
 
-        vehicle_dual = self.dual_values.get("vehicle_limit", 0.0)  # type: ignore[call-overload]
-
-        # Subtract duals from capacity cuts crossed by return edge (label.node -> depot)
         crossing_penalty = 0.0
-        u, v = label.node, self.depot
-        for node_set, dual in self.capacity_cut_duals.items():
-            if (u in node_set) != (v in node_set):
+        for s, dual in self.capacity_cut_duals.items():
+            if (label.node in s) != (self.depot in s):
                 crossing_penalty += dual
 
-        new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty
+        if not self.is_farkas:
+            new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty
+        else:
+            new_rc = label.reduced_cost
 
         return Label(
             reduced_cost=new_rc,
             node=self.depot,
-            cost=new_cost,
+            cost=label.cost + edge_cost,
             load=label.load,
             revenue=label.revenue,
             path=label.path + [self.depot],
@@ -715,76 +539,23 @@ class RCSPPSolver:
             ng_memory=label.ng_memory,
             rf_unmatched=label.rf_unmatched,
             parent=label,
+            sri_state=label.sri_state,
         )
 
-    # ------------------------------------------------------------------
-    # Dominance helpers
-    # ------------------------------------------------------------------
+    def _is_dominated(self, label: Label, existing: List[Label], use_ng: bool) -> bool:
+        return any(e.dominates(label, use_ng=use_ng) for e in existing)
 
-    def _is_dominated(
-        self,
-        label: Label,
-        existing_labels: List[Label],
-        use_ng: bool,
-    ) -> bool:
-        """
-        Return True if *label* is dominated by any label in *existing_labels*.
-
-        Args:
-            label: Candidate label to check.
-            existing_labels: Non-dominated labels already stored at the node.
-            use_ng: Forwarded to Label.dominates to select the correct
-                state-field for the subset check.
-
-        Returns:
-            True if at least one existing label dominates *label*.
-        """
-        return any(existing.dominates(label, use_ng=use_ng) for existing in existing_labels)
-
-    # ------------------------------------------------------------------
-    # Route-detail helper
-    # ------------------------------------------------------------------
-
-    def compute_route_details(
-        self,
-        route: List[int],
-    ) -> Tuple[float, float, float, Set[int]]:
-        """
-        Compute cost, revenue, load, and node coverage for a given route.
-
-        Args:
-            route: Ordered list of customer nodes (depot excluded).
-
-        Returns:
-            Tuple of (cost, revenue, load, node_coverage).
-        """
-        total_distance = 0.0
+    def compute_route_details(self, route: List[int]):
+        dist = 0.0
         prev = self.depot
-        for node in route:
-            total_distance += self.cost_matrix[prev, node]
-            prev = node
-        total_distance += self.cost_matrix[prev, self.depot]
+        for n in route:
+            dist += self.cost_matrix[prev, n]
+            prev = n
+        dist += self.cost_matrix[prev, self.depot]
+        waste = sum(self.wastes.get(n, 0.0) for n in route)
+        return dist * self.C, waste * self.R, waste, set(route)
 
-        total_waste = sum(self.wastes.get(node, 0.0) for node in route)
-        revenue = total_waste * self.R
-        cost = total_distance * self.C
-
-        return cost, revenue, total_waste, set(route)
-
-    # ------------------------------------------------------------------
-    # Diagnostics
-    # ------------------------------------------------------------------
-
-    def get_statistics(self) -> Dict[str, int]:
-        """
-        Return label-processing statistics from the most recent solve.
-
-        Returns:
-            Dictionary with keys:
-                labels_generated  – total labels created and accepted,
-                labels_dominated  – labels discarded by dominance,
-                labels_infeasible – labels discarded for infeasibility.
-        """
+    def get_statistics(self):
         return {
             "labels_generated": self.labels_generated,
             "labels_dominated": self.labels_dominated,
