@@ -13,6 +13,7 @@ from logic.src.configs.policies import TSPConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
+from .params import TSPParams
 from .tsp import find_route, get_multi_tour, get_route_cost
 
 
@@ -55,12 +56,14 @@ class TSPPolicy(BaseRoutingPolicy):
         """
         Run TSP solver with capacity-based splitting.
         """
-        # 1. Find a giant tour visiting all potential targets
+        # 1. Initialize type-safe Params
+        params = TSPParams.from_config(self._config or values)
+
+        # 2. Find a giant tour visiting all potential targets
         # Note: find_route expects global indices usually, but we pass local ones here.
         # It takes C (dist_matrix), to_collect, and time_limit.
-        time_limit = values.get("time_limit", 2.0)
         nodes_to_visit = mandatory_nodes
-        tour = find_route(sub_dist_matrix, nodes_to_visit, time_limit=time_limit)
+        tour = find_route(sub_dist_matrix, nodes_to_visit, time_limit=params.time_limit)
 
         # wastes_arr_bins should contain only customer nodes 1..M for get_multi_tour index mapping (x-1)
         wastes_arr_bins = np.array([sub_wastes[i] for i in range(1, len(sub_dist_matrix))])

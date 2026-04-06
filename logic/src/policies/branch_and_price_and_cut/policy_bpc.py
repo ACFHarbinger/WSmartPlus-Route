@@ -13,6 +13,8 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.branch_and_price_and_cut import run_bpc
 
+from .params import BPCParams
+
 
 @PolicyRegistry.register("bpc")
 class BCPPolicy(BaseRoutingPolicy):
@@ -65,17 +67,18 @@ class BCPPolicy(BaseRoutingPolicy):
         # Convert local mandatory indices to a set of must-go nodes for the solver
         must_go_indices: Set[int] = set(mandatory_nodes)
 
+        # Initialize standardized params object (Phase 1 refactoring)
+        params = BPCParams.from_config(values)
+
         routes, solver_cost = run_bpc(
             sub_dist_matrix,
             sub_wastes,
             capacity,
             revenue,
             cost_unit,
-            values,
+            params,
             must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
-            expand_pool=kwargs.get("vrpp", False),
-            profit_aware_operators=kwargs.get("profit_aware_operators", False),
             node_coords=kwargs.get("node_coords"),
             recorder=kwargs.get("recorder"),
         )

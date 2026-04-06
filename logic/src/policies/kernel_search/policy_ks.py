@@ -13,6 +13,8 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.kernel_search.solver import run_kernel_search_gurobi
 
+from .params import KSParams
+
 
 @PolicyRegistry.register("ks")
 class KernelSearchPolicy(BaseRoutingPolicy):
@@ -111,8 +113,8 @@ class KernelSearchPolicy(BaseRoutingPolicy):
                 - `cost` (float): The total travel distance/cost of the resulting tour.
                 - `extra_data` (Dict[str, Any]): Additional info such as the MILP objective value.
         """
-        # 1. Parse and validate the configuration
-        cfg = self._parse_config(self.config, KernelSearchConfig)
+        # 1. Initialize parameters
+        params = KSParams.from_config(self.config)
 
         # 2. Extract environment parameters from the simulation state
         distance_matrix = kwargs["distance_matrix"]
@@ -124,10 +126,10 @@ class KernelSearchPolicy(BaseRoutingPolicy):
         R = kwargs.get("R", 1.0)
         C = kwargs.get("C", 1.0)
 
-        # 4. Enforce deterministic behavior if a seed is provided
-        seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
+        # 4. Enforce deterministic behavior (override seed if provided in kwargs)
+        seed = kwargs.get("seed", params.seed)
 
-        # 5. Call the core matheuristic solver
+        # 5. Call the core matheuristic solver with granular parameter extraction
         tour, obj_val, cost = run_kernel_search_gurobi(
             dist_matrix=distance_matrix,
             wastes=wastes,
@@ -135,12 +137,12 @@ class KernelSearchPolicy(BaseRoutingPolicy):
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            initial_kernel_size=cfg.initial_kernel_size,
-            bucket_size=cfg.bucket_size,
-            max_buckets=cfg.max_buckets,
-            time_limit=cfg.time_limit,
-            mip_limit_nodes=cfg.mip_limit_nodes,
-            mip_gap=cfg.mip_gap,
+            initial_kernel_size=params.initial_kernel_size,
+            bucket_size=params.bucket_size,
+            max_buckets=params.max_buckets,
+            time_limit=params.time_limit,
+            mip_limit_nodes=params.mip_limit_nodes,
+            mip_gap=params.mip_gap,
             seed=seed,
         )
 

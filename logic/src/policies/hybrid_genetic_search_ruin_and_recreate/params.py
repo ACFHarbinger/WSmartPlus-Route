@@ -20,9 +20,6 @@ class HGSRRParams:
         nb_elite (int): Number of elite individuals preserved.
         mutation_rate (float): Probability of applying ruin-recreate mutation.
         n_offspring (int): Generation size (individuals created per iteration).
-        alpha_diversity (float): Initial diversity weight in fitness calculation.
-        min_diversity (float): Minimum population diversity threshold.
-        diversity_change_rate (float): Rate of alpha adjustment.
         n_iterations_no_improvement (int): Max iterations without improvement.
         survivor_threshold (float): Population size multiplier for survivor selection.
         max_vehicles (int): Maximum number of vehicles (0 = unlimited).
@@ -55,9 +52,6 @@ class HGSRRParams:
     elite_size: int = 10
     mutation_rate: float = 0.3
     n_iterations_no_improvement: int = 20000
-    alpha_diversity: float = 0.5
-    min_diversity: float = 0.2
-    diversity_change_rate: float = 0.05
     no_improvement_threshold: int = 20  # Threshold for diversity/stopping
     survivor_threshold: float = 2.0
     max_vehicles: int = 0
@@ -109,9 +103,6 @@ class HGSRRParams:
             elite_size=getattr(config, "elite_size", 10),
             mutation_rate=getattr(config, "mutation_rate", 0.3),
             n_iterations_no_improvement=getattr(config, "n_iterations_no_improvement", 20000),
-            alpha_diversity=getattr(config, "alpha_diversity", 0.5),
-            min_diversity=getattr(config, "min_diversity", 0.2),
-            diversity_change_rate=getattr(config, "diversity_change_rate", 0.05),
             no_improvement_threshold=getattr(config, "no_improvement_threshold", 20),
             survivor_threshold=getattr(config, "survivor_threshold", 2.0),
             max_vehicles=getattr(config, "max_vehicles", 0),

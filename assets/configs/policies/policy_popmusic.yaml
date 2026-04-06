@@ -80,9 +80,6 @@ popmusic:
           n_iterations_no_improvement: 20000
           local_search_iterations: 500
           target_feasible: 0.2
-          alpha_diversity: 0.5
-          diversity_change_rate: 0.05
-          min_diversity: 0.2
           mutation_rate: 1.0
           crossover_rate: 1.0
           repair_probability: 0.5
@@ -126,9 +123,6 @@ popmusic:
           n_iterations_no_improvement: 20000
           local_search_iterations: 500
           target_feasible: 0.2
-          alpha_diversity: 0.5
-          diversity_change_rate: 0.05
-          min_diversity: 0.2
           mutation_rate: 1.0
           crossover_rate: 1.0
           repair_probability: 0.5

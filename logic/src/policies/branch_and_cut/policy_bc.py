@@ -15,6 +15,7 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from .bc import BranchAndCutSolver
+from .params import BCParams
 from .vrpp_model import VRPPModel
 
 
@@ -93,17 +94,16 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
             mandatory_nodes=set(mandatory_nodes),
         )
 
-        # Create solver with configuration parameters
+        # Create solver with standardized configuration parameters
+        params = BCParams.from_config(values)
+        if "profit_aware_operators" in kwargs:
+            params.profit_aware_operators = kwargs["profit_aware_operators"]
+        if "vrpp" in kwargs:
+            params.vrpp = kwargs["vrpp"]
+
         solver = BranchAndCutSolver(
             model=model,
-            time_limit=values.get("time_limit", 300.0),
-            mip_gap=values.get("mip_gap", 0.0),
-            max_cuts_per_round=values.get("max_cuts_per_round", 50),
-            use_heuristics=values.get("use_heuristics", True),
-            verbose=values.get("verbose", False),
-            profit_aware_operators=kwargs.get("profit_aware_operators", False),
-            vrpp=kwargs.get("vrpp", False),
-            enable_fractional_capacity_cuts=values.get("enable_fractional_capacity_cuts", True),
+            params=params,
         )
 
         # Solve

@@ -85,14 +85,6 @@ hgs:
       # Vidal 2022 default: 0.2
       # Penalty coefficients auto-adjust to maintain this ratio
 
-    - min_diversity: 0.2
-      # Minimum diversity threshold
-      # Range: 0.0-1.0
-
-    - diversity_change_rate: 0.05
-      # Rate at which alpha diversity changes (if adaptive)
-      # Range: 0.01-0.1
-
     # ---------------------------------------------------------------------
     # Genetic Operators (Vidal 2022)
     # ---------------------------------------------------------------------

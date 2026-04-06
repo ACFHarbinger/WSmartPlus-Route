@@ -1,11 +1,7 @@
-"""
-Hyperparameters for the Hybrid Genetic Search with Adaptive Large Neighborhood Search (HGS-ALNS) algorithm.
-
-Combines HGS evolutionary operators with ALNS-based education phase for intensive local search.
-"""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..hybrid_genetic_search.params import HGSParams
@@ -23,7 +19,6 @@ class HGSALNSParams:
 
     # Hybrid-specific parameters
     time_limit: float = 60.0
-    hgs_max_iter: int = 100
     seed: Optional[int] = None
     vrpp: bool = True
     profit_aware_operators: bool = False
@@ -37,9 +32,6 @@ class HGSALNSParams:
             mutation_rate=0.2,
             crossover_rate=0.7,
             n_offspring=40,  # Default for lambda_param
-            alpha_diversity=0.5,
-            min_diversity=0.1,
-            diversity_change_rate=0.05,
             n_iterations_no_improvement=10,
             nb_granular=10,
             local_search_iterations=500,
@@ -59,3 +51,24 @@ class HGSALNSParams:
             max_removal_pct=0.3,
         )
     )
+
+    @classmethod
+    def from_config(cls, config: Any) -> HGSALNSParams:
+        """Create HGSALNSParams from a configuration object."""
+        return cls(
+            time_limit=getattr(config, "time_limit", 60.0),
+            seed=getattr(config, "seed", None),
+            vrpp=getattr(config, "vrpp", True),
+            profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            hgs_params=HGSParams.from_config(getattr(config, "hgs", config)),
+            alns_params=ALNSParams.from_config(getattr(config, "alns", config)),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert Params to a dictionary."""
+        return {
+            "time_limit": self.time_limit,
+            "seed": self.seed,
+            "vrpp": self.vrpp,
+            "profit_aware_operators": self.profit_aware_operators,
+        }

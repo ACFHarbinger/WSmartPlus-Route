@@ -147,7 +147,6 @@ class RLAHVPLSolver:
         self.cmab_evolution = CMABEvolution(
             split_manager=self.split_manager,
             bandit_algorithm=self.params.bandit_algorithm,
-            max_iterations=self.params.bandit_max_iterations,
             quality_weight=self.params.bandit_quality_weight,
             improvement_weight=self.params.bandit_improvement_weight,
             diversity_weight=self.params.bandit_diversity_weight,
@@ -236,13 +235,15 @@ class RLAHVPLSolver:
         best_cost = best_ind.cost
         self.best_profit_history.append(best_profit)
 
-        # Phase 2: Main evolutionary loop with CMAB
         no_repeat_count = 0
         tenure = self.params.rts_params.initial_tenure
-        current_alpha = self.params.hgs_params.alpha_diversity
-        for iteration in range(self.params.max_iterations):
+        iteration = 0
+        it_no_improvement = 0
+        while it_no_improvement < self.params.hgs_params.n_iterations_no_improvement:
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
+            iteration += 1
+            it_no_improvement += 1
 
             prev_best_profit = best_profit
 
@@ -250,7 +251,6 @@ class RLAHVPLSolver:
             update_biased_fitness(
                 population,
                 self.params.hgs_params.nb_elite,
-                current_alpha,
                 self.params.hgs_params.nb_granular,
             )
 
@@ -264,8 +264,13 @@ class RLAHVPLSolver:
                 # Select parents
                 p1, p2 = self._select_parents(population)
 
+                # Calculate progress based on time
+                progress = (
+                    (time.process_time() - start_time) / self.params.time_limit if self.params.time_limit > 0 else 0.0
+                )
+
                 # CMAB selects crossover operator and creates child
-                child = self.cmab_evolution.crossover(p1, p2, population, iteration, self.params.max_iterations)
+                child = self.cmab_evolution.crossover(p1, p2, population, iteration, progress)
 
                 # Mutation
                 if self.random.random() < self.params.hgs_params.mutation_rate:
@@ -287,20 +292,18 @@ class RLAHVPLSolver:
                     child_hash = self._hash_solution(child)
 
                 if child_hash in self.solution_history:
-                    # Cycle detected - increase tenure and diversity pressure
+                    # Cycle detected - increase tenure
                     tenure = min(
                         self.params.rts_params.max_tenure, int(tenure * self.params.rts_params.tenure_increase)
                     )
-                    current_alpha = min(1.0, current_alpha + self.params.hgs_params.diversity_change_rate)
                     no_repeat_count = 0
                 else:
                     no_repeat_count += 1
                     if no_repeat_count > self.params.tabu_no_repeat_threshold * tenure:
-                        # Long non-cycling - decrease tenure and relax diversity
+                        # Long non-cycling - decrease tenure
                         tenure = max(
                             self.params.rts_params.min_tenure, int(tenure * self.params.rts_params.tenure_decrease)
                         )
-                        current_alpha = max(0.0, current_alpha - self.params.hgs_params.diversity_change_rate)
                         no_repeat_count = 0
                     self.solution_history[child_hash] = iteration
 
@@ -330,7 +333,6 @@ class RLAHVPLSolver:
             update_biased_fitness(
                 population,
                 self.params.n_teams,
-                current_alpha,
                 self.params.hgs_params.nb_granular,
             )
             population.sort(key=lambda x: x.fitness)
@@ -340,7 +342,7 @@ class RLAHVPLSolver:
             population.sort(key=lambda x: x.profit_score, reverse=True)
             n_sub = int(self.params.n_teams * self.params.sub_rate)
             for i in range(self.params.n_teams - n_sub, self.params.n_teams):
-                new_ind = self._construct_individual()
+                new_ind = self._construct_individual()  # type: ignore[assignment]
                 if new_ind:
                     population[i] = new_ind
 
@@ -350,6 +352,7 @@ class RLAHVPLSolver:
                 best_routes = [r[:] for r in iter_best.routes]
                 best_profit = iter_best.profit_score
                 best_cost = iter_best.cost
+                it_no_improvement = 0
 
             self.best_profit_history.append(best_profit)
 
@@ -379,7 +382,6 @@ class RLAHVPLSolver:
                 iter_best_profit=iter_best.profit_score,
                 population_size=len(population),
                 n_children=n_children,
-                diversity_pressure=current_alpha,
                 tabu_tenure=tenure,
                 bandit_algorithm=self.params.bandit_algorithm,
                 cmab_stats=cmab_stats,
@@ -548,10 +550,10 @@ class RLAHVPLSolver:
         for route in routes:
             if not route:
                 continue
-            self.pheromone.update_edge(0, route[0], delta, evaporate=False)
+            self.pheromone.deposit_edge(0, route[0], delta)
             for k in range(len(route) - 1):
-                self.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
-            self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+                self.pheromone.deposit_edge(route[k], route[k + 1], delta)
+            self.pheromone.deposit_edge(route[-1], 0, delta)
 
     @staticmethod
     def _routes_to_giant_tour(routes: List[List[int]]) -> List[int]:

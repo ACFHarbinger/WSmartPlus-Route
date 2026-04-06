@@ -26,6 +26,8 @@ from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
     solve_lkh3_with_lns,
 )
 
+from .params import LKH3Params
+
 
 @PolicyRegistry.register("lkh3")
 class LKH3Policy(BaseRoutingPolicy):
@@ -107,13 +109,14 @@ class LKH3Policy(BaseRoutingPolicy):
         """
         n_original = len(sub_dist_matrix)
 
-        # --- Extract hyperparameters for augmentation ---
-        seed = values.get("seed", 42)
-        n_vehicles = int(values.get("n_vehicles", 3))  # Number of vehicles
+        # --- Initialize type-safe Params ---
+        params = LKH3Params.from_config(self._config or values)
+        seed = params.seed
+        n_vehicles = int(values.get("n_vehicles", 3))  # Fleet size comes from simulation kwargs
 
         np_rng = np.random.default_rng(seed if seed is not None else 42)
 
-        # --- Phase 1: Graph Augmentation (fixes NumPy negative-index bug) ---
+        # --- Phase 1: Graph Augmentation ---
         augmented_dist, augmented_waste, n_original = augment_graph(
             distance_matrix=sub_dist_matrix,
             wastes=sub_wastes,
@@ -126,20 +129,16 @@ class LKH3Policy(BaseRoutingPolicy):
         cap: float = capacity if capacity > 0 else 100.0
 
         # Select LKH-3 variant (with or without Large Neighborhood Search)
-        vrpp = values.get("vrpp", True)
-        profit_aware_operators = values.get("profit_aware_operators", False)
-        policy_function = solve_lkh3_with_lns if vrpp else solve_lkh3
+        policy_function = solve_lkh3_with_lns if params.vrpp else solve_lkh3
 
         # --- Run the LKH-3 engine on augmented graph ---
         best_routes: Optional[List[List[int]]] = None
         best_cost = float("inf")
         rng = Random(seed)
-        runs = int(values.get("runs", 10))
-        time_limit = values.get("time_limit", 60.0)
         start_time = time.process_time()
-        for _ in range(runs):
+        for _ in range(params.runs):
             current_time = time.process_time()
-            if time_limit > 0 and (current_time - start_time) > time_limit:
+            if params.time_limit > 0 and (current_time - start_time) > params.time_limit:
                 break
             routes, cost, _ = policy_function(
                 distance_matrix=augmented_dist,
@@ -150,21 +149,21 @@ class LKH3Policy(BaseRoutingPolicy):
                 cost_unit=cost_unit,
                 mandatory_nodes=mandatory_nodes,
                 coords=sub_dist_matrix,
-                max_iterations=int(values.get("max_trials", 1000)),
-                popmusic_subpath_size=int(values.get("popmusic_subpath_size", 50)),
-                popmusic_trials=int(values.get("popmusic_trials", 50)),
-                popmusic_max_candidates=values.get("popmusic_max_candidates", 5),
-                max_k_opt=int(values.get("max_k_opt", 5)),
-                use_ip_merging=bool(values.get("use_ip_merging", True)),
-                max_pool_size=values.get("max_pool_size", 5),
-                subgradient_iterations=int(values.get("subgradient_iterations", 50)),
-                profit_aware_operators=profit_aware_operators,
-                lns_iterations=values.get("lns_iterations", 100),
-                plateau_limit=values.get("plateau_limit", 10),
-                deep_plateau_limit=values.get("deep_plateau_limit", 30),
-                perturb_operator_weights=values.get("perturb_operator_weights", [0.6, 0.4]),
+                max_iterations=params.max_trials,
+                popmusic_subpath_size=params.popmusic_subpath_size,
+                popmusic_trials=params.popmusic_trials,
+                popmusic_max_candidates=params.popmusic_max_candidates,
+                max_k_opt=params.max_k_opt,
+                use_ip_merging=params.use_ip_merging,
+                max_pool_size=params.max_pool_size,
+                subgradient_iterations=params.subgradient_iterations,
+                profit_aware_operators=params.profit_aware_operators,
+                lns_iterations=params.lns_iterations,
+                plateau_limit=params.plateau_limit,
+                deep_plateau_limit=params.deep_plateau_limit,
+                perturb_operator_weights=params.perturb_operator_weights,
                 n_vehicles=n_vehicles,
-                n_original=n_original,  # Pass for augmented mode
+                n_original=n_original,
                 recorder=self._viz,
                 np_rng=np_rng,
                 rng=rng,

@@ -34,6 +34,7 @@ from gurobipy import GRB, quicksum
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from .node import Node
+from .params import BBParams
 
 
 class BBSolver:
@@ -70,10 +71,12 @@ class BBSolver:
         capacity: float,
         R: float,
         C: float,
-        values: Dict[str, Any],
+        time_limit: float = 60.0,
+        mip_gap: float = 0.01,
+        branching_strategy: str = "strong",
+        strong_branching_limit: int = 5,
         must_go_indices: Optional[Set[int]] = None,
         env: Optional[gp.Env] = None,
-        seed: Optional[int] = None,
         recorder: Optional[PolicyStateRecorder] = None,
     ):
         """
@@ -96,20 +99,17 @@ class BBSolver:
         self.capacity = capacity
         self.R = R
         self.C = C
-        self.values = values
+        self.time_limit = time_limit
+        self.mip_gap = mip_gap
+        self.branching_strategy = branching_strategy
+        self.strong_branching_limit = strong_branching_limit
         self.must_go_indices = must_go_indices or set()
         self.env = env
-        self.seed = seed
         self.recorder = recorder
 
         self.num_nodes = len(dist_matrix)
         self.nodes_range = range(self.num_nodes)
         self.customers = list(range(1, self.num_nodes))
-
-        self.time_limit = values.get("time_limit", 60.0)
-        self.mip_gap = values.get("mip_gap", 0.01)
-        self.branching_strategy = values.get("branching_strategy", "strong")
-        self.strong_branching_limit = values.get("strong_branching_limit", 5)
 
         # CHANGE: Maximization problem, so incumbent starts at -inf
         self.incumbent_obj = -float("inf")
@@ -549,11 +549,11 @@ def run_bb_mtz(
     capacity: float,
     R: float,
     C: float,
-    values: Dict[str, Any],
+    params: Optional[BBParams] = None,
     must_go_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
-    seed: Optional[int] = None,
     recorder: Optional[PolicyStateRecorder] = None,
+    **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
     """
     Dispatcher entry point for the MTZ-formulation Branch-and-Bound solver.
@@ -567,14 +567,29 @@ def run_bb_mtz(
         capacity: Vehicle payload capacity.
         R: Revenue coefficient per unit collected.
         C: Cost coefficient per unit distance.
-        values: Configuration dictionary (time_limit, mip_gap, etc.).
+        params: Standardized BB parameters.
         must_go_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
-        seed: Optional random seed.
         recorder: Optional telemetry recorder.
 
     Returns:
         Tuple of (routes, objective_value).
     """
-    solver = BBSolver(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, seed, recorder)
+    if params is None:
+        params = BBParams()
+
+    solver = BBSolver(
+        dist_matrix=dist_matrix,
+        wastes=wastes,
+        capacity=capacity,
+        R=R,
+        C=C,
+        time_limit=params.time_limit,
+        mip_gap=params.mip_gap,
+        branching_strategy=params.branching_strategy,
+        strong_branching_limit=params.strong_branching_limit,
+        must_go_indices=must_go_indices,
+        env=env,
+        recorder=recorder,
+    )
     return solver.solve()

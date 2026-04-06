@@ -27,7 +27,7 @@ References:
 
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -40,6 +40,7 @@ from .branching import (
 )
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
 from .master_problem import Route, VRPPMasterProblem
+from .params import BPCParams
 from .rcspp_dp import RCSPPSolver
 from .search_strategy import create_search_strategy
 from .separation import SeparationEngine
@@ -400,11 +401,9 @@ def run_custom_bpc(  # noqa: C901
     capacity: float,
     R: float,
     C: float,
-    values: Dict[str, Any],
+    params: Optional[Union[BPCParams, Dict[str, Any]]] = None,
     mandatory_nodes: Optional[List[int]] = None,
     node_coords: Optional[Dict[int, Tuple[float, float]]] = None,
-    expand_pool: bool = False,
-    profit_aware_operators: bool = False,
     recorder: Optional[PolicyStateRecorder] = None,
 ) -> Tuple[List[List[int]], float]:
     """
@@ -456,17 +455,22 @@ def run_custom_bpc(  # noqa: C901
     n_nodes = len(dist_matrix) - 1
     m_set = set(mandatory_nodes) if mandatory_nodes else set()
 
-    # Configuration
-    max_cg_iter = values.get("max_cg_iterations", 50)
-    max_cuts = values.get("max_cuts_per_iteration", 5)
-    max_routes_per_pricing = values.get("max_routes_per_pricing", 5)
-    max_bb_nodes = values.get("max_bb_nodes", 1000)
-    time_limit = values.get("time_limit")
+    # Standardize params to BPCParams
+    if params is None:
+        params = BPCParams()
+    elif isinstance(params, dict):
+        params = BPCParams.from_config(params)
 
-    # Strategy Configuration
-    search_strategy_name = values.get("search_strategy", "depth_first")
-    cutting_planes_name = values.get("cutting_planes", "rcc")
-    branching_strategy_name = values.get("branching_strategy", "divergence")
+    # Configuration
+    # Extract parameters from BPCParams
+    max_cg_iter = params.max_cg_iterations
+    max_cuts = params.max_cuts_per_iteration
+    max_routes_per_pricing = params.max_routes_per_pricing
+    max_bb_nodes = params.max_bb_nodes
+    time_limit = params.time_limit
+    search_strategy_name = params.search_strategy
+    cutting_planes_name = params.cutting_planes
+    branching_strategy_name = params.branching_strategy
 
     # 1. Initialize Master Problem
     master = VRPPMasterProblem(
@@ -480,7 +484,8 @@ def run_custom_bpc(  # noqa: C901
     )
 
     # 2. Initial Columns (Greedy)
-    if profit_aware_operators:
+    # 2. Initial Columns (Greedy)
+    if params.profit_aware_operators:
         initial_routes_nodes = greedy_profit_insertion(
             [],
             list(range(1, n_nodes + 1)),
@@ -490,7 +495,7 @@ def run_custom_bpc(  # noqa: C901
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            expand_pool=expand_pool,
+            expand_pool=params.vrpp,
         )
     else:
         initial_routes_nodes = greedy_insertion(
@@ -500,11 +505,21 @@ def run_custom_bpc(  # noqa: C901
             wastes,
             capacity,
             mandatory_nodes=mandatory_nodes,
-            expand_pool=expand_pool,
+            expand_pool=params.vrpp,
         )
 
     initial_columns = []
-    pricing_helper = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
+    pricing_helper = RCSPPSolver(
+        n_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        R,
+        C,
+        m_set,
+        use_ng_routes=params.use_ng_routes,
+        ng_neighborhood_size=params.ng_neighborhood_size,
+    )
     for r_nodes in initial_routes_nodes:
         cost, revenue, load, coverage = pricing_helper.compute_route_details(r_nodes)
         initial_columns.append(Route(r_nodes, cost, revenue, load, coverage))
@@ -515,7 +530,17 @@ def run_custom_bpc(  # noqa: C901
     master.column_deletion_enabled = False
 
     # 3. Initialize pricing and separation
-    pricing_solver = RCSPPSolver(n_nodes, dist_matrix, wastes, capacity, R, C, m_set)
+    pricing_solver = RCSPPSolver(
+        n_nodes,
+        dist_matrix,
+        wastes,
+        capacity,
+        R,
+        C,
+        m_set,
+        use_ng_routes=params.use_ng_routes,
+        ng_neighborhood_size=params.ng_neighborhood_size,
+    )
     n_total_nodes = n_nodes + 1  # VRPPModel counts total nodes including depot (index 0)
     v_model = VRPPModel(
         n_nodes=n_total_nodes,
@@ -526,7 +551,11 @@ def run_custom_bpc(  # noqa: C901
         cost_per_km=C,
         mandatory_nodes=m_set,
     )
-    sep_engine = SeparationEngine(v_model)
+    sep_engine = SeparationEngine(
+        model=v_model,
+        enable_fractional_capacity_cuts=params.enable_fractional_capacity_cuts,
+        enable_comb_cuts=params.enable_comb_cuts,
+    )
 
     # 4. Initialize strategy modules
     search_strategy = create_search_strategy(search_strategy_name)
@@ -535,9 +564,7 @@ def run_custom_bpc(  # noqa: C901
     # 5. Initialize Branch-and-Bound Tree with configured branching strategy
     bb_tree = BranchAndBoundTree(
         v_model=v_model,
-        max_nodes=max_bb_nodes,
-        strategy=branching_strategy_name,
-        search_strategy=search_strategy_name,
+        params=params,
     )
     # bb_tree.get_next_node() is NOT used; always call search_strategy.select_node().
     nodes_explored = 0
@@ -579,8 +606,8 @@ def run_custom_bpc(  # noqa: C901
                 start_time=start_time,
                 max_routes_per_pricing=max_routes_per_pricing,
                 vehicle_limit=master.vehicle_limit,
-                optimality_gap=values.get("optimality_gap", 1e-4),
-                early_termination_gap=values.get("early_termination_gap", 1e-3),
+                optimality_gap=params.optimality_gap,
+                early_termination_gap=params.early_termination_gap,
                 parent_basis=current_node.parent.lp_basis if current_node.parent else None,
             )
             # Fix 10 (refined): Store the pre-CG basis captured inside the loop for use by child nodes.

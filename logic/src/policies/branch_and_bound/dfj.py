@@ -20,6 +20,8 @@ from gurobipy import GRB, quicksum
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
+from .params import BBParams
+
 
 def _dfj_callback(model, where):
     """DFJ subtour elimination callback for Gurobi's built-in B&B."""
@@ -57,9 +59,9 @@ def _setup_bb_model(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
     must_go_indices: Set[int],
-    time_limit: float,
-    mip_gap: float,
-    seed: int,
+    time_limit: float = 60.0,
+    mip_gap: float = 0.01,
+    seed: int = 42,
     env: Optional[gp.Env] = None,
 ) -> Tuple[gp.Model, Dict[Tuple[int, int], gp.Var], Dict[int, gp.Var]]:
     """Set up the Gurobi model for VRPP."""
@@ -120,11 +122,11 @@ def run_bb_dfj(
     capacity: float,
     R: float,
     C: float,
-    values: Dict[str, Any],
+    params: Optional[BBParams] = None,
     must_go_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
-    seed: Optional[int] = None,
     recorder: Optional[PolicyStateRecorder] = None,
+    **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
     """
     Dispatcher entry point for the DFJ-formulation Branch-and-Bound solver.
@@ -154,12 +156,19 @@ def run_bb_dfj(
     must_go_indices = must_go_indices or set()
 
     # Extract configuration
-    time_limit = values.get("time_limit", 60.0)
-    mip_gap = values.get("mip_gap", 0.01)
-    seed = seed or values.get("seed", 42)
+    if params is None:
+        params = BBParams()
 
     # Setup basic model structure
-    model, x, y = _setup_bb_model(dist_matrix, wastes, must_go_indices, time_limit, mip_gap, seed, env)
+    model, x, y = _setup_bb_model(
+        dist_matrix=dist_matrix,
+        wastes=wastes,
+        must_go_indices=must_go_indices,
+        time_limit=params.time_limit,
+        mip_gap=params.mip_gap,
+        seed=params.seed,
+        env=env,
+    )
 
     # Objective: Maximize (Revenue - Cost)
     travel_cost = quicksum(dist_matrix[i][j] * C * x[i, j] for i in nodes for j in nodes if i != j)

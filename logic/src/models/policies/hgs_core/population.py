@@ -22,25 +22,20 @@ class VectorizedPopulation:
     Args:
         size (int): Maximum population size.
         device: Torch device.
-        alpha_diversity (float): Weight for diversity in biased fitness calculation.
         generator (Optional[torch.Generator]): Torch random number generator.
     """
 
-    def __init__(
-        self, size: int, device: Any, alpha_diversity: float = 0.0, generator: Optional[torch.Generator] = None
-    ):
+    def __init__(self, size: int, device: Any, generator: Optional[torch.Generator] = None):
         """
         Initialize the population.
 
         Args:
             size (int): Max population size.
             device: Computing device.
-            alpha_diversity (float): Diversity weight.
             generator (Optional[torch.Generator]): Torch random number generator.
         """
         self.max_size = size
         self.device = device
-        self.alpha_diversity = alpha_diversity
         self.generator = generator
         self.population: torch.Tensor = torch.empty(0)  # (B, P, N)
         self.costs: torch.Tensor = torch.empty(0)  # (B, P)
@@ -67,13 +62,14 @@ class VectorizedPopulation:
         else:
             self.generator = torch.Generator(device="cpu").manual_seed(42)
 
-    def initialize(self, initial_pop: torch.Tensor, initial_costs: torch.Tensor):
+    def initialize(self, initial_pop: torch.Tensor, initial_costs: torch.Tensor, nb_elite: int):
         """
         Initializes the population with a set of starting solutions.
 
         Args:
             initial_pop (torch.Tensor): Initial solutions (giant tours). Shape (B, N) or (B, P0, N).
             initial_costs (torch.Tensor): Costs of initial solutions. Shape (B,) or (B, P0).
+            nb_elite (int): Number of elite individuals for biased fitness.
         """
 
         if initial_pop.dim() == 2:
@@ -85,9 +81,9 @@ class VectorizedPopulation:
 
         self.population = initial_pop
         self.costs = initial_costs
-        self.compute_biased_fitness()
+        self.compute_biased_fitness(nb_elite)
 
-    def add_individuals(self, candidates: torch.Tensor, costs: torch.Tensor):
+    def add_individuals(self, candidates: torch.Tensor, costs: torch.Tensor, nb_elite: int):
         """
         Merges new individuals into the population and selects survivors based on biased fitness.
         Maintains the population size at or below `max_size`.
@@ -95,6 +91,7 @@ class VectorizedPopulation:
         Args:
             candidates (torch.Tensor): New solutions to add. Shape (B, C, N).
             costs (torch.Tensor): Costs of new solutions. Shape (B, C).
+            nb_elite (int): Number of elite individuals for biased fitness.
         """
 
         if candidates.dim() == 2:
@@ -110,7 +107,7 @@ class VectorizedPopulation:
         self.costs = combined_costs
 
         # 3. Compute Fitness & Survivor Selection
-        self.compute_biased_fitness()
+        self.compute_biased_fitness(nb_elite)
 
         # Select best P based on biased fitness
         # We want smallest biased_fitness (rank sum)
@@ -137,12 +134,15 @@ class VectorizedPopulation:
             if self.diversity_scores is not None and self.diversity_scores.numel() > 0:
                 self.diversity_scores = torch.gather(self.diversity_scores, 1, survivors)
 
-    def compute_biased_fitness(self):
+    def compute_biased_fitness(self, nb_elite: int):
         """
-        Computer Biased Fitness for all individuals in the population.
-        Biased Fitness = Rank(Cost) + alpha * Rank(Diversity).
+        Compute Biased Fitness for all individuals in the population.
+        BF(I) = Rank_C(I) + (1 - N_elite/|Pop|) * Rank_D(I).
         Lower is better for both ranks (0 is best).
         Updates `self.biased_fitness` and `self.diversity_scores`.
+
+        Args:
+            nb_elite (int): Number of elite individuals to protect.
         """
 
         B, P, N = self.population.size()
@@ -160,8 +160,9 @@ class VectorizedPopulation:
         div_ranks = torch.argsort(div_indices, dim=1).float()
 
         # 3. Combine
-        # Fitness = CostRank + alpha * DiversityRank
-        self.biased_fitness = cost_ranks + self.alpha_diversity * div_ranks
+        # Parameterless Biased Fitness (Vidal 2022)
+        diversity_weight = 1.0 - (nb_elite / P)
+        self.biased_fitness = cost_ranks + diversity_weight * div_ranks
 
     def get_parents(self, n_offspring: int = 1) -> Tuple[torch.Tensor, torch.Tensor]:
         """

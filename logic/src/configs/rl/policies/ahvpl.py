@@ -19,7 +19,6 @@ class AHVPLConfig:
         sub_rate: Rate of substitution for weak teams each iteration.
         aco_iterations: Number of ACO iterations for initialization/substitution.
         crossover_rate: Probability of applying OX crossover.
-        alpha_diversity: Weight for diversity in biased fitness calculation.
         nb_elite: Number of elite solutions for biased fitness ranking.
     """
 
@@ -29,5 +28,4 @@ class AHVPLConfig:
     sub_rate: float = 0.2
     aco_iterations: int = 1
     crossover_rate: float = 0.7
-    alpha_diversity: float = 0.5
     nb_elite: int = 5

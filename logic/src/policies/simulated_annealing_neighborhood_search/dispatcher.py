@@ -16,12 +16,6 @@ from typing import Any, List, Tuple
 import numpy as np
 import pandas as pd
 
-from logic.src.constants.routing import (
-    DEFAULT_COMBINATION,
-    DEFAULT_SHIFT_DURATION,
-    DEFAULT_TIME_LIMIT,
-    DEFAULT_V_VALUE,
-)
 from logic.src.data.processor import convert_to_dict
 from logic.src.policies.simulated_annealing_neighborhood_search import (
     improved_simulated_annealing,
@@ -33,12 +27,15 @@ from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_
 from logic.src.policies.simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
 from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
 
+from .params import SANSParams
 
-def execute_new(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
+
+def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int], float, Any]:
     """Execute the improved simulated annealing engine.
 
     Args:
         policy: The SANSPolicy instance.
+        params: Type-safe SANS parameters.
         **kwargs: Arguments passed to the policy's execute method.
 
     Returns:
@@ -89,33 +86,26 @@ def execute_new(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
         if b not in route_set:
             current_route.insert(1, b)
 
-    # Get SA parameters from typed config or raw config
-    rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random(42)
-    sans_config = config.get("sans", {})
-    T_init = sans_config.get("T_init", 75)
-    iterations_per_T = sans_config.get("iterations_per_T", 5000)
-    alpha = sans_config.get("alpha", 0.95)
-    T_min = sans_config.get("T_min", 0.01)
-    time_limit = values.get("time_limit", 60)
-    perc_overflow = sans_config.get("perc_bins_can_overflow", 0.0)
+    # Use type-safe Params
+    rng = random.Random(kwargs.get("seed", params.seed))
 
     optimized_routes, best_profit, last_distance, _, _ = improved_simulated_annealing(
         [current_route],
         distance_matrix,
-        time_limit,
+        params.time_limit,
         id_to_index,
         data,
         Q,
-        T_init,
-        T_min,
-        alpha,
-        iterations_per_T,
+        params.T_init,
+        params.T_min,
+        params.alpha,
+        params.iterations_per_T,
         R,
         V,
         B,
         C,
         must_go_1,
-        perc_bins_can_overflow=perc_overflow,
+        perc_bins_can_overflow=params.perc_bins_can_overflow,
         volume=V,
         density_val=B,
         max_vehicles=1,
@@ -126,11 +116,12 @@ def execute_new(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
     return tour, last_distance, {"profit": best_profit}
 
 
-def execute_og(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
+def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int], float, Any]:
     """Execute the original LAC (look-ahead collection) engine.
 
     Args:
         policy: The SANSPolicy instance.
+        params: Type-safe SANS parameters.
         **kwargs: Arguments passed to the policy's execute method.
 
     Returns:
@@ -148,23 +139,20 @@ def execute_og(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
     area = kwargs.get("area", "Rio Maior")
     waste_type = kwargs.get("waste_type", "plastic")
     config = kwargs.get("config", {})
-    lac_config = config.get("lac", config.get("sans", {}))
 
     # Load area parameters
     Q, R, C, area_values = policy._load_area_params(area, waste_type, config)
     policy._log_solver_params(area_values, kwargs)
-    V = lac_config.get("V", DEFAULT_V_VALUE)
 
     values = {
         "Q": Q,
         "R": R,
         "B": area_values.get("B", 0),
         "C": C,
-        "V": V,
-        "shift_duration": DEFAULT_SHIFT_DURATION,
-        "perc_bins_can_overflow": 0,
+        "V": params.V,
+        "shift_duration": params.shift_duration,
+        "perc_bins_can_overflow": params.perc_bins_can_overflow,
     }
-    values.update(lac_config)
 
     # must_go bins are 0-based, find_solutions expects 1-based
     must_go_1 = [b + 1 for b in must_go]
@@ -185,26 +173,19 @@ def execute_og(policy: Any, **kwargs: Any) -> Tuple[List[int], float, Any]:
 
     points = create_points(new_data, coords)
 
-    # Get combination and time_limit from typed config or raw config
-    cfg = policy._config
-    combination = (
-        cfg.combination if cfg is not None and cfg.combination else lac_config.get("combination", DEFAULT_COMBINATION)
-    )
-    og_time_limit = cfg.time_limit if cfg is not None else lac_config.get("time_limit", DEFAULT_TIME_LIMIT)
-
-    rng = random.Random(kwargs.get("seed")) if kwargs.get("seed") is not None else random.Random(42)
-    np_rng = np.random.default_rng(kwargs.get("seed")) if kwargs.get("seed") is not None else np.random.default_rng(42)
+    rng = random.Random(kwargs.get("seed", params.seed))
+    np_rng = np.random.default_rng(kwargs.get("seed", params.seed))
     try:
         res, _, _ = find_solutions(
             new_data,
             coords,
             distance_matrix,
-            combination,
+            params.combination,
             must_go_1,
             values,
             bins.n,
             points,
-            time_limit=og_time_limit,
+            time_limit=params.time_limit,
             rng=rng,
             np_rng=np_rng,
         )

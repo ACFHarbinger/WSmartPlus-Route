@@ -52,7 +52,7 @@ class ContextFeatureExtractor:
         p2: Individual,
         population: List[Individual],
         iteration: int,
-        max_iterations: int,
+        progress: float = 0.0,
     ) -> np.ndarray:
         """
         Extract context feature vector for crossover operator selection.
@@ -62,7 +62,7 @@ class ContextFeatureExtractor:
             p2: Second parent.
             population: Current population.
             iteration: Current iteration number.
-            max_iterations: Maximum iterations.
+            progress: Normalized progress in [0, 1] (e.g., time or iteration).
 
         Returns:
             Feature vector (normalized to [0, 1]).
@@ -91,9 +91,8 @@ class ContextFeatureExtractor:
         self.diversity_history.append(diversity)
         features.append(diversity)
 
-        # Feature 4: Iteration phase (0 = early, 1 = late)
-        iteration_phase = iteration / max(max_iterations, 1)
-        features.append(iteration_phase)
+        # Feature 4: Iteration progress (0 = early, 1 = late)
+        features.append(min(1.0, max(0.0, progress)))
 
         # Feature 5: Parent quality (average of parent fitness ranks)
         if population:

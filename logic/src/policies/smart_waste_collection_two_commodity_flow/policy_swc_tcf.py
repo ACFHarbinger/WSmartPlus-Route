@@ -13,13 +13,28 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from .dispatcher import run_swc_tcf_optimizer
+from .params import SWCTCFParams
 
 
 @PolicyRegistry.register("swc_tcf")
 class SWCTCFPolicy(BaseRoutingPolicy):
     """
-    Agnostic SWC-TCF Policy adapter.
-    Delegates to run_swc_tcf_optimizer.
+    Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy adapter.
+
+    This policy implements a mathematical programming approach based on the
+    Two-Commodity Flow formulation for the Vehicle Routing Problem. It allows
+    for the use of either Gurobi (exact) or Hexaly (local search) as the
+    underlying optimization engine.
+
+    Technical Context:
+    - Formulation: Uses a flow-based MILP model to ensure subtour elimination
+      and capacity enforcement.
+    - Dispatcher: Multi-backend dispatcher supporting exact and heuristic engines.
+
+    Reference:
+    - Ramos, T. R. P., Morais, C. S., & Barbosa-Povoa, A. P. (2018). "The smart
+      waste collection routing problem: Alternative operational management
+      approaches". Expert Systems with Applications.
     """
 
     def __init__(self, config: Optional[Union[SWCTCFConfig, Dict[str, Any]]] = None):
@@ -76,11 +91,9 @@ class SWCTCFPolicy(BaseRoutingPolicy):
         n_bins = len(amounts) if amounts is not None else 0
         binsids = list(range(1, n_bins + 1))
 
-        # 4. Get solver parameters from typed config or values dict
-        cfg = self._config
-        seed = kwargs.get("seed") if kwargs.get("seed") is not None else 42
-        time_limit = int(cfg.time_limit) if cfg is not None else int(values.get("time_limit", 60))
-        optimizer = cfg.engine if cfg is not None else values.get("engine", "gurobi")
+        # 4. Initialize type-safe Params
+        params = SWCTCFParams.from_config(self._config or values)
+        seed = kwargs.get("seed") if kwargs.get("seed") is not None else params.seed
 
         # 5. Run optimizer
         route, profit, cost = run_swc_tcf_optimizer(
@@ -90,9 +103,9 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             binsids=binsids,
             must_go=must_go,
             number_vehicles=kwargs.get("number_vehicles", 1),
-            time_limit=time_limit,
-            optimizer=optimizer,
-            seed=seed,
+            time_limit=int(params.time_limit),
+            optimizer=params.engine,
+            seed=int(seed) if seed is not None else 42,
         )
 
         return route, cost, {"profit": profit}

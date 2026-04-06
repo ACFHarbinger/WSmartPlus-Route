@@ -100,31 +100,36 @@ class SeparationEngine:
     """
     Separation algorithms for finding violated inequalities.
 
+    Implements exact and heuristic separation procedures for identifying violated
+    valid inequalities in the VRPP linear programming relaxation.
+
     Configuration:
         USE_COMB_CUTS: If True, enable custom comb inequality separation.
                        Default False - Gurobi's internal polyhedral cuts are preferred.
 
         enable_fractional_capacity_cuts: If True, enable exact fractional capacity separation.
                        Default False for instances with n > 75 (see CVRPSEP note below).
+
+    Note:
+        State-of-the-art implementations typically rely on shrinking heuristics (such as
+        Lysgaard's CVRPSEP C++ library) to scale to N > 100.
     """
 
     # Global toggle for comb inequality separation
     # Set to False to disable custom comb cuts and rely on Gurobi's internal heuristics
     USE_COMB_CUTS = False
 
-    def __init__(self, model, enable_fractional_capacity_cuts: bool = True):
+    def __init__(
+        self,
+        model,
+        enable_fractional_capacity_cuts: bool = True,
+        enable_comb_cuts: bool = False,
+    ):
         """
         Initialize separation engine.
 
         Args:
             model: VRPPModel instance.
-            enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
-                If False, disables computationally expensive exact capacity separation.
-                Recommended to set False for instances with n > 75.
-
-        Note on Fractional Capacity Separation:
-            Finding the exact most violated fractional Capacity Cut is strongly NP-hard.
-            While this exact separation is valid for small-to-medium instances (n ≤ 75),
             state-of-the-art implementations typically rely on shrinking heuristics (such as
             Lysgaard's CVRPSEP C++ library) to scale to N > 100.
 

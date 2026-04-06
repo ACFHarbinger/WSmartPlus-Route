@@ -8,6 +8,7 @@ from ...configs.policies.lb import LocalBranchingConfig
 from ..base.base_routing_policy import BaseRoutingPolicy
 from ..base.factory import PolicyRegistry
 from .lb import run_local_branching_gurobi
+from .params import LBParams
 
 
 @PolicyRegistry.register("lb")
@@ -96,8 +97,8 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         Returns:
             Tuple[List[int], float, Any]: (tour, total_cost, metadata)
         """
-        # 1. Parse configuration
-        cfg = self._parse_config(self.config, LocalBranchingConfig)
+        # 1. Initialize type-safe Params
+        params = LBParams.from_config(self._config or kwargs.get("config", {}).get("lb", {}))
 
         # 2. Extract state parameters
         distance_matrix = kwargs["distance_matrix"]
@@ -106,7 +107,7 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         mandatory_nodes = kwargs.get("must_go", [])
         R = kwargs.get("R", 1.0)
         C = kwargs.get("C", 1.0)
-        seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
+        seed = params.seed if params.seed is not None else kwargs.get("seed", 42)
 
         # 3. Call the core LB solver
         tour, obj_val, cost = run_local_branching_gurobi(
@@ -116,12 +117,12 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            k=cfg.k,
-            max_iterations=cfg.max_iterations,
-            time_limit=cfg.time_limit,
-            time_limit_per_iteration=cfg.time_limit_per_iteration,
-            mip_limit_nodes=cfg.node_limit_per_iteration,
-            mip_gap=cfg.mip_gap,
+            k=params.k,
+            max_iterations=params.max_iterations,
+            time_limit=params.time_limit,
+            time_limit_per_iteration=params.time_limit_per_iteration,
+            mip_limit_nodes=params.node_limit_per_iteration,
+            mip_gap=params.mip_gap,
             seed=seed,
         )
 

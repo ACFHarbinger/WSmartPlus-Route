@@ -88,21 +88,6 @@ hgs_rr:
     # ---------------------------------------------------------------------
     # Population Diversity Management
     # ---------------------------------------------------------------------
-    - alpha_diversity: 0.5
-      # Weight of diversity in fitness calculation
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
-      # Fitness = α·objective + (1-α)·diversity
-
-    - min_diversity: 0.2
-      # Minimum diversity threshold for triggering diversity maintenance
-      # Range: 0.0-1.0
-      # Recommendation: 0.2 for stable optimization (CONSERVATIVE)
-
-    - diversity_change_rate: 0.05
-      # Rate at which alpha diversity changes
-      # Range: 0.01-0.1
-      # Recommendation: 0.05 for stable optimization (CONSERVATIVE)
-
     - no_improvement_threshold: 20
       # Generations without improvement to trigger diversity boost
       # Range: 10-50

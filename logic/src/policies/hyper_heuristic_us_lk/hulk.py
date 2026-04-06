@@ -231,7 +231,7 @@ class HULKSolver:
             if restart_best_profit > global_best_profit:
                 global_best_solution = restart_best
                 global_best_profit = restart_best_profit
-                global_best_cost = restart_best.cost
+                global_best_cost = restart_best.cost or 0.0
 
         return (
             global_best_solution.routes if global_best_solution else [[]],
@@ -310,7 +310,7 @@ class HULKSolver:
         Returns:
             (accepted, delta_profit)
         """
-        delta = neighbor.profit - current.profit
+        delta = (neighbor.profit or 0.0) - (current.profit or 0.0)
 
         if delta > 0:
             return True, delta

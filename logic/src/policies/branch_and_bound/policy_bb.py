@@ -15,6 +15,7 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from .dispatcher import run_bb_optimizer
+from .params import BBParams
 
 
 @PolicyRegistry.register("bb")
@@ -91,13 +92,8 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
         # Convert local mandatory indices to a set for fast lookup in branching
         must_go_indices = set(mandatory_nodes)
 
-        # Extract formulation preference from config
-        # Priority: config.formulation > values["formulation"] > default "dfj"
-        formulation = "dfj"  # Default to DFJ (Gurobi's B&B)
-        if self._config is not None and hasattr(self._config, "formulation"):
-            formulation = self._config.formulation
-        elif "formulation" in values:
-            formulation = values["formulation"]
+        # Standardize configuration to BBParams
+        params = BBParams.from_config(values)
 
         # Trigger core solver logic with formulation dispatch
         routes, solver_cost = run_bb_optimizer(
@@ -106,11 +102,10 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
             capacity=capacity,
             R=revenue,
             C=cost_unit,
-            values=values,
+            params=params,
             must_go_indices=must_go_indices,
             env=kwargs.get("model_env"),
-            seed=values.get("seed", 42),
-            formulation=formulation,
+            recorder=kwargs.get("recorder"),
         )
 
         # Internal Profit Calculation: Revenue - Distance Cost

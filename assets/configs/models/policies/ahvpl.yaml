@@ -46,10 +46,6 @@ crossover_rate: 0.7
 # Probability of applying OX crossover per generation
 # Range: 0.0-1.0
 
-alpha_diversity: 0.5
-# Weight for diversity in biased fitness calculation
-# Range: 0.0-1.0 (0.5 = balanced)
-
 elite_size: 5
 # Number of elite solutions for diversity preservation
 # Range: 3-10
