@@ -61,6 +61,7 @@ class VRPPModel:
         revenue_per_kg: float = 1.0,
         cost_per_km: float = 1.0,
         mandatory_nodes: Optional[Set[int]] = None,
+        node_coords: Optional[Dict[int, Tuple[float, float]]] = None,
     ):
         """
         Initialize the VRPP model.
@@ -83,6 +84,7 @@ class VRPPModel:
         self.R = revenue_per_kg
         self.C = cost_per_km
         self.mandatory_nodes = mandatory_nodes or set()
+        self.node_coords = node_coords or {}
 
         # Depot is always node 0
         self.depot = 0

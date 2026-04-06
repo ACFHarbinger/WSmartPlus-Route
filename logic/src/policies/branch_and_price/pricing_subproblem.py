@@ -54,6 +54,8 @@ class PricingSubproblem:
     that generated columns are always feasible at the current B&B node.
     """
 
+    IS_EXACT = False  # Heuristic pricer — must never be used for LP optimality proofs.
+
     def __init__(
         self,
         n_nodes: int,
@@ -94,9 +96,15 @@ class PricingSubproblem:
         dual_values: Dict[int, float],
         max_routes: int = 10,
         active_constraints: Optional[List[Any]] = None,
+        capacity_cut_duals: Optional[Dict[Any, float]] = None,
+        assert_not_exact: bool = False,
     ) -> List[Tuple[List[int], float]]:
         """
         Generate routes with positive reduced cost.
+
+        **Warning:** This pricer is heuristic. It may miss columns with positive reduced
+        cost. It must only be used for warm-starting the initial column pool, never as the
+        pricer inside the B&B column generation loop where LP optimality must be certified.
 
         Tries multiple starting nodes to diversify the column pool.  Each
         candidate route is built with the greedy insertion heuristic and is
@@ -110,11 +118,21 @@ class PricingSubproblem:
                 B&B node, or ``None`` / empty list for the root.  Accepts
                 both :class:`branching.EdgeBranchingConstraint` and
                 :class:`branching.RyanFosterBranchingConstraint` instances.
+            capacity_cut_duals: Optional mapping of node-sets to dual values
+                for active capacity cuts.
+            assert_not_exact: If True, raises RuntimeError to prevent misuse
+                in an exact B&B pricing loop.
 
         Returns:
             List of ``(route_nodes, reduced_cost)`` tuples sorted by
             descending reduced cost.  ``route_nodes`` excludes the depot.
         """
+        if assert_not_exact:
+            raise RuntimeError(
+                "PricingSubproblem is a heuristic and cannot be used to certify LP "
+                "optimality at a B&B node. Use RCSPPSolver instead."
+            )
+
         constraints: List[Any] = active_constraints or []
 
         # Pre-process constraints into O(1) look-up structures.
@@ -144,6 +162,7 @@ class PricingSubproblem:
                 req_predecessors=req_predecessors,
                 rf_separate_pairs=rf_separate_pairs,
                 rf_together_pairs=rf_together_pairs,
+                capacity_cut_duals=capacity_cut_duals,
             )
 
             if rc > 1e-4:
@@ -270,6 +289,7 @@ class PricingSubproblem:
         req_predecessors: Dict[int, int],
         rf_separate_pairs: Set[Tuple[int, int]],
         rf_together_pairs: Set[Tuple[int, int]],
+        capacity_cut_duals: Optional[Dict[Any, float]] = None,
     ) -> Tuple[List[int], float]:
         """
         Build a single route greedily from *start_node*.
@@ -387,7 +407,7 @@ class PricingSubproblem:
                 # Together constraint violated at route completion.
                 return route, -float("inf")
 
-        reduced_cost = self._compute_reduced_cost(route, dual_values)
+        reduced_cost = self._compute_reduced_cost(route, dual_values, capacity_cut_duals)
         return route, reduced_cost
 
     # ------------------------------------------------------------------
@@ -429,11 +449,12 @@ class PricingSubproblem:
         self,
         route: List[int],
         dual_values: Dict[int, float],
+        capacity_cut_duals: Optional[Dict[Any, float]] = None,
     ) -> float:
         """
         Compute the reduced cost of a completed route.
 
-        reduced_cost = profit − Σ_i dual_i − dual_vehicle_limit
+        reduced_cost = profit − Σ_i dual_i − dual_vehicle_limit − crossing_penalty
         profit       = revenue − cost
         revenue      = Σ_i waste_i × R
         cost         = total_distance × C
@@ -441,6 +462,7 @@ class PricingSubproblem:
         Args:
             route: Ordered list of customer nodes (depot excluded).
             dual_values: Node-coverage duals and optional vehicle-limit dual.
+            capacity_cut_duals: Optional mapping of node-sets to dual values for active capacity cuts.
 
         Returns:
             Scalar reduced cost.
@@ -460,7 +482,16 @@ class PricingSubproblem:
         dual_contribution = sum(dual_values.get(n, 0.0) for n in route)
         vehicle_dual = dual_values.get("vehicle_limit", 0.0)  # type: ignore[call-overload]
 
-        return profit - dual_contribution - vehicle_dual
+        crossing_penalty = 0.0
+        if capacity_cut_duals:
+            full_path = [self.depot] + route + [self.depot]
+            for i in range(len(full_path) - 1):
+                u, v = full_path[i], full_path[i + 1]
+                for node_set, dual in capacity_cut_duals.items():
+                    if (u in node_set) != (v in node_set):
+                        crossing_penalty += dual
+
+        return profit - dual_contribution - vehicle_dual - crossing_penalty
 
     def compute_route_details(
         self,

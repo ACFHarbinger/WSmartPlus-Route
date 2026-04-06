@@ -34,6 +34,7 @@ def run_bpc(
     env=None,
     expand_pool=False,
     profit_aware_operators=False,
+    node_coords=None,
     recorder: Optional[PolicyStateRecorder] = None,
 ):
     """
@@ -82,7 +83,17 @@ def run_bpc(
         return run_bpc_ortools(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)
     elif engine == "custom":
         return run_custom_bpc(
-            dist_matrix, wastes, capacity, R, C, values, must_go_indices, expand_pool, profit_aware_operators, recorder
+            dist_matrix,
+            wastes,
+            capacity,
+            R,
+            C,
+            values,
+            must_go_indices,
+            node_coords,
+            expand_pool,
+            profit_aware_operators,
+            recorder,
         )
     else:
         raise ValueError(f"Unknown BPC engine: {engine}")

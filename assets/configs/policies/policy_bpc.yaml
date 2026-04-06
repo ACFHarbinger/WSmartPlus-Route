@@ -74,17 +74,13 @@ bpc:
     # ---------------------------------------------------------------------
     # Branch-and-Bound Search Strategy
     # ---------------------------------------------------------------------
-    - search_strategy: "best_first"
+    - search_strategy: "depth_first"
       # Node selection strategy for exploring the B&B tree
       # Options:
-      #   - "best_first": Selects node with highest LP bound (default)
-      #     * Minimizes number of nodes explored
-      #     * Best for VRP with strong LP relaxations
-      #     * Poor LP basis reuse between nodes
-      #   - "depth_first": Selects deepest node in tree (Barnhart 1998)
+      #   - "best_first": Selects node with highest LP bound
+      #   - "depth_first": Selects deepest node in tree (Barnhart 1998) - DEFAULT
       #     * Excellent LP basis warmstart reuse
-      #     * Required for ODIMCF problems
-      #     * May explore more nodes but faster per node
+      #     * Required for exactness with spatial branching
 
     # ---------------------------------------------------------------------
     # Cutting Plane Strategy
@@ -95,32 +91,45 @@ bpc:
       #   - "rcc": Rounded Capacity Cuts (Lysgaard 2004) - DEFAULT
       #     * Standard for CVRP and VRPP
       #     * Enforces: ∑_{e ∈ δ(S)} x_e ≥ 2⌈demand(S)/Q⌉
-      #     * Well-integrated with Set Packing formulations
+      #   - "sri": Subset-Row Inequalities (Jepsen et al. 2008)
+      #     * Standard for 3-node subsets (3-SRI)
+      #     * Strengthens the Set Partitioning relaxation
       #   - "lci": Lifted Cover Inequalities (Balas 1975)
       #     * For knapsack capacity constraints
-      #     * Required for ODIMCF multicommodity flow
-      #     * Enforces: ∑_{k ∈ C} x_k + ∑_{k ∉ C} α_k x_k ≤ |C| - 1
-      #     * More complex separation, use with depth_first search
+      #   - "all": Composite engine
+      #     * Enables all supported cut families (RCC, SRI, LCI)
 
     # ---------------------------------------------------------------------
     # Branching Strategy
     # ---------------------------------------------------------------------
-    - branching_strategy: "ryan_foster"
+    - branching_strategy: "divergence"
       # Branching rule for creating child B&B nodes
       # Options:
-      #   - "ryan_foster": Node-pair branching (Ryan & Foster 1981) - DEFAULT
+      #   - "ryan_foster": Node-pair branching (Ryan & Foster 1981)
       #     * Standard for Set Partitioning formulations
       #     * Branches on whether nodes r,s appear together in route
-      #     * Best for VRPP and TSP-based problems
       #   - "edge": Arc-based branching
       #     * Branches on whether arc (u,v) is used
-      #     * Integrates naturally with DP pricing
-      #     * Good for general VRP
-      #   - "divergence": Divergence node branching (Barnhart 1998)
-      #     * For multicommodity flow (ODIMCF)
-      #     * Branches on outgoing arc sets from divergence nodes
-      #     * Required for network flow formulations
-      #     * Use with: search_strategy="depth_first", cutting_planes="lci"
+      #   - "divergence": Spatial Divergence Branching (Barnhart 1998) - DEFAULT
+      #     * Uses polar-angle partitioning for arc sets
+      #     * Leverages node coordinates for balanced spatial splits
+      #     * Required for multicommodity flow consistency
+
+    # ---------------------------------------------------------------------
+    # Solver Hyperparameters
+    # ---------------------------------------------------------------------
+    - max_cg_iterations: 50
+      # Maximum iterations for column generation loop per node
+    - max_cuts_per_iteration: 5
+      # Maximum number of violated cuts to add per iteration
+    - max_routes_per_pricing: 5
+      # Maximum number of columns to add to master per pricer call
+    - max_bb_nodes: 1000
+      # Maximum nodes to explore in B&B tree before termination
+    - optimality_gap: 0.0001
+      # Relative gap (1e-4) to stop when optimal solution proven
+    - early_termination_gap: 0.001
+      # Relative gap (1e-3) to stop early if solution is "good enough"
 
     # ---------------------------------------------------------------------
     # Solver Parameters (Implicit)

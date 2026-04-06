@@ -22,8 +22,14 @@ class BPCConfig:
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
         search_strategy: B&B node selection strategy ('best_first' or 'depth_first').
-        cutting_planes: Cutting plane family ('rcc' or 'lci').
+        cutting_planes: Cutting plane family ('rcc', 'sri', 'lci', or 'all').
         branching_strategy: Branching rule ('ryan_foster', 'edge', or 'divergence').
+        max_cg_iterations: Maximum iterations for column generation loop.
+        max_cuts_per_iteration: Maximum cuts to add per iteration.
+        max_routes_per_pricing: Maximum routes to add per pricing call.
+        max_bb_nodes: Maximum nodes to explore in the B&B tree.
+        optimality_gap: Relative gap for proven optimality.
+        early_termination_gap: Gap at which to stop search early.
     """
 
     time_limit: float = 60.0
@@ -33,6 +39,12 @@ class BPCConfig:
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
-    search_strategy: str = "best_first"
+    search_strategy: str = "depth_first"
     cutting_planes: str = "rcc"
-    branching_strategy: str = "ryan_foster"
+    branching_strategy: str = "divergence"
+    max_cg_iterations: int = 50
+    max_cuts_per_iteration: int = 5
+    max_routes_per_pricing: int = 5
+    max_bb_nodes: int = 1000
+    optimality_gap: float = 1e-4
+    early_termination_gap: float = 1e-3

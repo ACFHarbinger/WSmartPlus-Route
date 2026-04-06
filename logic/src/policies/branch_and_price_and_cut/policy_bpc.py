@@ -76,6 +76,8 @@ class BCPPolicy(BaseRoutingPolicy):
             env=kwargs.get("model_env"),
             expand_pool=kwargs.get("vrpp", False),
             profit_aware_operators=kwargs.get("profit_aware_operators", False),
+            node_coords=kwargs.get("node_coords"),
+            recorder=kwargs.get("recorder"),
         )
 
         # Compute profit: collected revenue - distance cost
