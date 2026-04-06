@@ -2,12 +2,12 @@ import pytest
 import numpy as np
 from typing import Dict, Tuple, Set
 
-from logic.src.policies.branch_and_price.branching import MultiEdgePartitionBranching
-from logic.src.policies.branch_and_price.master_problem import VRPPMasterProblem, Route
-from logic.src.policies.branch_and_price.rcspp_dp import RCSPPSolver, Label
+from logic.src.policies.branch_and_price_and_cut.branching import MultiEdgePartitionBranching
+from logic.src.policies.branch_and_price_and_cut.master_problem import VRPPMasterProblem, Route
+from logic.src.policies.branch_and_price_and_cut.rcspp_dp import RCSPPSolver, Label
 from logic.src.policies.branch_and_price_and_cut.cutting_planes import create_cutting_plane_engine, SubsetRowCutEngine, LiftedCoverCutEngine
-from logic.src.policies.branch_and_cut.separation import SeparationEngine
-from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
+from logic.src.policies.branch_and_price_and_cut.separation import SeparationEngine
+from logic.src.policies.branch_and_price_and_cut.vrpp_model import VRPPModel
 
 def test_polar_angle_partitioning():
     """Verify that spatial branching correctly partitions arcs by polar angle."""
